@@ -27,6 +27,7 @@ npm ci
 echo "On a branch ($BRANCH_NAME) publishing next patch"
 npm version patch --no-git-tag-version --force
 
+npm run lint
 npm run test
 npm run build
 

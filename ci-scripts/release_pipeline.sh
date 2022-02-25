@@ -35,7 +35,7 @@ npm publish
 
 TAG_NAME="$(jq '.version' -r package.json)"
 
-git add package.json package-lock.json docs assets
+git add package.json package-lock.json docs
 git commit -m "Released ${TAG_NAME}"
 git tag -a -m "Published by Jenkins" "${TAG_NAME}"
 git push origin master:master --follow-tags

@@ -3686,7 +3686,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.4";
+  var version = "1.0.5-alpha.0";
 
   var miscNormalExpression = {
       'not=': {
@@ -3832,18 +3832,6 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
-      assert: {
-          evaluate: function (params, sourceCodeInfo) {
-              var value = params[0];
-              var message = params.length === 2 ? params[1] : "" + value;
-              string.assert(message, sourceCodeInfo);
-              if (!value) {
-                  throw new AssertionError(message, sourceCodeInfo);
-              }
-              return any.as(value, sourceCodeInfo);
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-      },
       'lits-version': {
           evaluate: function () {
               return version;
@@ -3880,6 +3868,109 @@ var Lits = (function (exports) {
       }
       return JSON.stringify(contextEntry.value);
   }
+
+  var assertNormalExpression = {
+      assert: {
+          evaluate: function (params, sourceCodeInfo) {
+              var value = params[0];
+              var message = params.length === 2 ? params[1] : "" + value;
+              string.assert(message, sourceCodeInfo);
+              if (!value) {
+                  throw new AssertionError(message, sourceCodeInfo);
+              }
+              return any.as(value, sourceCodeInfo);
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      'assert=': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], second = _a[1], message = _a[2];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (first !== second) {
+                  throw new AssertionError("Expected " + first + " to be " + second + "." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assertNot=': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], second = _a[1], message = _a[2];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (first === second) {
+                  throw new AssertionError("Expected " + first + " not to be " + second + "." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      assertEqual: {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], second = _a[1], message = _a[2];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (!deepEqual(any.as(first, sourceCodeInfo), any.as(second, sourceCodeInfo), sourceCodeInfo)) {
+                  throw new AssertionError("Expected " + JSON.stringify(first) + " to deep equal " + JSON.stringify(second) + "." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      assertNotEqual: {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], second = _a[1], message = _a[2];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (deepEqual(any.as(first, sourceCodeInfo), any.as(second, sourceCodeInfo), sourceCodeInfo)) {
+                  throw new AssertionError("Expected " + JSON.stringify(first) + " not to deep equal " + JSON.stringify(second) + "." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert>': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], second = _a[1], message = _a[2];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (compare(first, second) <= 0) {
+                  throw new AssertionError("Expected " + first + " to be grater than " + second + "." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert>=': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], second = _a[1], message = _a[2];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (compare(first, second) < 0) {
+                  throw new AssertionError("Expected " + first + " to be grater than or equal to " + second + "." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert<': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], second = _a[1], message = _a[2];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (compare(first, second) >= 0) {
+                  throw new AssertionError("Expected " + first + " to be less than " + second + "." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert<=': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], second = _a[1], message = _a[2];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (compare(first, second) > 0) {
+                  throw new AssertionError("Expected " + first + " to be less than or equal to " + second + "." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+  };
 
   var objectNormalExpression = {
       object: {
@@ -4563,7 +4654,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var normalExpressions = __assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign({}, bitwiseNormalExpression), collectionNormalExpression), arrayNormalExpression), sequenceNormalExpression), mathNormalExpression), miscNormalExpression), objectNormalExpression), predicatesNormalExpression), regexpNormalExpression), stringNormalExpression), functionalNormalExpression);
+  var normalExpressions = __assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign({}, bitwiseNormalExpression), collectionNormalExpression), arrayNormalExpression), sequenceNormalExpression), mathNormalExpression), miscNormalExpression), assertNormalExpression), objectNormalExpression), predicatesNormalExpression), regexpNormalExpression), stringNormalExpression), functionalNormalExpression);
 
   var specialExpressions = {
       and: andSpecialExpression,

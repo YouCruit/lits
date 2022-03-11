@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import { Lits } from '../../../src'
-import { AssertionError } from '../../../src/errors'
 
 let lits: Lits
 
@@ -297,19 +296,6 @@ describe(`misc functions`, () => {
       expect(lits.run(`(compare {:a 1 :b 2} {:a 2})`)).toBe(1)
       expect(lits.run(`(compare + {:a 2})`)).toBe(1)
       expect(lits.run(`(compare + -)`)).toBe(0)
-    })
-  })
-  describe(`assert`, () => {
-    test(`samples`, () => {
-      expect(() => lits.run(`(assert false)`)).toThrowError(AssertionError)
-      expect(() => lits.run(`(assert false 'Expected true')`)).toThrowError(AssertionError)
-      expect(() => lits.run(`(assert nil)`)).toThrowError(AssertionError)
-      expect(() => lits.run(`(assert 0)`)).toThrowError(AssertionError)
-      expect(() => lits.run(`(assert '')`)).toThrowError(AssertionError)
-      expect(lits.run(`(assert [])`)).toEqual([])
-      expect(lits.run(`(assert true)`)).toBe(true)
-      expect(lits.run(`(assert 1)`)).toBe(1)
-      expect(lits.run(`(assert :0)`)).toBe(`0`)
     })
   })
 

@@ -58,7 +58,7 @@ export class Lits {
     return evaluate(ast, contextStack)
   }
 
-  private generateAst(program: string) {
+  private generateAst(program: string): Ast {
     if (this.astCache) {
       const cachedAst = this.astCache.get(program)
       if (cachedAst) {

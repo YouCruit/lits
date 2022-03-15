@@ -104,9 +104,9 @@ describe(`object functions`, () => {
 
   describe(`dissoc`, () => {
     test(`samples`, () => {
-      expect(lits.run(`(dissoc (object) :x)`)).toBeNull()
-      expect(lits.run(`(dissoc (object :x 1) :x)`)).toBe(1)
-      expect(lits.run(`(dissoc (object :x 1) '')`)).toBeNull()
+      expect(lits.run(`(dissoc (object) :x)`)).toEqual({})
+      expect(lits.run(`(dissoc (object :x 1 :y 2) :x)`)).toEqual({ y: 2 })
+      expect(lits.run(`(dissoc (object :x 1) '')`)).toEqual({ x: 1 })
       expect(lits.run(`(dissoc (object :x (object)) :x)`)).toEqual({})
       expect(() => lits.run(`(dissoc (object :x 1) 1)`)).toThrow()
       expect(() => lits.run(`(dissoc)`)).toThrow()
@@ -124,7 +124,7 @@ describe(`object functions`, () => {
         (dissoc obj :x)
         obj
       `
-      expect(lits.run(program)).toEqual({})
+      expect(lits.run(program)).toEqual({ x: 10 })
     })
 
     test(`delete unexisting attribute`, () => {

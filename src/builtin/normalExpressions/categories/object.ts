@@ -66,9 +66,9 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([obj, key], sourceCodeInfo): Any => {
       object.assert(obj, sourceCodeInfo)
       string.assert(key, sourceCodeInfo)
-      const result = toAny(obj[key])
-      delete obj[key]
-      return result
+      const newObj = { ...obj }
+      delete newObj[key]
+      return newObj
     },
     validate: node => assertNumberOfParams(2, node),
   },

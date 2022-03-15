@@ -16,13 +16,8 @@ module.exports = {
         type: `string`,
       },
     ],
-    description: `Deletes the attribute \`attr\` from \`object\`.`,
-    examples: [
-      `(dissoc (object :x 10) :x)`,
-      `(dissoc (object :x 10) :y)`,
-      `(def o (object :a 5)) (dissoc o :a) o`,
-      `(def o (object :a 5)) (dissoc o :b) o`,
-    ],
+    description: `Return shallow copy of \`object\` with attribute \`attr\` deleted.`,
+    examples: [`(dissoc (object :x 10 :y 20) :x)`, `(dissoc { :x 10 } :y)`, `(def o { :a 5 }) (dissoc o :a) o`],
   },
   object: {
     name: `object`,

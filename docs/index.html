@@ -16,7 +16,7 @@
   <div class="row">
     <div class="column"></div>
     <div class="column header">Lits</div>
-    <div class="column right version"><span>v1.0.5</span></div>
+    <div class="column right version"><span>v1.0.6-alpha.0</span></div>
   </div>
 </header>
     <main id="main-panel" class="fancy-scroll">
@@ -1441,8 +1441,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [2,3,5,8,10] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 'Albert') <span class="gray">=> "bt" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [3,5,6,7,10] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 'Albert') <span class="gray">=> "Aer" </span> </span></pre>
   </div>
 </div>
 
@@ -1460,8 +1460,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 9 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-nth! ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (rand-nth! 'Albert') <span class="gray">=> "e" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 5 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-nth! ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (rand-nth! 'Albert') <span class="gray">=> "l" </span> </span></pre>
   </div>
 </div>
 
@@ -1479,8 +1479,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shuffle [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [4,3,5,8,9,10,2,7,6,1] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle ___single_quote___Albert Mojir___single_quote___)')"> <span class="icon-button">▶</span> (shuffle 'Albert Mojir') <span class="gray">=> "eMrjbli Atro" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shuffle [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [7,8,9,1,6,2,10,3,4,5] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle ___single_quote___Albert Mojir___single_quote___)')"> <span class="icon-button">▶</span> (shuffle 'Albert Mojir') <span class="gray">=> "treiborjM Al" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle [1 2])')"> <span class="icon-button">▶</span> (shuffle [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle [1])')"> <span class="icon-button">▶</span> (shuffle [1]) <span class="gray">=> [1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle [])')"> <span class="icon-button">▶</span> (shuffle []) <span class="gray">=> [] </span> </span></pre>
@@ -2414,9 +2414,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.6697632805876359 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.0010941763129772041 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 1.4689246205577784 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.46151547143617555 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.008654201844358727 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 0.18254927487282357 </span> </span></pre>
   </div>
 </div>
 
@@ -2435,8 +2435,8 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(rand-int! 1)')"> <span class="icon-button">▶</span> (rand-int! 1) <span class="gray">=> 0 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 0 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 69 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 7 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 82 </span> </span></pre>
   </div>
 </div>
 
@@ -3087,7 +3087,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(inst-ms)')"> <span class="icon-button">▶</span> (inst-ms) <span class="gray">=> 1647014453411 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(inst-ms)')"> <span class="icon-button">▶</span> (inst-ms) <span class="gray">=> 1647330364697 </span> </span></pre>
   </div>
 </div>
 
@@ -3170,7 +3170,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(lits-version)')"> <span class="icon-button">▶</span> (lits-version) <span class="gray">=> "1.0.5" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(lits-version)')"> <span class="icon-button">▶</span> (lits-version) <span class="gray">=> "1.0.6-alpha.0" </span> </span></pre>
   </div>
 </div>
 
@@ -3202,7 +3202,7 @@
 <div id="dissoc" class="content function">
   <div class="function-header">dissoc</div>
   
-  <p>Deletes the attribute <span class="pre">attr</span> from <span class="pre">object</span>.</p>
+  <p>Return shallow copy of <span class="pre">object</span> with attribute <span class="pre">attr</span> deleted.</p>
   <label>Syntax</label>
   <div class="indent">
     <pre>dissoc object attr => value</pre>
@@ -3213,10 +3213,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(dissoc (object :x 10) :x)')"> <span class="icon-button">▶</span> (dissoc (object :x 10) :x) <span class="gray">=> 10 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(dissoc (object :x 10) :y)')"> <span class="icon-button">▶</span> (dissoc (object :x 10) :y) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(def o (object :a 5)) (dissoc o :a) o')"> <span class="icon-button">▶</span> (def o (object :a 5)) (dissoc o :a) o <span class="gray">=> {} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(def o (object :a 5)) (dissoc o :b) o')"> <span class="icon-button">▶</span> (def o (object :a 5)) (dissoc o :b) o <span class="gray">=> {"a":5} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(dissoc (object :x 10 :y 20) :x)')"> <span class="icon-button">▶</span> (dissoc (object :x 10 :y 20) :x) <span class="gray">=> {"y":20} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(dissoc { :x 10 } :y)')"> <span class="icon-button">▶</span> (dissoc { :x 10 } :y) <span class="gray">=> {"x":10} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(def o { :a 5 }) (dissoc o :a) o')"> <span class="icon-button">▶</span> (def o { :a 5 }) (dissoc o :a) o <span class="gray">=> {"a":5} </span> </span></pre>
   </div>
 </div>
 

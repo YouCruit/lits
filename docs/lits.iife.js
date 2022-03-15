@@ -3686,7 +3686,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.5";
+  var version = "1.0.6-alpha.0";
 
   var miscNormalExpression = {
       'not=': {
@@ -4027,9 +4027,9 @@ var Lits = (function (exports) {
               var obj = _a[0], key = _a[1];
               object.assert(obj, sourceCodeInfo);
               string.assert(key, sourceCodeInfo);
-              var result = toAny(obj[key]);
-              delete obj[key];
-              return result;
+              var newObj = __assign({}, obj);
+              delete newObj[key];
+              return newObj;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },

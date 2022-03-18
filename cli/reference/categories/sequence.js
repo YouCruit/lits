@@ -735,12 +735,12 @@ module.exports = {
     },
     arguments: [
       {
-        name: `array`,
-        type: `array`,
+        name: `seq`,
+        type: `seq`,
       },
     ],
-    description: `Returns an array. Each element from \`array\` has the probability \`prob\` to be included in the result.`,
-    examples: [`(rand-nth! [1 2 3 4 5 6 7 8 9 10])`, `(rand-nth! 'Albert')`],
+    description: `Returns a random element from \`seq\`. Returns \`nil\` if \`seq\` is empty.`,
+    examples: [`(rand-nth! [1 2 3 4 5 6 7 8 9 10])`, `(rand-nth! 'Albert')`, `(rand-nth! [])`],
   },
   'shuffle!': {
     name: `shuffle!`,

@@ -666,7 +666,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams(1, node),
   },
-  shuffle: {
+  'shuffle!': {
     evaluate: ([input], sourceCodeInfo): Seq => {
       sequence.assert(input, sourceCodeInfo)
       const array: Arr = string.is(input) ? [...input.split(``)] : [...input]

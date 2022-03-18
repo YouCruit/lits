@@ -765,15 +765,15 @@ describe(`sequence functions`, () => {
     })
   })
 
-  describe(`shuffle`, () => {
+  describe(`shuffle!`, () => {
     test(`samples`, () => {
-      expect(lits.run(`(shuffle [1 2 3])`)).not.toEqual([1, 2, 3])
-      expect(lits.run(`(shuffle 'Albert')`)).not.toBe(`Albert`)
-      expect(lits.run(`(shuffle [1 2])`)).toEqual([2, 1]) // Due to the shuffle algorithm, first element connot be the same after shuffle
-      expect(lits.run(`(shuffle [1])`)).toEqual([1])
-      expect(lits.run(`(shuffle [])`)).toEqual([])
-      expect(() => lits.run(`(shuffle)`)).toThrow()
-      expect(() => lits.run(`(shuffle [] [])`)).toThrow()
+      expect(lits.run(`(shuffle! [1 2 3])`)).not.toEqual([1, 2, 3]) // Due to the shuffle algorithm, it will always differ
+      expect(lits.run(`(shuffle! 'Albert')`)).not.toBe(`Albert`) // Due to the shuffle algorithm, it will always differ
+      expect(lits.run(`(shuffle! [1 2])`)).toEqual([2, 1]) // Due to the shuffle algorithm, first element connot be the same after shuffle
+      expect(lits.run(`(shuffle! [1])`)).toEqual([1])
+      expect(lits.run(`(shuffle! [])`)).toEqual([])
+      expect(() => lits.run(`(shuffle!)`)).toThrow()
+      expect(() => lits.run(`(shuffle! [] [])`)).toThrow()
     })
   })
 

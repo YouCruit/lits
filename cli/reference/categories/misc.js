@@ -135,8 +135,7 @@ module.exports = {
       `(write! (object :a 10))`,
       `(write! [:a :b :c])`,
       `(write! #'^start')`,
-      `(write! nil true
-        false)`,
+      `(write! nil true false)`,
     ],
   },
   'inst-ms': {

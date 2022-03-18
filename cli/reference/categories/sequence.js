@@ -742,10 +742,10 @@ module.exports = {
     description: `Returns an array. Each element from \`array\` has the probability \`prob\` to be included in the result.`,
     examples: [`(rand-nth! [1 2 3 4 5 6 7 8 9 10])`, `(rand-nth! 'Albert')`],
   },
-  shuffle: {
-    name: `shuffle`,
+  'shuffle!': {
+    name: `shuffle!`,
     category: `Sequence`,
-    linkName: `shuffle`,
+    linkName: `shuffle_exclamation`,
     returns: {
       type: `Seq`,
     },
@@ -757,11 +757,11 @@ module.exports = {
     ],
     description: `Returns a shuffled copy of \`input\`.`,
     examples: [
-      `(shuffle [1 2 3 4 5 6 7 8 9 10])`,
-      `(shuffle 'Albert Mojir')`,
-      `(shuffle [1 2])`,
-      `(shuffle [1])`,
-      `(shuffle [])`,
+      `(shuffle! [1 2 3 4 5 6 7 8 9 10])`,
+      `(shuffle! 'Albert Mojir')`,
+      `(shuffle! [1 2])`,
+      `(shuffle! [1])`,
+      `(shuffle! [])`,
     ],
   },
   distinct: {

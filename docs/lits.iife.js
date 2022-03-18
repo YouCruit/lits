@@ -2992,7 +2992,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
-      shuffle: {
+      'shuffle!': {
           evaluate: function (_a, sourceCodeInfo) {
               var input = _a[0];
               sequence.assert(input, sourceCodeInfo);
@@ -3686,7 +3686,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.6";
+  var version = "1.0.7-alpha.0";
 
   var miscNormalExpression = {
       'not=': {

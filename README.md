@@ -136,7 +136,7 @@ lits.run('(+ 1 2 3 4)'); // returns 10
 * reverse
 * second
 * shift
-* shuffle
+* shuffle!
 * slice
 * some
 * sort

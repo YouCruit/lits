@@ -288,7 +288,7 @@ lits.run('(+ 1 2 3 4)'); // returns 10
 * compare
 * debug!
 * equal?
-* inst-ms
+* inst-ms!
 * lits-version
 * not
 * not=

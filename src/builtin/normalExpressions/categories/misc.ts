@@ -97,7 +97,7 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([first]): boolean => !first,
     validate: node => assertNumberOfParams(1, node),
   },
-  'inst-ms': {
+  'inst-ms!': {
     evaluate: (): number => {
       return Date.now()
     },

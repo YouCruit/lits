@@ -128,7 +128,7 @@ module.exports = {
         type: `array`,
       },
     ],
-    description: `It console.log the \`values\` and then returns the last element of the \`values\` array.. If called with no arguments \`nil\` is returned.`,
+    description: `It console.log the \`values\` and then returns the last element of the \`values\` array. If called with no arguments \`nil\` is returned.`,
     examples: [
       `(write! 'A string')`,
       `(write! 100 'items')`,
@@ -138,16 +138,16 @@ module.exports = {
       `(write! nil true false)`,
     ],
   },
-  'inst-ms': {
-    name: `inst-ms`,
+  'inst-ms!': {
+    name: `inst-ms!`,
     category: `Misc`,
-    linkName: `inst-ms`,
+    linkName: `inst-ms_exclamation`,
     returns: {
       type: `number`,
     },
     arguments: [],
     description: `Returns milliseconds elapsed since the UNIX epoch.`,
-    examples: [`(inst-ms)`],
+    examples: [`(inst-ms!)`],
   },
   'debug!': {
     name: `debug!`,

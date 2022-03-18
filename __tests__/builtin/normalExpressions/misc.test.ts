@@ -28,11 +28,11 @@ describe(`misc functions`, () => {
     console.log = oldLog
     console.warn = oldWarn
   })
-  describe(`inst-ms`, () => {
+  describe(`inst-ms!`, () => {
     test(`samples`, () => {
-      expect(() => lits.run(`(inst-ms 1)`)).toThrow()
-      expect(() => lits.run(`(inst-ms :x)`)).toThrow()
-      expect(lits.run(`(inst-ms)`)).toBeLessThanOrEqual(Date.now())
+      expect(() => lits.run(`(inst-ms! 1)`)).toThrow()
+      expect(() => lits.run(`(inst-ms! :x)`)).toThrow()
+      expect(lits.run(`(inst-ms!)`)).toBeLessThanOrEqual(Date.now())
     })
   })
 

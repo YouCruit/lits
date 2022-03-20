@@ -289,7 +289,7 @@ lits.run('(+ 1 2 3 4)'); // returns 10
 * debug!
 * equal?
 * inst-ms!
-* lits-version
+* lits-version!
 * not
 * not=
 * write!

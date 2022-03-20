@@ -70,6 +70,7 @@ module.exports = {
     name: `defs`,
     category: `Special expression`,
     linkName: `defs`,
+    clojureDocs: null,
     returns: {
       type: `any`,
     },
@@ -245,6 +246,7 @@ module.exports = {
     name: `defns`,
     category: `Special expression`,
     linkName: `defns`,
+    clojureDocs: null,
     returns: {
       type: `function`,
     },
@@ -274,6 +276,7 @@ module.exports = {
     name: `try`,
     category: `Special expression`,
     linkName: `try`,
+    clojureDocs: null,
     returns: {
       type: `any`,
     },
@@ -299,6 +302,7 @@ module.exports = {
     name: `throw`,
     category: `Special expression`,
     linkName: `throw`,
+    clojureDocs: null,
     returns: {
       type: `nothing`,
     },
@@ -518,6 +522,7 @@ module.exports = {
     name: `time!`,
     category: `Special expression`,
     linkName: `time_exclamation`,
+    clojureDocs: `time`,
     returns: {
       type: `any`,
     },

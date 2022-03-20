@@ -39,6 +39,7 @@ module.exports = {
     name: `push`,
     category: `Sequence`,
     linkName: `push`,
+    clojureDocs: null,
     returns: {
       type: `array`,
     },
@@ -80,6 +81,7 @@ module.exports = {
     name: `unshift`,
     category: `Sequence`,
     linkName: `unshift`,
+    clojureDocs: null,
     returns: {
       type: `array`,
     },
@@ -101,6 +103,7 @@ module.exports = {
     name: `shift`,
     category: `Sequence`,
     linkName: `shift`,
+    clojureDocs: null,
     returns: {
       type: `array`,
     },
@@ -121,6 +124,7 @@ module.exports = {
     name: `slice`,
     category: `Sequence`,
     linkName: `slice`,
+    clojureDocs: null,
     returns: {
       type: `array`,
     },
@@ -206,6 +210,7 @@ module.exports = {
     name: `reduce-right`,
     category: `Sequence`,
     linkName: `reduce-right`,
+    clojureDocs: null,
     returns: {
       type: `sequence`,
     },
@@ -276,6 +281,7 @@ module.exports = {
     name: `position`,
     category: `Sequence`,
     linkName: `position`,
+    clojureDocs: null,
     returns: {
       type: `number`,
     },
@@ -300,6 +306,7 @@ module.exports = {
     name: `index-of`,
     category: `Sequence`,
     linkName: `index-of`,
+    clojureDocs: null,
     returns: {
       type: `number`,
     },
@@ -608,12 +615,12 @@ module.exports = {
     },
     arguments: [
       {
-        name: `array`,
-        type: `array`,
-      },
-      {
         name: `count`,
         type: `integer`,
+      },
+      {
+        name: `array`,
+        type: `array`,
       },
     ],
     description: `Constructs a new array with the \`count\` last elements dropped from \`array\`.`,
@@ -695,6 +702,7 @@ module.exports = {
     name: `join`,
     category: `Sequence`,
     linkName: `join`,
+    clojureDocs: null,
     returns: {
       type: `string`,
     },
@@ -715,6 +723,7 @@ module.exports = {
     name: `random-sample!`,
     category: `Sequence`,
     linkName: `random-sample_exclamation`,
+    clojureDocs: `random-sample`,
     returns: {
       type: `array`,
     },
@@ -736,6 +745,7 @@ module.exports = {
     name: `rand-nth!`,
     category: `Sequence`,
     linkName: `rand-nth_exclamation`,
+    clojureDocs: `rand-nth`,
     returns: {
       type: `any`,
     },
@@ -752,6 +762,7 @@ module.exports = {
     name: `shuffle!`,
     category: `Sequence`,
     linkName: `shuffle_exclamation`,
+    clojureDocs: `shuffle`,
     returns: {
       type: `Seq`,
     },
@@ -812,6 +823,7 @@ module.exports = {
     name: `remove-at`,
     category: `Sequence`,
     linkName: `remove-at`,
+    clojureDocs: null,
     returns: {
       type: `Seq`,
     },

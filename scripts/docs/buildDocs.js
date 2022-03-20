@@ -164,11 +164,24 @@ function getExamplePage() {
 }
 
 function getDocumentationContent(docObj) {
-  const { name, description, returns, linkName, specialExpression, examples, arguments: args } = docObj
+  const { name, description, returns, linkName, specialExpression, examples, arguments: args, clojureDocs } = docObj
+  const clojureDocsLink =
+    clojureDocs === null
+      ? null
+      : `https://clojuredocs.org/clojure.core/${clojureDocs !== undefined ? clojureDocs : name.replace('?', '_q')}`
   const formattedDescription = formatDescription(description)
   return `
 <div id="${linkName}" class="content function">
-  <div class="function-header">${name}</div>
+
+  <div class="function-header row">
+    <div class="column">${name}</div>
+    ${
+      clojureDocsLink
+        ? `<div class="column right"><a target="_blank" class="link" href="${clojureDocsLink}">Clojure docs</a></div>`
+        : ``
+    }
+  </div>
+
   ${specialExpression ? '<h3>Special Expression</h3>' : ''}
   <p>${formattedDescription}</p>
   <label>Syntax</label>

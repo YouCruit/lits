@@ -299,10 +299,10 @@ describe(`misc functions`, () => {
     })
   })
 
-  describe(`lits-version`, () => {
+  describe(`lits-version!`, () => {
     test(`samples`, () => {
-      expect(lits.run(`(lits-version)`)).toMatch(/^\d+\.\d+\.\d+/)
-      expect(() => lits.run(`(lits-version 1)`)).toThrow()
+      expect(lits.run(`(lits-version!)`)).toMatch(/^\d+\.\d+\.\d+/)
+      expect(() => lits.run(`(lits-version! 1)`)).toThrow()
     })
   })
 

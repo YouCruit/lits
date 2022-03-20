@@ -81,6 +81,7 @@ module.exports = {
     name: `function?`,
     category: `Predicate`,
     linkName: `function_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -129,6 +130,7 @@ module.exports = {
     name: `array?`,
     category: `Predicate`,
     linkName: `array_question`,
+    clojureDocs: `vector_q`,
     returns: {
       type: `boolean`,
     },
@@ -152,6 +154,7 @@ module.exports = {
     name: `object?`,
     category: `Predicate`,
     linkName: `object_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -177,6 +180,7 @@ module.exports = {
     name: `coll?`,
     category: `Predicate`,
     linkName: `coll_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -201,6 +205,7 @@ module.exports = {
     name: `seq?`,
     category: `Predicate`,
     linkName: `seq_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -225,6 +230,7 @@ module.exports = {
     name: `regexp?`,
     category: `Predicate`,
     linkName: `regexp_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -331,6 +337,7 @@ module.exports = {
     name: `finite?`,
     category: `Predicate`,
     linkName: `finite_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -347,6 +354,7 @@ module.exports = {
     name: `nan?`,
     category: `Predicate`,
     linkName: `nan_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -363,6 +371,7 @@ module.exports = {
     name: `negative-infinity?`,
     category: `Predicate`,
     linkName: `negative-infinity_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -384,6 +393,7 @@ module.exports = {
     name: `positive-infinity?`,
     category: `Predicate`,
     linkName: `positive-infinity_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -453,6 +463,7 @@ module.exports = {
     name: `not-empty?`,
     category: `Predicate`,
     linkName: `not-empty_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },

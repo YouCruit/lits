@@ -140,7 +140,7 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams(2, node),
   },
-  'lits-version': {
+  'lits-version!': {
     evaluate: (): Any => {
       return version
     },

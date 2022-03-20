@@ -1375,22 +1375,24 @@ var Lits = (function (exports) {
 
   var trySpecialExpression = {
       parse: function (tokens, position, _a) {
-          var _b, _c, _d;
+          var _b, _c, _d, _e;
           var parseToken = _a.parseToken;
           var firstToken = token.as(tokens[position], "EOF");
           var tryExpression;
           _b = parseToken(tokens, position), position = _b[0], tryExpression = _b[1];
           token.assert(tokens[position], "EOF", { type: "paren", value: "(" });
           position += 1;
-          token.assert(tokens[position], "EOF", { type: "paren", value: "(" });
-          position += 1;
+          var catchNode;
+          _c = parseToken(tokens, position), position = _c[0], catchNode = _c[1];
+          nameNode.assert(catchNode, catchNode.token.sourceCodeInfo);
+          if (catchNode.value !== "catch") {
+              throw new LitsError("Expected 'catch', got '" + catchNode.value + "'.", getSourceCodeInfo(catchNode, catchNode.token.sourceCodeInfo));
+          }
           var error;
-          _c = parseToken(tokens, position), position = _c[0], error = _c[1];
+          _d = parseToken(tokens, position), position = _d[0], error = _d[1];
           nameNode.assert(error, error.token.sourceCodeInfo);
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
-          position += 1;
           var catchExpression;
-          _d = parseToken(tokens, position), position = _d[0], catchExpression = _d[1];
+          _e = parseToken(tokens, position), position = _e[0], catchExpression = _e[1];
           token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
           position += 1;
           token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
@@ -3805,7 +3807,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
-      'lits-version': {
+      'lits-version!': {
           evaluate: function () {
               return version;
           },

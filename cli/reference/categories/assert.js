@@ -24,6 +24,7 @@ module.exports = {
     name: `assert=`,
     category: `Assert`,
     linkName: `assert_equal`,
+    clojureDocs: null,
     returns: {
       type: `nil`,
     },
@@ -53,6 +54,7 @@ module.exports = {
     name: `assertNot=`,
     category: `Assert`,
     linkName: `assertNot_equal`,
+    clojureDocs: null,
     returns: {
       type: `nil`,
     },
@@ -82,6 +84,7 @@ module.exports = {
     name: `assertEqual`,
     category: `Assert`,
     linkName: `assertEqual`,
+    clojureDocs: null,
     returns: {
       type: `nil`,
     },
@@ -111,6 +114,7 @@ module.exports = {
     name: `assertNotEqual`,
     category: `Assert`,
     linkName: `assertNotEqual`,
+    clojureDocs: null,
     returns: {
       type: `nil`,
     },
@@ -140,6 +144,7 @@ module.exports = {
     name: `assert>`,
     category: `Assert`,
     linkName: `assert_gt`,
+    clojureDocs: null,
     returns: {
       type: `nil`,
     },
@@ -169,6 +174,7 @@ module.exports = {
     name: `assert<`,
     category: `Assert`,
     linkName: `assert_lt`,
+    clojureDocs: null,
     returns: {
       type: `nil`,
     },
@@ -198,6 +204,7 @@ module.exports = {
     name: `assert>=`,
     category: `Assert`,
     linkName: `assert_gte`,
+    clojureDocs: null,
     returns: {
       type: `nil`,
     },
@@ -227,6 +234,7 @@ module.exports = {
     name: `assert<=`,
     category: `Assert`,
     linkName: `assert_lte`,
+    clojureDocs: null,
     returns: {
       type: `nil`,
     },

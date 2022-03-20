@@ -108,6 +108,7 @@ module.exports = {
     name: `has?`,
     category: `Collection`,
     linkName: `has_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -135,6 +136,7 @@ module.exports = {
     name: `has-some?`,
     category: `Collection`,
     linkName: `has-some_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -166,6 +168,7 @@ module.exports = {
     name: `has-every?`,
     category: `Collection`,
     linkName: `has-every_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },

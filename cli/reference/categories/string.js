@@ -28,6 +28,7 @@ module.exports = {
     name: `string-repeat`,
     category: `String`,
     linkName: `string-repeat`,
+    clojureDocs: null,
     returns: {
       type: `number`,
     },
@@ -70,6 +71,7 @@ module.exports = {
     name: `number`,
     category: `String`,
     linkName: `number`,
+    clojureDocs: null,
     returns: {
       type: `number`,
     },
@@ -86,6 +88,7 @@ module.exports = {
     name: `number-to-string`,
     category: `String`,
     linkName: `number-to-string`,
+    clojureDocs: null,
     returns: {
       type: `string`,
     },
@@ -129,6 +132,7 @@ module.exports = {
     name: `upper-case`,
     category: `String`,
     linkName: `upper-case`,
+    clojureDocs: null,
     returns: {
       type: `string`,
     },
@@ -145,6 +149,7 @@ module.exports = {
     name: `trim`,
     category: `String`,
     linkName: `trim`,
+    clojureDocs: null,
     returns: {
       type: `string`,
     },
@@ -161,6 +166,7 @@ module.exports = {
     name: `trim-left`,
     category: `String`,
     linkName: `trim-left`,
+    clojureDocs: null,
     returns: {
       type: `string`,
     },
@@ -177,6 +183,7 @@ module.exports = {
     name: `trim-right`,
     category: `String`,
     linkName: `trim-right`,
+    clojureDocs: null,
     returns: {
       type: `string`,
     },
@@ -193,6 +200,7 @@ module.exports = {
     name: `pad-left`,
     category: `String`,
     linkName: `pad-left`,
+    clojureDocs: null,
     returns: {
       type: `string`,
     },
@@ -223,6 +231,7 @@ module.exports = {
     name: `pad-right`,
     category: `String`,
     linkName: `pad-right`,
+    clojureDocs: null,
     returns: {
       type: `string`,
     },
@@ -253,6 +262,7 @@ module.exports = {
     name: `split`,
     category: `String`,
     linkName: `split`,
+    clojureDocs: null,
     returns: {
       type: `string`,
     },
@@ -283,6 +293,7 @@ module.exports = {
     name: `template`,
     category: `String`,
     linkName: `template`,
+    clojureDocs: null,
     returns: {
       type: `string`,
     },
@@ -310,6 +321,7 @@ module.exports = {
     name: `to-char-code`,
     category: `String`,
     linkName: `to-char-code`,
+    clojureDocs: null,
     returns: {
       type: `number`,
     },
@@ -326,6 +338,7 @@ module.exports = {
     name: `from-char-code`,
     category: `String`,
     linkName: `from-char-code`,
+    clojureDocs: null,
     returns: {
       type: `string`,
     },

@@ -23,6 +23,7 @@ module.exports = {
     name: `object`,
     category: `Object`,
     linkName: `object`,
+    clojureDocs: null,
     returns: {
       type: `object`,
     },
@@ -34,7 +35,7 @@ module.exports = {
       },
     ],
     description: `Constructs a new object. Object members are created from \`key\` - \`value\` pairs. Requires an even number of arguments.`,
-    examples: [`(object)`, `(object :x 10 :y true :z 'A string')`],
+    examples: [`(object)`, `(object :x 10 :y true :z 'A string')`, `{}`, `{:a 1 :b 2}`],
   },
   keys: {
     name: `keys`,
@@ -72,6 +73,7 @@ module.exports = {
     name: `entries`,
     category: `Object`,
     linkName: `entries`,
+    clojureDocs: null,
     returns: {
       type: `array of [key value] - paris`,
     },

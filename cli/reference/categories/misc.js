@@ -119,6 +119,7 @@ module.exports = {
     name: `write!`,
     category: `Misc`,
     linkName: `write_exclamation`,
+    clojureDocs: null,
     returns: {
       type: `value`,
     },
@@ -142,6 +143,7 @@ module.exports = {
     name: `inst-ms!`,
     category: `Misc`,
     linkName: `inst-ms_exclamation`,
+    clojureDocs: `inst-ms`,
     returns: {
       type: `number`,
     },
@@ -153,6 +155,7 @@ module.exports = {
     name: `debug!`,
     category: `Misc`,
     linkName: `debug_exclamation`,
+    clojureDocs: null,
     returns: {
       type: `any`,
     },
@@ -210,21 +213,22 @@ module.exports = {
       `(compare + -)`,
     ],
   },
-  'lits-version': {
-    name: `lits-version`,
+  'lits-version!': {
+    name: `lits-version!`,
     category: `Misc`,
-    linkName: `lits-version`,
+    linkName: `lits-version_exclamation`,
     returns: {
       type: `string`,
     },
     arguments: [],
     description: `Returns the lits version.`,
-    examples: [`(lits-version)`],
+    examples: [`(lits-version!)`],
   },
   'equal?': {
     name: `equal?`,
     category: `Misc`,
     linkName: `equal_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },

@@ -288,7 +288,11 @@ module.exports = {
       },
     ],
     description: `Executes tryExpression. If that throws, the catchBlock gets executed. See examples for details.`,
-    examples: [`(try (/ 2 4) ((error) (/ 2 1)))`, `(try (/ 2 0) ((error) (/ 2 1)))`, `(try (/ 2 0) ((error) error))`],
+    examples: [
+      `(try (/ 2 4) (catch error (/ 2 1)))`,
+      `(try (/ 2 0) (catch error (/ 2 1)))`,
+      `(try (/ 2 0) (catch error error))`,
+    ],
     specialExpression: true,
   },
   throw: {
@@ -306,9 +310,9 @@ module.exports = {
     ],
     description: `Throws \`UserDefinedError\` with message set to \`message\` evaluated. \`message\` must evaluate to a \`string\`.`,
     examples: [
-      `(try (throw 'You shall not pass!') ((e) e))`,
-      `(try (throw (subs 'You shall not pass!' 0 3)) ((e) e))`,
-      `(try (throw 'You shall not pass!') ((error) error))`,
+      `(try (throw 'You shall not pass!') (catch e e))`,
+      `(try (throw (subs 'You shall not pass!' 0 3)) (catch e e))`,
+      `(try (throw 'You shall not pass!') (catch error error))`,
     ],
     specialExpression: true,
   },

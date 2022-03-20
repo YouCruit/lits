@@ -1,7 +1,9 @@
+import { LitsError } from '../../errors'
 import { Context } from '../../evaluator/interface'
 import { Any } from '../../interface'
 import { AstNode, NameNode, SpecialExpressionNode } from '../../parser/interface'
 import { any, nameNode, token } from '../../utils/assertion'
+import { getSourceCodeInfo } from '../../utils/helpers'
 import { BuiltinSpecialExpression } from '../interface'
 
 interface TrySpecialExpressionNode extends SpecialExpressionNode {
@@ -20,15 +22,19 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
     token.assert(tokens[position], `EOF`, { type: `paren`, value: `(` })
     position += 1
 
-    token.assert(tokens[position], `EOF`, { type: `paren`, value: `(` })
-    position += 1
+    let catchNode: AstNode
+    ;[position, catchNode] = parseToken(tokens, position)
+    nameNode.assert(catchNode, catchNode.token.sourceCodeInfo)
+    if (catchNode.value !== `catch`) {
+      throw new LitsError(
+        `Expected 'catch', got '${catchNode.value}'.`,
+        getSourceCodeInfo(catchNode, catchNode.token.sourceCodeInfo),
+      )
+    }
 
     let error: AstNode
     ;[position, error] = parseToken(tokens, position)
     nameNode.assert(error, error.token.sourceCodeInfo)
-
-    token.assert(tokens[position], `EOF`, { type: `paren`, value: `)` })
-    position += 1
 
     let catchExpression: AstNode
     ;[position, catchExpression] = parseToken(tokens, position)

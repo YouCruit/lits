@@ -1874,13 +1874,7 @@ var Lits = (function (exports) {
       return { coll: coll, innerCollMeta: innerCollMeta };
   }
   function get(coll, key, sourceCodeInfo) {
-      if (array.is(coll)) {
-          number.assert(key, sourceCodeInfo, { integer: true });
-          if (key < coll.length) {
-              return toAny(coll[key]);
-          }
-      }
-      else if (object.is(coll)) {
+      if (object.is(coll)) {
           string.assert(key, sourceCodeInfo);
           if (collHasKey(coll, key)) {
               return toAny(coll[key]);
@@ -1888,7 +1882,7 @@ var Lits = (function (exports) {
       }
       else {
           number.assert(key, sourceCodeInfo, { integer: true });
-          if (key < coll.length) {
+          if (key >= 0 && key < coll.length) {
               return toAny(coll[key]);
           }
       }

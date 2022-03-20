@@ -163,7 +163,7 @@ module.exports = {
       },
     ],
     description: `If no params, prints context stack, otherwise prints \`value\` details.`,
-    examples: [`(debug!), (debug! #(> %1 2))`],
+    examples: [`(debug!)`, `(debug! #(> %1 2))`],
   },
   boolean: {
     name: `boolean`,

@@ -34,10 +34,13 @@ describe(`collection functions`, () => {
       expect(lits.run(`(get [] 1 :x)`)).toBe(`x`)
       expect(lits.run(`(get [1] 1 :x)`)).toBe(`x`)
       expect(lits.run(`(get [1 2 3] 1 :x)`)).toBe(2)
+      expect(lits.run(`(get [1 2 3] -1)`)).toBeNull()
+      expect(lits.run(`(get [1 2 3] -1 :x)`)).toBe(`x`)
 
       expect(lits.run(`(get 'Albert' 1)`)).toBe(`l`)
       expect(lits.run(`(get 'Albert' 7)`)).toBeNull()
       expect(lits.run(`(get 'Albert' -1)`)).toBeNull()
+      expect(lits.run(`(get 'Albert' -1 :x)`)).toBe(`x`)
       expect(lits.run(`(get '' 0)`)).toBeNull()
 
       expect(lits.run(`(get (object) :a)`)).toBeNull()

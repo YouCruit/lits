@@ -57,19 +57,14 @@ function cloneAndGetMeta(
 }
 
 function get(coll: Coll, key: string | number, sourceCodeInfo: SourceCodeInfo): Any | undefined {
-  if (array.is(coll)) {
-    number.assert(key, sourceCodeInfo, { integer: true })
-    if (key < coll.length) {
-      return toAny(coll[key])
-    }
-  } else if (object.is(coll)) {
+  if (object.is(coll)) {
     string.assert(key, sourceCodeInfo)
     if (collHasKey(coll, key)) {
       return toAny(coll[key])
     }
   } else {
     number.assert(key, sourceCodeInfo, { integer: true })
-    if (key < coll.length) {
+    if (key >= 0 && key < coll.length) {
       return toAny(coll[key])
     }
   }

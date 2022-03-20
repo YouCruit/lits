@@ -1,10 +1,17 @@
 import { Lits } from '../../../src'
 import { Arr } from '../../../src/interface'
+import { checkTestData, createTestData, TestData } from '../../testUtils'
 
 let lits: Lits
+let testData: TestData
 
 beforeEach(() => {
   lits = new Lits({ debug: true })
+  testData = createTestData()
+})
+
+afterEach(() => {
+  checkTestData()
 })
 
 describe(`array functions`, () => {
@@ -68,6 +75,9 @@ describe(`array functions`, () => {
       expect(lits.run(`(flatten #'abc')`)).toEqual([])
       expect(() => lits.run(`(flatten [] [])`)).toThrow()
       expect(() => lits.run(`(flatten)`)).toThrow()
+    })
+    test(`immutability`, () => {
+      lits.run(`(flatten nestedArray)`, { globals: testData })
     })
   })
 

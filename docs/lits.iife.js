@@ -2191,34 +2191,6 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
-      'empty?': {
-          evaluate: function (_a, sourceCodeInfo) {
-              var coll = _a[0];
-              collection.assert(coll, sourceCodeInfo);
-              if (string.is(coll)) {
-                  return coll.length === 0;
-              }
-              if (Array.isArray(coll)) {
-                  return coll.length === 0;
-              }
-              return Object.keys(coll).length === 0;
-          },
-          validate: function (node) { return assertNumberOfParams(1, node); },
-      },
-      'not-empty?': {
-          evaluate: function (_a, sourceCodeInfo) {
-              var coll = _a[0];
-              collection.assert(coll, sourceCodeInfo);
-              if (string.is(coll)) {
-                  return coll.length > 0;
-              }
-              if (Array.isArray(coll)) {
-                  return coll.length > 0;
-              }
-              return Object.keys(coll).length > 0;
-          },
-          validate: function (node) { return assertNumberOfParams(1, node); },
-      },
       'not-empty': {
           evaluate: function (_a, sourceCodeInfo) {
               var coll = _a[0];
@@ -4266,6 +4238,34 @@ var Lits = (function (exports) {
           evaluate: function (_a) {
               var value = _a[0];
               return value === false;
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
+      },
+      'empty?': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var coll = _a[0];
+              collection.assert(coll, sourceCodeInfo);
+              if (string.is(coll)) {
+                  return coll.length === 0;
+              }
+              if (Array.isArray(coll)) {
+                  return coll.length === 0;
+              }
+              return Object.keys(coll).length === 0;
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
+      },
+      'not-empty?': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var coll = _a[0];
+              collection.assert(coll, sourceCodeInfo);
+              if (string.is(coll)) {
+                  return coll.length > 0;
+              }
+              if (Array.isArray(coll)) {
+                  return coll.length > 0;
+              }
+              return Object.keys(coll).length > 0;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },

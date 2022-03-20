@@ -428,52 +428,6 @@
 </div>
 
 
-<div id="empty_question" class="content function">
-  <div class="function-header">empty?</div>
-  
-  <p>Returns <span class="pre">true</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">false</span>.</p>
-  <label>Syntax</label>
-  <div class="indent">
-    <pre>empty? coll => boolean</pre>
-  </div>
-
-  <label>Arguments</label><div class="indent"><pre>coll: collection or string</pre></div>
-
-  <label>Examples</label>
-  <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(empty? [])')"> <span class="icon-button">▶</span> (empty? []) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(empty? [1 2 3])')"> <span class="icon-button">▶</span> (empty? [1 2 3]) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(empty? {})')"> <span class="icon-button">▶</span> (empty? {}) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(empty? {:a 2})')"> <span class="icon-button">▶</span> (empty? {:a 2}) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(empty? ___single_quote______single_quote___)')"> <span class="icon-button">▶</span> (empty? '') <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(empty? ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (empty? 'Albert') <span class="gray">=> false </span> </span></pre>
-  </div>
-</div>
-
-
-<div id="not-empty_question" class="content function">
-  <div class="function-header">not-empty?</div>
-  
-  <p>Returns <span class="pre">false</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">true</span>.</p>
-  <label>Syntax</label>
-  <div class="indent">
-    <pre>not-empty? coll => boolean</pre>
-  </div>
-
-  <label>Arguments</label><div class="indent"><pre>coll: collection or string</pre></div>
-
-  <label>Examples</label>
-  <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(not-empty? [])')"> <span class="icon-button">▶</span> (not-empty? []) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty? [1 2 3])')"> <span class="icon-button">▶</span> (not-empty? [1 2 3]) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty? {})')"> <span class="icon-button">▶</span> (not-empty? {}) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty? {:a 2})')"> <span class="icon-button">▶</span> (not-empty? {:a 2}) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty? ___single_quote______single_quote___)')"> <span class="icon-button">▶</span> (not-empty? '') <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty? ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (not-empty? 'Albert') <span class="gray">=> true </span> </span></pre>
-  </div>
-</div>
-
-
 <div id="not-empty" class="content function">
   <div class="function-header">not-empty</div>
   
@@ -1445,8 +1399,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [1,2,3,8] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 'Albert') <span class="gray">=> "lbert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [2,3,4,6,7,9,10] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 'Albert') <span class="gray">=> "ber" </span> </span></pre>
   </div>
 </div>
 
@@ -1464,8 +1418,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 2 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-nth! ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (rand-nth! 'Albert') <span class="gray">=> "e" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 4 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-nth! ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (rand-nth! 'Albert') <span class="gray">=> "r" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-nth! [])')"> <span class="icon-button">▶</span> (rand-nth! []) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -1484,8 +1438,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [8,1,7,2,3,5,9,10,4,6] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle! ___single_quote___Albert Mojir___single_quote___)')"> <span class="icon-button">▶</span> (shuffle! 'Albert Mojir') <span class="gray">=> " MoltreirAbj" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [7,1,9,8,6,3,10,2,4,5] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! ___single_quote___Albert Mojir___single_quote___)')"> <span class="icon-button">▶</span> (shuffle! 'Albert Mojir') <span class="gray">=> "rjt lrMAbioe" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2])')"> <span class="icon-button">▶</span> (shuffle! [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1])')"> <span class="icon-button">▶</span> (shuffle! [1]) <span class="gray">=> [1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [])')"> <span class="icon-button">▶</span> (shuffle! []) <span class="gray">=> [] </span> </span></pre>
@@ -2419,9 +2373,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.5705738302581671 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.005123174063295324 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 0.05617531594241887 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.7269755013412196 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.004074219236011061 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 1.0908260171933082 </span> </span></pre>
   </div>
 </div>
 
@@ -2440,8 +2394,8 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(rand-int! 1)')"> <span class="icon-button">▶</span> (rand-int! 1) <span class="gray">=> 0 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 0 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 38 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 1 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 51 </span> </span></pre>
   </div>
 </div>
 
@@ -3090,7 +3044,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1647774930982 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1647775289594 </span> </span></pre>
   </div>
 </div>
 
@@ -3888,6 +3842,52 @@
 <pre><span class="example" onclick="addToPlayground('(true? true)')"> <span class="icon-button">▶</span> (true? true) <span class="gray">=> true </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(true? 1)')"> <span class="icon-button">▶</span> (true? 1) <span class="gray">=> false </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(true? 0)')"> <span class="icon-button">▶</span> (true? 0) <span class="gray">=> false </span> </span></pre>
+  </div>
+</div>
+
+
+<div id="empty_question" class="content function">
+  <div class="function-header">empty?</div>
+  
+  <p>Returns <span class="pre">true</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">false</span>.</p>
+  <label>Syntax</label>
+  <div class="indent">
+    <pre>empty? coll => boolean</pre>
+  </div>
+
+  <label>Arguments</label><div class="indent"><pre>coll: collection or string</pre></div>
+
+  <label>Examples</label>
+  <div class="indent">
+    <pre><span class="example" onclick="addToPlayground('(empty? [])')"> <span class="icon-button">▶</span> (empty? []) <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(empty? [1 2 3])')"> <span class="icon-button">▶</span> (empty? [1 2 3]) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(empty? {})')"> <span class="icon-button">▶</span> (empty? {}) <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(empty? {:a 2})')"> <span class="icon-button">▶</span> (empty? {:a 2}) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(empty? ___single_quote______single_quote___)')"> <span class="icon-button">▶</span> (empty? '') <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(empty? ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (empty? 'Albert') <span class="gray">=> false </span> </span></pre>
+  </div>
+</div>
+
+
+<div id="not-empty_question" class="content function">
+  <div class="function-header">not-empty?</div>
+  
+  <p>Returns <span class="pre">false</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">true</span>.</p>
+  <label>Syntax</label>
+  <div class="indent">
+    <pre>not-empty? coll => boolean</pre>
+  </div>
+
+  <label>Arguments</label><div class="indent"><pre>coll: collection or string</pre></div>
+
+  <label>Examples</label>
+  <div class="indent">
+    <pre><span class="example" onclick="addToPlayground('(not-empty? [])')"> <span class="icon-button">▶</span> (not-empty? []) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty? [1 2 3])')"> <span class="icon-button">▶</span> (not-empty? [1 2 3]) <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty? {})')"> <span class="icon-button">▶</span> (not-empty? {}) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty? {:a 2})')"> <span class="icon-button">▶</span> (not-empty? {:a 2}) <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty? ___single_quote______single_quote___)')"> <span class="icon-button">▶</span> (not-empty? '') <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty? ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (not-empty? 'Albert') <span class="gray">=> true </span> </span></pre>
   </div>
 </div>
 
@@ -5267,6 +5267,7 @@
           <li id="array_question_link" onclick="showPage('array_question')">array?</li>
 <li id="boolean_question_link" onclick="showPage('boolean_question')">boolean?</li>
 <li id="coll_question_link" onclick="showPage('coll_question')">coll?</li>
+<li id="empty_question_link" onclick="showPage('empty_question')">empty?</li>
 <li id="even_question_link" onclick="showPage('even_question')">even?</li>
 <li id="false_question_link" onclick="showPage('false_question')">false?</li>
 <li id="finite_question_link" onclick="showPage('finite_question')">finite?</li>
@@ -5276,6 +5277,7 @@
 <li id="neg_question_link" onclick="showPage('neg_question')">neg?</li>
 <li id="negative-infinity_question_link" onclick="showPage('negative-infinity_question')">negative-infinity?</li>
 <li id="nil_question_link" onclick="showPage('nil_question')">nil?</li>
+<li id="not-empty_question_link" onclick="showPage('not-empty_question')">not-empty?</li>
 <li id="number_question_link" onclick="showPage('number_question')">number?</li>
 <li id="object_question_link" onclick="showPage('object_question')">object?</li>
 <li id="odd_question_link" onclick="showPage('odd_question')">odd?</li>
@@ -5345,7 +5347,6 @@
 <li id="concat_link" onclick="showPage('concat')">concat</li>
 <li id="contains_question_link" onclick="showPage('contains_question')">contains?</li>
 <li id="count_link" onclick="showPage('count')">count</li>
-<li id="empty_question_link" onclick="showPage('empty_question')">empty?</li>
 <li id="every_question_link" onclick="showPage('every_question')">every?</li>
 <li id="get_link" onclick="showPage('get')">get</li>
 <li id="get-in_link" onclick="showPage('get-in')">get-in</li>
@@ -5354,7 +5355,6 @@
 <li id="has_question_link" onclick="showPage('has_question')">has?</li>
 <li id="not-any_question_link" onclick="showPage('not-any_question')">not-any?</li>
 <li id="not-empty_link" onclick="showPage('not-empty')">not-empty</li>
-<li id="not-empty_question_link" onclick="showPage('not-empty_question')">not-empty?</li>
 <li id="not-every_question_link" onclick="showPage('not-every_question')">not-every?</li>
 <li id="update_link" onclick="showPage('update')">update</li>
 <li id="update-in_link" onclick="showPage('update-in')">update-in</li>

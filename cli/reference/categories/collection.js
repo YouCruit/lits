@@ -275,45 +275,6 @@ module.exports = {
       `(concat {} {:a 1})`,
     ],
   },
-  'empty?': {
-    name: `empty?`,
-    category: `Collection`,
-    linkName: `empty_question`,
-    returns: {
-      type: `boolean`,
-    },
-    arguments: [
-      {
-        name: `coll`,
-        type: `collection or string`,
-      },
-    ],
-    description: `Returns \`true\` if \`coll\` is empty, otherwise \`false\`.`,
-    examples: [`(empty? [])`, `(empty? [1 2 3])`, `(empty? {})`, `(empty? {:a 2})`, `(empty? '')`, `(empty? 'Albert')`],
-  },
-  'not-empty?': {
-    name: `not-empty?`,
-    category: `Collection`,
-    linkName: `not-empty_question`,
-    returns: {
-      type: `boolean`,
-    },
-    arguments: [
-      {
-        name: `coll`,
-        type: `collection or string`,
-      },
-    ],
-    description: `Returns \`false\` if \`coll\` is empty, otherwise \`true\`.`,
-    examples: [
-      `(not-empty? [])`,
-      `(not-empty? [1 2 3])`,
-      `(not-empty? {})`,
-      `(not-empty? {:a 2})`,
-      `(not-empty? '')`,
-      `(not-empty? 'Albert')`,
-    ],
-  },
   'not-empty': {
     name: `not-empty`,
     category: `Collection`,

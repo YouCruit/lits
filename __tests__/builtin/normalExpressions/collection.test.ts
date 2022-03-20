@@ -45,10 +45,15 @@ describe(`collection functions`, () => {
       expect(lits.run(`(get (object) :a :x)`)).toBe(`x`)
       expect(lits.run(`(get (object :a 1 :b 2) :a)`)).toBe(1)
 
+      expect(lits.run(`(get nil 1)`)).toBeNull()
+      expect(lits.run(`(get nil 1 99)`)).toBe(99)
+
       expect(() => lits.run(`(get)`)).toThrow()
       expect(() => lits.run(`(get [])`)).toThrow()
       expect(() => lits.run(`(get 12)`)).toThrow()
+      expect(() => lits.run(`(get 12 1)`)).toThrow()
       expect(() => lits.run(`(get false)`)).toThrow()
+      expect(() => lits.run(`(get false 2)`)).toThrow()
       expect(() => lits.run(`(get true)`)).toThrow()
       expect(() => lits.run(`(get nil)`)).toThrow()
       expect(() => lits.run(`(get undefined)`)).toThrow()

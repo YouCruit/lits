@@ -154,8 +154,11 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
     evaluate: (params, sourceCodeInfo) => {
       const [coll, key] = params
       const defaultValue = toAny(params[2])
-      collection.assert(coll, sourceCodeInfo)
       stringOrNumber.assert(key, sourceCodeInfo)
+      if (coll === null) {
+        return defaultValue
+      }
+      collection.assert(coll, sourceCodeInfo)
       const result = get(coll, key, sourceCodeInfo)
       return result === undefined ? defaultValue : result
     },

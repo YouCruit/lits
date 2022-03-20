@@ -45,6 +45,8 @@ module.exports = {
       `(get (object :a 1) :a)`,
       `(get (object :a 1) :b)`,
       `(get (object :a 1) :b 'default')`,
+      `(get nil :a)`,
+      `(get nil :b 'default')`,
     ],
   },
   'get-in': {

@@ -1960,8 +1960,11 @@ var Lits = (function (exports) {
           evaluate: function (params, sourceCodeInfo) {
               var coll = params[0], key = params[1];
               var defaultValue = toAny(params[2]);
-              collection.assert(coll, sourceCodeInfo);
               stringOrNumber.assert(key, sourceCodeInfo);
+              if (coll === null) {
+                  return defaultValue;
+              }
+              collection.assert(coll, sourceCodeInfo);
               var result = get(coll, key, sourceCodeInfo);
               return result === undefined ? defaultValue : result;
           },
@@ -2377,18 +2380,15 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       nth: {
-          evaluate: function (_a, sourceCodeInfo) {
-              var seq = _a[0], i = _a[1], notFoundParam = _a[2];
+          evaluate: function (params, sourceCodeInfo) {
+              var seq = params[0], i = params[1];
+              var defaultValue = toAny(params[2]);
               number.assert(i, sourceCodeInfo, { integer: true });
-              var notFound = toAny(notFoundParam !== null && notFoundParam !== void 0 ? notFoundParam : null);
               if (seq === null) {
-                  return notFound;
+                  return defaultValue;
               }
               sequence.assert(seq, sourceCodeInfo);
-              if (i < 0 || i >= seq.length) {
-                  return notFound;
-              }
-              return toAny(seq[i]);
+              return i >= 0 && i < seq.length ? toAny(seq[i]) : defaultValue;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },

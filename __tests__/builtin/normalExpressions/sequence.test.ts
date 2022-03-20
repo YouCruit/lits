@@ -15,9 +15,8 @@ describe(`sequence functions`, () => {
       expect(lits.run(`(nth [1 2 3] -4)`)).toBeNull()
       expect(() => lits.run(`(nth)`)).toThrow()
       expect(() => lits.run(`(nth (object) 1)`)).toThrow()
-      expect(() => lits.run(`(nth nil 2)`)).toThrow()
       expect(() => lits.run(`(nth [1 2 3])`)).toThrow()
-      expect(() => lits.run(`(nth [1 2 3] 1 2)`)).toThrow()
+      expect(() => lits.run(`(nth [1 2 3] 1 2 3)`)).toThrow()
     })
 
     test(`string samples`, () => {
@@ -27,7 +26,24 @@ describe(`sequence functions`, () => {
       expect(lits.run(`(nth 'A string' 30)`)).toBeNull()
       expect(lits.run(`(nth 'A string' -30)`)).toBeNull()
       expect(() => lits.run(`(nth 'A string')`)).toThrow()
-      expect(() => lits.run(`(nth 'A string' 1 2)`)).toThrow()
+      expect(() => lits.run(`(nth 'A string' 1 2 3)`)).toThrow()
+    })
+
+    test(`Default values`, () => {
+      expect(lits.run(`(nth [1 2 3] 1 99)`)).toBe(2)
+      expect(lits.run(`(nth [1 2 3] 3 99)`)).toBe(99)
+      expect(lits.run(`(nth [1 2 3] -1 99)`)).toBe(99)
+      expect(lits.run(`(nth [1 2 3] -4 99)`)).toBe(99)
+      expect(lits.run(`(nth 'A string' 1 99)`)).toBe(` `)
+      expect(lits.run(`(nth 'A string' 3 99)`)).toBe(`t`)
+      expect(lits.run(`(nth 'A string' -3 99)`)).toBe(99)
+      expect(lits.run(`(nth 'A string' 30 99)`)).toBe(99)
+      expect(lits.run(`(nth 'A string' -30 99)`)).toBe(99)
+    })
+
+    test(`nil sequence`, () => {
+      expect(lits.run(`(nth nil 0)`)).toBeNull()
+      expect(lits.run(`(nth nil 0 99)`)).toBe(99)
     })
   })
 

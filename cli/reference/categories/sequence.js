@@ -9,24 +9,30 @@ module.exports = {
     arguments: [
       {
         name: `input`,
-        type: `string | array`,
+        type: `string | array | nil`,
       },
       {
         name: `index`,
         type: `integer`,
       },
+      {
+        name: `notFound`,
+        type: `any`,
+        description: `optional`,
+      },
     ],
-    description: `Accesses element \`index\` of \`input\`. Negative \`index\` counts backwards. Accessing out-of-bounds indices returns \`nil\`.`,
+    description: `Accesses element \`index\` of \`input\`. Accessing out-of-bounds indices returns \`notFound\` or \`nil\`.`,
     examples: [
       `(nth [1 2 3] 1)`,
       `(nth [1 2 3] 3)`,
       `(nth [1 2 3] -1)`,
-      `(nth [1 2 3] -1)`,
+      `(nth [1 2 3] 3 99)`,
       `(nth 'A string' 1)`,
       `(nth 'A string' 3)`,
       `(nth 'A string' -3)`,
-      `(nth 'A string' 30)`,
-      `(nth 'A string' -30)`,
+      `(nth 'A string' 30 :X)`,
+      `(nth nil 1)`,
+      `(nth nil 1 'Default value')`,
     ],
   },
   push: {

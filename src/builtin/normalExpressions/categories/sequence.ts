@@ -85,13 +85,19 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams(2, node),
   },
   nth: {
-    evaluate: ([seq, i], sourceCodeInfo): Any => {
-      sequence.assert(seq, sourceCodeInfo)
+    evaluate: (params, sourceCodeInfo): Any => {
+      const [seq, i] = params
+      const defaultValue = toAny(params[2])
+
       number.assert(i, sourceCodeInfo, { integer: true })
 
-      return toAny(seq[i])
+      if (seq === null) {
+        return defaultValue
+      }
+      sequence.assert(seq, sourceCodeInfo)
+      return i >= 0 && i < seq.length ? toAny(seq[i]) : defaultValue
     },
-    validate: node => assertNumberOfParams(2, node),
+    validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
   },
   filter: {
     evaluate: ([fn, seq]: Arr, sourceCodeInfo, contextStack, { executeFunction }): Seq => {

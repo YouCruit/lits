@@ -2378,12 +2378,19 @@ var Lits = (function (exports) {
       },
       nth: {
           evaluate: function (_a, sourceCodeInfo) {
-              var seq = _a[0], i = _a[1];
-              sequence.assert(seq, sourceCodeInfo);
+              var seq = _a[0], i = _a[1], notFoundParam = _a[2];
               number.assert(i, sourceCodeInfo, { integer: true });
+              var notFound = toAny(notFoundParam !== null && notFoundParam !== void 0 ? notFoundParam : null);
+              if (seq === null) {
+                  return notFound;
+              }
+              sequence.assert(seq, sourceCodeInfo);
+              if (i < 0 || i >= seq.length) {
+                  return notFound;
+              }
               return toAny(seq[i]);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       filter: {
           evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
@@ -3789,7 +3796,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
-      'inst-ms': {
+      'inst-ms!': {
           evaluate: function () {
               return Date.now();
           },

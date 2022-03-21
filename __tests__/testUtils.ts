@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import { Obj } from '../src/interface'
 
 interface Primitives extends Obj {

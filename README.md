@@ -293,3 +293,15 @@ lits.run('(+ 1 2 3 4)'); // returns 10
 * not
 * not=
 * write!
+### Assertion
+* assert
+* assert<
+* assert<=
+* assert=
+* assert>
+* assert>=
+* assertEqual
+* assertFalse
+* assertNot=
+* assertNotEqual
+* assertTrue

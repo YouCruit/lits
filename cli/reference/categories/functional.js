@@ -163,6 +163,7 @@ module.exports = {
     name: `some-pred`,
     category: `Functional`,
     linkName: `some-pred`,
+    clojureDocs: null,
     returns: {
       type: `Function`,
     },

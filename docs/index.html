@@ -16,7 +16,7 @@
   <div class="row">
     <div class="column"></div>
     <div class="column header">Lits</div>
-    <div class="column right version"><span>v1.0.6</span></div>
+    <div class="column right version"><span>v1.0.7-alpha.0</span></div>
   </div>
 </header>
     <main id="main-panel" class="fancy-scroll">
@@ -172,7 +172,7 @@
       <li>
         <div class="row example-item">
           <div class="column wide">
-            <div class="example-name">label-from-value</div>
+            <div class="example-name">labels-from-values</div>
             <div class="example-description">Find labels to corresponding values in array of {label value}-objects.</div>
           </div>
           <div class="column right">
@@ -186,7 +186,12 @@
 
       
 <div id="count" class="content function">
-  <div class="function-header">count</div>
+
+  <div class="function-header row">
+    <div class="column">count</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/count">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns number of elements in <span class="pre">coll</span>.</p>
   <label>Syntax</label>
@@ -208,7 +213,12 @@
 
 
 <div id="get" class="content function">
-  <div class="function-header">get</div>
+
+  <div class="function-header row">
+    <div class="column">get</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/get">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns value in <span class="pre">coll</span> mapped at <span class="pre">key</span>.</p>
   <label>Syntax</label>
@@ -228,12 +238,19 @@
 <pre><span class="example" onclick="addToPlayground('(get (object :a 1) :a)')"> <span class="icon-button">▶</span> (get (object :a 1) :a) <span class="gray">=> 1 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(get (object :a 1) :b)')"> <span class="icon-button">▶</span> (get (object :a 1) :b) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(get (object :a 1) :b ___single_quote___default___single_quote___)')"> <span class="icon-button">▶</span> (get (object :a 1) :b 'default') <span class="gray">=> "default" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(get nil :a)')"> <span class="icon-button">▶</span> (get nil :a) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(get nil :b ___single_quote___default___single_quote___)')"> <span class="icon-button">▶</span> (get nil :b 'default') <span class="gray">=> "default" </span> </span></pre>
   </div>
 </div>
 
 
 <div id="get-in" class="content function">
-  <div class="function-header">get-in</div>
+
+  <div class="function-header row">
+    <div class="column">get-in</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/get-in">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns the value in a nested collection, where <span class="pre">keys</span> is an array of keys. Returns <span class="pre">default</span> if the key is not present. If <span class="pre">default</span> is not set, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -255,7 +272,12 @@
 
 
 <div id="contains_question" class="content function">
-  <div class="function-header">contains?</div>
+
+  <div class="function-header row">
+    <div class="column">contains?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/contains_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">collection</span> contains <span class="pre">key</span>, otherwise returns <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -278,7 +300,12 @@
 
 
 <div id="has_question" class="content function">
-  <div class="function-header">has?</div>
+
+  <div class="function-header row">
+    <div class="column">has?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">collection</span> has <span class="pre">value</span>, otherwise returns <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -302,7 +329,12 @@
 
 
 <div id="has-some_question" class="content function">
-  <div class="function-header">has-some?</div>
+
+  <div class="function-header row">
+    <div class="column">has-some?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">collection</span> has any of the elements in <span class="pre">keys</span>, otherwise returns <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -330,7 +362,12 @@
 
 
 <div id="has-every_question" class="content function">
-  <div class="function-header">has-every?</div>
+
+  <div class="function-header row">
+    <div class="column">has-every?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">collection</span> has all of the elements in <span class="pre">keys</span>, otherwise returns <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -358,7 +395,12 @@
 
 
 <div id="assoc" class="content function">
-  <div class="function-header">assoc</div>
+
+  <div class="function-header row">
+    <div class="column">assoc</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/assoc">Clojure docs</a></div>
+  </div>
+
   
   <p>Sets <span class="pre">value</span> on specified element of <span class="pre">coll</span>.</p>
   <label>Syntax</label>
@@ -381,7 +423,12 @@
 
 
 <div id="assoc-in" class="content function">
-  <div class="function-header">assoc-in</div>
+
+  <div class="function-header row">
+    <div class="column">assoc-in</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/assoc-in">Clojure docs</a></div>
+  </div>
+
   
   <p>Associates a value in a nested Coll, where <span class="pre">keys</span> is an array of keys and <span class="pre">value</span> is the new value and returns a new nested structure. If any levels do not exist, objects will be created - and the corresponding keys must be of type string.</p>
   <label>Syntax</label>
@@ -403,7 +450,12 @@
 
 
 <div id="concat" class="content function">
-  <div class="function-header">concat</div>
+
+  <div class="function-header row">
+    <div class="column">concat</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/concat">Clojure docs</a></div>
+  </div>
+
   
   <p>Concatenates array or object arguments into one collection.</p>
   <label>Syntax</label>
@@ -426,54 +478,13 @@
 </div>
 
 
-<div id="empty_question" class="content function">
-  <div class="function-header">empty?</div>
-  
-  <p>Returns <span class="pre">true</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">false</span>.</p>
-  <label>Syntax</label>
-  <div class="indent">
-    <pre>empty? coll => boolean</pre>
-  </div>
-
-  <label>Arguments</label><div class="indent"><pre>coll: collection or string</pre></div>
-
-  <label>Examples</label>
-  <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(empty? [])')"> <span class="icon-button">▶</span> (empty? []) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(empty? [1 2 3])')"> <span class="icon-button">▶</span> (empty? [1 2 3]) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(empty? {})')"> <span class="icon-button">▶</span> (empty? {}) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(empty? {:a 2})')"> <span class="icon-button">▶</span> (empty? {:a 2}) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(empty? ___single_quote______single_quote___)')"> <span class="icon-button">▶</span> (empty? '') <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(empty? ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (empty? 'Albert') <span class="gray">=> false </span> </span></pre>
-  </div>
-</div>
-
-
-<div id="not-empty_question" class="content function">
-  <div class="function-header">not-empty?</div>
-  
-  <p>Returns <span class="pre">false</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">true</span>.</p>
-  <label>Syntax</label>
-  <div class="indent">
-    <pre>not-empty? coll => boolean</pre>
-  </div>
-
-  <label>Arguments</label><div class="indent"><pre>coll: collection or string</pre></div>
-
-  <label>Examples</label>
-  <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(not-empty? [])')"> <span class="icon-button">▶</span> (not-empty? []) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty? [1 2 3])')"> <span class="icon-button">▶</span> (not-empty? [1 2 3]) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty? {})')"> <span class="icon-button">▶</span> (not-empty? {}) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty? {:a 2})')"> <span class="icon-button">▶</span> (not-empty? {:a 2}) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty? ___single_quote______single_quote___)')"> <span class="icon-button">▶</span> (not-empty? '') <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty? ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (not-empty? 'Albert') <span class="gray">=> true </span> </span></pre>
-  </div>
-</div>
-
-
 <div id="not-empty" class="content function">
-  <div class="function-header">not-empty</div>
+
+  <div class="function-header row">
+    <div class="column">not-empty</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/not-empty">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">null</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">coll</span>.</p>
   <label>Syntax</label>
@@ -496,7 +507,12 @@
 
 
 <div id="every_question" class="content function">
-  <div class="function-header">every?</div>
+
+  <div class="function-header row">
+    <div class="column">every?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/every_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns true if all entries in <span class="pre">coll</span> pass the test implemented by <span class="pre">finder</span>, otherwise returns false.</p>
   <label>Syntax</label>
@@ -521,7 +537,12 @@
 
 
 <div id="not-every_question" class="content function">
-  <div class="function-header">not-every?</div>
+
+  <div class="function-header row">
+    <div class="column">not-every?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/not-every_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns true if all entries in <span class="pre">coll</span> pass the test implemented by <span class="pre">finder</span>, otherwise returns false.</p>
   <label>Syntax</label>
@@ -546,7 +567,12 @@
 
 
 <div id="any_question" class="content function">
-  <div class="function-header">any?</div>
+
+  <div class="function-header row">
+    <div class="column">any?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/any_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns true if any entry in <span class="pre">coll</span> pass the test implemented by <span class="pre">finder</span>, otherwise returns false.</p>
   <label>Syntax</label>
@@ -571,7 +597,12 @@
 
 
 <div id="not-any_question" class="content function">
-  <div class="function-header">not-any?</div>
+
+  <div class="function-header row">
+    <div class="column">not-any?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/not-any_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns false if any entry in <span class="pre">coll</span> pass the test implemented by <span class="pre">finder</span>, otherwise returns true.</p>
   <label>Syntax</label>
@@ -596,7 +627,12 @@
 
 
 <div id="update" class="content function">
-  <div class="function-header">update</div>
+
+  <div class="function-header row">
+    <div class="column">update</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/update">Clojure docs</a></div>
+  </div>
+
   
   <p>Updates a value in collection, where <span class="pre">key</span> is a key and <span class="pre">fn</span> is a function that will take the old value and any supplied <span class="pre">args</span> and return the new value, and returns a new collection.  If the key does not exist, nil is passed as the old value.</p>
   <label>Syntax</label>
@@ -618,7 +654,12 @@
 
 
 <div id="update-in" class="content function">
-  <div class="function-header">update-in</div>
+
+  <div class="function-header row">
+    <div class="column">update-in</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/update-in">Clojure docs</a></div>
+  </div>
+
   
   <p>'Updates' a value in <span class="pre">coll</span>, where <span class="pre">keys</span> is an array of keys (string or number) and <span class="pre">fn</span> is a function that will take the old value and any supplied <span class="pre">args</span> and return the new value, and returns a new Coll. If any levels do not exist, objects will be created - and the corresponding keys must be of type string.</p>
   <label>Syntax</label>
@@ -640,7 +681,12 @@
 
 
 <div id="array" class="content function">
-  <div class="function-header">array</div>
+
+  <div class="function-header row">
+    <div class="column">array</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/vector">Clojure docs</a></div>
+  </div>
+
   
   <p>Makes new array from <span class="pre">values</span>.</p>
   <label>Syntax</label>
@@ -665,7 +711,12 @@
 
 
 <div id="range" class="content function">
-  <div class="function-header">range</div>
+
+  <div class="function-header row">
+    <div class="column">range</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/range">Clojure docs</a></div>
+  </div>
+
   
   <p>Create an array with a range of numbers. If only one argument: <span class="pre">0...a</span>, otherwise: <span class="pre">a...b</span>. <span class="pre">step</span> defaults to <span class="pre">1</span>.</p>
   <label>Syntax</label>
@@ -688,7 +739,12 @@
 
 
 <div id="repeat" class="content function">
-  <div class="function-header">repeat</div>
+
+  <div class="function-header row">
+    <div class="column">repeat</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/repeat">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns an array with <span class="pre">value</span> repeated <span class="pre">count</span> times.</p>
   <label>Syntax</label>
@@ -709,7 +765,12 @@
 
 
 <div id="flatten" class="content function">
-  <div class="function-header">flatten</div>
+
+  <div class="function-header row">
+    <div class="column">flatten</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/flatten">Clojure docs</a></div>
+  </div>
+
   
   <p>Takes a nested array and return a flat array. If <span class="pre">input</span> isn't an array, an empty array is returned.</p>
   <label>Syntax</label>
@@ -729,7 +790,12 @@
 
 
 <div id="mapcat" class="content function">
-  <div class="function-header">mapcat</div>
+
+  <div class="function-header row">
+    <div class="column">mapcat</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/mapcat">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns the result of applying concat to the result of applying map to <span class="pre">mapper</span> and <span class="pre">arrays</span>.</p>
   <label>Syntax</label>
@@ -751,34 +817,46 @@
 
 
 <div id="nth" class="content function">
-  <div class="function-header">nth</div>
-  
-  <p>Accesses element <span class="pre">index</span> of <span class="pre">input</span>. Negative <span class="pre">index</span> counts backwards. Accessing out-of-bounds indices returns <span class="pre">nil</span>.</p>
-  <label>Syntax</label>
-  <div class="indent">
-    <pre>nth input index => any</pre>
+
+  <div class="function-header row">
+    <div class="column">nth</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/nth">Clojure docs</a></div>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>input: string | array</pre>
-<pre>index: integer</pre></div>
+  
+  <p>Accesses element <span class="pre">index</span> of <span class="pre">input</span>. Accessing out-of-bounds indices returns <span class="pre">notFound</span> or <span class="pre">nil</span>.</p>
+  <label>Syntax</label>
+  <div class="indent">
+    <pre>nth input index notFound(optional) => any</pre>
+  </div>
+
+  <label>Arguments</label><div class="indent"><pre>input: string | array | nil</pre>
+<pre>index: integer</pre>
+<pre>notFound: any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(nth [1 2 3] 1)')"> <span class="icon-button">▶</span> (nth [1 2 3] 1) <span class="gray">=> 2 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nth [1 2 3] 3)')"> <span class="icon-button">▶</span> (nth [1 2 3] 3) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nth [1 2 3] -1)')"> <span class="icon-button">▶</span> (nth [1 2 3] -1) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(nth [1 2 3] -1)')"> <span class="icon-button">▶</span> (nth [1 2 3] -1) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(nth [1 2 3] 3 99)')"> <span class="icon-button">▶</span> (nth [1 2 3] 3 99) <span class="gray">=> 99 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nth ___single_quote___A string___single_quote___ 1)')"> <span class="icon-button">▶</span> (nth 'A string' 1) <span class="gray">=> " " </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nth ___single_quote___A string___single_quote___ 3)')"> <span class="icon-button">▶</span> (nth 'A string' 3) <span class="gray">=> "t" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nth ___single_quote___A string___single_quote___ -3)')"> <span class="icon-button">▶</span> (nth 'A string' -3) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(nth ___single_quote___A string___single_quote___ 30)')"> <span class="icon-button">▶</span> (nth 'A string' 30) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(nth ___single_quote___A string___single_quote___ -30)')"> <span class="icon-button">▶</span> (nth 'A string' -30) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(nth ___single_quote___A string___single_quote___ 30 :X)')"> <span class="icon-button">▶</span> (nth 'A string' 30 :X) <span class="gray">=> "X" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(nth nil 1)')"> <span class="icon-button">▶</span> (nth nil 1) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(nth nil 1 ___single_quote___Default value___single_quote___)')"> <span class="icon-button">▶</span> (nth nil 1 'Default value') <span class="gray">=> "Default value" </span> </span></pre>
   </div>
 </div>
 
 
 <div id="push" class="content function">
-  <div class="function-header">push</div>
+
+  <div class="function-header row">
+    <div class="column">push</div>
+    
+  </div>
+
   
   <p>Pushes <span class="pre">values</span> to the end of <span class="pre">array</span>.</p>
   <label>Syntax</label>
@@ -799,7 +877,12 @@
 
 
 <div id="pop" class="content function">
-  <div class="function-header">pop</div>
+
+  <div class="function-header row">
+    <div class="column">pop</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/pop">Clojure docs</a></div>
+  </div>
+
   
   <p>Removes and returns then last item of <span class="pre">array</span>. If <span class="pre">array</span> is empty, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -819,7 +902,12 @@
 
 
 <div id="unshift" class="content function">
-  <div class="function-header">unshift</div>
+
+  <div class="function-header row">
+    <div class="column">unshift</div>
+    
+  </div>
+
   
   <p>Inserts <span class="pre">values</span> at the beginning of <span class="pre">array</span>.</p>
   <label>Syntax</label>
@@ -840,7 +928,12 @@
 
 
 <div id="shift" class="content function">
-  <div class="function-header">shift</div>
+
+  <div class="function-header row">
+    <div class="column">shift</div>
+    
+  </div>
+
   
   <p>Removes and returns the first item of <span class="pre">array</span>. If <span class="pre">array</span> is empty, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -860,7 +953,12 @@
 
 
 <div id="slice" class="content function">
-  <div class="function-header">slice</div>
+
+  <div class="function-header row">
+    <div class="column">slice</div>
+    
+  </div>
+
   
   <p>Returns a shallow copy of a portion of <span class="pre">array</span> into a new array selected from index <span class="pre">start</span> (inclusive) to index <span class="pre">end</span> (exclusive). If <span class="pre">start</span> is not provided it defaults to <span class="pre">0</span>. If <span class="pre">end</span> is not provided, the rest of the array will be copied.</p>
   <label>Syntax</label>
@@ -881,7 +979,12 @@
 
 
 <div id="reductions" class="content function">
-  <div class="function-header">reductions</div>
+
+  <div class="function-header row">
+    <div class="column">reductions</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/reductions">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns an array of the intermediate values of the reduction (see <span class="pre">reduce</span>) of <span class="pre">seq</span> by <span class="pre">reducer</span>.</p>
   <label>Syntax</label>
@@ -904,7 +1007,12 @@
 
 
 <div id="reduce" class="content function">
-  <div class="function-header">reduce</div>
+
+  <div class="function-header row">
+    <div class="column">reduce</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/reduce">Clojure docs</a></div>
+  </div>
+
   
   <p>Runs <span class="pre">reducer</span> function on each element of the <span class="pre">seq</span>, passing in the return value from the calculation on the preceding element. The final result of running the reducer across all elements of the <span class="pre">seq</span> is a single value.</p>
   <label>Syntax</label>
@@ -927,7 +1035,12 @@
 
 
 <div id="reduce-right" class="content function">
-  <div class="function-header">reduce-right</div>
+
+  <div class="function-header row">
+    <div class="column">reduce-right</div>
+    
+  </div>
+
   
   <p>Runs <span class="pre">reducer</span> function on each element of the <span class="pre">seq</span> (starting from the last item), passing in the return value from the calculation on the preceding element. The final result of running the reducer across all elements of the <span class="pre">seq</span> is a single value.</p>
   <label>Syntax</label>
@@ -947,7 +1060,12 @@
 
 
 <div id="map" class="content function">
-  <div class="function-header">map</div>
+
+  <div class="function-header row">
+    <div class="column">map</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/map">Clojure docs</a></div>
+  </div>
+
   
   <p>Creates a new array populated with the results of calling <span class="pre">mapper</span> on every elements in the calling <span class="pre">sequence</span>s.</p>
   <label>Syntax</label>
@@ -969,7 +1087,12 @@
 
 
 <div id="filter" class="content function">
-  <div class="function-header">filter</div>
+
+  <div class="function-header row">
+    <div class="column">filter</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/filter">Clojure docs</a></div>
+  </div>
+
   
   <p>Creates a new array with all elements that pass the test implemented by <span class="pre">filter</span>.</p>
   <label>Syntax</label>
@@ -989,7 +1112,12 @@
 
 
 <div id="position" class="content function">
-  <div class="function-header">position</div>
+
+  <div class="function-header row">
+    <div class="column">position</div>
+    
+  </div>
+
   
   <p>Returns the index of the first elements that pass the test implemented by <span class="pre">finder</span>. If no element was found, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -1010,7 +1138,12 @@
 
 
 <div id="index-of" class="content function">
-  <div class="function-header">index-of</div>
+
+  <div class="function-header row">
+    <div class="column">index-of</div>
+    
+  </div>
+
   
   <p>Returns the index of <span class="pre">value</span> in array. If element is not present in <span class="pre">array</span> <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -1031,7 +1164,12 @@
 
 
 <div id="some" class="content function">
-  <div class="function-header">some</div>
+
+  <div class="function-header row">
+    <div class="column">some</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/some">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns the first elements that pass the test implemented by <span class="pre">finder</span>. I no element was found, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -1053,7 +1191,12 @@
 
 
 <div id="reverse" class="content function">
-  <div class="function-header">reverse</div>
+
+  <div class="function-header row">
+    <div class="column">reverse</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/reverse">Clojure docs</a></div>
+  </div>
+
   
   <p>If <span class="pre">input</span> is an array, creates a new array with the elements from <span class="pre">input</span> in reversed order. If <span class="pre">input</span> is a string, returns new reversed string.</p>
   <label>Syntax</label>
@@ -1073,7 +1216,12 @@
 
 
 <div id="first" class="content function">
-  <div class="function-header">first</div>
+
+  <div class="function-header row">
+    <div class="column">first</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/first">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns the first element of <span class="pre">array</span>. If <span class="pre">array</span> is empty, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -1092,7 +1240,12 @@
 
 
 <div id="second" class="content function">
-  <div class="function-header">second</div>
+
+  <div class="function-header row">
+    <div class="column">second</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/second">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns the second element of <span class="pre">array</span>. If <span class="pre">array</span> has less than two elements, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -1112,7 +1265,12 @@
 
 
 <div id="last" class="content function">
-  <div class="function-header">last</div>
+
+  <div class="function-header row">
+    <div class="column">last</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/last">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns the last element of <span class="pre">array</span>. If <span class="pre">array</span> is empty, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -1133,7 +1291,12 @@
 
 
 <div id="rest" class="content function">
-  <div class="function-header">rest</div>
+
+  <div class="function-header row">
+    <div class="column">rest</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/rest">Clojure docs</a></div>
+  </div>
+
   
   <p>If <span class="pre">input</span> is an array, returns a new array with all but the first element from <span class="pre">input</span>. If <span class="pre">input</span> has less than two elements, an empty array is returned. For string <span class="pre">input</span> returns all but the first characters in <span class="pre">input</span>.</p>
   <label>Syntax</label>
@@ -1156,7 +1319,12 @@
 
 
 <div id="nthrest" class="content function">
-  <div class="function-header">nthrest</div>
+
+  <div class="function-header row">
+    <div class="column">nthrest</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/nthrest">Clojure docs</a></div>
+  </div>
+
   
   <p>If <span class="pre">input</span> is an array, returns a new array with all but the first <span class="pre">count</span> elements from <span class="pre">input</span>. For string <span class="pre">input</span> returns all but the first <span class="pre">count</span> characters in <span class="pre">input</span>.</p>
   <label>Syntax</label>
@@ -1178,7 +1346,12 @@
 
 
 <div id="next" class="content function">
-  <div class="function-header">next</div>
+
+  <div class="function-header row">
+    <div class="column">next</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/next">Clojure docs</a></div>
+  </div>
+
   
   <p>If <span class="pre">input</span> is an array, returns a new array with all but the first element from <span class="pre">input</span>. If <span class="pre">input</span> has less than two elements, <span class="pre">nil</span> is returned. For string <span class="pre">input</span> returns all but the first characters in <span class="pre">input</span>. If length of string <span class="pre">input</span> is less than two, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -1201,7 +1374,12 @@
 
 
 <div id="nthnext" class="content function">
-  <div class="function-header">nthnext</div>
+
+  <div class="function-header row">
+    <div class="column">nthnext</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/nthnext">Clojure docs</a></div>
+  </div>
+
   
   <p>If <span class="pre">input</span> is an array, returns a new array with all but the first <span class="pre">count</span> elements from <span class="pre">input</span>. If <span class="pre">input</span> has less or equal than <span class="pre">count</span> elements, <span class="pre">nil</span> returned. For string <span class="pre">input</span> returns all but the first <span class="pre">count</span> characters in <span class="pre">input</span>. If length of string <span class="pre">input</span> is less or equal than <span class="pre">count</span>, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -1223,7 +1401,12 @@
 
 
 <div id="cons" class="content function">
-  <div class="function-header">cons</div>
+
+  <div class="function-header row">
+    <div class="column">cons</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/cons">Clojure docs</a></div>
+  </div>
+
   
   <p>Constructs a new array with <span class="pre">element</span> as first element and <span class="pre">rest</span> as the rest.</p>
   <label>Syntax</label>
@@ -1242,7 +1425,12 @@
 
 
 <div id="take" class="content function">
-  <div class="function-header">take</div>
+
+  <div class="function-header row">
+    <div class="column">take</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/take">Clojure docs</a></div>
+  </div>
+
   
   <p>Constructs a new array/string with the <span class="pre">count</span> first elements from <span class="pre">input</span>.</p>
   <label>Syntax</label>
@@ -1264,7 +1452,12 @@
 
 
 <div id="take-last" class="content function">
-  <div class="function-header">take-last</div>
+
+  <div class="function-header row">
+    <div class="column">take-last</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/take-last">Clojure docs</a></div>
+  </div>
+
   
   <p>Constructs a new array with the <span class="pre">count</span> last elements from <span class="pre">array</span>.</p>
   <label>Syntax</label>
@@ -1284,7 +1477,12 @@
 
 
 <div id="take-while" class="content function">
-  <div class="function-header">take-while</div>
+
+  <div class="function-header row">
+    <div class="column">take-while</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/take-while">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns the members of <span class="pre">array</span> in order, stopping before the first one for which <span class="pre">predicate</span> returns a falsy value.</p>
   <label>Syntax</label>
@@ -1304,7 +1502,12 @@
 
 
 <div id="drop" class="content function">
-  <div class="function-header">drop</div>
+
+  <div class="function-header row">
+    <div class="column">drop</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/drop">Clojure docs</a></div>
+  </div>
+
   
   <p>Constructs a new array/string with the <span class="pre">count</span> first elements dropped from <span class="pre">input</span>.</p>
   <label>Syntax</label>
@@ -1326,16 +1529,21 @@
 
 
 <div id="drop-last" class="content function">
-  <div class="function-header">drop-last</div>
+
+  <div class="function-header row">
+    <div class="column">drop-last</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/drop-last">Clojure docs</a></div>
+  </div>
+
   
   <p>Constructs a new array with the <span class="pre">count</span> last elements dropped from <span class="pre">array</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>drop-last array count => array</pre>
+    <pre>drop-last count array => array</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>array: array</pre>
-<pre>count: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>count: integer</pre>
+<pre>array: array</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1346,7 +1554,12 @@
 
 
 <div id="drop-while" class="content function">
-  <div class="function-header">drop-while</div>
+
+  <div class="function-header row">
+    <div class="column">drop-while</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/drop-while">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns the members of <span class="pre">array</span> in order, skipping the fist elements for witch the <span class="pre">predicate</span> returns a truethy value.</p>
   <label>Syntax</label>
@@ -1366,7 +1579,12 @@
 
 
 <div id="sort" class="content function">
-  <div class="function-header">sort</div>
+
+  <div class="function-header row">
+    <div class="column">sort</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/sort">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a new Seq with the elements from <span class="pre">seq</span> sorted according to <span class="pre">comparer</span>. If no <span class="pre">comparer</span> is supplied, builtin <span class="pre">compare</span> will be used.</p>
   <label>Syntax</label>
@@ -1387,7 +1605,12 @@
 
 
 <div id="sort-by" class="content function">
-  <div class="function-header">sort-by</div>
+
+  <div class="function-header row">
+    <div class="column">sort-by</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/sort-by">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a sorted sequence of the items in <span class="pre">seq</span>, where the sort order is determined by comparing <span class="pre">(keyfn item)</span>. If no <span class="pre">comparer</span> is supplied, uses builtin <span class="pre">compare</span>.</p>
   <label>Syntax</label>
@@ -1408,7 +1631,12 @@
 
 
 <div id="join" class="content function">
-  <div class="function-header">join</div>
+
+  <div class="function-header row">
+    <div class="column">join</div>
+    
+  </div>
+
   
   <p>Returns a new string by concatenating all of the elements in <span class="pre">array</span>, separated by <span class="pre">delimiter</span>.</p>
   <label>Syntax</label>
@@ -1428,7 +1656,12 @@
 
 
 <div id="random-sample_exclamation" class="content function">
-  <div class="function-header">random-sample!</div>
+
+  <div class="function-header row">
+    <div class="column">random-sample!</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/random-sample">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns an array. Each element from <span class="pre">array</span> has the probability <span class="pre">prob</span> to be included in the result.</p>
   <label>Syntax</label>
@@ -1441,55 +1674,71 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [2,3,8] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 'Albert') <span class="gray">=> "t" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [2,5,7] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 'Albert') <span class="gray">=> "Alet" </span> </span></pre>
   </div>
 </div>
 
 
 <div id="rand-nth_exclamation" class="content function">
-  <div class="function-header">rand-nth!</div>
-  
-  <p>Returns an array. Each element from <span class="pre">array</span> has the probability <span class="pre">prob</span> to be included in the result.</p>
-  <label>Syntax</label>
-  <div class="indent">
-    <pre>rand-nth! array => any</pre>
+
+  <div class="function-header row">
+    <div class="column">rand-nth!</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/rand-nth">Clojure docs</a></div>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>array: array</pre></div>
+  
+  <p>Returns a random element from <span class="pre">seq</span>. Returns <span class="pre">nil</span> if <span class="pre">seq</span> is empty.</p>
+  <label>Syntax</label>
+  <div class="indent">
+    <pre>rand-nth! seq => any</pre>
+  </div>
+
+  <label>Arguments</label><div class="indent"><pre>seq: seq</pre></div>
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 8 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-nth! ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (rand-nth! 'Albert') <span class="gray">=> "b" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 9 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-nth! ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (rand-nth! 'Albert') <span class="gray">=> "A" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-nth! [])')"> <span class="icon-button">▶</span> (rand-nth! []) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
-<div id="shuffle" class="content function">
-  <div class="function-header">shuffle</div>
+<div id="shuffle_exclamation" class="content function">
+
+  <div class="function-header row">
+    <div class="column">shuffle!</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/shuffle">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a shuffled copy of <span class="pre">input</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>shuffle input => Seq</pre>
+    <pre>shuffle! input => Seq</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>input: Seq</pre></div>
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shuffle [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [9,3,5,2,7,4,10,6,8,1] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle ___single_quote___Albert Mojir___single_quote___)')"> <span class="icon-button">▶</span> (shuffle 'Albert Mojir') <span class="gray">=> "oirAe rtlbMj" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle [1 2])')"> <span class="icon-button">▶</span> (shuffle [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle [1])')"> <span class="icon-button">▶</span> (shuffle [1]) <span class="gray">=> [1] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle [])')"> <span class="icon-button">▶</span> (shuffle []) <span class="gray">=> [] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [2,5,1,9,4,10,8,3,6,7] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! ___single_quote___Albert Mojir___single_quote___)')"> <span class="icon-button">▶</span> (shuffle! 'Albert Mojir') <span class="gray">=> " eorrMbitljA" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! [1 2])')"> <span class="icon-button">▶</span> (shuffle! [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! [1])')"> <span class="icon-button">▶</span> (shuffle! [1]) <span class="gray">=> [1] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! [])')"> <span class="icon-button">▶</span> (shuffle! []) <span class="gray">=> [] </span> </span></pre>
   </div>
 </div>
 
 
 <div id="distinct" class="content function">
-  <div class="function-header">distinct</div>
+
+  <div class="function-header row">
+    <div class="column">distinct</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/distinct">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a copy of <span class="pre">input</span> with no duplicates.</p>
   <label>Syntax</label>
@@ -1510,7 +1759,12 @@
 
 
 <div id="remove" class="content function">
-  <div class="function-header">remove</div>
+
+  <div class="function-header row">
+    <div class="column">remove</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/remove">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a new sequence of items in <span class="pre">input</span> for witch <span class="pre">(pred item)</span> returns a falsy value.</p>
   <label>Syntax</label>
@@ -1530,7 +1784,12 @@
 
 
 <div id="remove-at" class="content function">
-  <div class="function-header">remove-at</div>
+
+  <div class="function-header row">
+    <div class="column">remove-at</div>
+    
+  </div>
+
   
   <p>Returns a new sequence of all items in <span class="pre">input</span> except item at <span class="pre">index</span>.</p>
   <label>Syntax</label>
@@ -1551,7 +1810,12 @@
 
 
 <div id="split-at" class="content function">
-  <div class="function-header">split-at</div>
+
+  <div class="function-header row">
+    <div class="column">split-at</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/split-at">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a new array/string of <span class="pre">[(take pos input) (drop pos input)]</span>.</p>
   <label>Syntax</label>
@@ -1571,7 +1835,12 @@
 
 
 <div id="split-with" class="content function">
-  <div class="function-header">split-with</div>
+
+  <div class="function-header row">
+    <div class="column">split-with</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/split-with">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a new array/string of <span class="pre">[(take-while pos input) (drop-while pos input)]</span>.</p>
   <label>Syntax</label>
@@ -1591,7 +1860,12 @@
 
 
 <div id="frequencies" class="content function">
-  <div class="function-header">frequencies</div>
+
+  <div class="function-header row">
+    <div class="column">frequencies</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/frequencies">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns an object from distinct items in <span class="pre">seq</span> to the number of times they appear. Note that all items in <span class="pre">seq</span> must be valid object keys i.e. strings.</p>
   <label>Syntax</label>
@@ -1610,7 +1884,12 @@
 
 
 <div id="group-by" class="content function">
-  <div class="function-header">group-by</div>
+
+  <div class="function-header row">
+    <div class="column">group-by</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/group-by">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns an object of the elements of <span class="pre">seq</span> keyed by the result of <span class="pre">fn</span> on each element. The value at each key will be an array of the corresponding elements.</p>
   <label>Syntax</label>
@@ -1630,7 +1909,12 @@
 
 
 <div id="partition" class="content function">
-  <div class="function-header">partition</div>
+
+  <div class="function-header row">
+    <div class="column">partition</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/partition">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns an array of sequences of <span class="pre">n</span> items each, at offsets <span class="pre">step</span> apart. If <span class="pre">step</span> is not supplied, defaults to <span class="pre">n</span>. If a <span class="pre">pad</span> array is supplied, use its elements as necessary to complete last partition upto <span class="pre">n</span> items. In case there are not enough padding elements, return a partition with less than <span class="pre">n</span> items.</p>
   <label>Syntax</label>
@@ -1665,7 +1949,12 @@
 
 
 <div id="partition-all" class="content function">
-  <div class="function-header">partition-all</div>
+
+  <div class="function-header row">
+    <div class="column">partition-all</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/partition-all">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns an array of sequences like partition, but may include partitions with fewer than n items at the end.</p>
   <label>Syntax</label>
@@ -1687,7 +1976,12 @@
 
 
 <div id="partition-by" class="content function">
-  <div class="function-header">partition-by</div>
+
+  <div class="function-header row">
+    <div class="column">partition-by</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/partition-by">Clojure docs</a></div>
+  </div>
+
   
   <p>Applies <span class="pre">fn</span> to each value in <span class="pre">seq</span>, splitting it each time <span class="pre">fn</span> returns a new value. Returns an array of sequences.</p>
   <label>Syntax</label>
@@ -1708,7 +2002,12 @@
 
 
 <div id="_plus" class="content function">
-  <div class="function-header">+</div>
+
+  <div class="function-header row">
+    <div class="column">+</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/+">Clojure docs</a></div>
+  </div>
+
   
   <p>Computes sum of <span class="pre">numbers</span>.</p>
   <label>Syntax</label>
@@ -1730,7 +2029,12 @@
 
 
 <div id="_minus" class="content function">
-  <div class="function-header">-</div>
+
+  <div class="function-header row">
+    <div class="column">-</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/-">Clojure docs</a></div>
+  </div>
+
   
   <p>Computes difference between first value and sum of the rest. When called with only one argument, it does negation.</p>
   <label>Syntax</label>
@@ -1751,7 +2055,12 @@
 
 
 <div id="_star" class="content function">
-  <div class="function-header">*</div>
+
+  <div class="function-header row">
+    <div class="column">*</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/*">Clojure docs</a></div>
+  </div>
+
   
   <p>Computes product of <span class="pre">numbers</span>.</p>
   <label>Syntax</label>
@@ -1772,7 +2081,12 @@
 
 
 <div id="_slash" class="content function">
-  <div class="function-header">/</div>
+
+  <div class="function-header row">
+    <div class="column">/</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/_fs">Clojure docs</a></div>
+  </div>
+
   
   <p>Computes division or reciprocal. When called with one argument it computes reciprocal. When called with two or more arguments it does compute division of the first by the all remaining <span class="pre">numbers</span>.</p>
   <label>Syntax</label>
@@ -1793,7 +2107,12 @@
 
 
 <div id="mod" class="content function">
-  <div class="function-header">mod</div>
+
+  <div class="function-header row">
+    <div class="column">mod</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/mod">Clojure docs</a></div>
+  </div>
+
   
   <p>Modulus of <span class="pre">dividend</span> and <span class="pre">divisor</span>. Truncates toward negative infinity.</p>
   <label>Syntax</label>
@@ -1816,7 +2135,12 @@
 
 
 <div id="rem" class="content function">
-  <div class="function-header">rem</div>
+
+  <div class="function-header row">
+    <div class="column">rem</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/rem">Clojure docs</a></div>
+  </div>
+
   
   <p>Remainder of dividing <span class="pre">dividend</span> and <span class="pre">divisor</span>.</p>
   <label>Syntax</label>
@@ -1839,7 +2163,12 @@
 
 
 <div id="quot" class="content function">
-  <div class="function-header">quot</div>
+
+  <div class="function-header row">
+    <div class="column">quot</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/quot">Clojure docs</a></div>
+  </div>
+
   
   <p>Quotient of dividing <span class="pre">dividend</span> and <span class="pre">divisor</span>.</p>
   <label>Syntax</label>
@@ -1862,7 +2191,12 @@
 
 
 <div id="inc" class="content function">
-  <div class="function-header">inc</div>
+
+  <div class="function-header row">
+    <div class="column">inc</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/inc">Clojure docs</a></div>
+  </div>
+
   
   <p>Adds one to <span class="pre">number</span>.</p>
   <label>Syntax</label>
@@ -1882,7 +2216,12 @@
 
 
 <div id="dec" class="content function">
-  <div class="function-header">dec</div>
+
+  <div class="function-header row">
+    <div class="column">dec</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/dec">Clojure docs</a></div>
+  </div>
+
   
   <p>Subtracts one from <span class="pre">number</span>.</p>
   <label>Syntax</label>
@@ -1902,7 +2241,12 @@
 
 
 <div id="sqrt" class="content function">
-  <div class="function-header">sqrt</div>
+
+  <div class="function-header row">
+    <div class="column">sqrt</div>
+    
+  </div>
+
   
   <p>Computes square root of <span class="pre">number</span>.</p>
   <label>Syntax</label>
@@ -1922,7 +2266,12 @@
 
 
 <div id="cbrt" class="content function">
-  <div class="function-header">cbrt</div>
+
+  <div class="function-header row">
+    <div class="column">cbrt</div>
+    
+  </div>
+
   
   <p>Computes cube root of <span class="pre">number</span>.</p>
   <label>Syntax</label>
@@ -1943,7 +2292,12 @@
 
 
 <div id="pow" class="content function">
-  <div class="function-header">pow</div>
+
+  <div class="function-header row">
+    <div class="column">pow</div>
+    
+  </div>
+
   
   <p>Computes returns <span class="pre">base-number</span> raised to the <span class="pre">power-number</span>.</p>
   <label>Syntax</label>
@@ -1966,7 +2320,12 @@
 
 
 <div id="exp" class="content function">
-  <div class="function-header">exp</div>
+
+  <div class="function-header row">
+    <div class="column">exp</div>
+    
+  </div>
+
   
   <p>Computes <span class="pre">e</span> rasied to the <span class="pre">power-number</span>.</p>
   <label>Syntax</label>
@@ -1987,7 +2346,12 @@
 
 
 <div id="round" class="content function">
-  <div class="function-header">round</div>
+
+  <div class="function-header row">
+    <div class="column">round</div>
+    
+  </div>
+
   
   <p>Returns rounded <span class="pre">number</span>. If <span class="pre">decimals</span> is provided it return a number with that many decimals.</p>
   <label>Syntax</label>
@@ -2012,7 +2376,12 @@
 
 
 <div id="trunc" class="content function">
-  <div class="function-header">trunc</div>
+
+  <div class="function-header row">
+    <div class="column">trunc</div>
+    
+  </div>
+
   
   <p>Returns the integer part of <span class="pre">number</span> by removing any fractional digits.</p>
   <label>Syntax</label>
@@ -2035,7 +2404,12 @@
 
 
 <div id="floor" class="content function">
-  <div class="function-header">floor</div>
+
+  <div class="function-header row">
+    <div class="column">floor</div>
+    
+  </div>
+
   
   <p>Returns the largest <span class="pre">integer</span> less than or equal to <span class="pre">number</span>.</p>
   <label>Syntax</label>
@@ -2058,7 +2432,12 @@
 
 
 <div id="ceil" class="content function">
-  <div class="function-header">ceil</div>
+
+  <div class="function-header row">
+    <div class="column">ceil</div>
+    
+  </div>
+
   
   <p>Returns the smallest <span class="pre">integer</span> larger than or equal to <span class="pre">number</span>.</p>
   <label>Syntax</label>
@@ -2081,7 +2460,12 @@
 
 
 <div id="min" class="content function">
-  <div class="function-header">min</div>
+
+  <div class="function-header row">
+    <div class="column">min</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/min">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns the smallest number of the arguments.</p>
   <label>Syntax</label>
@@ -2101,7 +2485,12 @@
 
 
 <div id="max" class="content function">
-  <div class="function-header">max</div>
+
+  <div class="function-header row">
+    <div class="column">max</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/max">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns the largest number of the arguments.</p>
   <label>Syntax</label>
@@ -2121,7 +2510,12 @@
 
 
 <div id="abs" class="content function">
-  <div class="function-header">abs</div>
+
+  <div class="function-header row">
+    <div class="column">abs</div>
+    
+  </div>
+
   
   <p>Returns the absolute value of <span class="pre">number</span>.</p>
   <label>Syntax</label>
@@ -2141,7 +2535,12 @@
 
 
 <div id="sign" class="content function">
-  <div class="function-header">sign</div>
+
+  <div class="function-header row">
+    <div class="column">sign</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">1</span> if <span class="pre">number > 0</span>, <span class="pre">-1</span> if <span class="pre">number < 0</span>, <span class="pre">0</span> if <span class="pre">number = 0</span> or <span class="pre">-0</span> if <span class="pre">number = -0</span>.</p>
   <label>Syntax</label>
@@ -2162,7 +2561,12 @@
 
 
 <div id="positive-infinity" class="content function">
-  <div class="function-header">positive-infinity</div>
+
+  <div class="function-header row">
+    <div class="column">positive-infinity</div>
+    
+  </div>
+
   
   <p>Returns a number representing positive positive-infinity.</p>
   <label>Syntax</label>
@@ -2180,7 +2584,12 @@
 
 
 <div id="negative-infinity" class="content function">
-  <div class="function-header">negative-infinity</div>
+
+  <div class="function-header row">
+    <div class="column">negative-infinity</div>
+    
+  </div>
+
   
   <p>Returns a number representing negative infinity.</p>
   <label>Syntax</label>
@@ -2198,7 +2607,12 @@
 
 
 <div id="max-safe-integer" class="content function">
-  <div class="function-header">max-safe-integer</div>
+
+  <div class="function-header row">
+    <div class="column">max-safe-integer</div>
+    
+  </div>
+
   
   <p>Returns a number representing the maximum safe integer.</p>
   <label>Syntax</label>
@@ -2216,7 +2630,12 @@
 
 
 <div id="min-safe-integer" class="content function">
-  <div class="function-header">min-safe-integer</div>
+
+  <div class="function-header row">
+    <div class="column">min-safe-integer</div>
+    
+  </div>
+
   
   <p>Returns a number representing the minimum safe integer.</p>
   <label>Syntax</label>
@@ -2234,7 +2653,12 @@
 
 
 <div id="max-value" class="content function">
-  <div class="function-header">max-value</div>
+
+  <div class="function-header row">
+    <div class="column">max-value</div>
+    
+  </div>
+
   
   <p>Returns a number representing the maximum numeric value.</p>
   <label>Syntax</label>
@@ -2252,7 +2676,12 @@
 
 
 <div id="min-value" class="content function">
-  <div class="function-header">min-value</div>
+
+  <div class="function-header row">
+    <div class="column">min-value</div>
+    
+  </div>
+
   
   <p>Returns a number representing the smallest positive numeric value.</p>
   <label>Syntax</label>
@@ -2270,7 +2699,12 @@
 
 
 <div id="epsilon" class="content function">
-  <div class="function-header">epsilon</div>
+
+  <div class="function-header row">
+    <div class="column">epsilon</div>
+    
+  </div>
+
   
   <p>Returns a number representing the difference between 1 and the smallest floating point number greater than 1.</p>
   <label>Syntax</label>
@@ -2288,7 +2722,12 @@
 
 
 <div id="nan" class="content function">
-  <div class="function-header">nan</div>
+
+  <div class="function-header row">
+    <div class="column">nan</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/nan">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a number representing Not-A-Number.</p>
   <label>Syntax</label>
@@ -2306,7 +2745,12 @@
 
 
 <div id="e" class="content function">
-  <div class="function-header">e</div>
+
+  <div class="function-header row">
+    <div class="column">e</div>
+    
+  </div>
+
   
   <p>Returns Euler's number, the base of natural logarithms, e.</p>
   <label>Syntax</label>
@@ -2324,7 +2768,12 @@
 
 
 <div id="pi" class="content function">
-  <div class="function-header">pi</div>
+
+  <div class="function-header row">
+    <div class="column">pi</div>
+    
+  </div>
+
   
   <p>Returns Pi, the ratio of the circumference of a circle to its diameter.</p>
   <label>Syntax</label>
@@ -2342,7 +2791,12 @@
 
 
 <div id="log" class="content function">
-  <div class="function-header">log</div>
+
+  <div class="function-header row">
+    <div class="column">log</div>
+    
+  </div>
+
   
   <p>Returns the natural logarithm (base e) of <span class="pre">number</span>.</p>
   <label>Syntax</label>
@@ -2362,7 +2816,12 @@
 
 
 <div id="log2" class="content function">
-  <div class="function-header">log2</div>
+
+  <div class="function-header row">
+    <div class="column">log2</div>
+    
+  </div>
+
   
   <p>Returns the base 2 logarithm of a number.</p>
   <label>Syntax</label>
@@ -2382,7 +2841,12 @@
 
 
 <div id="log10" class="content function">
-  <div class="function-header">log10</div>
+
+  <div class="function-header row">
+    <div class="column">log10</div>
+    
+  </div>
+
   
   <p>Returns the base 2 logarithm of a number.</p>
   <label>Syntax</label>
@@ -2402,7 +2866,12 @@
 
 
 <div id="rand_exclamation" class="content function">
-  <div class="function-header">rand!</div>
+
+  <div class="function-header row">
+    <div class="column">rand!</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/rand">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a semi random number between <span class="pre">0</span> (inclusive) and <span class="pre">number</span> (default 1) (exclusive).</p>
   <label>Syntax</label>
@@ -2414,15 +2883,20 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.12493852499761626 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.009475520740985772 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 2.4312672270729845 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.8488049014023327 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.009621758787111363 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 1.6620813370175664 </span> </span></pre>
   </div>
 </div>
 
 
 <div id="rand-int_exclamation" class="content function">
-  <div class="function-header">rand-int!</div>
+
+  <div class="function-header row">
+    <div class="column">rand-int!</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/rand-int">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a semi random integer between <span class="pre">0</span> (inclusive) and <span class="pre">number</span> (exclusive).</p>
   <label>Syntax</label>
@@ -2435,14 +2909,19 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(rand-int! 1)')"> <span class="icon-button">▶</span> (rand-int! 1) <span class="gray">=> 0 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 1 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 106 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 3 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 55 </span> </span></pre>
   </div>
 </div>
 
 
 <div id="sin" class="content function">
-  <div class="function-header">sin</div>
+
+  <div class="function-header row">
+    <div class="column">sin</div>
+    
+  </div>
+
   
   <p>Returns the sine of <span class="pre">angle</span>. <span class="pre">angle</span> must be specified in radians.</p>
   <label>Syntax</label>
@@ -2463,7 +2942,12 @@
 
 
 <div id="cos" class="content function">
-  <div class="function-header">cos</div>
+
+  <div class="function-header row">
+    <div class="column">cos</div>
+    
+  </div>
+
   
   <p>Returns the cosine of <span class="pre">angle</span>. <span class="pre">angle</span> must be specified in radians.</p>
   <label>Syntax</label>
@@ -2484,7 +2968,12 @@
 
 
 <div id="tan" class="content function">
-  <div class="function-header">tan</div>
+
+  <div class="function-header row">
+    <div class="column">tan</div>
+    
+  </div>
+
   
   <p>Returns the tangent of <span class="pre">angle</span>. <span class="pre">angle</span> must be specified in radians.</p>
   <label>Syntax</label>
@@ -2505,7 +2994,12 @@
 
 
 <div id="asin" class="content function">
-  <div class="function-header">asin</div>
+
+  <div class="function-header row">
+    <div class="column">asin</div>
+    
+  </div>
+
   
   <p>Returns the arcsine (in radians) of <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -2525,7 +3019,12 @@
 
 
 <div id="acos" class="content function">
-  <div class="function-header">acos</div>
+
+  <div class="function-header row">
+    <div class="column">acos</div>
+    
+  </div>
+
   
   <p>Returns the arccosine (in radians) of <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -2545,7 +3044,12 @@
 
 
 <div id="atan" class="content function">
-  <div class="function-header">atan</div>
+
+  <div class="function-header row">
+    <div class="column">atan</div>
+    
+  </div>
+
   
   <p>Returns the arctangent (in radians) of <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -2565,7 +3069,12 @@
 
 
 <div id="sinh" class="content function">
-  <div class="function-header">sinh</div>
+
+  <div class="function-header row">
+    <div class="column">sinh</div>
+    
+  </div>
+
   
   <p>Returns the hyperbolic sine of <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -2585,7 +3094,12 @@
 
 
 <div id="cosh" class="content function">
-  <div class="function-header">cosh</div>
+
+  <div class="function-header row">
+    <div class="column">cosh</div>
+    
+  </div>
+
   
   <p>Returns the hyperbolic cosine of <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -2605,7 +3119,12 @@
 
 
 <div id="tanh" class="content function">
-  <div class="function-header">tanh</div>
+
+  <div class="function-header row">
+    <div class="column">tanh</div>
+    
+  </div>
+
   
   <p>Returns the hyperbolic tangent of <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -2626,7 +3145,12 @@
 
 
 <div id="asinh" class="content function">
-  <div class="function-header">asinh</div>
+
+  <div class="function-header row">
+    <div class="column">asinh</div>
+    
+  </div>
+
   
   <p>Returns the hyperbolic arcsine of <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -2646,7 +3170,12 @@
 
 
 <div id="acosh" class="content function">
-  <div class="function-header">acosh</div>
+
+  <div class="function-header row">
+    <div class="column">acosh</div>
+    
+  </div>
+
   
   <p>Returns the hyperbolic arccosine of <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -2666,7 +3195,12 @@
 
 
 <div id="atanh" class="content function">
-  <div class="function-header">atanh</div>
+
+  <div class="function-header row">
+    <div class="column">atanh</div>
+    
+  </div>
+
   
   <p>Returns the hyperbolic arctangent of <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -2686,7 +3220,12 @@
 
 
 <div id="apply" class="content function">
-  <div class="function-header">apply</div>
+
+  <div class="function-header row">
+    <div class="column">apply</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/apply">Clojure docs</a></div>
+  </div>
+
   
   <p>Call supplied function with specified arguments.</p>
   <label>Syntax</label>
@@ -2706,7 +3245,12 @@
 
 
 <div id="identity" class="content function">
-  <div class="function-header">identity</div>
+
+  <div class="function-header row">
+    <div class="column">identity</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/identity">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -2727,7 +3271,12 @@
 
 
 <div id="partial" class="content function">
-  <div class="function-header">partial</div>
+
+  <div class="function-header row">
+    <div class="column">partial</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/partial">Clojure docs</a></div>
+  </div>
+
   
   <p>Takes a function <span class="pre">fn</span> and fewer (or equal) than the normal arguments to <span class="pre">fn</span>, and returns a function that takes a variable number of additional args. When called, the returned function calls f with <span class="pre">args</span> + additional args.</p>
   <label>Syntax</label>
@@ -2747,7 +3296,12 @@
 
 
 <div id="comp" class="content function">
-  <div class="function-header">comp</div>
+
+  <div class="function-header row">
+    <div class="column">comp</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/comp">Clojure docs</a></div>
+  </div>
+
   
   <p>Takes a set of functions and returns a fn that is the composition of those. The returned functions takes a variable number of arguments, applies the rightmost function to the args, the next function (right-to-left) to the result, etc.</p>
   <label>Syntax</label>
@@ -2768,7 +3322,12 @@
 
 
 <div id="constantly" class="content function">
-  <div class="function-header">constantly</div>
+
+  <div class="function-header row">
+    <div class="column">constantly</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/constantly">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a function that takes any number of arguments and returns <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -2787,7 +3346,12 @@
 
 
 <div id="juxt" class="content function">
-  <div class="function-header">juxt</div>
+
+  <div class="function-header row">
+    <div class="column">juxt</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/juxt">Clojure docs</a></div>
+  </div>
+
   
   <p>Takes variable number of <span class="pre">functions</span> and returns a function that is the juxtaposition of those <span class="pre">functions</span>.  The returned function takes a variable number of args, and returns a vector containing the result of applying each <span class="pre">function</span> to the args (left-to-right).</p>
   <label>Syntax</label>
@@ -2807,7 +3371,12 @@
 
 
 <div id="complement" class="content function">
-  <div class="function-header">complement</div>
+
+  <div class="function-header row">
+    <div class="column">complement</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/complement">Clojure docs</a></div>
+  </div>
+
   
   <p>Takes a <span class="pre">function</span> and returns a new function that takes the same arguments as f, has the same effects, if any, and returns the opposite truth value.</p>
   <label>Syntax</label>
@@ -2828,7 +3397,12 @@
 
 
 <div id="every-pred" class="content function">
-  <div class="function-header">every-pred</div>
+
+  <div class="function-header row">
+    <div class="column">every-pred</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/every-pred">Clojure docs</a></div>
+  </div>
+
   
   <p>Takes a number of <span class="pre">predicates</span> and returns a function that returns true if all of the <span class="pre">predicates</span> return a truthy true value against all of its arguments, else it returns false.</p>
   <label>Syntax</label>
@@ -2848,7 +3422,12 @@
 
 
 <div id="some-pred" class="content function">
-  <div class="function-header">some-pred</div>
+
+  <div class="function-header row">
+    <div class="column">some-pred</div>
+    
+  </div>
+
   
   <p>Takes a number of <span class="pre">predicates</span> and returns a function that returns true if at least one of the <span class="pre">predicates</span> return a truthy true value against at least one of its arguments, else it returns false.</p>
   <label>Syntax</label>
@@ -2869,7 +3448,12 @@
 
 
 <div id="fnil" class="content function">
-  <div class="function-header">fnil</div>
+
+  <div class="function-header row">
+    <div class="column">fnil</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/fnil">Clojure docs</a></div>
+  </div>
+
   
   <p>Takes a function <span class="pre">fn</span>, and returns a function that calls <span class="pre">fn</span>, replacing a nil argument to <span class="pre">fn</span> with the corresponding <span class="pre">param</span>.</p>
   <label>Syntax</label>
@@ -2892,7 +3476,12 @@
 
 
 <div id="not_equal" class="content function">
-  <div class="function-header">not=</div>
+
+  <div class="function-header row">
+    <div class="column">not=</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/not=">Clojure docs</a></div>
+  </div>
+
   
   <p>Result is <span class="pre">true</span> if no two <span class="pre">values</span> are equal to each other, otherwise result is <span class="pre">false</span>. Note that only two argument version result is negation of <span class="pre">=</span> function, that is <span class="pre">(not= a b)</span> is same as <span class="pre">(not (= a b))</span>.</p>
   <label>Syntax</label>
@@ -2915,7 +3504,12 @@
 
 
 <div id="_equal" class="content function">
-  <div class="function-header">=</div>
+
+  <div class="function-header row">
+    <div class="column">=</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/=">Clojure docs</a></div>
+  </div>
+
   
   <p>Compares <span class="pre">values</span> according to 'equal' predicate. Result is <span class="pre">true</span> if every specified value is equal to each other, otherwise result is <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -2937,7 +3531,12 @@
 
 
 <div id="_lt" class="content function">
-  <div class="function-header"><</div>
+
+  <div class="function-header row">
+    <div class="column"><</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/<">Clojure docs</a></div>
+  </div>
+
   
   <p>Compares <span class="pre">values</span> according to 'less than' predicate. Each (overlapping) pair of the <span class="pre">values</span> is compared by it. The result is <span class="pre">true</span> if all compared pairs satisfy comparison.</p>
   <label>Syntax</label>
@@ -2960,7 +3559,12 @@
 
 
 <div id="_gt" class="content function">
-  <div class="function-header">></div>
+
+  <div class="function-header row">
+    <div class="column">></div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/>">Clojure docs</a></div>
+  </div>
+
   
   <p>Compares <span class="pre">values</span> according to 'greater than' predicate. Each (overlapping) pair of the <span class="pre">values</span> is compared by it. The result is <span class="pre">true</span> if all compared pairs satisfy comparison.</p>
   <label>Syntax</label>
@@ -2982,7 +3586,12 @@
 
 
 <div id="_lte" class="content function">
-  <div class="function-header"><=</div>
+
+  <div class="function-header row">
+    <div class="column"><=</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/<=">Clojure docs</a></div>
+  </div>
+
   
   <p>Compares <span class="pre">values</span> according to 'less than or equal' predicate. Each (overlapping) pair of the <span class="pre">values</span> is compared by it. The result is <span class="pre">true</span> if all compared pairs satisfy comparison.</p>
   <label>Syntax</label>
@@ -3004,7 +3613,12 @@
 
 
 <div id="_gte" class="content function">
-  <div class="function-header">>=</div>
+
+  <div class="function-header row">
+    <div class="column">>=</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/>=">Clojure docs</a></div>
+  </div>
+
   
   <p>Compares <span class="pre">values</span> according to 'greater than or equal' predicate. Each (overlapping) pair of the <span class="pre">values</span> is compared by it. The result is <span class="pre">true</span> if all compared pairs satisfy comparison.</p>
   <label>Syntax</label>
@@ -3026,7 +3640,12 @@
 
 
 <div id="not" class="content function">
-  <div class="function-header">not</div>
+
+  <div class="function-header row">
+    <div class="column">not</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/not">Clojure docs</a></div>
+  </div>
+
   
   <p>Computes logical negation. Note that any other <span class="pre">value</span> than <span class="pre">false</span>, <span class="pre">0</span>, <span class="pre">nil</span> and <span class="pre">''</span> is considered as <span class="pre">true</span>.</p>
   <label>Syntax</label>
@@ -3050,9 +3669,14 @@
 
 
 <div id="write_exclamation" class="content function">
-  <div class="function-header">write!</div>
+
+  <div class="function-header row">
+    <div class="column">write!</div>
+    
+  </div>
+
   
-  <p>It console.log the <span class="pre">values</span> and then returns the last element of the <span class="pre">values</span> array.. If called with no arguments <span class="pre">nil</span> is returned.</p>
+  <p>It console.log the <span class="pre">values</span> and then returns the last element of the <span class="pre">values</span> array. If called with no arguments <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
     <pre>write! values => value</pre>
@@ -3067,33 +3691,41 @@
 <pre><span class="example" onclick="addToPlayground('(write! (object :a 10))')"> <span class="icon-button">▶</span> (write! (object :a 10)) <span class="gray">=> {"a":10} </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(write! [:a :b :c])')"> <span class="icon-button">▶</span> (write! [:a :b :c]) <span class="gray">=> ["a","b","c"] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(write! #___single_quote___^start___single_quote___)')"> <span class="icon-button">▶</span> (write! #'^start') <span class="gray">=> /^start/ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(write! nil true
-        false)')"> <span class="icon-button">▶</span> (write! nil true
-        false) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(write! nil true false)')"> <span class="icon-button">▶</span> (write! nil true false) <span class="gray">=> false </span> </span></pre>
   </div>
 </div>
 
 
-<div id="inst-ms" class="content function">
-  <div class="function-header">inst-ms</div>
+<div id="inst-ms_exclamation" class="content function">
+
+  <div class="function-header row">
+    <div class="column">inst-ms!</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/inst-ms">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns milliseconds elapsed since the UNIX epoch.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>inst-ms => number</pre>
+    <pre>inst-ms! => number</pre>
   </div>
 
   <label>No arguments</label>
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(inst-ms)')"> <span class="icon-button">▶</span> (inst-ms) <span class="gray">=> 1647330637418 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1647894275846 </span> </span></pre>
   </div>
 </div>
 
 
 <div id="debug_exclamation" class="content function">
-  <div class="function-header">debug!</div>
+
+  <div class="function-header row">
+    <div class="column">debug!</div>
+    
+  </div>
+
   
   <p>If no params, prints context stack, otherwise prints <span class="pre">value</span> details.</p>
   <label>Syntax</label>
@@ -3105,13 +3737,19 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(debug!), (debug! #(> %1 2))')"> <span class="icon-button">▶</span> (debug!), (debug! #(> %1 2)) <span class="gray">=> &lt;function λ&gt; </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(debug!)')"> <span class="icon-button">▶</span> (debug!) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(debug! #(> %1 2))')"> <span class="icon-button">▶</span> (debug! #(> %1 2)) <span class="gray">=> &lt;function λ&gt; </span> </span></pre>
   </div>
 </div>
 
 
 <div id="boolean" class="content function">
-  <div class="function-header">boolean</div>
+
+  <div class="function-header row">
+    <div class="column">boolean</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/boolean">Clojure docs</a></div>
+  </div>
+
   
   <p>Coerces <span class="pre">value</span> to boolean.</p>
   <label>Syntax</label>
@@ -3132,7 +3770,12 @@
 
 
 <div id="compare" class="content function">
-  <div class="function-header">compare</div>
+
+  <div class="function-header row">
+    <div class="column">compare</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/compare">Clojure docs</a></div>
+  </div>
+
   
   <p>Compares two values. Returns -1 if a < b, 1 if a > b and 0 if a and b have the same sort order.</p>
   <label>Syntax</label>
@@ -3157,26 +3800,36 @@
 </div>
 
 
-<div id="lits-version" class="content function">
-  <div class="function-header">lits-version</div>
+<div id="lits-version_exclamation" class="content function">
+
+  <div class="function-header row">
+    <div class="column">lits-version!</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/lits-version!">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns the lits version.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>lits-version => string</pre>
+    <pre>lits-version! => string</pre>
   </div>
 
   <label>No arguments</label>
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(lits-version)')"> <span class="icon-button">▶</span> (lits-version) <span class="gray">=> "1.0.6" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.7-alpha.0" </span> </span></pre>
   </div>
 </div>
 
 
 <div id="equal_question" class="content function">
-  <div class="function-header">equal?</div>
+
+  <div class="function-header row">
+    <div class="column">equal?</div>
+    
+  </div>
+
   
   <p>Returns true if <span class="pre">a</span> and <span class="pre">b</span> are structually equal.</p>
   <label>Syntax</label>
@@ -3200,7 +3853,12 @@
 
 
 <div id="dissoc" class="content function">
-  <div class="function-header">dissoc</div>
+
+  <div class="function-header row">
+    <div class="column">dissoc</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/dissoc">Clojure docs</a></div>
+  </div>
+
   
   <p>Return shallow copy of <span class="pre">object</span> with attribute <span class="pre">attr</span> deleted.</p>
   <label>Syntax</label>
@@ -3221,7 +3879,12 @@
 
 
 <div id="object" class="content function">
-  <div class="function-header">object</div>
+
+  <div class="function-header row">
+    <div class="column">object</div>
+    
+  </div>
+
   
   <p>Constructs a new object. Object members are created from <span class="pre">key</span> - <span class="pre">value</span> pairs. Requires an even number of arguments.</p>
   <label>Syntax</label>
@@ -3235,12 +3898,19 @@
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(object)')"> <span class="icon-button">▶</span> (object) <span class="gray">=> {} </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(object :x 10 :y true :z ___single_quote___A string___single_quote___)')"> <span class="icon-button">▶</span> (object :x 10 :y true :z 'A string') <span class="gray">=> {"x":10,"y":true,"z":"A string"} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('{}')"> <span class="icon-button">▶</span> {} <span class="gray">=> {} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('{:a 1 :b 2}')"> <span class="icon-button">▶</span> {:a 1 :b 2} <span class="gray">=> {"a":1,"b":2} </span> </span></pre>
   </div>
 </div>
 
 
 <div id="keys" class="content function">
-  <div class="function-header">keys</div>
+
+  <div class="function-header row">
+    <div class="column">keys</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/keys">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns array of all keys in <span class="pre">object</span>.</p>
   <label>Syntax</label>
@@ -3259,7 +3929,12 @@
 
 
 <div id="vals" class="content function">
-  <div class="function-header">vals</div>
+
+  <div class="function-header row">
+    <div class="column">vals</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/vals">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns array of all values in <span class="pre">object</span>.</p>
   <label>Syntax</label>
@@ -3278,7 +3953,12 @@
 
 
 <div id="entries" class="content function">
-  <div class="function-header">entries</div>
+
+  <div class="function-header row">
+    <div class="column">entries</div>
+    
+  </div>
+
   
   <p>Returns nested array of all key - value pairs in <span class="pre">object</span>.</p>
   <label>Syntax</label>
@@ -3297,7 +3977,12 @@
 
 
 <div id="find" class="content function">
-  <div class="function-header">find</div>
+
+  <div class="function-header row">
+    <div class="column">find</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/find">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns entry for <span class="pre">key</span>, or <span class="pre">nil</span> if <span class="pre">key</span> not present in <span class="pre">object</span>.</p>
   <label>Syntax</label>
@@ -3317,7 +4002,12 @@
 
 
 <div id="merge" class="content function">
-  <div class="function-header">merge</div>
+
+  <div class="function-header row">
+    <div class="column">merge</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/merge">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a new object created by merging together all arguments.</p>
   <label>Syntax</label>
@@ -3336,7 +4026,12 @@
 
 
 <div id="merge-with" class="content function">
-  <div class="function-header">merge-with</div>
+
+  <div class="function-header row">
+    <div class="column">merge-with</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/merge-with">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a new object created by merging together all arguments. If two keys appears in more than one object <span class="pre">fn</span> is used to calculate the new value.</p>
   <label>Syntax</label>
@@ -3357,7 +4052,12 @@
 
 
 <div id="zipmap" class="content function">
-  <div class="function-header">zipmap</div>
+
+  <div class="function-header row">
+    <div class="column">zipmap</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/zipmap">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns a new object created by mapping <span class="pre">keys</span> to <span class="pre">values</span>.</p>
   <label>Syntax</label>
@@ -3378,7 +4078,12 @@
 
 
 <div id="select-keys" class="content function">
-  <div class="function-header">select-keys</div>
+
+  <div class="function-header row">
+    <div class="column">select-keys</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/select-keys">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns an object containing only those entries in <span class="pre">object</span> whose key is in <span class="pre">keys</span>.</p>
   <label>Syntax</label>
@@ -3398,7 +4103,12 @@
 
 
 <div id="boolean_question" class="content function">
-  <div class="function-header">boolean?</div>
+
+  <div class="function-header row">
+    <div class="column">boolean?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/boolean_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a <span class="pre">boolean</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3420,7 +4130,12 @@
 
 
 <div id="nil_question" class="content function">
-  <div class="function-header">nil?</div>
+
+  <div class="function-header row">
+    <div class="column">nil?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/nil_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is <span class="pre">nil</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3442,7 +4157,12 @@
 
 
 <div id="number_question" class="content function">
-  <div class="function-header">number?</div>
+
+  <div class="function-header row">
+    <div class="column">number?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/number_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a number, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3465,7 +4185,12 @@
 
 
 <div id="string_question" class="content function">
-  <div class="function-header">string?</div>
+
+  <div class="function-header row">
+    <div class="column">string?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/string_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a string, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3488,7 +4213,12 @@
 
 
 <div id="function_question" class="content function">
-  <div class="function-header">function?</div>
+
+  <div class="function-header row">
+    <div class="column">function?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a function, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3511,7 +4241,12 @@
 
 
 <div id="integer_question" class="content function">
-  <div class="function-header">integer?</div>
+
+  <div class="function-header row">
+    <div class="column">integer?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/integer_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is an integer, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3536,7 +4271,12 @@
 
 
 <div id="array_question" class="content function">
-  <div class="function-header">array?</div>
+
+  <div class="function-header row">
+    <div class="column">array?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/vector_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is an array, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3559,7 +4299,12 @@
 
 
 <div id="object_question" class="content function">
-  <div class="function-header">object?</div>
+
+  <div class="function-header row">
+    <div class="column">object?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is an object, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3584,7 +4329,12 @@
 
 
 <div id="coll_question" class="content function">
-  <div class="function-header">coll?</div>
+
+  <div class="function-header row">
+    <div class="column">coll?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a Coll i.e. an array, an object or a string, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3608,7 +4358,12 @@
 
 
 <div id="seq_question" class="content function">
-  <div class="function-header">seq?</div>
+
+  <div class="function-header row">
+    <div class="column">seq?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a Seq i.e. an array or a string, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3632,7 +4387,12 @@
 
 
 <div id="regexp_question" class="content function">
-  <div class="function-header">regexp?</div>
+
+  <div class="function-header row">
+    <div class="column">regexp?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a regexp, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3658,7 +4418,12 @@
 
 
 <div id="zero_question" class="content function">
-  <div class="function-header">zero?</div>
+
+  <div class="function-header row">
+    <div class="column">zero?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/zero_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is <span class="pre">0</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3679,7 +4444,12 @@
 
 
 <div id="pos_question" class="content function">
-  <div class="function-header">pos?</div>
+
+  <div class="function-header row">
+    <div class="column">pos?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/pos_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is greater than <span class="pre">0</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3700,7 +4470,12 @@
 
 
 <div id="neg_question" class="content function">
-  <div class="function-header">neg?</div>
+
+  <div class="function-header row">
+    <div class="column">neg?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/neg_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is less than <span class="pre">0</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3721,7 +4496,12 @@
 
 
 <div id="even_question" class="content function">
-  <div class="function-header">even?</div>
+
+  <div class="function-header row">
+    <div class="column">even?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/even_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is even, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3742,7 +4522,12 @@
 
 
 <div id="odd_question" class="content function">
-  <div class="function-header">odd?</div>
+
+  <div class="function-header row">
+    <div class="column">odd?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/odd_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is odd, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3763,7 +4548,12 @@
 
 
 <div id="finite_question" class="content function">
-  <div class="function-header">finite?</div>
+
+  <div class="function-header row">
+    <div class="column">finite?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is finite, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3784,7 +4574,12 @@
 
 
 <div id="nan_question" class="content function">
-  <div class="function-header">nan?</div>
+
+  <div class="function-header row">
+    <div class="column">nan?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is NaN (not a number), otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3805,7 +4600,12 @@
 
 
 <div id="negative-infinity_question" class="content function">
-  <div class="function-header">negative-infinity?</div>
+
+  <div class="function-header row">
+    <div class="column">negative-infinity?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> equals negative infinity, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3826,7 +4626,12 @@
 
 
 <div id="positive-infinity_question" class="content function">
-  <div class="function-header">positive-infinity?</div>
+
+  <div class="function-header row">
+    <div class="column">positive-infinity?</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> equals positive infinity, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3847,7 +4652,12 @@
 
 
 <div id="false_question" class="content function">
-  <div class="function-header">false?</div>
+
+  <div class="function-header row">
+    <div class="column">false?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/false_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is <span class="pre">true</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3868,7 +4678,12 @@
 
 
 <div id="true_question" class="content function">
-  <div class="function-header">true?</div>
+
+  <div class="function-header row">
+    <div class="column">true?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/true_q">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is <span class="pre">true</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
@@ -3888,8 +4703,69 @@
 </div>
 
 
+<div id="empty_question" class="content function">
+
+  <div class="function-header row">
+    <div class="column">empty?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/empty_q">Clojure docs</a></div>
+  </div>
+
+  
+  <p>Returns <span class="pre">true</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">false</span>.</p>
+  <label>Syntax</label>
+  <div class="indent">
+    <pre>empty? coll => boolean</pre>
+  </div>
+
+  <label>Arguments</label><div class="indent"><pre>coll: collection or string</pre></div>
+
+  <label>Examples</label>
+  <div class="indent">
+    <pre><span class="example" onclick="addToPlayground('(empty? [])')"> <span class="icon-button">▶</span> (empty? []) <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(empty? [1 2 3])')"> <span class="icon-button">▶</span> (empty? [1 2 3]) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(empty? {})')"> <span class="icon-button">▶</span> (empty? {}) <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(empty? {:a 2})')"> <span class="icon-button">▶</span> (empty? {:a 2}) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(empty? ___single_quote______single_quote___)')"> <span class="icon-button">▶</span> (empty? '') <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(empty? ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (empty? 'Albert') <span class="gray">=> false </span> </span></pre>
+  </div>
+</div>
+
+
+<div id="not-empty_question" class="content function">
+
+  <div class="function-header row">
+    <div class="column">not-empty?</div>
+    
+  </div>
+
+  
+  <p>Returns <span class="pre">false</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">true</span>.</p>
+  <label>Syntax</label>
+  <div class="indent">
+    <pre>not-empty? coll => boolean</pre>
+  </div>
+
+  <label>Arguments</label><div class="indent"><pre>coll: collection or string</pre></div>
+
+  <label>Examples</label>
+  <div class="indent">
+    <pre><span class="example" onclick="addToPlayground('(not-empty? [])')"> <span class="icon-button">▶</span> (not-empty? []) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty? [1 2 3])')"> <span class="icon-button">▶</span> (not-empty? [1 2 3]) <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty? {})')"> <span class="icon-button">▶</span> (not-empty? {}) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty? {:a 2})')"> <span class="icon-button">▶</span> (not-empty? {:a 2}) <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty? ___single_quote______single_quote___)')"> <span class="icon-button">▶</span> (not-empty? '') <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty? ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (not-empty? 'Albert') <span class="gray">=> true </span> </span></pre>
+  </div>
+</div>
+
+
 <div id="regexp" class="content function">
-  <div class="function-header">regexp</div>
+
+  <div class="function-header row">
+    <div class="column">regexp</div>
+    
+  </div>
+
   
   <p>Creates a RegExp from <span class="pre">pattern</span> and <span class="pre">flags</span>.</p>
   <label>Syntax</label>
@@ -3911,7 +4787,12 @@
 
 
 <div id="match" class="content function">
-  <div class="function-header">match</div>
+
+  <div class="function-header row">
+    <div class="column">match</div>
+    
+  </div>
+
   
   <p>Matches <span class="pre">string</span> against <span class="pre">pattern</span>. If <span class="pre">string</span> matches, a <em>match</em>-array is returned, otherwise <span class="pre">nil</span>.</p>
   <label>Syntax</label>
@@ -3932,7 +4813,12 @@
 
 
 <div id="replace" class="content function">
-  <div class="function-header">replace</div>
+
+  <div class="function-header row">
+    <div class="column">replace</div>
+    
+  </div>
+
   
   <p>Returns a new string with some or all matches of <span class="pre">pattern</span> replaced by <span class="pre">replacement</span>.</p>
   <label>Syntax</label>
@@ -3954,7 +4840,12 @@
 
 
 <div id="and" class="content function">
-  <div class="function-header">and</div>
+
+  <div class="function-header row">
+    <div class="column">and</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/and">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Computes logical 'and' function. <span class="pre">forms</span> evaluation starts from left. Value from the first form that decides result is returned so <span class="pre">forms</span> at end of argument array may not evaluated.</p>
   <label>Syntax</label>
@@ -3976,7 +4867,12 @@
 
 
 <div id="or" class="content function">
-  <div class="function-header">or</div>
+
+  <div class="function-header row">
+    <div class="column">or</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/or">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Computes logical 'or' function. <span class="pre">forms</span> evaluation starts from left. Value from the first form that decides result is returned so forms at end of argument array may not evaluated.</p>
   <label>Syntax</label>
@@ -3998,7 +4894,12 @@
 
 
 <div id="def" class="content function">
-  <div class="function-header">def</div>
+
+  <div class="function-header row">
+    <div class="column">def</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/def">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Bind <span class="pre">value</span> to <span class="pre">variable</span>. If <span class="pre">variable</span> isn't defined, a new global variable is created.</p>
   <label>Syntax</label>
@@ -4018,7 +4919,12 @@
 
 
 <div id="defs" class="content function">
-  <div class="function-header">defs</div>
+
+  <div class="function-header row">
+    <div class="column">defs</div>
+    
+  </div>
+
   <h3>Special Expression</h3>
   <p>Creates a variable with name set to <span class="pre">variable</span> evaluated and value set to <span class="pre">value</span>. If a variable with name <span class="pre">variable</span> isn't found a new global variable is created.</p>
   <label>Syntax</label>
@@ -4039,7 +4945,12 @@
 
 
 <div id="let" class="content function">
-  <div class="function-header">let</div>
+
+  <div class="function-header row">
+    <div class="column">let</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/let">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Binds local variables. The variables lives only within the body. It returns evaluation of the last expression in the body.</p>
   <label>Syntax</label>
@@ -4058,7 +4969,12 @@
 
 
 <div id="if-let" class="content function">
-  <div class="function-header">if-let</div>
+
+  <div class="function-header row">
+    <div class="column">if-let</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/if-let">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Binds one local variable. If it evaluates to a truthy value the then-form is executed with the variable accessable. If the bound variable evaluates to false, the then-form is evaluated (without variable accessable).</p>
   <label>Syntax</label>
@@ -4079,7 +4995,12 @@
 
 
 <div id="when-let" class="content function">
-  <div class="function-header">when-let</div>
+
+  <div class="function-header row">
+    <div class="column">when-let</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/when-let">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Binds one local variable. If it evaluates to a truthy value the then-form is executed with the variable accessable. If the bound variable evaluates to false, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -4099,7 +5020,12 @@
 
 
 <div id="when-first" class="content function">
-  <div class="function-header">when-first</div>
+
+  <div class="function-header row">
+    <div class="column">when-first</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/when-first">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Roughly the same as <span class="pre">(when (seq xs) (let [x (first xs)] body))</span>.</p>
   <label>Syntax</label>
@@ -4121,7 +5047,12 @@
 
 
 <div id="fn" class="content function">
-  <div class="function-header">fn</div>
+
+  <div class="function-header row">
+    <div class="column">fn</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/fn">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Creates a function. When called, evaluation of the last expression in the body is returned.</p>
   <label>Syntax</label>
@@ -4141,7 +5072,12 @@
 
 
 <div id="defn" class="content function">
-  <div class="function-header">defn</div>
+
+  <div class="function-header row">
+    <div class="column">defn</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/defn">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Creates a named global function. When called, evaluation of the last expression in the body is returned.</p>
   <label>Syntax</label>
@@ -4163,7 +5099,12 @@
 
 
 <div id="defns" class="content function">
-  <div class="function-header">defns</div>
+
+  <div class="function-header row">
+    <div class="column">defns</div>
+    
+  </div>
+
   <h3>Special Expression</h3>
   <p>Creates a named global function with its name set to <span class="pre">name</span> evaluated. When called, evaluation of the last expression in the body is returned.</p>
   <label>Syntax</label>
@@ -4185,7 +5126,12 @@
 
 
 <div id="try" class="content function">
-  <div class="function-header">try</div>
+
+  <div class="function-header row">
+    <div class="column">try</div>
+    
+  </div>
+
   <h3>Special Expression</h3>
   <p>Executes tryExpression. If that throws, the catchBlock gets executed. See examples for details.</p>
   <label>Syntax</label>
@@ -4198,15 +5144,20 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (/ 2 4) ((error) (/ 2 1)))')"> <span class="icon-button">▶</span> (try (/ 2 4) ((error) (/ 2 1))) <span class="gray">=> 0.5 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (/ 2 0) ((error) (/ 2 1)))')"> <span class="icon-button">▶</span> (try (/ 2 0) ((error) (/ 2 1))) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (/ 2 0) ((error) error))')"> <span class="icon-button">▶</span> (try (/ 2 0) ((error) error)) <span class="gray">=> null </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(try (/ 2 4) (catch error (/ 2 1)))')"> <span class="icon-button">▶</span> (try (/ 2 4) (catch error (/ 2 1))) <span class="gray">=> 0.5 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (/ 2 0) (catch error (/ 2 1)))')"> <span class="icon-button">▶</span> (try (/ 2 0) (catch error (/ 2 1))) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (/ 2 0) (catch error error))')"> <span class="icon-button">▶</span> (try (/ 2 0) (catch error error)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
 <div id="throw" class="content function">
-  <div class="function-header">throw</div>
+
+  <div class="function-header row">
+    <div class="column">throw</div>
+    
+  </div>
+
   <h3>Special Expression</h3>
   <p>Throws <span class="pre">UserDefinedError</span> with message set to <span class="pre">message</span> evaluated. <span class="pre">message</span> must evaluate to a <span class="pre">string</span>.</p>
   <label>Syntax</label>
@@ -4218,21 +5169,26 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (throw ___single_quote___You shall not pass!___single_quote___) ((e) e))')"> <span class="icon-button">▶</span> (try (throw 'You shall not pass!') ((e) e)) <span class="gray">=> UserDefinedError: You shall not pass! (1:13)
-(try (throw 'You shall not pass!') ((e) e))
+    <pre><span class="example" onclick="addToPlayground('(try (throw ___single_quote___You shall not pass!___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (throw 'You shall not pass!') (catch e e)) <span class="gray">=> UserDefinedError: You shall not pass! (1:13)
+(try (throw 'You shall not pass!') (catch e e))
             ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (throw (subs ___single_quote___You shall not pass!___single_quote___ 0 3)) ((e) e))')"> <span class="icon-button">▶</span> (try (throw (subs 'You shall not pass!' 0 3)) ((e) e)) <span class="gray">=> UserDefinedError: You (1:13)
-(try (throw (subs 'You shall not pass!' 0 3)) ((e) e))
+<pre><span class="example" onclick="addToPlayground('(try (throw (subs ___single_quote___You shall not pass!___single_quote___ 0 3)) (catch e e))')"> <span class="icon-button">▶</span> (try (throw (subs 'You shall not pass!' 0 3)) (catch e e)) <span class="gray">=> UserDefinedError: You (1:13)
+(try (throw (subs 'You shall not pass!' 0 3)) (catch e e))
             ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (throw ___single_quote___You shall not pass!___single_quote___) ((error) error))')"> <span class="icon-button">▶</span> (try (throw 'You shall not pass!') ((error) error)) <span class="gray">=> UserDefinedError: You shall not pass! (1:13)
-(try (throw 'You shall not pass!') ((error) error))
+<pre><span class="example" onclick="addToPlayground('(try (throw ___single_quote___You shall not pass!___single_quote___) (catch error error))')"> <span class="icon-button">▶</span> (try (throw 'You shall not pass!') (catch error error)) <span class="gray">=> UserDefinedError: You shall not pass! (1:13)
+(try (throw 'You shall not pass!') (catch error error))
             ^ </span> </span></pre>
   </div>
 </div>
 
 
 <div id="if" class="content function">
-  <div class="function-header">if</div>
+
+  <div class="function-header row">
+    <div class="column">if</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/if">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Either <span class="pre">then</span> or <span class="pre">else</span> branch is taken. Then branch is selected when <span class="pre">test</span> result is truthy. I test is falsy and no <span class="pre">else</span> branch exists, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -4255,7 +5211,12 @@
 
 
 <div id="if-not" class="content function">
-  <div class="function-header">if-not</div>
+
+  <div class="function-header row">
+    <div class="column">if-not</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/if-not">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Either <span class="pre">then</span> or <span class="pre">else</span> branch is taken. Then branch is selected when <span class="pre">test</span> result is falsy. I test is falsy and no <span class="pre">else</span> branch exists, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -4278,7 +5239,12 @@
 
 
 <div id="cond" class="content function">
-  <div class="function-header">cond</div>
+
+  <div class="function-header row">
+    <div class="column">cond</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/cond">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Used for branching. Variants are tested sequentially from the top. I no branch is tested truthy, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -4297,7 +5263,12 @@
 
 
 <div id="when" class="content function">
-  <div class="function-header">when</div>
+
+  <div class="function-header row">
+    <div class="column">when</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/when">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>If <span class="pre">test</span> yields a thruthy value, the forms are evaluated in order from left to right and the value returned by the last <span class="pre">form</span> is returned. Otherwise, if <span class="pre">test</span> yields a falsy value, the forms are not evaluated, and <span class="pre">nil</span> is returned. If no <span class="pre">form</span> is provided, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -4319,7 +5290,12 @@
 
 
 <div id="when-not" class="content function">
-  <div class="function-header">when-not</div>
+
+  <div class="function-header row">
+    <div class="column">when-not</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/when-not">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>If <span class="pre">test</span> yields a falsy value, the forms are evaluated in order from left to right and the value returned by the last <span class="pre">form</span> is returned. Otherwise, if <span class="pre">test</span> yields a truthy value, the forms are not evaluated, and <span class="pre">nil</span> is returned. If no <span class="pre">form</span> is provided, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
@@ -4341,7 +5317,12 @@
 
 
 <div id="do" class="content function">
-  <div class="function-header">do</div>
+
+  <div class="function-header row">
+    <div class="column">do</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/do">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Calls <span class="pre">forms</span> in the order they have been written. Resulting value is the value of the last form.</p>
   <label>Syntax</label>
@@ -4360,7 +5341,12 @@
 
 
 <div id="recur" class="content function">
-  <div class="function-header">recur</div>
+
+  <div class="function-header row">
+    <div class="column">recur</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/recur">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Recursevly calls enclosing function or loop with its evaluated <span class="pre">forms</span>.</p>
   <label>Syntax</label>
@@ -4380,7 +5366,12 @@
 
 
 <div id="loop" class="content function">
-  <div class="function-header">loop</div>
+
+  <div class="function-header row">
+    <div class="column">loop</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/loop">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Executes body with initial <span class="pre">bindings</span>. The <span class="pre">bindings</span> will be replaced with the recur parameters for subsequent recursions.</p>
   <label>Syntax</label>
@@ -4400,7 +5391,12 @@
 
 
 <div id="time_exclamation" class="content function">
-  <div class="function-header">time!</div>
+
+  <div class="function-header row">
+    <div class="column">time!</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/time">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>Prints the time it took to evaluate <span class="pre">form</span>. Returns <span class="pre">form</span> evaluated.</p>
   <label>Syntax</label>
@@ -4418,7 +5414,12 @@
 
 
 <div id="for" class="content function">
-  <div class="function-header">for</div>
+
+  <div class="function-header row">
+    <div class="column">for</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/for">Clojure docs</a></div>
+  </div>
+
   <h3>Special Expression</h3>
   <p>List comprehension. Takes an array of one or more <span class="pre">bindings</span>, each followed by zero or more modifiers, and returns an array of evaluations of <span class="pre">expression</span>. Collections are iterated in a nested fashion, rightmost fastest. Supported modifiers are: &let &while and &when.</p>
   <label>Syntax</label>
@@ -4445,7 +5446,12 @@
 
 
 <div id="subs" class="content function">
-  <div class="function-header">subs</div>
+
+  <div class="function-header row">
+    <div class="column">subs</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/subs">Clojure docs</a></div>
+  </div>
+
   
   <p>Extracts characters from <span class="pre">indexStart</span> up to but not including <span class="pre">indexEnd</span>.</p>
   <label>Syntax</label>
@@ -4468,7 +5474,12 @@
 
 
 <div id="string-repeat" class="content function">
-  <div class="function-header">string-repeat</div>
+
+  <div class="function-header row">
+    <div class="column">string-repeat</div>
+    
+  </div>
+
   
   <p>Repeates <span class="pre">string</span> <span class="pre">count</span> times.</p>
   <label>Syntax</label>
@@ -4488,7 +5499,12 @@
 
 
 <div id="str" class="content function">
-  <div class="function-header">str</div>
+
+  <div class="function-header row">
+    <div class="column">str</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/str">Clojure docs</a></div>
+  </div>
+
   
   <p>Concatenats <span class="pre">values</span> into one <span class="pre">string</span>. If <span class="pre">value</span> equals <span class="pre">nil</span> empty string is returned.</p>
   <label>Syntax</label>
@@ -4509,7 +5525,12 @@
 
 
 <div id="number" class="content function">
-  <div class="function-header">number</div>
+
+  <div class="function-header row">
+    <div class="column">number</div>
+    
+  </div>
+
   
   <p>Parses <span class="pre">string</span> to a number.</p>
   <label>Syntax</label>
@@ -4529,7 +5550,12 @@
 
 
 <div id="number-to-string" class="content function">
-  <div class="function-header">number-to-string</div>
+
+  <div class="function-header row">
+    <div class="column">number-to-string</div>
+    
+  </div>
+
   
   <p>Converts <span class="pre">number</span> to a string. If <span class="pre">base</span> is not equal to <span class="pre">10</span> nu mber must be a non negative integer.</p>
   <label>Syntax</label>
@@ -4553,7 +5579,12 @@
 
 
 <div id="lower-case" class="content function">
-  <div class="function-header">lower-case</div>
+
+  <div class="function-header row">
+    <div class="column">lower-case</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/lower-case">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns <span class="pre">string</span> converted to lower case.</p>
   <label>Syntax</label>
@@ -4572,7 +5603,12 @@
 
 
 <div id="upper-case" class="content function">
-  <div class="function-header">upper-case</div>
+
+  <div class="function-header row">
+    <div class="column">upper-case</div>
+    
+  </div>
+
   
   <p>Returns <span class="pre">string</span> converted to upper case.</p>
   <label>Syntax</label>
@@ -4591,7 +5627,12 @@
 
 
 <div id="trim" class="content function">
-  <div class="function-header">trim</div>
+
+  <div class="function-header row">
+    <div class="column">trim</div>
+    
+  </div>
+
   
   <p>Returns a new string with leading and trailing whitespaces removed.</p>
   <label>Syntax</label>
@@ -4611,7 +5652,12 @@
 
 
 <div id="trim-left" class="content function">
-  <div class="function-header">trim-left</div>
+
+  <div class="function-header row">
+    <div class="column">trim-left</div>
+    
+  </div>
+
   
   <p>Returns a new string with leading whitespaces removed.</p>
   <label>Syntax</label>
@@ -4631,7 +5677,12 @@
 
 
 <div id="trim-right" class="content function">
-  <div class="function-header">trim-right</div>
+
+  <div class="function-header row">
+    <div class="column">trim-right</div>
+    
+  </div>
+
   
   <p>Returns a new string with trailing whitespaces removed.</p>
   <label>Syntax</label>
@@ -4651,7 +5702,12 @@
 
 
 <div id="pad-left" class="content function">
-  <div class="function-header">pad-left</div>
+
+  <div class="function-header row">
+    <div class="column">pad-left</div>
+    
+  </div>
+
   
   <p>Pads from the start of <span class="pre">string</span> with <span class="pre">padString</span> (multiple times, if needed) until the resulting string reaches the given <span class="pre">length</span>.</p>
   <label>Syntax</label>
@@ -4674,7 +5730,12 @@
 
 
 <div id="pad-right" class="content function">
-  <div class="function-header">pad-right</div>
+
+  <div class="function-header row">
+    <div class="column">pad-right</div>
+    
+  </div>
+
   
   <p>Pads from the start of <span class="pre">string</span> with <span class="pre">padString</span> (multiple times, if needed) until the resulting string reaches the given <span class="pre">length</span>.</p>
   <label>Syntax</label>
@@ -4697,7 +5758,12 @@
 
 
 <div id="split" class="content function">
-  <div class="function-header">split</div>
+
+  <div class="function-header row">
+    <div class="column">split</div>
+    
+  </div>
+
   
   <p>Divides <span class="pre">string</span> into an array of substrings. The division is done by searching for <span class="pre">delimiter</span>. If <span class="pre">limit</span> as provided, at most <span class="pre">limit</span> number of substrings are returned.</p>
   <label>Syntax</label>
@@ -4720,7 +5786,12 @@
 
 
 <div id="template" class="content function">
-  <div class="function-header">template</div>
+
+  <div class="function-header row">
+    <div class="column">template</div>
+    
+  </div>
+
   
   <p>Applies placeholders to a string. Support for basic pluralization - see examples. If pluralization is used, first placeholder must be a number.</p>
   <label>Syntax</label>
@@ -4743,7 +5814,12 @@
 
 
 <div id="to-char-code" class="content function">
-  <div class="function-header">to-char-code</div>
+
+  <div class="function-header row">
+    <div class="column">to-char-code</div>
+    
+  </div>
+
   
   <p>Return code point for first character in <span class="pre">input</span>.</p>
   <label>Syntax</label>
@@ -4762,7 +5838,12 @@
 
 
 <div id="from-char-code" class="content function">
-  <div class="function-header">from-char-code</div>
+
+  <div class="function-header row">
+    <div class="column">from-char-code</div>
+    
+  </div>
+
   
   <p>Return character for code point <span class="pre">code</span>.</p>
   <label>Syntax</label>
@@ -4781,7 +5862,12 @@
 
 
 <div id="bit-shift-left" class="content function">
-  <div class="function-header">bit-shift-left</div>
+
+  <div class="function-header row">
+    <div class="column">bit-shift-left</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/bit-shift-left">Clojure docs</a></div>
+  </div>
+
   
   <p>Shifts <span class="pre">number</span> arithmetically left by <span class="pre">count</span> bit positions if <span class="pre">count</span>.</p>
   <label>Syntax</label>
@@ -4801,7 +5887,12 @@
 
 
 <div id="bit-shift-right" class="content function">
-  <div class="function-header">bit-shift-right</div>
+
+  <div class="function-header row">
+    <div class="column">bit-shift-right</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/bit-shift-right">Clojure docs</a></div>
+  </div>
+
   
   <p>Shifts <span class="pre">number</span> arithmetically right by <span class="pre">count</span> bit positions if <span class="pre">count</span>.</p>
   <label>Syntax</label>
@@ -4821,7 +5912,12 @@
 
 
 <div id="bit-not" class="content function">
-  <div class="function-header">bit-not</div>
+
+  <div class="function-header row">
+    <div class="column">bit-not</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/bit-not">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns bitwise <span class="pre">not</span> of <span class="pre">number</span>.</p>
   <label>Syntax</label>
@@ -4840,7 +5936,12 @@
 
 
 <div id="bit-and" class="content function">
-  <div class="function-header">bit-and</div>
+
+  <div class="function-header row">
+    <div class="column">bit-and</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/bit-and">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns bitwise <span class="pre">and</span> of all arguments.</p>
   <label>Syntax</label>
@@ -4859,7 +5960,12 @@
 
 
 <div id="bit-and-not" class="content function">
-  <div class="function-header">bit-and-not</div>
+
+  <div class="function-header row">
+    <div class="column">bit-and-not</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/bit-and-not">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns bitwise <span class="pre">and</span> with complement of all arguments. (bit-and-not x y) <==> (bit-and x (bit-not y)).</p>
   <label>Syntax</label>
@@ -4878,7 +5984,12 @@
 
 
 <div id="bit-or" class="content function">
-  <div class="function-header">bit-or</div>
+
+  <div class="function-header row">
+    <div class="column">bit-or</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/bit-or">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns bitwise <span class="pre">or</span> of all arguments. Return 0 if no arguments.</p>
   <label>Syntax</label>
@@ -4897,7 +6008,12 @@
 
 
 <div id="bit-xor" class="content function">
-  <div class="function-header">bit-xor</div>
+
+  <div class="function-header row">
+    <div class="column">bit-xor</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/bit-xor">Clojure docs</a></div>
+  </div>
+
   
   <p>Returns bitwise <span class="pre">xor</span> of all arguments.</p>
   <label>Syntax</label>
@@ -4916,7 +6032,12 @@
 
 
 <div id="bit-flip" class="content function">
-  <div class="function-header">bit-flip</div>
+
+  <div class="function-header row">
+    <div class="column">bit-flip</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/bit-flip">Clojure docs</a></div>
+  </div>
+
   
   <p>Flips bit number <span class="pre">index</span>.</p>
   <label>Syntax</label>
@@ -4936,7 +6057,12 @@
 
 
 <div id="bit-clear" class="content function">
-  <div class="function-header">bit-clear</div>
+
+  <div class="function-header row">
+    <div class="column">bit-clear</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/bit-clear">Clojure docs</a></div>
+  </div>
+
   
   <p>Clears bit number <span class="pre">index</span>.</p>
   <label>Syntax</label>
@@ -4956,7 +6082,12 @@
 
 
 <div id="bit-set" class="content function">
-  <div class="function-header">bit-set</div>
+
+  <div class="function-header row">
+    <div class="column">bit-set</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/bit-set">Clojure docs</a></div>
+  </div>
+
   
   <p>Sets bit number <span class="pre">index</span>.</p>
   <label>Syntax</label>
@@ -4976,7 +6107,12 @@
 
 
 <div id="bit-test" class="content function">
-  <div class="function-header">bit-test</div>
+
+  <div class="function-header row">
+    <div class="column">bit-test</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/bit-test">Clojure docs</a></div>
+  </div>
+
   
   <p>Checks if bit number <span class="pre">index</span> is set.</p>
   <label>Syntax</label>
@@ -4996,7 +6132,12 @@
 
 
 <div id="assert" class="content function">
-  <div class="function-header">assert</div>
+
+  <div class="function-header row">
+    <div class="column">assert</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/assert">Clojure docs</a></div>
+  </div>
+
   
   <p>If <span class="pre">value</span> is falsy it throws AssertionError with <span class="pre">message</span>. If no <span class="pre">message</span> is provided, message is set to <span class="pre">value</span>.</p>
   <label>Syntax</label>
@@ -5009,15 +6150,20 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assert 0 ___single_quote___Expected a positive value___single_quote___) ((e) e))')"> <span class="icon-button">▶</span> (try (assert 0 'Expected a positive value') ((e) e)) <span class="gray">=> AssertionError: Expected a positive value (1:7)
-(try (assert 0 'Expected a positive value') ((e) e))
+    <pre><span class="example" onclick="addToPlayground('(try (assert 0 ___single_quote___Expected a positive value___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert 0 'Expected a positive value') (catch e e)) <span class="gray">=> AssertionError: Expected a positive value (1:7)
+(try (assert 0 'Expected a positive value') (catch e e))
       ^ </span> </span></pre>
   </div>
 </div>
 
 
 <div id="assert_equal" class="content function">
-  <div class="function-header">assert=</div>
+
+  <div class="function-header row">
+    <div class="column">assert=</div>
+    
+  </div>
+
   
   <p>If <span class="pre">first</span> is not the same as <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
@@ -5031,19 +6177,24 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assert= 0 1 ___single_quote___Expected same values___single_quote___) ((e) e))')"> <span class="icon-button">▶</span> (try (assert= 0 1 'Expected same values') ((e) e)) <span class="gray">=> AssertionError: Expected 0 to be 1. "Expected same values" (1:7)
-(try (assert= 0 1 'Expected same values') ((e) e))
+    <pre><span class="example" onclick="addToPlayground('(try (assert= 0 1 ___single_quote___Expected same values___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert= 0 1 'Expected same values') (catch e e)) <span class="gray">=> AssertionError: Expected 0 to be 1. "Expected same values" (1:7)
+(try (assert= 0 1 'Expected same values') (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assert= 0 1) ((e) e))')"> <span class="icon-button">▶</span> (try (assert= 0 1) ((e) e)) <span class="gray">=> AssertionError: Expected 0 to be 1. (1:7)
-(try (assert= 0 1) ((e) e))
+<pre><span class="example" onclick="addToPlayground('(try (assert= 0 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assert= 0 1) (catch e e)) <span class="gray">=> AssertionError: Expected 0 to be 1. (1:7)
+(try (assert= 0 1) (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assert= 1 1) ((e) e))')"> <span class="icon-button">▶</span> (try (assert= 1 1) ((e) e)) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert= 1 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assert= 1 1) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
 <div id="assertNot_equal" class="content function">
-  <div class="function-header">assertNot=</div>
+
+  <div class="function-header row">
+    <div class="column">assertNot=</div>
+    
+  </div>
+
   
   <p>If <span class="pre">first</span> is the same as <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
@@ -5057,19 +6208,24 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assertNot= 0 0 ___single_quote___Expected different values___single_quote___) ((e) e))')"> <span class="icon-button">▶</span> (try (assertNot= 0 0 'Expected different values') ((e) e)) <span class="gray">=> AssertionError: Expected 0 not to be 0. "Expected different values" (1:7)
-(try (assertNot= 0 0 'Expected different values') ((e) e))
+    <pre><span class="example" onclick="addToPlayground('(try (assertNot= 0 0 ___single_quote___Expected different values___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNot= 0 0 'Expected different values') (catch e e)) <span class="gray">=> AssertionError: Expected 0 not to be 0. "Expected different values" (1:7)
+(try (assertNot= 0 0 'Expected different values') (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNot= 0 0) ((e) e))')"> <span class="icon-button">▶</span> (try (assertNot= 0 0) ((e) e)) <span class="gray">=> AssertionError: Expected 0 not to be 0. (1:7)
-(try (assertNot= 0 0) ((e) e))
+<pre><span class="example" onclick="addToPlayground('(try (assertNot= 0 0) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNot= 0 0) (catch e e)) <span class="gray">=> AssertionError: Expected 0 not to be 0. (1:7)
+(try (assertNot= 0 0) (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNot= 0 1) ((e) e))')"> <span class="icon-button">▶</span> (try (assertNot= 0 1) ((e) e)) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assertNot= 0 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNot= 0 1) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
 <div id="assertEqual" class="content function">
-  <div class="function-header">assertEqual</div>
+
+  <div class="function-header row">
+    <div class="column">assertEqual</div>
+    
+  </div>
+
   
   <p>If <span class="pre">first</span> is not deep equal to <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
@@ -5083,19 +6239,24 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 2 } ___single_quote___Expected equal values___single_quote___) ((e) e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 2 } 'Expected equal values') ((e) e)) <span class="gray">=> AssertionError: Expected {"a":1} to deep equal {"a":2}. "Expected equal values" (1:7)
-(try (assertEqual { :a 1 } { :a 2 } 'Expected equal values') ((e) e))
+    <pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 2 } ___single_quote___Expected equal values___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 2 } 'Expected equal values') (catch e e)) <span class="gray">=> AssertionError: Expected {"a":1} to deep equal {"a":2}. "Expected equal values" (1:7)
+(try (assertEqual { :a 1 } { :a 2 } 'Expected equal values') (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 2 }) ((e) e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 2 }) ((e) e)) <span class="gray">=> AssertionError: Expected {"a":1} to deep equal {"a":2}. (1:7)
-(try (assertEqual { :a 1 } { :a 2 }) ((e) e))
+<pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 2 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 2 }) (catch e e)) <span class="gray">=> AssertionError: Expected {"a":1} to deep equal {"a":2}. (1:7)
+(try (assertEqual { :a 1 } { :a 2 }) (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 1 }) ((e) e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 1 }) ((e) e)) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 1 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 1 }) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
 <div id="assertNotEqual" class="content function">
-  <div class="function-header">assertNotEqual</div>
+
+  <div class="function-header row">
+    <div class="column">assertNotEqual</div>
+    
+  </div>
+
   
   <p>If <span class="pre">first</span> is not deep equal to <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
@@ -5109,19 +6270,24 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assertNotEqual { :a 2 } { :a 2 } ___single_quote___Expected different values___single_quote___) ((e) e))')"> <span class="icon-button">▶</span> (try (assertNotEqual { :a 2 } { :a 2 } 'Expected different values') ((e) e)) <span class="gray">=> AssertionError: Expected {"a":2} not to deep equal {"a":2}. "Expected different values" (1:7)
-(try (assertNotEqual { :a 2 } { :a 2 } 'Expected different values') ((e) e))
+    <pre><span class="example" onclick="addToPlayground('(try (assertNotEqual { :a 2 } { :a 2 } ___single_quote___Expected different values___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNotEqual { :a 2 } { :a 2 } 'Expected different values') (catch e e)) <span class="gray">=> AssertionError: Expected {"a":2} not to deep equal {"a":2}. "Expected different values" (1:7)
+(try (assertNotEqual { :a 2 } { :a 2 } 'Expected different values') (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNotEqual { :a 2 } { :a 2 }) ((e) e))')"> <span class="icon-button">▶</span> (try (assertNotEqual { :a 2 } { :a 2 }) ((e) e)) <span class="gray">=> AssertionError: Expected {"a":2} not to deep equal {"a":2}. (1:7)
-(try (assertNotEqual { :a 2 } { :a 2 }) ((e) e))
+<pre><span class="example" onclick="addToPlayground('(try (assertNotEqual { :a 2 } { :a 2 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNotEqual { :a 2 } { :a 2 }) (catch e e)) <span class="gray">=> AssertionError: Expected {"a":2} not to deep equal {"a":2}. (1:7)
+(try (assertNotEqual { :a 2 } { :a 2 }) (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNotEqual { :a 1 } { :a 2 }) ((e) e))')"> <span class="icon-button">▶</span> (try (assertNotEqual { :a 1 } { :a 2 }) ((e) e)) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assertNotEqual { :a 1 } { :a 2 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNotEqual { :a 1 } { :a 2 }) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
 <div id="assert_gt" class="content function">
-  <div class="function-header">assert></div>
+
+  <div class="function-header row">
+    <div class="column">assert></div>
+    
+  </div>
+
   
   <p>If <span class="pre">first</span> is not greater than <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
@@ -5135,19 +6301,24 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assert> 0 1 ___single_quote___Expected greater value___single_quote___) ((e) e))')"> <span class="icon-button">▶</span> (try (assert> 0 1 'Expected greater value') ((e) e)) <span class="gray">=> AssertionError: Expected 0 to be grater than 1. "Expected greater value" (1:7)
-(try (assert> 0 1 'Expected greater value') ((e) e))
+    <pre><span class="example" onclick="addToPlayground('(try (assert> 0 1 ___single_quote___Expected greater value___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert> 0 1 'Expected greater value') (catch e e)) <span class="gray">=> AssertionError: Expected 0 to be grater than 1. "Expected greater value" (1:7)
+(try (assert> 0 1 'Expected greater value') (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assert> 0 0) ((e) e))')"> <span class="icon-button">▶</span> (try (assert> 0 0) ((e) e)) <span class="gray">=> AssertionError: Expected 0 to be grater than 0. (1:7)
-(try (assert> 0 0) ((e) e))
+<pre><span class="example" onclick="addToPlayground('(try (assert> 0 0) (catch e e))')"> <span class="icon-button">▶</span> (try (assert> 0 0) (catch e e)) <span class="gray">=> AssertionError: Expected 0 to be grater than 0. (1:7)
+(try (assert> 0 0) (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assert> 1 0) ((e) e))')"> <span class="icon-button">▶</span> (try (assert> 1 0) ((e) e)) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert> 1 0) (catch e e))')"> <span class="icon-button">▶</span> (try (assert> 1 0) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
 <div id="assert_lt" class="content function">
-  <div class="function-header">assert<</div>
+
+  <div class="function-header row">
+    <div class="column">assert<</div>
+    
+  </div>
+
   
   <p>If <span class="pre">first</span> is not less than <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
@@ -5161,19 +6332,24 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assert< 1 0 ___single_quote___Expected smaller value value___single_quote___) ((e) e))')"> <span class="icon-button">▶</span> (try (assert< 1 0 'Expected smaller value value') ((e) e)) <span class="gray">=> AssertionError: Expected 1 to be less than 0. "Expected smaller value value" (1:7)
-(try (assert< 1 0 'Expected smaller value value') ((e) e))
+    <pre><span class="example" onclick="addToPlayground('(try (assert< 1 0 ___single_quote___Expected smaller value value___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert< 1 0 'Expected smaller value value') (catch e e)) <span class="gray">=> AssertionError: Expected 1 to be less than 0. "Expected smaller value value" (1:7)
+(try (assert< 1 0 'Expected smaller value value') (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assert< 1 1) ((e) e))')"> <span class="icon-button">▶</span> (try (assert< 1 1) ((e) e)) <span class="gray">=> AssertionError: Expected 1 to be less than 1. (1:7)
-(try (assert< 1 1) ((e) e))
+<pre><span class="example" onclick="addToPlayground('(try (assert< 1 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assert< 1 1) (catch e e)) <span class="gray">=> AssertionError: Expected 1 to be less than 1. (1:7)
+(try (assert< 1 1) (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assert< 0 1) ((e) e))')"> <span class="icon-button">▶</span> (try (assert< 0 1) ((e) e)) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert< 0 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assert< 0 1) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
 <div id="assert_gte" class="content function">
-  <div class="function-header">assert>=</div>
+
+  <div class="function-header row">
+    <div class="column">assert>=</div>
+    
+  </div>
+
   
   <p>If <span class="pre">first</span> is less than <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
@@ -5187,19 +6363,24 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assert>= 0 1 ___single_quote___Expected greater value___single_quote___) ((e) e))')"> <span class="icon-button">▶</span> (try (assert>= 0 1 'Expected greater value') ((e) e)) <span class="gray">=> AssertionError: Expected 0 to be grater than or equal to 1. "Expected greater value" (1:7)
-(try (assert>= 0 1 'Expected greater value') ((e) e))
+    <pre><span class="example" onclick="addToPlayground('(try (assert>= 0 1 ___single_quote___Expected greater value___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert>= 0 1 'Expected greater value') (catch e e)) <span class="gray">=> AssertionError: Expected 0 to be grater than or equal to 1. "Expected greater value" (1:7)
+(try (assert>= 0 1 'Expected greater value') (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assert>= 0 1) ((e) e))')"> <span class="icon-button">▶</span> (try (assert>= 0 1) ((e) e)) <span class="gray">=> AssertionError: Expected 0 to be grater than or equal to 1. (1:7)
-(try (assert>= 0 1) ((e) e))
+<pre><span class="example" onclick="addToPlayground('(try (assert>= 0 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assert>= 0 1) (catch e e)) <span class="gray">=> AssertionError: Expected 0 to be grater than or equal to 1. (1:7)
+(try (assert>= 0 1) (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assert>= 1 1) ((e) e))')"> <span class="icon-button">▶</span> (try (assert>= 1 1) ((e) e)) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert>= 1 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assert>= 1 1) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
 <div id="assert_lte" class="content function">
-  <div class="function-header">assert<=</div>
+
+  <div class="function-header row">
+    <div class="column">assert<=</div>
+    
+  </div>
+
   
   <p>If <span class="pre">first</span> is grater than <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
@@ -5213,13 +6394,73 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assert<= 1 0 ___single_quote___Expected smaller value value___single_quote___) ((e) e))')"> <span class="icon-button">▶</span> (try (assert<= 1 0 'Expected smaller value value') ((e) e)) <span class="gray">=> AssertionError: Expected 1 to be less than or equal to 0. "Expected smaller value value" (1:7)
-(try (assert<= 1 0 'Expected smaller value value') ((e) e))
+    <pre><span class="example" onclick="addToPlayground('(try (assert<= 1 0 ___single_quote___Expected smaller value value___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert<= 1 0 'Expected smaller value value') (catch e e)) <span class="gray">=> AssertionError: Expected 1 to be less than or equal to 0. "Expected smaller value value" (1:7)
+(try (assert<= 1 0 'Expected smaller value value') (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assert<= 1 0) ((e) e))')"> <span class="icon-button">▶</span> (try (assert<= 1 0) ((e) e)) <span class="gray">=> AssertionError: Expected 1 to be less than or equal to 0. (1:7)
-(try (assert<= 1 0) ((e) e))
+<pre><span class="example" onclick="addToPlayground('(try (assert<= 1 0) (catch e e))')"> <span class="icon-button">▶</span> (try (assert<= 1 0) (catch e e)) <span class="gray">=> AssertionError: Expected 1 to be less than or equal to 0. (1:7)
+(try (assert<= 1 0) (catch e e))
       ^ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assert<= 1 1) ((e) e))')"> <span class="icon-button">▶</span> (try (assert<= 1 1) ((e) e)) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert<= 1 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assert<= 1 1) (catch e e)) <span class="gray">=> null </span> </span></pre>
+  </div>
+</div>
+
+
+<div id="assertTrue" class="content function">
+
+  <div class="function-header row">
+    <div class="column">assertTrue</div>
+    
+  </div>
+
+  
+  <p>If <span class="pre">first</span> is not <span class="pre">true</span> it throws AssertionError.</p>
+  <label>Syntax</label>
+  <div class="indent">
+    <pre>assertTrue first message(optional) => nil</pre>
+  </div>
+
+  <label>Arguments</label><div class="indent"><pre>first: any</pre>
+<pre>message: string</pre></div>
+
+  <label>Examples</label>
+  <div class="indent">
+    <pre><span class="example" onclick="addToPlayground('(try (assertTrue false ___single_quote___Expected true___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertTrue false 'Expected true') (catch e e)) <span class="gray">=> AssertionError: Expected false to be true. "Expected true" (1:7)
+(try (assertTrue false 'Expected true') (catch e e))
+      ^ </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assertTrue false) (catch e e))')"> <span class="icon-button">▶</span> (try (assertTrue false) (catch e e)) <span class="gray">=> AssertionError: Expected false to be true. (1:7)
+(try (assertTrue false) (catch e e))
+      ^ </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assertTrue true) (catch e e))')"> <span class="icon-button">▶</span> (try (assertTrue true) (catch e e)) <span class="gray">=> null </span> </span></pre>
+  </div>
+</div>
+
+
+<div id="assertFalse" class="content function">
+
+  <div class="function-header row">
+    <div class="column">assertFalse</div>
+    
+  </div>
+
+  
+  <p>If <span class="pre">first</span> is not <span class="pre">false</span> it throws AssertionError.</p>
+  <label>Syntax</label>
+  <div class="indent">
+    <pre>assertFalse first message(optional) => nil</pre>
+  </div>
+
+  <label>Arguments</label><div class="indent"><pre>first: any</pre>
+<pre>message: string</pre></div>
+
+  <label>Examples</label>
+  <div class="indent">
+    <pre><span class="example" onclick="addToPlayground('(try (assertFalse true ___single_quote___Expected false___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertFalse true 'Expected false') (catch e e)) <span class="gray">=> AssertionError: Expected true to be false. "Expected false" (1:7)
+(try (assertFalse true 'Expected false') (catch e e))
+      ^ </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assertFalse true) (catch e e))')"> <span class="icon-button">▶</span> (try (assertFalse true) (catch e e)) <span class="gray">=> AssertionError: Expected true to be false. (1:7)
+(try (assertFalse true) (catch e e))
+      ^ </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assertFalse false) (catch e e))')"> <span class="icon-button">▶</span> (try (assertFalse false) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
@@ -5263,6 +6504,7 @@
           <li id="array_question_link" onclick="showPage('array_question')">array?</li>
 <li id="boolean_question_link" onclick="showPage('boolean_question')">boolean?</li>
 <li id="coll_question_link" onclick="showPage('coll_question')">coll?</li>
+<li id="empty_question_link" onclick="showPage('empty_question')">empty?</li>
 <li id="even_question_link" onclick="showPage('even_question')">even?</li>
 <li id="false_question_link" onclick="showPage('false_question')">false?</li>
 <li id="finite_question_link" onclick="showPage('finite_question')">finite?</li>
@@ -5272,6 +6514,7 @@
 <li id="neg_question_link" onclick="showPage('neg_question')">neg?</li>
 <li id="negative-infinity_question_link" onclick="showPage('negative-infinity_question')">negative-infinity?</li>
 <li id="nil_question_link" onclick="showPage('nil_question')">nil?</li>
+<li id="not-empty_question_link" onclick="showPage('not-empty_question')">not-empty?</li>
 <li id="number_question_link" onclick="showPage('number_question')">number?</li>
 <li id="object_question_link" onclick="showPage('object_question')">object?</li>
 <li id="odd_question_link" onclick="showPage('odd_question')">odd?</li>
@@ -5320,7 +6563,7 @@
 <li id="reverse_link" onclick="showPage('reverse')">reverse</li>
 <li id="second_link" onclick="showPage('second')">second</li>
 <li id="shift_link" onclick="showPage('shift')">shift</li>
-<li id="shuffle_link" onclick="showPage('shuffle')">shuffle</li>
+<li id="shuffle_exclamation_link" onclick="showPage('shuffle_exclamation')">shuffle!</li>
 <li id="slice_link" onclick="showPage('slice')">slice</li>
 <li id="some_link" onclick="showPage('some')">some</li>
 <li id="sort_link" onclick="showPage('sort')">sort</li>
@@ -5341,7 +6584,6 @@
 <li id="concat_link" onclick="showPage('concat')">concat</li>
 <li id="contains_question_link" onclick="showPage('contains_question')">contains?</li>
 <li id="count_link" onclick="showPage('count')">count</li>
-<li id="empty_question_link" onclick="showPage('empty_question')">empty?</li>
 <li id="every_question_link" onclick="showPage('every_question')">every?</li>
 <li id="get_link" onclick="showPage('get')">get</li>
 <li id="get-in_link" onclick="showPage('get-in')">get-in</li>
@@ -5350,7 +6592,6 @@
 <li id="has_question_link" onclick="showPage('has_question')">has?</li>
 <li id="not-any_question_link" onclick="showPage('not-any_question')">not-any?</li>
 <li id="not-empty_link" onclick="showPage('not-empty')">not-empty</li>
-<li id="not-empty_question_link" onclick="showPage('not-empty_question')">not-empty?</li>
 <li id="not-every_question_link" onclick="showPage('not-every_question')">not-every?</li>
 <li id="update_link" onclick="showPage('update')">update</li>
 <li id="update-in_link" onclick="showPage('update-in')">update-in</li>
@@ -5498,8 +6739,8 @@
 <li id="compare_link" onclick="showPage('compare')">compare</li>
 <li id="debug_exclamation_link" onclick="showPage('debug_exclamation')">debug!</li>
 <li id="equal_question_link" onclick="showPage('equal_question')">equal?</li>
-<li id="inst-ms_link" onclick="showPage('inst-ms')">inst-ms</li>
-<li id="lits-version_link" onclick="showPage('lits-version')">lits-version</li>
+<li id="inst-ms_exclamation_link" onclick="showPage('inst-ms_exclamation')">inst-ms!</li>
+<li id="lits-version_exclamation_link" onclick="showPage('lits-version_exclamation')">lits-version!</li>
 <li id="not_link" onclick="showPage('not')">not</li>
 <li id="not_equal_link" onclick="showPage('not_equal')">not=</li>
 <li id="write_exclamation_link" onclick="showPage('write_exclamation')">write!</li>
@@ -5514,8 +6755,10 @@
 <li id="assert_gt_link" onclick="showPage('assert_gt')">assert&gt;</li>
 <li id="assert_gte_link" onclick="showPage('assert_gte')">assert&gt;=</li>
 <li id="assertEqual_link" onclick="showPage('assertEqual')">assertEqual</li>
+<li id="assertFalse_link" onclick="showPage('assertFalse')">assertFalse</li>
 <li id="assertNot_equal_link" onclick="showPage('assertNot_equal')">assertNot=</li>
 <li id="assertNotEqual_link" onclick="showPage('assertNotEqual')">assertNotEqual</li>
+<li id="assertTrue_link" onclick="showPage('assertTrue')">assertTrue</li>
         </ul>
 </nav>
 

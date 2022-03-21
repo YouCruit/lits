@@ -57,19 +57,14 @@ function cloneAndGetMeta(
 }
 
 function get(coll: Coll, key: string | number, sourceCodeInfo: SourceCodeInfo): Any | undefined {
-  if (array.is(coll)) {
-    number.assert(key, sourceCodeInfo, { integer: true })
-    if (key < coll.length) {
-      return toAny(coll[key])
-    }
-  } else if (object.is(coll)) {
+  if (object.is(coll)) {
     string.assert(key, sourceCodeInfo)
     if (collHasKey(coll, key)) {
       return toAny(coll[key])
     }
   } else {
     number.assert(key, sourceCodeInfo, { integer: true })
-    if (key < coll.length) {
+    if (key >= 0 && key < coll.length) {
       return toAny(coll[key])
     }
   }
@@ -154,8 +149,11 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
     evaluate: (params, sourceCodeInfo) => {
       const [coll, key] = params
       const defaultValue = toAny(params[2])
-      collection.assert(coll, sourceCodeInfo)
       stringOrNumber.assert(key, sourceCodeInfo)
+      if (coll === null) {
+        return defaultValue
+      }
+      collection.assert(coll, sourceCodeInfo)
       const result = get(coll, key, sourceCodeInfo)
       return result === undefined ? defaultValue : result
     },
@@ -390,32 +388,6 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       }
     },
     validate: node => assertNumberOfParams({ min: 1 }, node),
-  },
-  'empty?': {
-    evaluate: ([coll], sourceCodeInfo): boolean => {
-      collection.assert(coll, sourceCodeInfo)
-      if (string.is(coll)) {
-        return coll.length === 0
-      }
-      if (Array.isArray(coll)) {
-        return coll.length === 0
-      }
-      return Object.keys(coll).length === 0
-    },
-    validate: node => assertNumberOfParams(1, node),
-  },
-  'not-empty?': {
-    evaluate: ([coll], sourceCodeInfo): boolean => {
-      collection.assert(coll, sourceCodeInfo)
-      if (string.is(coll)) {
-        return coll.length > 0
-      }
-      if (Array.isArray(coll)) {
-        return coll.length > 0
-      }
-      return Object.keys(coll).length > 0
-    },
-    validate: node => assertNumberOfParams(1, node),
   },
   'not-empty': {
     evaluate: ([coll], sourceCodeInfo): Coll | null => {

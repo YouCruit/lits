@@ -70,6 +70,7 @@ module.exports = {
     name: `defs`,
     category: `Special expression`,
     linkName: `defs`,
+    clojureDocs: null,
     returns: {
       type: `any`,
     },
@@ -245,6 +246,7 @@ module.exports = {
     name: `defns`,
     category: `Special expression`,
     linkName: `defns`,
+    clojureDocs: null,
     returns: {
       type: `function`,
     },
@@ -274,6 +276,7 @@ module.exports = {
     name: `try`,
     category: `Special expression`,
     linkName: `try`,
+    clojureDocs: null,
     returns: {
       type: `any`,
     },
@@ -288,13 +291,18 @@ module.exports = {
       },
     ],
     description: `Executes tryExpression. If that throws, the catchBlock gets executed. See examples for details.`,
-    examples: [`(try (/ 2 4) ((error) (/ 2 1)))`, `(try (/ 2 0) ((error) (/ 2 1)))`, `(try (/ 2 0) ((error) error))`],
+    examples: [
+      `(try (/ 2 4) (catch error (/ 2 1)))`,
+      `(try (/ 2 0) (catch error (/ 2 1)))`,
+      `(try (/ 2 0) (catch error error))`,
+    ],
     specialExpression: true,
   },
   throw: {
     name: `throw`,
     category: `Special expression`,
     linkName: `throw`,
+    clojureDocs: null,
     returns: {
       type: `nothing`,
     },
@@ -306,9 +314,9 @@ module.exports = {
     ],
     description: `Throws \`UserDefinedError\` with message set to \`message\` evaluated. \`message\` must evaluate to a \`string\`.`,
     examples: [
-      `(try (throw 'You shall not pass!') ((e) e))`,
-      `(try (throw (subs 'You shall not pass!' 0 3)) ((e) e))`,
-      `(try (throw 'You shall not pass!') ((error) error))`,
+      `(try (throw 'You shall not pass!') (catch e e))`,
+      `(try (throw (subs 'You shall not pass!' 0 3)) (catch e e))`,
+      `(try (throw 'You shall not pass!') (catch error error))`,
     ],
     specialExpression: true,
   },
@@ -514,6 +522,7 @@ module.exports = {
     name: `time!`,
     category: `Special expression`,
     linkName: `time_exclamation`,
+    clojureDocs: `time`,
     returns: {
       type: `any`,
     },

@@ -1375,22 +1375,24 @@ var Lits = (function (exports) {
 
   var trySpecialExpression = {
       parse: function (tokens, position, _a) {
-          var _b, _c, _d;
+          var _b, _c, _d, _e;
           var parseToken = _a.parseToken;
           var firstToken = token.as(tokens[position], "EOF");
           var tryExpression;
           _b = parseToken(tokens, position), position = _b[0], tryExpression = _b[1];
           token.assert(tokens[position], "EOF", { type: "paren", value: "(" });
           position += 1;
-          token.assert(tokens[position], "EOF", { type: "paren", value: "(" });
-          position += 1;
+          var catchNode;
+          _c = parseToken(tokens, position), position = _c[0], catchNode = _c[1];
+          nameNode.assert(catchNode, catchNode.token.sourceCodeInfo);
+          if (catchNode.value !== "catch") {
+              throw new LitsError("Expected 'catch', got '" + catchNode.value + "'.", getSourceCodeInfo(catchNode, catchNode.token.sourceCodeInfo));
+          }
           var error;
-          _c = parseToken(tokens, position), position = _c[0], error = _c[1];
+          _d = parseToken(tokens, position), position = _d[0], error = _d[1];
           nameNode.assert(error, error.token.sourceCodeInfo);
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
-          position += 1;
           var catchExpression;
-          _d = parseToken(tokens, position), position = _d[0], catchExpression = _d[1];
+          _e = parseToken(tokens, position), position = _e[0], catchExpression = _e[1];
           token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
           position += 1;
           token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
@@ -1874,13 +1876,7 @@ var Lits = (function (exports) {
       return { coll: coll, innerCollMeta: innerCollMeta };
   }
   function get(coll, key, sourceCodeInfo) {
-      if (array.is(coll)) {
-          number.assert(key, sourceCodeInfo, { integer: true });
-          if (key < coll.length) {
-              return toAny(coll[key]);
-          }
-      }
-      else if (object.is(coll)) {
+      if (object.is(coll)) {
           string.assert(key, sourceCodeInfo);
           if (collHasKey(coll, key)) {
               return toAny(coll[key]);
@@ -1888,7 +1884,7 @@ var Lits = (function (exports) {
       }
       else {
           number.assert(key, sourceCodeInfo, { integer: true });
-          if (key < coll.length) {
+          if (key >= 0 && key < coll.length) {
               return toAny(coll[key]);
           }
       }
@@ -1960,8 +1956,11 @@ var Lits = (function (exports) {
           evaluate: function (params, sourceCodeInfo) {
               var coll = params[0], key = params[1];
               var defaultValue = toAny(params[2]);
-              collection.assert(coll, sourceCodeInfo);
               stringOrNumber.assert(key, sourceCodeInfo);
+              if (coll === null) {
+                  return defaultValue;
+              }
+              collection.assert(coll, sourceCodeInfo);
               var result = get(coll, key, sourceCodeInfo);
               return result === undefined ? defaultValue : result;
           },
@@ -2194,34 +2193,6 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
-      'empty?': {
-          evaluate: function (_a, sourceCodeInfo) {
-              var coll = _a[0];
-              collection.assert(coll, sourceCodeInfo);
-              if (string.is(coll)) {
-                  return coll.length === 0;
-              }
-              if (Array.isArray(coll)) {
-                  return coll.length === 0;
-              }
-              return Object.keys(coll).length === 0;
-          },
-          validate: function (node) { return assertNumberOfParams(1, node); },
-      },
-      'not-empty?': {
-          evaluate: function (_a, sourceCodeInfo) {
-              var coll = _a[0];
-              collection.assert(coll, sourceCodeInfo);
-              if (string.is(coll)) {
-                  return coll.length > 0;
-              }
-              if (Array.isArray(coll)) {
-                  return coll.length > 0;
-              }
-              return Object.keys(coll).length > 0;
-          },
-          validate: function (node) { return assertNumberOfParams(1, node); },
-      },
       'not-empty': {
           evaluate: function (_a, sourceCodeInfo) {
               var coll = _a[0];
@@ -2377,13 +2348,17 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       nth: {
-          evaluate: function (_a, sourceCodeInfo) {
-              var seq = _a[0], i = _a[1];
-              sequence.assert(seq, sourceCodeInfo);
+          evaluate: function (params, sourceCodeInfo) {
+              var seq = params[0], i = params[1];
+              var defaultValue = toAny(params[2]);
               number.assert(i, sourceCodeInfo, { integer: true });
-              return toAny(seq[i]);
+              if (seq === null) {
+                  return defaultValue;
+              }
+              sequence.assert(seq, sourceCodeInfo);
+              return i >= 0 && i < seq.length ? toAny(seq[i]) : defaultValue;
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       filter: {
           evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
@@ -2992,7 +2967,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
-      shuffle: {
+      'shuffle!': {
           evaluate: function (_a, sourceCodeInfo) {
               var input = _a[0];
               sequence.assert(input, sourceCodeInfo);
@@ -3686,7 +3661,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.6";
+  var version = "1.0.7-alpha.0";
 
   var miscNormalExpression = {
       'not=': {
@@ -3789,7 +3764,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
-      'inst-ms': {
+      'inst-ms!': {
           evaluate: function () {
               return Date.now();
           },
@@ -3832,7 +3807,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
-      'lits-version': {
+      'lits-version!': {
           evaluate: function () {
               return version;
           },
@@ -3969,6 +3944,28 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      assertTrue: {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], message = _a[1];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (first !== true) {
+                  throw new AssertionError("Expected " + first + " to be true." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      assertFalse: {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], message = _a[1];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (first !== false) {
+                  throw new AssertionError("Expected " + first + " to be false." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
   };
 
@@ -4265,6 +4262,34 @@ var Lits = (function (exports) {
           evaluate: function (_a) {
               var value = _a[0];
               return value === false;
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
+      },
+      'empty?': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var coll = _a[0];
+              collection.assert(coll, sourceCodeInfo);
+              if (string.is(coll)) {
+                  return coll.length === 0;
+              }
+              if (Array.isArray(coll)) {
+                  return coll.length === 0;
+              }
+              return Object.keys(coll).length === 0;
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
+      },
+      'not-empty?': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var coll = _a[0];
+              collection.assert(coll, sourceCodeInfo);
+              if (string.is(coll)) {
+                  return coll.length > 0;
+              }
+              if (Array.isArray(coll)) {
+                  return coll.length > 0;
+              }
+              return Object.keys(coll).length > 0;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },

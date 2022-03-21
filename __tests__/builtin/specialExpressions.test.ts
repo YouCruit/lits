@@ -384,15 +384,16 @@ describe(`specialExpressions`, () => {
 
   describe(`try`, () => {
     test(`samples`, () => {
-      expect(lits.run(`(try (/ 2 4) ((error) 1))`)).toBe(0.5)
-      expect(lits.run(`(try (throw 'oops') ((error) 1))`)).toBe(1)
-      expect(lits.run(`(try (throw 'oops') ((error) error))`)).toBeInstanceOf(Error)
+      expect(lits.run(`(try (/ 2 4) (catch error 1))`)).toBe(0.5)
+      expect(lits.run(`(try (throw 'oops') (catch error 1))`)).toBe(1)
+      expect(lits.run(`(try (throw 'oops') (catch error error))`)).toBeInstanceOf(Error)
       expect(() => lits.run(`(try (/ 2 4) 1)`)).toThrow()
       expect(() => lits.run(`(try (/ 2 4) (1))`)).toThrow()
-      expect(() => lits.run(`(try (/ 2 4) (('error') 1))`)).toThrow()
-      expect(() => lits.run(`(try (/ 2 4) ((error1 error2) 1))`)).toThrow()
-      expect(() => lits.run(`(try (/ 2 4) ((error) 1 2))`)).toThrow()
-      expect(() => lits.run(`(try (/ 2 4) ((error) 1 )2)`)).toThrow()
+      expect(() => lits.run(`(try (/ 2 4) (catch 'error' 1))`)).toThrow()
+      expect(() => lits.run(`(try (/ 2 4) (ratch error 1))`)).toThrow()
+      expect(() => lits.run(`(try (/ 2 4) (catch error1 error2 1))`)).toThrow()
+      expect(() => lits.run(`(try (/ 2 4) (catch error 1 2))`)).toThrow()
+      expect(() => lits.run(`(try (/ 2 4) (catch error 1 )2)`)).toThrow()
     })
   })
 

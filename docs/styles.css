@@ -470,6 +470,12 @@ h4, h2, h1 {
   margin-right: -1.5rem;
 }
 
+.content .function-header .link {
+  font-size: 1.2rem;
+  text-decoration: underline;
+}
+
+
 .content .sub-header {
   background-color: #333333;
   color: #dddddd;

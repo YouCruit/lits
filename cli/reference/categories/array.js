@@ -3,6 +3,7 @@ module.exports = {
     name: `array`,
     category: `Array`,
     linkName: `array`,
+    clojureDocs: `vector`,
     returns: {
       type: `array`,
     },

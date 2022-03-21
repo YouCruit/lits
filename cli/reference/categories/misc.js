@@ -119,6 +119,7 @@ module.exports = {
     name: `write!`,
     category: `Misc`,
     linkName: `write_exclamation`,
+    clojureDocs: null,
     returns: {
       type: `value`,
     },
@@ -128,32 +129,33 @@ module.exports = {
         type: `array`,
       },
     ],
-    description: `It console.log the \`values\` and then returns the last element of the \`values\` array.. If called with no arguments \`nil\` is returned.`,
+    description: `It console.log the \`values\` and then returns the last element of the \`values\` array. If called with no arguments \`nil\` is returned.`,
     examples: [
       `(write! 'A string')`,
       `(write! 100 'items')`,
       `(write! (object :a 10))`,
       `(write! [:a :b :c])`,
       `(write! #'^start')`,
-      `(write! nil true
-        false)`,
+      `(write! nil true false)`,
     ],
   },
-  'inst-ms': {
-    name: `inst-ms`,
+  'inst-ms!': {
+    name: `inst-ms!`,
     category: `Misc`,
-    linkName: `inst-ms`,
+    linkName: `inst-ms_exclamation`,
+    clojureDocs: `inst-ms`,
     returns: {
       type: `number`,
     },
     arguments: [],
     description: `Returns milliseconds elapsed since the UNIX epoch.`,
-    examples: [`(inst-ms)`],
+    examples: [`(inst-ms!)`],
   },
   'debug!': {
     name: `debug!`,
     category: `Misc`,
     linkName: `debug_exclamation`,
+    clojureDocs: null,
     returns: {
       type: `any`,
     },
@@ -164,7 +166,7 @@ module.exports = {
       },
     ],
     description: `If no params, prints context stack, otherwise prints \`value\` details.`,
-    examples: [`(debug!), (debug! #(> %1 2))`],
+    examples: [`(debug!)`, `(debug! #(> %1 2))`],
   },
   boolean: {
     name: `boolean`,
@@ -211,21 +213,22 @@ module.exports = {
       `(compare + -)`,
     ],
   },
-  'lits-version': {
-    name: `lits-version`,
+  'lits-version!': {
+    name: `lits-version!`,
     category: `Misc`,
-    linkName: `lits-version`,
+    linkName: `lits-version_exclamation`,
     returns: {
       type: `string`,
     },
     arguments: [],
     description: `Returns the lits version.`,
-    examples: [`(lits-version)`],
+    examples: [`(lits-version!)`],
   },
   'equal?': {
     name: `equal?`,
     category: `Misc`,
     linkName: `equal_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },

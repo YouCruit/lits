@@ -81,6 +81,7 @@ module.exports = {
     name: `function?`,
     category: `Predicate`,
     linkName: `function_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -129,6 +130,7 @@ module.exports = {
     name: `array?`,
     category: `Predicate`,
     linkName: `array_question`,
+    clojureDocs: `vector_q`,
     returns: {
       type: `boolean`,
     },
@@ -152,6 +154,7 @@ module.exports = {
     name: `object?`,
     category: `Predicate`,
     linkName: `object_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -177,6 +180,7 @@ module.exports = {
     name: `coll?`,
     category: `Predicate`,
     linkName: `coll_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -201,6 +205,7 @@ module.exports = {
     name: `seq?`,
     category: `Predicate`,
     linkName: `seq_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -225,6 +230,7 @@ module.exports = {
     name: `regexp?`,
     category: `Predicate`,
     linkName: `regexp_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -331,6 +337,7 @@ module.exports = {
     name: `finite?`,
     category: `Predicate`,
     linkName: `finite_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -347,6 +354,7 @@ module.exports = {
     name: `nan?`,
     category: `Predicate`,
     linkName: `nan_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -363,6 +371,7 @@ module.exports = {
     name: `negative-infinity?`,
     category: `Predicate`,
     linkName: `negative-infinity_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -384,6 +393,7 @@ module.exports = {
     name: `positive-infinity?`,
     category: `Predicate`,
     linkName: `positive-infinity_question`,
+    clojureDocs: null,
     returns: {
       type: `boolean`,
     },
@@ -432,5 +442,45 @@ module.exports = {
     ],
     description: `Returns \`true\` if \`value\` is \`true\`, otherwise \`false\`.`,
     examples: [`(true? false)`, `(true? true)`, `(true? 1)`, `(true? 0)`],
+  },
+  'empty?': {
+    name: `empty?`,
+    category: `Predicate`,
+    linkName: `empty_question`,
+    returns: {
+      type: `boolean`,
+    },
+    arguments: [
+      {
+        name: `coll`,
+        type: `collection or string`,
+      },
+    ],
+    description: `Returns \`true\` if \`coll\` is empty, otherwise \`false\`.`,
+    examples: [`(empty? [])`, `(empty? [1 2 3])`, `(empty? {})`, `(empty? {:a 2})`, `(empty? '')`, `(empty? 'Albert')`],
+  },
+  'not-empty?': {
+    name: `not-empty?`,
+    category: `Predicate`,
+    linkName: `not-empty_question`,
+    clojureDocs: null,
+    returns: {
+      type: `boolean`,
+    },
+    arguments: [
+      {
+        name: `coll`,
+        type: `collection or string`,
+      },
+    ],
+    description: `Returns \`false\` if \`coll\` is empty, otherwise \`true\`.`,
+    examples: [
+      `(not-empty? [])`,
+      `(not-empty? [1 2 3])`,
+      `(not-empty? {})`,
+      `(not-empty? {:a 2})`,
+      `(not-empty? '')`,
+      `(not-empty? 'Albert')`,
+    ],
   },
 }

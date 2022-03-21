@@ -8,6 +8,7 @@ import {
   sequence,
   array,
   assertNumberOfParams,
+  string,
 } from '../../../utils/assertion'
 
 export const predicatesNormalExpression: BuiltinNormalExpressions = {
@@ -157,5 +158,32 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
       return value === false
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+  },
+
+  'empty?': {
+    evaluate: ([coll], sourceCodeInfo): boolean => {
+      collection.assert(coll, sourceCodeInfo)
+      if (string.is(coll)) {
+        return coll.length === 0
+      }
+      if (Array.isArray(coll)) {
+        return coll.length === 0
+      }
+      return Object.keys(coll).length === 0
+    },
+    validate: node => assertNumberOfParams(1, node),
+  },
+  'not-empty?': {
+    evaluate: ([coll], sourceCodeInfo): boolean => {
+      collection.assert(coll, sourceCodeInfo)
+      if (string.is(coll)) {
+        return coll.length > 0
+      }
+      if (Array.isArray(coll)) {
+        return coll.length > 0
+      }
+      return Object.keys(coll).length > 0
+    },
+    validate: node => assertNumberOfParams(1, node),
   },
 }

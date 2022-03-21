@@ -208,7 +208,7 @@ var examples = [
 
   {
     id: 'labels-from-values',
-    name: 'label-from-value',
+    name: 'labels-from-values',
     description: 'Find labels to corresponding values in array of {label value}-objects.',
     code: `
 (defn labels-from-values [$array $values]

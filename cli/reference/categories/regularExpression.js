@@ -3,6 +3,7 @@ module.exports = {
     name: `regexp`,
     category: `Regular expression`,
     linkName: `regexp`,
+    clojureDocs: null,
     returns: {
       type: `RegExp`,
     },
@@ -23,6 +24,7 @@ module.exports = {
     name: `match`,
     category: `Regular expression`,
     linkName: `match`,
+    clojureDocs: null,
     returns: {
       type: `array`,
     },
@@ -47,6 +49,7 @@ module.exports = {
     name: `replace`,
     category: `Regular expression`,
     linkName: `replace`,
+    clojureDocs: null,
     returns: {
       type: `array`,
     },

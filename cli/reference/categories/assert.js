@@ -260,4 +260,56 @@ module.exports = {
       `(try (assert<= 1 1) (catch e e))`,
     ],
   },
+  assertTrue: {
+    name: `assertTrue`,
+    category: `Assert`,
+    linkName: `assertTrue`,
+    clojureDocs: null,
+    returns: {
+      type: `nil`,
+    },
+    arguments: [
+      {
+        name: `first`,
+        type: `any`,
+      },
+      {
+        name: `message`,
+        type: `string`,
+        description: `optional`,
+      },
+    ],
+    description: `If \`first\` is not \`true\` it throws AssertionError.`,
+    examples: [
+      `(try (assertTrue false 'Expected true') (catch e e))`,
+      `(try (assertTrue false) (catch e e))`,
+      `(try (assertTrue true) (catch e e))`,
+    ],
+  },
+  assertFalse: {
+    name: `assertFalse`,
+    category: `Assert`,
+    linkName: `assertFalse`,
+    clojureDocs: null,
+    returns: {
+      type: `nil`,
+    },
+    arguments: [
+      {
+        name: `first`,
+        type: `any`,
+      },
+      {
+        name: `message`,
+        type: `string`,
+        description: `optional`,
+      },
+    ],
+    description: `If \`first\` is not \`false\` it throws AssertionError.`,
+    examples: [
+      `(try (assertFalse true 'Expected false') (catch e e))`,
+      `(try (assertFalse true) (catch e e))`,
+      `(try (assertFalse false) (catch e e))`,
+    ],
+  },
 }

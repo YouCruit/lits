@@ -97,4 +97,23 @@ describe(`assert functions`, () => {
       expect(lits.run(`(assert<= :Albert :albert)`)).toBeNull()
     })
   })
+  describe(`assertTrue`, () => {
+    test(`samples`, () => {
+      expect(() => lits.run(`(assertTrue false)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertTrue false 'Expected false')`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertTrue 1)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertTrue nil)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertTrue :x)`)).toThrowError(AssertionError)
+      expect(lits.run(`(assertTrue true)`)).toBeNull()
+    })
+  })
+  describe(`assertFalse`, () => {
+    test(`samples`, () => {
+      expect(() => lits.run(`(assertFalse true)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertFalse true 'Expected true')`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertFalse nil)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertFalse 0)`)).toThrowError(AssertionError)
+      expect(lits.run(`(assertFalse false)`)).toBeNull()
+    })
+  })
 })

@@ -103,4 +103,24 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
   },
+  assertTrue: {
+    evaluate: ([first, message], sourceCodeInfo): null => {
+      message = typeof message === `string` && message ? ` "${message}"` : ``
+      if (first !== true) {
+        throw new AssertionError(`Expected ${first} to be true.${message}`, sourceCodeInfo)
+      }
+      return null
+    },
+    validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+  },
+  assertFalse: {
+    evaluate: ([first, message], sourceCodeInfo): null => {
+      message = typeof message === `string` && message ? ` "${message}"` : ``
+      if (first !== false) {
+        throw new AssertionError(`Expected ${first} to be false.${message}`, sourceCodeInfo)
+      }
+      return null
+    },
+    validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+  },
 }

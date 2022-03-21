@@ -3945,6 +3945,28 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
+      assertTrue: {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], message = _a[1];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (first !== true) {
+                  throw new AssertionError("Expected " + first + " to be true." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      assertFalse: {
+          evaluate: function (_a, sourceCodeInfo) {
+              var first = _a[0], message = _a[1];
+              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              if (first !== false) {
+                  throw new AssertionError("Expected " + first + " to be false." + message, sourceCodeInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
   };
 
   var objectNormalExpression = {

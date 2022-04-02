@@ -158,8 +158,8 @@ type ParseFnShorthand = (tokens: Token[], position: number) => [number, FnSpecia
 const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
   const firstToken = token.as(tokens[position], `EOF`)
 
-  position += 2
-  const [newPosition, normalExpressionNode] = parseNormalExpression(tokens, position)
+  position += 1
+  const [newPosition, expressionNode] = parseExpression(tokens, position)
 
   let arity = 0
   for (let pos = position + 1; pos < newPosition - 1; pos += 1) {
@@ -196,7 +196,7 @@ const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
     overloads: [
       {
         arguments: args,
-        body: [normalExpressionNode],
+        body: [expressionNode],
         arity: args.mandatoryArguments.length,
       },
     ],

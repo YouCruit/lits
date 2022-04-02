@@ -380,6 +380,12 @@ describe(`specialExpressions`, () => {
       expect(() => lits.run(`(fn k s)`)).toThrow()
       expect(() => lits.run(`(fn add)`)).toThrow()
     })
+
+    test(`shorthand lambda`, () => {
+      expect(lits.run(`(#(+ %1 %2 %3) 2 4 6)`)).toBe(12)
+      expect(lits.run(`(#(if %1 %2 %3) 2 4 6)`)).toBe(4)
+      expect(lits.run(`(#(if %1 %2 %3) 0 4 6)`)).toBe(6)
+    })
   })
 
   describe(`try`, () => {

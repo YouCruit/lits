@@ -3661,7 +3661,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.7";
+  var version = "1.0.8-alpha.0";
 
   var miscNormalExpression = {
       'not=': {
@@ -5107,8 +5107,8 @@ var Lits = (function (exports) {
   var placeholderRegexp = /^%([1-9][0-9]?$)/;
   var parseFnShorthand = function (tokens, position) {
       var firstToken = token.as(tokens[position], "EOF");
-      position += 2;
-      var _a = parseNormalExpression(tokens, position), newPosition = _a[0], normalExpressionNode = _a[1];
+      position += 1;
+      var _a = parseExpression(tokens, position), newPosition = _a[0], expressionNode = _a[1];
       var arity = 0;
       for (var pos = position + 1; pos < newPosition - 1; pos += 1) {
           var tkn = token.as(tokens[pos], "EOF");
@@ -5140,7 +5140,7 @@ var Lits = (function (exports) {
           overloads: [
               {
                   arguments: args,
-                  body: [normalExpressionNode],
+                  body: [expressionNode],
                   arity: args.mandatoryArguments.length,
               },
           ],

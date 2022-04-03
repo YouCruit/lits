@@ -3661,7 +3661,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.8";
+  var version = "1.0.9";
 
   var miscNormalExpression = {
       'not=': {
@@ -5738,6 +5738,24 @@ var Lits = (function (exports) {
       Lits.prototype.evaluate = function (ast, params) {
           var contextStack = createContextStackFromParams(params);
           return evaluate(ast, contextStack);
+      };
+      Lits.prototype.apply = function (fn, fnParams, params) {
+          var _a;
+          var fnName = "FN_2eb7b316-471c-5bfa-90cb-d3dfd9164a59";
+          var paramsString = fnParams
+              .map(function (_, index) {
+              return fnName + "_" + index;
+          })
+              .join(" ");
+          var program = "(" + fnName + " " + paramsString + ")";
+          var ast = this.generateAst(program);
+          var globals = fnParams.reduce(function (result, param, index) {
+              result[fnName + "_" + index] = param;
+              return result;
+          }, (_a = {}, _a[fnName] = fn, _a));
+          params = params !== null && params !== void 0 ? params : {};
+          params.globals = __assign(__assign({}, params.globals), globals);
+          return this.evaluate(ast, params);
       };
       Lits.prototype.generateAst = function (program) {
           var _a;

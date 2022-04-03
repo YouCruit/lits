@@ -1,6 +1,30 @@
-import { Lits } from '../src'
-import { UndefinedSymbolError } from '../src/errors'
-import { Cache } from '../src/Lits/Cache'
+import { Lits } from '../../src'
+import { UndefinedSymbolError } from '../../src/errors'
+import { Cache } from '../../src/Lits/Cache'
+import { litsFunction } from '../../src/utils/assertion'
+
+describe(`TEST`, () => {
+  let lits: Lits
+  beforeEach(() => {
+    lits = new Lits({ debug: true })
+  })
+  test(`without params`, () => {
+    const fn = lits.run(`#(+ %1 %2)`)
+    litsFunction.assert(fn, null)
+    expect(lits.apply(fn, [2, 3])).toBe(5)
+  })
+  test(`with empty params`, () => {
+    const fn = lits.run(`#(+ %1 %2)`)
+    litsFunction.assert(fn, null)
+    expect(lits.apply(fn, [2, 3], {})).toBe(5)
+  })
+
+  test(`with params`, () => {
+    const fn = lits.run(`#(+ %1 %2 x)`)
+    litsFunction.assert(fn, null)
+    expect(lits.apply(fn, [2, 3], { globalContext: { x: { value: 1 } } })).toBe(6)
+  })
+})
 
 describe(`context`, () => {
   let lits: Lits

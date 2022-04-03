@@ -1,8 +1,8 @@
-import { tokenize } from '../src/tokenizer'
-import { parse } from '../src/parser'
-import { createContextStack, evaluate, evaluateAstNode } from '../src/evaluator'
-import { Lits } from '../src'
-import { Context } from '../src/evaluator/interface'
+import { tokenize } from '../../src/tokenizer'
+import { parse } from '../../src/parser'
+import { createContextStack, evaluate, evaluateAstNode } from '../../src/evaluator'
+import { Lits } from '../../src'
+import { Context } from '../../src/evaluator/interface'
 
 let lits: Lits
 

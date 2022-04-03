@@ -1,3 +1,4 @@
+import { LitsFunction } from '..'
 import { createContextStack, evaluate } from '../evaluator'
 import { Context, ContextStack } from '../evaluator/interface'
 import { Any, Obj } from '../interface'
@@ -56,6 +57,30 @@ export class Lits {
   private evaluate(ast: Ast, params?: LitsParams): Any {
     const contextStack = createContextStackFromParams(params)
     return evaluate(ast, contextStack)
+  }
+
+  public apply(fn: LitsFunction, fnParams: unknown[], params?: LitsParams): Any {
+    const fnName = `FN_2eb7b316-471c-5bfa-90cb-d3dfd9164a59`
+    const paramsString: string = fnParams
+      .map((_, index) => {
+        return `${fnName}_${index}`
+      })
+      .join(` `)
+    const program = `(${fnName} ${paramsString})`
+    const ast = this.generateAst(program)
+
+    const globals: Obj = fnParams.reduce(
+      (result: Obj, param, index) => {
+        result[`${fnName}_${index}`] = param
+        return result
+      },
+      { [fnName]: fn },
+    )
+
+    params = params ?? {}
+    params.globals = { ...params.globals, ...globals }
+
+    return this.evaluate(ast, params)
   }
 
   private generateAst(program: string): Ast {

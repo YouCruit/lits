@@ -1059,8 +1059,9 @@ var Lits = (function (exports) {
               }
           }
           if (!skip) {
+              var value = evaluateAstNode(expression, newContextStack);
               if (returnResult) {
-                  result.push(evaluateAstNode(expression, newContextStack));
+                  result.push(value);
               }
               bindingIndices[bindingIndices.length - 1] += 1;
           }
@@ -3671,7 +3672,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.10";
+  var version = "1.0.11-alpha.0";
 
   var miscNormalExpression = {
       'not=': {

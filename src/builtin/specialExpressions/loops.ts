@@ -199,8 +199,9 @@ function evaluateLoop(
       }
     }
     if (!skip) {
+      const value = evaluateAstNode(expression, newContextStack)
       if (returnResult) {
-        result.push(evaluateAstNode(expression, newContextStack))
+        result.push(value)
       }
       bindingIndices[bindingIndices.length - 1] += 1
     }

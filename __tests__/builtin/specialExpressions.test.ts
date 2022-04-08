@@ -503,6 +503,32 @@ describe(`specialExpressions`, () => {
     })
   })
 
+  describe(`doseq`, () => {
+    test(`samples`, () => {
+      expect(lits.run(`(doseq [x []] x)`)).toBeNull()
+      expect(lits.run(`(doseq [x [1 2 3] y []] x)`)).toBeNull()
+      expect(lits.run(`(doseq [x [] y [1 2 3]] x)`)).toBeNull()
+
+      expect(lits.run(`(doseq [x 'Al' y [1 2]] (repeat y x))`)).toBeNull()
+      expect(lits.run(`(doseq [x {:a 10 :b 20} y [1 2]] (repeat y x))`)).toBeNull()
+
+      expect(lits.run(`(doseq [x [1 2] y [1 10]] (* x y))`)).toBeNull()
+      expect(lits.run(`(doseq [x [1 2] &let [z (* x x x)]] z)`)).toBeNull()
+      expect(lits.run(`(doseq [x [1 2] y [x (* 2 x)]] (* x y))`)).toBeNull()
+
+      expect(lits.run(`(doseq [x [0 1 2 3 4 5] &let [y (* x 3)] &when (even? y)] y)`)).toBeNull()
+      expect(lits.run(`(doseq [x [0 1 2 3 4 5] &let [y (* x 3)] &while (even? y)] y)`)).toBeNull()
+
+      expect(lits.run(`(doseq [x [1 2 3] y [1 2 3] &while (<= x y) z [1 2 3]] [x y z])`)).toBeNull()
+      expect(lits.run(`(doseq [x [1 2 3] y [1 2 3] z [1 2 3] &while (<= x y)] [x y z])`)).toBeNull()
+      expect(() => lits.run(`(doseq [x [0 1 2 3 4 5] & [y (* x 3)] &while (even? y)] y)`)).toThrow()
+      expect(() => lits.run(`(doseq [x [0 1 2 3 4 5] &let [x 10]] y)`)).toThrow()
+      expect(() => lits.run(`(doseq x [0 1 2 3 4 5] y)`)).toThrow()
+      expect(() => lits.run(`(doseq [x [0 1 2 3 4 5]] x y)`)).toThrow()
+      expect(() => lits.run(`(doseq [x [0 1 2 3 4 5] x [10 20]] x)`)).toThrow()
+    })
+  })
+
   describe(`for`, () => {
     test(`samples`, () => {
       expect(lits.run(`(for [x []] x)`)).toEqual([])

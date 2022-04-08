@@ -4,7 +4,7 @@ import { defnSpecialExpression, defnsSpecialExpression, fnSpecialExpression } fr
 import { defSpecialExpression } from './specialExpressions/def'
 import { defsSpecialExpression } from './specialExpressions/defs'
 import { doSpecialExpression } from './specialExpressions/do'
-import { forSpecialExpression } from './specialExpressions/for'
+import { forSpecialExpression, doseqSpecialExpression } from './specialExpressions/loops'
 import { ifLetSpecialExpression } from './specialExpressions/if-let'
 import { ifNotSpecialExpression } from './specialExpressions/if-not'
 import { ifSpecialExpression } from './specialExpressions/if'
@@ -30,6 +30,7 @@ export const specialExpressions: BuiltinSpecialExpressions = {
   defns: defnsSpecialExpression,
   defs: defsSpecialExpression,
   do: doSpecialExpression,
+  doseq: doseqSpecialExpression,
   for: forSpecialExpression,
   fn: fnSpecialExpression,
   if: ifSpecialExpression,

@@ -10,19 +10,19 @@ var Lits = (function (exports) {
   function valueToString$1(value) {
       if (isLitsFunction(value)) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          return "<function " + (value.name || "\u03BB") + ">";
+          return "<function ".concat(value.name || "\u03BB", ">");
       }
       if (isToken(value)) {
-          return value.type + "-token \"" + value.value + "\"";
+          return "".concat(value.type, "-token \"").concat(value.value, "\"");
       }
       if (isAstNode(value)) {
-          return value.type + "-node";
+          return "".concat(value.type, "-node");
       }
       if (value === null) {
           return "null";
       }
       if (typeof value === "object" && value instanceof RegExp) {
-          return "" + value;
+          return "".concat(value);
       }
       if (typeof value === "object" && value instanceof Error) {
           return value.toString();
@@ -125,17 +125,20 @@ var Lits = (function (exports) {
       return __assign.apply(this, arguments);
   };
 
-  function __spreadArray(to, from) {
-      for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-          to[j] = from[i];
-      return to;
+  function __spreadArray(to, from, pack) {
+      if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+          if (ar || !(i in from)) {
+              if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+              ar[i] = from[i];
+          }
+      }
+      return to.concat(ar || Array.prototype.slice.call(from));
   }
 
-  /* istanbul ignore file */
   var RecurSignal = /** @class */ (function (_super) {
       __extends(RecurSignal, _super);
       function RecurSignal(params) {
-          var _this = _super.call(this, "recur, params: " + params) || this;
+          var _this = _super.call(this, "recur, params: ".concat(params)) || this;
           Object.setPrototypeOf(_this, RecurSignal.prototype);
           _this.name = "RecurSignal";
           _this.params = params;
@@ -146,7 +149,7 @@ var Lits = (function (exports) {
   var LitsError = /** @class */ (function (_super) {
       __extends(LitsError, _super);
       function LitsError(message, sourceCodeInfo) {
-          var _this = _super.call(this, "" + message + (sourceCodeInfo ? " " + sourceCodeInfo : "")) || this;
+          var _this = _super.call(this, "".concat(message).concat(sourceCodeInfo ? " ".concat(sourceCodeInfo) : "")) || this;
           _this.line = sourceCodeInfo === "EOF" || sourceCodeInfo === null ? null : sourceCodeInfo.line;
           _this.column = sourceCodeInfo === "EOF" || sourceCodeInfo === null ? null : sourceCodeInfo.column;
           Object.setPrototypeOf(_this, LitsError.prototype);
@@ -158,7 +161,7 @@ var Lits = (function (exports) {
   var NotAFunctionError = /** @class */ (function (_super) {
       __extends(NotAFunctionError, _super);
       function NotAFunctionError(fn, sourceCodeInfo) {
-          var _this = _super.call(this, "Expected function, got " + valueToString$1(fn) + "." + (sourceCodeInfo ? " " + sourceCodeInfo : "")) || this;
+          var _this = _super.call(this, "Expected function, got ".concat(valueToString$1(fn), ".").concat(sourceCodeInfo ? " ".concat(sourceCodeInfo) : "")) || this;
           _this.line = sourceCodeInfo === "EOF" || sourceCodeInfo === null ? null : sourceCodeInfo.line;
           _this.column = sourceCodeInfo === "EOF" || sourceCodeInfo === null ? null : sourceCodeInfo.column;
           Object.setPrototypeOf(_this, NotAFunctionError.prototype);
@@ -170,7 +173,7 @@ var Lits = (function (exports) {
   var UserDefinedError = /** @class */ (function (_super) {
       __extends(UserDefinedError, _super);
       function UserDefinedError(message, sourceCodeInfo) {
-          var _this = _super.call(this, "" + message + (sourceCodeInfo ? " " + sourceCodeInfo : "")) || this;
+          var _this = _super.call(this, "".concat(message).concat(sourceCodeInfo ? " ".concat(sourceCodeInfo) : "")) || this;
           _this.line = sourceCodeInfo === "EOF" || sourceCodeInfo === null ? null : sourceCodeInfo.line;
           _this.column = sourceCodeInfo === "EOF" || sourceCodeInfo === null ? null : sourceCodeInfo.column;
           Object.setPrototypeOf(_this, UserDefinedError.prototype);
@@ -182,7 +185,7 @@ var Lits = (function (exports) {
   var AssertionError = /** @class */ (function (_super) {
       __extends(AssertionError, _super);
       function AssertionError(message, sourceCodeInfo) {
-          var _this = _super.call(this, "" + message + (sourceCodeInfo ? " " + sourceCodeInfo : "")) || this;
+          var _this = _super.call(this, "".concat(message).concat(sourceCodeInfo ? " ".concat(sourceCodeInfo) : "")) || this;
           _this.line = sourceCodeInfo === "EOF" || sourceCodeInfo === null ? null : sourceCodeInfo.line;
           _this.column = sourceCodeInfo === "EOF" || sourceCodeInfo === null ? null : sourceCodeInfo.column;
           Object.setPrototypeOf(_this, AssertionError.prototype);
@@ -194,7 +197,7 @@ var Lits = (function (exports) {
   var UndefinedSymbolError = /** @class */ (function (_super) {
       __extends(UndefinedSymbolError, _super);
       function UndefinedSymbolError(symbolName, sourceCodeInfo) {
-          var _this = _super.call(this, "Undefined symbol '" + symbolName + "'" + (sourceCodeInfo ? " " + sourceCodeInfo : "")) || this;
+          var _this = _super.call(this, "Undefined symbol '".concat(symbolName, "'").concat(sourceCodeInfo ? " ".concat(sourceCodeInfo) : "")) || this;
           _this.line = sourceCodeInfo === "EOF" || sourceCodeInfo === null ? null : sourceCodeInfo.line;
           _this.column = sourceCodeInfo === "EOF" || sourceCodeInfo === null ? null : sourceCodeInfo.column;
           Object.setPrototypeOf(_this, UndefinedSymbolError.prototype);
@@ -220,7 +223,7 @@ var Lits = (function (exports) {
   function assert$2(value, sourceCodeInfo, options) {
       if (options === void 0) { options = {}; }
       if (!is$2(value, options)) {
-          throw new LitsError("Expected " + (options.nonEmpty ? "non empty string" : options.char ? "character" : "string") + ", got " + valueToString$1(value) + ".", getSourceCodeInfo(value, sourceCodeInfo));
+          throw new LitsError("Expected ".concat(options.nonEmpty ? "non empty string" : options.char ? "character" : "string", ", got ").concat(valueToString$1(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
       }
   }
   function as$2(value, sourceCodeInfo, options) {
@@ -237,13 +240,13 @@ var Lits = (function (exports) {
   function getRangeString(options) {
       if ((typeof options.gt === "number" || typeof options.gte === "number") &&
           (typeof options.lt === "number" || typeof options.lte === "number")) {
-          return "" + (typeof options.gt === "number" ? options.gt + " < n " : options.gte + " <= n ") + (typeof options.lt === "number" ? "< " + options.lt : "<= " + options.lte);
+          return "".concat(typeof options.gt === "number" ? "".concat(options.gt, " < n ") : "".concat(options.gte, " <= n ")).concat(typeof options.lt === "number" ? "< ".concat(options.lt) : "<= ".concat(options.lte));
       }
       if (typeof options.gt === "number" || typeof options.gte === "number") {
-          return "" + (typeof options.gt === "number" ? "n > " + options.gt : "n >= " + options.gte);
+          return "".concat(typeof options.gt === "number" ? "n > ".concat(options.gt) : "n >= ".concat(options.gte));
       }
       if (typeof options.lt === "number" || typeof options.lte === "number") {
-          return "" + (typeof options.lt === "number" ? "n < " + options.lt : "n <= " + options.lte);
+          return "".concat(typeof options.lt === "number" ? "n < ".concat(options.lt) : "n <= ".concat(options.lte));
       }
       return "";
   }
@@ -313,7 +316,7 @@ var Lits = (function (exports) {
   function assert$1(value, sourceCodeInfo, options) {
       if (options === void 0) { options = {}; }
       if (!is$1(value, options)) {
-          throw new LitsError("Expected " + getNumberTypeName(options) + ", got " + valueToString$1(value) + ".", getSourceCodeInfo(value, sourceCodeInfo));
+          throw new LitsError("Expected ".concat(getNumberTypeName(options), ", got ").concat(valueToString$1(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
       }
   }
   function as$1(value, sourceCodeInfo, options) {
@@ -346,7 +349,7 @@ var Lits = (function (exports) {
           if (isToken(value)) {
               sourceCodeInfo = value.sourceCodeInfo;
           }
-          throw new LitsError("Expected " + (options.type ? options.type + "-" : "") + "token" + (typeof options.value === "string" ? " value='" + options.value + "'" : "") + ", got " + valueToString$1(value) + ".", getSourceCodeInfo(value, sourceCodeInfo));
+          throw new LitsError("Expected ".concat(options.type ? "".concat(options.type, "-") : "", "token").concat(typeof options.value === "string" ? " value='".concat(options.value, "'") : "", ", got ").concat(valueToString$1(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
       }
   }
   function as(value, sourceCodeInfo, options) {
@@ -370,7 +373,7 @@ var Lits = (function (exports) {
       };
       Asserter.prototype.assert = function (value, sourceCodeInfo) {
           if (!this.predicate(value)) {
-              throw new LitsError("Expected " + this.typeName + ", got " + valueToString$1(value) + ".", getSourceCodeInfo(value, sourceCodeInfo));
+              throw new LitsError("Expected ".concat(this.typeName, ", got ").concat(valueToString$1(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
           }
       };
       Asserter.prototype.as = function (value, sourceCodeInfo) {
@@ -425,7 +428,7 @@ var Lits = (function (exports) {
       var sourceCodeInfo = node.token.sourceCodeInfo;
       if (typeof count === "number") {
           if (length !== count) {
-              throw new LitsError("Wrong number of arguments to \"" + node.name + "\", expected " + count + ", got " + valueToString$1(length) + ".", node.token.sourceCodeInfo);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.name, "\", expected ").concat(count, ", got ").concat(valueToString$1(length), "."), node.token.sourceCodeInfo);
           }
       }
       else {
@@ -434,17 +437,17 @@ var Lits = (function (exports) {
               throw new LitsError("Min or max must be specified.", sourceCodeInfo);
           }
           if (typeof min === "number" && length < min) {
-              throw new LitsError("Wrong number of arguments to \"" + node.name + "\", expected at least " + min + ", got " + valueToString$1(length) + ".", sourceCodeInfo);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.name, "\", expected at least ").concat(min, ", got ").concat(valueToString$1(length), "."), sourceCodeInfo);
           }
           if (typeof max === "number" && length > max) {
-              throw new LitsError("Wrong number of arguments to \"" + node.name + "\", expected at most " + max + ", got " + valueToString$1(length) + ".", sourceCodeInfo);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.name, "\", expected at most ").concat(max, ", got ").concat(valueToString$1(length), "."), sourceCodeInfo);
           }
       }
   }
   function assertEventNumberOfParams(node) {
       var length = node.params.length;
       if (length % 2 !== 0) {
-          throw new LitsError("Wrong number of arguments, expected an even number, got " + valueToString$1(length) + ".", node.token.sourceCodeInfo);
+          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString$1(length), "."), node.token.sourceCodeInfo);
       }
   }
   function asValue(value, sourceCodeInfo) {
@@ -552,17 +555,17 @@ var Lits = (function (exports) {
           return;
       }
       if (builtin.specialExpressions[name]) {
-          throw new LitsError("Cannot define variable " + name + ", it's a special expression.", sourceCodeInfo);
+          throw new LitsError("Cannot define variable ".concat(name, ", it's a special expression."), sourceCodeInfo);
       }
       if (builtin.normalExpressions[name]) {
-          throw new LitsError("Cannot define variable " + name + ", it's a builtin function.", sourceCodeInfo);
+          throw new LitsError("Cannot define variable ".concat(name, ", it's a builtin function."), sourceCodeInfo);
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (reservedNamesRecord[name]) {
-          throw new LitsError("Cannot define variable " + name + ", it's a reserved name.", sourceCodeInfo);
+          throw new LitsError("Cannot define variable ".concat(name, ", it's a reserved name."), sourceCodeInfo);
       }
       if (contextStack.globalContext[name]) {
-          throw new LitsError("Name already defined \"" + name + "\".", sourceCodeInfo);
+          throw new LitsError("Name already defined \"".concat(name, "\"."), sourceCodeInfo);
       }
   }
 
@@ -727,7 +730,7 @@ var Lits = (function (exports) {
               });
               tkn = token.as(tokens[position], "EOF", { type: "paren" });
               if (tkn.value !== ")" && tkn.value !== "(") {
-                  throw new LitsError("Expected ( or ) token, got " + valueToString$1(tkn) + ".", tkn.sourceCodeInfo);
+                  throw new LitsError("Expected ( or ) token, got ".concat(valueToString$1(tkn), "."), tkn.sourceCodeInfo);
               }
           }
           return [position + 1, functionOverloades];
@@ -752,7 +755,7 @@ var Lits = (function (exports) {
           ];
       }
       else {
-          throw new LitsError("Expected [ or ( token, got " + valueToString$1(tkn), tkn.sourceCodeInfo);
+          throw new LitsError("Expected [ or ( token, got ".concat(valueToString$1(tkn)), tkn.sourceCodeInfo);
       }
   }
   function parseFunctionArguments(tokens, position, parsers) {
@@ -790,12 +793,12 @@ var Lits = (function (exports) {
                           state = "let";
                           break;
                       default:
-                          throw new LitsError("Illegal modifier: " + node.value, tkn.sourceCodeInfo);
+                          throw new LitsError("Illegal modifier: ".concat(node.value), tkn.sourceCodeInfo);
                   }
               }
               else {
                   if (argNames[node.name]) {
-                      throw new LitsError("Duplicate argument \"" + node.name + "\"", tkn.sourceCodeInfo);
+                      throw new LitsError("Duplicate argument \"".concat(node.name, "\""), tkn.sourceCodeInfo);
                   }
                   else {
                       argNames[node.name] = true;
@@ -948,7 +951,7 @@ var Lits = (function (exports) {
                   loopBinding.modifiers.push("&while");
                   break;
               default:
-                  throw new LitsError("Illegal modifier: " + tkn.value, tkn.sourceCodeInfo);
+                  throw new LitsError("Illegal modifier: ".concat(tkn.value), tkn.sourceCodeInfo);
           }
           tkn = token.as(tokens[position], "EOF");
       }
@@ -958,7 +961,7 @@ var Lits = (function (exports) {
       for (var _i = 0, bindings_1 = bindings; _i < bindings_1.length; _i++) {
           var binding = bindings_1[_i];
           if (context[binding.name]) {
-              throw new LitsError("Variable already defined: " + binding.name + ".", sourceCodeInfo);
+              throw new LitsError("Variable already defined: ".concat(binding.name, "."), sourceCodeInfo);
           }
           context[binding.name] = { value: evaluateAstNode(binding.value, contextStack) };
       }
@@ -977,93 +980,100 @@ var Lits = (function (exports) {
       }
       return [position + 1, loopBindings];
   }
-  var forSpecialExpression = {
-      parse: function (tokens, position, parsers) {
-          var _a, _b;
-          var firstToken = token.as(tokens[position], "EOF");
-          var parseToken = parsers.parseToken;
-          var loopBindings;
-          _a = parseLoopBindings(tokens, position, parsers), position = _a[0], loopBindings = _a[1];
-          var expression;
-          _b = parseToken(tokens, position), position = _b[0], expression = _b[1];
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
-          var node = {
-              name: "for",
-              type: "SpecialExpression",
-              loopBindings: loopBindings,
-              params: [expression],
-              token: firstToken,
-          };
-          return [position + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var evaluateAstNode = _a.evaluateAstNode;
-          var sourceCodeInfo = node.token.sourceCodeInfo;
-          var loopBindings = node.loopBindings, params = node.params;
-          var expression = astNode.as(params[0], sourceCodeInfo);
-          var result = [];
-          var bindingIndices = loopBindings.map(function () { return 0; });
-          var abort = false;
-          while (!abort) {
-              var context = {};
-              var newContextStack = contextStack.withContext(context);
-              var skip = false;
-              bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
-                  var _b = asValue(loopBindings[bindingIndex], sourceCodeInfo), binding = _b.binding, letBindings = _b.letBindings, whenNode = _b.whenNode, whileNode = _b.whileNode, modifiers = _b.modifiers;
-                  var coll = collection.as(evaluateAstNode(binding.value, newContextStack), sourceCodeInfo);
-                  var seq = sequence.is(coll) ? coll : Object.entries(coll);
-                  if (seq.length === 0) {
-                      skip = true;
+  function parseLoop(name, tokens, position, parsers) {
+      var _a, _b;
+      var firstToken = token.as(tokens[position], "EOF");
+      var parseToken = parsers.parseToken;
+      var loopBindings;
+      _a = parseLoopBindings(tokens, position, parsers), position = _a[0], loopBindings = _a[1];
+      var expression;
+      _b = parseToken(tokens, position), position = _b[0], expression = _b[1];
+      token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
+      var node = {
+          name: name,
+          type: "SpecialExpression",
+          loopBindings: loopBindings,
+          params: [expression],
+          token: firstToken,
+      };
+      return [position + 1, node];
+  }
+  function evaluateLoop(returnResult, node, contextStack, evaluateAstNode) {
+      var sourceCodeInfo = node.token.sourceCodeInfo;
+      var loopBindings = node.loopBindings, params = node.params;
+      var expression = astNode.as(params[0], sourceCodeInfo);
+      var result = [];
+      var bindingIndices = loopBindings.map(function () { return 0; });
+      var abort = false;
+      while (!abort) {
+          var context = {};
+          var newContextStack = contextStack.withContext(context);
+          var skip = false;
+          bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
+              var _a = asValue(loopBindings[bindingIndex], sourceCodeInfo), binding = _a.binding, letBindings = _a.letBindings, whenNode = _a.whenNode, whileNode = _a.whileNode, modifiers = _a.modifiers;
+              var coll = collection.as(evaluateAstNode(binding.value, newContextStack), sourceCodeInfo);
+              var seq = sequence.is(coll) ? coll : Object.entries(coll);
+              if (seq.length === 0) {
+                  skip = true;
+                  abort = true;
+                  break;
+              }
+              var index = asValue(bindingIndices[bindingIndex], sourceCodeInfo);
+              if (index >= seq.length) {
+                  skip = true;
+                  if (bindingIndex === 0) {
                       abort = true;
                       break;
                   }
-                  var index = asValue(bindingIndices[bindingIndex], sourceCodeInfo);
-                  if (index >= seq.length) {
-                      skip = true;
-                      if (bindingIndex === 0) {
-                          abort = true;
-                          break;
-                      }
-                      bindingIndices[bindingIndex] = 0;
-                      bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], sourceCodeInfo) + 1;
-                      break;
-                  }
-                  if (context[binding.name]) {
-                      throw new LitsError("Variable already defined: " + binding.name + ".", sourceCodeInfo);
-                  }
-                  context[binding.name] = {
-                      value: any.as(seq[index], sourceCodeInfo),
-                  };
-                  for (var _i = 0, modifiers_1 = modifiers; _i < modifiers_1.length; _i++) {
-                      var modifier = modifiers_1[_i];
-                      switch (modifier) {
-                          case "&let":
-                              addToContext(asValue(letBindings, sourceCodeInfo), context, newContextStack, evaluateAstNode, sourceCodeInfo);
-                              break;
-                          case "&when":
-                              if (!evaluateAstNode(astNode.as(whenNode, sourceCodeInfo), newContextStack)) {
-                                  bindingIndices[bindingIndex] = asValue(bindingIndices[bindingIndex], sourceCodeInfo) + 1;
-                                  skip = true;
-                                  break bindingsLoop;
-                              }
-                              break;
-                          case "&while":
-                              if (!evaluateAstNode(astNode.as(whileNode, sourceCodeInfo), newContextStack)) {
-                                  bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY;
-                                  skip = true;
-                                  break bindingsLoop;
-                              }
-                              break;
-                      }
-                  }
+                  bindingIndices[bindingIndex] = 0;
+                  bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], sourceCodeInfo) + 1;
+                  break;
               }
-              if (!skip) {
-                  result.push(evaluateAstNode(expression, newContextStack));
-                  bindingIndices[bindingIndices.length - 1] += 1;
+              if (context[binding.name]) {
+                  throw new LitsError("Variable already defined: ".concat(binding.name, "."), sourceCodeInfo);
+              }
+              context[binding.name] = {
+                  value: any.as(seq[index], sourceCodeInfo),
+              };
+              for (var _i = 0, modifiers_1 = modifiers; _i < modifiers_1.length; _i++) {
+                  var modifier = modifiers_1[_i];
+                  switch (modifier) {
+                      case "&let":
+                          addToContext(asValue(letBindings, sourceCodeInfo), context, newContextStack, evaluateAstNode, sourceCodeInfo);
+                          break;
+                      case "&when":
+                          if (!evaluateAstNode(astNode.as(whenNode, sourceCodeInfo), newContextStack)) {
+                              bindingIndices[bindingIndex] = asValue(bindingIndices[bindingIndex], sourceCodeInfo) + 1;
+                              skip = true;
+                              break bindingsLoop;
+                          }
+                          break;
+                      case "&while":
+                          if (!evaluateAstNode(astNode.as(whileNode, sourceCodeInfo), newContextStack)) {
+                              bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY;
+                              skip = true;
+                              break bindingsLoop;
+                          }
+                          break;
+                  }
               }
           }
-          return result;
-      },
+          if (!skip) {
+              if (returnResult) {
+                  result.push(evaluateAstNode(expression, newContextStack));
+              }
+              bindingIndices[bindingIndices.length - 1] += 1;
+          }
+      }
+      return returnResult ? result : null;
+  }
+  var forSpecialExpression = {
+      parse: function (tokens, position, parsers) { return parseLoop("for", tokens, position, parsers); },
+      evaluate: function (node, contextStack, helpers) { return evaluateLoop(true, node, contextStack, helpers.evaluateAstNode); },
+  };
+  var doseqSpecialExpression = {
+      parse: function (tokens, position, parsers) { return parseLoop("doseq", tokens, position, parsers); },
+      evaluate: function (node, contextStack, helpers) { return evaluateLoop(false, node, contextStack, helpers.evaluateAstNode); },
   };
 
   var ifLetSpecialExpression = {
@@ -1074,7 +1084,7 @@ var Lits = (function (exports) {
           var bindings;
           _b = parseBindings(tokens, position), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got " + valueToString$1(bindings.length), firstToken.sourceCodeInfo);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.sourceCodeInfo);
           }
           var params;
           _c = parseTokens(tokens, position), position = _c[0], params = _c[1];
@@ -1250,7 +1260,7 @@ var Lits = (function (exports) {
                   if (error instanceof RecurSignal) {
                       var params_1 = error.params;
                       if (params_1.length !== node.bindings.length) {
-                          throw new LitsError("recur expected " + node.bindings.length + " parameters, got " + valueToString$1(params_1.length), sourceCodeInfo);
+                          throw new LitsError("recur expected ".concat(node.bindings.length, " parameters, got ").concat(valueToString$1(params_1.length)), sourceCodeInfo);
                       }
                       node.bindings.forEach(function (binding, index) {
                           asValue(bindingContext[binding.name], sourceCodeInfo).value = any.as(params_1[index], sourceCodeInfo);
@@ -1367,7 +1377,7 @@ var Lits = (function (exports) {
           var result = evaluateAstNode(param, contextStack);
           var totalTime = Date.now() - startTime;
           // eslint-disable-next-line no-console
-          console.log("Elapsed time: " + totalTime + " ms");
+          console.log("Elapsed time: ".concat(totalTime, " ms"));
           return result;
       },
       validate: function (node) { return assertNumberOfParams(1, node); },
@@ -1386,7 +1396,7 @@ var Lits = (function (exports) {
           _c = parseToken(tokens, position), position = _c[0], catchNode = _c[1];
           nameNode.assert(catchNode, catchNode.token.sourceCodeInfo);
           if (catchNode.value !== "catch") {
-              throw new LitsError("Expected 'catch', got '" + catchNode.value + "'.", getSourceCodeInfo(catchNode, catchNode.token.sourceCodeInfo));
+              throw new LitsError("Expected 'catch', got '".concat(catchNode.value, "'."), getSourceCodeInfo(catchNode, catchNode.token.sourceCodeInfo));
           }
           var error;
           _d = parseToken(tokens, position), position = _d[0], error = _d[1];
@@ -1603,7 +1613,7 @@ var Lits = (function (exports) {
           var bindings;
           _b = parseBindings(tokens, position), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got " + valueToString$1(bindings.length), firstToken.sourceCodeInfo);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.sourceCodeInfo);
           }
           var params;
           _c = parseTokens(tokens, position), position = _c[0], params = _c[1];
@@ -1621,7 +1631,7 @@ var Lits = (function (exports) {
           var locals = {};
           var evaluatedBindingForm = evaluateAstNode(node.binding.value, contextStack);
           if (!sequence.is(evaluatedBindingForm)) {
-              throw new LitsError("Expected undefined or a sequence, got " + valueToString$1(evaluatedBindingForm), node.token.sourceCodeInfo);
+              throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString$1(evaluatedBindingForm)), node.token.sourceCodeInfo);
           }
           if (evaluatedBindingForm.length === 0) {
               return null;
@@ -1647,7 +1657,7 @@ var Lits = (function (exports) {
           var bindings;
           _b = parseBindings(tokens, position), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got " + valueToString$1(bindings.length), firstToken.sourceCodeInfo);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.sourceCodeInfo);
           }
           var params;
           _c = parseTokens(tokens, position), position = _c[0], params = _c[1];
@@ -1894,7 +1904,7 @@ var Lits = (function (exports) {
       if (object.is(coll)) {
           string.assert(key, sourceCodeInfo);
           var result = __assign({}, coll);
-          result[key] = executeFunction(fn, __spreadArray([result[key]], params), sourceCodeInfo, contextStack);
+          result[key] = executeFunction(fn, __spreadArray([result[key]], params, true), sourceCodeInfo, contextStack);
           return result;
       }
       else {
@@ -1904,26 +1914,26 @@ var Lits = (function (exports) {
           if (Array.isArray(coll)) {
               var result = coll.map(function (elem, index) {
                   if (intKey_1 === index) {
-                      return executeFunction(fn, __spreadArray([elem], params), sourceCodeInfo, contextStack);
+                      return executeFunction(fn, __spreadArray([elem], params, true), sourceCodeInfo, contextStack);
                   }
                   return elem;
               });
               if (intKey_1 === coll.length) {
-                  result[intKey_1] = executeFunction(fn, __spreadArray([undefined], params), sourceCodeInfo, contextStack);
+                  result[intKey_1] = executeFunction(fn, __spreadArray([undefined], params, true), sourceCodeInfo, contextStack);
               }
               return result;
           }
           else {
               var result = coll.split("").map(function (elem, index) {
                   if (intKey_1 === index) {
-                      return string.as(executeFunction(fn, __spreadArray([elem], params), sourceCodeInfo, contextStack), sourceCodeInfo, {
+                      return string.as(executeFunction(fn, __spreadArray([elem], params, true), sourceCodeInfo, contextStack), sourceCodeInfo, {
                           char: true,
                       });
                   }
                   return elem;
               });
               if (intKey_1 === coll.length) {
-                  result[intKey_1] = string.as(executeFunction(fn, __spreadArray([undefined], params), sourceCodeInfo, contextStack), sourceCodeInfo, {
+                  result[intKey_1] = string.as(executeFunction(fn, __spreadArray([undefined], params, true), sourceCodeInfo, contextStack), sourceCodeInfo, {
                       char: true,
                   });
               }
@@ -1940,9 +1950,9 @@ var Lits = (function (exports) {
           number.assert(key, sourceCodeInfo, { lte: coll.length });
           if (typeof coll === "string") {
               string.assert(value, sourceCodeInfo, { char: true });
-              return "" + coll.slice(0, key) + value + coll.slice(key + 1);
+              return "".concat(coll.slice(0, key)).concat(value).concat(coll.slice(key + 1));
           }
-          var copy_1 = __spreadArray([], coll);
+          var copy_1 = __spreadArray([], coll, true);
           copy_1[key] = value;
           return copy_1;
       }
@@ -2181,7 +2191,7 @@ var Lits = (function (exports) {
               else if (string.is(params[0])) {
                   return params.reduce(function (result, s) {
                       string.assert(s, sourceCodeInfo);
-                      return "" + result + s;
+                      return "".concat(result).concat(s);
                   }, "");
               }
               else {
@@ -2340,10 +2350,10 @@ var Lits = (function (exports) {
               any.assert(elem, sourceCodeInfo);
               sequence.assert(seq, sourceCodeInfo);
               if (Array.isArray(seq)) {
-                  return __spreadArray([elem], seq);
+                  return __spreadArray([elem], seq, true);
               }
               string.assert(elem, sourceCodeInfo, { char: true });
-              return "" + elem + seq;
+              return "".concat(elem).concat(seq);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
@@ -2403,7 +2413,7 @@ var Lits = (function (exports) {
               if (string.is(seq)) {
                   return seq.substr(0, seq.length - 1);
               }
-              var copy = __spreadArray([], seq);
+              var copy = __spreadArray([], seq, true);
               copy.pop();
               return copy;
           },
@@ -2449,10 +2459,10 @@ var Lits = (function (exports) {
               sequence.assert(seq, sourceCodeInfo);
               if (string.is(seq)) {
                   charArray.assert(values, sourceCodeInfo);
-                  return __spreadArray([seq], values).join("");
+                  return __spreadArray([seq], values, true).join("");
               }
               else {
-                  return __spreadArray(__spreadArray([], seq, true), values);
+                  return __spreadArray(__spreadArray([], seq, true), values, true);
               }
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
@@ -2695,7 +2705,7 @@ var Lits = (function (exports) {
               var first = _a[0];
               sequence.assert(first, sourceCodeInfo);
               if (Array.isArray(first)) {
-                  return __spreadArray([], first).reverse();
+                  return __spreadArray([], first, true).reverse();
               }
               return first.split("").reverse().join("");
           },
@@ -2716,7 +2726,7 @@ var Lits = (function (exports) {
               if (string.is(seq)) {
                   return seq.substr(1);
               }
-              var copy = __spreadArray([], seq);
+              var copy = __spreadArray([], seq, true);
               copy.shift();
               return copy;
           },
@@ -2777,7 +2787,7 @@ var Lits = (function (exports) {
                   }
                   return result_1.join("");
               }
-              var result = __spreadArray([], seq);
+              var result = __spreadArray([], seq, true);
               if (defaultComparer) {
                   result.sort(compare);
               }
@@ -2821,7 +2831,7 @@ var Lits = (function (exports) {
                   }
                   return result_2.join("");
               }
-              var result = __spreadArray([], seq);
+              var result = __spreadArray([], seq, true);
               if (defaultComparer) {
                   result.sort(function (a, b) {
                       var aKey = executeFunction(keyfn, [a], sourceCodeInfo, contextStack);
@@ -2927,9 +2937,9 @@ var Lits = (function (exports) {
               sequence.assert(seq, sourceCodeInfo);
               if (string.is(seq)) {
                   charArray.assert(values, sourceCodeInfo);
-                  return __spreadArray(__spreadArray([], values, true), [seq]).join("");
+                  return __spreadArray(__spreadArray([], values, true), [seq], false).join("");
               }
-              var copy = __spreadArray([], seq);
+              var copy = __spreadArray([], seq, true);
               copy.unshift.apply(copy, values);
               return copy;
           },
@@ -2971,7 +2981,7 @@ var Lits = (function (exports) {
           evaluate: function (_a, sourceCodeInfo) {
               var input = _a[0];
               sequence.assert(input, sourceCodeInfo);
-              var array = string.is(input) ? __spreadArray([], input.split("")) : __spreadArray([], input);
+              var array = string.is(input) ? __spreadArray([], input.split(""), true) : __spreadArray([], input, true);
               var remainingLength = array.length;
               var arrayElement;
               var pickedIndex;
@@ -3026,11 +3036,11 @@ var Lits = (function (exports) {
                   return input;
               }
               if (Array.isArray(input)) {
-                  var copy = __spreadArray([], input);
+                  var copy = __spreadArray([], input, true);
                   copy.splice(index, 1);
                   return copy;
               }
-              return "" + input.substring(0, index) + input.substring(index + 1);
+              return "".concat(input.substring(0, index)).concat(input.substring(index + 1));
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
@@ -3661,7 +3671,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.9";
+  var version = "1.0.10-alpha.0";
 
   var miscNormalExpression = {
       'not=': {
@@ -3784,11 +3794,11 @@ var Lits = (function (exports) {
           evaluate: function (params, sourceCodeInfo, contextStack) {
               if (params.length === 0) {
                   // eslint-disable-next-line no-console
-                  console.warn("*** LITS DEBUG ***\n" + contextStackToString(contextStack) + "\n");
+                  console.warn("*** LITS DEBUG ***\n".concat(contextStackToString(contextStack), "\n"));
                   return null;
               }
               // eslint-disable-next-line no-console
-              console.warn("*** LITS DEBUG ***\n" + JSON.stringify(params[0], null, 2) + "\n");
+              console.warn("*** LITS DEBUG ***\n".concat(JSON.stringify(params[0], null, 2), "\n"));
               return any.as(params[0], sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams({ max: 1 }, node); },
@@ -3816,7 +3826,7 @@ var Lits = (function (exports) {
   };
   function contextStackToString(contextStack) {
       return contextStack.stack.reduce(function (result, context, index) {
-          return result + "Context " + index + (context === contextStack.globalContext ? " - Global context" : "") + "\n" + contextToString(context) + "\n";
+          return "".concat(result, "Context ").concat(index).concat(context === contextStack.globalContext ? " - Global context" : "", "\n").concat(contextToString(context), "\n");
       }, "");
   }
   function contextToString(context) {
@@ -3825,8 +3835,8 @@ var Lits = (function (exports) {
       }
       var maxKeyLength = Math.max.apply(Math, Object.keys(context).map(function (key) { return key.length; }));
       return Object.entries(context).reduce(function (result, entry) {
-          var key = ("" + entry[0]).padEnd(maxKeyLength + 2, " ");
-          return result + "  " + key + valueToString(entry[1]) + "\n";
+          var key = "".concat(entry[0]).padEnd(maxKeyLength + 2, " ");
+          return "".concat(result, "  ").concat(key).concat(valueToString(entry[1]), "\n");
       }, "");
   }
   function valueToString(contextEntry) {
@@ -3835,10 +3845,10 @@ var Lits = (function (exports) {
       var name = value.name;
       if (litsFunction.is(value)) {
           if (name) {
-              return "<" + value.type + " function " + name + ">";
+              return "<".concat(value.type, " function ").concat(name, ">");
           }
           else {
-              return "<" + value.type + " function \u03BB>";
+              return "<".concat(value.type, " function \u03BB>");
           }
       }
       return JSON.stringify(contextEntry.value);
@@ -3848,7 +3858,7 @@ var Lits = (function (exports) {
       assert: {
           evaluate: function (params, sourceCodeInfo) {
               var value = params[0];
-              var message = params.length === 2 ? params[1] : "" + value;
+              var message = params.length === 2 ? params[1] : "".concat(value);
               string.assert(message, sourceCodeInfo);
               if (!value) {
                   throw new AssertionError(message, sourceCodeInfo);
@@ -3860,9 +3870,9 @@ var Lits = (function (exports) {
       'assert=': {
           evaluate: function (_a, sourceCodeInfo) {
               var first = _a[0], second = _a[1], message = _a[2];
-              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (first !== second) {
-                  throw new AssertionError("Expected " + first + " to be " + second + "." + message, sourceCodeInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
@@ -3871,9 +3881,9 @@ var Lits = (function (exports) {
       'assertNot=': {
           evaluate: function (_a, sourceCodeInfo) {
               var first = _a[0], second = _a[1], message = _a[2];
-              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (first === second) {
-                  throw new AssertionError("Expected " + first + " not to be " + second + "." + message, sourceCodeInfo);
+                  throw new AssertionError("Expected ".concat(first, " not to be ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
@@ -3882,9 +3892,9 @@ var Lits = (function (exports) {
       assertEqual: {
           evaluate: function (_a, sourceCodeInfo) {
               var first = _a[0], second = _a[1], message = _a[2];
-              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (!deepEqual(any.as(first, sourceCodeInfo), any.as(second, sourceCodeInfo), sourceCodeInfo)) {
-                  throw new AssertionError("Expected " + JSON.stringify(first) + " to deep equal " + JSON.stringify(second) + "." + message, sourceCodeInfo);
+                  throw new AssertionError("Expected ".concat(JSON.stringify(first), " to deep equal ").concat(JSON.stringify(second), ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
@@ -3893,9 +3903,9 @@ var Lits = (function (exports) {
       assertNotEqual: {
           evaluate: function (_a, sourceCodeInfo) {
               var first = _a[0], second = _a[1], message = _a[2];
-              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (deepEqual(any.as(first, sourceCodeInfo), any.as(second, sourceCodeInfo), sourceCodeInfo)) {
-                  throw new AssertionError("Expected " + JSON.stringify(first) + " not to deep equal " + JSON.stringify(second) + "." + message, sourceCodeInfo);
+                  throw new AssertionError("Expected ".concat(JSON.stringify(first), " not to deep equal ").concat(JSON.stringify(second), ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
@@ -3904,9 +3914,9 @@ var Lits = (function (exports) {
       'assert>': {
           evaluate: function (_a, sourceCodeInfo) {
               var first = _a[0], second = _a[1], message = _a[2];
-              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (compare(first, second) <= 0) {
-                  throw new AssertionError("Expected " + first + " to be grater than " + second + "." + message, sourceCodeInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be grater than ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
@@ -3915,9 +3925,9 @@ var Lits = (function (exports) {
       'assert>=': {
           evaluate: function (_a, sourceCodeInfo) {
               var first = _a[0], second = _a[1], message = _a[2];
-              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (compare(first, second) < 0) {
-                  throw new AssertionError("Expected " + first + " to be grater than or equal to " + second + "." + message, sourceCodeInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be grater than or equal to ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
@@ -3926,9 +3936,9 @@ var Lits = (function (exports) {
       'assert<': {
           evaluate: function (_a, sourceCodeInfo) {
               var first = _a[0], second = _a[1], message = _a[2];
-              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (compare(first, second) >= 0) {
-                  throw new AssertionError("Expected " + first + " to be less than " + second + "." + message, sourceCodeInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be less than ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
@@ -3937,9 +3947,9 @@ var Lits = (function (exports) {
       'assert<=': {
           evaluate: function (_a, sourceCodeInfo) {
               var first = _a[0], second = _a[1], message = _a[2];
-              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (compare(first, second) > 0) {
-                  throw new AssertionError("Expected " + first + " to be less than or equal to " + second + "." + message, sourceCodeInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be less than or equal to ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
@@ -3948,9 +3958,9 @@ var Lits = (function (exports) {
       assertTrue: {
           evaluate: function (_a, sourceCodeInfo) {
               var first = _a[0], message = _a[1];
-              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (first !== true) {
-                  throw new AssertionError("Expected " + first + " to be true." + message, sourceCodeInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be true.").concat(message), sourceCodeInfo);
               }
               return null;
           },
@@ -3959,9 +3969,9 @@ var Lits = (function (exports) {
       assertFalse: {
           evaluate: function (_a, sourceCodeInfo) {
               var first = _a[0], message = _a[1];
-              message = typeof message === "string" && message ? " \"" + message + "\"" : "";
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (first !== false) {
-                  throw new AssertionError("Expected " + first + " to be false." + message, sourceCodeInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be false.").concat(message), sourceCodeInfo);
               }
               return null;
           },
@@ -4315,7 +4325,7 @@ var Lits = (function (exports) {
               string.assert(second, sourceCodeInfo);
               var match = first.exec(second);
               if (match) {
-                  return __spreadArray([], match);
+                  return __spreadArray([], match, true);
               }
               return null;
           },
@@ -4365,7 +4375,7 @@ var Lits = (function (exports) {
                           ? JSON.stringify(param)
                           : Array.isArray(param)
                               ? JSON.stringify(param)
-                              : "" + param;
+                              : "".concat(param);
                   return result + paramStr;
               }, "");
           },
@@ -4376,7 +4386,7 @@ var Lits = (function (exports) {
               string.assert(str, sourceCodeInfo);
               var number = Number(str);
               if (Number.isNaN(number)) {
-                  throw new LitsError("Could not convert '" + str + "' to a number.", sourceCodeInfo);
+                  throw new LitsError("Could not convert '".concat(str, "' to a number."), sourceCodeInfo);
               }
               return number;
           },
@@ -4387,15 +4397,15 @@ var Lits = (function (exports) {
               var num = params[0], base = params[1];
               number.assert(num, sourceCodeInfo, { finite: true });
               if (params.length === 1) {
-                  return "" + num;
+                  return "".concat(num);
               }
               else {
                   number.assert(base, sourceCodeInfo, { finite: true });
                   if (base !== 2 && base !== 8 && base !== 10 && base !== 16) {
-                      throw new LitsError("Expected \"number-to-string\" base argument to be 2, 8, 10 or 16, got: " + base, sourceCodeInfo);
+                      throw new LitsError("Expected \"number-to-string\" base argument to be 2, 8, 10 or 16, got: ".concat(base), sourceCodeInfo);
                   }
                   if (base === 10) {
-                      return "" + num;
+                      return "".concat(num);
                   }
                   number.assert(num, sourceCodeInfo, { integer: true, nonNegative: true });
                   return Number(num).toString(base);
@@ -4518,7 +4528,7 @@ var Lits = (function (exports) {
               else if (templateStrings.length === 2) {
                   var firstPlaceholder = placeholders[0];
                   number.assert(firstPlaceholder, sourceCodeInfo, { integer: true, nonNegative: true });
-                  var stringPlaceholders = __spreadArray(["" + firstPlaceholder], placeholders.slice(1));
+                  var stringPlaceholders = __spreadArray(["".concat(firstPlaceholder)], placeholders.slice(1), true);
                   if (firstPlaceholder === 1) {
                       return applyPlaceholders(templateStrings[0], stringPlaceholders, sourceCodeInfo);
                   }
@@ -4539,10 +4549,10 @@ var Lits = (function (exports) {
           // Matches $1, $2, ..., $9
           // Does not match $$1
           // But does match $$$1, (since the two first '$' will later be raplaced with a single '$'
-          var re = new RegExp("(\\$\\$|[^$]|^)\\$" + (i + 1), "g");
+          var re = new RegExp("(\\$\\$|[^$]|^)\\$".concat(i + 1), "g");
           if (re.test(templateString)) {
               var placeHolder = stringOrNumber.as(placeholders[i], sourceCodeInfo);
-              templateString = templateString.replace(re, "$1" + placeHolder);
+              templateString = templateString.replace(re, "$1".concat(placeHolder));
           }
       }
       templateString = templateString.replace(doubleDollarRegexp, "$");
@@ -4558,7 +4568,7 @@ var Lits = (function (exports) {
               var paramsLength = params.length;
               var last = params[paramsLength - 1];
               array.assert(last, sourceCodeInfo);
-              var applyArray = __spreadArray(__spreadArray([], params.slice(0, -1), true), last);
+              var applyArray = __spreadArray(__spreadArray([], params.slice(0, -1), true), last, true);
               return executeFunction(func, applyArray, sourceCodeInfo, contextStack);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
@@ -4590,7 +4600,7 @@ var Lits = (function (exports) {
               if (fns.length > 1) {
                   var last = fns[fns.length - 1];
                   if (array.is(last)) {
-                      fns = __spreadArray(__spreadArray([], fns.slice(0, -1), true), last);
+                      fns = __spreadArray(__spreadArray([], fns.slice(0, -1), true), last, true);
                   }
               }
               return _a = {},
@@ -4689,6 +4699,7 @@ var Lits = (function (exports) {
       defns: defnsSpecialExpression,
       defs: defsSpecialExpression,
       do: doSpecialExpression,
+      doseq: doseqSpecialExpression,
       for: forSpecialExpression,
       fn: fnSpecialExpression,
       if: ifSpecialExpression,
@@ -4709,7 +4720,7 @@ var Lits = (function (exports) {
   Object.keys(specialExpressions).forEach(function (key) {
       /* istanbul ignore next */
       if (normalExpressions[key]) {
-          throw Error("Expression " + key + " is defined as both a normal expression and a special expression");
+          throw Error("Expression ".concat(key, " is defined as both a normal expression and a special expression"));
       }
   });
   var builtin = {
@@ -4730,7 +4741,7 @@ var Lits = (function (exports) {
           }
       });
       if (!overloadFunction) {
-          throw new LitsError("Unexpected number of arguments, got " + valueToString$1(nbrOfParams) + ".", sourceCodeInfo);
+          throw new LitsError("Unexpected number of arguments, got ".concat(valueToString$1(nbrOfParams), "."), sourceCodeInfo);
       }
       return overloadFunction;
   }
@@ -4776,14 +4787,14 @@ var Lits = (function (exports) {
       },
       partial: function (fn, params, sourceCodeInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          return executeFunction(fn.fn, __spreadArray(__spreadArray([], fn.params, true), params), sourceCodeInfo, contextStack);
+          return executeFunction(fn.fn, __spreadArray(__spreadArray([], fn.params, true), params, true), sourceCodeInfo, contextStack);
       },
       comp: function (fn, params, sourceCodeInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
           var fns = fn.fns;
           if (fns.length === 0) {
               if (params.length !== 1) {
-                  throw new LitsError("(comp) expects one argument, got " + valueToString$1(params.length) + ".", sourceCodeInfo);
+                  throw new LitsError("(comp) expects one argument, got ".concat(valueToString$1(params.length), "."), sourceCodeInfo);
               }
               return any.as(params[0], sourceCodeInfo);
           }
@@ -4856,7 +4867,7 @@ var Lits = (function (exports) {
           this.globalContext = contexts[globalContextIndex];
       }
       ContextStackImpl.prototype.withContext = function (context) {
-          return new ContextStackImpl(__spreadArray([context], this.stack), this.stack.length - this.numberOfImportedContexts);
+          return new ContextStackImpl(__spreadArray([context], this.stack, true), this.stack.length - this.numberOfImportedContexts);
       };
       return ContextStackImpl;
   }());
@@ -4883,7 +4894,7 @@ var Lits = (function (exports) {
           case "SpecialExpression":
               return evaluateSpecialExpression(node, contextStack);
           default:
-              throw new LitsError(node.type + "-node cannot be evaluated", node.token.sourceCodeInfo);
+              throw new LitsError("".concat(node.type, "-node cannot be evaluated"), node.token.sourceCodeInfo);
       }
   };
   function evaluateNumber(node) {
@@ -4992,7 +5003,7 @@ var Lits = (function (exports) {
       if (number.is(param, { integer: true })) {
           return toAny(fn[param]);
       }
-      throw new LitsError("string as function expects Obj or integer parameter, got " + valueToString$1(param), sourceCodeInfo);
+      throw new LitsError("string as function expects Obj or integer parameter, got ".concat(valueToString$1(param)), sourceCodeInfo);
   }
   function evaluateNumberAsFunction(fn, params, sourceCodeInfo) {
       number.assert(fn, sourceCodeInfo, { integer: true });
@@ -5093,7 +5104,7 @@ var Lits = (function (exports) {
       assertValue(tkn.options, tkn.sourceCodeInfo);
       var optionsNode = {
           type: "String",
-          value: "" + (tkn.options.g ? "g" : "") + (tkn.options.i ? "i" : ""),
+          value: "".concat(tkn.options.g ? "g" : "").concat(tkn.options.i ? "i" : ""),
           token: tkn,
       };
       var node = {
@@ -5127,7 +5138,7 @@ var Lits = (function (exports) {
       }
       var mandatoryArguments = [];
       for (var i = 1; i <= arity; i += 1) {
-          mandatoryArguments.push("%" + i);
+          mandatoryArguments.push("%".concat(i));
       }
       var args = {
           bindings: [],
@@ -5158,7 +5169,7 @@ var Lits = (function (exports) {
           return [position + 1, { type: "Modifier", value: value, token: tkn }];
       }
       else {
-          throw new LitsError("Expected name or modifier token, got " + valueToString$1(tkn) + ".", tkn.sourceCodeInfo);
+          throw new LitsError("Expected name or modifier token, got ".concat(valueToString$1(tkn), "."), tkn.sourceCodeInfo);
       }
   };
   var parseBindings = function (tokens, position) {
@@ -5270,7 +5281,7 @@ var Lits = (function (exports) {
               break;
       }
       if (!nodeDescriptor) {
-          throw new LitsError("Unrecognized token: " + tkn.type + " value=" + tkn.value, tkn.sourceCodeInfo);
+          throw new LitsError("Unrecognized token: ".concat(tkn.type, " value=").concat(tkn.value), tkn.sourceCodeInfo);
       }
       return nodeDescriptor;
   };
@@ -5338,7 +5349,7 @@ var Lits = (function (exports) {
       var escape = false;
       while (char !== "'" || escape) {
           if (char === undefined) {
-              throw new LitsError("Unclosed string at position " + position + ".", sourceCodeInfo);
+              throw new LitsError("Unclosed string at position ".concat(position, "."), sourceCodeInfo);
           }
           length += 1;
           if (escape) {
@@ -5395,14 +5406,14 @@ var Lits = (function (exports) {
       while (input[position] === "g" || input[position] === "i") {
           if (input[position] === "g") {
               if (options.g) {
-                  throw new LitsError("Duplicated regexp option \"" + input[position] + "\" at position " + position + ".", sourceCodeInfo);
+                  throw new LitsError("Duplicated regexp option \"".concat(input[position], "\" at position ").concat(position, "."), sourceCodeInfo);
               }
               length += 1;
               options.g = true;
           }
           else {
               if (options.i) {
-                  throw new LitsError("Duplicated regexp option \"" + input[position] + "\" at position " + position + ".", sourceCodeInfo);
+                  throw new LitsError("Duplicated regexp option \"".concat(input[position], "\" at position ").concat(position, "."), sourceCodeInfo);
               }
               length += 1;
               options.i = true;
@@ -5410,7 +5421,7 @@ var Lits = (function (exports) {
           position += 1;
       }
       if (nameRegExp.test((_a = input[position]) !== null && _a !== void 0 ? _a : "")) {
-          throw new LitsError("Unexpected regexp option \"" + input[position] + "\" at position " + position + ".", sourceCodeInfo);
+          throw new LitsError("Unexpected regexp option \"".concat(input[position], "\" at position ").concat(position, "."), sourceCodeInfo);
       }
       return [
           length,
@@ -5516,7 +5527,7 @@ var Lits = (function (exports) {
           var name_1 = input.substr(position, length_2);
           if (name_1 === reservedName) {
               if (forbidden) {
-                  throw new LitsError(name_1 + " is forbidden!", sourceCodeInfo);
+                  throw new LitsError("".concat(name_1, " is forbidden!"), sourceCodeInfo);
               }
               return [length_2, { type: "reservedName", value: reservedName, sourceCodeInfo: sourceCodeInfo }];
           }
@@ -5589,24 +5600,24 @@ var Lits = (function (exports) {
       }
       Object.defineProperty(TokenMetaImpl.prototype, "position", {
           get: function () {
-              return "(" + this.line + ":" + this.column + ")";
+              return "(".concat(this.line, ":").concat(this.column, ")");
           },
           enumerable: false,
           configurable: true
       });
       TokenMetaImpl.prototype.getMarker = function (unindent) {
-          return "\n" + " ".repeat(this.column - 1 - unindent) + "^";
+          return "\n".concat(" ".repeat(this.column - 1 - unindent), "^");
       };
       Object.defineProperty(TokenMetaImpl.prototype, "debugInfo", {
           get: function () {
               var unindent = this.sourceCodeLine.replace(/^( *).*/, "$1").length;
-              return "\n" + this.sourceCodeLine.substr(unindent) + this.getMarker(unindent);
+              return "\n".concat(this.sourceCodeLine.substr(unindent)).concat(this.getMarker(unindent));
           },
           enumerable: false,
           configurable: true
       });
       TokenMetaImpl.prototype.toString = function () {
-          return "" + this.position + this.debugInfo;
+          return "".concat(this.position).concat(this.debugInfo);
       };
       return TokenMetaImpl;
   }());
@@ -5641,7 +5652,7 @@ var Lits = (function (exports) {
               }
           }
           if (!tokenized) {
-              throw new LitsError("Unrecognized character '" + input[position] + "'.", sourceCodeInfo);
+              throw new LitsError("Unrecognized character '".concat(input[position], "'."), sourceCodeInfo);
           }
       }
       return tokens;
@@ -5655,7 +5666,7 @@ var Lits = (function (exports) {
           this._size = 0;
           this.maxSize = toNonNegativeInteger(maxSize);
           if (this.maxSize < 1) {
-              throw Error("1 is the minimum maxSize, got " + valueToString$1(maxSize));
+              throw Error("1 is the minimum maxSize, got ".concat(valueToString$1(maxSize)));
           }
       }
       Object.defineProperty(Cache.prototype, "size", {
@@ -5680,7 +5691,7 @@ var Lits = (function (exports) {
       };
       Cache.prototype.set = function (key, value) {
           if (this.has(key)) {
-              throw Error("AstCache - key already present: " + key);
+              throw Error("AstCache - key already present: ".concat(key));
           }
           var newEntry = { value: value, nextEntry: undefined, key: key };
           this.cache[key] = newEntry;
@@ -5744,13 +5755,13 @@ var Lits = (function (exports) {
           var fnName = "FN_2eb7b316-471c-5bfa-90cb-d3dfd9164a59";
           var paramsString = fnParams
               .map(function (_, index) {
-              return fnName + "_" + index;
+              return "".concat(fnName, "_").concat(index);
           })
               .join(" ");
-          var program = "(" + fnName + " " + paramsString + ")";
+          var program = "(".concat(fnName, " ").concat(paramsString, ")");
           var ast = this.generateAst(program);
           var globals = fnParams.reduce(function (result, param, index) {
-              result[fnName + "_" + index] = param;
+              result["".concat(fnName, "_").concat(index)] = param;
               return result;
           }, (_a = {}, _a[fnName] = fn, _a));
           params = params !== null && params !== void 0 ? params : {};
@@ -5776,7 +5787,7 @@ var Lits = (function (exports) {
       var _a, _b;
       var globalContext = (_a = params === null || params === void 0 ? void 0 : params.globalContext) !== null && _a !== void 0 ? _a : {};
       Object.assign(globalContext, createContextFromValues(params === null || params === void 0 ? void 0 : params.globals));
-      var contextStack = createContextStack(__spreadArray([globalContext], ((_b = params === null || params === void 0 ? void 0 : params.contexts) !== null && _b !== void 0 ? _b : [])));
+      var contextStack = createContextStack(__spreadArray([globalContext], ((_b = params === null || params === void 0 ? void 0 : params.contexts) !== null && _b !== void 0 ? _b : []), true));
       return contextStack;
   }
 

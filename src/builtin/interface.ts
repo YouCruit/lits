@@ -56,6 +56,7 @@ export type SpecialExpressionName =
   | `defns`
   | `defs`
   | `do`
+  | `doseq`
   | `for`
   | `fn`
   | `function`

@@ -977,93 +977,100 @@ var Lits = (function (exports) {
       }
       return [position + 1, loopBindings];
   }
-  var forSpecialExpression = {
-      parse: function (tokens, position, parsers) {
-          var _a, _b;
-          var firstToken = token.as(tokens[position], "EOF");
-          var parseToken = parsers.parseToken;
-          var loopBindings;
-          _a = parseLoopBindings(tokens, position, parsers), position = _a[0], loopBindings = _a[1];
-          var expression;
-          _b = parseToken(tokens, position), position = _b[0], expression = _b[1];
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
-          var node = {
-              name: "for",
-              type: "SpecialExpression",
-              loopBindings: loopBindings,
-              params: [expression],
-              token: firstToken,
-          };
-          return [position + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var evaluateAstNode = _a.evaluateAstNode;
-          var sourceCodeInfo = node.token.sourceCodeInfo;
-          var loopBindings = node.loopBindings, params = node.params;
-          var expression = astNode.as(params[0], sourceCodeInfo);
-          var result = [];
-          var bindingIndices = loopBindings.map(function () { return 0; });
-          var abort = false;
-          while (!abort) {
-              var context = {};
-              var newContextStack = contextStack.withContext(context);
-              var skip = false;
-              bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
-                  var _b = asValue(loopBindings[bindingIndex], sourceCodeInfo), binding = _b.binding, letBindings = _b.letBindings, whenNode = _b.whenNode, whileNode = _b.whileNode, modifiers = _b.modifiers;
-                  var coll = collection.as(evaluateAstNode(binding.value, newContextStack), sourceCodeInfo);
-                  var seq = sequence.is(coll) ? coll : Object.entries(coll);
-                  if (seq.length === 0) {
-                      skip = true;
+  function parseLoop(name, tokens, position, parsers) {
+      var _a, _b;
+      var firstToken = token.as(tokens[position], "EOF");
+      var parseToken = parsers.parseToken;
+      var loopBindings;
+      _a = parseLoopBindings(tokens, position, parsers), position = _a[0], loopBindings = _a[1];
+      var expression;
+      _b = parseToken(tokens, position), position = _b[0], expression = _b[1];
+      token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
+      var node = {
+          name: name,
+          type: "SpecialExpression",
+          loopBindings: loopBindings,
+          params: [expression],
+          token: firstToken,
+      };
+      return [position + 1, node];
+  }
+  function evaluateLoop(returnResult, node, contextStack, evaluateAstNode) {
+      var sourceCodeInfo = node.token.sourceCodeInfo;
+      var loopBindings = node.loopBindings, params = node.params;
+      var expression = astNode.as(params[0], sourceCodeInfo);
+      var result = [];
+      var bindingIndices = loopBindings.map(function () { return 0; });
+      var abort = false;
+      while (!abort) {
+          var context = {};
+          var newContextStack = contextStack.withContext(context);
+          var skip = false;
+          bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
+              var _a = asValue(loopBindings[bindingIndex], sourceCodeInfo), binding = _a.binding, letBindings = _a.letBindings, whenNode = _a.whenNode, whileNode = _a.whileNode, modifiers = _a.modifiers;
+              var coll = collection.as(evaluateAstNode(binding.value, newContextStack), sourceCodeInfo);
+              var seq = sequence.is(coll) ? coll : Object.entries(coll);
+              if (seq.length === 0) {
+                  skip = true;
+                  abort = true;
+                  break;
+              }
+              var index = asValue(bindingIndices[bindingIndex], sourceCodeInfo);
+              if (index >= seq.length) {
+                  skip = true;
+                  if (bindingIndex === 0) {
                       abort = true;
                       break;
                   }
-                  var index = asValue(bindingIndices[bindingIndex], sourceCodeInfo);
-                  if (index >= seq.length) {
-                      skip = true;
-                      if (bindingIndex === 0) {
-                          abort = true;
-                          break;
-                      }
-                      bindingIndices[bindingIndex] = 0;
-                      bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], sourceCodeInfo) + 1;
-                      break;
-                  }
-                  if (context[binding.name]) {
-                      throw new LitsError("Variable already defined: " + binding.name + ".", sourceCodeInfo);
-                  }
-                  context[binding.name] = {
-                      value: any.as(seq[index], sourceCodeInfo),
-                  };
-                  for (var _i = 0, modifiers_1 = modifiers; _i < modifiers_1.length; _i++) {
-                      var modifier = modifiers_1[_i];
-                      switch (modifier) {
-                          case "&let":
-                              addToContext(asValue(letBindings, sourceCodeInfo), context, newContextStack, evaluateAstNode, sourceCodeInfo);
-                              break;
-                          case "&when":
-                              if (!evaluateAstNode(astNode.as(whenNode, sourceCodeInfo), newContextStack)) {
-                                  bindingIndices[bindingIndex] = asValue(bindingIndices[bindingIndex], sourceCodeInfo) + 1;
-                                  skip = true;
-                                  break bindingsLoop;
-                              }
-                              break;
-                          case "&while":
-                              if (!evaluateAstNode(astNode.as(whileNode, sourceCodeInfo), newContextStack)) {
-                                  bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY;
-                                  skip = true;
-                                  break bindingsLoop;
-                              }
-                              break;
-                      }
-                  }
+                  bindingIndices[bindingIndex] = 0;
+                  bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], sourceCodeInfo) + 1;
+                  break;
               }
-              if (!skip) {
-                  result.push(evaluateAstNode(expression, newContextStack));
-                  bindingIndices[bindingIndices.length - 1] += 1;
+              if (context[binding.name]) {
+                  throw new LitsError("Variable already defined: " + binding.name + ".", sourceCodeInfo);
+              }
+              context[binding.name] = {
+                  value: any.as(seq[index], sourceCodeInfo),
+              };
+              for (var _i = 0, modifiers_1 = modifiers; _i < modifiers_1.length; _i++) {
+                  var modifier = modifiers_1[_i];
+                  switch (modifier) {
+                      case "&let":
+                          addToContext(asValue(letBindings, sourceCodeInfo), context, newContextStack, evaluateAstNode, sourceCodeInfo);
+                          break;
+                      case "&when":
+                          if (!evaluateAstNode(astNode.as(whenNode, sourceCodeInfo), newContextStack)) {
+                              bindingIndices[bindingIndex] = asValue(bindingIndices[bindingIndex], sourceCodeInfo) + 1;
+                              skip = true;
+                              break bindingsLoop;
+                          }
+                          break;
+                      case "&while":
+                          if (!evaluateAstNode(astNode.as(whileNode, sourceCodeInfo), newContextStack)) {
+                              bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY;
+                              skip = true;
+                              break bindingsLoop;
+                          }
+                          break;
+                  }
               }
           }
-          return result;
-      },
+          if (!skip) {
+              if (returnResult) {
+                  result.push(evaluateAstNode(expression, newContextStack));
+              }
+              bindingIndices[bindingIndices.length - 1] += 1;
+          }
+      }
+      return returnResult ? result : null;
+  }
+  var forSpecialExpression = {
+      parse: function (tokens, position, parsers) { return parseLoop("for", tokens, position, parsers); },
+      evaluate: function (node, contextStack, helpers) { return evaluateLoop(true, node, contextStack, helpers.evaluateAstNode); },
+  };
+  var doseqSpecialExpression = {
+      parse: function (tokens, position, parsers) { return parseLoop("doseq", tokens, position, parsers); },
+      evaluate: function (node, contextStack, helpers) { return evaluateLoop(false, node, contextStack, helpers.evaluateAstNode); },
   };
 
   var ifLetSpecialExpression = {
@@ -3661,7 +3668,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.8";
+  var version = "1.0.9-alpha.0";
 
   var miscNormalExpression = {
       'not=': {
@@ -4689,6 +4696,7 @@ var Lits = (function (exports) {
       defns: defnsSpecialExpression,
       defs: defsSpecialExpression,
       do: doSpecialExpression,
+      doseq: doseqSpecialExpression,
       for: forSpecialExpression,
       fn: fnSpecialExpression,
       if: ifSpecialExpression,
@@ -5738,6 +5746,24 @@ var Lits = (function (exports) {
       Lits.prototype.evaluate = function (ast, params) {
           var contextStack = createContextStackFromParams(params);
           return evaluate(ast, contextStack);
+      };
+      Lits.prototype.apply = function (fn, fnParams, params) {
+          var _a;
+          var fnName = "FN_2eb7b316-471c-5bfa-90cb-d3dfd9164a59";
+          var paramsString = fnParams
+              .map(function (_, index) {
+              return fnName + "_" + index;
+          })
+              .join(" ");
+          var program = "(" + fnName + " " + paramsString + ")";
+          var ast = this.generateAst(program);
+          var globals = fnParams.reduce(function (result, param, index) {
+              result[fnName + "_" + index] = param;
+              return result;
+          }, (_a = {}, _a[fnName] = fn, _a));
+          params = params !== null && params !== void 0 ? params : {};
+          params.globals = __assign(__assign({}, params.globals), globals);
+          return this.evaluate(ast, params);
       };
       Lits.prototype.generateAst = function (program) {
           var _a;

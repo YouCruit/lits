@@ -536,6 +536,27 @@ module.exports = {
     examples: [`(defn fib [x] (if (<= x 2) 1 (+ (fib (dec x)) (fib (- x 2))))) (time! (fib 10))`],
     specialExpression: true,
   },
+  doseq: {
+    name: `doseq`,
+    category: `Special expression`,
+    linkName: `doseq`,
+    returns: {
+      type: `nil`,
+    },
+    arguments: [
+      {
+        name: `bindings`,
+        type: `bindings`,
+      },
+      {
+        name: `expression`,
+        type: `form`,
+      },
+    ],
+    description: `Same syntax as \`for\`, but returns \`nil\`. Use for side effects. Consumes less memory than \`for\`.`,
+    examples: [`(doseq [x [1 2 4]] (write! x))`],
+    specialExpression: true,
+  },
   for: {
     name: `for`,
     category: `Special expression`,

@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 import { Arr } from './interface'
 import { SourceCodeInfo } from './tokenizer/interface'
 import { valueToString } from './utils/helpers'

@@ -35,6 +35,13 @@
     "moduleFileExtensions": [
       "ts",
       "js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.ts"
+    ],
+    "coveragePathIgnorePatterns": [
+      "src/errors.ts",
+      "src/index.ts"
     ]
   },
   "devDependencies": {

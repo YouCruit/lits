@@ -12,61 +12,59 @@ export class RecurSignal extends Error {
   }
 }
 
-export class LitsError extends Error {
+export abstract class AbstractLitsError extends Error {
   public line: number | null
   public column: number | null
+  public shortMessage: string
+  public sourceCodeLine: string | null
   constructor(message: string, sourceCodeInfo: SourceCodeInfo) {
     super(`${message}${sourceCodeInfo ? ` ${sourceCodeInfo}` : ``}`)
+    this.shortMessage = message
     this.line = sourceCodeInfo === `EOF` || sourceCodeInfo === null ? null : sourceCodeInfo.line
     this.column = sourceCodeInfo === `EOF` || sourceCodeInfo === null ? null : sourceCodeInfo.column
+    this.sourceCodeLine = sourceCodeInfo === `EOF` || sourceCodeInfo === null ? null : sourceCodeInfo.sourceCodeLine
+    Object.setPrototypeOf(this, AbstractLitsError.prototype)
+    this.name = `AbstractLitsError`
+  }
+}
+
+export class LitsError extends AbstractLitsError {
+  constructor(message: string, sourceCodeInfo: SourceCodeInfo) {
+    super(message, sourceCodeInfo)
     Object.setPrototypeOf(this, LitsError.prototype)
     this.name = `LitsError`
   }
 }
 
-export class NotAFunctionError extends Error {
-  public line: number | null
-  public column: number | null
+export class NotAFunctionError extends AbstractLitsError {
   constructor(fn: unknown, sourceCodeInfo: SourceCodeInfo) {
-    super(`Expected function, got ${valueToString(fn)}.${sourceCodeInfo ? ` ${sourceCodeInfo}` : ``}`)
-    this.line = sourceCodeInfo === `EOF` || sourceCodeInfo === null ? null : sourceCodeInfo.line
-    this.column = sourceCodeInfo === `EOF` || sourceCodeInfo === null ? null : sourceCodeInfo.column
+    const message = `Expected function, got ${valueToString(fn)}.`
+    super(message, sourceCodeInfo)
     Object.setPrototypeOf(this, NotAFunctionError.prototype)
     this.name = `NotAFunctionError`
   }
 }
 
-export class UserDefinedError extends Error {
-  public line: number | null
-  public column: number | null
+export class UserDefinedError extends AbstractLitsError {
   constructor(message: string, sourceCodeInfo: SourceCodeInfo) {
-    super(`${message}${sourceCodeInfo ? ` ${sourceCodeInfo}` : ``}`)
-    this.line = sourceCodeInfo === `EOF` || sourceCodeInfo === null ? null : sourceCodeInfo.line
-    this.column = sourceCodeInfo === `EOF` || sourceCodeInfo === null ? null : sourceCodeInfo.column
+    super(message, sourceCodeInfo)
     Object.setPrototypeOf(this, UserDefinedError.prototype)
     this.name = `UserDefinedError`
   }
 }
 
-export class AssertionError extends Error {
-  public line: number | null
-  public column: number | null
+export class AssertionError extends AbstractLitsError {
   constructor(message: string, sourceCodeInfo: SourceCodeInfo) {
-    super(`${message}${sourceCodeInfo ? ` ${sourceCodeInfo}` : ``}`)
-    this.line = sourceCodeInfo === `EOF` || sourceCodeInfo === null ? null : sourceCodeInfo.line
-    this.column = sourceCodeInfo === `EOF` || sourceCodeInfo === null ? null : sourceCodeInfo.column
+    super(message, sourceCodeInfo)
     Object.setPrototypeOf(this, AssertionError.prototype)
     this.name = `AssertionError`
   }
 }
 
-export class UndefinedSymbolError extends Error {
-  public line: number | null
-  public column: number | null
+export class UndefinedSymbolError extends AbstractLitsError {
   constructor(symbolName: string, sourceCodeInfo: SourceCodeInfo) {
-    super(`Undefined symbol '${symbolName}'${sourceCodeInfo ? ` ${sourceCodeInfo}` : ``}`)
-    this.line = sourceCodeInfo === `EOF` || sourceCodeInfo === null ? null : sourceCodeInfo.line
-    this.column = sourceCodeInfo === `EOF` || sourceCodeInfo === null ? null : sourceCodeInfo.column
+    const message = `Undefined symbol '${symbolName}'.`
+    super(message, sourceCodeInfo)
     Object.setPrototypeOf(this, UndefinedSymbolError.prototype)
     this.name = `UndefinedSymbolError`
   }

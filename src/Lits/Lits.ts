@@ -4,6 +4,7 @@ import { Context, ContextStack } from '../evaluator/interface'
 import { Any, Obj } from '../interface'
 import { parse } from '../parser'
 import { Ast } from '../parser/interface'
+import { runTest, TestResult } from '../testFramework'
 import { tokenize } from '../tokenizer'
 import { Token } from '../tokenizer/interface'
 import { createContextFromValues } from '../utils'
@@ -18,6 +19,13 @@ export type LitsParams = {
 type LitsConfig = {
   astCacheSize?: number
   debug?: boolean
+}
+
+type RunTestParams = {
+  test: string
+  program: string
+  testParams?: LitsParams
+  programParams?: LitsParams
 }
 
 export class Lits {
@@ -37,6 +45,10 @@ export class Lits {
     const ast = this.generateAst(program)
     const result = this.evaluate(ast, params)
     return result
+  }
+
+  public runTest({ test, program, testParams = {}, programParams = {} }: RunTestParams): TestResult {
+    return runTest(test, program, testParams, programParams)
   }
 
   public context(program: string, params: LitsParams = {}): Context {

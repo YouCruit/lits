@@ -59,7 +59,7 @@ export class Lits {
     return contextStack.globalContext
   }
 
-  public tokenize(program: string, filename: string | undefined): Token[] {
+  public tokenize(program: string, filename?: string): Token[] {
     return tokenize(program, { debug: this.debug, filename })
   }
 

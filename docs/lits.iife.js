@@ -3930,7 +3930,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.15-alpha.0";
+  var version = "1.0.16-alpha.0";
 
   var miscNormalExpression = {
       'not=': {
@@ -5698,7 +5698,7 @@ var Lits = (function (exports) {
           get: function () {
               var leftPadding = this.column - 1;
               var rightPadding = this.code.length - leftPadding - 1;
-              return "".concat(" ".repeat(leftPadding), "^").concat("-".repeat(rightPadding));
+              return "".concat(" ".repeat(leftPadding), "^").concat(" ".repeat(rightPadding));
           },
           enumerable: false,
           configurable: true

@@ -3930,7 +3930,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.16-alpha.0";
+  var version = "1.0.16";
 
   var miscNormalExpression = {
       'not=': {

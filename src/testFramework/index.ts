@@ -115,8 +115,8 @@ function getErrorYaml(error: unknown): string {
   message: ${JSON.stringify(message)}
   location: ${JSON.stringify(location)}
   code:
-    - ${JSON.stringify(error.debugInfo.code)}
-    - ${JSON.stringify(error.debugInfo.codeMarker)}
+    - "${error.debugInfo.code}"
+    - "${error.debugInfo.codeMarker}"
   ...
 `
 }

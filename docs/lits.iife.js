@@ -5696,9 +5696,9 @@ var Lits = (function (exports) {
       }
       Object.defineProperty(SourceCodeInfoImpl.prototype, "codeMarker", {
           get: function () {
-              var leftPadding = " ".repeat(this.column - 1);
-              var rightPadding = " ".repeat(this.code.length - this.column);
-              return "".concat(leftPadding, "^").concat(rightPadding);
+              var leftPadding = this.column - 1;
+              var rightPadding = this.code.length - leftPadding - 1;
+              return "".concat(" ".repeat(leftPadding), "^").concat("-".repeat(rightPadding));
           },
           enumerable: false,
           configurable: true
@@ -5789,7 +5789,7 @@ var Lits = (function (exports) {
           return "\n  ---\n  message: ".concat(JSON.stringify(message), "\n  error: ").concat(JSON.stringify(error.name), "\n  ...\n");
       }
       var location = "".concat((_a = error.debugInfo.filename) !== null && _a !== void 0 ? _a : "", "(").concat(error.debugInfo.line, ":").concat(error.debugInfo.column, ")");
-      return "\n  ---\n  error: ".concat(JSON.stringify(error.name), "\n  message: ").concat(JSON.stringify(message), "\n  location: ").concat(JSON.stringify(location), "\n  code:\n    - ").concat(JSON.stringify(error.debugInfo.code), "\n    - ").concat(JSON.stringify(error.debugInfo.codeMarker), "\n  ...\n");
+      return "\n  ---\n  error: ".concat(JSON.stringify(error.name), "\n  message: ").concat(JSON.stringify(message), "\n  location: ").concat(JSON.stringify(location), "\n  code:\n    - \"").concat(error.debugInfo.code, "\"\n    - \"").concat(error.debugInfo.codeMarker, "\"\n  ...\n");
   }
   function getErrorMessage(error) {
       if (!isAbstractLitsError(error)) {

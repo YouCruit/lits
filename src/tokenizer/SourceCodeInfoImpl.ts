@@ -14,9 +14,9 @@ export class SourceCodeInfoImpl implements SourceCodeInfo {
   }
 
   public get codeMarker(): string {
-    const leftPadding = ` `.repeat(this.column - 1)
-    const rightPadding = ` `.repeat(this.code.length - this.column)
-    return `${leftPadding}^${rightPadding}`
+    const leftPadding = this.column - 1
+    const rightPadding = this.code.length - leftPadding - 1
+    return `${` `.repeat(leftPadding)}^${` `.repeat(rightPadding)}`
   }
 
   public toString(): string {

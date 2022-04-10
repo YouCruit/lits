@@ -16,6 +16,6 @@ describe(`errors`, () => {
     })
     expect(err).toBeInstanceOf(UserDefinedError)
     expect(err.name).toBe(`UserDefinedError`)
-    expect(err.message).toBe(`A message (1:1)`)
+    expect(err.message).toBe(`A message\n(1:1)`)
   })
 })

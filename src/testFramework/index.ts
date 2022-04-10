@@ -1,5 +1,6 @@
 import { AbstractLitsError } from '../errors'
 import { Lits, LitsParams } from '../Lits/Lits'
+import { SourceCodeInfoImpl } from '../tokenizer/SourceCodeInfoImpl'
 
 type TestChunk = {
   name: string
@@ -21,6 +22,7 @@ export function runTest(
   program: string,
   testParams: LitsParams,
   programParams: LitsParams,
+  createLits: () => Lits,
 ): TestResult {
   const testResult: TestResult = {
     tap: `TAP version 13\n`,
@@ -35,7 +37,7 @@ export function runTest(
         testResult.tap += `ok ${testNumber} ${testChunkProgram.name} # skip\n`
       } else {
         try {
-          const lits = new Lits({ debug: true })
+          const lits = createLits()
           const context = lits.context(program, programParams)
           lits.run(testChunkProgram.program, { ...testParams, contexts: [...(testParams.contexts || []), context] })
           testResult.tap += `ok ${testNumber} ${testChunkProgram.name}\n`
@@ -93,18 +95,29 @@ function getErrorYaml(error: unknown): string {
     return `
   ---
   message: ${JSON.stringify(message)}
-  ---
+  ...
 `
   }
 
-  return `
+  /* istanbul ignore next */
+  if (!(error.debugInfo instanceof SourceCodeInfoImpl)) {
+    return `
   ---
   message: ${JSON.stringify(message)}
-  code: ${JSON.stringify(error.sourceCodeLine)}
-  line: ${error.line}
-  column: ${error.column}
   error: ${JSON.stringify(error.name)}
+  ...
+`
+  }
+  return `
   ---
+  error: ${JSON.stringify(error.name)}
+  message: ${JSON.stringify(message)}
+  line: ${error.debugInfo.line}
+  column: ${error.debugInfo.column}
+  code:
+    - ${JSON.stringify(error.debugInfo.code)}
+    - ${JSON.stringify(error.debugInfo.codeMarker)}
+  ...
 `
 }
 

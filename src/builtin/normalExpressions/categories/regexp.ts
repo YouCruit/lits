@@ -3,23 +3,23 @@ import { BuiltinNormalExpressions } from '../../interface'
 
 export const regexpNormalExpression: BuiltinNormalExpressions = {
   regexp: {
-    evaluate: (params, sourceCodeInfo): RegExp => {
+    evaluate: (params, debugInfo): RegExp => {
       const [first, second] = params
-      string.assert(first, sourceCodeInfo)
+      string.assert(first, debugInfo)
 
       if (params.length === 1) {
         return new RegExp(first)
       }
 
-      string.assert(second, sourceCodeInfo)
+      string.assert(second, debugInfo)
       return new RegExp(first, second)
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   },
   match: {
-    evaluate: ([first, second], sourceCodeInfo): string[] | null => {
-      regExp.assert(first, sourceCodeInfo)
-      string.assert(second, sourceCodeInfo)
+    evaluate: ([first, second], debugInfo): string[] | null => {
+      regExp.assert(first, debugInfo)
+      string.assert(second, debugInfo)
 
       const match = first.exec(second)
       if (match) {
@@ -30,10 +30,10 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams(2, node),
   },
   replace: {
-    evaluate: ([str, regexp, value], sourceCodeInfo): string => {
-      string.assert(str, sourceCodeInfo)
-      regExp.assert(regexp, sourceCodeInfo)
-      string.assert(value, sourceCodeInfo)
+    evaluate: ([str, regexp, value], debugInfo): string => {
+      string.assert(str, debugInfo)
+      regExp.assert(regexp, debugInfo)
+      string.assert(value, debugInfo)
 
       return str.replace(regexp, value)
     },

@@ -48,7 +48,7 @@ export class Lits {
   }
 
   public runTest({ test, program, testParams = {}, programParams = {} }: RunTestParams): TestResult {
-    return runTest(test, program, testParams, programParams)
+    return runTest(test, program, testParams, programParams, () => new Lits({ debug: true }))
   }
 
   public context(program: string, params: LitsParams = {}): Context {

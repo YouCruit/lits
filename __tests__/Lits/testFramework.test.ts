@@ -126,12 +126,14 @@ ok 2 sub # skip
 ok 1 add
 not ok 2 sub
   ---
+  error: "AssertionError"
   message: "Expected 3 to be -1."
-  code: "(assert= (sub one 2) -1)"
   line: 9
   column: 2
-  error: "AssertionError"
-  ---
+  code:
+    - "(assert= (sub one 2) -1)"
+    - " ^"
+  ...
 `)
   })
 
@@ -142,20 +144,24 @@ not ok 2 sub
 1..2
 not ok 1 add
   ---
+  error: "AssertionError"
   message: "Expected -1 to be 3."
-  code: "(assert= (add one 2) 3)"
   line: 6
   column: 2
-  error: "AssertionError"
-  ---
+  code:
+    - "(assert= (add one 2) 3)"
+    - " ^"
+  ...
 not ok 2 sub
   ---
+  error: "AssertionError"
   message: "Expected 3 to be -1."
-  code: "(assert= (sub one 2) -1)"
   line: 9
   column: 2
-  error: "AssertionError"
-  ---
+  code:
+    - "(assert= (sub one 2) -1)"
+    - " ^"
+  ...
 `)
   })
 })

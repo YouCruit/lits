@@ -1,8 +1,8 @@
-import { SourceCodeInfo } from '../src/tokenizer/interface'
+import { DebugInfo } from '../src/tokenizer/interface'
 import { collHasKey, deepEqual, toNonNegativeInteger, cloneColl } from '../src/utils'
 import { valueToString } from '../src/utils/helpers'
 
-const sourceCodeInfo: SourceCodeInfo = `EOF`
+const debugInfo: DebugInfo = `EOF`
 describe(`utils`, () => {
   test(`collHasKey`, () => {
     expect(collHasKey(10, 1)).toBe(false)
@@ -29,25 +29,25 @@ describe(`utils`, () => {
     test(`primitives`, () => {
       for (const a of primitives) {
         for (const b of primitives) {
-          expect(deepEqual(a, b, sourceCodeInfo)).toBe(a === b)
+          expect(deepEqual(a, b, debugInfo)).toBe(a === b)
         }
       }
     })
     test(`RegExp`, () => {
-      expect(deepEqual(/^ab/, /^ab/, sourceCodeInfo)).toBe(true)
-      expect(deepEqual(/^ab/, new RegExp(`^ab`), sourceCodeInfo)).toBe(true)
-      expect(deepEqual(/^ab/gi, new RegExp(`^ab`, `ig`), sourceCodeInfo)).toBe(true)
-      expect(deepEqual(/^ab/g, /^ab/, sourceCodeInfo)).toBe(false)
-      expect(deepEqual(/ab/, /^ab/, sourceCodeInfo)).toBe(false)
+      expect(deepEqual(/^ab/, /^ab/, debugInfo)).toBe(true)
+      expect(deepEqual(/^ab/, new RegExp(`^ab`), debugInfo)).toBe(true)
+      expect(deepEqual(/^ab/gi, new RegExp(`^ab`, `ig`), debugInfo)).toBe(true)
+      expect(deepEqual(/^ab/g, /^ab/, debugInfo)).toBe(false)
+      expect(deepEqual(/ab/, /^ab/, debugInfo)).toBe(false)
     })
     test(`nested structures`, () => {
-      expect(deepEqual([1, 2, 3], [1, 2, 3], sourceCodeInfo)).toBe(true)
-      expect(deepEqual({ a: 1, b: 2 }, { a: 1, b: 2 }, sourceCodeInfo)).toBe(true)
-      expect(deepEqual([1, 2, { a: 1, b: 2 }], [1, 2, { b: 2, a: 1 }], sourceCodeInfo)).toBe(true)
-      expect(deepEqual(/^ab/, new RegExp(`^ab`), sourceCodeInfo)).toBe(true)
-      expect(deepEqual(/^ab/gi, new RegExp(`^ab`, `ig`), sourceCodeInfo)).toBe(true)
-      expect(deepEqual(/^ab/g, /^ab/, sourceCodeInfo)).toBe(false)
-      expect(deepEqual(/ab/, /^ab/, sourceCodeInfo)).toBe(false)
+      expect(deepEqual([1, 2, 3], [1, 2, 3], debugInfo)).toBe(true)
+      expect(deepEqual({ a: 1, b: 2 }, { a: 1, b: 2 }, debugInfo)).toBe(true)
+      expect(deepEqual([1, 2, { a: 1, b: 2 }], [1, 2, { b: 2, a: 1 }], debugInfo)).toBe(true)
+      expect(deepEqual(/^ab/, new RegExp(`^ab`), debugInfo)).toBe(true)
+      expect(deepEqual(/^ab/gi, new RegExp(`^ab`, `ig`), debugInfo)).toBe(true)
+      expect(deepEqual(/^ab/g, /^ab/, debugInfo)).toBe(false)
+      expect(deepEqual(/ab/, /^ab/, debugInfo)).toBe(false)
     })
   })
   test(`toNonNegativeInteger`, () => {

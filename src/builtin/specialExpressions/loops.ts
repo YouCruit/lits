@@ -2,7 +2,7 @@ import { LitsError } from '../../errors'
 import { Context, ContextStack, EvaluateAstNode } from '../../evaluator/interface'
 import { Any, Arr } from '../../interface'
 import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
-import { Token, SourceCodeInfo } from '../../tokenizer/interface'
+import { Token, DebugInfo } from '../../tokenizer/interface'
 import { any, astNode, asValue, collection, sequence, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression, Parsers } from '../interface'
 
@@ -37,27 +37,27 @@ function parseLoopBinding(
     switch (tkn.value) {
       case `&let`:
         if (loopBinding.letBindings) {
-          throw new LitsError(`Only one &let modifier allowed`, tkn.sourceCodeInfo)
+          throw new LitsError(`Only one &let modifier allowed`, tkn.debugInfo)
         }
         ;[position, loopBinding.letBindings] = parseBindings(tokens, position + 1)
         loopBinding.modifiers.push(`&let`)
         break
       case `&when`:
         if (loopBinding.whenNode) {
-          throw new LitsError(`Only one &when modifier allowed`, tkn.sourceCodeInfo)
+          throw new LitsError(`Only one &when modifier allowed`, tkn.debugInfo)
         }
         ;[position, loopBinding.whenNode] = parseToken(tokens, position + 1)
         loopBinding.modifiers.push(`&when`)
         break
       case `&while`:
         if (loopBinding.whileNode) {
-          throw new LitsError(`Only one &while modifier allowed`, tkn.sourceCodeInfo)
+          throw new LitsError(`Only one &while modifier allowed`, tkn.debugInfo)
         }
         ;[position, loopBinding.whileNode] = parseToken(tokens, position + 1)
         loopBinding.modifiers.push(`&while`)
         break
       default:
-        throw new LitsError(`Illegal modifier: ${tkn.value}`, tkn.sourceCodeInfo)
+        throw new LitsError(`Illegal modifier: ${tkn.value}`, tkn.debugInfo)
     }
     tkn = token.as(tokens[position], `EOF`)
   }
@@ -69,11 +69,11 @@ function addToContext(
   context: Context,
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
-  sourceCodeInfo: SourceCodeInfo,
+  debugInfo: DebugInfo,
 ) {
   for (const binding of bindings) {
     if (context[binding.name]) {
-      throw new LitsError(`Variable already defined: ${binding.name}.`, sourceCodeInfo)
+      throw new LitsError(`Variable already defined: ${binding.name}.`, debugInfo)
     }
     context[binding.name] = { value: evaluateAstNode(binding.value, contextStack) }
   }
@@ -129,9 +129,9 @@ function evaluateLoop(
   evaluateAstNode: EvaluateAstNode,
 ) {
   castLoopExpressionNode(node)
-  const sourceCodeInfo = node.token.sourceCodeInfo
+  const debugInfo = node.token.debugInfo
   const { loopBindings, params } = node
-  const expression = astNode.as(params[0], sourceCodeInfo)
+  const expression = astNode.as(params[0], debugInfo)
 
   const result: Arr = []
 
@@ -142,18 +142,15 @@ function evaluateLoop(
     const newContextStack = contextStack.withContext(context)
     let skip = false
     bindingsLoop: for (let bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
-      const { binding, letBindings, whenNode, whileNode, modifiers } = asValue(
-        loopBindings[bindingIndex],
-        sourceCodeInfo,
-      )
-      const coll = collection.as(evaluateAstNode(binding.value, newContextStack), sourceCodeInfo)
+      const { binding, letBindings, whenNode, whileNode, modifiers } = asValue(loopBindings[bindingIndex], debugInfo)
+      const coll = collection.as(evaluateAstNode(binding.value, newContextStack), debugInfo)
       const seq = sequence.is(coll) ? coll : Object.entries(coll)
       if (seq.length === 0) {
         skip = true
         abort = true
         break
       }
-      const index = asValue(bindingIndices[bindingIndex], sourceCodeInfo)
+      const index = asValue(bindingIndices[bindingIndex], debugInfo)
       if (index >= seq.length) {
         skip = true
         if (bindingIndex === 0) {
@@ -161,35 +158,29 @@ function evaluateLoop(
           break
         }
         bindingIndices[bindingIndex] = 0
-        bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], sourceCodeInfo) + 1
+        bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], debugInfo) + 1
         break
       }
       if (context[binding.name]) {
-        throw new LitsError(`Variable already defined: ${binding.name}.`, sourceCodeInfo)
+        throw new LitsError(`Variable already defined: ${binding.name}.`, debugInfo)
       }
       context[binding.name] = {
-        value: any.as(seq[index], sourceCodeInfo),
+        value: any.as(seq[index], debugInfo),
       }
       for (const modifier of modifiers) {
         switch (modifier) {
           case `&let`:
-            addToContext(
-              asValue(letBindings, sourceCodeInfo),
-              context,
-              newContextStack,
-              evaluateAstNode,
-              sourceCodeInfo,
-            )
+            addToContext(asValue(letBindings, debugInfo), context, newContextStack, evaluateAstNode, debugInfo)
             break
           case `&when`:
-            if (!evaluateAstNode(astNode.as(whenNode, sourceCodeInfo), newContextStack)) {
-              bindingIndices[bindingIndex] = asValue(bindingIndices[bindingIndex], sourceCodeInfo) + 1
+            if (!evaluateAstNode(astNode.as(whenNode, debugInfo), newContextStack)) {
+              bindingIndices[bindingIndex] = asValue(bindingIndices[bindingIndex], debugInfo) + 1
               skip = true
               break bindingsLoop
             }
             break
           case `&while`:
-            if (!evaluateAstNode(astNode.as(whileNode, sourceCodeInfo), newContextStack)) {
+            if (!evaluateAstNode(astNode.as(whileNode, debugInfo), newContextStack)) {
               bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY
               skip = true
               break bindingsLoop

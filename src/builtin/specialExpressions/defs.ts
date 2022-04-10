@@ -24,13 +24,13 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   evaluate: (node, contextStack, { evaluateAstNode, builtin }) => {
     castDefsExpressionNode(node)
-    const sourceCodeInfo = node.token.sourceCodeInfo
-    const name = evaluateAstNode(astNode.as(node.params[0], sourceCodeInfo), contextStack)
-    string.assert(name, sourceCodeInfo)
+    const debugInfo = node.token.debugInfo
+    const name = evaluateAstNode(astNode.as(node.params[0], debugInfo), contextStack)
+    string.assert(name, debugInfo)
 
-    assertNameNotDefined(name, contextStack, builtin, node.token.sourceCodeInfo)
+    assertNameNotDefined(name, contextStack, builtin, node.token.debugInfo)
 
-    const value = evaluateAstNode(astNode.as(node.params[1], sourceCodeInfo), contextStack)
+    const value = evaluateAstNode(astNode.as(node.params[1], debugInfo), contextStack)
 
     contextStack.globalContext[name] = { value }
 

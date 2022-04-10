@@ -29,10 +29,10 @@ describe(`Tokenizer`, () => {
   })
 
   test(`comments`, () => {
-    expect(tokenize(`'Hi' ;This is a string`, false)).toEqual([{ type: `string`, value: `Hi`, sourceCodeInfo: null }])
+    expect(tokenize(`'Hi' ;This is a string`, false)).toEqual([{ type: `string`, value: `Hi`, debugInfo: null }])
     expect(tokenize(`'Hi' ;This is a string\n'there'`, false)).toEqual([
-      { type: `string`, value: `Hi`, sourceCodeInfo: null },
-      { type: `string`, value: `there`, sourceCodeInfo: null },
+      { type: `string`, value: `Hi`, debugInfo: null },
+      { type: `string`, value: `there`, debugInfo: null },
     ])
   })
 
@@ -44,17 +44,17 @@ describe(`Tokenizer`, () => {
       expect(tokenize(`'He\\'j'`, false)[0]).toEqual({
         type: `string`,
         value: `He'j`,
-        sourceCodeInfo: null,
+        debugInfo: null,
       })
       expect(tokenize(`'He\\\\j'`, false)[0]).toEqual({
         type: `string`,
         value: `He\\j`,
-        sourceCodeInfo: null,
+        debugInfo: null,
       })
       expect(tokenize(`'H\\ej'`, false)[0]).toEqual({
         type: `string`,
         value: `H\\ej`,
-        sourceCodeInfo: null,
+        debugInfo: null,
       })
     })
   })
@@ -66,7 +66,7 @@ describe(`Tokenizer`, () => {
           type: `regexpShorthand`,
           value: `Hej`,
           options: {},
-          sourceCodeInfo: { line: 1, column: 1, sourceCodeLine: `#'Hej'` },
+          debugInfo: { line: 1, column: 1, code: `#'Hej'` },
         },
       ])
       expect(tokenize(`#'Hej'g`, true)).toEqual([
@@ -74,7 +74,7 @@ describe(`Tokenizer`, () => {
           type: `regexpShorthand`,
           value: `Hej`,
           options: { g: true },
-          sourceCodeInfo: { line: 1, column: 1, sourceCodeLine: `#'Hej'g` },
+          debugInfo: { line: 1, column: 1, code: `#'Hej'g` },
         },
       ])
       expect(tokenize(`#'Hej'i`, true)).toEqual([
@@ -82,7 +82,7 @@ describe(`Tokenizer`, () => {
           type: `regexpShorthand`,
           value: `Hej`,
           options: { i: true },
-          sourceCodeInfo: { line: 1, column: 1, sourceCodeLine: `#'Hej'i` },
+          debugInfo: { line: 1, column: 1, code: `#'Hej'i` },
         },
       ])
       expect(tokenize(`#'Hej'gi`, true)).toEqual([
@@ -90,7 +90,7 @@ describe(`Tokenizer`, () => {
           type: `regexpShorthand`,
           value: `Hej`,
           options: { i: true, g: true },
-          sourceCodeInfo: { line: 1, column: 1, sourceCodeLine: `#'Hej'gi` },
+          debugInfo: { line: 1, column: 1, code: `#'Hej'gi` },
         },
       ])
       expect(tokenize(`#'Hej'ig`, true)).toEqual([
@@ -98,7 +98,7 @@ describe(`Tokenizer`, () => {
           type: `regexpShorthand`,
           value: `Hej`,
           options: { i: true, g: true },
-          sourceCodeInfo: { line: 1, column: 1, sourceCodeLine: `#'Hej'ig` },
+          debugInfo: { line: 1, column: 1, code: `#'Hej'ig` },
         },
       ])
       expect(() => tokenize(`#'Hej'gg`, true)).toThrow()
@@ -110,8 +110,8 @@ describe(`Tokenizer`, () => {
   describe(`fnShorthand`, () => {
     test(`samples`, () => {
       expect(tokenize(`#(`, true)).toEqual([
-        { type: `fnShorthand`, value: `#`, sourceCodeInfo: { line: 1, column: 1, sourceCodeLine: `#(` } },
-        { type: `paren`, value: `(`, sourceCodeInfo: { line: 1, column: 2, sourceCodeLine: `#(` } },
+        { type: `fnShorthand`, value: `#`, debugInfo: { line: 1, column: 1, code: `#(` } },
+        { type: `paren`, value: `(`, debugInfo: { line: 1, column: 2, code: `#(` } },
       ])
       expect(() => tokenize(`#`, true)).toThrow()
     })

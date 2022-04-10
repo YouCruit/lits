@@ -24,7 +24,7 @@ export const whenNotSpecialExpression: BuiltinSpecialExpression<Any> = {
     castWhenNotExpressionNode(node)
 
     const [whenExpression, ...body] = node.params
-    astNode.assert(whenExpression, node.token.sourceCodeInfo)
+    astNode.assert(whenExpression, node.token.debugInfo)
 
     if (evaluateAstNode(whenExpression, contextStack)) {
       return null

@@ -33,8 +33,8 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams({ min: 1 }, node),
   },
   'equal?': {
-    evaluate: ([a, b], sourceCodeInfo): boolean => {
-      return deepEqual(any.as(a, sourceCodeInfo), any.as(b, sourceCodeInfo), sourceCodeInfo)
+    evaluate: ([a, b], debugInfo): boolean => {
+      return deepEqual(any.as(a, debugInfo), any.as(b, debugInfo), debugInfo)
     },
     validate: node => assertNumberOfParams({ min: 1 }, node),
   },
@@ -104,19 +104,19 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams(0, node),
   },
   'write!': {
-    evaluate: (params, sourceCodeInfo): Any => {
+    evaluate: (params, debugInfo): Any => {
       // eslint-disable-next-line no-console
       console.log(...params)
 
       if (params.length > 0) {
-        return any.as(params[params.length - 1], sourceCodeInfo)
+        return any.as(params[params.length - 1], debugInfo)
       }
 
       return null
     },
   },
   'debug!': {
-    evaluate: (params, sourceCodeInfo, contextStack): Any => {
+    evaluate: (params, debugInfo, contextStack): Any => {
       if (params.length === 0) {
         // eslint-disable-next-line no-console
         console.warn(`*** LITS DEBUG ***\n${contextStackToString(contextStack)}\n`)
@@ -124,7 +124,7 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
       }
       // eslint-disable-next-line no-console
       console.warn(`*** LITS DEBUG ***\n${JSON.stringify(params[0], null, 2)}\n`)
-      return any.as(params[0], sourceCodeInfo)
+      return any.as(params[0], debugInfo)
     },
     validate: node => assertNumberOfParams({ max: 1 }, node),
   },

@@ -3,7 +3,7 @@ import { Arity } from '../builtin/utils'
 import { Context } from '../evaluator/interface'
 import { Any, Arr } from '../interface'
 import { ReservedName } from '../reservedNames'
-import { SourceCodeInfo, Token } from '../tokenizer/interface'
+import { DebugInfo, Token } from '../tokenizer/interface'
 
 export const FUNCTION_SYMBOL = `__LITS_FUNCTION__`
 
@@ -21,7 +21,7 @@ export type EvaluatedFunctionOverload = {
 
 type GenericLitsFunction = {
   [FUNCTION_SYMBOL]: true
-  sourceCodeInfo: SourceCodeInfo
+  debugInfo: DebugInfo
   type: string
 }
 

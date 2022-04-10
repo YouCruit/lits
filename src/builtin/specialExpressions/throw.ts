@@ -28,10 +28,10 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     castThrowExpressionNode(node)
-    const message = string.as(evaluateAstNode(node.messageNode, contextStack), node.token.sourceCodeInfo, {
+    const message = string.as(evaluateAstNode(node.messageNode, contextStack), node.token.debugInfo, {
       nonEmpty: true,
     })
-    throw new UserDefinedError(message, node.token.sourceCodeInfo)
+    throw new UserDefinedError(message, node.token.debugInfo)
   },
 }
 

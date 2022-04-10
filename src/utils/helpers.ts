@@ -1,9 +1,9 @@
 import { AstNode, FUNCTION_SYMBOL, LitsFunction, NodeType } from '../parser/interface'
-import { SourceCodeInfo, Token, TokenizerType } from '../tokenizer/interface'
+import { DebugInfo, Token, TokenizerType } from '../tokenizer/interface'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export function getSourceCodeInfo(anyValue: any, sourceCodeInfo: SourceCodeInfo): SourceCodeInfo {
-  return anyValue?.sourceCodeInfo || sourceCodeInfo
+export function getDebugInfo(anyValue: any, debugInfo: DebugInfo): DebugInfo {
+  return anyValue?.debugInfo || debugInfo
 }
 
 export function valueToString(value: unknown): string {
@@ -50,7 +50,7 @@ export function isToken(value: unknown): value is Token {
     return false
   }
 
-  if (!tkn.sourceCodeInfo && tkn.sourceCodeInfo !== null) {
+  if (!tkn.debugInfo && tkn.debugInfo !== null) {
     return false
   }
 

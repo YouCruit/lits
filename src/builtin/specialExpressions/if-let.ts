@@ -18,10 +18,7 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     ;[position, bindings] = parseBindings(tokens, position)
 
     if (bindings.length !== 1) {
-      throw new LitsError(
-        `Expected exactly one binding, got ${valueToString(bindings.length)}`,
-        firstToken.sourceCodeInfo,
-      )
+      throw new LitsError(`Expected exactly one binding, got ${valueToString(bindings.length)}`, firstToken.debugInfo)
     }
 
     let params: AstNode[]
@@ -30,7 +27,7 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     const node: IfLetSpecialExpressionNode = {
       type: `SpecialExpression`,
       name: `if-let`,
-      binding: asValue(bindings[0], firstToken.sourceCodeInfo),
+      binding: asValue(bindings[0], firstToken.debugInfo),
       params,
       token: firstToken,
     }
@@ -38,17 +35,17 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     castIfLetExpressionNode(node)
-    const sourceCodeInfo = node.token.sourceCodeInfo
+    const debugInfo = node.token.debugInfo
     const locals: Context = {}
     const bindingValue = evaluateAstNode(node.binding.value, contextStack)
     if (bindingValue) {
       locals[node.binding.name] = { value: bindingValue }
       const newContextStack = contextStack.withContext(locals)
-      const thenForm = astNode.as(node.params[0], sourceCodeInfo)
+      const thenForm = astNode.as(node.params[0], debugInfo)
       return evaluateAstNode(thenForm, newContextStack)
     }
     if (node.params.length === 2) {
-      const elseForm = astNode.as(node.params[1], sourceCodeInfo)
+      const elseForm = astNode.as(node.params[1], debugInfo)
       return evaluateAstNode(elseForm, contextStack)
     }
     return null

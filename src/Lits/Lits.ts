@@ -14,6 +14,7 @@ export type LitsParams = {
   contexts?: Context[]
   globals?: Obj
   globalContext?: Context
+  filename?: string
 }
 
 type LitsConfig = {
@@ -41,8 +42,8 @@ export class Lits {
     }
   }
 
-  public run(program: string, params?: LitsParams): unknown {
-    const ast = this.generateAst(program)
+  public run(program: string, params: LitsParams = {}): unknown {
+    const ast = this.generateAst(program, params.filename)
     const result = this.evaluate(ast, params)
     return result
   }
@@ -53,25 +54,25 @@ export class Lits {
 
   public context(program: string, params: LitsParams = {}): Context {
     const contextStack = createContextStackFromParams(params)
-    const ast = this.generateAst(program)
+    const ast = this.generateAst(program, params.filename)
     evaluate(ast, contextStack)
     return contextStack.globalContext
   }
 
-  public tokenize(program: string): Token[] {
-    return tokenize(program, this.debug)
+  public tokenize(program: string, filename: string | undefined): Token[] {
+    return tokenize(program, { debug: this.debug, filename })
   }
 
   public parse(tokens: Token[]): Ast {
     return parse(tokens)
   }
 
-  private evaluate(ast: Ast, params?: LitsParams): Any {
+  private evaluate(ast: Ast, params: LitsParams): Any {
     const contextStack = createContextStackFromParams(params)
     return evaluate(ast, contextStack)
   }
 
-  public apply(fn: LitsFunction, fnParams: unknown[], params?: LitsParams): Any {
+  public apply(fn: LitsFunction, fnParams: unknown[], params: LitsParams = {}): Any {
     const fnName = `FN_2eb7b316-471c-5bfa-90cb-d3dfd9164a59`
     const paramsString: string = fnParams
       .map((_, index) => {
@@ -79,7 +80,7 @@ export class Lits {
       })
       .join(` `)
     const program = `(${fnName} ${paramsString})`
-    const ast = this.generateAst(program)
+    const ast = this.generateAst(program, params.filename)
 
     const globals: Obj = fnParams.reduce(
       (result: Obj, param, index) => {
@@ -89,29 +90,28 @@ export class Lits {
       { [fnName]: fn },
     )
 
-    params = params ?? {}
     params.globals = { ...params.globals, ...globals }
 
     return this.evaluate(ast, params)
   }
 
-  private generateAst(program: string): Ast {
+  private generateAst(program: string, filename: string | undefined): Ast {
     if (this.astCache) {
       const cachedAst = this.astCache.get(program)
       if (cachedAst) {
         return cachedAst
       }
     }
-    const tokens: Token[] = this.tokenize(program)
+    const tokens: Token[] = this.tokenize(program, filename)
     const ast: Ast = this.parse(tokens)
     this.astCache?.set(program, ast)
     return ast
   }
 }
 
-function createContextStackFromParams(params?: LitsParams): ContextStack {
-  const globalContext: Context = params?.globalContext ?? {}
-  Object.assign(globalContext, createContextFromValues(params?.globals))
-  const contextStack = createContextStack([globalContext, ...(params?.contexts ?? [])])
+function createContextStackFromParams(params: LitsParams): ContextStack {
+  const globalContext: Context = params.globalContext ?? {}
+  Object.assign(globalContext, createContextFromValues(params.globals))
+  const contextStack = createContextStack([globalContext, ...(params.contexts ?? [])])
   return contextStack
 }

@@ -5688,14 +5688,17 @@ var Lits = (function (exports) {
   }
 
   var SourceCodeInfoImpl = /** @class */ (function () {
-      function SourceCodeInfoImpl(line, column, code) {
+      function SourceCodeInfoImpl(line, column, code, filename) {
           this.line = line;
           this.column = column;
           this.code = code;
+          this.filename = filename;
       }
       Object.defineProperty(SourceCodeInfoImpl.prototype, "codeMarker", {
           get: function () {
-              return "".concat(" ".repeat(this.column - 1), "^");
+              var leftPadding = " ".repeat(this.column - 1);
+              var rightPadding = " ".repeat(this.code.length - this.column);
+              return "".concat(leftPadding, "^").concat(rightPadding);
           },
           enumerable: false,
           configurable: true
@@ -5774,6 +5777,7 @@ var Lits = (function (exports) {
       }, []);
   }
   function getErrorYaml(error) {
+      var _a;
       var message = getErrorMessage(error);
       // This is a fallbak, should not happen (Lits should be throwing AbstractLitsErrors)
       /* istanbul ignore next */
@@ -5784,7 +5788,8 @@ var Lits = (function (exports) {
       if (!(error.debugInfo instanceof SourceCodeInfoImpl)) {
           return "\n  ---\n  message: ".concat(JSON.stringify(message), "\n  error: ").concat(JSON.stringify(error.name), "\n  ...\n");
       }
-      return "\n  ---\n  error: ".concat(JSON.stringify(error.name), "\n  message: ").concat(JSON.stringify(message), "\n  line: ").concat(error.debugInfo.line, "\n  column: ").concat(error.debugInfo.column, "\n  code:\n    - ").concat(JSON.stringify(error.debugInfo.code), "\n    - ").concat(JSON.stringify(error.debugInfo.codeMarker), "\n  ...\n");
+      var location = "".concat((_a = error.debugInfo.filename) !== null && _a !== void 0 ? _a : "", "(").concat(error.debugInfo.line, ":").concat(error.debugInfo.column, ")");
+      return "\n  ---\n  error: ".concat(JSON.stringify(error.name), "\n  message: ").concat(JSON.stringify(message), "\n  location: ").concat(JSON.stringify(location), "\n  code:\n    - ").concat(JSON.stringify(error.debugInfo.code), "\n    - ").concat(JSON.stringify(error.debugInfo.codeMarker), "\n  ...\n");
   }
   function getErrorMessage(error) {
       if (!isAbstractLitsError(error)) {
@@ -6112,13 +6117,13 @@ var Lits = (function (exports) {
   function getSourceCodeLine(input, lineNbr) {
       return input.split(/\r\n|\r|\n/)[lineNbr];
   }
-  function createSourceCodeInfo(input, position) {
+  function createDebugInfo(input, position, filename) {
       var lines = input.substr(0, position + 1).split(/\r\n|\r|\n/);
       var lastLine = lines[lines.length - 1];
       var sourceCodeLine = getSourceCodeLine(input, lines.length - 1);
-      return new SourceCodeInfoImpl(lines.length, lastLine.length, sourceCodeLine);
+      return new SourceCodeInfoImpl(lines.length, lastLine.length, sourceCodeLine, filename);
   }
-  function tokenize(input, debug) {
+  function tokenize(input, params) {
       var e_1, _a;
       var tokens = [];
       var position = 0;
@@ -6126,7 +6131,7 @@ var Lits = (function (exports) {
       while (position < input.length) {
           tokenized = false;
           // Loop through all tokenizer until one matches
-          var debugInfo = debug ? createSourceCodeInfo(input, position) : null;
+          var debugInfo = params.debug ? createDebugInfo(input, position, params.filename) : null;
           try {
               for (var tokenizers_1 = (e_1 = void 0, __values(tokenizers)), tokenizers_1_1 = tokenizers_1.next(); !tokenizers_1_1.done; tokenizers_1_1 = tokenizers_1.next()) {
                   var tokenize_1 = tokenizers_1_1.value;
@@ -6227,7 +6232,8 @@ var Lits = (function (exports) {
           }
       }
       Lits.prototype.run = function (program, params) {
-          var ast = this.generateAst(program);
+          if (params === void 0) { params = {}; }
+          var ast = this.generateAst(program, params.filename);
           var result = this.evaluate(ast, params);
           return result;
       };
@@ -6238,12 +6244,12 @@ var Lits = (function (exports) {
       Lits.prototype.context = function (program, params) {
           if (params === void 0) { params = {}; }
           var contextStack = createContextStackFromParams(params);
-          var ast = this.generateAst(program);
+          var ast = this.generateAst(program, params.filename);
           evaluate(ast, contextStack);
           return contextStack.globalContext;
       };
-      Lits.prototype.tokenize = function (program) {
-          return tokenize(program, this.debug);
+      Lits.prototype.tokenize = function (program, filename) {
+          return tokenize(program, { debug: this.debug, filename: filename });
       };
       Lits.prototype.parse = function (tokens) {
           return parse(tokens);
@@ -6254,6 +6260,7 @@ var Lits = (function (exports) {
       };
       Lits.prototype.apply = function (fn, fnParams, params) {
           var _a;
+          if (params === void 0) { params = {}; }
           var fnName = "FN_2eb7b316-471c-5bfa-90cb-d3dfd9164a59";
           var paramsString = fnParams
               .map(function (_, index) {
@@ -6261,16 +6268,15 @@ var Lits = (function (exports) {
           })
               .join(" ");
           var program = "(".concat(fnName, " ").concat(paramsString, ")");
-          var ast = this.generateAst(program);
+          var ast = this.generateAst(program, params.filename);
           var globals = fnParams.reduce(function (result, param, index) {
               result["".concat(fnName, "_").concat(index)] = param;
               return result;
           }, (_a = {}, _a[fnName] = fn, _a));
-          params = params !== null && params !== void 0 ? params : {};
           params.globals = __assign(__assign({}, params.globals), globals);
           return this.evaluate(ast, params);
       };
-      Lits.prototype.generateAst = function (program) {
+      Lits.prototype.generateAst = function (program, filename) {
           var _a;
           if (this.astCache) {
               var cachedAst = this.astCache.get(program);
@@ -6278,7 +6284,7 @@ var Lits = (function (exports) {
                   return cachedAst;
               }
           }
-          var tokens = this.tokenize(program);
+          var tokens = this.tokenize(program, filename);
           var ast = this.parse(tokens);
           (_a = this.astCache) === null || _a === void 0 ? void 0 : _a.set(program, ast);
           return ast;
@@ -6287,9 +6293,9 @@ var Lits = (function (exports) {
   }());
   function createContextStackFromParams(params) {
       var _a, _b;
-      var globalContext = (_a = params === null || params === void 0 ? void 0 : params.globalContext) !== null && _a !== void 0 ? _a : {};
-      Object.assign(globalContext, createContextFromValues(params === null || params === void 0 ? void 0 : params.globals));
-      var contextStack = createContextStack(__spreadArray([globalContext], __read(((_b = params === null || params === void 0 ? void 0 : params.contexts) !== null && _b !== void 0 ? _b : [])), false));
+      var globalContext = (_a = params.globalContext) !== null && _a !== void 0 ? _a : {};
+      Object.assign(globalContext, createContextFromValues(params.globals));
+      var contextStack = createContextStack(__spreadArray([globalContext], __read(((_b = params.contexts) !== null && _b !== void 0 ? _b : [])), false));
       return contextStack;
   }
 

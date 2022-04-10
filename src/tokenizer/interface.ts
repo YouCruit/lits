@@ -13,6 +13,7 @@ export type SourceCodeInfo = {
   column: number
   code: string
   codeMarker: string
+  filename?: string
   toString(): string
 }
 
@@ -26,3 +27,8 @@ export type Token = {
 }
 export type TokenDescriptor = [length: number, token: Token | undefined]
 export type Tokenizer = (input: string, position: number, debugInfo: DebugInfo) => TokenDescriptor
+
+export type TokenizeParams = {
+  debug: boolean
+  filename?: string
+}

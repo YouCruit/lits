@@ -118,7 +118,7 @@ ok 2 sub # skip
 `)
   })
 
-  test(`1 fail`, () => {
+  test(`1 fail.`, () => {
     const testResult = lits.runTest({ test: testScript, program: oneSuccessProgram })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
@@ -128,11 +128,32 @@ not ok 2 sub
   ---
   error: "AssertionError"
   message: "Expected 3 to be -1."
-  line: 9
-  column: 2
+  location: "(9:2)"
   code:
     - "(assert= (sub one 2) -1)"
-    - " ^"
+    - " ^                      "
+  ...
+`)
+  })
+
+  test(`1 fail with filename`, () => {
+    const testResult = lits.runTest({
+      test: testScript,
+      program: oneSuccessProgram,
+      testParams: { filename: `test.lits` },
+    })
+    expect(testResult.success).toBe(false)
+    expect(testResult.tap).toBe(`TAP version 13
+1..2
+ok 1 add
+not ok 2 sub
+  ---
+  error: "AssertionError"
+  message: "Expected 3 to be -1."
+  location: "test.lits(9:2)"
+  code:
+    - "(assert= (sub one 2) -1)"
+    - " ^                      "
   ...
 `)
   })
@@ -146,21 +167,19 @@ not ok 1 add
   ---
   error: "AssertionError"
   message: "Expected -1 to be 3."
-  line: 6
-  column: 2
+  location: "(6:2)"
   code:
     - "(assert= (add one 2) 3)"
-    - " ^"
+    - " ^                     "
   ...
 not ok 2 sub
   ---
   error: "AssertionError"
   message: "Expected 3 to be -1."
-  line: 9
-  column: 2
+  location: "(9:2)"
   code:
     - "(assert= (sub one 2) -1)"
-    - " ^"
+    - " ^                      "
   ...
 `)
   })

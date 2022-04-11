@@ -8,6 +8,14 @@ type TestChunk = {
   directive: `SKIP` | null
 }
 
+export type RunTestParams = {
+  test: string
+  program: string
+  testParams?: LitsParams
+  programParams?: LitsParams
+  testNamePattern?: RegExp
+}
+
 export type TestResult = {
   /**
    * Test report
@@ -18,10 +26,7 @@ export type TestResult = {
 }
 
 export function runTest(
-  testProgram: string,
-  program: string,
-  testParams: LitsParams,
-  programParams: LitsParams,
+  { test, program, testParams = {}, programParams = {}, testNamePattern }: RunTestParams,
   createLits: () => Lits,
 ): TestResult {
   const testResult: TestResult = {
@@ -29,11 +34,13 @@ export function runTest(
     success: true,
   }
   try {
-    const testChunks = getTestChunks(testProgram)
+    const testChunks = getTestChunks(test)
     testResult.tap += `1..${testChunks.length}\n`
     testChunks.forEach((testChunkProgram, index) => {
       const testNumber = index + 1
-      if (testChunkProgram.directive === `SKIP`) {
+      if (testNamePattern && !testNamePattern.test(testChunkProgram.name)) {
+        testResult.tap += `ok ${testNumber} ${testChunkProgram.name} # skip - Not matching testNamePattern ${testNamePattern}\n`
+      } else if (testChunkProgram.directive === `SKIP`) {
         testResult.tap += `ok ${testNumber} ${testChunkProgram.name} # skip\n`
       } else {
         try {

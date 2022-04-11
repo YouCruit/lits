@@ -158,6 +158,24 @@ not ok 2 sub
 `)
   })
 
+  test(`1 fail, 1 not matching pattern`, () => {
+    const testResult = lits.runTest({ test: testScript, program: failureProgram, testNamePattern: /ad/ })
+    expect(testResult.success).toBe(false)
+    expect(testResult.tap).toBe(`TAP version 13
+1..2
+not ok 1 add
+  ---
+  error: "AssertionError"
+  message: "Expected -1 to be 3."
+  location: "(6:2)"
+  code:
+    - "(assert= (add one 2) 3)"
+    - " ^                     "
+  ...
+ok 2 sub # skip - Not matching testNamePattern /ad/
+`)
+  })
+
   test(`2 fail`, () => {
     const testResult = lits.runTest({ test: testScript, program: failureProgram })
     expect(testResult.success).toBe(false)

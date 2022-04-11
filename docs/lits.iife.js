@@ -3930,7 +3930,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.16";
+  var version = "1.0.17";
 
   var miscNormalExpression = {
       'not=': {
@@ -5709,17 +5709,21 @@ var Lits = (function (exports) {
       return SourceCodeInfoImpl;
   }());
 
-  function runTest(testProgram, program, testParams, programParams, createLits) {
+  function runTest(_a, createLits) {
+      var test = _a.test, program = _a.program, _b = _a.testParams, testParams = _b === void 0 ? {} : _b, _c = _a.programParams, programParams = _c === void 0 ? {} : _c, testNamePattern = _a.testNamePattern;
       var testResult = {
           tap: "TAP version 13\n",
           success: true,
       };
       try {
-          var testChunks = getTestChunks(testProgram);
+          var testChunks = getTestChunks(test);
           testResult.tap += "1..".concat(testChunks.length, "\n");
           testChunks.forEach(function (testChunkProgram, index) {
               var testNumber = index + 1;
-              if (testChunkProgram.directive === "SKIP") {
+              if (testNamePattern && !testNamePattern.test(testChunkProgram.name)) {
+                  testResult.tap += "ok ".concat(testNumber, " ").concat(testChunkProgram.name, " # skip - Not matching testNamePattern ").concat(testNamePattern, "\n");
+              }
+              else if (testChunkProgram.directive === "SKIP") {
                   testResult.tap += "ok ".concat(testNumber, " ").concat(testChunkProgram.name, " # skip\n");
               }
               else {
@@ -6237,9 +6241,8 @@ var Lits = (function (exports) {
           var result = this.evaluate(ast, params);
           return result;
       };
-      Lits.prototype.runTest = function (_a) {
-          var test = _a.test, program = _a.program, _b = _a.testParams, testParams = _b === void 0 ? {} : _b, _c = _a.programParams, programParams = _c === void 0 ? {} : _c;
-          return runTest(test, program, testParams, programParams, function () { return new Lits({ debug: true }); });
+      Lits.prototype.runTest = function (params) {
+          return runTest(params, function () { return new Lits({ debug: true }); });
       };
       Lits.prototype.context = function (program, params) {
           if (params === void 0) { params = {}; }

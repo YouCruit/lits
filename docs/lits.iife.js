@@ -3930,7 +3930,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.18";
+  var version = "1.0.19";
 
   var miscNormalExpression = {
       'not=': {
@@ -5781,7 +5781,6 @@ var Lits = (function (exports) {
       }, []);
   }
   function getErrorYaml(error) {
-      var _a;
       var message = getErrorMessage(error);
       // This is a fallbak, should not happen (Lits should be throwing AbstractLitsErrors)
       /* istanbul ignore next */
@@ -5792,7 +5791,7 @@ var Lits = (function (exports) {
       if (!(error.debugInfo instanceof SourceCodeInfoImpl)) {
           return "\n  ---\n  message: ".concat(JSON.stringify(message), "\n  error: ").concat(JSON.stringify(error.name), "\n  ...\n");
       }
-      var location = "".concat((_a = error.debugInfo.filename) !== null && _a !== void 0 ? _a : "", "(").concat(error.debugInfo.line, ":").concat(error.debugInfo.column, ")");
+      var location = "".concat(error.debugInfo.filename ? "".concat(error.debugInfo.filename, ":") : "").concat(error.debugInfo.line, ":").concat(error.debugInfo.column);
       return "\n  ---\n  error: ".concat(JSON.stringify(error.name), "\n  message: ").concat(JSON.stringify(message), "\n  location: ").concat(JSON.stringify(location), "\n  code:\n    - \"").concat(error.debugInfo.code, "\"\n    - \"").concat(error.debugInfo.codeMarker, "\"\n  ...\n");
   }
   function getErrorMessage(error) {

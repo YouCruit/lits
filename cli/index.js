@@ -11,6 +11,7 @@ const { Lits, normalExpressionKeys, specialExpressionKeys, reservedNames, isLits
 const historyResults = []
 const lits = new Lits({ debug: true })
 const { functionReference } = require(`./reference`)
+const { regexp } = require('./reference/categories/regularExpression')
 
 const commands = [`\`help`, `\`quit`, `\`builtins`, `\`globalContext`, `\`GlobalContext`, `\`resetGlobalContext`]
 const nameCharacters = `@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>.+*/-`
@@ -36,8 +37,34 @@ if (config.expression) {
   const content = fs.readFileSync(config.filename, { encoding: `utf-8` })
   execute(content)
   process.exit(0)
+} else if (config.testFilename) {
+  runTest(config.testFilename, config.testNamePattern)
+  process.exit(0)
 } else {
   runREPL()
+}
+
+function runTest(testFile, testNamePattern) {
+  if (!testFile.match(/\.test\.lits/)) {
+    console.error(`Test file must end with .test.lits`)
+    process.exit(1)
+  }
+  const litsFile = testFile.replace(`.test.lits`, `.lits`)
+  const program = fs.readFileSync(litsFile, { encoding: `utf-8` })
+  const test = fs.readFileSync(testFile, { encoding: `utf-8` })
+  const { success, tap } = lits.runTest({
+    test,
+    program,
+    testParams: { filename: testFile, globalContext: config.globalContext },
+    programParams: { filename: litsFile },
+    testNamePattern: testNamePattern && new RegExp(testNamePattern),
+  })
+
+  console.log(`\n${tap}`)
+
+  if (!success) {
+    process.exit(1)
+  }
 }
 
 function execute(expression) {
@@ -127,6 +154,21 @@ function processArguments(args) {
     const option = args[i]
     const argument = args[i + 1]
     switch (option) {
+      case `test`:
+        if (!argument) {
+          console.error(`Missing filename after test`)
+          process.exit(1)
+        }
+        config.testFilename = argument
+        break
+      case `-t`:
+      case `--testNamePattern`:
+        if (!argument) {
+          console.error(`Missing test name pattern after -t`)
+          process.exit(1)
+        }
+        config.testNamePattern = argument
+        break
       case `-f`:
         if (!argument) {
           console.error(`Missing filename after -f`)
@@ -192,6 +234,17 @@ function processArguments(args) {
   }
   if (config.filename && config.expression) {
     console.error(`Cannot both specify -f and -e`)
+    process.exit(1)
+  }
+  if (config.test) {
+    if (config.filename) {
+      console.error(`Illegal option -f`)
+      process.exit(1)
+    }
+    if (config.expression) {
+      console.error(`Illegal option -e`)
+      process.exit(1)
+    }
   }
   return config
 }

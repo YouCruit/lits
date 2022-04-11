@@ -128,7 +128,7 @@ not ok 2 sub
   ---
   error: "AssertionError"
   message: "Expected 3 to be -1."
-  location: "(9:2)"
+  location: "9:2"
   code:
     - "(assert= (sub one 2) -1)"
     - " ^                      "
@@ -150,7 +150,7 @@ not ok 2 sub
   ---
   error: "AssertionError"
   message: "Expected 3 to be -1."
-  location: "test.lits(9:2)"
+  location: "test.lits:9:2"
   code:
     - "(assert= (sub one 2) -1)"
     - " ^                      "
@@ -167,7 +167,7 @@ not ok 1 add
   ---
   error: "AssertionError"
   message: "Expected -1 to be 3."
-  location: "(6:2)"
+  location: "6:2"
   code:
     - "(assert= (add one 2) 3)"
     - " ^                     "
@@ -185,7 +185,7 @@ not ok 1 add
   ---
   error: "AssertionError"
   message: "Expected -1 to be 3."
-  location: "(6:2)"
+  location: "6:2"
   code:
     - "(assert= (add one 2) 3)"
     - " ^                     "
@@ -194,7 +194,7 @@ not ok 2 sub
   ---
   error: "AssertionError"
   message: "Expected 3 to be -1."
-  location: "(9:2)"
+  location: "9:2"
   code:
     - "(assert= (sub one 2) -1)"
     - " ^                      "

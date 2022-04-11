@@ -11,7 +11,6 @@ const { Lits, normalExpressionKeys, specialExpressionKeys, reservedNames, isLits
 const historyResults = []
 const lits = new Lits({ debug: true })
 const { functionReference } = require(`./reference`)
-const { regexp } = require('./reference/categories/regularExpression')
 
 const commands = [`\`help`, `\`quit`, `\`builtins`, `\`globalContext`, `\`GlobalContext`, `\`resetGlobalContext`]
 const nameCharacters = `@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>.+*/-`

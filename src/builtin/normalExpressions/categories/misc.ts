@@ -3,7 +3,7 @@ import { Any } from '../../../interface'
 import { compare, deepEqual } from '../../../utils'
 import { BuiltinNormalExpressions } from '../../interface'
 import { version } from '../../../version'
-import { any, assertNumberOfParams, litsFunction } from '../../../utils/assertion'
+import { any, assertNumberOfParams, litsFunction, number, string } from '../../../utils/assertion'
 
 export const miscNormalExpression: BuiltinNormalExpressions = {
   'not=': {
@@ -102,6 +102,22 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
       return Date.now()
     },
     validate: node => assertNumberOfParams(0, node),
+  },
+  'inst-ms-to-iso-date-time': {
+    evaluate: ([ms], debugInfo): string => {
+      number.assert(ms, debugInfo)
+      return new Date(ms).toISOString()
+    },
+    validate: node => assertNumberOfParams(1, node),
+  },
+  'iso-date-time-to-inst-ms': {
+    evaluate: ([dateTime], debugInfo): number => {
+      string.assert(dateTime, debugInfo)
+      const ms = new Date(dateTime).valueOf()
+      number.assert(ms, debugInfo, { finite: true })
+      return ms
+    },
+    validate: node => assertNumberOfParams(1, node),
   },
   'write!': {
     evaluate: (params, debugInfo): Any => {

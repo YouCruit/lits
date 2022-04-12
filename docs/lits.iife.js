@@ -3930,7 +3930,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.18";
+  var version = "1.0.19-alpha.0";
 
   var miscNormalExpression = {
       'not=': {
@@ -4088,6 +4088,24 @@ var Lits = (function (exports) {
               return Date.now();
           },
           validate: function (node) { return assertNumberOfParams(0, node); },
+      },
+      'inst-ms-to-iso-date-time': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 1), ms = _b[0];
+              number.assert(ms, debugInfo);
+              return new Date(ms).toISOString();
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
+      },
+      'iso-date-time-to-inst-ms': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 1), dateTime = _b[0];
+              string.assert(dateTime, debugInfo);
+              var ms = new Date(dateTime).valueOf();
+              number.assert(ms, debugInfo, { finite: true });
+              return ms;
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'write!': {
           evaluate: function (params, debugInfo) {
@@ -5781,7 +5799,6 @@ var Lits = (function (exports) {
       }, []);
   }
   function getErrorYaml(error) {
-      var _a;
       var message = getErrorMessage(error);
       // This is a fallbak, should not happen (Lits should be throwing AbstractLitsErrors)
       /* istanbul ignore next */
@@ -5792,7 +5809,7 @@ var Lits = (function (exports) {
       if (!(error.debugInfo instanceof SourceCodeInfoImpl)) {
           return "\n  ---\n  message: ".concat(JSON.stringify(message), "\n  error: ").concat(JSON.stringify(error.name), "\n  ...\n");
       }
-      var location = "".concat((_a = error.debugInfo.filename) !== null && _a !== void 0 ? _a : "", "(").concat(error.debugInfo.line, ":").concat(error.debugInfo.column, ")");
+      var location = "".concat(error.debugInfo.filename ? "".concat(error.debugInfo.filename, ":") : "").concat(error.debugInfo.line, ":").concat(error.debugInfo.column);
       return "\n  ---\n  error: ".concat(JSON.stringify(error.name), "\n  message: ").concat(JSON.stringify(message), "\n  location: ").concat(JSON.stringify(location), "\n  code:\n    - \"").concat(error.debugInfo.code, "\"\n    - \"").concat(error.debugInfo.codeMarker, "\"\n  ...\n");
   }
   function getErrorMessage(error) {

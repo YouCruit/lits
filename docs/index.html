@@ -16,7 +16,7 @@
   <div class="row">
     <div class="column"></div>
     <div class="column header">Lits</div>
-    <div class="column right version"><span>v1.0.18</span></div>
+    <div class="column right version"><span>v1.0.19-alpha.0</span></div>
   </div>
 </header>
     <main id="main-panel" class="fancy-scroll">
@@ -1674,8 +1674,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [1,5,6,7] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 'Albert') <span class="gray">=> "Alrt" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [1,2,3,4,5,9,10] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 'Albert') <span class="gray">=> "Albert" </span> </span></pre>
   </div>
 </div>
 
@@ -1698,7 +1698,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 1 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 5 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-nth! ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (rand-nth! 'Albert') <span class="gray">=> "r" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-nth! [])')"> <span class="icon-button">▶</span> (rand-nth! []) <span class="gray">=> null </span> </span></pre>
   </div>
@@ -1723,8 +1723,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [3,9,2,7,8,4,10,6,5,1] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle! ___single_quote___Albert Mojir___single_quote___)')"> <span class="icon-button">▶</span> (shuffle! 'Albert Mojir') <span class="gray">=> "ojerrlb tMAi" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [5,10,2,3,6,9,1,4,8,7] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! ___single_quote___Albert Mojir___single_quote___)')"> <span class="icon-button">▶</span> (shuffle! 'Albert Mojir') <span class="gray">=> " rtlMoerjiAb" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2])')"> <span class="icon-button">▶</span> (shuffle! [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1])')"> <span class="icon-button">▶</span> (shuffle! [1]) <span class="gray">=> [1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [])')"> <span class="icon-button">▶</span> (shuffle! []) <span class="gray">=> [] </span> </span></pre>
@@ -2883,9 +2883,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.6112954533807924 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.009835761871678965 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 0.9699747023341854 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.8093927239814391 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.001275164566030822 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 0.3805744012437623 </span> </span></pre>
   </div>
 </div>
 
@@ -2909,8 +2909,8 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(rand-int! 1)')"> <span class="icon-button">▶</span> (rand-int! 1) <span class="gray">=> 0 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 8 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 105 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 0 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 30 </span> </span></pre>
   </div>
 </div>
 
@@ -3714,7 +3714,53 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1649705283807 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1649758944751 </span> </span></pre>
+  </div>
+</div>
+
+
+<div id="iso-date-time-to-inst-ms" class="content function">
+
+  <div class="function-header row">
+    <div class="column">iso-date-time-to-inst-ms</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/iso-date-time-to-inst-ms">Clojure docs</a></div>
+  </div>
+
+  
+  <p>Returns milliseconds elapsed since the UNIX epoch to <span class="pre">date-time</span>.</p>
+  <label>Syntax</label>
+  <div class="indent">
+    <pre>iso-date-time-to-inst-ms date-time => number</pre>
+  </div>
+
+  <label>Arguments</label><div class="indent"><pre>date-time: string</pre></div>
+
+  <label>Examples</label>
+  <div class="indent">
+    <pre><span class="example" onclick="addToPlayground('(iso-date-time-to-inst-ms ___single_quote___2022-04-12T09:37:10.899Z___single_quote___) (iso-date-time-to-inst-ms ___single_quote___1980-01-01___single_quote___)')"> <span class="icon-button">▶</span> (iso-date-time-to-inst-ms '2022-04-12T09:37:10.899Z') (iso-date-time-to-inst-ms '1980-01-01') <span class="gray">=> 315532800000 </span> </span></pre>
+  </div>
+</div>
+
+
+<div id="inst-ms-to-iso-date-time" class="content function">
+
+  <div class="function-header row">
+    <div class="column">inst-ms-to-iso-date-time</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/inst-ms-to-iso-date-time">Clojure docs</a></div>
+  </div>
+
+  
+  <p>Returns IOS date time string from <span class="pre">ms</span> (milliseconds elapsed since the UNIX epoch).</p>
+  <label>Syntax</label>
+  <div class="indent">
+    <pre>inst-ms-to-iso-date-time ms => string</pre>
+  </div>
+
+  <label>Arguments</label><div class="indent"><pre>ms: number</pre></div>
+
+  <label>Examples</label>
+  <div class="indent">
+    <pre><span class="example" onclick="addToPlayground('(inst-ms-to-iso-date-time 1649756230899) (inst-ms-to-iso-date-time 0)')"> <span class="icon-button">▶</span> (inst-ms-to-iso-date-time 1649756230899) (inst-ms-to-iso-date-time 0) <span class="gray">=> "1970-01-01T00:00:00.000Z" </span> </span></pre>
   </div>
 </div>
 
@@ -3818,7 +3864,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.18" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.19-alpha.0" </span> </span></pre>
   </div>
 </div>
 
@@ -6765,6 +6811,8 @@
 <li id="debug_exclamation_link" onclick="showPage('debug_exclamation')">debug!</li>
 <li id="equal_question_link" onclick="showPage('equal_question')">equal?</li>
 <li id="inst-ms_exclamation_link" onclick="showPage('inst-ms_exclamation')">inst-ms!</li>
+<li id="inst-ms-to-iso-date-time_link" onclick="showPage('inst-ms-to-iso-date-time')">inst-ms-to-iso-date-time</li>
+<li id="iso-date-time-to-inst-ms_link" onclick="showPage('iso-date-time-to-inst-ms')">iso-date-time-to-inst-ms</li>
 <li id="lits-version_exclamation_link" onclick="showPage('lits-version_exclamation')">lits-version!</li>
 <li id="not_link" onclick="showPage('not')">not</li>
 <li id="not_equal_link" onclick="showPage('not_equal')">not=</li>

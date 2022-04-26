@@ -4,6 +4,8 @@ import { compare, deepEqual } from '../../../utils'
 import { BuiltinNormalExpressions } from '../../interface'
 import { version } from '../../../version'
 import { any, assertNumberOfParams, litsFunction, number, string } from '../../../utils/assertion'
+const uuidTemplate = `xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx`
+const xyRegexp = /[xy]/g
 
 export const miscNormalExpression: BuiltinNormalExpressions = {
   'not=': {
@@ -155,6 +157,16 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
       return compare(a, b)
     },
     validate: node => assertNumberOfParams(2, node),
+  },
+  'uuid!': {
+    evaluate: (): string => {
+      return uuidTemplate.replace(xyRegexp, character => {
+        const randomNbr = Math.floor(Math.random() * 16)
+        const newValue = character === `x` ? randomNbr : (randomNbr & 0x3) | 0x8
+        return newValue.toString(16)
+      })
+    },
+    validate: node => assertNumberOfParams(0, node),
   },
   'lits-version!': {
     evaluate: (): Any => {

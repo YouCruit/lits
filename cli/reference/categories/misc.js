@@ -256,6 +256,17 @@ module.exports = {
     description: `Returns the lits version.`,
     examples: [`(lits-version!)`],
   },
+  'uuid!': {
+    name: `uuid!`,
+    category: `Misc`,
+    linkName: `uuid_exclamation`,
+    returns: {
+      type: `string`,
+    },
+    arguments: [],
+    description: `Returns UUID string.`,
+    examples: [`(uuid!)`],
+  },
   'equal?': {
     name: `equal?`,
     category: `Misc`,

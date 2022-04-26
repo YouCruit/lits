@@ -337,6 +337,12 @@ describe(`misc functions`, () => {
     })
   })
 
+  describe(`uuid!`, () => {
+    test(`samples`, () => {
+      expect(lits.run(`(uuid!)`)).toMatch(/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i)
+    })
+  })
+
   describe(`equal?`, () => {
     test(`samples`, () => {
       expect(lits.run(`(equal? {:a 10 :b 20} {:b 20 :a 10})`)).toBe(true)

@@ -3930,8 +3930,10 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.20";
+  var version = "1.0.21-alpha.0";
 
+  var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
+  var xyRegexp = /[xy]/g;
   var miscNormalExpression = {
       'not=': {
           evaluate: function (params) {
@@ -4143,6 +4145,16 @@ var Lits = (function (exports) {
               return compare(a, b);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+      },
+      'uuid!': {
+          evaluate: function () {
+              return uuidTemplate.replace(xyRegexp, function (character) {
+                  var randomNbr = Math.floor(Math.random() * 16);
+                  var newValue = character === "x" ? randomNbr : (randomNbr & 0x3) | 0x8;
+                  return newValue.toString(16);
+              });
+          },
+          validate: function (node) { return assertNumberOfParams(0, node); },
       },
       'lits-version!': {
           evaluate: function () {

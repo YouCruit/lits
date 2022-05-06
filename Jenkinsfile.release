@@ -57,7 +57,6 @@ pipeline {
                 }
             }
         }
-        /*
         stage('Merge master into release and develop') {
              when {
                 expression { return params.RELEASE_TYPE != '' }
@@ -85,7 +84,6 @@ pipeline {
                  }
             }
         }
-         */
     }
     post {
         failure {

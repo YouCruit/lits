@@ -11,7 +11,7 @@ export N_PREFIX="${WORKSPACE}/n"
 PATH="$(pwd)/node_modules/.bin:${N_PREFIX}/bin:${PATH}"
 export PATH
 
-n $(jq -r '.engines.node' package.json)
+n "$(jq -r '.engines.node' package.json)"
 
 which node
 which npm

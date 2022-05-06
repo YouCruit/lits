@@ -18,7 +18,7 @@ pipeline {
     }
 
     environment {
-        PROJECT = "form-ml-projects"
+        PROJECT = "lits"
     }
 
     stages {
@@ -56,7 +56,7 @@ pipeline {
     post {
         always {
             script {
-                def parent = "master"
+                def parent = "develop"
                 if (env.BRANCH_NAME == "master") {
                     parent = "master"
                 } else if (env.BRANCH_NAME == "release") {

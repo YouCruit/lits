@@ -24,7 +24,7 @@ pipeline {
     }
 
     environment {
-        PROJECT = "form-ml-projects"
+        PROJECT = "lits"
     }
 
     stages {

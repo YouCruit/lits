@@ -3930,7 +3930,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.24";
+  var version = "1.0.25";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -4233,7 +4233,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (!deepEqual(any.as(first, debugInfo), any.as(second, debugInfo), debugInfo)) {
-                  throw new AssertionError("Expected\n".concat(JSON.stringify(first, null, 2), "\n to deep equal \n").concat(JSON.stringify(second, null, 2), ".").concat(message), debugInfo);
+                  throw new AssertionError("Expected\n".concat(JSON.stringify(first, null, 2), "\nto deep equal\n").concat(JSON.stringify(second, null, 2), ".").concat(message), debugInfo);
               }
               return null;
           },
@@ -5822,7 +5822,10 @@ var Lits = (function (exports) {
           return "\n  ---\n  message: ".concat(JSON.stringify(message), "\n  error: ").concat(JSON.stringify(error.name), "\n  ...\n");
       }
       var location = "".concat(error.debugInfo.filename ? "".concat(error.debugInfo.filename, ":") : "").concat(error.debugInfo.line, ":").concat(error.debugInfo.column);
-      return "\n  ---\n  error: ".concat(JSON.stringify(error.name), "\n  message: ").concat(JSON.stringify(message), "\n  location: ").concat(JSON.stringify(location), "\n  code:\n    - \"").concat(error.debugInfo.code, "\"\n    - \"").concat(error.debugInfo.codeMarker, "\"\n  ...\n");
+      var formattedMessage = message.includes("\n")
+          ? "|\n    ".concat(message.split(/\r?\n/).join("\n    "))
+          : JSON.stringify(message);
+      return "\n  ---\n  error: ".concat(JSON.stringify(error.name), "\n  message: ").concat(formattedMessage, "\n  location: ").concat(JSON.stringify(location), "\n  code:\n    - \"").concat(error.debugInfo.code, "\"\n    - \"").concat(error.debugInfo.codeMarker, "\"\n  ...\n");
   }
   function getErrorMessage(error) {
       if (!isAbstractLitsError(error)) {

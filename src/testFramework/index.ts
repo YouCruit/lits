@@ -118,10 +118,13 @@ function getErrorYaml(error: unknown): string {
   const location = `${error.debugInfo.filename ? `${error.debugInfo.filename}:` : ``}${error.debugInfo.line}:${
     error.debugInfo.column
   }`
+  const formattedMessage = message.includes(`\n`)
+    ? `|\n    ${message.split(`\n`).join(`    \n`)}`
+    : JSON.stringify(message)
   return `
   ---
   error: ${JSON.stringify(error.name)}
-  message: ${JSON.stringify(message)}
+  message: ${formattedMessage}
   location: ${JSON.stringify(location)}
   code:
     - "${error.debugInfo.code}"

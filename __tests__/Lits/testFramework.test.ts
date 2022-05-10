@@ -27,6 +27,11 @@ const failureProgram = `
 (defn sub [a b] (+ a b))
 `
 
+const objectDiffProgram = `
+(def obj-a { :id :id1 :val :value1 })
+(def obj-b { :id :id2 :val :value2 })
+`
+
 const testScript = `
 ; Setup code
 (def one 1)
@@ -60,6 +65,11 @@ const duplicateTestNameTestScript = `
 
 ; @test add
 (assert= (sub 1 2) -1)
+`
+
+const objectDiffTestScript = `
+; @test equals
+(assertEqual obj-a obj-b)
 `
 
 describe(`testFramework`, () => {
@@ -198,6 +208,33 @@ not ok 2 sub
   code:
     - "(assert= (sub one 2) -1)"
     - " ^                      "
+  ...
+`)
+  })
+
+  test(`deep equals fails`, () => {
+    const testResult = lits.runTest({ test: objectDiffTestScript, program: objectDiffProgram })
+    expect(testResult.success).toBe(false)
+    expect(testResult.tap).toBe(`TAP version 13
+1..1
+not ok 1 equals
+  ---
+  error: "AssertionError"
+  message: |
+    Expected
+    {
+      "id": "id1",
+      "val": "value1"
+    }
+    to deep equal
+    {
+      "id": "id2",
+      "val": "value2"
+    }.
+  location: "3:2"
+  code:
+    - "(assertEqual obj-a obj-b)"
+    - " ^                       "
   ...
 `)
   })

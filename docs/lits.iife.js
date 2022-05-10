@@ -3930,7 +3930,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.23";
+  var version = "1.0.24";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -4233,7 +4233,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (!deepEqual(any.as(first, debugInfo), any.as(second, debugInfo), debugInfo)) {
-                  throw new AssertionError("Expected ".concat(JSON.stringify(first), " to deep equal ").concat(JSON.stringify(second), ".").concat(message), debugInfo);
+                  throw new AssertionError("Expected\n".concat(JSON.stringify(first, null, 2), "\n to deep equal \n").concat(JSON.stringify(second, null, 2), ".").concat(message), debugInfo);
               }
               return null;
           },

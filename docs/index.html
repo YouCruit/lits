@@ -16,7 +16,7 @@
   <div class="row">
     <div class="column"></div>
     <div class="column header">Lits</div>
-    <div class="column right version"><span>v1.0.23</span></div>
+    <div class="column right version"><span>v1.0.24</span></div>
   </div>
 </header>
     <main id="main-panel" class="fancy-scroll">
@@ -1674,8 +1674,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [1,4,10] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 'Albert') <span class="gray">=> "be" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [4,9] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 'Albert') <span class="gray">=> "Albet" </span> </span></pre>
   </div>
 </div>
 
@@ -1698,8 +1698,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 7 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-nth! ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (rand-nth! 'Albert') <span class="gray">=> "A" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 5 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-nth! ___single_quote___Albert___single_quote___)')"> <span class="icon-button">▶</span> (rand-nth! 'Albert') <span class="gray">=> "l" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-nth! [])')"> <span class="icon-button">▶</span> (rand-nth! []) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -1723,8 +1723,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [9,5,6,8,3,7,10,1,2,4] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle! ___single_quote___Albert Mojir___single_quote___)')"> <span class="icon-button">▶</span> (shuffle! 'Albert Mojir') <span class="gray">=> "rbtieolrjM A" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [9,1,6,2,7,8,10,5,3,4] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! ___single_quote___Albert Mojir___single_quote___)')"> <span class="icon-button">▶</span> (shuffle! 'Albert Mojir') <span class="gray">=> "MolijbtrerA " </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2])')"> <span class="icon-button">▶</span> (shuffle! [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1])')"> <span class="icon-button">▶</span> (shuffle! [1]) <span class="gray">=> [1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [])')"> <span class="icon-button">▶</span> (shuffle! []) <span class="gray">=> [] </span> </span></pre>
@@ -2883,9 +2883,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.21267076792762296 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.008758334840837193 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 2.466258456461781 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.8879655862979372 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.005526074057742266 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 2.0635237514586526 </span> </span></pre>
   </div>
 </div>
 
@@ -2909,8 +2909,8 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(rand-int! 1)')"> <span class="icon-button">▶</span> (rand-int! 1) <span class="gray">=> 0 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 9 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 114 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 2 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 28 </span> </span></pre>
   </div>
 </div>
 
@@ -3714,7 +3714,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1651836087191 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1652173484624 </span> </span></pre>
   </div>
 </div>
 
@@ -3864,7 +3864,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.23" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.24" </span> </span></pre>
   </div>
 </div>
 
@@ -3887,7 +3887,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "384bff1e-9ab0-4a74-b529-8d5f0046bf7c" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "9b409594-a4d7-47c7-aa9e-4092d7fccbdc" </span> </span></pre>
   </div>
 </div>
 
@@ -6332,10 +6332,24 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 2 } ___single_quote___Expected equal values___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 2 } 'Expected equal values') (catch e e)) <span class="gray">=> AssertionError: Expected {"a":1} to deep equal {"a":2}. "Expected equal values"
+    <pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 2 } ___single_quote___Expected equal values___single_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 2 } 'Expected equal values') (catch e e)) <span class="gray">=> AssertionError: Expected
+{
+  "a": 1
+}
+ to deep equal 
+{
+  "a": 2
+}. "Expected equal values"
 (try (assertEqual { :a 1 } { :a 2 } 'Expected equal values') (catch e e))
       ^                                                                   </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 2 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 2 }) (catch e e)) <span class="gray">=> AssertionError: Expected {"a":1} to deep equal {"a":2}.
+<pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 2 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 2 }) (catch e e)) <span class="gray">=> AssertionError: Expected
+{
+  "a": 1
+}
+ to deep equal 
+{
+  "a": 2
+}.
 (try (assertEqual { :a 1 } { :a 2 }) (catch e e))
       ^                                           </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 1 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 1 }) (catch e e)) <span class="gray">=> null </span> </span></pre>

@@ -1,6 +1,6 @@
 {
   "name": "@youcruit/lits",
-  "version": "1.0.24",
+  "version": "1.0.25-alpha.0",
   "description": "A lisp implementation in Typescript",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

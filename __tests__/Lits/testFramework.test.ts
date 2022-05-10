@@ -221,16 +221,16 @@ not ok 1 equals
   ---
   error: "AssertionError"
   message: |
-    Expected    
-{    
-  "id": "id1",    
-  "val": "value1"    
-}    
- to deep equal     
-{    
-  "id": "id2",    
-  "val": "value2"    
-}.
+    Expected
+    {
+      "id": "id1",
+      "val": "value1"
+    }
+    to deep equal
+    {
+      "id": "id2",
+      "val": "value2"
+    }.
   location: "3:2"
   code:
     - "(assertEqual obj-a obj-b)"

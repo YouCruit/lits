@@ -119,7 +119,7 @@ function getErrorYaml(error: unknown): string {
     error.debugInfo.column
   }`
   const formattedMessage = message.includes(`\n`)
-    ? `|\n    ${message.split(`\n`).join(`    \n`)}`
+    ? `|\n    ${message.split(/\r?\n/).join(`\n    `)}`
     : JSON.stringify(message)
   return `
   ---

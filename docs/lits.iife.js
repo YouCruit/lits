@@ -3930,7 +3930,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.23";
+  var version = "1.0.24-alpha.0";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -5875,21 +5875,21 @@ var Lits = (function (exports) {
       return tokenizeCharacter("paren", "}", input, position, debugInfo);
   };
   var tokenizeString = function (input, position, debugInfo) {
-      if (input[position] !== "'") {
+      if (input[position] !== "\"") {
           return NO_MATCH;
       }
       var value = "";
       var length = 1;
       var char = input[position + length];
       var escape = false;
-      while (char !== "'" || escape) {
+      while (char !== "\"" || escape) {
           if (char === undefined) {
               throw new LitsError("Unclosed string at position ".concat(position, "."), debugInfo);
           }
           length += 1;
           if (escape) {
               escape = false;
-              if (char === "'" || char === "\\") {
+              if (char === "\"" || char === "\\") {
                   value += char;
               }
               else {

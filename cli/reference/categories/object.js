@@ -35,7 +35,7 @@ module.exports = {
       },
     ],
     description: `Constructs a new object. Object members are created from \`key\` - \`value\` pairs. Requires an even number of arguments.`,
-    examples: [`(object)`, `(object :x 10 :y true :z 'A string')`, `{}`, `{:a 1 :b 2}`],
+    examples: [`(object)`, `(object :x 10 :y true :z "A string")`, `{}`, `{:a 1 :b 2}`],
   },
   keys: {
     name: `keys`,
@@ -51,7 +51,7 @@ module.exports = {
       },
     ],
     description: `Returns array of all keys in \`object\`.`,
-    examples: [`(keys (object))`, `(keys (object :x 10 :y true :z 'A string'))`],
+    examples: [`(keys (object))`, `(keys (object :x 10 :y true :z "A string"))`],
   },
   vals: {
     name: `vals`,
@@ -67,7 +67,7 @@ module.exports = {
       },
     ],
     description: `Returns array of all values in \`object\`.`,
-    examples: [`(vals (object))`, `(vals (object :x 10 :y true :z 'A string'))`],
+    examples: [`(vals (object))`, `(vals (object :x 10 :y true :z "A string"))`],
   },
   entries: {
     name: `entries`,
@@ -84,7 +84,7 @@ module.exports = {
       },
     ],
     description: `Returns nested array of all key - value pairs in \`object\`.`,
-    examples: [`(entries (object))`, `(entries (object :x 10 :y true :z 'A string'))`],
+    examples: [`(entries (object))`, `(entries (object :x 10 :y true :z "A string"))`],
   },
   find: {
     name: `find`,

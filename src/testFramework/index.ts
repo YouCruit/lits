@@ -1,6 +1,8 @@
 import { AbstractLitsError } from '../errors'
-import { Lits, LitsParams } from '../Lits/Lits'
+import { Lits } from '../Lits/Lits'
 import { SourceCodeInfoImpl } from '../tokenizer/SourceCodeInfoImpl'
+import fs from 'fs'
+import path from 'path'
 
 type TestChunk = {
   name: string
@@ -9,10 +11,7 @@ type TestChunk = {
 }
 
 export type RunTestParams = {
-  test: string
-  program: string
-  testParams?: LitsParams
-  programParams?: LitsParams
+  testPath: string
   testNamePattern?: RegExp
 }
 
@@ -25,10 +24,9 @@ export type TestResult = {
   success: boolean
 }
 
-export function runTest(
-  { test, program, testParams = {}, programParams = {}, testNamePattern }: RunTestParams,
-  createLits: () => Lits,
-): TestResult {
+export function runTest({ testPath, testNamePattern }: RunTestParams, createLits: () => Lits): TestResult {
+  const test = readLitsFile(testPath)
+  const includes = getIncludes(testPath, test)
   const testResult: TestResult = {
     tap: `TAP version 13\n`,
     success: true,
@@ -45,8 +43,8 @@ export function runTest(
       } else {
         try {
           const lits = createLits()
-          const context = lits.context(program, programParams)
-          lits.run(testChunkProgram.program, { ...testParams, contexts: [...(testParams.contexts || []), context] })
+          const context = lits.context(includes)
+          lits.run(testChunkProgram.program, { contexts: [context], filename: testPath })
           testResult.tap += `ok ${testNumber} ${testChunkProgram.name}\n`
         } catch (error) {
           testResult.success = false
@@ -61,17 +59,46 @@ export function runTest(
   return testResult
 }
 
+function readLitsFile(litsPath: string): string {
+  if (!litsPath.endsWith(`.lits`)) {
+    throw Error(`Expected .lits file, got ${litsPath}`)
+  }
+  return fs.readFileSync(litsPath, { encoding: `utf-8` })
+}
+
+function getIncludes(testPath: string, test: string): string {
+  const dirname = path.dirname(testPath)
+  let okToInclude = true
+  return test.split(`\n`).reduce((includes: string, line) => {
+    const includeMatch = line.match(/^\s*;+\s*@include\s*(\S+)\s*$/)
+    if (includeMatch) {
+      if (!okToInclude) {
+        throw Error(`@include must be in the beginning of file`)
+      }
+      const relativeFilePath = includeMatch[1] as string
+      const filePath = path.resolve(dirname, relativeFilePath)
+      const fileContent = readLitsFile(filePath)
+      includes += `\n${fileContent}`
+    }
+    if (!line.match(/^\s*(?:;.*)$/)) {
+      okToInclude = false
+    }
+    return includes
+  }, ``)
+}
+
 // Splitting test file based on @test annotations
 function getTestChunks(testProgram: string): TestChunk[] {
   let currentTest: TestChunk | undefined
   let setupCode = ``
   return testProgram.split(`\n`).reduce((result: TestChunk[], line, index) => {
-    const testNameAnnotationMatch = line.match(/^\s*;\s*@(?:(skip)-)?test\s*(.*)$/i)
+    const currentLineNbr = index + 1
+    const testNameAnnotationMatch = line.match(/^\s*;+\s*@(?:(skip)-)?test\s*(.*)$/)
     if (testNameAnnotationMatch) {
       const directive = (testNameAnnotationMatch[1] ?? ``).toUpperCase()
       const testName = testNameAnnotationMatch[2]
       if (!testName) {
-        throw Error(`Missing test name on line ${index}`)
+        throw Error(`Missing test name on line ${currentLineNbr}`)
       }
       if (result.find(chunk => chunk.name === testName)) {
         throw Error(`Duplicate test name ${testName}`)
@@ -80,7 +107,8 @@ function getTestChunks(testProgram: string): TestChunk[] {
         directive: (directive || null) as TestChunk[`directive`],
         name: testName,
         // Adding new-lines to make lits debug information report correct rows
-        program: setupCode + [...Array(index + 3 - setupCode.split(`\n`).length).keys()].map(() => ``).join(`\n`),
+        program:
+          setupCode + [...Array(currentLineNbr + 2 - setupCode.split(`\n`).length).keys()].map(() => ``).join(`\n`),
       }
       result.push(currentTest)
       return result
@@ -115,9 +143,7 @@ function getErrorYaml(error: unknown): string {
   ...
 `
   }
-  const location = `${error.debugInfo.filename ? `${error.debugInfo.filename}:` : ``}${error.debugInfo.line}:${
-    error.debugInfo.column
-  }`
+  const location = `${error.debugInfo.filename}:${error.debugInfo.line}:${error.debugInfo.column}`
   return `
   ---
   error: ${JSON.stringify(error.name)}

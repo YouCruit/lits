@@ -110,10 +110,75 @@ describe(`assert functions`, () => {
   describe(`assertFalse`, () => {
     test(`samples`, () => {
       expect(() => lits.run(`(assertFalse true)`)).toThrowError(AssertionError)
-      expect(() => lits.run(`(assertFalse true "Expected true")`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertFalse true "Expected false")`)).toThrowError(AssertionError)
       expect(() => lits.run(`(assertFalse nil)`)).toThrowError(AssertionError)
       expect(() => lits.run(`(assertFalse 0)`)).toThrowError(AssertionError)
       expect(lits.run(`(assertFalse false)`)).toBeNull()
+    })
+  })
+
+  describe(`assertTruthy`, () => {
+    test(`samples`, () => {
+      expect(lits.run(`(assertTruthy true)`)).toBeNull()
+      expect(lits.run(`(assertTruthy [])`)).toBeNull()
+      expect(lits.run(`(assertTruthy {})`)).toBeNull()
+      expect(lits.run(`(assertTruthy 1)`)).toBeNull()
+      expect(lits.run(`(assertTruthy :hej)`)).toBeNull()
+      expect(lits.run(`(assertTruthy #(+ %1 %1))`)).toBeNull()
+      expect(() => lits.run(`(assertTruthy false)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertTruthy nil "Expected true")`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertTruthy 0)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertTruthy "")`)).toThrowError(AssertionError)
+    })
+  })
+
+  describe(`assertFalsy`, () => {
+    test(`samples`, () => {
+      expect(() => lits.run(`(assertFalsy true)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertFalsy [])`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertFalsy {})`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertFalsy 1)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertFalsy :hej)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertFalsy #(+ %1 %1))`)).toThrowError(AssertionError)
+      expect(lits.run(`(assertFalsy false)`)).toBeNull()
+      expect(lits.run(`(assertFalsy nil "Expected true")`)).toBeNull()
+      expect(lits.run(`(assertFalsy 0)`)).toBeNull()
+      expect(lits.run(`(assertFalsy "")`)).toBeNull()
+    })
+  })
+
+  describe(`assertNil`, () => {
+    test(`samples`, () => {
+      expect(() => lits.run(`(assertNil false)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertNil 0)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertNil "")`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertNil :hej)`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertNil [])`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertNil {})`)).toThrowError(AssertionError)
+      expect(() => lits.run(`(assertNil #(+ %1 %1))`)).toThrowError(AssertionError)
+      expect(lits.run(`(assertNil nil "Should be nil")`)).toBeNull()
+    })
+  })
+
+  describe(`assertThrows`, () => {
+    test(`samples`, () => {
+      expect(() => lits.run(`(assertThrows (fn [] (identity :X)) "Should throw")`)).toThrow()
+      expect(() => lits.run(`(assertThrows (fn [] (throw :X)))`)).not.toThrow()
+    })
+  })
+
+  describe(`assertNotThrows`, () => {
+    test(`samples`, () => {
+      expect(() => lits.run(`(assertNotThrows (fn [] (identity :X)) "Should not throw")`)).not.toThrow()
+      expect(() => lits.run(`(assertNotThrows (fn [] (throw :X)))`)).toThrow()
+    })
+  })
+
+  describe(`assertThrowsError`, () => {
+    test(`samples`, () => {
+      expect(() => lits.run(`(assertThrowsError (fn [] (identity :X)) :X "Should throw X")`)).toThrow()
+      expect(() => lits.run(`(assertThrowsError (fn [] (throw :Y)) :X)`)).toThrow()
+      expect(() => lits.run(`(assertThrowsError (fn [] (throw :X)) :X)`)).not.toThrow()
     })
   })
 })

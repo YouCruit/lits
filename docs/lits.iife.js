@@ -4316,6 +4316,73 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
+      assertTruthy: {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], message = _b[1];
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              if (!first) {
+                  throw new AssertionError("Expected ".concat(first, " to be truthy.").concat(message), debugInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      assertFalsy: {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], message = _b[1];
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              if (first) {
+                  throw new AssertionError("Expected ".concat(first, " to be falsy.").concat(message), debugInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      assertNil: {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], message = _b[1];
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              if (first !== null) {
+                  throw new AssertionError("Expected ".concat(first, " to be nil.").concat(message), debugInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      assertThrows: {
+          evaluate: function (_a, debugInfo, contextStack, _b) {
+              var _c = __read(_a, 2), func = _c[0], message = _c[1];
+              var executeFunction = _b.executeFunction;
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              litsFunction.assert(func, debugInfo);
+              try {
+                  executeFunction(func, [], debugInfo, contextStack);
+              }
+              catch (_d) {
+                  return null;
+              }
+              throw new AssertionError("Expected function to throw.".concat(message), debugInfo);
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      assertThrowsError: {
+          evaluate: function (_a, debugInfo, contextStack, _b) {
+              var _c = __read(_a, 3), func = _c[0], throwMessage = _c[1], message = _c[2];
+              var executeFunction = _b.executeFunction;
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              string.assert(throwMessage, debugInfo);
+              litsFunction.assert(func, debugInfo);
+              try {
+                  executeFunction(func, [], debugInfo, contextStack);
+              }
+              catch (error) {
+                  expect(error.message).toBe(throwMessage);
+                  return null;
+              }
+              throw new AssertionError("Expected function to throw.".concat(message), debugInfo);
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
   };
 
   var objectNormalExpression = {

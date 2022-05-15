@@ -174,7 +174,13 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       try {
         executeFunction(func, [], debugInfo, contextStack)
       } catch (error) {
-        expect((error as Error).message).toBe(throwMessage)
+        const errorMessage = (error as Error).message
+        if (errorMessage !== throwMessage) {
+          throw new AssertionError(
+            `Expected function to throw "${throwMessage}", but thrown "${throwMessage}".${message}`,
+            debugInfo,
+          )
+        }
         return null
       }
       throw new AssertionError(`Expected function to throw "${throwMessage}".${message}`, debugInfo)

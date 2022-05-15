@@ -4379,7 +4379,23 @@ var Lits = (function (exports) {
                   expect(error.message).toBe(throwMessage);
                   return null;
               }
-              throw new AssertionError("Expected function to throw.".concat(message), debugInfo);
+              throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\".").concat(message), debugInfo);
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      assertNotThrows: {
+          evaluate: function (_a, debugInfo, contextStack, _b) {
+              var _c = __read(_a, 2), func = _c[0], message = _c[1];
+              var executeFunction = _b.executeFunction;
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              litsFunction.assert(func, debugInfo);
+              try {
+                  executeFunction(func, [], debugInfo, contextStack);
+              }
+              catch (_d) {
+                  throw new AssertionError("Expected function not to throw.".concat(message), debugInfo);
+              }
+              return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },

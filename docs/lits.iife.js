@@ -5825,8 +5825,12 @@ var Lits = (function (exports) {
       return SourceCodeInfoImpl;
   }());
 
+  var fs = require("fs");
+  var path = require("path");
   function runTest(_a, createLits) {
-      var test = _a.test, program = _a.program, _b = _a.testParams, testParams = _b === void 0 ? {} : _b, _c = _a.programParams, programParams = _c === void 0 ? {} : _c, testNamePattern = _a.testNamePattern;
+      var testPath = _a.testPath, testNamePattern = _a.testNamePattern;
+      var test = readLitsFile(testPath);
+      var includes = getIncludes(testPath, test);
       var testResult = {
           tap: "TAP version 13\n",
           success: true,
@@ -5845,8 +5849,8 @@ var Lits = (function (exports) {
               else {
                   try {
                       var lits = createLits();
-                      var context = lits.context(program, programParams);
-                      lits.run(testChunkProgram.program, __assign(__assign({}, testParams), { contexts: __spreadArray(__spreadArray([], __read((testParams.contexts || [])), false), [context], false) }));
+                      var context = lits.context(includes);
+                      lits.run(testChunkProgram.program, { contexts: [context], filename: testPath });
                       testResult.tap += "ok ".concat(testNumber, " ").concat(testChunkProgram.name, "\n");
                   }
                   catch (error) {
@@ -5862,18 +5866,45 @@ var Lits = (function (exports) {
       }
       return testResult;
   }
+  function readLitsFile(litsPath) {
+      if (!litsPath.endsWith(".lits")) {
+          throw Error("Expected .lits file, got ".concat(litsPath));
+      }
+      return fs.readFileSync(litsPath, { encoding: "utf-8" });
+  }
+  function getIncludes(testPath, test) {
+      var dirname = path.dirname(testPath);
+      var okToInclude = true;
+      return test.split("\n").reduce(function (includes, line) {
+          var includeMatch = line.match(/^\s*;+\s*@include\s*(\S+)\s*$/);
+          if (includeMatch) {
+              if (!okToInclude) {
+                  throw Error("@include must be in the beginning of file");
+              }
+              var relativeFilePath = includeMatch[1];
+              var filePath = path.resolve(dirname, relativeFilePath);
+              var fileContent = readLitsFile(filePath);
+              includes += "\n".concat(fileContent);
+          }
+          if (!line.match(/^\s*(?:;.*)$/)) {
+              okToInclude = false;
+          }
+          return includes;
+      }, "");
+  }
   // Splitting test file based on @test annotations
   function getTestChunks(testProgram) {
       var currentTest;
       var setupCode = "";
       return testProgram.split("\n").reduce(function (result, line, index) {
           var _a;
-          var testNameAnnotationMatch = line.match(/^\s*;\s*@(?:(skip)-)?test\s*(.*)$/i);
+          var currentLineNbr = index + 1;
+          var testNameAnnotationMatch = line.match(/^\s*;+\s*@(?:(skip)-)?test\s*(.*)$/);
           if (testNameAnnotationMatch) {
               var directive = ((_a = testNameAnnotationMatch[1]) !== null && _a !== void 0 ? _a : "").toUpperCase();
               var testName_1 = testNameAnnotationMatch[2];
               if (!testName_1) {
-                  throw Error("Missing test name on line ".concat(index));
+                  throw Error("Missing test name on line ".concat(currentLineNbr));
               }
               if (result.find(function (chunk) { return chunk.name === testName_1; })) {
                   throw Error("Duplicate test name ".concat(testName_1));
@@ -5882,7 +5913,7 @@ var Lits = (function (exports) {
                   directive: (directive || null),
                   name: testName_1,
                   // Adding new-lines to make lits debug information report correct rows
-                  program: setupCode + __spreadArray([], __read(Array(index + 3 - setupCode.split("\n").length).keys()), false).map(function () { return ""; }).join("\n"),
+                  program: setupCode + __spreadArray([], __read(Array(currentLineNbr + 2 - setupCode.split("\n").length).keys()), false).map(function () { return ""; }).join("\n"),
               };
               result.push(currentTest);
               return result;
@@ -5907,7 +5938,7 @@ var Lits = (function (exports) {
       if (!(error.debugInfo instanceof SourceCodeInfoImpl)) {
           return "\n  ---\n  message: ".concat(JSON.stringify(message), "\n  error: ").concat(JSON.stringify(error.name), "\n  ...\n");
       }
-      var location = "".concat(error.debugInfo.filename ? "".concat(error.debugInfo.filename, ":") : "").concat(error.debugInfo.line, ":").concat(error.debugInfo.column);
+      var location = "".concat(error.debugInfo.filename, ":").concat(error.debugInfo.line, ":").concat(error.debugInfo.column);
       return "\n  ---\n  error: ".concat(JSON.stringify(error.name), "\n  message: ").concat(JSON.stringify(message), "\n  location: ").concat(JSON.stringify(location), "\n  code:\n    - \"").concat(error.debugInfo.code, "\"\n    - \"").concat(error.debugInfo.codeMarker, "\"\n  ...\n");
   }
   function getErrorMessage(error) {

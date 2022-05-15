@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { AbstractLitsError } from '../errors'
 import { Lits } from '../Lits/Lits'
 import { SourceCodeInfoImpl } from '../tokenizer/SourceCodeInfoImpl'
-import fs from 'fs'
-import path from 'path'
+
+const fs = require(`fs`)
+const path = require(`path`)
 
 type TestChunk = {
   name: string

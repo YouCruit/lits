@@ -4376,7 +4376,10 @@ var Lits = (function (exports) {
                   executeFunction(func, [], debugInfo, contextStack);
               }
               catch (error) {
-                  expect(error.message).toBe(throwMessage);
+                  var errorMessage = error.shortMessage;
+                  if (errorMessage !== throwMessage) {
+                      throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\", but thrown \"").concat(errorMessage, "\".").concat(message), debugInfo);
+                  }
                   return null;
               }
               throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\".").concat(message), debugInfo);

@@ -1,4 +1,4 @@
-import { AssertionError } from '../../../errors'
+import { AssertionError, LitsError } from '../../../errors'
 import { Any } from '../../../interface'
 import { compare, deepEqual } from '../../../utils'
 import { BuiltinNormalExpressions } from '../../interface'
@@ -174,10 +174,10 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       try {
         executeFunction(func, [], debugInfo, contextStack)
       } catch (error) {
-        const errorMessage = (error as Error).message
+        const errorMessage = (error as LitsError).shortMessage
         if (errorMessage !== throwMessage) {
           throw new AssertionError(
-            `Expected function to throw "${throwMessage}", but thrown "${throwMessage}".${message}`,
+            `Expected function to throw "${throwMessage}", but thrown "${errorMessage}".${message}`,
             debugInfo,
           )
         }

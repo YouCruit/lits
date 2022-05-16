@@ -5804,11 +5804,11 @@ var Lits = (function (exports) {
   }
 
   var SourceCodeInfoImpl = /** @class */ (function () {
-      function SourceCodeInfoImpl(line, column, code, filename) {
+      function SourceCodeInfoImpl(line, column, code, getLocation) {
           this.line = line;
           this.column = column;
           this.code = code;
-          this.filename = filename;
+          this.getLocation = getLocation;
       }
       Object.defineProperty(SourceCodeInfoImpl.prototype, "codeMarker", {
           get: function () {
@@ -5827,6 +5827,26 @@ var Lits = (function (exports) {
 
   var fs = require("fs");
   var path = require("path");
+  function getIncludesLocation(line, col, sourceMappign) {
+      var e_1, _a;
+      try {
+          for (var sourceMappign_1 = __values(sourceMappign), sourceMappign_1_1 = sourceMappign_1.next(); !sourceMappign_1_1.done; sourceMappign_1_1 = sourceMappign_1.next()) {
+              var fileInfo = sourceMappign_1_1.value;
+              if (line <= fileInfo.start + fileInfo.size) {
+                  return "".concat(fileInfo.file, ":").concat(line - fileInfo.start + 1, ":").concat(col);
+              }
+          }
+      }
+      catch (e_1_1) { e_1 = { error: e_1_1 }; }
+      finally {
+          try {
+              if (sourceMappign_1_1 && !sourceMappign_1_1.done && (_a = sourceMappign_1.return)) _a.call(sourceMappign_1);
+          }
+          finally { if (e_1) throw e_1.error; }
+      }
+      /* istanbul ignore next */
+      throw Error("Broken source code mapping");
+  }
   function runTest(_a, createLits) {
       var testPath = _a.testPath, testNamePattern = _a.testNamePattern;
       var test = readLitsFile(testPath);
@@ -5849,8 +5869,13 @@ var Lits = (function (exports) {
               else {
                   try {
                       var lits = createLits();
-                      var context = lits.context(includes);
-                      lits.run(testChunkProgram.program, { contexts: [context], filename: testPath });
+                      var context = lits.context(includes.code, {
+                          getLocation: function (line, col) { return getIncludesLocation(line, col, includes.sourceMapping); },
+                      });
+                      lits.run(testChunkProgram.program, {
+                          contexts: [context],
+                          getLocation: function (line, col) { return "".concat(testPath, ":").concat(line, ":").concat(col); },
+                      });
                       testResult.tap += "ok ".concat(testNumber, " ").concat(testChunkProgram.name, "\n");
                   }
                   catch (error) {
@@ -5875,7 +5900,8 @@ var Lits = (function (exports) {
   function getIncludes(testPath, test) {
       var dirname = path.dirname(testPath);
       var okToInclude = true;
-      return test.split("\n").reduce(function (includes, line) {
+      var currentLine = 1;
+      return test.split("\n").reduce(function (result, line) {
           var includeMatch = line.match(/^\s*;+\s*@include\s*(\S+)\s*$/);
           if (includeMatch) {
               if (!okToInclude) {
@@ -5884,13 +5910,20 @@ var Lits = (function (exports) {
               var relativeFilePath = includeMatch[1];
               var filePath = path.resolve(dirname, relativeFilePath);
               var fileContent = readLitsFile(filePath);
-              includes += "\n".concat(fileContent);
+              result.code += "".concat(fileContent, "\n");
+              var size = result.code.split("\n").length;
+              result.sourceMapping.push({
+                  file: filePath,
+                  start: currentLine,
+                  size: size,
+              });
+              currentLine += size;
           }
           if (!line.match(/^\s*(?:;.*)$/)) {
               okToInclude = false;
           }
-          return includes;
-      }, "");
+          return result;
+      }, { code: "", sourceMapping: [] });
   }
   // Splitting test file based on @test annotations
   function getTestChunks(testProgram) {
@@ -5938,7 +5971,7 @@ var Lits = (function (exports) {
       if (!(error.debugInfo instanceof SourceCodeInfoImpl)) {
           return "\n  ---\n  message: ".concat(JSON.stringify(message), "\n  error: ").concat(JSON.stringify(error.name), "\n  ...\n");
       }
-      var location = "".concat(error.debugInfo.filename, ":").concat(error.debugInfo.line, ":").concat(error.debugInfo.column);
+      var location = error.debugInfo.getLocation(error.debugInfo.line, error.debugInfo.column);
       return "\n  ---\n  error: ".concat(JSON.stringify(error.name), "\n  message: ").concat(JSON.stringify(message), "\n  location: ").concat(JSON.stringify(location), "\n  code:\n    - \"").concat(error.debugInfo.code, "\"\n    - \"").concat(error.debugInfo.codeMarker, "\"\n  ...\n");
   }
   function getErrorMessage(error) {
@@ -6267,11 +6300,11 @@ var Lits = (function (exports) {
   function getSourceCodeLine(input, lineNbr) {
       return input.split(/\r\n|\r|\n/)[lineNbr];
   }
-  function createDebugInfo(input, position, filename) {
+  function createDebugInfo(input, position, getLocation) {
       var lines = input.substr(0, position + 1).split(/\r\n|\r|\n/);
       var lastLine = lines[lines.length - 1];
       var sourceCodeLine = getSourceCodeLine(input, lines.length - 1);
-      return new SourceCodeInfoImpl(lines.length, lastLine.length, sourceCodeLine, filename);
+      return new SourceCodeInfoImpl(lines.length, lastLine.length, sourceCodeLine, getLocation);
   }
   function tokenize(input, params) {
       var e_1, _a;
@@ -6281,7 +6314,7 @@ var Lits = (function (exports) {
       while (position < input.length) {
           tokenized = false;
           // Loop through all tokenizer until one matches
-          var debugInfo = params.debug ? createDebugInfo(input, position, params.filename) : null;
+          var debugInfo = params.debug ? createDebugInfo(input, position, params.getLocation) : null;
           try {
               for (var tokenizers_1 = (e_1 = void 0, __values(tokenizers)), tokenizers_1_1 = tokenizers_1.next(); !tokenizers_1_1.done; tokenizers_1_1 = tokenizers_1.next()) {
                   var tokenize_1 = tokenizers_1_1.value;
@@ -6383,7 +6416,7 @@ var Lits = (function (exports) {
       }
       Lits.prototype.run = function (program, params) {
           if (params === void 0) { params = {}; }
-          var ast = this.generateAst(program, params.filename);
+          var ast = this.generateAst(program, params.getLocation);
           var result = this.evaluate(ast, params);
           return result;
       };
@@ -6393,12 +6426,12 @@ var Lits = (function (exports) {
       Lits.prototype.context = function (program, params) {
           if (params === void 0) { params = {}; }
           var contextStack = createContextStackFromParams(params);
-          var ast = this.generateAst(program, params.filename);
+          var ast = this.generateAst(program, params.getLocation);
           evaluate(ast, contextStack);
           return contextStack.globalContext;
       };
-      Lits.prototype.tokenize = function (program, filename) {
-          return tokenize(program, { debug: this.debug, filename: filename });
+      Lits.prototype.tokenize = function (program, getLocation) {
+          return tokenize(program, { debug: this.debug, getLocation: getLocation });
       };
       Lits.prototype.parse = function (tokens) {
           return parse(tokens);
@@ -6417,7 +6450,7 @@ var Lits = (function (exports) {
           })
               .join(" ");
           var program = "(".concat(fnName, " ").concat(paramsString, ")");
-          var ast = this.generateAst(program, params.filename);
+          var ast = this.generateAst(program, params.getLocation);
           var globals = fnParams.reduce(function (result, param, index) {
               result["".concat(fnName, "_").concat(index)] = param;
               return result;
@@ -6425,7 +6458,7 @@ var Lits = (function (exports) {
           params.globals = __assign(__assign({}, params.globals), globals);
           return this.evaluate(ast, params);
       };
-      Lits.prototype.generateAst = function (program, filename) {
+      Lits.prototype.generateAst = function (program, getLocation) {
           var _a;
           if (this.astCache) {
               var cachedAst = this.astCache.get(program);
@@ -6433,7 +6466,7 @@ var Lits = (function (exports) {
                   return cachedAst;
               }
           }
-          var tokens = this.tokenize(program, filename);
+          var tokens = this.tokenize(program, getLocation);
           var ast = this.parse(tokens);
           (_a = this.astCache) === null || _a === void 0 ? void 0 : _a.set(program, ast);
           return ast;

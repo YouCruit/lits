@@ -122,4 +122,24 @@ not ok 2 sub
   ...
 `)
   })
+
+  test(`Broken include`, () => {
+    const testResult = lits.runTest({
+      testPath: path.join(__dirname, `broken-include.test.lits`),
+    })
+    expect(testResult.success).toBe(false)
+    expect(testResult.tap).toBe(`TAP version 13
+1..2
+not ok 1 add
+  ---
+  error: "UndefinedSymbolError"
+  message: "Undefined symbol '++'."
+  location: "${path.resolve(__dirname, `broken-plus-lib.lits`)}:1:19"
+  code:
+    - "(defn plus [a b] (++ a b))"
+    - "                  ^       "
+  ...
+ok 2 sub
+`)
+  })
 })

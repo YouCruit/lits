@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { AbstractLitsError } from '../errors'
-import { Lits } from '../Lits/Lits'
+import { Lits, LocationGetter } from '../Lits/Lits'
 import { SourceCodeInfoImpl } from '../tokenizer/SourceCodeInfoImpl'
 
 const fs = require(`fs`)
@@ -26,6 +26,16 @@ export type TestResult = {
   success: boolean
 }
 
+function getIncludesLocation(line: number, col: number, sourceMappign: IncludesResult[`sourceMapping`]): string {
+  for (const fileInfo of sourceMappign) {
+    if (line <= fileInfo.start + fileInfo.size) {
+      return `${fileInfo.file}:${line - fileInfo.start + 1}:${col}`
+    }
+  }
+  /* istanbul ignore next */
+  throw Error(`Broken source code mapping`)
+}
+
 export function runTest({ testPath, testNamePattern }: RunTestParams, createLits: () => Lits): TestResult {
   const test = readLitsFile(testPath)
   const includes = getIncludes(testPath, test)
@@ -45,8 +55,13 @@ export function runTest({ testPath, testNamePattern }: RunTestParams, createLits
       } else {
         try {
           const lits = createLits()
-          const context = lits.context(includes)
-          lits.run(testChunkProgram.program, { contexts: [context], filename: testPath })
+          const context = lits.context(includes.code, {
+            getLocation: (line, col) => getIncludesLocation(line, col, includes.sourceMapping),
+          })
+          lits.run(testChunkProgram.program, {
+            contexts: [context],
+            getLocation: (line, col) => `${testPath}:${line}:${col}`,
+          })
           testResult.tap += `ok ${testNumber} ${testChunkProgram.name}\n`
         } catch (error) {
           testResult.success = false
@@ -68,25 +83,37 @@ function readLitsFile(litsPath: string): string {
   return fs.readFileSync(litsPath, { encoding: `utf-8` })
 }
 
-function getIncludes(testPath: string, test: string): string {
+type IncludesResult = { code: string; sourceMapping: Array<{ file: string; start: number; size: number }> }
+function getIncludes(testPath: string, test: string): IncludesResult {
   const dirname = path.dirname(testPath)
   let okToInclude = true
-  return test.split(`\n`).reduce((includes: string, line) => {
-    const includeMatch = line.match(/^\s*;+\s*@include\s*(\S+)\s*$/)
-    if (includeMatch) {
-      if (!okToInclude) {
-        throw Error(`@include must be in the beginning of file`)
+  let currentLine = 1
+  return test.split(`\n`).reduce(
+    (result: IncludesResult, line) => {
+      const includeMatch = line.match(/^\s*;+\s*@include\s*(\S+)\s*$/)
+      if (includeMatch) {
+        if (!okToInclude) {
+          throw Error(`@include must be in the beginning of file`)
+        }
+        const relativeFilePath = includeMatch[1] as string
+        const filePath = path.resolve(dirname, relativeFilePath)
+        const fileContent = readLitsFile(filePath)
+        result.code += `${fileContent}\n`
+        const size = result.code.split(`\n`).length
+        result.sourceMapping.push({
+          file: filePath,
+          start: currentLine,
+          size,
+        })
+        currentLine += size
       }
-      const relativeFilePath = includeMatch[1] as string
-      const filePath = path.resolve(dirname, relativeFilePath)
-      const fileContent = readLitsFile(filePath)
-      includes += `\n${fileContent}`
-    }
-    if (!line.match(/^\s*(?:;.*)$/)) {
-      okToInclude = false
-    }
-    return includes
-  }, ``)
+      if (!line.match(/^\s*(?:;.*)$/)) {
+        okToInclude = false
+      }
+      return result
+    },
+    { code: ``, sourceMapping: [] },
+  )
 }
 
 // Splitting test file based on @test annotations
@@ -145,7 +172,7 @@ function getErrorYaml(error: unknown): string {
   ...
 `
   }
-  const location = `${error.debugInfo.filename}:${error.debugInfo.line}:${error.debugInfo.column}`
+  const location = (error.debugInfo.getLocation as LocationGetter)(error.debugInfo.line, error.debugInfo.column)
   return `
   ---
   error: ${JSON.stringify(error.name)}

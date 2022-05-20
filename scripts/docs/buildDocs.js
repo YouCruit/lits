@@ -123,7 +123,6 @@ function getIndexPage() {
       <li>No macros.</li>
       <li>No keyword symbols. <pre>:foo</pre> is just a shourthand for <pre>'foo'</pre>.</li>
       <li>Dynamic scoping, no lexical scoping</li>
-      <li>Strings look like <pre>'A string'</pre>, not <pre>"A string"</pre>. This desition was made to make it more convenient to embed lits code in json-files.</li>
       <li>100% test coverage</li>
     </ul>
     <p>You can see some examples and find documentation of all built-in function to the left.</p>

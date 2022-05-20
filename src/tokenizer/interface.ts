@@ -1,3 +1,5 @@
+import { LocationGetter } from '../Lits/Lits'
+
 export type TokenizerType =
   | `paren`
   | `number`
@@ -30,5 +32,5 @@ export type Tokenizer = (input: string, position: number, debugInfo: DebugInfo) 
 
 export type TokenizeParams = {
   debug: boolean
-  filename?: string
+  getLocation?: LocationGetter
 }

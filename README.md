@@ -50,7 +50,7 @@ npm i @youcruit/lits
 import { Lits } from '@youcruit/lits'
 
 const lits = new Lits()
-lits.run('(+ 1 2 3 4)'); // returns 10
+lits.run("(+ 1 2 3 4)"); // returns 10
 ```
 
 # Builtin Functions

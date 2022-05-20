@@ -1,16 +1,17 @@
+import { LocationGetter } from '../Lits/Lits'
 import { SourceCodeInfo } from './interface'
 
 export class SourceCodeInfoImpl implements SourceCodeInfo {
   public line: number
   public column: number
   public code: string
-  public filename?: string
+  public getLocation?: LocationGetter
 
-  constructor(line: number, column: number, code: string, filename: string | undefined) {
+  constructor(line: number, column: number, code: string, getLocation: LocationGetter | undefined) {
     this.line = line
     this.column = column
     this.code = code
-    this.filename = filename
+    this.getLocation = getLocation
   }
 
   public get codeMarker(): string {

@@ -162,7 +162,7 @@ not ok 1 equals
       "id": "id2",
       "val": "value2"
     }.
-  location: "/home/robin/git-repos/lits/__tests__/Lits/testFramework/object-diff.test.lits:5:2"
+  location: "${path.resolve(__dirname, `object-diff.test.lits`)}:5:2"
   code:
     - "(assertEqual obj-a obj-b)"
     - " ^                       "

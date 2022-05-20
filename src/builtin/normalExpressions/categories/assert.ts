@@ -42,7 +42,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       if (!deepEqual(any.as(first, debugInfo), any.as(second, debugInfo), debugInfo)) {
         throw new AssertionError(
-          `Expected ${JSON.stringify(first)} to deep equal ${JSON.stringify(second)}.${message}`,
+          `Expected\n${JSON.stringify(first, null, 2)}\nto deep equal\n${JSON.stringify(second, null, 2)}.${message}`,
           debugInfo,
         )
       }

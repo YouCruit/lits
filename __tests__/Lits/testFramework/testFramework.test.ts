@@ -142,4 +142,31 @@ not ok 1 add
 ok 2 sub
 `)
   })
+
+  test(`deep equals fails`, () => {
+    const testResult = lits.runTest({ testPath: path.join(__dirname, `object-diff.test.lits`) })
+    expect(testResult.success).toBe(false)
+    expect(testResult.tap).toBe(`TAP version 13
+1..1
+not ok 1 equals
+  ---
+  error: "AssertionError"
+  message: |
+    Expected
+    {
+      "id": "id1",
+      "val": "value1"
+    }
+    to deep equal
+    {
+      "id": "id2",
+      "val": "value2"
+    }.
+  location: "/home/robin/git-repos/lits/__tests__/Lits/testFramework/object-diff.test.lits:5:2"
+  code:
+    - "(assertEqual obj-a obj-b)"
+    - " ^                       "
+  ...
+`)
+  })
 })

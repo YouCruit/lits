@@ -16,7 +16,6 @@ const plugins = [
 export default [
   {
     input,
-    external: ['fs', 'path'],
     output: [
       {
         file: pkg.module,
@@ -33,6 +32,23 @@ export default [
         format: 'iife',
         sourcemap: true,
         name: 'Lits',
+      },
+    ],
+    plugins,
+  },
+  {
+    input: 'src/testFramework/index.ts',
+    external: ['fs', 'path'],
+    output: [
+      {
+        file: 'dist/testFramework.esm.js',
+        format: 'esm',
+        sourcemap: true,
+      },
+      {
+        file: 'dist/testFramework.js',
+        format: 'cjs',
+        sourcemap: true,
       },
     ],
     plugins,

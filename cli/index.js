@@ -43,19 +43,13 @@ if (config.expression) {
   runREPL()
 }
 
-function runTest(testFile, testNamePattern) {
-  if (!testFile.match(/\.test\.lits/)) {
+function runTest(testPath, testNamePattern) {
+  if (!testPath.match(/\.test\.lits/)) {
     console.error(`Test file must end with .test.lits`)
     process.exit(1)
   }
-  const litsFile = testFile.replace(`.test.lits`, `.lits`)
-  const program = fs.readFileSync(litsFile, { encoding: `utf-8` })
-  const test = fs.readFileSync(testFile, { encoding: `utf-8` })
   const { success, tap } = lits.runTest({
-    test,
-    program,
-    testParams: { filename: testFile, globalContext: config.globalContext },
-    programParams: { filename: litsFile },
+    testPath,
     testNamePattern: testNamePattern && new RegExp(testNamePattern),
   })
 

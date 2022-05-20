@@ -20,21 +20,21 @@ const simpleProgram = `
 
 const formatPhoneNumber = `
 (if (string? $data)
-  (let [phoneNumber (if (= '+' (nth $data 0)) (subs $data 2) $data)]
+  (let [phoneNumber (if (= "+" (nth $data 0)) (subs $data 2) $data)]
     (cond
       (> (count phoneNumber) 6)
-        (str '(' (subs phoneNumber 0 3) ') ' (subs phoneNumber 3 6) '-' (subs phoneNumber 6))
+        (str "(" (subs phoneNumber 0 3) ") " (subs phoneNumber 3 6) "-" (subs phoneNumber 6))
 
       (> (count phoneNumber) 3)
-        (str '(' (subs phoneNumber 0 3) ') ' (subs phoneNumber 3))
+        (str "(" (subs phoneNumber 0 3) ") " (subs phoneNumber 3))
 
       (> (count phoneNumber) 0)
-        (str '(' (subs phoneNumber 0))
+        (str "(" (subs phoneNumber 0))
 
       true phoneNumber
     )
   )
-  ''
+  ""
 )
 `
 
@@ -64,24 +64,24 @@ describe(`Evaluator`, () => {
   test(`if statement (true)`, () => {
     const tokens = tokenize(
       `
-      (if (= (get info 'gender') 'male') 'It\\'s a boy' 'It\\'s not a girl')
+      (if (= (get info "gender") "male") "It\\"s a boy" "It\\"s not a girl")
     `,
       { debug: true },
     )
     const ast = parse(tokens)
     const result = evaluate(ast, createContextStack([context]))
-    expect(result).toBe(`It's a boy`)
+    expect(result).toBe(`It"s a boy`)
   })
   test(`if statement (false)`, () => {
     const tokens = tokenize(
       `
-      (if (= (get info 'gender') 'female') 'It\\'s a girl' 'It\\'s not a girl')
+      (if (= (get info "gender") "female") "It\\"s a girl" "It\\"s not a girl")
     `,
       { debug: true },
     )
     const ast = parse(tokens)
     const result = evaluate(ast, createContextStack([context]))
-    expect(result).toBe(`It's not a girl`)
+    expect(result).toBe(`It"s not a girl`)
   })
   test(`> statement`, () => {
     const tokens = tokenize(

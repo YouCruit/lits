@@ -48,7 +48,7 @@ function runTest(testPath, testNamePattern) {
     console.error(`Test file must end with .test.lits`)
     process.exit(1)
   }
-  const { success, tap } = lits.runTest({
+  const { success, tap } = runTest({
     testPath,
     testNamePattern: testNamePattern && new RegExp(testNamePattern),
   })

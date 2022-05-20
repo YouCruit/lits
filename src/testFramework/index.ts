@@ -36,7 +36,7 @@ function getIncludesLocation(line: number, col: number, sourceMappign: IncludesR
   throw Error(`Broken source code mapping`)
 }
 
-export function runTest({ testPath, testNamePattern }: RunTestParams, createLits: () => Lits): TestResult {
+export function runTest({ testPath, testNamePattern }: RunTestParams): TestResult {
   const test = readLitsFile(testPath)
   const includes = getIncludes(testPath, test)
   const testResult: TestResult = {
@@ -54,7 +54,7 @@ export function runTest({ testPath, testNamePattern }: RunTestParams, createLits
         testResult.tap += `ok ${testNumber} ${testChunkProgram.name} # skip\n`
       } else {
         try {
-          const lits = createLits()
+          const lits = new Lits({ debug: true })
           const context = lits.context(includes.code, {
             getLocation: (line, col) => getIncludesLocation(line, col, includes.sourceMapping),
           })

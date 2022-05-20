@@ -3930,7 +3930,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.25";
+  var version = "1.0.26-alpha.0";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -4311,6 +4311,92 @@ var Lits = (function (exports) {
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (first !== false) {
                   throw new AssertionError("Expected ".concat(first, " to be false.").concat(message), debugInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      assertTruthy: {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], message = _b[1];
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              if (!first) {
+                  throw new AssertionError("Expected ".concat(first, " to be truthy.").concat(message), debugInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      assertFalsy: {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], message = _b[1];
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              if (first) {
+                  throw new AssertionError("Expected ".concat(first, " to be falsy.").concat(message), debugInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      assertNil: {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], message = _b[1];
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              if (first !== null) {
+                  throw new AssertionError("Expected ".concat(first, " to be nil.").concat(message), debugInfo);
+              }
+              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      assertThrows: {
+          evaluate: function (_a, debugInfo, contextStack, _b) {
+              var _c = __read(_a, 2), func = _c[0], message = _c[1];
+              var executeFunction = _b.executeFunction;
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              litsFunction.assert(func, debugInfo);
+              try {
+                  executeFunction(func, [], debugInfo, contextStack);
+              }
+              catch (_d) {
+                  return null;
+              }
+              throw new AssertionError("Expected function to throw.".concat(message), debugInfo);
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      assertThrowsError: {
+          evaluate: function (_a, debugInfo, contextStack, _b) {
+              var _c = __read(_a, 3), func = _c[0], throwMessage = _c[1], message = _c[2];
+              var executeFunction = _b.executeFunction;
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              string.assert(throwMessage, debugInfo);
+              litsFunction.assert(func, debugInfo);
+              try {
+                  executeFunction(func, [], debugInfo, contextStack);
+              }
+              catch (error) {
+                  var errorMessage = error.shortMessage;
+                  if (errorMessage !== throwMessage) {
+                      throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\", but thrown \"").concat(errorMessage, "\".").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\".").concat(message), debugInfo);
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      assertNotThrows: {
+          evaluate: function (_a, debugInfo, contextStack, _b) {
+              var _c = __read(_a, 2), func = _c[0], message = _c[1];
+              var executeFunction = _b.executeFunction;
+              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+              litsFunction.assert(func, debugInfo);
+              try {
+                  executeFunction(func, [], debugInfo, contextStack);
+              }
+              catch (_d) {
+                  throw new AssertionError("Expected function not to throw.".concat(message), debugInfo);
               }
               return null;
           },
@@ -5718,11 +5804,11 @@ var Lits = (function (exports) {
   }
 
   var SourceCodeInfoImpl = /** @class */ (function () {
-      function SourceCodeInfoImpl(line, column, code, filename) {
+      function SourceCodeInfoImpl(line, column, code, getLocation) {
           this.line = line;
           this.column = column;
           this.code = code;
-          this.filename = filename;
+          this.getLocation = getLocation;
       }
       Object.defineProperty(SourceCodeInfoImpl.prototype, "codeMarker", {
           get: function () {
@@ -5738,106 +5824,6 @@ var Lits = (function (exports) {
       };
       return SourceCodeInfoImpl;
   }());
-
-  function runTest(_a, createLits) {
-      var test = _a.test, program = _a.program, _b = _a.testParams, testParams = _b === void 0 ? {} : _b, _c = _a.programParams, programParams = _c === void 0 ? {} : _c, testNamePattern = _a.testNamePattern;
-      var testResult = {
-          tap: "TAP version 13\n",
-          success: true,
-      };
-      try {
-          var testChunks = getTestChunks(test);
-          testResult.tap += "1..".concat(testChunks.length, "\n");
-          testChunks.forEach(function (testChunkProgram, index) {
-              var testNumber = index + 1;
-              if (testNamePattern && !testNamePattern.test(testChunkProgram.name)) {
-                  testResult.tap += "ok ".concat(testNumber, " ").concat(testChunkProgram.name, " # skip - Not matching testNamePattern ").concat(testNamePattern, "\n");
-              }
-              else if (testChunkProgram.directive === "SKIP") {
-                  testResult.tap += "ok ".concat(testNumber, " ").concat(testChunkProgram.name, " # skip\n");
-              }
-              else {
-                  try {
-                      var lits = createLits();
-                      var context = lits.context(program, programParams);
-                      lits.run(testChunkProgram.program, __assign(__assign({}, testParams), { contexts: __spreadArray(__spreadArray([], __read((testParams.contexts || [])), false), [context], false) }));
-                      testResult.tap += "ok ".concat(testNumber, " ").concat(testChunkProgram.name, "\n");
-                  }
-                  catch (error) {
-                      testResult.success = false;
-                      testResult.tap += "not ok ".concat(testNumber, " ").concat(testChunkProgram.name).concat(getErrorYaml(error));
-                  }
-              }
-          });
-      }
-      catch (error) {
-          testResult.tap += "Bail out! ".concat(getErrorMessage(error), "\n");
-          testResult.success = false;
-      }
-      return testResult;
-  }
-  // Splitting test file based on @test annotations
-  function getTestChunks(testProgram) {
-      var currentTest;
-      var setupCode = "";
-      return testProgram.split("\n").reduce(function (result, line, index) {
-          var _a;
-          var testNameAnnotationMatch = line.match(/^\s*;\s*@(?:(skip)-)?test\s*(.*)$/i);
-          if (testNameAnnotationMatch) {
-              var directive = ((_a = testNameAnnotationMatch[1]) !== null && _a !== void 0 ? _a : "").toUpperCase();
-              var testName_1 = testNameAnnotationMatch[2];
-              if (!testName_1) {
-                  throw Error("Missing test name on line ".concat(index));
-              }
-              if (result.find(function (chunk) { return chunk.name === testName_1; })) {
-                  throw Error("Duplicate test name ".concat(testName_1));
-              }
-              currentTest = {
-                  directive: (directive || null),
-                  name: testName_1,
-                  // Adding new-lines to make lits debug information report correct rows
-                  program: setupCode + __spreadArray([], __read(Array(index + 3 - setupCode.split("\n").length).keys()), false).map(function () { return ""; }).join("\n"),
-              };
-              result.push(currentTest);
-              return result;
-          }
-          if (!currentTest) {
-              setupCode += "".concat(line, "\n");
-          }
-          else {
-              currentTest.program += "".concat(line, "\n");
-          }
-          return result;
-      }, []);
-  }
-  function getErrorYaml(error) {
-      var message = getErrorMessage(error);
-      // This is a fallbak, should not happen (Lits should be throwing AbstractLitsErrors)
-      /* istanbul ignore next */
-      if (!isAbstractLitsError(error)) {
-          return "\n  ---\n  message: ".concat(JSON.stringify(message), "\n  ...\n");
-      }
-      /* istanbul ignore next */
-      if (!(error.debugInfo instanceof SourceCodeInfoImpl)) {
-          return "\n  ---\n  message: ".concat(JSON.stringify(message), "\n  error: ").concat(JSON.stringify(error.name), "\n  ...\n");
-      }
-      var location = "".concat(error.debugInfo.filename ? "".concat(error.debugInfo.filename, ":") : "").concat(error.debugInfo.line, ":").concat(error.debugInfo.column);
-      var formattedMessage = message.includes("\n")
-          ? "|\n    ".concat(message.split(/\r?\n/).join("\n    "))
-          : JSON.stringify(message);
-      return "\n  ---\n  error: ".concat(JSON.stringify(error.name), "\n  message: ").concat(formattedMessage, "\n  location: ").concat(JSON.stringify(location), "\n  code:\n    - \"").concat(error.debugInfo.code, "\"\n    - \"").concat(error.debugInfo.codeMarker, "\"\n  ...\n");
-  }
-  function getErrorMessage(error) {
-      if (!isAbstractLitsError(error)) {
-          // error should always be an Error (other cases is just for kicks)
-          /* istanbul ignore next */
-          return typeof error === "string" ? error : error instanceof Error ? error.message : "Unknown error";
-      }
-      return error.shortMessage;
-  }
-  function isAbstractLitsError(error) {
-      return error instanceof AbstractLitsError;
-  }
 
   var NO_MATCH = [0, undefined];
   // A name (function or variable) can contain a lot of different characters
@@ -5878,21 +5864,21 @@ var Lits = (function (exports) {
       return tokenizeCharacter("paren", "}", input, position, debugInfo);
   };
   var tokenizeString = function (input, position, debugInfo) {
-      if (input[position] !== "'") {
+      if (input[position] !== "\"") {
           return NO_MATCH;
       }
       var value = "";
       var length = 1;
       var char = input[position + length];
       var escape = false;
-      while (char !== "'" || escape) {
+      while (char !== "\"" || escape) {
           if (char === undefined) {
               throw new LitsError("Unclosed string at position ".concat(position, "."), debugInfo);
           }
           length += 1;
           if (escape) {
               escape = false;
-              if (char === "'" || char === "\\") {
+              if (char === "\"" || char === "\\") {
                   value += char;
               }
               else {
@@ -6153,11 +6139,11 @@ var Lits = (function (exports) {
   function getSourceCodeLine(input, lineNbr) {
       return input.split(/\r\n|\r|\n/)[lineNbr];
   }
-  function createDebugInfo(input, position, filename) {
+  function createDebugInfo(input, position, getLocation) {
       var lines = input.substr(0, position + 1).split(/\r\n|\r|\n/);
       var lastLine = lines[lines.length - 1];
       var sourceCodeLine = getSourceCodeLine(input, lines.length - 1);
-      return new SourceCodeInfoImpl(lines.length, lastLine.length, sourceCodeLine, filename);
+      return new SourceCodeInfoImpl(lines.length, lastLine.length, sourceCodeLine, getLocation);
   }
   function tokenize(input, params) {
       var e_1, _a;
@@ -6167,7 +6153,7 @@ var Lits = (function (exports) {
       while (position < input.length) {
           tokenized = false;
           // Loop through all tokenizer until one matches
-          var debugInfo = params.debug ? createDebugInfo(input, position, params.filename) : null;
+          var debugInfo = params.debug ? createDebugInfo(input, position, params.getLocation) : null;
           try {
               for (var tokenizers_1 = (e_1 = void 0, __values(tokenizers)), tokenizers_1_1 = tokenizers_1.next(); !tokenizers_1_1.done; tokenizers_1_1 = tokenizers_1.next()) {
                   var tokenize_1 = tokenizers_1_1.value;
@@ -6269,22 +6255,19 @@ var Lits = (function (exports) {
       }
       Lits.prototype.run = function (program, params) {
           if (params === void 0) { params = {}; }
-          var ast = this.generateAst(program, params.filename);
+          var ast = this.generateAst(program, params.getLocation);
           var result = this.evaluate(ast, params);
           return result;
-      };
-      Lits.prototype.runTest = function (params) {
-          return runTest(params, function () { return new Lits({ debug: true }); });
       };
       Lits.prototype.context = function (program, params) {
           if (params === void 0) { params = {}; }
           var contextStack = createContextStackFromParams(params);
-          var ast = this.generateAst(program, params.filename);
+          var ast = this.generateAst(program, params.getLocation);
           evaluate(ast, contextStack);
           return contextStack.globalContext;
       };
-      Lits.prototype.tokenize = function (program, filename) {
-          return tokenize(program, { debug: this.debug, filename: filename });
+      Lits.prototype.tokenize = function (program, getLocation) {
+          return tokenize(program, { debug: this.debug, getLocation: getLocation });
       };
       Lits.prototype.parse = function (tokens) {
           return parse(tokens);
@@ -6303,7 +6286,7 @@ var Lits = (function (exports) {
           })
               .join(" ");
           var program = "(".concat(fnName, " ").concat(paramsString, ")");
-          var ast = this.generateAst(program, params.filename);
+          var ast = this.generateAst(program, params.getLocation);
           var globals = fnParams.reduce(function (result, param, index) {
               result["".concat(fnName, "_").concat(index)] = param;
               return result;
@@ -6311,7 +6294,7 @@ var Lits = (function (exports) {
           params.globals = __assign(__assign({}, params.globals), globals);
           return this.evaluate(ast, params);
       };
-      Lits.prototype.generateAst = function (program, filename) {
+      Lits.prototype.generateAst = function (program, getLocation) {
           var _a;
           if (this.astCache) {
               var cachedAst = this.astCache.get(program);
@@ -6319,7 +6302,7 @@ var Lits = (function (exports) {
                   return cachedAst;
               }
           }
-          var tokens = this.tokenize(program, filename);
+          var tokens = this.tokenize(program, getLocation);
           var ast = this.parse(tokens);
           (_a = this.astCache) === null || _a === void 0 ? void 0 : _a.set(program, ast);
           return ast;

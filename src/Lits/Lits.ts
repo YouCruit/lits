@@ -4,7 +4,6 @@ import { Context, ContextStack } from '../evaluator/interface'
 import { Any, Obj } from '../interface'
 import { parse } from '../parser'
 import { Ast } from '../parser/interface'
-import { runTest, RunTestParams, TestResult } from '../testFramework'
 import { tokenize } from '../tokenizer'
 import { Token } from '../tokenizer/interface'
 import { createContextFromValues } from '../utils'
@@ -41,10 +40,6 @@ export class Lits {
     const ast = this.generateAst(program, params.getLocation)
     const result = this.evaluate(ast, params)
     return result
-  }
-
-  public runTest(params: RunTestParams): TestResult {
-    return runTest(params, () => new Lits({ debug: true }))
   }
 
   public context(program: string, params: LitsParams = {}): Context {

@@ -1,36 +1,34 @@
-import { Lits } from '../../../src/Lits/Lits'
 import path from 'path'
-
-const lits = new Lits()
+import { runTest } from '../../../src/testFramework'
 
 describe(`testFramework`, () => {
   test(`expecting .lits file`, () => {
-    expect(() => lits.runTest({ testPath: path.join(__dirname, `empty.test`) })).toThrow()
+    expect(() => runTest({ testPath: path.join(__dirname, `empty.test`) })).toThrow()
   })
   test(`illegal import`, () => {
-    expect(() => lits.runTest({ testPath: path.join(__dirname, `illegal-import.test.lits`) })).toThrow()
+    expect(() => runTest({ testPath: path.join(__dirname, `illegal-import.test.lits`) })).toThrow()
   })
   test(`empty test`, () => {
-    const testResult = lits.runTest({ testPath: path.join(__dirname, `empty.test.lits`) })
+    const testResult = runTest({ testPath: path.join(__dirname, `empty.test.lits`) })
     expect(testResult.success).toBe(true)
     expect(testResult.tap).toBe(`TAP version 13\n1..0\n`)
   })
   test(`duplicate test names`, () => {
-    const testResult = lits.runTest({ testPath: path.join(__dirname, `duplicate-test-name.test.lits`) })
+    const testResult = runTest({ testPath: path.join(__dirname, `duplicate-test-name.test.lits`) })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
 Bail out! Duplicate test name add
 `)
   })
   test(`missing test name`, () => {
-    const testResult = lits.runTest({ testPath: path.join(__dirname, `missing-test-name.test.lits`) })
+    const testResult = runTest({ testPath: path.join(__dirname, `missing-test-name.test.lits`) })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
 Bail out! Missing test name on line 3
 `)
   })
   test(`success`, () => {
-    const testResult = lits.runTest({ testPath: path.join(__dirname, `test.test.lits`) })
+    const testResult = runTest({ testPath: path.join(__dirname, `test.test.lits`) })
     expect(testResult.success).toBe(true)
     expect(testResult.tap).toBe(`TAP version 13
 1..2
@@ -40,7 +38,7 @@ ok 2 sub
   })
 
   test(`success import plus`, () => {
-    const testResult = lits.runTest({
+    const testResult = runTest({
       testPath: path.join(__dirname, `test-import-plus.test.lits`),
     })
     expect(testResult.success).toBe(true)
@@ -52,7 +50,7 @@ ok 2 sub
   })
 
   test(`skip-test`, () => {
-    const testResult = lits.runTest({ testPath: path.join(__dirname, `skip.test.lits`) })
+    const testResult = runTest({ testPath: path.join(__dirname, `skip.test.lits`) })
     expect(testResult.success).toBe(true)
     expect(testResult.tap).toBe(`TAP version 13
 1..2
@@ -62,7 +60,7 @@ ok 2 sub # skip
   })
 
   test(`1 fail.`, () => {
-    const testResult = lits.runTest({ testPath: path.join(__dirname, `one-success.test.lits`) })
+    const testResult = runTest({ testPath: path.join(__dirname, `one-success.test.lits`) })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
 1..2
@@ -80,7 +78,7 @@ not ok 2 sub
   })
 
   test(`1 fail, 1 not matching pattern`, () => {
-    const testResult = lits.runTest({ testPath: path.join(__dirname, `failure-test.lits`), testNamePattern: /ad/ })
+    const testResult = runTest({ testPath: path.join(__dirname, `failure-test.lits`), testNamePattern: /ad/ })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
 1..2
@@ -98,7 +96,7 @@ ok 2 sub # skip - Not matching testNamePattern /ad/
   })
 
   test(`2 fail`, () => {
-    const testResult = lits.runTest({ testPath: path.join(__dirname, `failure-test.lits`) })
+    const testResult = runTest({ testPath: path.join(__dirname, `failure-test.lits`) })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
 1..2
@@ -124,7 +122,7 @@ not ok 2 sub
   })
 
   test(`Broken include`, () => {
-    const testResult = lits.runTest({
+    const testResult = runTest({
       testPath: path.join(__dirname, `broken-include.test.lits`),
     })
     expect(testResult.success).toBe(false)
@@ -144,7 +142,7 @@ ok 2 sub
   })
 
   test(`deep equals fails`, () => {
-    const testResult = lits.runTest({ testPath: path.join(__dirname, `object-diff.test.lits`) })
+    const testResult = runTest({ testPath: path.join(__dirname, `object-diff.test.lits`) })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
 1..1

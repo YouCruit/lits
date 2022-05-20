@@ -16,6 +16,7 @@ const plugins = [
 export default [
   {
     input,
+    external: ['fs', 'path'],
     output: [
       {
         file: pkg.module,

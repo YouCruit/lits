@@ -53,8 +53,8 @@ describe(`context`, () => {
   test(`a variable - again.`, () => {
     const contexts = [
       lits.context(`
-    (defn zip? [string] (boolean (match (regexp '^\\d{5}$') string)))
-    (defn isoDateString? [string] (boolean (match (regexp '^\\d{4}-\\d{2}-\\d{2}$') string)))
+    (defn zip? [string] (boolean (match (regexp "^\\d{5}$") string)))
+    (defn isoDateString? [string] (boolean (match (regexp "^\\d{4}-\\d{2}-\\d{2}$") string)))
     (def NAME_LENGTH 100)
     `),
     ]
@@ -179,33 +179,33 @@ describe(`regressions`, () => {
   test(`debug info when executing function with error in`, () => {
     const program = `(defn formatPhoneNumber [$data]
   (if (string? $data)
-    (let [phoneNumber (if (= '+' (nth $data 0)) (subs $data 2) $data)]
+    (let [phoneNumber (if (= "+" (nth $data 0)) (subs $data 2) $data)]
       (cond
         (> (count phoneNumber) 6)
           (astr
-            '('
+            "("
             (subs phoneNumber 0 3)
 
-            ') '
+            ") "
             (subs phoneNumber 3 6)
-            '-'
+            "-"
             (subs phoneNumber 6))
 
         (> (count phoneNumber) 3)
-          (str '(' (subs phoneNumber 0 3) ') ' (subs phoneNumber 3))
+          (str "(" (subs phoneNumber 0 3) ") " (subs phoneNumber 3))
 
         (> (count phoneNumber) 0)
-          (str '(' (subs phoneNumber 0))
+          (str "(" (subs phoneNumber 0))
 
         true
           phoneNumber
       )
     )
-    ''
+    ""
   )
 )
 
-(formatPhoneNumber '+1234232123')`
+(formatPhoneNumber "+1234232123")`
     try {
       lits.run(program)
       fail()

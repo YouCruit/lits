@@ -7,6 +7,7 @@ const path = require(`path`)
 const fs = require(`fs`)
 const homeDir = require(`os`).homedir()
 const { Lits, normalExpressionKeys, specialExpressionKeys, reservedNames, isLitsFunction } = require(`../dist/index`)
+const { runTest } = require(`../dist/testFramework`)
 
 const historyResults = []
 const lits = new Lits({ debug: true })
@@ -37,25 +38,19 @@ if (config.expression) {
   execute(content)
   process.exit(0)
 } else if (config.testFilename) {
-  runTest(config.testFilename, config.testNamePattern)
+  runLitsTest(config.testFilename, config.testNamePattern)
   process.exit(0)
 } else {
   runREPL()
 }
 
-function runTest(testFile, testNamePattern) {
-  if (!testFile.match(/\.test\.lits/)) {
+function runLitsTest(testPath, testNamePattern) {
+  if (!testPath.match(/\.test\.lits/)) {
     console.error(`Test file must end with .test.lits`)
     process.exit(1)
   }
-  const litsFile = testFile.replace(`.test.lits`, `.lits`)
-  const program = fs.readFileSync(litsFile, { encoding: `utf-8` })
-  const test = fs.readFileSync(testFile, { encoding: `utf-8` })
-  const { success, tap } = lits.runTest({
-    test,
-    program,
-    testParams: { filename: testFile, globalContext: config.globalContext },
-    programParams: { filename: litsFile },
+  const { success, tap } = runTest({
+    testPath,
     testNamePattern: testNamePattern && new RegExp(testNamePattern),
   })
 

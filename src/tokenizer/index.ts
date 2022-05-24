@@ -1,4 +1,5 @@
 import { LitsError } from '../errors'
+import { LocationGetter } from '../Lits/Lits'
 import { Token, Tokenizer, DebugInfo, TokenizeParams } from './interface'
 import { SourceCodeInfoImpl } from './SourceCodeInfoImpl'
 import {
@@ -44,12 +45,12 @@ function getSourceCodeLine(input: string, lineNbr: number): string {
   return input.split(/\r\n|\r|\n/)[lineNbr] as string
 }
 
-function createDebugInfo(input: string, position: number, filename?: string): DebugInfo {
+function createDebugInfo(input: string, position: number, getLocation?: LocationGetter): DebugInfo {
   const lines = input.substr(0, position + 1).split(/\r\n|\r|\n/)
   const lastLine = lines[lines.length - 1] as string
 
   const sourceCodeLine = getSourceCodeLine(input, lines.length - 1)
-  return new SourceCodeInfoImpl(lines.length, lastLine.length, sourceCodeLine, filename)
+  return new SourceCodeInfoImpl(lines.length, lastLine.length, sourceCodeLine, getLocation)
 }
 
 export function tokenize(input: string, params: TokenizeParams): Token[] {
@@ -60,7 +61,7 @@ export function tokenize(input: string, params: TokenizeParams): Token[] {
     tokenized = false
 
     // Loop through all tokenizer until one matches
-    const debugInfo: DebugInfo = params.debug ? createDebugInfo(input, position, params.filename) : null
+    const debugInfo: DebugInfo = params.debug ? createDebugInfo(input, position, params.getLocation) : null
     for (const tokenize of tokenizers) {
       const [nbrOfCharacters, token] = tokenize(input, position, debugInfo)
 

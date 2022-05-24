@@ -113,7 +113,7 @@ module.exports = {
       },
     ],
     description: `Computes logical negation. Note that any other \`value\` than \`false\`, \`0\`, \`nil\` and \`''\` is considered as \`true\`.`,
-    examples: [`(not 3)`, `(not true)`, `(not 'A string')`, `(not 0)`, `(not false)`, `(not nil)`, `(not '')`],
+    examples: [`(not 3)`, `(not true)`, `(not "A string")`, `(not 0)`, `(not false)`, `(not nil)`, `(not "")`],
   },
   'write!': {
     name: `write!`,
@@ -131,11 +131,11 @@ module.exports = {
     ],
     description: `It console.log the \`values\` and then returns the last element of the \`values\` array. If called with no arguments \`nil\` is returned.`,
     examples: [
-      `(write! 'A string')`,
-      `(write! 100 'items')`,
+      `(write! "A string")`,
+      `(write! 100 "items")`,
       `(write! (object :a 10))`,
       `(write! [:a :b :c])`,
-      `(write! #'^start')`,
+      `(write! #"^start")`,
       `(write! nil true false)`,
     ],
   },
@@ -165,7 +165,7 @@ module.exports = {
       },
     ],
     description: `Returns milliseconds elapsed since the UNIX epoch to \`date-time\`.`,
-    examples: [`(iso-date-time-to-inst-ms '2022-04-12T09:37:10.899Z') (iso-date-time-to-inst-ms '1980-01-01')`],
+    examples: [`(iso-date-time-to-inst-ms "2022-04-12T09:37:10.899Z") (iso-date-time-to-inst-ms "1980-01-01")`],
   },
   'inst-ms-to-iso-date-time': {
     name: `inst-ms-to-iso-date-time`,
@@ -214,7 +214,7 @@ module.exports = {
       },
     ],
     description: `Coerces \`value\` to boolean.`,
-    examples: [`(boolean 0)`, `(boolean 1)`, `(boolean nil)`, `(boolean 'Albert')`],
+    examples: [`(boolean 0)`, `(boolean 1)`, `(boolean nil)`, `(boolean "Albert")`],
   },
   compare: {
     name: `compare`,
@@ -236,7 +236,7 @@ module.exports = {
     description: `Compares two values. Returns -1 if a < b, 1 if a > b and 0 if a and b have the same sort order.`,
     examples: [
       `(compare 0 1)`,
-      `(compare 'Albert' 'Mojir')`,
+      `(compare "Albert" "Mojir")`,
       `(compare 1 :1)`,
       `(compare [1 2 3] [2 3])`,
       `(compare [1 2 3] [2 3 4])`,

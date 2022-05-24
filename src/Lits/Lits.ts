@@ -4,17 +4,18 @@ import { Context, ContextStack } from '../evaluator/interface'
 import { Any, Obj } from '../interface'
 import { parse } from '../parser'
 import { Ast } from '../parser/interface'
-import { runTest, RunTestParams, TestResult } from '../testFramework'
 import { tokenize } from '../tokenizer'
 import { Token } from '../tokenizer/interface'
 import { createContextFromValues } from '../utils'
 import { Cache } from './Cache'
 
+export type LocationGetter = (line: number, col: number) => string
+
 export type LitsParams = {
   contexts?: Context[]
   globals?: Obj
   globalContext?: Context
-  filename?: string
+  getLocation?: LocationGetter
 }
 
 type LitsConfig = {
@@ -36,24 +37,20 @@ export class Lits {
   }
 
   public run(program: string, params: LitsParams = {}): unknown {
-    const ast = this.generateAst(program, params.filename)
+    const ast = this.generateAst(program, params.getLocation)
     const result = this.evaluate(ast, params)
     return result
   }
 
-  public runTest(params: RunTestParams): TestResult {
-    return runTest(params, () => new Lits({ debug: true }))
-  }
-
   public context(program: string, params: LitsParams = {}): Context {
     const contextStack = createContextStackFromParams(params)
-    const ast = this.generateAst(program, params.filename)
+    const ast = this.generateAst(program, params.getLocation)
     evaluate(ast, contextStack)
     return contextStack.globalContext
   }
 
-  public tokenize(program: string, filename?: string): Token[] {
-    return tokenize(program, { debug: this.debug, filename })
+  public tokenize(program: string, getLocation?: LocationGetter): Token[] {
+    return tokenize(program, { debug: this.debug, getLocation })
   }
 
   public parse(tokens: Token[]): Ast {
@@ -73,7 +70,7 @@ export class Lits {
       })
       .join(` `)
     const program = `(${fnName} ${paramsString})`
-    const ast = this.generateAst(program, params.filename)
+    const ast = this.generateAst(program, params.getLocation)
 
     const globals: Obj = fnParams.reduce(
       (result: Obj, param, index) => {
@@ -88,14 +85,14 @@ export class Lits {
     return this.evaluate(ast, params)
   }
 
-  private generateAst(program: string, filename: string | undefined): Ast {
+  private generateAst(program: string, getLocation: LocationGetter | undefined): Ast {
     if (this.astCache) {
       const cachedAst = this.astCache.get(program)
       if (cachedAst) {
         return cachedAst
       }
     }
-    const tokens: Token[] = this.tokenize(program, filename)
+    const tokens: Token[] = this.tokenize(program, getLocation)
     const ast: Ast = this.parse(tokens)
     this.astCache?.set(program, ast)
     return ast

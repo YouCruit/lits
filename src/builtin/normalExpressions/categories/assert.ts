@@ -1,8 +1,8 @@
-import { AssertionError } from '../../../errors'
+import { AssertionError, LitsError } from '../../../errors'
 import { Any } from '../../../interface'
 import { compare, deepEqual } from '../../../utils'
 import { BuiltinNormalExpressions } from '../../interface'
-import { any, assertNumberOfParams, string } from '../../../utils/assertion'
+import { any, assertNumberOfParams, litsFunction, string } from '../../../utils/assertion'
 
 export const assertNormalExpression: BuiltinNormalExpressions = {
   assert: {
@@ -118,6 +118,83 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       if (first !== false) {
         throw new AssertionError(`Expected ${first} to be false.${message}`, debugInfo)
+      }
+      return null
+    },
+    validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+  },
+  assertTruthy: {
+    evaluate: ([first, message], debugInfo): null => {
+      message = typeof message === `string` && message ? ` "${message}"` : ``
+      if (!first) {
+        throw new AssertionError(`Expected ${first} to be truthy.${message}`, debugInfo)
+      }
+      return null
+    },
+    validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+  },
+  assertFalsy: {
+    evaluate: ([first, message], debugInfo): null => {
+      message = typeof message === `string` && message ? ` "${message}"` : ``
+      if (first) {
+        throw new AssertionError(`Expected ${first} to be falsy.${message}`, debugInfo)
+      }
+      return null
+    },
+    validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+  },
+  assertNil: {
+    evaluate: ([first, message], debugInfo): null => {
+      message = typeof message === `string` && message ? ` "${message}"` : ``
+      if (first !== null) {
+        throw new AssertionError(`Expected ${first} to be nil.${message}`, debugInfo)
+      }
+      return null
+    },
+    validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+  },
+  assertThrows: {
+    evaluate: ([func, message], debugInfo, contextStack, { executeFunction }): null => {
+      message = typeof message === `string` && message ? ` "${message}"` : ``
+      litsFunction.assert(func, debugInfo)
+      try {
+        executeFunction(func, [], debugInfo, contextStack)
+      } catch {
+        return null
+      }
+      throw new AssertionError(`Expected function to throw.${message}`, debugInfo)
+    },
+    validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+  },
+  assertThrowsError: {
+    evaluate: ([func, throwMessage, message], debugInfo, contextStack, { executeFunction }): null => {
+      message = typeof message === `string` && message ? ` "${message}"` : ``
+      string.assert(throwMessage, debugInfo)
+      litsFunction.assert(func, debugInfo)
+      try {
+        executeFunction(func, [], debugInfo, contextStack)
+      } catch (error) {
+        const errorMessage = (error as LitsError).shortMessage
+        if (errorMessage !== throwMessage) {
+          throw new AssertionError(
+            `Expected function to throw "${throwMessage}", but thrown "${errorMessage}".${message}`,
+            debugInfo,
+          )
+        }
+        return null
+      }
+      throw new AssertionError(`Expected function to throw "${throwMessage}".${message}`, debugInfo)
+    },
+    validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+  },
+  assertNotThrows: {
+    evaluate: ([func, message], debugInfo, contextStack, { executeFunction }): null => {
+      message = typeof message === `string` && message ? ` "${message}"` : ``
+      litsFunction.assert(func, debugInfo)
+      try {
+        executeFunction(func, [], debugInfo, contextStack)
+      } catch {
+        throw new AssertionError(`Expected function not to throw.${message}`, debugInfo)
       }
       return null
     },

@@ -50,10 +50,10 @@ module.exports = {
       `(try (assert= 1 1) (catch e e))`,
     ],
   },
-  'assertNot=': {
-    name: `assertNot=`,
+  'assert-not=': {
+    name: `assert-not=`,
     category: `Assert`,
-    linkName: `assertNot_equal`,
+    linkName: `assert-not_equal`,
     clojureDocs: null,
     returns: {
       type: `nil`,
@@ -75,15 +75,15 @@ module.exports = {
     ],
     description: `If \`first\` is the same as \`second\` it throws AssertionError.`,
     examples: [
-      `(try (assertNot= 0 0 "Expected different values") (catch e e))`,
-      `(try (assertNot= 0 0) (catch e e))`,
-      `(try (assertNot= 0 1) (catch e e))`,
+      `(try (assert-not= 0 0 "Expected different values") (catch e e))`,
+      `(try (assert-not= 0 0) (catch e e))`,
+      `(try (assert-not= 0 1) (catch e e))`,
     ],
   },
-  assertEqual: {
-    name: `assertEqual`,
+  'assert-equal': {
+    name: `assert-equal`,
     category: `Assert`,
-    linkName: `assertEqual`,
+    linkName: `assert-equal`,
     clojureDocs: null,
     returns: {
       type: `nil`,
@@ -105,15 +105,15 @@ module.exports = {
     ],
     description: `If \`first\` is not deep equal to \`second\` it throws AssertionError.`,
     examples: [
-      `(try (assertEqual { :a 1 } { :a 2 } "Expected equal values") (catch e e))`,
-      `(try (assertEqual { :a 1 } { :a 2 }) (catch e e))`,
-      `(try (assertEqual { :a 1 } { :a 1 }) (catch e e))`,
+      `(try (assert-equal { :a 1 } { :a 2 } "Expected equal values") (catch e e))`,
+      `(try (assert-equal { :a 1 } { :a 2 }) (catch e e))`,
+      `(try (assert-equal { :a 1 } { :a 1 }) (catch e e))`,
     ],
   },
-  assertNotEqual: {
-    name: `assertNotEqual`,
+  'assert-not-equal': {
+    name: `assert-not-equal`,
     category: `Assert`,
-    linkName: `assertNotEqual`,
+    linkName: `assert-not-equal`,
     clojureDocs: null,
     returns: {
       type: `nil`,
@@ -135,9 +135,9 @@ module.exports = {
     ],
     description: `If \`first\` is not deep equal to \`second\` it throws AssertionError.`,
     examples: [
-      `(try (assertNotEqual { :a 2 } { :a 2 } "Expected different values") (catch e e))`,
-      `(try (assertNotEqual { :a 2 } { :a 2 }) (catch e e))`,
-      `(try (assertNotEqual { :a 1 } { :a 2 }) (catch e e))`,
+      `(try (assert-not-equal { :a 2 } { :a 2 } "Expected different values") (catch e e))`,
+      `(try (assert-not-equal { :a 2 } { :a 2 }) (catch e e))`,
+      `(try (assert-not-equal { :a 1 } { :a 2 }) (catch e e))`,
     ],
   },
   'assert>': {
@@ -260,10 +260,10 @@ module.exports = {
       `(try (assert<= 1 1) (catch e e))`,
     ],
   },
-  assertTrue: {
-    name: `assertTrue`,
+  'assert-true': {
+    name: `assert-true`,
     category: `Assert`,
-    linkName: `assertTrue`,
+    linkName: `assert-true`,
     clojureDocs: null,
     returns: {
       type: `nil`,
@@ -281,15 +281,15 @@ module.exports = {
     ],
     description: `If \`first\` is not \`true\` it throws AssertionError.`,
     examples: [
-      `(try (assertTrue false "Expected true") (catch e e))`,
-      `(try (assertTrue false) (catch e e))`,
-      `(try (assertTrue true) (catch e e))`,
+      `(try (assert-true false "Expected true") (catch e e))`,
+      `(try (assert-true false) (catch e e))`,
+      `(try (assert-true true) (catch e e))`,
     ],
   },
-  assertFalse: {
-    name: `assertFalse`,
+  'assert-false': {
+    name: `assert-false`,
     category: `Assert`,
-    linkName: `assertFalse`,
+    linkName: `assert-false`,
     clojureDocs: null,
     returns: {
       type: `nil`,
@@ -307,15 +307,15 @@ module.exports = {
     ],
     description: `If \`first\` is not \`false\` it throws AssertionError.`,
     examples: [
-      `(try (assertFalse true "Expected false") (catch e e))`,
-      `(try (assertFalse true) (catch e e))`,
-      `(try (assertFalse false) (catch e e))`,
+      `(try (assert-false true "Expected false") (catch e e))`,
+      `(try (assert-false true) (catch e e))`,
+      `(try (assert-false false) (catch e e))`,
     ],
   },
-  assertTruthy: {
-    name: `assertTruthy`,
+  'assert-truthy': {
+    name: `assert-truthy`,
     category: `Assert`,
-    linkName: `assertTruthy`,
+    linkName: `assert-truthy`,
     clojureDocs: null,
     returns: {
       type: `nil`,
@@ -333,22 +333,22 @@ module.exports = {
     ],
     description: `If \`first\` is not \`truthy\` it throws AssertionError.`,
     examples: [
-      `(try (assertTruthy false "Expected truthy") (catch e e))`,
-      `(try (assertTruthy false) (catch e e))`,
-      `(try (assertTruthy 0) (catch e e))`,
-      `(try (assertTruthy nil) (catch e e))`,
-      `(try (assertTruthy "") (catch e e))`,
-      `(assertTruthy true)`,
-      `(assertTruthy 1)`,
-      `(assertTruthy :x)`,
-      `(assertTruthy [])`,
-      `(assertTruthy {})`,
+      `(try (assert-truthy false "Expected truthy") (catch e e))`,
+      `(try (assert-truthy false) (catch e e))`,
+      `(try (assert-truthy 0) (catch e e))`,
+      `(try (assert-truthy nil) (catch e e))`,
+      `(try (assert-truthy "") (catch e e))`,
+      `(assert-truthy true)`,
+      `(assert-truthy 1)`,
+      `(assert-truthy :x)`,
+      `(assert-truthy [])`,
+      `(assert-truthy {})`,
     ],
   },
-  assertFalsy: {
-    name: `assertFalsy`,
+  'assert-falsy': {
+    name: `assert-falsy`,
     category: `Assert`,
-    linkName: `assertFalsy`,
+    linkName: `assert-falsy`,
     clojureDocs: null,
     returns: {
       type: `nil`,
@@ -366,21 +366,21 @@ module.exports = {
     ],
     description: `If \`first\` is not \`falsy\` it throws AssertionError.`,
     examples: [
-      `(try (assertFalsy true "Expected falsy") (catch e e))`,
-      `(try (assertFalsy :x) (catch e e))`,
-      `(try (assertFalsy []) (catch e e))`,
-      `(try (assertFalsy {}) (catch e e))`,
-      `(try (assertFalsy 1) (catch e e))`,
-      `(assertFalsy false)`,
-      `(assertFalsy 0)`,
-      `(assertFalsy nil)`,
-      `(assertFalsy "")`,
+      `(try (assert-falsy true "Expected falsy") (catch e e))`,
+      `(try (assert-falsy :x) (catch e e))`,
+      `(try (assert-falsy []) (catch e e))`,
+      `(try (assert-falsy {}) (catch e e))`,
+      `(try (assert-falsy 1) (catch e e))`,
+      `(assert-falsy false)`,
+      `(assert-falsy 0)`,
+      `(assert-falsy nil)`,
+      `(assert-falsy "")`,
     ],
   },
-  assertNil: {
-    name: `assertNil`,
+  'assert-nil': {
+    name: `assert-nil`,
     category: `Assert`,
-    linkName: `assertNil`,
+    linkName: `assert-nil`,
     clojureDocs: null,
     returns: {
       type: `nil`,
@@ -398,21 +398,21 @@ module.exports = {
     ],
     description: `If \`first\` is not \`nil\` it throws AssertionError.`,
     examples: [
-      `(assertNil nil)`,
-      `(try (assertNil true "Expected nil") (catch e e))`,
-      `(try (assertNil :x) (catch e e))`,
-      `(try (assertNil []) (catch e e))`,
-      `(try (assertNil {}) (catch e e))`,
-      `(try (assertNil 1) (catch e e))`,
-      `(try (assertNil false) (catch e e))`,
-      `(try (assertNil 0) (catch e e))`,
-      `(try (assertNil "") (catch e e))`,
+      `(assert-nil nil)`,
+      `(try (assert-nil true "Expected nil") (catch e e))`,
+      `(try (assert-nil :x) (catch e e))`,
+      `(try (assert-nil []) (catch e e))`,
+      `(try (assert-nil {}) (catch e e))`,
+      `(try (assert-nil 1) (catch e e))`,
+      `(try (assert-nil false) (catch e e))`,
+      `(try (assert-nil 0) (catch e e))`,
+      `(try (assert-nil "") (catch e e))`,
     ],
   },
-  assertThrows: {
-    name: `assertThrows`,
+  'assert-throws': {
+    name: `assert-throws`,
     category: `Assert`,
-    linkName: `assertThrows`,
+    linkName: `assert-throws`,
     clojureDocs: null,
     returns: {
       type: `nil`,
@@ -429,12 +429,12 @@ module.exports = {
       },
     ],
     description: `If \`func\` does not throw, it throws AssertionError.`,
-    examples: [`(assertThrows #(throw "Error"))`, `(try (assertThrows #(identity "Error")) (catch e e))`],
+    examples: [`(assert-throws #(throw "Error"))`, `(try (assert-throws #(identity "Error")) (catch e e))`],
   },
-  assertThrowsError: {
-    name: `assertThrowsError`,
+  'assert-throws-error': {
+    name: `assert-throws-error`,
     category: `Assert`,
-    linkName: `assertThrowsError`,
+    linkName: `assert-throws-error`,
     clojureDocs: null,
     returns: {
       type: `nil`,
@@ -456,15 +456,15 @@ module.exports = {
     ],
     description: `If \`func\` does not throw \`expectedMessage\`, it throws AssertionError.`,
     examples: [
-      `(assertThrowsError #(throw "Error") "Error")`,
-      `(try (assertThrows #(throw "Not Error")) (catch e e))`,
-      `(try (assertThrows #(identity "Error")) (catch e e))`,
+      `(assert-throws-error #(throw "Error") "Error")`,
+      `(try (assert-throws #(throw "Not Error")) (catch e e))`,
+      `(try (assert-throws #(identity "Error")) (catch e e))`,
     ],
   },
-  assertNotThrows: {
-    name: `assertNotThrows`,
+  'assert-not-throws': {
+    name: `assert-not-throws`,
     category: `Assert`,
-    linkName: `assertNotThrows`,
+    linkName: `assert-not-throws`,
     clojureDocs: null,
     returns: {
       type: `nil`,
@@ -481,6 +481,6 @@ module.exports = {
       },
     ],
     description: `If \`func\` throws, it throws AssertionError.`,
-    examples: [`(assertNotThrows #(identity "Error"))`, `(try (assertNotThrows #(throw "Error")) (catch e e))`],
+    examples: [`(assert-not-throws #(identity "Error"))`, `(try (assert-not-throws #(throw "Error")) (catch e e))`],
   },
 }

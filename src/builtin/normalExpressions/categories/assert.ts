@@ -27,7 +27,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
   },
-  'assertNot=': {
+  'assert-not=': {
     evaluate: ([first, second, message], debugInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       if (first === second) {
@@ -37,7 +37,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
   },
-  assertEqual: {
+  'assert-equal': {
     evaluate: ([first, second, message], debugInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       if (!deepEqual(any.as(first, debugInfo), any.as(second, debugInfo), debugInfo)) {
@@ -50,7 +50,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
   },
-  assertNotEqual: {
+  'assert-not-equal': {
     evaluate: ([first, second, message], debugInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       if (deepEqual(any.as(first, debugInfo), any.as(second, debugInfo), debugInfo)) {
@@ -103,7 +103,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
   },
-  assertTrue: {
+  'assert-true': {
     evaluate: ([first, message], debugInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       if (first !== true) {
@@ -113,7 +113,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   },
-  assertFalse: {
+  'assert-false': {
     evaluate: ([first, message], debugInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       if (first !== false) {
@@ -123,7 +123,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   },
-  assertTruthy: {
+  'assert-truthy': {
     evaluate: ([first, message], debugInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       if (!first) {
@@ -133,7 +133,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   },
-  assertFalsy: {
+  'assert-falsy': {
     evaluate: ([first, message], debugInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       if (first) {
@@ -143,7 +143,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   },
-  assertNil: {
+  'assert-nil': {
     evaluate: ([first, message], debugInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       if (first !== null) {
@@ -153,7 +153,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   },
-  assertThrows: {
+  'assert-throws': {
     evaluate: ([func, message], debugInfo, contextStack, { executeFunction }): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       litsFunction.assert(func, debugInfo)
@@ -166,7 +166,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   },
-  assertThrowsError: {
+  'assert-throws-error': {
     evaluate: ([func, throwMessage, message], debugInfo, contextStack, { executeFunction }): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       string.assert(throwMessage, debugInfo)
@@ -187,7 +187,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
   },
-  assertNotThrows: {
+  'assert-not-throws': {
     evaluate: ([func, message], debugInfo, contextStack, { executeFunction }): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       litsFunction.assert(func, debugInfo)

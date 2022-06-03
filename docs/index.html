@@ -16,7 +16,7 @@
   <div class="row">
     <div class="column"></div>
     <div class="column header">Lits</div>
-    <div class="column right version"><span>v1.0.26</span></div>
+    <div class="column right version"><span>v1.0.27-alpha.0</span></div>
   </div>
 </header>
     <main id="main-panel" class="fancy-scroll">
@@ -1673,8 +1673,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [1,2,3,4,8,9] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> "Alrt" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [1,4,6,9] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> "rt" </span> </span></pre>
   </div>
 </div>
 
@@ -1697,8 +1697,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 5 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-nth! ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rand-nth! "Albert") <span class="gray">=> "l" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 10 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-nth! ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rand-nth! "Albert") <span class="gray">=> "A" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-nth! [])')"> <span class="icon-button">▶</span> (rand-nth! []) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -1722,8 +1722,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [9,8,4,2,7,10,1,6,3,5] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> "ietr ojrAbMl" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [7,10,1,6,9,5,4,2,8,3] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> "orlr biAtMej" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2])')"> <span class="icon-button">▶</span> (shuffle! [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1])')"> <span class="icon-button">▶</span> (shuffle! [1]) <span class="gray">=> [1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [])')"> <span class="icon-button">▶</span> (shuffle! []) <span class="gray">=> [] </span> </span></pre>
@@ -2882,9 +2882,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.7110878459895567 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.0045227734651805745 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 0.6184467610273681 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.6197567678660261 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.0037968084641523637 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 0.7749234707488389 </span> </span></pre>
   </div>
 </div>
 
@@ -2909,7 +2909,7 @@
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(rand-int! 1)')"> <span class="icon-button">▶</span> (rand-int! 1) <span class="gray">=> 0 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 8 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 60 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 18 </span> </span></pre>
   </div>
 </div>
 
@@ -3713,7 +3713,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1654065905918 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1654080583027 </span> </span></pre>
   </div>
 </div>
 
@@ -3863,7 +3863,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.26" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.27-alpha.0" </span> </span></pre>
   </div>
 </div>
 
@@ -3886,7 +3886,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "560e9a96-c0aa-4e17-a41a-8068dccc8e8d" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "da2084cf-a65f-466a-8e4c-01eccabc1fb4" </span> </span></pre>
   </div>
 </div>
 
@@ -6283,7 +6283,7 @@
 <div id="assertNot_equal" class="content function">
 
   <div class="function-header row">
-    <div class="column">assertNot=</div>
+    <div class="column">assert-not=</div>
     
   </div>
 
@@ -6291,7 +6291,7 @@
   <p>If <span class="pre">first</span> is the same as <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assertNot= first second message(optional) => nil</pre>
+    <pre>assert-not= first second message(optional) => nil</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>first: any</pre>
@@ -6300,21 +6300,21 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assertNot= 0 0 ___double_quote___Expected different values___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNot= 0 0 "Expected different values") (catch e e)) <span class="gray">=> AssertionError: Expected 0 not to be 0. "Expected different values"
-(try (assertNot= 0 0 "Expected different values") (catch e e))
-      ^                                                        </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNot= 0 0) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNot= 0 0) (catch e e)) <span class="gray">=> AssertionError: Expected 0 not to be 0.
-(try (assertNot= 0 0) (catch e e))
-      ^                            </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNot= 0 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNot= 0 1) (catch e e)) <span class="gray">=> null </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(try (assert-not= 0 0 ___double_quote___Expected different values___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-not= 0 0 "Expected different values") (catch e e)) <span class="gray">=> AssertionError: Expected 0 not to be 0. "Expected different values"
+(try (assert-not= 0 0 "Expected different values") (catch e e))
+      ^                                                         </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-not= 0 0) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-not= 0 0) (catch e e)) <span class="gray">=> AssertionError: Expected 0 not to be 0.
+(try (assert-not= 0 0) (catch e e))
+      ^                             </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-not= 0 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-not= 0 1) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
-<div id="assertEqual" class="content function">
+<div id="assert-equal" class="content function">
 
   <div class="function-header row">
-    <div class="column">assertEqual</div>
+    <div class="column">assert-equal</div>
     
   </div>
 
@@ -6322,7 +6322,7 @@
   <p>If <span class="pre">first</span> is not deep equal to <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assertEqual first second message(optional) => nil</pre>
+    <pre>assert-equal first second message(optional) => nil</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>first: any</pre>
@@ -6331,7 +6331,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 2 } ___double_quote___Expected equal values___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 2 } "Expected equal values") (catch e e)) <span class="gray">=> AssertionError: Expected
+    <pre><span class="example" onclick="addToPlayground('(try (assert-equal { :a 1 } { :a 2 } ___double_quote___Expected equal values___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-equal { :a 1 } { :a 2 } "Expected equal values") (catch e e)) <span class="gray">=> AssertionError: Expected
 {
   "a": 1
 }
@@ -6339,9 +6339,9 @@ to deep equal
 {
   "a": 2
 }. "Expected equal values"
-(try (assertEqual { :a 1 } { :a 2 } "Expected equal values") (catch e e))
-      ^                                                                   </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 2 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 2 }) (catch e e)) <span class="gray">=> AssertionError: Expected
+(try (assert-equal { :a 1 } { :a 2 } "Expected equal values") (catch e e))
+      ^                                                                    </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-equal { :a 1 } { :a 2 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-equal { :a 1 } { :a 2 }) (catch e e)) <span class="gray">=> AssertionError: Expected
 {
   "a": 1
 }
@@ -6349,17 +6349,17 @@ to deep equal
 {
   "a": 2
 }.
-(try (assertEqual { :a 1 } { :a 2 }) (catch e e))
-      ^                                           </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertEqual { :a 1 } { :a 1 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assertEqual { :a 1 } { :a 1 }) (catch e e)) <span class="gray">=> null </span> </span></pre>
+(try (assert-equal { :a 1 } { :a 2 }) (catch e e))
+      ^                                            </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-equal { :a 1 } { :a 1 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-equal { :a 1 } { :a 1 }) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
-<div id="assertNotEqual" class="content function">
+<div id="assert-not-equal" class="content function">
 
   <div class="function-header row">
-    <div class="column">assertNotEqual</div>
+    <div class="column">assert-not-equal</div>
     
   </div>
 
@@ -6367,7 +6367,7 @@ to deep equal
   <p>If <span class="pre">first</span> is not deep equal to <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assertNotEqual first second message(optional) => nil</pre>
+    <pre>assert-not-equal first second message(optional) => nil</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>first: any</pre>
@@ -6376,13 +6376,13 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assertNotEqual { :a 2 } { :a 2 } ___double_quote___Expected different values___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNotEqual { :a 2 } { :a 2 } "Expected different values") (catch e e)) <span class="gray">=> AssertionError: Expected {"a":2} not to deep equal {"a":2}. "Expected different values"
-(try (assertNotEqual { :a 2 } { :a 2 } "Expected different values") (catch e e))
-      ^                                                                          </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNotEqual { :a 2 } { :a 2 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNotEqual { :a 2 } { :a 2 }) (catch e e)) <span class="gray">=> AssertionError: Expected {"a":2} not to deep equal {"a":2}.
-(try (assertNotEqual { :a 2 } { :a 2 }) (catch e e))
-      ^                                              </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNotEqual { :a 1 } { :a 2 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNotEqual { :a 1 } { :a 2 }) (catch e e)) <span class="gray">=> null </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(try (assert-not-equal { :a 2 } { :a 2 } ___double_quote___Expected different values___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-not-equal { :a 2 } { :a 2 } "Expected different values") (catch e e)) <span class="gray">=> AssertionError: Expected {"a":2} not to deep equal {"a":2}. "Expected different values"
+(try (assert-not-equal { :a 2 } { :a 2 } "Expected different values") (catch e e))
+      ^                                                                            </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-not-equal { :a 2 } { :a 2 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-not-equal { :a 2 } { :a 2 }) (catch e e)) <span class="gray">=> AssertionError: Expected {"a":2} not to deep equal {"a":2}.
+(try (assert-not-equal { :a 2 } { :a 2 }) (catch e e))
+      ^                                                </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-not-equal { :a 1 } { :a 2 }) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-not-equal { :a 1 } { :a 2 }) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
@@ -6511,10 +6511,10 @@ to deep equal
 </div>
 
 
-<div id="assertTrue" class="content function">
+<div id="assert-true" class="content function">
 
   <div class="function-header row">
-    <div class="column">assertTrue</div>
+    <div class="column">assert-true</div>
     
   </div>
 
@@ -6522,7 +6522,7 @@ to deep equal
   <p>If <span class="pre">first</span> is not <span class="pre">true</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assertTrue first message(optional) => nil</pre>
+    <pre>assert-true first message(optional) => nil</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>first: any</pre>
@@ -6530,21 +6530,21 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assertTrue false ___double_quote___Expected true___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertTrue false "Expected true") (catch e e)) <span class="gray">=> AssertionError: Expected false to be true. "Expected true"
-(try (assertTrue false "Expected true") (catch e e))
-      ^                                              </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertTrue false) (catch e e))')"> <span class="icon-button">▶</span> (try (assertTrue false) (catch e e)) <span class="gray">=> AssertionError: Expected false to be true.
-(try (assertTrue false) (catch e e))
-      ^                              </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertTrue true) (catch e e))')"> <span class="icon-button">▶</span> (try (assertTrue true) (catch e e)) <span class="gray">=> null </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(try (assert-true false ___double_quote___Expected true___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-true false "Expected true") (catch e e)) <span class="gray">=> AssertionError: Expected false to be true. "Expected true"
+(try (assert-true false "Expected true") (catch e e))
+      ^                                               </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-true false) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-true false) (catch e e)) <span class="gray">=> AssertionError: Expected false to be true.
+(try (assert-true false) (catch e e))
+      ^                               </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-true true) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-true true) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
-<div id="assertFalse" class="content function">
+<div id="assert-false" class="content function">
 
   <div class="function-header row">
-    <div class="column">assertFalse</div>
+    <div class="column">assert-false</div>
     
   </div>
 
@@ -6552,7 +6552,7 @@ to deep equal
   <p>If <span class="pre">first</span> is not <span class="pre">false</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assertFalse first message(optional) => nil</pre>
+    <pre>assert-false first message(optional) => nil</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>first: any</pre>
@@ -6560,21 +6560,21 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assertFalse true ___double_quote___Expected false___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertFalse true "Expected false") (catch e e)) <span class="gray">=> AssertionError: Expected true to be false. "Expected false"
-(try (assertFalse true "Expected false") (catch e e))
-      ^                                               </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertFalse true) (catch e e))')"> <span class="icon-button">▶</span> (try (assertFalse true) (catch e e)) <span class="gray">=> AssertionError: Expected true to be false.
-(try (assertFalse true) (catch e e))
-      ^                              </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertFalse false) (catch e e))')"> <span class="icon-button">▶</span> (try (assertFalse false) (catch e e)) <span class="gray">=> null </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(try (assert-false true ___double_quote___Expected false___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-false true "Expected false") (catch e e)) <span class="gray">=> AssertionError: Expected true to be false. "Expected false"
+(try (assert-false true "Expected false") (catch e e))
+      ^                                                </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-false true) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-false true) (catch e e)) <span class="gray">=> AssertionError: Expected true to be false.
+(try (assert-false true) (catch e e))
+      ^                               </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-false false) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-false false) (catch e e)) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
-<div id="assertTruthy" class="content function">
+<div id="assert-truthy" class="content function">
 
   <div class="function-header row">
-    <div class="column">assertTruthy</div>
+    <div class="column">assert-truthy</div>
     
   </div>
 
@@ -6582,7 +6582,7 @@ to deep equal
   <p>If <span class="pre">first</span> is not <span class="pre">truthy</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assertTruthy first message(optional) => nil</pre>
+    <pre>assert-truthy first message(optional) => nil</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>first: any</pre>
@@ -6590,34 +6590,34 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assertTruthy false ___double_quote___Expected truthy___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertTruthy false "Expected truthy") (catch e e)) <span class="gray">=> AssertionError: Expected false to be truthy. "Expected truthy"
-(try (assertTruthy false "Expected truthy") (catch e e))
-      ^                                                  </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertTruthy false) (catch e e))')"> <span class="icon-button">▶</span> (try (assertTruthy false) (catch e e)) <span class="gray">=> AssertionError: Expected false to be truthy.
-(try (assertTruthy false) (catch e e))
-      ^                                </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertTruthy 0) (catch e e))')"> <span class="icon-button">▶</span> (try (assertTruthy 0) (catch e e)) <span class="gray">=> AssertionError: Expected 0 to be truthy.
-(try (assertTruthy 0) (catch e e))
-      ^                            </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertTruthy nil) (catch e e))')"> <span class="icon-button">▶</span> (try (assertTruthy nil) (catch e e)) <span class="gray">=> AssertionError: Expected null to be truthy.
-(try (assertTruthy nil) (catch e e))
-      ^                              </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertTruthy ___double_quote______double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertTruthy "") (catch e e)) <span class="gray">=> AssertionError: Expected  to be truthy.
-(try (assertTruthy "") (catch e e))
+    <pre><span class="example" onclick="addToPlayground('(try (assert-truthy false ___double_quote___Expected truthy___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-truthy false "Expected truthy") (catch e e)) <span class="gray">=> AssertionError: Expected false to be truthy. "Expected truthy"
+(try (assert-truthy false "Expected truthy") (catch e e))
+      ^                                                   </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-truthy false) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-truthy false) (catch e e)) <span class="gray">=> AssertionError: Expected false to be truthy.
+(try (assert-truthy false) (catch e e))
+      ^                                 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-truthy 0) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-truthy 0) (catch e e)) <span class="gray">=> AssertionError: Expected 0 to be truthy.
+(try (assert-truthy 0) (catch e e))
       ^                             </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assertTruthy true)')"> <span class="icon-button">▶</span> (assertTruthy true) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assertTruthy 1)')"> <span class="icon-button">▶</span> (assertTruthy 1) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assertTruthy :x)')"> <span class="icon-button">▶</span> (assertTruthy :x) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assertTruthy [])')"> <span class="icon-button">▶</span> (assertTruthy []) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assertTruthy {})')"> <span class="icon-button">▶</span> (assertTruthy {}) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-truthy nil) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-truthy nil) (catch e e)) <span class="gray">=> AssertionError: Expected null to be truthy.
+(try (assert-truthy nil) (catch e e))
+      ^                               </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-truthy ___double_quote______double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-truthy "") (catch e e)) <span class="gray">=> AssertionError: Expected  to be truthy.
+(try (assert-truthy "") (catch e e))
+      ^                              </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assert-truthy true)')"> <span class="icon-button">▶</span> (assert-truthy true) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assert-truthy 1)')"> <span class="icon-button">▶</span> (assert-truthy 1) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assert-truthy :x)')"> <span class="icon-button">▶</span> (assert-truthy :x) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assert-truthy [])')"> <span class="icon-button">▶</span> (assert-truthy []) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assert-truthy {})')"> <span class="icon-button">▶</span> (assert-truthy {}) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
-<div id="assertFalsy" class="content function">
+<div id="assert-falsy" class="content function">
 
   <div class="function-header row">
-    <div class="column">assertFalsy</div>
+    <div class="column">assert-falsy</div>
     
   </div>
 
@@ -6625,7 +6625,7 @@ to deep equal
   <p>If <span class="pre">first</span> is not <span class="pre">falsy</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assertFalsy first message(optional) => nil</pre>
+    <pre>assert-falsy first message(optional) => nil</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>first: any</pre>
@@ -6633,33 +6633,33 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(try (assertFalsy true ___double_quote___Expected falsy___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertFalsy true "Expected falsy") (catch e e)) <span class="gray">=> AssertionError: Expected true to be falsy. "Expected falsy"
-(try (assertFalsy true "Expected falsy") (catch e e))
-      ^                                               </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertFalsy :x) (catch e e))')"> <span class="icon-button">▶</span> (try (assertFalsy :x) (catch e e)) <span class="gray">=> AssertionError: Expected x to be falsy.
-(try (assertFalsy :x) (catch e e))
+    <pre><span class="example" onclick="addToPlayground('(try (assert-falsy true ___double_quote___Expected falsy___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-falsy true "Expected falsy") (catch e e)) <span class="gray">=> AssertionError: Expected true to be falsy. "Expected falsy"
+(try (assert-falsy true "Expected falsy") (catch e e))
+      ^                                                </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-falsy :x) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-falsy :x) (catch e e)) <span class="gray">=> AssertionError: Expected x to be falsy.
+(try (assert-falsy :x) (catch e e))
+      ^                             </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-falsy []) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-falsy []) (catch e e)) <span class="gray">=> AssertionError: Expected  to be falsy.
+(try (assert-falsy []) (catch e e))
+      ^                             </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-falsy {}) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-falsy {}) (catch e e)) <span class="gray">=> AssertionError: Expected [object Object] to be falsy.
+(try (assert-falsy {}) (catch e e))
+      ^                             </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-falsy 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-falsy 1) (catch e e)) <span class="gray">=> AssertionError: Expected 1 to be falsy.
+(try (assert-falsy 1) (catch e e))
       ^                            </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertFalsy []) (catch e e))')"> <span class="icon-button">▶</span> (try (assertFalsy []) (catch e e)) <span class="gray">=> AssertionError: Expected  to be falsy.
-(try (assertFalsy []) (catch e e))
-      ^                            </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertFalsy {}) (catch e e))')"> <span class="icon-button">▶</span> (try (assertFalsy {}) (catch e e)) <span class="gray">=> AssertionError: Expected [object Object] to be falsy.
-(try (assertFalsy {}) (catch e e))
-      ^                            </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertFalsy 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assertFalsy 1) (catch e e)) <span class="gray">=> AssertionError: Expected 1 to be falsy.
-(try (assertFalsy 1) (catch e e))
-      ^                           </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assertFalsy false)')"> <span class="icon-button">▶</span> (assertFalsy false) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assertFalsy 0)')"> <span class="icon-button">▶</span> (assertFalsy 0) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assertFalsy nil)')"> <span class="icon-button">▶</span> (assertFalsy nil) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assertFalsy ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (assertFalsy "") <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assert-falsy false)')"> <span class="icon-button">▶</span> (assert-falsy false) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assert-falsy 0)')"> <span class="icon-button">▶</span> (assert-falsy 0) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assert-falsy nil)')"> <span class="icon-button">▶</span> (assert-falsy nil) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assert-falsy ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (assert-falsy "") <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
 
-<div id="assertNil" class="content function">
+<div id="assert-nil" class="content function">
 
   <div class="function-header row">
-    <div class="column">assertNil</div>
+    <div class="column">assert-nil</div>
     
   </div>
 
@@ -6667,7 +6667,7 @@ to deep equal
   <p>If <span class="pre">first</span> is not <span class="pre">nil</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assertNil first message(optional) => nil</pre>
+    <pre>assert-nil first message(optional) => nil</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>first: any</pre>
@@ -6675,39 +6675,39 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(assertNil nil)')"> <span class="icon-button">▶</span> (assertNil nil) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNil true ___double_quote___Expected nil___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNil true "Expected nil") (catch e e)) <span class="gray">=> AssertionError: Expected true to be nil. "Expected nil"
-(try (assertNil true "Expected nil") (catch e e))
-      ^                                           </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNil :x) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNil :x) (catch e e)) <span class="gray">=> AssertionError: Expected x to be nil.
-(try (assertNil :x) (catch e e))
+    <pre><span class="example" onclick="addToPlayground('(assert-nil nil)')"> <span class="icon-button">▶</span> (assert-nil nil) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-nil true ___double_quote___Expected nil___double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-nil true "Expected nil") (catch e e)) <span class="gray">=> AssertionError: Expected true to be nil. "Expected nil"
+(try (assert-nil true "Expected nil") (catch e e))
+      ^                                            </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-nil :x) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-nil :x) (catch e e)) <span class="gray">=> AssertionError: Expected x to be nil.
+(try (assert-nil :x) (catch e e))
+      ^                           </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-nil []) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-nil []) (catch e e)) <span class="gray">=> AssertionError: Expected  to be nil.
+(try (assert-nil []) (catch e e))
+      ^                           </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-nil {}) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-nil {}) (catch e e)) <span class="gray">=> AssertionError: Expected [object Object] to be nil.
+(try (assert-nil {}) (catch e e))
+      ^                           </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-nil 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-nil 1) (catch e e)) <span class="gray">=> AssertionError: Expected 1 to be nil.
+(try (assert-nil 1) (catch e e))
       ^                          </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNil []) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNil []) (catch e e)) <span class="gray">=> AssertionError: Expected  to be nil.
-(try (assertNil []) (catch e e))
+<pre><span class="example" onclick="addToPlayground('(try (assert-nil false) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-nil false) (catch e e)) <span class="gray">=> AssertionError: Expected false to be nil.
+(try (assert-nil false) (catch e e))
+      ^                              </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-nil 0) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-nil 0) (catch e e)) <span class="gray">=> AssertionError: Expected 0 to be nil.
+(try (assert-nil 0) (catch e e))
       ^                          </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNil {}) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNil {}) (catch e e)) <span class="gray">=> AssertionError: Expected [object Object] to be nil.
-(try (assertNil {}) (catch e e))
-      ^                          </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNil 1) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNil 1) (catch e e)) <span class="gray">=> AssertionError: Expected 1 to be nil.
-(try (assertNil 1) (catch e e))
-      ^                         </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNil false) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNil false) (catch e e)) <span class="gray">=> AssertionError: Expected false to be nil.
-(try (assertNil false) (catch e e))
-      ^                             </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNil 0) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNil 0) (catch e e)) <span class="gray">=> AssertionError: Expected 0 to be nil.
-(try (assertNil 0) (catch e e))
-      ^                         </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNil ___double_quote______double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNil "") (catch e e)) <span class="gray">=> AssertionError: Expected  to be nil.
-(try (assertNil "") (catch e e))
-      ^                          </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-nil ___double_quote______double_quote___) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-nil "") (catch e e)) <span class="gray">=> AssertionError: Expected  to be nil.
+(try (assert-nil "") (catch e e))
+      ^                           </span> </span></pre>
   </div>
 </div>
 
 
-<div id="assertThrows" class="content function">
+<div id="assert-throws" class="content function">
 
   <div class="function-header row">
-    <div class="column">assertThrows</div>
+    <div class="column">assert-throws</div>
     
   </div>
 
@@ -6715,7 +6715,7 @@ to deep equal
   <p>If <span class="pre">func</span> does not throw, it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assertThrows func message(optional) => nil</pre>
+    <pre>assert-throws func message(optional) => nil</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>func: Function</pre>
@@ -6723,18 +6723,18 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(assertThrows #(throw ___double_quote___Error___double_quote___))')"> <span class="icon-button">▶</span> (assertThrows #(throw "Error")) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertThrows #(identity ___double_quote___Error___double_quote___)) (catch e e))')"> <span class="icon-button">▶</span> (try (assertThrows #(identity "Error")) (catch e e)) <span class="gray">=> AssertionError: Expected function to throw.
-(try (assertThrows #(identity "Error")) (catch e e))
-      ^                                              </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(assert-throws #(throw ___double_quote___Error___double_quote___))')"> <span class="icon-button">▶</span> (assert-throws #(throw "Error")) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-throws #(identity ___double_quote___Error___double_quote___)) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-throws #(identity "Error")) (catch e e)) <span class="gray">=> AssertionError: Expected function to throw.
+(try (assert-throws #(identity "Error")) (catch e e))
+      ^                                               </span> </span></pre>
   </div>
 </div>
 
 
-<div id="assertThrowsError" class="content function">
+<div id="assert-throws-error" class="content function">
 
   <div class="function-header row">
-    <div class="column">assertThrowsError</div>
+    <div class="column">assert-throws-error</div>
     
   </div>
 
@@ -6742,7 +6742,7 @@ to deep equal
   <p>If <span class="pre">func</span> does not throw <span class="pre">expectedMessage</span>, it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assertThrowsError func expectedMessage message(optional) => nil</pre>
+    <pre>assert-throws-error func expectedMessage message(optional) => nil</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>func: Function</pre>
@@ -6751,19 +6751,19 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(assertThrowsError #(throw ___double_quote___Error___double_quote___) ___double_quote___Error___double_quote___)')"> <span class="icon-button">▶</span> (assertThrowsError #(throw "Error") "Error") <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertThrows #(throw ___double_quote___Not Error___double_quote___)) (catch e e))')"> <span class="icon-button">▶</span> (try (assertThrows #(throw "Not Error")) (catch e e)) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertThrows #(identity ___double_quote___Error___double_quote___)) (catch e e))')"> <span class="icon-button">▶</span> (try (assertThrows #(identity "Error")) (catch e e)) <span class="gray">=> AssertionError: Expected function to throw.
-(try (assertThrows #(identity "Error")) (catch e e))
-      ^                                              </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(assert-throws-error #(throw ___double_quote___Error___double_quote___) ___double_quote___Error___double_quote___)')"> <span class="icon-button">▶</span> (assert-throws-error #(throw "Error") "Error") <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-throws #(throw ___double_quote___Not Error___double_quote___)) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-throws #(throw "Not Error")) (catch e e)) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-throws #(identity ___double_quote___Error___double_quote___)) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-throws #(identity "Error")) (catch e e)) <span class="gray">=> AssertionError: Expected function to throw.
+(try (assert-throws #(identity "Error")) (catch e e))
+      ^                                               </span> </span></pre>
   </div>
 </div>
 
 
-<div id="assertNotThrows" class="content function">
+<div id="assert-not-throws" class="content function">
 
   <div class="function-header row">
-    <div class="column">assertNotThrows</div>
+    <div class="column">assert-not-throws</div>
     
   </div>
 
@@ -6771,7 +6771,7 @@ to deep equal
   <p>If <span class="pre">func</span> throws, it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assertNotThrows func message(optional) => nil</pre>
+    <pre>assert-not-throws func message(optional) => nil</pre>
   </div>
 
   <label>Arguments</label><div class="indent"><pre>func: Function</pre>
@@ -6779,10 +6779,10 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(assertNotThrows #(identity ___double_quote___Error___double_quote___))')"> <span class="icon-button">▶</span> (assertNotThrows #(identity "Error")) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (assertNotThrows #(throw ___double_quote___Error___double_quote___)) (catch e e))')"> <span class="icon-button">▶</span> (try (assertNotThrows #(throw "Error")) (catch e e)) <span class="gray">=> AssertionError: Expected function not to throw.
-(try (assertNotThrows #(throw "Error")) (catch e e))
-      ^                                              </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(assert-not-throws #(identity ___double_quote___Error___double_quote___))')"> <span class="icon-button">▶</span> (assert-not-throws #(identity "Error")) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (assert-not-throws #(throw ___double_quote___Error___double_quote___)) (catch e e))')"> <span class="icon-button">▶</span> (try (assert-not-throws #(throw "Error")) (catch e e)) <span class="gray">=> AssertionError: Expected function not to throw.
+(try (assert-not-throws #(throw "Error")) (catch e e))
+      ^                                                </span> </span></pre>
   </div>
 </div>
 
@@ -7075,22 +7075,22 @@ to deep equal
         <label>Assert</label>
         <ul>
           <li id="assert_link" onclick="showPage('assert')">assert</li>
+<li id="assert-equal_link" onclick="showPage('assert-equal')">assert-equal</li>
+<li id="assert-false_link" onclick="showPage('assert-false')">assert-false</li>
+<li id="assert-falsy_link" onclick="showPage('assert-falsy')">assert-falsy</li>
+<li id="assert-nil_link" onclick="showPage('assert-nil')">assert-nil</li>
+<li id="assert-not-equal_link" onclick="showPage('assert-not-equal')">assert-not-equal</li>
+<li id="assert-not-throws_link" onclick="showPage('assert-not-throws')">assert-not-throws</li>
+<li id="assertNot_equal_link" onclick="showPage('assertNot_equal')">assert-not=</li>
+<li id="assert-throws_link" onclick="showPage('assert-throws')">assert-throws</li>
+<li id="assert-throws-error_link" onclick="showPage('assert-throws-error')">assert-throws-error</li>
+<li id="assert-true_link" onclick="showPage('assert-true')">assert-true</li>
+<li id="assert-truthy_link" onclick="showPage('assert-truthy')">assert-truthy</li>
 <li id="assert_lt_link" onclick="showPage('assert_lt')">assert&lt;</li>
 <li id="assert_lte_link" onclick="showPage('assert_lte')">assert&lt;=</li>
 <li id="assert_equal_link" onclick="showPage('assert_equal')">assert=</li>
 <li id="assert_gt_link" onclick="showPage('assert_gt')">assert&gt;</li>
 <li id="assert_gte_link" onclick="showPage('assert_gte')">assert&gt;=</li>
-<li id="assertEqual_link" onclick="showPage('assertEqual')">assertEqual</li>
-<li id="assertFalse_link" onclick="showPage('assertFalse')">assertFalse</li>
-<li id="assertFalsy_link" onclick="showPage('assertFalsy')">assertFalsy</li>
-<li id="assertNil_link" onclick="showPage('assertNil')">assertNil</li>
-<li id="assertNot_equal_link" onclick="showPage('assertNot_equal')">assertNot=</li>
-<li id="assertNotEqual_link" onclick="showPage('assertNotEqual')">assertNotEqual</li>
-<li id="assertNotThrows_link" onclick="showPage('assertNotThrows')">assertNotThrows</li>
-<li id="assertThrows_link" onclick="showPage('assertThrows')">assertThrows</li>
-<li id="assertThrowsError_link" onclick="showPage('assertThrowsError')">assertThrowsError</li>
-<li id="assertTrue_link" onclick="showPage('assertTrue')">assertTrue</li>
-<li id="assertTruthy_link" onclick="showPage('assertTruthy')">assertTruthy</li>
         </ul>
 </nav>
 

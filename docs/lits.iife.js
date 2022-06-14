@@ -3930,7 +3930,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.26";
+  var version = "1.0.27-alpha.0";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -4217,7 +4217,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
-      'assertNot=': {
+      'assert-not=': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -4228,7 +4228,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
-      assertEqual: {
+      'assert-equal': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -4239,7 +4239,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
-      assertNotEqual: {
+      'assert-not-equal': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -4294,7 +4294,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
-      assertTrue: {
+      'assert-true': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), first = _b[0], message = _b[1];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -4305,7 +4305,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
-      assertFalse: {
+      'assert-false': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), first = _b[0], message = _b[1];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -4316,7 +4316,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
-      assertTruthy: {
+      'assert-truthy': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), first = _b[0], message = _b[1];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -4327,7 +4327,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
-      assertFalsy: {
+      'assert-falsy': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), first = _b[0], message = _b[1];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -4338,7 +4338,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
-      assertNil: {
+      'assert-nil': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), first = _b[0], message = _b[1];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -4349,7 +4349,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
-      assertThrows: {
+      'assert-throws': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
               var _c = __read(_a, 2), func = _c[0], message = _c[1];
               var executeFunction = _b.executeFunction;
@@ -4365,7 +4365,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
-      assertThrowsError: {
+      'assert-throws-error': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
               var _c = __read(_a, 3), func = _c[0], throwMessage = _c[1], message = _c[2];
               var executeFunction = _b.executeFunction;
@@ -4386,7 +4386,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
-      assertNotThrows: {
+      'assert-not-throws': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
               var _c = __read(_a, 2), func = _c[0], message = _c[1];
               var executeFunction = _b.executeFunction;

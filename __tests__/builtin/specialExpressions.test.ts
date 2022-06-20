@@ -320,7 +320,6 @@ describe(`specialExpressions`, () => {
       expect(lits.run(`(defn add [a b] (+ a b)) (add 1 2)`)).toBe(3)
       expect(lits.run(`(defn add [a b &let [x 10]] (+ a b x)) (add 1 2)`)).toBe(13)
       expect(() => lits.run(`(defn add [] 10)`)).not.toThrow()
-      expect(() => lits.run(`(defn x [a a] 10)`)).toThrow()
       expect(() => lits.run(`(defn true [] 10)`)).toThrow()
       expect(() => lits.run(`(defn false [] 10)`)).toThrow()
       expect(() => lits.run(`(defn nil [] 10)`)).toThrow()
@@ -352,7 +351,6 @@ describe(`specialExpressions`, () => {
     test(`samples`, () => {
       expect(lits.run(`(defns (str :a :d :d) [a b] (+ a b)) (add 1 2)`)).toBe(3)
       expect(() => lits.run(`(defns "add" [] 10)`)).not.toThrow()
-      expect(() => lits.run(`(defns :x [a a] 10)`)).toThrow()
       expect(() => lits.run(`(defns true [] 10)`)).toThrow()
       expect(() => lits.run(`(defns false [] 10)`)).toThrow()
       expect(() => lits.run(`(defns nil [] 10)`)).toThrow()

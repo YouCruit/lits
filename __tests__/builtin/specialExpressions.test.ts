@@ -450,6 +450,14 @@ describe(`specialExpressions`, () => {
     })
   })
 
+  describe(`comment`, () => {
+    test(`samples`, () => {
+      expect(lits.run(`(comment [1 2 3] "[1]" (+ 1 2))`)).toBeNull()
+      expect(lits.run(`(comment (object :a 1) :a)`)).toBeNull()
+      expect(lits.run(`(comment)`)).toBeNull()
+    })
+  })
+
   describe(`do`, () => {
     test(`samples`, () => {
       expect(lits.run(`(do [1 2 3] "[1]" (+ 1 2))`)).toBe(3)

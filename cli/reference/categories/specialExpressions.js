@@ -456,6 +456,23 @@ module.exports = {
     ],
     specialExpression: true,
   },
+  comment: {
+    name: `comment`,
+    category: `Special expression`,
+    linkName: `comment`,
+    returns: {
+      type: `nil`,
+    },
+    arguments: [
+      {
+        name: `forms`,
+        type: `form[]`,
+      },
+    ],
+    description: `All \`forms\` within \`comment\` are read and must be valid \`lits\` but they are not eveluated. \`nil\` is returned.`,
+    examples: [`(comment (write! "Hi") (write! "Albert"))`, `(comment)`],
+    specialExpression: true,
+  },
   do: {
     name: `do`,
     category: `Special expression`,

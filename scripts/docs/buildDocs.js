@@ -121,7 +121,7 @@ function getIndexPage() {
       <li>No lazy evaluation.</li>
       <li>No quotes.</li>
       <li>No macros.</li>
-      <li>No keyword symbols. <pre>:foo</pre> is just a shourthand for <pre>'foo'</pre>.</li>
+      <li>No keyword symbols. <pre>:foo</pre> is just a shorthand for <pre>"foo"</pre>.</li>
       <li>Dynamic scoping, no lexical scoping</li>
       <li>100% test coverage</li>
     </ul>

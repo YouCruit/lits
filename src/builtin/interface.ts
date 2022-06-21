@@ -50,6 +50,7 @@ export type BuiltinSpecialExpression<T, N extends SpecialExpressionNode = Specia
 export type SpecialExpressionName =
   | `and`
   | `block`
+  | `comment`
   | `cond`
   | `def`
   | `defn`
@@ -57,8 +58,8 @@ export type SpecialExpressionName =
   | `defs`
   | `do`
   | `doseq`
-  | `for`
   | `fn`
+  | `for`
   | `function`
   | `if-let`
   | `if-not`

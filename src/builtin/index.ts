@@ -21,9 +21,11 @@ import { whenNotSpecialExpression } from './specialExpressions/when-not'
 import { whenSpecialExpression } from './specialExpressions/when'
 import { Builtin, BuiltinSpecialExpressions } from './interface'
 import { normalExpressions } from './normalExpressions'
+import { commentSpecialExpression } from './specialExpressions/comment'
 
 export const specialExpressions: BuiltinSpecialExpressions = {
   and: andSpecialExpression,
+  comment: commentSpecialExpression,
   cond: condSpecialExpression,
   def: defSpecialExpression,
   defn: defnSpecialExpression,

@@ -83,7 +83,7 @@ var Lits = (function (exports) {
       return !!func[FUNCTION_SYMBOL];
   }
 
-  /*! *****************************************************************************
+  /******************************************************************************
   Copyright (c) Microsoft Corporation.
 
   Permission to use, copy, modify, and/or distribute this software for any
@@ -3923,7 +3923,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.28-alpha.0";
+  var version = "1.0.28";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;

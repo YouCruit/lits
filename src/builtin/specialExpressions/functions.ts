@@ -256,7 +256,6 @@ function parseFunctionArguments(tokens: Token[], position: number, parsers: Pars
   let bindings: BindingNode[] = []
   let restArgument: string | undefined = undefined
   const mandatoryArguments: string[] = []
-  const argNames: Record<string, true> = {}
   let state: `mandatory` | `rest` | `let` = `mandatory`
   let tkn = token.as(tokens[position], `EOF`)
 
@@ -289,11 +288,6 @@ function parseFunctionArguments(tokens: Token[], position: number, parsers: Pars
             throw new LitsError(`Illegal modifier: ${node.value}`, tkn.debugInfo)
         }
       } else {
-        if (argNames[node.name]) {
-          throw new LitsError(`Duplicate argument "${node.name}"`, tkn.debugInfo)
-        } else {
-          argNames[node.name] = true
-        }
         switch (state) {
           case `mandatory`:
             mandatoryArguments.push(node.name)

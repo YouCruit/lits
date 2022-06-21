@@ -83,7 +83,7 @@ var Lits = (function (exports) {
       return !!func[FUNCTION_SYMBOL];
   }
 
-  /******************************************************************************
+  /*! *****************************************************************************
   Copyright (c) Microsoft Corporation.
 
   Permission to use, copy, modify, and/or distribute this software for any
@@ -837,7 +837,6 @@ var Lits = (function (exports) {
       var bindings = [];
       var restArgument = undefined;
       var mandatoryArguments = [];
-      var argNames = {};
       var state = "mandatory";
       var tkn = token.as(tokens[position], "EOF");
       position += 1;
@@ -870,12 +869,6 @@ var Lits = (function (exports) {
                   }
               }
               else {
-                  if (argNames[node.name]) {
-                      throw new LitsError("Duplicate argument \"".concat(node.name, "\""), tkn.debugInfo);
-                  }
-                  else {
-                      argNames[node.name] = true;
-                  }
                   switch (state) {
                       case "mandatory":
                           mandatoryArguments.push(node.name);
@@ -3930,7 +3923,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.27";
+  var version = "1.0.28-alpha.0";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -5116,8 +5109,31 @@ var Lits = (function (exports) {
 
   var normalExpressions = __assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign({}, bitwiseNormalExpression), collectionNormalExpression), arrayNormalExpression), sequenceNormalExpression), mathNormalExpression), miscNormalExpression), assertNormalExpression), objectNormalExpression), predicatesNormalExpression), regexpNormalExpression), stringNormalExpression), functionalNormalExpression);
 
+  var commentSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b;
+          var parseToken = _a.parseToken;
+          var tkn = token.as(tokens[position], "EOF");
+          var node = {
+              type: "SpecialExpression",
+              name: "comment",
+              params: [],
+              token: tkn,
+          };
+          while (!token.is(tkn, { type: "paren", value: ")" })) {
+              var bodyNode = void 0;
+              _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
+              node.params.push(bodyNode);
+              tkn = token.as(tokens[position], "EOF");
+          }
+          return [position + 1, node];
+      },
+      evaluate: function () { return null; },
+  };
+
   var specialExpressions = {
       and: andSpecialExpression,
+      comment: commentSpecialExpression,
       cond: condSpecialExpression,
       def: defSpecialExpression,
       defn: defnSpecialExpression,

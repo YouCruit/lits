@@ -48,7 +48,6 @@ describe(`parseArguments`, () => {
       expect(() => lits.run(`(fn [& &let []] nil)`)).toThrow()
       expect(() => lits.run(`(fn [&let [] & b] a)`)).toThrow()
       expect(() => lits.run(`(fn [& & a] a)`)).toThrow()
-      expect(() => lits.run(`(fn [a a] a)`)).toThrow()
       expect(() => lits.run(`(fn [&rst a] a)`)).toThrow()
       expect(() => lits.run(`(fn [&when a] a)`)).toThrow()
       expect(() => lits.run(`(fn [&while a] a)`)).toThrow()

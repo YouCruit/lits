@@ -4,7 +4,7 @@ import { AstNode, SpecialExpressionNode } from '../../parser/interface'
 import { token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
-interface doSpecialExpressionNode extends SpecialExpressionNode {
+interface DoSpecialExpressionNode extends SpecialExpressionNode {
   name: `do`
 }
 
@@ -12,7 +12,7 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseToken }) => {
     let tkn = token.as(tokens[position], `EOF`)
 
-    const node: doSpecialExpressionNode = {
+    const node: DoSpecialExpressionNode = {
       type: `SpecialExpression`,
       name: `do`,
       params: [],
@@ -40,6 +40,6 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
 }
 
-function castDoExpressionNode(_node: SpecialExpressionNode): asserts _node is doSpecialExpressionNode {
+function castDoExpressionNode(_node: SpecialExpressionNode): asserts _node is DoSpecialExpressionNode {
   return
 }

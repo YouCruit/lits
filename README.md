@@ -56,6 +56,7 @@ lits.run("(+ 1 2 3 4)"); // returns 10
 # Builtin Functions
 ## Special functions
 * and
+* comment
 * cond
 * def
 * defn

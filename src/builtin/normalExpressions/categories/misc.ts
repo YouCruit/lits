@@ -105,14 +105,14 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams(0, node),
   },
-  'inst-ms-to-iso-date-time': {
+  'inst-ms->iso-date-time': {
     evaluate: ([ms], debugInfo): string => {
       number.assert(ms, debugInfo)
       return new Date(ms).toISOString()
     },
     validate: node => assertNumberOfParams(1, node),
   },
-  'iso-date-time-to-inst-ms': {
+  'iso-date-time->inst-ms': {
     evaluate: ([dateTime], debugInfo): number => {
       string.assert(dateTime, debugInfo)
       const ms = new Date(dateTime).valueOf()

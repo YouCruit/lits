@@ -83,7 +83,7 @@ var Lits = (function (exports) {
       return !!func[FUNCTION_SYMBOL];
   }
 
-  /******************************************************************************
+  /*! *****************************************************************************
   Copyright (c) Microsoft Corporation.
 
   Permission to use, copy, modify, and/or distribute this software for any
@@ -3923,7 +3923,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.28";
+  var version = "1.0.29-alpha.0";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -4084,7 +4084,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams(0, node); },
       },
-      'inst-ms-to-iso-date-time': {
+      'inst-ms->iso-date-time': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), ms = _b[0];
               number.assert(ms, debugInfo);
@@ -4092,7 +4092,7 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
-      'iso-date-time-to-inst-ms': {
+      'iso-date-time->inst-ms': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), dateTime = _b[0];
               string.assert(dateTime, debugInfo);

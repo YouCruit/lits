@@ -36,34 +36,32 @@ describe(`misc functions`, () => {
     })
   })
 
-  describe(`inst-ms-to-iso-date-time`, () => {
+  describe(`inst-ms->iso-date-time`, () => {
     test(`samples`, () => {
-      expect(() => lits.run(`(inst-ms-to-iso-date-time 1649756230899 1649756230899)`)).toThrow()
-      expect(() => lits.run(`(inst-ms-to-iso-date-time)`)).toThrow()
-      expect(() => lits.run(`(inst-ms-to-iso-date-time "1649756230899")`)).toThrow()
-      expect(() => lits.run(`(inst-ms-to-iso-date-time nil)`)).toThrow()
-      expect(() => lits.run(`(inst-ms-to-iso-date-time true)`)).toThrow()
-      expect(lits.run(`(inst-ms-to-iso-date-time 1649756230899)`)).toBe(`2022-04-12T09:37:10.899Z`)
-      expect(lits.run(`(inst-ms-to-iso-date-time -1649756230899)`)).toBe(`1917-09-21T14:22:49.101Z`)
-      expect(lits.run(`(inst-ms-to-iso-date-time 0)`)).toBe(`1970-01-01T00:00:00.000Z`)
-      expect(lits.run(`(inst-ms-to-iso-date-time 0.999)`)).toBe(`1970-01-01T00:00:00.000Z`)
-      expect(lits.run(`(inst-ms-to-iso-date-time 0.999)`)).toBe(`1970-01-01T00:00:00.000Z`)
+      expect(() => lits.run(`(inst-ms->iso-date-time 1649756230899 1649756230899)`)).toThrow()
+      expect(() => lits.run(`(inst-ms->iso-date-time)`)).toThrow()
+      expect(() => lits.run(`(inst-ms->iso-date-time "1649756230899")`)).toThrow()
+      expect(() => lits.run(`(inst-ms->iso-date-time nil)`)).toThrow()
+      expect(() => lits.run(`(inst-ms->iso-date-time true)`)).toThrow()
+      expect(lits.run(`(inst-ms->iso-date-time 1649756230899)`)).toBe(`2022-04-12T09:37:10.899Z`)
+      expect(lits.run(`(inst-ms->iso-date-time -1649756230899)`)).toBe(`1917-09-21T14:22:49.101Z`)
+      expect(lits.run(`(inst-ms->iso-date-time 0)`)).toBe(`1970-01-01T00:00:00.000Z`)
+      expect(lits.run(`(inst-ms->iso-date-time 0.999)`)).toBe(`1970-01-01T00:00:00.000Z`)
+      expect(lits.run(`(inst-ms->iso-date-time 0.999)`)).toBe(`1970-01-01T00:00:00.000Z`)
     })
   })
 
-  describe(`iso-date-time-to-inst-ms`, () => {
+  describe(`iso-date-time->inst-ms`, () => {
     test(`samples`, () => {
-      expect(() =>
-        lits.run(`(iso-date-time-to-inst-ms "2022-04-12T09:37:10.899Z" "2022-04-12T09:37:10.899Z")`),
-      ).toThrow()
-      expect(() => lits.run(`(iso-date-time-to-inst-ms)`)).toThrow()
-      expect(() => lits.run(`(iso-date-time-to-inst-ms 1649756230899)`)).toThrow()
-      expect(() => lits.run(`(iso-date-time-to-inst-ms nil)`)).toThrow()
-      expect(() => lits.run(`(iso-date-time-to-inst-ms true)`)).toThrow()
-      expect(() => lits.run(`(iso-date-time-to-inst-ms "2022-04-1X")`)).toThrow()
-      expect(() => lits.run(`(iso-date-time-to-inst-ms "")`)).toThrow()
-      expect(lits.run(`(iso-date-time-to-inst-ms "2022-04-12T09:37:10.899Z")`)).toBe(1649756230899)
-      expect(lits.run(`(iso-date-time-to-inst-ms "2022-04-12")`)).toBeGreaterThan(1649548800000)
+      expect(() => lits.run(`(iso-date-time->inst-ms "2022-04-12T09:37:10.899Z" "2022-04-12T09:37:10.899Z")`)).toThrow()
+      expect(() => lits.run(`(iso-date-time->inst-ms)`)).toThrow()
+      expect(() => lits.run(`(iso-date-time->inst-ms 1649756230899)`)).toThrow()
+      expect(() => lits.run(`(iso-date-time->inst-ms nil)`)).toThrow()
+      expect(() => lits.run(`(iso-date-time->inst-ms true)`)).toThrow()
+      expect(() => lits.run(`(iso-date-time->inst-ms "2022-04-1X")`)).toThrow()
+      expect(() => lits.run(`(iso-date-time->inst-ms "")`)).toThrow()
+      expect(lits.run(`(iso-date-time->inst-ms "2022-04-12T09:37:10.899Z")`)).toBe(1649756230899)
+      expect(lits.run(`(iso-date-time->inst-ms "2022-04-12")`)).toBeGreaterThan(1649548800000)
     })
   })
 

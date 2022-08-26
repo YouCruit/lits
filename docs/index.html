@@ -16,7 +16,7 @@
   <div class="row">
     <div class="column"></div>
     <div class="column header">Lits</div>
-    <div class="column right version"><span>v1.0.29</span></div>
+    <div class="column right version"><span>v1.0.30-alpha.0</span></div>
   </div>
 </header>
     <main id="main-panel" class="fancy-scroll">
@@ -1673,8 +1673,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [1,2,5,6,7,8] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> "Alr" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [2,5] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> "lert" </span> </span></pre>
   </div>
 </div>
 
@@ -1697,7 +1697,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 6 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 4 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-nth! ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rand-nth! "Albert") <span class="gray">=> "t" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-nth! [])')"> <span class="icon-button">▶</span> (rand-nth! []) <span class="gray">=> null </span> </span></pre>
   </div>
@@ -1722,8 +1722,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [8,1,7,3,10,5,2,9,6,4] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> "rorjMiAlt eb" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [5,1,9,8,3,10,6,7,4,2] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> "j erMbrAltoi" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2])')"> <span class="icon-button">▶</span> (shuffle! [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1])')"> <span class="icon-button">▶</span> (shuffle! [1]) <span class="gray">=> [1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [])')"> <span class="icon-button">▶</span> (shuffle! []) <span class="gray">=> [] </span> </span></pre>
@@ -2882,9 +2882,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.5357835676631073 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.004534433359498054 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 2.1005344881541306 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.1102237694804784 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.0043317883685017634 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 2.464142309651924 </span> </span></pre>
   </div>
 </div>
 
@@ -2908,8 +2908,8 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(rand-int! 1)')"> <span class="icon-button">▶</span> (rand-int! 1) <span class="gray">=> 0 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 6 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 71 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 1 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 110 </span> </span></pre>
   </div>
 </div>
 
@@ -3713,7 +3713,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1656578961117 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1661518402475 </span> </span></pre>
   </div>
 </div>
 
@@ -3863,7 +3863,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.29" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.30-alpha.0" </span> </span></pre>
   </div>
 </div>
 
@@ -3886,7 +3886,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "4ee13964-35c6-41a5-a5cd-078ee4cbd0f6" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "e3c225e0-a042-4492-95be-53b7bfafa43a" </span> </span></pre>
   </div>
 </div>
 
@@ -5561,6 +5561,33 @@
 </div>
 
 
+<div id="declared_question" class="content function">
+
+  <div class="function-header row">
+    <div class="column">declared?</div>
+    <div class="column right"><a target="_blank" class="link" href="https://clojuredocs.org/clojure.core/declared_q">Clojure docs</a></div>
+  </div>
+
+  <h3>Special Expression</h3>
+  <p>Returns <span class="pre">true</span> if name is a declared variable or a builtin function.</p>
+  <label>Syntax</label>
+  <div class="indent">
+    <pre>declared? name => boolean</pre>
+  </div>
+
+  <label>Arguments</label><div class="indent"><pre>name: string</pre></div>
+
+  <label>Examples</label>
+  <div class="indent">
+    <pre><span class="example" onclick="addToPlayground('(declared? foo)')"> <span class="icon-button">▶</span> (declared? foo) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(def foo :foo) (declared? foo)')"> <span class="icon-button">▶</span> (def foo :foo) (declared? foo) <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(declared? +)')"> <span class="icon-button">▶</span> (declared? +) <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(def foo nil) (declared? foo)')"> <span class="icon-button">▶</span> (def foo nil) (declared? foo) <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(declared? if)')"> <span class="icon-button">▶</span> (declared? if) <span class="gray">=> true </span> </span></pre>
+  </div>
+</div>
+
+
 <div id="subs" class="content function">
 
   <div class="function-header row">
@@ -6823,6 +6850,7 @@ to deep equal
           <li id="and_link" onclick="showPage('and')">and</li>
 <li id="comment_link" onclick="showPage('comment')">comment</li>
 <li id="cond_link" onclick="showPage('cond')">cond</li>
+<li id="declared_question_link" onclick="showPage('declared_question')">declared?</li>
 <li id="def_link" onclick="showPage('def')">def</li>
 <li id="defn_link" onclick="showPage('defn')">defn</li>
 <li id="defns_link" onclick="showPage('defns')">defns</li>

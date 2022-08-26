@@ -605,4 +605,27 @@ module.exports = {
     ],
     specialExpression: true,
   },
+  'declared?': {
+    name: `declared?`,
+    category: `Special expression`,
+    linkName: `declared_question`,
+    returns: {
+      type: `boolean`,
+    },
+    arguments: [
+      {
+        name: `name`,
+        type: `string`,
+      },
+    ],
+    description: `Returns \`true\` if name is a declared variable or a builtin function.`,
+    examples: [
+      `(declared? foo)`,
+      `(def foo :foo) (declared? foo)`,
+      `(declared? +)`,
+      `(def foo nil) (declared? foo)`,
+      `(declared? if)`,
+    ],
+    specialExpression: true,
+  },
 }

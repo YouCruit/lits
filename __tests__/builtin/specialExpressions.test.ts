@@ -600,4 +600,17 @@ describe(`specialExpressions`, () => {
       expect(() => lits.run(`(for [x [0 1 2 3 4 5] x [10 20]] x)`)).toThrow()
     })
   })
+
+  describe(`declared?`, () => {
+    test(`samples`, () => {
+      expect(lits.run(`(declared? foo)`)).toBe(false)
+      expect(lits.run(`(def foo :foo) (declared? foo)`)).toBe(true)
+      expect(lits.run(`(declared? +)`)).toBe(true)
+      expect(lits.run(`(def foo nil) (declared? foo)`)).toBe(true)
+      expect(lits.run(`(declared? if)`)).toBe(true)
+
+      expect(() => lits.run(`(declared?)`)).toThrow()
+      expect(() => lits.run(`(declared? foo bar)`)).toThrow()
+    })
+  })
 })

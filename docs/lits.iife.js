@@ -3923,7 +3923,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.29";
+  var version = "1.0.30-alpha.0";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -5131,6 +5131,29 @@ var Lits = (function (exports) {
       evaluate: function () { return null; },
   };
 
+  var declaredSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "declared?",
+              params: params,
+              token: firstToken,
+          };
+          return [newPosition + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var lookUp = _a.lookUp;
+          var _b = __read(node.params, 1), astNode = _b[0];
+          nameNode.assert(astNode, node.token.debugInfo);
+          var lookUpResult = lookUp(astNode, contextStack);
+          return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
+      },
+      validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+  };
+
   var specialExpressions = {
       and: andSpecialExpression,
       comment: commentSpecialExpression,
@@ -5157,6 +5180,7 @@ var Lits = (function (exports) {
       'when-first': whenFirstSpecialExpression,
       'when-let': whenLetSpecialExpression,
       'when-not': whenNotSpecialExpression,
+      'declared?': declaredSpecialExpression,
   };
   Object.keys(specialExpressions).forEach(function (key) {
       /* istanbul ignore next */
@@ -5406,6 +5430,16 @@ var Lits = (function (exports) {
       return asValue(reservedNamesRecord[node.value], node.token.debugInfo).value;
   }
   function evaluateName(node, contextStack) {
+      var lookUpResult = lookUp(node, contextStack);
+      if (lookUpResult.contextEntry) {
+          return lookUpResult.contextEntry.value;
+      }
+      else if (lookUpResult.builtinFunction) {
+          return lookUpResult.builtinFunction;
+      }
+      throw new UndefinedSymbolError(node.value, node.token.debugInfo);
+  }
+  function lookUp(node, contextStack) {
       var e_2, _a, _b;
       var value = node.value, debugInfo = node.token.debugInfo;
       try {
@@ -5413,7 +5447,11 @@ var Lits = (function (exports) {
               var context = _d.value;
               var variable = context[value];
               if (variable) {
-                  return variable.value;
+                  return {
+                      builtinFunction: null,
+                      contextEntry: variable,
+                      specialExpression: null,
+                  };
               }
           }
       }
@@ -5427,13 +5465,28 @@ var Lits = (function (exports) {
       if (builtin.normalExpressions[value]) {
           var builtinFunction = (_b = {},
               _b[FUNCTION_SYMBOL] = true,
-              _b.debugInfo = node.token.debugInfo,
+              _b.debugInfo = debugInfo,
               _b.type = "builtin",
               _b.name = value,
               _b);
-          return builtinFunction;
+          return {
+              builtinFunction: builtinFunction,
+              contextEntry: null,
+              specialExpression: null,
+          };
       }
-      throw new UndefinedSymbolError(value, debugInfo);
+      if (builtin.specialExpressions[value]) {
+          return {
+              specialExpression: true,
+              builtinFunction: null,
+              contextEntry: null,
+          };
+      }
+      return {
+          specialExpression: null,
+          builtinFunction: null,
+          contextEntry: null,
+      };
   }
   function evaluateNormalExpression(node, contextStack) {
       var e_3, _a;
@@ -5492,7 +5545,7 @@ var Lits = (function (exports) {
   }
   function evaluateSpecialExpression(node, contextStack) {
       var specialExpression = asValue(builtin.specialExpressions[node.name], node.token.debugInfo);
-      return specialExpression.evaluate(node, contextStack, { evaluateAstNode: evaluateAstNode, builtin: builtin });
+      return specialExpression.evaluate(node, contextStack, { evaluateAstNode: evaluateAstNode, builtin: builtin, lookUp: lookUp });
   }
   function evalueateObjectAsFunction(fn, params, debugInfo) {
       if (params.length !== 1) {

@@ -1,5 +1,5 @@
 import { Any, Arr } from '../interface'
-import { AstNode } from '../parser/interface'
+import { AstNode, BuiltinFunction } from '../parser/interface'
 import { DebugInfo } from '../tokenizer/interface'
 
 export type ContextEntry = { value: Any }
@@ -12,3 +12,9 @@ export interface ContextStack {
 
 export type EvaluateAstNode = (node: AstNode, contextStack: ContextStack) => Any
 export type ExecuteFunction = (fn: Any, params: Arr, debugInfo: DebugInfo, contextStack: ContextStack) => Any
+
+export type LookUpResult = {
+  contextEntry: ContextEntry | null
+  builtinFunction: BuiltinFunction | null
+  specialExpression: true | null
+}

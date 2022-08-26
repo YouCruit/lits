@@ -3923,7 +3923,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.30-alpha.0";
+  var version = "1.0.30";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -5151,7 +5151,7 @@ var Lits = (function (exports) {
           var lookUpResult = lookUp(astNode, contextStack);
           return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
       },
-      validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+      validate: function (node) { return assertNumberOfParams(1, node); },
   };
 
   var specialExpressions = {

@@ -3923,7 +3923,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.30";
+  var version = "1.0.31-alpha.0";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -4938,24 +4938,30 @@ var Lits = (function (exports) {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a), templateString = _b[0], placeholders = _b.slice(1);
               string.assert(templateString, debugInfo);
+              array.assert(placeholders, debugInfo);
               var templateStrings = templateString.split("||||");
-              if (templateStrings.length === 1) {
-                  array.assert(placeholders, debugInfo);
+              if (templateStrings.length === 0) {
+                  return "";
+              }
+              else if (templateStrings.length === 1) {
                   return applyPlaceholders(templateStrings[0], placeholders, debugInfo);
               }
-              else if (templateStrings.length === 2) {
+              else {
                   var firstPlaceholder = placeholders[0];
                   number.assert(firstPlaceholder, debugInfo, { integer: true, nonNegative: true });
                   var stringPlaceholders = __spreadArray(["".concat(firstPlaceholder)], __read(placeholders.slice(1)), false);
-                  if (firstPlaceholder === 1) {
-                      return applyPlaceholders(templateStrings[0], stringPlaceholders, debugInfo);
+                  if (templateStrings.length === 2) {
+                      if (firstPlaceholder === 1) {
+                          return applyPlaceholders(templateStrings[0], stringPlaceholders, debugInfo);
+                      }
+                      else {
+                          return applyPlaceholders(templateStrings[1], stringPlaceholders, debugInfo);
+                      }
                   }
                   else {
-                      return applyPlaceholders(templateStrings[1], stringPlaceholders, debugInfo);
+                      var placehoder = templateStrings[Math.min(firstPlaceholder, templateStrings.length - 1)];
+                      return applyPlaceholders(placehoder, stringPlaceholders, debugInfo);
                   }
-              }
-              else {
-                  throw new LitsError("Invalid template string, only one \"||||\" separator allowed.", debugInfo);
               }
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 10 }, node); },

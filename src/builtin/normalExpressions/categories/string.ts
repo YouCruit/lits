@@ -201,21 +201,29 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   template: {
     evaluate: ([templateString, ...placeholders], debugInfo): string => {
       string.assert(templateString, debugInfo)
+      array.assert(placeholders, debugInfo)
       const templateStrings = templateString.split(`||||`)
-      if (templateStrings.length === 1) {
-        array.assert(placeholders, debugInfo)
+      if (templateStrings.length <= 1) {
         return applyPlaceholders(templateStrings[0] as string, placeholders, debugInfo)
-      } else if (templateStrings.length === 2) {
-        const firstPlaceholder = placeholders[0]
-        number.assert(firstPlaceholder, debugInfo, { integer: true, nonNegative: true })
-        const stringPlaceholders = [`${firstPlaceholder}`, ...placeholders.slice(1)] as string[]
-        if (firstPlaceholder === 1) {
-          return applyPlaceholders(templateStrings[0] as string, stringPlaceholders, debugInfo)
-        } else {
-          return applyPlaceholders(templateStrings[1] as string, stringPlaceholders, debugInfo)
-        }
       } else {
-        throw new LitsError(`Invalid template string, only one "||||" separator allowed.`, debugInfo)
+        // Pluralisation
+        const count = placeholders[0]
+        number.assert(count, debugInfo, { integer: true, nonNegative: true })
+        const stringPlaceholders = [`${count}`, ...placeholders.slice(1)] as string[]
+        if (templateStrings.length === 2) {
+          // Exactly two valiants.
+          // First variant (singular) for count = 1, Second variant (plural) for count = 0 or count > 1
+
+          const placehoder = templateStrings[count === 1 ? 0 : 1] as string
+          return applyPlaceholders(placehoder, stringPlaceholders, debugInfo)
+        } else {
+          // More than two variant:
+          // Use count as index
+          // If count >= number of variants, use last variant
+
+          const placehoder = templateStrings[Math.min(count, templateStrings.length - 1)] as string
+          return applyPlaceholders(placehoder, stringPlaceholders, debugInfo)
+        }
       }
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 1, max: 10 }, node),

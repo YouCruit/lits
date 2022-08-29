@@ -226,9 +226,22 @@ describe(`string functions`, () => {
       expect(() => lits.run(`(template (object))`)).toThrow()
     })
     test(`Pluralization samples`, () => {
+      expect(lits.run(`(template "" 0)`)).toBe(``)
       expect(lits.run(`(template "$1 book||||$1 books" 0)`)).toBe(`0 books`)
       expect(lits.run(`(template "$1 book||||$1 books" 1)`)).toBe(`1 book`)
       expect(lits.run(`(template "$1 book||||$1 books" 2)`)).toBe(`2 books`)
+      expect(lits.run(`(template "No books||||$1 book||||$1 books" 0)`)).toBe(`No books`)
+      expect(lits.run(`(template "No books||||$1 book||||$1 books" 1)`)).toBe(`1 book`)
+      expect(lits.run(`(template "No books||||$1 book||||$1 books" 3)`)).toBe(`3 books`)
+      expect(lits.run(`(template "No books||||One book||||Two books||||Three books||||$1 books" 0)`)).toBe(`No books`)
+      expect(lits.run(`(template "No books||||One book||||Two books||||Three books||||$1 books" 1)`)).toBe(`One book`)
+      expect(lits.run(`(template "No books||||One book||||Two books||||Three books||||$1 books" 2)`)).toBe(`Two books`)
+      expect(lits.run(`(template "No books||||One book||||Two books||||Three books||||$1 books" 3)`)).toBe(
+        `Three books`,
+      )
+      expect(lits.run(`(template "No books||||One book||||Two books||||Three books||||$1 books" 4)`)).toBe(`4 books`)
+      expect(lits.run(`(template "No books||||One book||||Two books||||Three books||||$1 books" 14)`)).toBe(`14 books`)
+      expect(() => lits.run(`(template "No books||||$1 book||||$1 books||||$1books" -3)`)).toThrow()
       expect(() => lits.run(`(template "$1 book||||$1 books")`)).toThrow()
       expect(() => lits.run(`(template "$1 book||||$1 books" :1)`)).toThrow()
       expect(() => lits.run(`(template "$1 book||||$1 books||||$1 chairs" )`)).toThrow()

@@ -3923,7 +3923,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.31-alpha.0";
+  var version = "1.0.31";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -4940,26 +4940,25 @@ var Lits = (function (exports) {
               string.assert(templateString, debugInfo);
               array.assert(placeholders, debugInfo);
               var templateStrings = templateString.split("||||");
-              if (templateStrings.length === 0) {
-                  return "";
-              }
-              else if (templateStrings.length === 1) {
+              if (templateStrings.length <= 1) {
                   return applyPlaceholders(templateStrings[0], placeholders, debugInfo);
               }
               else {
-                  var firstPlaceholder = placeholders[0];
-                  number.assert(firstPlaceholder, debugInfo, { integer: true, nonNegative: true });
-                  var stringPlaceholders = __spreadArray(["".concat(firstPlaceholder)], __read(placeholders.slice(1)), false);
+                  // Pluralisation
+                  var count = placeholders[0];
+                  number.assert(count, debugInfo, { integer: true, nonNegative: true });
+                  var stringPlaceholders = __spreadArray(["".concat(count)], __read(placeholders.slice(1)), false);
                   if (templateStrings.length === 2) {
-                      if (firstPlaceholder === 1) {
-                          return applyPlaceholders(templateStrings[0], stringPlaceholders, debugInfo);
-                      }
-                      else {
-                          return applyPlaceholders(templateStrings[1], stringPlaceholders, debugInfo);
-                      }
+                      // Exactly two valiants.
+                      // First variant (singular) for count = 1, Second variant (plural) for count = 0 or count > 1
+                      var placehoder = templateStrings[count === 1 ? 0 : 1];
+                      return applyPlaceholders(placehoder, stringPlaceholders, debugInfo);
                   }
                   else {
-                      var placehoder = templateStrings[Math.min(firstPlaceholder, templateStrings.length - 1)];
+                      // More than two variant:
+                      // Use count as index
+                      // If count >= number of variants, use last variant
+                      var placehoder = templateStrings[Math.min(count, templateStrings.length - 1)];
                       return applyPlaceholders(placehoder, stringPlaceholders, debugInfo);
                   }
               }

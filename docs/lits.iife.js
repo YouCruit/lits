@@ -3923,7 +3923,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.31";
+  var version = "1.0.32";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -5612,7 +5612,7 @@ var Lits = (function (exports) {
       var tkn = token.as(tokens[position], "EOF");
       var astNodes = [];
       var astNode;
-      while (!(tkn.value === ")" || tkn.value === "]")) {
+      while (!(tkn.type === "paren" && (tkn.value === ")" || tkn.value === "]"))) {
           _a = __read(parseToken(tokens, position), 2), position = _a[0], astNode = _a[1];
           astNodes.push(astNode);
           tkn = token.as(tokens[position], "EOF");

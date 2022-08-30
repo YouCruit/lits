@@ -46,6 +46,10 @@ describe(`string functions`, () => {
       expect(lits.run(`(str {})`)).toBe(`{}`)
       expect(lits.run(`(str {:a 1})`)).toBe(`{"a":1}`)
     })
+
+    test(`regressions`, () => {
+      expect(lits.run(`(str ")")`)).toBe(`)`)
+    })
   })
 
   describe(`number`, () => {

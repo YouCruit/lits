@@ -54,7 +54,7 @@ const parseTokens: ParseTokens = (tokens, position) => {
   let tkn = token.as(tokens[position], `EOF`)
   const astNodes: AstNode[] = []
   let astNode: AstNode
-  while (!(tkn.value === `)` || tkn.value === `]`)) {
+  while (!(tkn.type === `paren` && (tkn.value === `)` || tkn.value === `]`))) {
     ;[position, astNode] = parseToken(tokens, position)
     astNodes.push(astNode)
     tkn = token.as(tokens[position], `EOF`)

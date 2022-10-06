@@ -3927,7 +3927,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.33-alpha.0";
+  var version = "1.0.33";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -5016,8 +5016,8 @@ var Lits = (function (exports) {
               try {
                   return decodeURIComponent(value);
               }
-              catch (_c) {
-                  throw new LitsError("Could not decode-uri-component, invalid parameter: \"".concat(value, "\""), debugInfo);
+              catch (error) {
+                  throw new LitsError(error, debugInfo);
               }
           },
           validate: function (node) { return assertNumberOfParams(1, node); },

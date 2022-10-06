@@ -359,4 +359,72 @@ module.exports = {
     description: `Return character for code point \`code\`.`,
     examples: [`(from-char-code 65)`, `(from-char-code 0)`],
   },
+  'encode-base64': {
+    name: `encode-base64`,
+    category: `String`,
+    linkName: `encode-base64`,
+    clojureDocs: null,
+    returns: {
+      type: `string`,
+    },
+    arguments: [
+      {
+        name: `value`,
+        type: `string`,
+      },
+    ],
+    description: `Returns a Base64 encoded string from \`value\`.`,
+    examples: [`(encode-base64 "Albert 🐻")`],
+  },
+  'decode-base64': {
+    name: `decode-base64`,
+    category: `String`,
+    linkName: `decode-base64`,
+    clojureDocs: null,
+    returns: {
+      type: `string`,
+    },
+    arguments: [
+      {
+        name: `base64string`,
+        type: `string`,
+      },
+    ],
+    description: `Returns a Base64 decoded string from \`base64string\`.`,
+    examples: [`(decode-base64 "QWxiZXJ0IPCfkLs=")`],
+  },
+  'encode-uri-component': {
+    name: `encode-uri-component`,
+    category: `String`,
+    linkName: `encode-uri-component`,
+    clojureDocs: null,
+    returns: {
+      type: `string`,
+    },
+    arguments: [
+      {
+        name: `uri`,
+        type: `string`,
+      },
+    ],
+    description: `Returns an escaped \`uri\` string.`,
+    examples: [`(encode-uri-component "Hi everyone!? 👍")`],
+  },
+  'decode-uri-component': {
+    name: `decode-uri-component`,
+    category: `String`,
+    linkName: `decode-uri-component`,
+    clojureDocs: null,
+    returns: {
+      type: `string`,
+    },
+    arguments: [
+      {
+        name: `uri`,
+        type: `string`,
+      },
+    ],
+    description: `Returns an un-escaped \`uri\` string.`,
+    examples: [`(decode-uri-component "Hi%20everyone!%3F%20%F0%9F%91%8D")`],
+  },
 }

@@ -94,8 +94,11 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([num], debugInfo): string => {
       number.assert(num, debugInfo, { finite: true })
       const int = toNonNegativeInteger(num)
-
-      return String.fromCodePoint(int)
+      try {
+        return String.fromCodePoint(int)
+      } catch (error) {
+        throw new LitsError(error as Error, debugInfo)
+      }
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
@@ -227,6 +230,56 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       }
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 1, max: 10 }, node),
+  },
+
+  'encode-base64': {
+    evaluate: ([value], debugInfo): string => {
+      string.assert(value, debugInfo)
+      return btoa(
+        encodeURIComponent(value).replace(/%([0-9A-F]{2})/g, (_match, p1) => {
+          return String.fromCharCode(parseInt(p1, 16))
+        }),
+      )
+    },
+    validate: node => assertNumberOfParams(1, node),
+  },
+
+  'decode-base64': {
+    evaluate: ([value], debugInfo): string => {
+      string.assert(value, debugInfo)
+      try {
+        return decodeURIComponent(
+          Array.prototype.map
+            .call(atob(value), c => {
+              return `%` + (`00` + c.charCodeAt(0).toString(16)).slice(-2)
+            })
+            .join(``),
+        )
+      } catch (error) {
+        throw new LitsError(error as Error, debugInfo)
+      }
+    },
+    validate: node => assertNumberOfParams(1, node),
+  },
+
+  'encode-uri-component': {
+    evaluate: ([value], debugInfo): string => {
+      string.assert(value, debugInfo)
+      return encodeURIComponent(value)
+    },
+    validate: node => assertNumberOfParams(1, node),
+  },
+
+  'decode-uri-component': {
+    evaluate: ([value], debugInfo): string => {
+      string.assert(value, debugInfo)
+      try {
+        return decodeURIComponent(value)
+      } catch (error) {
+        throw new LitsError(error as Error, debugInfo)
+      }
+    },
+    validate: node => assertNumberOfParams(1, node),
   },
 }
 

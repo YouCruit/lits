@@ -264,15 +264,51 @@ describe(`string functions`, () => {
   describe(`from-char-code`, () => {
     test(`samples`, () => {
       expect(lits.run(`(from-char-code 97)`)).toBe(`a`)
+      expect(() => lits.run(`(from-char-code 9700000)`)).toThrow()
       expect(() => lits.run(`(from-char-code)`)).toThrow()
       expect(() => lits.run(`(from-char-code 65 66)`)).toThrow()
     })
   })
-  describe(`from-char-code`, () => {
+
+  describe(`encode-base64`, () => {
     test(`samples`, () => {
-      expect(lits.run(`:a`)).toBe(`a`)
-      expect(lits.run(`:a-a`)).toBe(`a-a`)
-      expect(() => lits.run(`:`)).toThrow()
+      expect(lits.run(`(encode-base64 :Albert)`)).toBe(`QWxiZXJ0`)
+      expect(lits.run(`(encode-base64 "Albert is a 🐻")`)).toBe(`QWxiZXJ0IGlzIGEg8J+Quw==`)
+      expect(() => lits.run(`(encode-base64)`)).toThrow()
+      expect(() => lits.run(`(encode-base64 :X :Y)`)).toThrow()
     })
+  })
+
+  describe(`decode-base64`, () => {
+    test(`samples`, () => {
+      expect(lits.run(`(decode-base64 "QWxiZXJ0")`)).toBe(`Albert`)
+      expect(lits.run(`(decode-base64 "QWxiZXJ0IGlzIGEg8J+Quw==")`)).toBe(`Albert is a 🐻`)
+      expect(() => lits.run(`(decode-base64 "Illegal string ~")`)).toThrow()
+      expect(() => lits.run(`(decode-base64)`)).toThrow()
+      expect(() => lits.run(`(decode-base64 :X :Y)`)).toThrow()
+    })
+  })
+
+  describe(`encode-uri-component`, () => {
+    test(`samples`, () => {
+      expect(lits.run(`(encode-uri-component "a string")`)).toBe(`a%20string`)
+      expect(() => lits.run(`(encode-uri-component)`)).toThrow()
+      expect(() => lits.run(`(encode-uri-component :X :Y)`)).toThrow()
+    })
+  })
+
+  describe(`decode-uri-component`, () => {
+    test(`samples`, () => {
+      expect(lits.run(`(decode-uri-component "a%20string")`)).toBe(`a string`)
+      expect(() => lits.run(`(decode-uri-component "a%AFc")`)).toThrow()
+      expect(() => lits.run(`(decode-uri-component)`)).toThrow()
+      expect(() => lits.run(`(decode-uri-component :X :Y)`)).toThrow()
+    })
+  })
+
+  test(`Short hand strings`, () => {
+    expect(lits.run(`:a`)).toBe(`a`)
+    expect(lits.run(`:a-a`)).toBe(`a-a`)
+    expect(() => lits.run(`:`)).toThrow()
   })
 })

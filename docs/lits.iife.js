@@ -178,7 +178,11 @@ var Lits = (function (exports) {
   var AbstractLitsError = /** @class */ (function (_super) {
       __extends(AbstractLitsError, _super);
       function AbstractLitsError(message, debugInfo) {
-          var _this = _super.call(this, "".concat(message).concat(debugInfo ? "\n".concat(debugInfo) : "")) || this;
+          var _this = this;
+          if (message instanceof Error) {
+              message = "".concat(message.name).concat(message.message ? ": ".concat(message.message) : "");
+          }
+          _this = _super.call(this, "".concat(message).concat(debugInfo ? "\n".concat(debugInfo) : "")) || this;
           _this.shortMessage = message;
           _this.debugInfo = debugInfo;
           Object.setPrototypeOf(_this, AbstractLitsError.prototype);
@@ -3923,7 +3927,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.32";
+  var version = "1.0.33-alpha.0";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -4836,7 +4840,12 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), num = _b[0];
               number.assert(num, debugInfo, { finite: true });
               var int = toNonNegativeInteger(num);
-              return String.fromCodePoint(int);
+              try {
+                  return String.fromCodePoint(int);
+              }
+              catch (error) {
+                  throw new LitsError(error, debugInfo);
+              }
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
@@ -4964,6 +4973,54 @@ var Lits = (function (exports) {
               }
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 10 }, node); },
+      },
+      'encode-base64': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 1), value = _b[0];
+              string.assert(value, debugInfo);
+              return btoa(encodeURIComponent(value).replace(/%([0-9A-F]{2})/g, function (_match, p1) {
+                  return String.fromCharCode(parseInt(p1, 16));
+              }));
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
+      },
+      'decode-base64': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 1), value = _b[0];
+              string.assert(value, debugInfo);
+              try {
+                  return decodeURIComponent(Array.prototype.map
+                      .call(atob(value), function (c) {
+                      return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+                  })
+                      .join(""));
+              }
+              catch (error) {
+                  throw new LitsError(error, debugInfo);
+              }
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
+      },
+      'encode-uri-component': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 1), value = _b[0];
+              string.assert(value, debugInfo);
+              return encodeURIComponent(value);
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
+      },
+      'decode-uri-component': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 1), value = _b[0];
+              string.assert(value, debugInfo);
+              try {
+                  return decodeURIComponent(value);
+              }
+              catch (_c) {
+                  throw new LitsError("Could not decode-uri-component, invalid parameter: \"".concat(value, "\""), debugInfo);
+              }
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
       },
   };
   var doubleDollarRegexp = /\$\$/g;

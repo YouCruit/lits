@@ -3927,7 +3927,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.33";
+  var version = "1.0.34";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6375,15 +6375,24 @@ var Lits = (function (exports) {
   var Lits = /** @class */ (function () {
       function Lits(config) {
           if (config === void 0) { config = {}; }
-          var _a;
+          var _a, _b;
           this.debug = (_a = config.debug) !== null && _a !== void 0 ? _a : false;
-          if (config.astCacheSize && config.astCacheSize > 0) {
-              this.astCache = new Cache(config.astCacheSize);
+          this.astCacheSize = (_b = config.astCacheSize) !== null && _b !== void 0 ? _b : 0;
+          if (this.astCacheSize > 0) {
+              this.astCache = new Cache(this.astCacheSize);
           }
           else {
               this.astCache = null;
           }
       }
+      Lits.prototype.getRuntimeInfo = function () {
+          var _a, _b, _c;
+          return {
+              astCacheSize: (_a = this.astCacheSize) !== null && _a !== void 0 ? _a : 0,
+              currentAstCacheSize: (_c = (_b = this.astCache) === null || _b === void 0 ? void 0 : _b.size) !== null && _c !== void 0 ? _c : 0,
+              debug: this.debug,
+          };
+      };
       Lits.prototype.run = function (program, params) {
           if (params === void 0) { params = {}; }
           var ast = this.generateAst(program, params.getLocation);

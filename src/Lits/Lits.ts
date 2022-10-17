@@ -11,6 +11,12 @@ import { Cache } from './Cache'
 
 export type LocationGetter = (line: number, col: number) => string
 
+export type LitsRuntimeInfo = {
+  currentAstCacheSize: number
+  astCacheSize: number
+  debug: boolean
+}
+
 export type LitsParams = {
   contexts?: Context[]
   globals?: Obj
@@ -25,14 +31,24 @@ type LitsConfig = {
 
 export class Lits {
   private astCache: Cache<Ast> | null
+  private astCacheSize: number | null
   private debug: boolean
 
   constructor(config: LitsConfig = {}) {
     this.debug = config.debug ?? false
-    if (config.astCacheSize && config.astCacheSize > 0) {
-      this.astCache = new Cache(config.astCacheSize)
+    this.astCacheSize = config.astCacheSize ?? 0
+    if (this.astCacheSize > 0) {
+      this.astCache = new Cache(this.astCacheSize)
     } else {
       this.astCache = null
+    }
+  }
+
+  public getRuntimeInfo(): LitsRuntimeInfo {
+    return {
+      astCacheSize: this.astCacheSize ?? 0,
+      currentAstCacheSize: this.astCache?.size ?? 0,
+      debug: this.debug,
     }
   }
 

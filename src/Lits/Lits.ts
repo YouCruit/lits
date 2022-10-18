@@ -31,7 +31,7 @@ type LitsConfig = {
 
 export class Lits {
   private astCache: Cache<Ast> | null
-  private astCacheSize: number | null
+  private astCacheSize: number
   private debug: boolean
 
   constructor(config: LitsConfig = {}) {
@@ -46,7 +46,7 @@ export class Lits {
 
   public getRuntimeInfo(): LitsRuntimeInfo {
     return {
-      astCacheSize: this.astCacheSize ?? 0,
+      astCacheSize: this.astCacheSize,
       currentAstCacheSize: this.astCache?.size ?? 0,
       debug: this.debug,
     }

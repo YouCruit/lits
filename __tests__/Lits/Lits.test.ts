@@ -26,6 +26,17 @@ describe(`TEST`, () => {
   })
 })
 
+describe(`runtime info`, () => {
+  test(`getRuntimeInfo().`, () => {
+    const lits = new Lits()
+    expect(lits.getRuntimeInfo()).toMatchSnapshot()
+  })
+  test(`getRuntimeInfo() with ast cache`, () => {
+    const lits = new Lits({ astCacheSize: 10 })
+    expect(lits.getRuntimeInfo()).toMatchSnapshot()
+  })
+})
+
 describe(`context`, () => {
   let lits: Lits
   beforeEach(() => {

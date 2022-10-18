@@ -1,21 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`runtime info getRuntimeInfo 1`] = `
-Object {
-  "astCacheSize": 0,
-  "currentAstCacheSize": 0,
-  "debug": false,
-}
-`;
-
-exports[`runtime info getRuntimeInfo() no ast cache 1`] = `
-Object {
-  "astCacheSize": 0,
-  "currentAstCacheSize": 0,
-  "debug": false,
-}
-`;
-
 exports[`runtime info getRuntimeInfo() with ast cache 1`] = `
 Object {
   "astCacheSize": 10,

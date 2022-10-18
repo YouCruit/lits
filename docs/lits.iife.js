@@ -3571,11 +3571,11 @@ var Lits = (function (exports) {
           },
       },
       '-': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-              if (!first) {
+          evaluate: function (params, debugInfo) {
+              if (params.length === 0) {
                   return 0;
               }
+              var _a = __read(params), first = _a[0], rest = _a.slice(1);
               number.assert(first, debugInfo);
               if (rest.length === 0) {
                   return -first;
@@ -3927,7 +3927,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.34";
+  var version = "1.0.35";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6386,10 +6386,10 @@ var Lits = (function (exports) {
           }
       }
       Lits.prototype.getRuntimeInfo = function () {
-          var _a, _b, _c;
+          var _a, _b;
           return {
-              astCacheSize: (_a = this.astCacheSize) !== null && _a !== void 0 ? _a : 0,
-              currentAstCacheSize: (_c = (_b = this.astCache) === null || _b === void 0 ? void 0 : _b.size) !== null && _c !== void 0 ? _c : 0,
+              astCacheSize: this.astCacheSize,
+              currentAstCacheSize: (_b = (_a = this.astCache) === null || _a === void 0 ? void 0 : _a.size) !== null && _b !== void 0 ? _b : 0,
               debug: this.debug,
           };
       };

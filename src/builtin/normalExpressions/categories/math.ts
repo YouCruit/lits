@@ -56,10 +56,11 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   },
 
   '-': {
-    evaluate: ([first, ...rest], debugInfo): number => {
-      if (!first) {
+    evaluate: (params, debugInfo): number => {
+      if (params.length === 0) {
         return 0
       }
+      const [first, ...rest] = params
       number.assert(first, debugInfo)
       if (rest.length === 0) {
         return -first

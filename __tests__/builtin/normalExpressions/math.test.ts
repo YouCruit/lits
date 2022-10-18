@@ -87,6 +87,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(- 1 2 3 4)`)).toBe(1 - 2 - 3 - 4)
       expect(() => lits.run(`(- :1 2 3 4)`)).toThrow()
     })
+    test(`strange bug`, () => {
+      expect(lits.run(`(def a 0) (def b 2) (- a b)`)).toBe(-2)
+    })
   })
 
   describe(`sqrt`, () => {

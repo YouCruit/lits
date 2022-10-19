@@ -1,4 +1,12 @@
-import { AstNode, FUNCTION_SYMBOL, LitsFunction, NameNode, NormalExpressionNode } from '../src/parser/interface'
+import {
+  AstNode,
+  FUNCTION_SYMBOL,
+  LitsFunction,
+  NameNode,
+  NormalExpressionNode,
+  REGEXP_SYMBOL,
+  RegularExpression,
+} from '../src/parser/interface'
 import { DebugInfo, Token } from '../src/tokenizer/interface'
 import {
   any,
@@ -12,7 +20,7 @@ import {
   string,
   asValue,
   assertValue,
-  regExp,
+  regularExpression,
   assertEventNumberOfParams,
   assertNumberOfParams,
   stringOrRegExp,
@@ -169,16 +177,23 @@ describe(`utils`, () => {
     expect(() => number.assert([], debugInfo, { integer: true })).toThrow()
   })
   test(`assertRegExp`, () => {
-    expect(() => regExp.assert(/a/, debugInfo)).not.toThrow()
-    expect(() => regExp.assert(new RegExp(`a`), debugInfo)).not.toThrow()
-    expect(() => regExp.assert(0, debugInfo)).toThrow()
-    expect(() => regExp.assert(`0`, debugInfo)).toThrow()
-    expect(() => regExp.assert(null, debugInfo)).toThrow()
-    expect(() => regExp.assert(undefined, debugInfo)).toThrow()
-    expect(() => regExp.assert(false, debugInfo)).toThrow()
-    expect(() => regExp.assert(true, debugInfo)).toThrow()
-    expect(() => regExp.assert([], debugInfo)).toThrow()
-    expect(() => regExp.assert({}, debugInfo)).toThrow()
+    const a: RegularExpression = {
+      [REGEXP_SYMBOL]: true,
+      debugInfo: null,
+      source: `^ab`,
+      flags: ``,
+    }
+    expect(() => regularExpression.assert(/a/, debugInfo)).toThrow()
+    expect(() => regularExpression.assert(a, debugInfo)).not.toThrow()
+    expect(() => regularExpression.assert(new RegExp(`a`), debugInfo)).toThrow()
+    expect(() => regularExpression.assert(0, debugInfo)).toThrow()
+    expect(() => regularExpression.assert(`0`, debugInfo)).toThrow()
+    expect(() => regularExpression.assert(null, debugInfo)).toThrow()
+    expect(() => regularExpression.assert(undefined, debugInfo)).toThrow()
+    expect(() => regularExpression.assert(false, debugInfo)).toThrow()
+    expect(() => regularExpression.assert(true, debugInfo)).toThrow()
+    expect(() => regularExpression.assert([], debugInfo)).toThrow()
+    expect(() => regularExpression.assert({}, debugInfo)).toThrow()
   })
 
   function node(arr: number[]): NormalExpressionNode {
@@ -464,9 +479,16 @@ describe(`utils`, () => {
   })
 
   test(`assertStringOrRegExp`, () => {
+    const a: RegularExpression = {
+      [REGEXP_SYMBOL]: true,
+      debugInfo: null,
+      source: `^ab`,
+      flags: ``,
+    }
     expect(() => stringOrRegExp.assert(``, debugInfo)).not.toThrow()
     expect(() => stringOrRegExp.assert(`1`, debugInfo)).not.toThrow()
-    expect(() => stringOrRegExp.assert(/^a/, debugInfo)).not.toThrow()
+    expect(() => stringOrRegExp.assert(a, debugInfo)).not.toThrow()
+    expect(() => stringOrRegExp.assert(/^a/, debugInfo)).toThrow()
     expect(() => stringOrRegExp.assert([], debugInfo)).toThrow()
     expect(() => stringOrRegExp.assert([1, 2, 3], debugInfo)).toThrow()
     expect(() => stringOrRegExp.assert(0, debugInfo)).toThrow()
@@ -577,9 +599,16 @@ describe(`utils`, () => {
   })
 
   test(`isRegexp`, () => {
-    expect(regExp.is(`Hej`)).toBe(false)
-    expect(regExp.is({})).toBe(false)
-    expect(regExp.is(/^a/)).toBe(true)
+    const a: RegularExpression = {
+      [REGEXP_SYMBOL]: true,
+      debugInfo: null,
+      source: `^ab`,
+      flags: ``,
+    }
+
+    expect(regularExpression.is(`Hej`)).toBe(false)
+    expect(regularExpression.is({})).toBe(false)
+    expect(regularExpression.is(a)).toBe(true)
   })
 
   test(`isNormalExpressionNodeName`, () => {

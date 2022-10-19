@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 
 import { Obj } from '../src/interface'
+import { regularExpression } from '../src/utils/assertion'
 
 interface Primitives extends Obj {
   string: string
@@ -72,4 +73,13 @@ export function checkTestData(): void {
   if (stringifiedTestData !== stringifiedPrivateTestData) {
     throw Error(`Expected testData to not change got:\n${stringifiedTestData}\nExpected${stringifiedPrivateTestData}`)
   }
+}
+
+export function regexpEquals(udr: unknown, r: RegExp): boolean {
+  if (!regularExpression.is(udr)) {
+    return false
+  }
+  const sortedUdrFlags = udr.flags.split(``).sort().join(``)
+  const sortedRFlags = r.flags.split(``).sort().join(``)
+  return udr.source === r.source && sortedRFlags === sortedUdrFlags
 }

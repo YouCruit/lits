@@ -25,6 +25,7 @@ export type LitsParams = {
 }
 
 type LitsConfig = {
+  initialCache?: Record<string, Ast>
   astCacheSize?: number
   debug?: boolean
 }
@@ -39,6 +40,10 @@ export class Lits {
     this.astCacheSize = config.astCacheSize ?? 0
     if (this.astCacheSize > 0) {
       this.astCache = new Cache(this.astCacheSize)
+      const initialCache = config.initialCache ?? {}
+      for (const cacheEntry of Object.keys(initialCache)) {
+        this.astCache.set(cacheEntry, initialCache[cacheEntry] as Ast)
+      }
     } else {
       this.astCache = null
     }

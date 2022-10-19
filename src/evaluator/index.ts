@@ -238,7 +238,7 @@ function evaluateStringAsFunction(fn: string, params: Arr, debugInfo: DebugInfo)
 function evaluateNumberAsFunction(fn: number, params: Arr, debugInfo: DebugInfo): Any {
   number.assert(fn, debugInfo, { integer: true })
   if (params.length !== 1) {
-    throw new LitsError(`String as function requires one Arr parameter.`, debugInfo)
+    throw new LitsError(`Number as function requires one Arr parameter.`, debugInfo)
   }
   const param = params[0]
   sequence.assert(param, debugInfo)

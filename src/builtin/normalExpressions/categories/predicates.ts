@@ -10,6 +10,7 @@ import {
   assertNumberOfParams,
   string,
 } from '../../../utils/assertion'
+import { isRegularExpression } from '../../../utils/helpers'
 
 export const predicatesNormalExpression: BuiltinNormalExpressions = {
   'function?': {
@@ -109,8 +110,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
   },
 
   'regexp?': {
-    evaluate: ([first]): boolean =>
-      first !== null && !Array.isArray(first) && typeof first === `object` && first instanceof RegExp,
+    evaluate: ([value]): boolean => isRegularExpression(value),
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 

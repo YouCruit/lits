@@ -1,4 +1,4 @@
-import { AstNode, FUNCTION_SYMBOL, LitsFunction, NodeType } from '../parser/interface'
+import { AstNode, FUNCTION_SYMBOL, LitsFunction, NodeType, REGEXP_SYMBOL, RegularExpression } from '../parser/interface'
 import { DebugInfo, Token, TokenizerType } from '../tokenizer/interface'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
@@ -88,4 +88,11 @@ export function isLitsFunction(func: unknown): func is LitsFunction {
     return false
   }
   return !!(func as LitsFunction)[FUNCTION_SYMBOL]
+}
+
+export function isRegularExpression(regexp: unknown): regexp is RegularExpression {
+  if (regexp === null || typeof regexp !== `object`) {
+    return false
+  }
+  return !!(regexp as RegularExpression)[REGEXP_SYMBOL]
 }

@@ -9,9 +9,10 @@ import {
   NormalExpressionNode,
   NormalExpressionNodeWithName,
   SpecialExpressionNode,
+  RegularExpression,
 } from '../parser/interface'
 import { DebugInfo } from '../tokenizer/interface'
-import { getDebugInfo, isAstNode, isLitsFunction, valueToString } from './helpers'
+import { getDebugInfo, isAstNode, isLitsFunction, isRegularExpression, valueToString } from './helpers'
 import { string } from './stringAssertion'
 
 export { number } from './numberAssertion'
@@ -57,7 +58,8 @@ export const object: Asserter<Obj> = new Asserter(
       typeof value !== `object` ||
       Array.isArray(value) ||
       value instanceof RegExp ||
-      isLitsFunction(value)
+      isLitsFunction(value) ||
+      isRegularExpression(value)
     ),
 )
 export const collection: Asserter<Coll> = new Asserter(`Coll`, value => sequence.is(value) || object.is(value))
@@ -89,10 +91,10 @@ export const charArray: Asserter<string[]> = new Asserter(
   `character array`,
   value => Array.isArray(value) && value.every(v => typeof v === `string` && v.length === 1),
 )
-export const regExp: Asserter<RegExp> = new Asserter(`RegExp`, value => value instanceof RegExp)
-export const stringOrRegExp: Asserter<string | RegExp> = new Asserter(
-  `string or RegExp`,
-  value => value instanceof RegExp || typeof value === `string`,
+export const regularExpression: Asserter<RegularExpression> = new Asserter(`regularExpression`, isRegularExpression)
+export const stringOrRegExp: Asserter<string | RegularExpression> = new Asserter(
+  `string or regularExpression`,
+  value => isRegularExpression(value) || typeof value === `string`,
 )
 export const expressionNode: Asserter<ExpressionNode> = new Asserter(`expression node`, value => {
   if (!astNode.is(value)) {

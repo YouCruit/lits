@@ -1,7 +1,9 @@
 import { Context } from '../evaluator/interface'
 import { Any, Arr, Coll, Obj } from '../interface'
+import { RegularExpression } from '../parser/interface'
 import { DebugInfo } from '../tokenizer/interface'
-import { any, array, collection, number, object, regExp, string } from './assertion'
+import { any, array, collection, number, object, regularExpression, string } from './assertion'
+import { isRegularExpression } from './helpers'
 
 export function collHasKey(coll: unknown, key: string | number): boolean {
   if (!collection.is(coll)) {
@@ -42,7 +44,7 @@ function getType(value: unknown): Type {
     return `array`
   } else if (object.is(value)) {
     return `object`
-  } else if (regExp.is(value)) {
+  } else if (regularExpression.is(value)) {
     return `regexp`
   } else {
     return `unknown`
@@ -93,8 +95,8 @@ export function compare(a: unknown, b: unknown): number {
       return Math.sign(Object.keys(aObj).length - Object.keys(bObj).length)
     }
     case `regexp`: {
-      const aString = (a as RegExp).source
-      const bString = (b as RegExp).source
+      const aString = (a as RegularExpression).source
+      const bString = (b as RegularExpression).source
       return aString < bString ? -1 : aString > bString ? 1 : 0
     }
     case `unknown`:
@@ -122,8 +124,8 @@ export function deepEqual(a: Any, b: Any, debugInfo: DebugInfo): boolean {
     }
     return true
   }
-  if (a instanceof RegExp && b instanceof RegExp) {
-    return a.toString() === b.toString()
+  if (isRegularExpression(a) && isRegularExpression(b)) {
+    return a.source === b.source && a.flags === b.flags
   }
   if (typeof a === `object` && a !== null && typeof b === `object` && b !== null) {
     const aObj = a as Record<string, unknown>

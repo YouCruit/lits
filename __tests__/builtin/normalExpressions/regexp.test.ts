@@ -1,4 +1,5 @@
 import { Lits } from '../../../src'
+import { regexpEquals } from '../../testUtils'
 
 let lits: Lits
 
@@ -9,11 +10,11 @@ beforeEach(() => {
 describe(`regexp functions`, () => {
   describe(`regexp`, () => {
     test(`samples`, () => {
-      expect(lits.run(`(regexp "^abc$")`)).toEqual(/^abc$/)
-      expect(lits.run(`#"^abc$"`)).toEqual(/^abc$/)
-      expect(lits.run(`(regexp "^abc$" "gi")`)).toEqual(/^abc$/gi)
-      expect(lits.run(`(regexp "^abc$" "ig")`)).toEqual(/^abc$/gi)
-      expect(lits.run(`(regexp "")`)).toEqual(/(?:)/)
+      expect(regexpEquals(lits.run(`(regexp "^abc$")`), /^abc$/)).toBe(true)
+      expect(regexpEquals(lits.run(`#"^abc$"`), /^abc$/)).toBe(true)
+      expect(regexpEquals(lits.run(`(regexp "^abc$" "gi")`), /^abc$/gi)).toBe(true)
+      expect(regexpEquals(lits.run(`(regexp "^abc$" "ig")`), /^abc$/gi)).toBe(true)
+      expect(regexpEquals(lits.run(`(regexp "")`), new RegExp(``))).toBe(true)
       expect(() => lits.run(`(regexp "(")`)).toThrow()
       expect(() => lits.run(`(regexp)`)).toThrow()
       expect(() => lits.run(`(regexp 1)`)).toThrow()

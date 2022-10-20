@@ -6,6 +6,7 @@ import { ReservedName } from '../reservedNames'
 import { DebugInfo, Token } from '../tokenizer/interface'
 
 export const FUNCTION_SYMBOL = `__LITS_FUNCTION__`
+export const REGEXP_SYMBOL = `__REGEXP__`
 
 export type EvaluatedFunctionArguments = {
   mandatoryArguments: string[]
@@ -23,6 +24,13 @@ type GenericLitsFunction = {
   [FUNCTION_SYMBOL]: true
   debugInfo: DebugInfo
   type: string
+}
+
+export interface RegularExpression {
+  [REGEXP_SYMBOL]: true
+  debugInfo: DebugInfo
+  source: string
+  flags: string
 }
 
 export interface UserDefinedFunction extends GenericLitsFunction {

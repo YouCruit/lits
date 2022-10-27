@@ -41,6 +41,12 @@ describe(`specialExpressions`, () => {
       expect(() => lits.run(`(defs (object) 10)`)).toThrow()
       expect(() => lits.run(`(defs a 10)`)).toThrow()
     })
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(defs "foo" (+ a b))`).undefinedSymbols).toEqual(new Set([`a`, `b`]))
+        expect(lits.analyze(`(defs "foo" (+ a b)) foo`).undefinedSymbols).toEqual(new Set([`a`, `b`, `foo`]))
+      })
+    })
   })
 
   describe(`def`, () => {
@@ -74,6 +80,12 @@ describe(`specialExpressions`, () => {
       expect(logSpy).toHaveBeenNthCalledWith(2, `B`)
       expect(logSpy).toHaveBeenNthCalledWith(3, `A`)
     })
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(def foo (+ a b))`).undefinedSymbols).toEqual(new Set([`a`, `b`]))
+        expect(lits.analyze(`(def foo (+ a b)) foo`).undefinedSymbols).toEqual(new Set([`a`, `b`]))
+      })
+    })
   })
 
   describe(`if`, () => {
@@ -104,6 +116,13 @@ describe(`specialExpressions`, () => {
       lits.run(`(if false (write! :A) (write! :B))`)
       expect(logSpy).not.toHaveBeenCalledWith(`A`)
       expect(logSpy).toHaveBeenCalledWith(`B`)
+    })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(if (> a b) a b)`).undefinedSymbols).toEqual(new Set([`a`, `b`]))
+        expect(lits.analyze(`(if (> a b) c d)`).undefinedSymbols).toEqual(new Set([`a`, `b`, `c`, `d`]))
+      })
     })
   })
 
@@ -136,6 +155,13 @@ describe(`specialExpressions`, () => {
       expect(logSpy).not.toHaveBeenCalledWith(`B`)
       expect(logSpy).toHaveBeenCalledWith(`A`)
     })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(if-not (> a b) a b)`).undefinedSymbols).toEqual(new Set([`a`, `b`]))
+        expect(lits.analyze(`(if-not (> a b) c d)`).undefinedSymbols).toEqual(new Set([`a`, `b`, `c`, `d`]))
+      })
+    })
   })
 
   describe(`if-let`, () => {
@@ -148,6 +174,12 @@ describe(`specialExpressions`, () => {
       expect(() => lits.run(`(if-let [a (> (count "Albert") 10)])`)).toThrow()
       expect(() => lits.run(`(if-let [a (> (count "Albert") 10) b 20] 1 2)`)).toThrow()
     })
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(if-let [a (> (count name) 4)] a b)`).undefinedSymbols).toEqual(new Set([`name`, `b`]))
+        expect(lits.analyze(`(if-let [name (str name :_)] name)`).undefinedSymbols).toEqual(new Set([`name`]))
+      })
+    })
   })
 
   describe(`when-let`, () => {
@@ -158,6 +190,14 @@ describe(`specialExpressions`, () => {
       expect(lits.run(`(when-let [a (> (count "Albert") 10)] 10 20)`)).toBeNull()
       expect(lits.run(`(when-let [a (> (count "Albert") 4)] 10 20)`)).toBe(20)
       expect(() => lits.run(`(when-let [a (> (count "Albert") 10) b 20] 1)`)).toThrow()
+    })
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(when-let [a (> (count name) 4)] a b c)`).undefinedSymbols).toEqual(
+          new Set([`name`, `b`, `c`]),
+        )
+        expect(lits.analyze(`(when-let [name (str name :_)] name)`).undefinedSymbols).toEqual(new Set([`name`]))
+      })
     })
   })
 
@@ -202,7 +242,7 @@ describe(`specialExpressions`, () => {
         lits.run(`
           (let (
             (a :A)
-            (b a)     ;Cannot access local variable a here. This is what let* whould be for
+            (b a)     ;Cannot access local variable a here. This is what let* would be for
           )
             b
           )
@@ -219,6 +259,11 @@ describe(`specialExpressions`, () => {
           )
         `),
       ).toBe(`A`)
+    })
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(let [a (> (count name) 4)] a b)`).undefinedSymbols).toEqual(new Set([`name`, `b`]))
+      })
     })
   })
 
@@ -260,6 +305,11 @@ describe(`specialExpressions`, () => {
         expect(logSpy).not.toHaveBeenCalledWith(0)
       })
     })
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(and false b)`).undefinedSymbols).toEqual(new Set([`b`]))
+      })
+    })
   })
 
   describe(`or`, () => {
@@ -293,6 +343,11 @@ describe(`specialExpressions`, () => {
         expect(logSpy).toHaveBeenNthCalledWith(2, 0)
       })
     })
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(or true b (+ c d))`).undefinedSymbols).toEqual(new Set([`b`, `c`, `d`]))
+      })
+    })
   })
 
   describe(`cond`, () => {
@@ -313,12 +368,18 @@ describe(`specialExpressions`, () => {
       ).toBe(10)
       expect(logSpy).not.toHaveBeenCalled()
     })
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(cond true a false b (> a 1) c :else d)`).undefinedSymbols).toEqual(
+          new Set([`a`, `b`, `c`, `d`]),
+        )
+      })
+    })
   })
 
   describe(`defn`, () => {
     test(`samples`, () => {
       expect(lits.run(`(defn add [a b] (+ a b)) (add 1 2)`)).toBe(3)
-      expect(lits.run(`(defn add [a b &let [x 10]] (+ a b x)) (add 1 2)`)).toBe(13)
       expect(() => lits.run(`(defn add [] 10)`)).not.toThrow()
       expect(() => lits.run(`(defn true [] 10)`)).toThrow()
       expect(() => lits.run(`(defn false [] 10)`)).toThrow()
@@ -345,6 +406,16 @@ describe(`specialExpressions`, () => {
       expect(lits.run(`(defn applyWithVal [fun val] (fun val)) (applyWithVal inc 10)`)).toBe(11)
       expect(lits.run(`(defn applyWithVal [fun val] (fun val)) (applyWithVal inc 10)`)).toBe(11)
     })
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(defn foo [a] (if (= a 1) 1 (+ a (foo (dec a)))))`).undefinedSymbols).toEqual(new Set())
+        expect(lits.analyze(`(defn foo [a b] (str a b c))`).undefinedSymbols).toEqual(new Set([`c`]))
+        expect(lits.analyze(`(defn foo [a b] (str a b c)) (foo x y)`).undefinedSymbols).toEqual(
+          new Set([`c`, `x`, `y`]),
+        )
+        expect(lits.analyze(`(defn add ([a b & rest] (+ a b)) ([a] 10))`).undefinedSymbols).toEqual(new Set())
+      })
+    })
   })
 
   describe(`defns`, () => {
@@ -361,6 +432,18 @@ describe(`specialExpressions`, () => {
     test(`call defns function`, () => {
       expect(lits.run(`(defns "sumOneToN" [n] (if (<= n 1) n (+ n (sumOneToN (- n 1))))) (sumOneToN 10)`)).toBe(55)
       expect(lits.run(`(defns "applyWithVal" [fun val] (fun val)) (applyWithVal inc 10)`)).toBe(11)
+    })
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(defns :foo [a] (if (= a 1) 1 (+ a (foo (dec a)))))`).undefinedSymbols).toEqual(
+          new Set([`foo`]),
+        )
+        expect(lits.analyze(`(defns :foo [a b] (str a b c))`).undefinedSymbols).toEqual(new Set([`c`]))
+        expect(lits.analyze(`(defns :foo [a b] (str a b c)) (foo x y)`).undefinedSymbols).toEqual(
+          new Set([`c`, `x`, `y`, `foo`]),
+        )
+        expect(lits.analyze(`(defns :add ([a b & rest] (+ a b)) ([a] 10))`).undefinedSymbols).toEqual(new Set())
+      })
     })
   })
 
@@ -384,6 +467,14 @@ describe(`specialExpressions`, () => {
       expect(lits.run(`(#(if %1 %2 %3) 2 4 6)`)).toBe(4)
       expect(lits.run(`(#(if %1 %2 %3) 0 4 6)`)).toBe(6)
     })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(fn [a b] (str a b c))`).undefinedSymbols).toEqual(new Set([`c`]))
+        expect(lits.analyze(`(def foo (fn [a b] (str a b c))) (foo 1 x)`).undefinedSymbols).toEqual(new Set([`c`, `x`]))
+        expect(lits.analyze(`(fn ([a b & rest] (+ a b)) ([a] 10))`).undefinedSymbols).toEqual(new Set())
+      })
+    })
   })
 
   describe(`try`, () => {
@@ -398,6 +489,14 @@ describe(`specialExpressions`, () => {
       expect(() => lits.run(`(try (/ 2 4) (catch error1 error2 1))`)).toThrow()
       expect(() => lits.run(`(try (/ 2 4) (catch error 1 2))`)).toThrow()
       expect(() => lits.run(`(try (/ 2 4) (catch error 1 )2)`)).toThrow()
+    })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(try (/ a b) (catch error (str error x)))`).undefinedSymbols).toEqual(
+          new Set([`a`, `b`, `x`]),
+        )
+      })
     })
   })
 
@@ -414,6 +513,12 @@ describe(`specialExpressions`, () => {
         expect((error as UserDefinedError).message).toBe(`error`)
       }
     })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(throw (/ a b))`).undefinedSymbols).toEqual(new Set([`a`, `b`]))
+      })
+    })
   })
 
   describe(`when`, () => {
@@ -424,6 +529,12 @@ describe(`specialExpressions`, () => {
       expect(lits.run(`(when true)`)).toBeNull()
       expect(() => lits.run(`(when)`)).toThrow()
     })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(when (/ a b) f g h)`).undefinedSymbols).toEqual(new Set([`a`, `b`, `f`, `g`, `h`]))
+      })
+    })
   })
 
   describe(`when-not`, () => {
@@ -433,6 +544,12 @@ describe(`specialExpressions`, () => {
       expect(lits.run(`(when-not false)`)).toBeNull()
       expect(lits.run(`(when-not true)`)).toBeNull()
       expect(() => lits.run(`(when-not)`)).toThrow()
+    })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(when-not (/ a b) f g h)`).undefinedSymbols).toEqual(new Set([`a`, `b`, `f`, `g`, `h`]))
+      })
     })
   })
 
@@ -448,6 +565,13 @@ describe(`specialExpressions`, () => {
       expect(() => lits.run(`(when-first [] x)`)).toThrow()
       expect(() => lits.run(`(when-first x 10)`)).toThrow()
     })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(when-first [x "Albert"] x)`).undefinedSymbols).toEqual(new Set())
+        expect(lits.analyze(`(when-first [x b] x y)`).undefinedSymbols).toEqual(new Set([`b`, `y`]))
+      })
+    })
   })
 
   describe(`comment`, () => {
@@ -456,6 +580,13 @@ describe(`specialExpressions`, () => {
       expect(lits.run(`(comment (object :a 1) :a)`)).toBeNull()
       expect(lits.run(`(comment)`)).toBeNull()
     })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(comment [x "Albert"] x)`).undefinedSymbols).toEqual(new Set())
+        expect(lits.analyze(`(comment (+ a b c))`).undefinedSymbols).toEqual(new Set())
+      })
+    })
   })
 
   describe(`do`, () => {
@@ -463,6 +594,12 @@ describe(`specialExpressions`, () => {
       expect(lits.run(`(do [1 2 3] "[1]" (+ 1 2))`)).toBe(3)
       expect(lits.run(`(do (object :a 1) :a)`)).toBe(`a`)
       expect(lits.run(`(do)`)).toBeNull()
+    })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(do [a 2 3] "[1]" (+ 1 b))`).undefinedSymbols).toEqual(new Set([`a`, `b`]))
+      })
     })
   })
 
@@ -484,6 +621,17 @@ describe(`specialExpressions`, () => {
       expect(() => lits.run(`((fn [n] (write! n) (when (not (zero? n)) (recur (dec n) 1))) 3)`)).toThrow()
       expect(() => lits.run(`((fn [n] (write! n) (when (not (zero? n)) (recur (dec n) 1 2))) 3)`)).toThrow()
     })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`((fn [n] (write! n) (when (not (zero? n)) (recur (dec n)))) 3)`).undefinedSymbols).toEqual(
+          new Set(),
+        )
+        expect(lits.analyze(`((fn [n] (write! n) (when (not (zero? n)) (recur (- n a)))) 3)`).undefinedSymbols).toEqual(
+          new Set([`a`]),
+        )
+      })
+    })
   })
 
   describe(`loop`, () => {
@@ -501,11 +649,31 @@ describe(`specialExpressions`, () => {
     test(`throw should work`, () => {
       expect(() => lits.run(`(loop [n 3] (write! n) (when (not (zero? n)) (throw (dec n))))`)).toThrow()
     })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(loop [n 3] (write! n) (when (not (zero? n)) (recur (dec n))))`).undefinedSymbols).toEqual(
+          new Set(),
+        )
+        expect(
+          lits.analyze(`(loop [n 3] (write! x n) (when (not (zero? n)) (recur (dec n))))`).undefinedSymbols,
+        ).toEqual(new Set([`x`]))
+        expect(
+          lits.analyze(`(loop [n (+ 3 y)] (write! x n) (when (not (zero? n)) (recur (dec n))))`).undefinedSymbols,
+        ).toEqual(new Set([`x`, `y`]))
+      })
+    })
   })
   describe(`time!`, () => {
     test(`samples`, () => {
       expect(lits.run(`(time! (+ 1 2)`)).toBe(3)
       expect(lastLog).toMatch(/Elapsed time: \d+ ms/)
+    })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(time! (foo x z))`).undefinedSymbols).toEqual(new Set([`foo`, `x`, `z`]))
+      })
     })
   })
 
@@ -532,6 +700,20 @@ describe(`specialExpressions`, () => {
       expect(() => lits.run(`(doseq x [0 1 2 3 4 5] y)`)).toThrow()
       expect(() => lits.run(`(doseq [x [0 1 2 3 4 5]] x y)`)).toThrow()
       expect(() => lits.run(`(doseq [x [0 1 2 3 4 5] x [10 20]] x)`)).toThrow()
+    })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(doseq [x [0 1 2 3 4 5] &let [y (* x 3)] &when (even? y)] y)`).undefinedSymbols).toEqual(
+          new Set(),
+        )
+        expect(lits.analyze(`(doseq [x [0 1 2 3 4 5] &let [y (* x 3)] &while (even? y)] y)`).undefinedSymbols).toEqual(
+          new Set(),
+        )
+        expect(lits.analyze(`(doseq [x [0 1 2 3 4 a] &let [y (* x b)] &while (even? c)] d)`).undefinedSymbols).toEqual(
+          new Set([`a`, `b`, `c`, `d`]),
+        )
+      })
     })
   })
 
@@ -599,6 +781,20 @@ describe(`specialExpressions`, () => {
       expect(() => lits.run(`(for [x [0 1 2 3 4 5]] x y)`)).toThrow()
       expect(() => lits.run(`(for [x [0 1 2 3 4 5] x [10 20]] x)`)).toThrow()
     })
+
+    describe(`undefinedSymbols`, () => {
+      test(`samples`, () => {
+        expect(lits.analyze(`(for [x [0 1 2 3 4 5] &let [y (* x 3)] &when (even? y)] y)`).undefinedSymbols).toEqual(
+          new Set(),
+        )
+        expect(lits.analyze(`(for [x [0 1 2 3 4 5] &let [y (* x 3)] &while (even? y)] y)`).undefinedSymbols).toEqual(
+          new Set(),
+        )
+        expect(lits.analyze(`(for [x [0 1 2 3 4 a] &let [y (* x b)] &when (even? c)] d)`).undefinedSymbols).toEqual(
+          new Set([`a`, `b`, `c`, `d`]),
+        )
+      })
+    })
   })
 
   describe(`declared?`, () => {
@@ -611,6 +807,12 @@ describe(`specialExpressions`, () => {
 
       expect(() => lits.run(`(declared?)`)).toThrow()
       expect(() => lits.run(`(declared? foo bar)`)).toThrow()
+    })
+  })
+
+  describe(`undefinedSymbols`, () => {
+    test(`samples`, () => {
+      expect(lits.analyze(`(declared? x)`).undefinedSymbols).toEqual(new Set([`x`]))
     })
   })
 })

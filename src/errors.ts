@@ -61,9 +61,11 @@ export class AssertionError extends AbstractLitsError {
 }
 
 export class UndefinedSymbolError extends AbstractLitsError {
+  public symbol: string
   constructor(symbolName: string, debugInfo: DebugInfo) {
     const message = `Undefined symbol '${symbolName}'.`
     super(message, debugInfo)
+    this.symbol = symbolName
     Object.setPrototypeOf(this, UndefinedSymbolError.prototype)
     this.name = `UndefinedSymbolError`
   }

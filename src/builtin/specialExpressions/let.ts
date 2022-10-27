@@ -1,3 +1,4 @@
+import { joinAnalyzeResults } from '../../analyze'
 import { Context } from '../../evaluator/interface'
 import { Any } from '../../interface'
 import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
@@ -42,6 +43,19 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
       result = evaluateAstNode(astNode, newContextStack)
     }
     return result
+  },
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castLetExpressionNode(node)
+    const newContext = node.bindings
+      .map(binding => binding.name)
+      .reduce((context: Context, name) => {
+        context[name] = { value: true }
+        return context
+      }, {})
+    const bindingValueNodes = node.bindings.map(binding => binding.value)
+    const bindingsResult = analyzeAst(bindingValueNodes, contextStack)
+    const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext))
+    return joinAnalyzeResults(bindingsResult, paramsResult)
   },
 }
 

@@ -185,7 +185,6 @@ const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
   }
 
   const args: FunctionArguments = {
-    bindings: [],
     mandatoryArguments,
   }
 

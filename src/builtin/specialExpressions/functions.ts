@@ -1,8 +1,8 @@
+import { addAnalyzeResults, AnalyzeResult } from '../../analyze'
 import { LitsError } from '../../errors'
 import { Context, ContextStack, EvaluateAstNode } from '../../evaluator/interface'
 import {
   AstNode,
-  BindingNode,
   EvaluatedFunctionOverload,
   FUNCTION_SYMBOL,
   LitsFunction,
@@ -17,7 +17,7 @@ import { Arity, assertNameNotDefined, FunctionArguments, FunctionOverload } from
 
 interface DefnSpecialExpressionNode extends SpecialExpressionNode {
   name: `defn`
-  functionName: AstNode
+  functionName: NameNode
   overloads: FunctionOverload[]
 }
 
@@ -106,11 +106,6 @@ function createEvaluator(expressionName: ExpressionsName): BuiltinSpecialExpress
     const evaluatedFunctionOverloades: EvaluatedFunctionOverload[] = []
     for (const functionOverload of node.overloads) {
       const functionContext: Context = {}
-      for (const binding of functionOverload.arguments.bindings) {
-        const bindingValueNode = binding.value
-        const bindingValue = evaluateAstNode(bindingValueNode, contextStack)
-        functionContext[binding.name] = { value: bindingValue }
-      }
 
       const evaluatedFunctionOverload: EvaluatedFunctionOverload = {
         arguments: {
@@ -145,21 +140,93 @@ function createEvaluator(expressionName: ExpressionsName): BuiltinSpecialExpress
 export const defnSpecialExpression: BuiltinSpecialExpression<LitsFunction | null> = {
   parse: createParser(`defn`),
   evaluate: createEvaluator(`defn`),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castDefnExpressionNode(node)
+    contextStack.globalContext[node.functionName.value] = { value: true }
+
+    const result: AnalyzeResult = { undefinedSymbols: new Set() }
+
+    const newContext: Context = { [node.functionName.value]: { value: true } }
+
+    const contextStackWithFunctionName = contextStack.withContext(newContext)
+
+    for (const overload of node.overloads) {
+      const newContext: Context = {}
+      overload.arguments.mandatoryArguments.forEach(arg => {
+        newContext[arg] = { value: true }
+      })
+      if (typeof overload.arguments.restArgument === `string`) {
+        newContext[overload.arguments.restArgument] = { value: true }
+      }
+      const newContextStack = contextStackWithFunctionName.withContext(newContext)
+      const overloadResult = analyzeAst(overload.body, newContextStack)
+      addAnalyzeResults(result, overloadResult)
+    }
+    return result
+  },
 }
 
 export const defnsSpecialExpression: BuiltinSpecialExpression<LitsFunction | null> = {
   parse: createParser(`defns`),
   evaluate: createEvaluator(`defns`),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castDefnsExpressionNode(node)
+    const result: AnalyzeResult = { undefinedSymbols: new Set() }
+
+    for (const overload of node.overloads) {
+      const newContext: Context = {}
+      overload.arguments.mandatoryArguments.forEach(arg => {
+        newContext[arg] = { value: true }
+      })
+      if (typeof overload.arguments.restArgument === `string`) {
+        newContext[overload.arguments.restArgument] = { value: true }
+      }
+      const newContextStack = contextStack.withContext(newContext)
+      const overloadResult = analyzeAst(overload.body, newContextStack)
+      addAnalyzeResults(result, overloadResult)
+    }
+    return result
+  },
 }
 
 export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction | null> = {
   parse: createParser(`fn`),
   evaluate: createEvaluator(`fn`),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castFnExpressionNode(node)
+    const result: AnalyzeResult = { undefinedSymbols: new Set() }
+
+    for (const overload of node.overloads) {
+      const newContext: Context = {}
+      overload.arguments.mandatoryArguments.forEach(arg => {
+        newContext[arg] = { value: true }
+      })
+      if (typeof overload.arguments.restArgument === `string`) {
+        newContext[overload.arguments.restArgument] = { value: true }
+      }
+      const newContextStack = contextStack.withContext(newContext)
+      const overloadResult = analyzeAst(overload.body, newContextStack)
+      addAnalyzeResults(result, overloadResult)
+    }
+    return result
+  },
 }
 
 function castExpressionNode(
   _node: SpecialExpressionNode,
 ): asserts _node is DefnSpecialExpressionNode | DefnsSpecialExpressionNode | FnSpecialExpressionNode {
+  return
+}
+
+function castDefnExpressionNode(_node: SpecialExpressionNode): asserts _node is DefnSpecialExpressionNode {
+  return
+}
+
+function castDefnsExpressionNode(_node: SpecialExpressionNode): asserts _node is DefnsSpecialExpressionNode {
+  return
+}
+
+function castFnExpressionNode(_node: SpecialExpressionNode): asserts _node is FnSpecialExpressionNode {
   return
 }
 
@@ -251,54 +318,42 @@ function parseFunctionOverloades(tokens: Token[], position: number, parsers: Par
 }
 
 function parseFunctionArguments(tokens: Token[], position: number, parsers: Parsers): [number, FunctionArguments] {
-  const { parseArgument, parseBindings } = parsers
+  const { parseArgument } = parsers
 
-  let bindings: BindingNode[] = []
   let restArgument: string | undefined = undefined
   const mandatoryArguments: string[] = []
-  let state: `mandatory` | `rest` | `let` = `mandatory`
+  let state: `mandatory` | `rest` = `mandatory`
   let tkn = token.as(tokens[position], `EOF`)
 
   position += 1
   tkn = token.as(tokens[position], `EOF`)
   while (!(tkn.type === `paren` && tkn.value === `]`)) {
-    if (state === `let`) {
-      ;[position, bindings] = parseBindings(tokens, position)
-      break
-    } else {
-      const [newPosition, node] = parseArgument(tokens, position)
-      position = newPosition
-      tkn = token.as(tokens[position], `EOF`)
+    const [newPosition, node] = parseArgument(tokens, position)
+    position = newPosition
+    tkn = token.as(tokens[position], `EOF`)
 
-      if (node.type === `Modifier`) {
-        switch (node.value) {
-          case `&`:
-            if (state === `rest`) {
-              throw new LitsError(`& can only appear once`, tkn.debugInfo)
-            }
-            state = `rest`
-            break
-          case `&let`:
-            if (state === `rest` && !restArgument) {
-              throw new LitsError(`No rest argument was spcified`, tkn.debugInfo)
-            }
-            state = `let`
-            break
-          default:
-            throw new LitsError(`Illegal modifier: ${node.value}`, tkn.debugInfo)
-        }
-      } else {
-        switch (state) {
-          case `mandatory`:
-            mandatoryArguments.push(node.name)
-            break
-          case `rest`:
-            if (restArgument !== undefined) {
-              throw new LitsError(`Can only specify one rest argument`, tkn.debugInfo)
-            }
-            restArgument = node.name
-            break
-        }
+    if (node.type === `Modifier`) {
+      switch (node.value) {
+        case `&`:
+          if (state === `rest`) {
+            throw new LitsError(`& can only appear once`, tkn.debugInfo)
+          }
+          state = `rest`
+          break
+        default:
+          throw new LitsError(`Illegal modifier: ${node.value}`, tkn.debugInfo)
+      }
+    } else {
+      switch (state) {
+        case `mandatory`:
+          mandatoryArguments.push(node.name)
+          break
+        case `rest`:
+          if (restArgument !== undefined) {
+            throw new LitsError(`Can only specify one rest argument`, tkn.debugInfo)
+          }
+          restArgument = node.name
+          break
       }
     }
   }
@@ -312,7 +367,6 @@ function parseFunctionArguments(tokens: Token[], position: number, parsers: Pars
   const args: FunctionArguments = {
     mandatoryArguments,
     restArgument,
-    bindings,
   }
 
   return [position, args]

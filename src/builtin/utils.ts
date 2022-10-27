@@ -1,6 +1,6 @@
 import { LitsError } from '../errors'
 import { ContextStack } from '../evaluator/interface'
-import { AstNode, BindingNode } from '../parser/interface'
+import { AstNode } from '../parser/interface'
 import { reservedNamesRecord } from '../reservedNames'
 import { DebugInfo } from '../tokenizer/interface'
 import { Builtin } from './interface'
@@ -16,7 +16,6 @@ export type FunctionOverload = {
 export type FunctionArguments = {
   mandatoryArguments: string[]
   restArgument?: string
-  bindings: BindingNode[]
 }
 
 export function assertNameNotDefined<T>(

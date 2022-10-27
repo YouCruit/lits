@@ -38,6 +38,10 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
     return result
   },
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castDoExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
+  },
 }
 
 function castDoExpressionNode(_node: SpecialExpressionNode): asserts _node is DoSpecialExpressionNode {

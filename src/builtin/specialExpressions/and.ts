@@ -34,6 +34,10 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     return value
   },
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castAndExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
+  },
 }
 
 function castAndExpressionNode(_node: SpecialExpressionNode): asserts _node is AndSpecialExpressionNode {

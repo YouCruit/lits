@@ -37,6 +37,10 @@ export const ifNotSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
   },
   validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castIfNotExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
+  },
 }
 
 function castIfNotExpressionNode(_node: SpecialExpressionNode): asserts _node is IfNotSpecialExpressionNode {

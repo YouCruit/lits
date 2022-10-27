@@ -102,7 +102,7 @@ function evaluateName(node: NameNode, contextStack: ContextStack): Any {
   throw new UndefinedSymbolError(node.value, node.token.debugInfo)
 }
 
-function lookUp(node: NameNode, contextStack: ContextStack): LookUpResult {
+export function lookUp(node: NameNode, contextStack: ContextStack): LookUpResult {
   const {
     value,
     token: { debugInfo },

@@ -36,6 +36,10 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
     return result
   },
   validate: node => assertNumberOfParams(1, node),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castTimeExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
+  },
 }
 
 function castTimeExpressionNode(_node: SpecialExpressionNode): asserts _node is TimeSpecialExpressionNode {

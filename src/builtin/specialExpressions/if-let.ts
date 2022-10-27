@@ -1,3 +1,4 @@
+import { joinAnalyzeResults } from '../../analyze'
 import { LitsError } from '../../errors'
 import { Context } from '../../evaluator/interface'
 import { Any } from '../../interface'
@@ -51,6 +52,13 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     return null
   },
   validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castIfLetExpressionNode(node)
+    const newContext: Context = { [node.binding.name]: { value: true } }
+    const bindingResult = analyzeAst(node.binding.value, contextStack)
+    const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext))
+    return joinAnalyzeResults(bindingResult, paramsResult)
+  },
 }
 
 function castIfLetExpressionNode(_node: SpecialExpressionNode): asserts _node is IfLetSpecialExpressionNode {

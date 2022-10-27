@@ -33,6 +33,10 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
     })
     throw new UserDefinedError(message, node.token.debugInfo)
   },
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castThrowExpressionNode(node)
+    return analyzeAst(node.messageNode, contextStack)
+  },
 }
 
 function castThrowExpressionNode(_node: SpecialExpressionNode): asserts _node is ThrowSpecialExpressionNode {

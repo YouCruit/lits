@@ -1,3 +1,4 @@
+import { joinAnalyzeResults } from '../../analyze'
 import { LitsError } from '../../errors'
 import { Context } from '../../evaluator/interface'
 import { Any } from '../../interface'
@@ -60,6 +61,13 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
     return result
   },
   validate: node => assertNumberOfParams({ min: 0 }, node),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castWhenFirstExpressionNode(node)
+    const newContext: Context = { [node.binding.name]: { value: true } }
+    const bindingResult = analyzeAst(node.binding.value, contextStack)
+    const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext))
+    return joinAnalyzeResults(bindingResult, paramsResult)
+  },
 }
 
 function castWhenFirstExpressionNode(_node: SpecialExpressionNode): asserts _node is WhenFirstSpecialExpressionNode {

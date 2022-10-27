@@ -37,6 +37,11 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
     return value
   },
   validate: node => assertNumberOfParams(2, node),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castDefsExpressionNode(node)
+    const subNode = astNode.as(node.params[1], node.token.debugInfo)
+    return analyzeAst(subNode, contextStack)
+  },
 }
 
 function castDefsExpressionNode(_node: SpecialExpressionNode): asserts _node is DefsSpecialExpressionNode {

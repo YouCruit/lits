@@ -27,4 +27,5 @@ export const commentSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [position + 1, node]
   },
   evaluate: () => null,
+  analyze: () => ({ undefinedSymbols: new Set() }),
 }

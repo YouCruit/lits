@@ -34,6 +34,10 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     return value
   },
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castOrExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
+  },
 }
 
 function castOrExpressionNode(_node: SpecialExpressionNode): asserts _node is OrSpecialExpressionNode {

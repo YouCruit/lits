@@ -1,4 +1,5 @@
 import { LitsFunction } from '..'
+import { analyzeAst, AnalyzeResult } from '../analyze'
 import { createContextStack, evaluate } from '../evaluator'
 import { Context, ContextStack } from '../evaluator/interface'
 import { Any, Obj } from '../interface'
@@ -68,6 +69,13 @@ export class Lits {
     const ast = this.generateAst(program, params.getLocation)
     evaluate(ast, contextStack)
     return contextStack.globalContext
+  }
+
+  public analyze(program: string, params: LitsParams = {}): AnalyzeResult {
+    const contextStack = createContextStackFromParams(params)
+    const ast = this.generateAst(program, params.getLocation)
+
+    return analyzeAst(ast.body, contextStack)
   }
 
   public tokenize(program: string, getLocation?: LocationGetter): Token[] {

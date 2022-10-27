@@ -37,6 +37,10 @@ export const whenSpecialExpression: BuiltinSpecialExpression<Any> = {
     return result
   },
   validate: node => assertNumberOfParams({ min: 1 }, node),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castWhenExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
+  },
 }
 
 function castWhenExpressionNode(_node: SpecialExpressionNode): asserts _node is WhenSpecialExpressionNode {

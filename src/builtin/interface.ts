@@ -12,6 +12,7 @@ import {
 import { Token, DebugInfo } from '../tokenizer/interface'
 import { NormalExpressionNode } from '../parser/interface'
 import { Any, Arr } from '../interface'
+import { AnalyzeAst, AnalyzeResult } from '../analyze'
 
 export type NormalExpressionEvaluator<T> = (
   params: Arr,
@@ -47,6 +48,7 @@ export type BuiltinSpecialExpression<T, N extends SpecialExpressionNode = Specia
   parse: (tokens: Token[], position: number, parsers: Parsers) => [number, N]
   evaluate: (node: N, contextStack: ContextStack, helpers: EvaluateHelpers) => T
   validate?: (node: N) => void
+  analyze(node: N, contextStack: ContextStack, params: { analyzeAst: AnalyzeAst; builtin: Builtin }): AnalyzeResult
 }
 
 export type SpecialExpressionName =

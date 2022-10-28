@@ -16,7 +16,7 @@ import { AnalyzeAst, AnalyzeResult } from '../analyze'
 
 export type NormalExpressionEvaluator<T> = (
   params: Arr,
-  debugInfo: DebugInfo,
+  debugInfo: DebugInfo | undefined,
   contextStack: ContextStack,
   { executeFunction }: { executeFunction: ExecuteFunction },
 ) => T
@@ -27,7 +27,7 @@ type BuiltinNormalExpression<T> = {
   validate?: ValidateNode
 }
 
-export type Parsers = {
+export type ParserHelpers = {
   parseExpression: ParseExpression
   parseTokens: ParseTokens
   parseToken: ParseToken
@@ -45,7 +45,7 @@ type EvaluateHelpers = {
   lookUp(nameNode: NameNode, contextStack: ContextStack): LookUpResult
 }
 export type BuiltinSpecialExpression<T, N extends SpecialExpressionNode = SpecialExpressionNode> = {
-  parse: (tokens: Token[], position: number, parsers: Parsers) => [number, N]
+  parse: (tokens: Token[], position: number, parsers: ParserHelpers) => [number, N]
   evaluate: (node: N, contextStack: ContextStack, helpers: EvaluateHelpers) => T
   validate?: (node: N) => void
   analyze(node: N, contextStack: ContextStack, params: { analyzeAst: AnalyzeAst; builtin: Builtin }): AnalyzeResult

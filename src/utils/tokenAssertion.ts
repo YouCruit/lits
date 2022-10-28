@@ -28,7 +28,7 @@ function is(value: unknown, options: Options = {}): value is Token {
   return true
 }
 
-function assert(value: unknown, debugInfo: DebugInfo, options: Options = {}): asserts value is Token {
+function assert(value: unknown, debugInfo: DebugInfo | undefined, options: Options = {}): asserts value is Token {
   if (!is(value, options)) {
     if (isToken(value)) {
       debugInfo = value.debugInfo

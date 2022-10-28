@@ -15,7 +15,7 @@ export const whenSpecialExpression: BuiltinSpecialExpression<Any> = {
       type: `SpecialExpression`,
       name: `when`,
       params,
-      token: firstToken,
+      token: firstToken.debugInfo ? firstToken : undefined,
     }
 
     return [newPosition + 1, node]
@@ -24,7 +24,7 @@ export const whenSpecialExpression: BuiltinSpecialExpression<Any> = {
     castWhenExpressionNode(node)
 
     const [whenExpression, ...body] = node.params
-    astNode.assert(whenExpression, node.token.debugInfo)
+    astNode.assert(whenExpression, node.token?.debugInfo)
 
     if (!evaluateAstNode(whenExpression, contextStack)) {
       return null

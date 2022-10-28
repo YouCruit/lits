@@ -22,7 +22,7 @@ export function assertNameNotDefined<T>(
   name: T,
   contextStack: ContextStack,
   builtin: Builtin,
-  debugInfo: DebugInfo,
+  debugInfo?: DebugInfo,
 ): asserts name is T {
   if (typeof name !== `string`) {
     return

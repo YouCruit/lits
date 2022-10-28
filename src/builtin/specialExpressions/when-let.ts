@@ -30,7 +30,7 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
       name: `when-let`,
       binding: asValue(bindings[0], firstToken.debugInfo),
       params,
-      token: firstToken,
+      token: firstToken.debugInfo ? firstToken : undefined,
     }
     return [position + 1, node]
   },

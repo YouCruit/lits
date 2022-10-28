@@ -17,7 +17,7 @@ export const recurSpecialExpression: BuiltinSpecialExpression<null> = {
       type: `SpecialExpression`,
       name: `recur`,
       params,
-      token: firstToken,
+      token: firstToken.debugInfo ? firstToken : undefined,
     }
 
     return [position + 1, node]

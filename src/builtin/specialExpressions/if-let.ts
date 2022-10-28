@@ -30,13 +30,13 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
       name: `if-let`,
       binding: asValue(bindings[0], firstToken.debugInfo),
       params,
-      token: firstToken,
+      token: firstToken.debugInfo ? firstToken : undefined,
     }
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     castIfLetExpressionNode(node)
-    const debugInfo = node.token.debugInfo
+    const debugInfo = node.token?.debugInfo
     const locals: Context = {}
     const bindingValue = evaluateAstNode(node.binding.value, contextStack)
     if (bindingValue) {

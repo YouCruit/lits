@@ -110,7 +110,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
             const key = string.as(entry[0], debugInfo)
             const val = toAny(entry[1])
             if (collHasKey(result, key)) {
-              result[key] = executeFunction(fn, [result[key], val], debugInfo, contextStack)
+              result[key] = executeFunction(fn, [result[key], val], contextStack, debugInfo)
             } else {
               result[key] = val
             }

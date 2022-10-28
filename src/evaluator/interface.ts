@@ -11,7 +11,7 @@ export interface ContextStack {
 }
 
 export type EvaluateAstNode = (node: AstNode, contextStack: ContextStack) => Any
-export type ExecuteFunction = (fn: Any, params: Arr, debugInfo: DebugInfo, contextStack: ContextStack) => Any
+export type ExecuteFunction = (fn: Any, params: Arr, contextStack: ContextStack, debugInfo?: DebugInfo) => Any
 
 export type LookUpResult = {
   contextEntry: ContextEntry | null

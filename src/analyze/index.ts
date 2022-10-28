@@ -72,7 +72,7 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack): AnalyzeRe
       return { undefinedSymbols }
     }
     case `SpecialExpression`: {
-      const specialExpression = asValue(builtin.specialExpressions[astNode.name], astNode.token.debugInfo)
+      const specialExpression = asValue(builtin.specialExpressions[astNode.name], astNode.token?.debugInfo)
       const result = specialExpression.analyze(astNode, contextStack, {
         analyzeAst,
         builtin,

@@ -22,16 +22,16 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
       name: `throw`,
       params: [],
       messageNode,
-      token: firstToken,
+      token: firstToken.debugInfo ? firstToken : undefined,
     }
     return [position, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     castThrowExpressionNode(node)
-    const message = string.as(evaluateAstNode(node.messageNode, contextStack), node.token.debugInfo, {
+    const message = string.as(evaluateAstNode(node.messageNode, contextStack), node.token?.debugInfo, {
       nonEmpty: true,
     })
-    throw new UserDefinedError(message, node.token.debugInfo)
+    throw new UserDefinedError(message, node.token?.debugInfo)
   },
   analyze: (node, contextStack, { analyzeAst }) => {
     castThrowExpressionNode(node)

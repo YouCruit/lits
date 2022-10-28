@@ -22,13 +22,13 @@ export type EvaluatedFunctionOverload = {
 
 type GenericLitsFunction = {
   [FUNCTION_SYMBOL]: true
-  debugInfo: DebugInfo
+  debugInfo?: DebugInfo
   type: string
 }
 
 export interface RegularExpression {
   [REGEXP_SYMBOL]: true
-  debugInfo: DebugInfo
+  debugInfo?: DebugInfo
   source: string
   flags: string
 }
@@ -116,7 +116,7 @@ export type ModifierName = `&` | `&let` | `&when` | `&while`
 
 interface GenericNode {
   type: NodeType
-  token: Token
+  token?: Token
 }
 
 export type ExpressionNode = NormalExpressionNode | SpecialExpressionNode | NumberNode | StringNode

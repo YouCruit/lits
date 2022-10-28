@@ -5,7 +5,7 @@ import { Any, Arr } from '../../interface'
 import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
 import { Token, DebugInfo } from '../../tokenizer/interface'
 import { any, astNode, asValue, collection, sequence, token } from '../../utils/assertion'
-import { BuiltinSpecialExpression, Parsers } from '../interface'
+import { BuiltinSpecialExpression, ParserHelpers } from '../interface'
 
 interface LoopSpecialExpressionNode extends SpecialExpressionNode {
   name: `for` | `doseq`
@@ -23,7 +23,7 @@ type LoopBindingNode = {
 function parseLoopBinding(
   tokens: Token[],
   position: number,
-  { parseBinding, parseBindings, parseToken }: Parsers,
+  { parseBinding, parseBindings, parseToken }: ParserHelpers,
 ): [number, LoopBindingNode] {
   let bindingNode: BindingNode
   ;[position, bindingNode] = parseBinding(tokens, position)
@@ -70,7 +70,7 @@ function addToContext(
   context: Context,
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
-  debugInfo: DebugInfo,
+  debugInfo?: DebugInfo,
 ) {
   for (const binding of bindings) {
     if (context[binding.name]) {
@@ -80,7 +80,7 @@ function addToContext(
   }
 }
 
-function parseLoopBindings(tokens: Token[], position: number, parsers: Parsers): [number, LoopBindingNode[]] {
+function parseLoopBindings(tokens: Token[], position: number, parsers: ParserHelpers): [number, LoopBindingNode[]] {
   token.assert(tokens[position], `EOF`, { type: `paren`, value: `[` })
   position += 1
 
@@ -100,7 +100,7 @@ function parseLoop(
   name: `for` | `doseq`,
   tokens: Token[],
   position: number,
-  parsers: Parsers,
+  parsers: ParserHelpers,
 ): [number, LoopSpecialExpressionNode] {
   const firstToken = token.as(tokens[position], `EOF`)
   const { parseToken } = parsers
@@ -117,7 +117,7 @@ function parseLoop(
     type: `SpecialExpression`,
     loopBindings,
     params: [expression],
-    token: firstToken,
+    token: firstToken.debugInfo ? firstToken : undefined,
   }
 
   return [position + 1, node]
@@ -130,7 +130,7 @@ function evaluateLoop(
   evaluateAstNode: EvaluateAstNode,
 ) {
   castLoopExpressionNode(node)
-  const debugInfo = node.token.debugInfo
+  const debugInfo = node.token?.debugInfo
   const { loopBindings, params } = node
   const expression = astNode.as(params[0], debugInfo)
 

@@ -263,7 +263,7 @@ function tokenizeCharacter(
   value: string,
   input: string,
   position: number,
-  debugInfo: DebugInfo | `EOF` | null,
+  debugInfo?: DebugInfo,
 ): TokenDescriptor {
   if (value === input[position]) {
     return [1, { type, value, debugInfo }]
@@ -277,7 +277,7 @@ function tokenizePattern(
   pattern: RegExp,
   input: string,
   position: number,
-  debugInfo: DebugInfo,
+  debugInfo?: DebugInfo,
 ): TokenDescriptor {
   let char = input[position]
   let length = 0

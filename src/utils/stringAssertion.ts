@@ -28,7 +28,7 @@ function is(value: unknown, options: Options = {}): value is string {
   return true
 }
 
-function assert(value: unknown, debugInfo: DebugInfo, options: Options = {}): asserts value is string {
+function assert(value: unknown, debugInfo: DebugInfo | undefined, options: Options = {}): asserts value is string {
   if (!is(value, options)) {
     throw new LitsError(
       `Expected ${options.nonEmpty ? `non empty string` : options.char ? `character` : `string`}, got ${valueToString(
@@ -39,15 +39,15 @@ function assert(value: unknown, debugInfo: DebugInfo, options: Options = {}): as
   }
 }
 
-function as(value: unknown, debugInfo: DebugInfo, options: Options = {}): string {
+function as(value: unknown, debugInfo: DebugInfo | undefined, options: Options = {}): string {
   assert(value, debugInfo, options)
   return value
 }
 
 export const string: {
   is: (value: unknown, options?: Options) => value is string
-  as: (value: unknown, debugInfo: DebugInfo, options?: Options) => string
-  assert(value: unknown, debugInfo: DebugInfo, options?: Options): asserts value is string
+  as: (value: unknown, debugInfo: DebugInfo | undefined, options?: Options) => string
+  assert(value: unknown, debugInfo: DebugInfo | undefined, options?: Options): asserts value is string
 } = {
   is,
   as,

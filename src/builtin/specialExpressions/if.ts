@@ -17,13 +17,13 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
         type: `SpecialExpression`,
         name: `if`,
         params,
-        token: firstToken,
+        token: firstToken.debugInfo ? firstToken : undefined,
       },
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     castIfExpressionNode(node)
-    const debugInfo = node.token.debugInfo
+    const debugInfo = node.token?.debugInfo
 
     const [conditionNode, trueNode, falseNode] = node.params
     if (evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)) {

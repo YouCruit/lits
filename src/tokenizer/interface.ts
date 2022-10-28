@@ -19,16 +19,16 @@ export type SourceCodeInfo = {
   toString(): string
 }
 
-export type DebugInfo = SourceCodeInfo | `EOF` | null
+export type DebugInfo = SourceCodeInfo | `EOF`
 
 export type Token = {
   type: TokenizerType
   value: string
   options?: Record<string, boolean>
-  debugInfo: DebugInfo
+  debugInfo?: DebugInfo
 }
 export type TokenDescriptor = [length: number, token: Token | undefined]
-export type Tokenizer = (input: string, position: number, debugInfo: DebugInfo) => TokenDescriptor
+export type Tokenizer = (input: string, position: number, debugInfo?: DebugInfo) => TokenDescriptor
 
 export type TokenizeParams = {
   debug: boolean

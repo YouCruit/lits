@@ -12,7 +12,7 @@ import {
 import { Token } from '../../tokenizer/interface'
 import { nameNode, string, token } from '../../utils/assertion'
 import { valueToString } from '../../utils/helpers'
-import { BuiltinSpecialExpression, Parsers } from '../interface'
+import { BuiltinSpecialExpression, ParserHelpers } from '../interface'
 import { Arity, assertNameNotDefined, FunctionArguments, FunctionOverload } from '../utils'
 
 interface DefnSpecialExpressionNode extends SpecialExpressionNode {
@@ -44,7 +44,7 @@ function createParser(expressionName: ExpressionsName): BuiltinSpecialExpression
     if (expressionName === `defn` || expressionName === `defns`) {
       ;[position, functionName] = parseToken(tokens, position)
       if (expressionName === `defn`) {
-        nameNode.assert(functionName, functionName.token.debugInfo)
+        nameNode.assert(functionName, functionName.token?.debugInfo)
       }
     }
 
@@ -60,7 +60,7 @@ function createParser(expressionName: ExpressionsName): BuiltinSpecialExpression
           functionName: functionName as AstNode,
           params: [],
           overloads: functionOverloades,
-          token: firstToken,
+          token: firstToken.debugInfo ? firstToken : undefined,
         },
       ]
     }
@@ -72,7 +72,7 @@ function createParser(expressionName: ExpressionsName): BuiltinSpecialExpression
         name: expressionName,
         params: [],
         overloads: functionOverloades,
-        token: firstToken,
+        token: firstToken.debugInfo ? firstToken : undefined,
       },
     ]
   }
@@ -84,7 +84,7 @@ function getFunctionName(
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
 ): string | undefined {
-  const debugInfo = node.token.debugInfo
+  const debugInfo = node.token?.debugInfo
   if (expressionName === `defn`) {
     return ((node as DefnSpecialExpressionNode).functionName as NameNode).value
   }
@@ -101,7 +101,7 @@ function createEvaluator(expressionName: ExpressionsName): BuiltinSpecialExpress
     castExpressionNode(node)
     const name = getFunctionName(expressionName, node, contextStack, evaluateAstNode)
 
-    assertNameNotDefined(name, contextStack, builtin, node.token.debugInfo)
+    assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
 
     const evaluatedFunctionOverloades: EvaluatedFunctionOverload[] = []
     for (const functionOverload of node.overloads) {
@@ -122,7 +122,7 @@ function createEvaluator(expressionName: ExpressionsName): BuiltinSpecialExpress
 
     const litsFunction: LitsFunction = {
       [FUNCTION_SYMBOL]: true,
-      debugInfo: node.token.debugInfo,
+      debugInfo: node.token?.debugInfo,
       type: `user-defined`,
       name,
       overloads: evaluatedFunctionOverloades,
@@ -247,7 +247,7 @@ function arityOk(overloadedFunctions: FunctionOverload[], arity: Arity) {
   })
 }
 
-function parseFunctionBody(tokens: Token[], position: number, { parseToken }: Parsers): [number, AstNode[]] {
+function parseFunctionBody(tokens: Token[], position: number, { parseToken }: ParserHelpers): [number, AstNode[]] {
   let tkn = token.as(tokens[position], `EOF`)
   const body: AstNode[] = []
   while (!(tkn.type === `paren` && tkn.value === `)`)) {
@@ -262,7 +262,11 @@ function parseFunctionBody(tokens: Token[], position: number, { parseToken }: Pa
   return [position + 1, body]
 }
 
-function parseFunctionOverloades(tokens: Token[], position: number, parsers: Parsers): [number, FunctionOverload[]] {
+function parseFunctionOverloades(
+  tokens: Token[],
+  position: number,
+  parsers: ParserHelpers,
+): [number, FunctionOverload[]] {
   let tkn = token.as(tokens[position], `EOF`, { type: `paren` })
   if (tkn.value === `(`) {
     const functionOverloades: FunctionOverload[] = []
@@ -317,7 +321,11 @@ function parseFunctionOverloades(tokens: Token[], position: number, parsers: Par
   }
 }
 
-function parseFunctionArguments(tokens: Token[], position: number, parsers: Parsers): [number, FunctionArguments] {
+function parseFunctionArguments(
+  tokens: Token[],
+  position: number,
+  parsers: ParserHelpers,
+): [number, FunctionArguments] {
   const { parseArgument } = parsers
 
   let restArgument: string | undefined = undefined

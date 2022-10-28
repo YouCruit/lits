@@ -2,8 +2,8 @@ import { AstNode, FUNCTION_SYMBOL, LitsFunction, NodeType, REGEXP_SYMBOL, Regula
 import { DebugInfo, Token, TokenizerType } from '../tokenizer/interface'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-export function getDebugInfo(anyValue: any, debugInfo: DebugInfo): DebugInfo {
-  return anyValue?.debugInfo || debugInfo
+export function getDebugInfo(anyValue: any, debugInfo?: DebugInfo): DebugInfo | undefined {
+  return anyValue?.debugInfo ?? debugInfo
 }
 
 export function valueToString(value: unknown): string {
@@ -50,10 +50,6 @@ export function isToken(value: unknown): value is Token {
     return false
   }
 
-  if (!tkn.debugInfo && tkn.debugInfo !== null) {
-    return false
-  }
-
   return !!tokenTypes[tkn.type]
 }
 
@@ -72,9 +68,6 @@ const astTypes: Record<NodeType, true> = {
 
 export function isAstNode(value: unknown): value is AstNode {
   if (value === null || typeof value !== `object`) {
-    return false
-  }
-  if (!(value as AstNode).token) {
     return false
   }
   if (!astTypes[(value as AstNode).type]) {

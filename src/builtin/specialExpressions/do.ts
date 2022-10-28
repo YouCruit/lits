@@ -16,7 +16,7 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
       type: `SpecialExpression`,
       name: `do`,
       params: [],
-      token: tkn,
+      token: tkn.debugInfo ? tkn : undefined,
     }
 
     while (!token.is(tkn, { type: `paren`, value: `)` })) {

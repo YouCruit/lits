@@ -29,25 +29,28 @@ import { valueToString } from '../utils/helpers'
 type ParseNumber = (tokens: Token[], position: number) => [number, NumberNode]
 export const parseNumber: ParseNumber = (tokens: Token[], position: number) => {
   const tkn = token.as(tokens[position], `EOF`)
-  return [position + 1, { type: `Number`, value: Number(tkn.value), token: tkn }]
+  return [position + 1, { type: `Number`, value: Number(tkn.value), token: tkn.debugInfo ? tkn : undefined }]
 }
 
 type ParseString = (tokens: Token[], position: number) => [number, StringNode]
 export const parseString: ParseString = (tokens: Token[], position: number) => {
   const tkn = token.as(tokens[position], `EOF`)
-  return [position + 1, { type: `String`, value: tkn.value, token: tkn }]
+  return [position + 1, { type: `String`, value: tkn.value, token: tkn.debugInfo ? tkn : undefined }]
 }
 
 type ParseName = (tokens: Token[], position: number) => [number, NameNode]
 export const parseName: ParseName = (tokens: Token[], position: number) => {
   const tkn = token.as(tokens[position], `EOF`)
-  return [position + 1, { type: `Name`, value: tkn.value, token: tkn }]
+  return [position + 1, { type: `Name`, value: tkn.value, token: tkn.debugInfo ? tkn : undefined }]
 }
 
 type ParseReservedName = (tokens: Token[], position: number) => [number, ReservedNameNode]
 export const parseReservedName: ParseReservedName = (tokens: Token[], position: number) => {
   const tkn = token.as(tokens[position], `EOF`)
-  return [position + 1, { type: `ReservedName`, value: tkn.value as ReservedName, token: tkn }]
+  return [
+    position + 1,
+    { type: `ReservedName`, value: tkn.value as ReservedName, token: tkn.debugInfo ? tkn : undefined },
+  ]
 }
 
 const parseTokens: ParseTokens = (tokens, position) => {
@@ -92,7 +95,7 @@ const parseArrayLitteral: ParseArrayLitteral = (tokens, position) => {
     type: `NormalExpression`,
     name: `array`,
     params,
-    token: firstToken,
+    token: firstToken.debugInfo ? firstToken : undefined,
   }
 
   return [position, node]
@@ -118,7 +121,7 @@ const parseObjectLitteral: ParseObjectLitteral = (tokens, position) => {
     type: `NormalExpression`,
     name: `object`,
     params,
-    token: firstToken,
+    token: firstToken.debugInfo ? firstToken : undefined,
   }
 
   assertEventNumberOfParams(node)
@@ -132,7 +135,7 @@ const parseRegexpShorthand: ParseRegexpShorthand = (tokens, position) => {
   const stringNode: StringNode = {
     type: `String`,
     value: tkn.value,
-    token: tkn,
+    token: tkn.debugInfo ? tkn : undefined,
   }
 
   assertValue(tkn.options, tkn.debugInfo)
@@ -140,14 +143,14 @@ const parseRegexpShorthand: ParseRegexpShorthand = (tokens, position) => {
   const optionsNode: StringNode = {
     type: `String`,
     value: `${tkn.options.g ? `g` : ``}${tkn.options.i ? `i` : ``}`,
-    token: tkn,
+    token: tkn.debugInfo ? tkn : undefined,
   }
 
   const node: NormalExpressionNode = {
     type: `NormalExpression`,
     name: `regexp`,
     params: [stringNode, optionsNode],
-    token: tkn,
+    token: tkn.debugInfo ? tkn : undefined,
   }
 
   return [position + 1, node]
@@ -199,7 +202,7 @@ const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
         arity: args.mandatoryArguments.length,
       },
     ],
-    token: firstToken,
+    token: firstToken.debugInfo ? firstToken : undefined,
   }
 
   return [newPosition, node]
@@ -211,7 +214,7 @@ const parseArgument: ParseArgument = (tokens, position) => {
     return [position + 1, { type: `Argument`, name: tkn.value, token: tkn }]
   } else if (tkn.type === `modifier`) {
     const value = tkn.value as ModifierName
-    return [position + 1, { type: `Modifier`, value, token: tkn }]
+    return [position + 1, { type: `Modifier`, value, token: tkn.debugInfo ? tkn : undefined }]
   } else {
     throw new LitsError(`Expected name or modifier token, got ${valueToString(tkn)}.`, tkn.debugInfo)
   }
@@ -245,7 +248,7 @@ const parseBinding: ParseBinding = (tokens, position) => {
     type: `Binding`,
     name,
     value,
-    token: firstToken,
+    token: firstToken.debugInfo ? firstToken : undefined,
   }
   return [position, node]
 }
@@ -268,7 +271,7 @@ const parseNormalExpression: ParseNormalExpression = (tokens, position) => {
     return [position, node]
   }
 
-  nameNode.assert(fnNode, fnNode.token.debugInfo)
+  nameNode.assert(fnNode, fnNode.token?.debugInfo)
   const node: NormalExpressionNode = {
     type: `NormalExpression`,
     name: fnNode.value,

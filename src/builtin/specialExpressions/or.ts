@@ -17,7 +17,7 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
         type: `SpecialExpression`,
         name: `or`,
         params,
-        token: firstToken,
+        token: firstToken.debugInfo ? firstToken : undefined,
       },
     ]
   },

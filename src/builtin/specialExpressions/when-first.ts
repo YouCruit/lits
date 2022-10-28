@@ -31,7 +31,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
       name: `when-first`,
       binding: asValue(bindings[0], firstToken.debugInfo),
       params,
-      token: firstToken,
+      token: firstToken.debugInfo ? firstToken : undefined,
     }
     return [position + 1, node]
   },
@@ -42,7 +42,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
     if (!sequence.is(evaluatedBindingForm)) {
       throw new LitsError(
         `Expected undefined or a sequence, got ${valueToString(evaluatedBindingForm)}`,
-        node.token.debugInfo,
+        node.token?.debugInfo,
       )
     }
 

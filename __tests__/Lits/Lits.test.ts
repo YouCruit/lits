@@ -10,18 +10,18 @@ describe(`TEST`, () => {
   })
   test(`without params`, () => {
     const fn = lits.run(`#(+ %1 %2)`)
-    litsFunction.assert(fn, null)
+    litsFunction.assert(fn)
     expect(lits.apply(fn, [2, 3])).toBe(5)
   })
   test(`with empty params`, () => {
     const fn = lits.run(`#(+ %1 %2)`)
-    litsFunction.assert(fn, null)
+    litsFunction.assert(fn)
     expect(lits.apply(fn, [2, 3], {})).toBe(5)
   })
 
   test(`with params`, () => {
     const fn = lits.run(`#(+ %1 %2 x)`)
-    litsFunction.assert(fn, null)
+    litsFunction.assert(fn)
     expect(lits.apply(fn, [2, 3], { globalContext: { x: { value: 1 } } })).toBe(6)
   })
 })
@@ -71,7 +71,6 @@ describe(`context`, () => {
                 token: {
                   type: `number`,
                   value: `2`,
-                  debugInfo: null,
                 },
               },
               {
@@ -80,14 +79,12 @@ describe(`context`, () => {
                 token: {
                   type: `number`,
                   value: `4`,
-                  debugInfo: null,
                 },
               },
             ],
             token: {
               type: `name`,
               value: `pow`,
-              debugInfo: null,
             },
           },
         ],

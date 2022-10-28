@@ -17,7 +17,7 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
         type: `SpecialExpression`,
         name: `and`,
         params,
-        token: firstToken,
+        token: firstToken.debugInfo ? firstToken : undefined,
       },
     ]
   },

@@ -16,7 +16,7 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
       type: `SpecialExpression`,
       name: `time!`,
       params: [astNode],
-      token: firstToken,
+      token: firstToken.debugInfo ? firstToken : undefined,
     }
 
     return [newPosition + 1, node]
@@ -25,7 +25,7 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
     castTimeExpressionNode(node)
 
     const [param] = node.params
-    astNode.assert(param, node.token.debugInfo)
+    astNode.assert(param, node.token?.debugInfo)
 
     const startTime = Date.now()
     const result = evaluateAstNode(param, contextStack)

@@ -15,7 +15,7 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<Any> = {
       type: `SpecialExpression`,
       name: `declared?`,
       params,
-      token: firstToken,
+      token: firstToken.debugInfo ? firstToken : undefined,
     }
 
     return [newPosition + 1, node]
@@ -24,7 +24,7 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<Any> = {
     castDeclaredExpressionNode(node)
 
     const [astNode] = node.params
-    nameNode.assert(astNode, node.token.debugInfo)
+    nameNode.assert(astNode, node.token?.debugInfo)
 
     const lookUpResult = lookUp(astNode, contextStack)
     return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression)

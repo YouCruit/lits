@@ -4209,7 +4209,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.38";
+  var version = "1.0.39";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6799,10 +6799,9 @@ var Lits = (function (exports) {
           }
       }
       Lits.prototype.getRuntimeInfo = function () {
-          var _a, _b;
           return {
               astCacheSize: this.astCacheSize,
-              currentAstCacheSize: (_b = (_a = this.astCache) === null || _a === void 0 ? void 0 : _a.size) !== null && _b !== void 0 ? _b : 0,
+              astCache: this.astCache,
               debug: this.debug,
           };
       };
@@ -6853,8 +6852,9 @@ var Lits = (function (exports) {
           params.globals = __assign(__assign({}, params.globals), globals);
           return this.evaluate(ast, params);
       };
-      Lits.prototype.generateAst = function (program, getLocation) {
+      Lits.prototype.generateAst = function (untrimmedProgram, getLocation) {
           var _a;
+          var program = untrimmedProgram.trim();
           if (this.astCache) {
               var cachedAst = this.astCache.get(program);
               if (cachedAst) {

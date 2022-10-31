@@ -137,14 +137,33 @@ describe(`context`, () => {
   })
 })
 
+function ast(n: number): Ast {
+  return {
+    body: [
+      {
+        type: `Number`,
+        value: n,
+      },
+    ],
+    type: `Program`,
+  }
+}
+
 describe(`Cache`, () => {
   test(`cannot set same key twice`, () => {
-    const cache = new Cache<number>(10)
-    cache.set(`a`, 1)
-    expect(() => cache.set(`a`, 1)).toThrow()
+    const cache = new Cache(10)
+    cache.set(`a`, ast(1))
+    expect(() => cache.set(`a`, ast(2))).toThrow()
   })
 
-  test(`max cache zize must be at least 1`, () => {
+  test(`getCache`, () => {
+    const cache = new Cache(10)
+    cache.set(`a`, ast(1))
+    cache.set(`b`, ast(2))
+    expect(cache).toMatchSnapshot()
+  })
+
+  test(`max cache size must be at least 1`, () => {
     expect(() => new Cache(-1)).toThrow()
     expect(() => new Cache(0)).toThrow()
     expect(() => new Cache(0.1)).not.toThrow()
@@ -152,51 +171,51 @@ describe(`Cache`, () => {
   })
 
   test(`Add an entry.`, () => {
-    const cache = new Cache<number>(10)
+    const cache = new Cache(10)
     expect(cache.size).toBe(0)
-    cache.set(`a`, 1)
+    cache.set(`a`, ast(1))
     expect(cache.size).toBe(1)
-    expect(cache.get(`a`)).toBe(1)
+    expect(cache.get(`a`)).toEqual(ast(1))
     expect(cache.has(`a`)).toBe(true)
   })
 
   test(`Clear cache.`, () => {
-    const cache = new Cache<number>(10)
-    cache.set(`a`, 1)
-    cache.set(`b`, 2)
-    cache.set(`c`, 3)
+    const cache = new Cache(10)
+    cache.set(`a`, ast(1))
+    cache.set(`b`, ast(2))
+    cache.set(`c`, ast(3))
     expect(cache.size).toBe(3)
     cache.clear()
     expect(cache.size).toBe(0)
   })
 
   test(`Add an entry - cacheSize = 1`, () => {
-    const cache = new Cache<number>(1)
+    const cache = new Cache(1)
     expect(cache.size).toBe(0)
-    cache.set(`a`, 1)
+    cache.set(`a`, ast(1))
     expect(cache.size).toBe(1)
-    expect(cache.get(`a`)).toBe(1)
+    expect(cache.get(`a`)).toEqual(ast(1))
   })
   test(`maxSize.`, () => {
-    const cache = new Cache<number>(1)
-    cache.set(`a`, 1)
-    expect(cache.get(`a`)).toBe(1)
-    cache.set(`b`, 2)
+    const cache = new Cache(1)
+    cache.set(`a`, ast(1))
+    expect(cache.get(`a`)).toEqual(ast(1))
+    cache.set(`b`, ast(2))
     expect(cache.size).toBe(1)
     expect(cache.get(`a`)).toBeUndefined()
     expect(cache.has(`a`)).toBe(false)
-    expect(cache.get(`b`)).toBe(2)
+    expect(cache.get(`b`)).toEqual(ast(2))
     expect(cache.has(`b`)).toBe(true)
   })
   test(`maxSize.`, () => {
-    const cache = new Cache<number>(1)
-    cache.set(`a`, 1)
-    expect(cache.get(`a`)).toBe(1)
-    cache.set(`b`, 2)
+    const cache = new Cache(1)
+    cache.set(`a`, ast(1))
+    expect(cache.get(`a`)).toEqual(ast(1))
+    cache.set(`b`, ast(2))
     expect(cache.size).toBe(1)
     expect(cache.get(`a`)).toBeUndefined()
     expect(cache.has(`a`)).toBe(false)
-    expect(cache.get(`b`)).toBe(2)
+    expect(cache.get(`b`)).toEqual(ast(2))
     expect(cache.has(`b`)).toBe(true)
   })
 })

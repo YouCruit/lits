@@ -1,17 +1,108 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Cache getCache 1`] = `
+Cache {
+  "_size": 2,
+  "cache": Object {
+    "a": Object {
+      "key": "a",
+      "nextEntry": Object {
+        "key": "b",
+        "nextEntry": undefined,
+        "value": Object {
+          "body": Array [
+            Object {
+              "type": "Number",
+              "value": 2,
+            },
+          ],
+          "type": "Program",
+        },
+      },
+      "value": Object {
+        "body": Array [
+          Object {
+            "type": "Number",
+            "value": 1,
+          },
+        ],
+        "type": "Program",
+      },
+    },
+    "b": Object {
+      "key": "b",
+      "nextEntry": undefined,
+      "value": Object {
+        "body": Array [
+          Object {
+            "type": "Number",
+            "value": 2,
+          },
+        ],
+        "type": "Program",
+      },
+    },
+  },
+  "firstEntry": Object {
+    "key": "a",
+    "nextEntry": Object {
+      "key": "b",
+      "nextEntry": undefined,
+      "value": Object {
+        "body": Array [
+          Object {
+            "type": "Number",
+            "value": 2,
+          },
+        ],
+        "type": "Program",
+      },
+    },
+    "value": Object {
+      "body": Array [
+        Object {
+          "type": "Number",
+          "value": 1,
+        },
+      ],
+      "type": "Program",
+    },
+  },
+  "lastEntry": Object {
+    "key": "b",
+    "nextEntry": undefined,
+    "value": Object {
+      "body": Array [
+        Object {
+          "type": "Number",
+          "value": 2,
+        },
+      ],
+      "type": "Program",
+    },
+  },
+  "maxSize": 10,
+}
+`;
+
 exports[`runtime info getRuntimeInfo() with ast cache 1`] = `
 Object {
+  "astCache": Cache {
+    "_size": 0,
+    "cache": Object {},
+    "firstEntry": undefined,
+    "lastEntry": undefined,
+    "maxSize": 10,
+  },
   "astCacheSize": 10,
-  "currentAstCacheSize": 0,
   "debug": false,
 }
 `;
 
 exports[`runtime info getRuntimeInfo(). 1`] = `
 Object {
+  "astCache": null,
   "astCacheSize": 0,
-  "currentAstCacheSize": 0,
   "debug": false,
 }
 `;

@@ -15,7 +15,7 @@ import { Cache } from './Cache'
 export type LocationGetter = (line: number, col: number) => string
 
 export type LitsRuntimeInfo = {
-  currentAstCacheSize: number
+  astCache: Cache | null
   astCacheSize: number
   debug: boolean
 }
@@ -34,7 +34,7 @@ type LitsConfig = {
 }
 
 export class Lits {
-  private astCache: Cache<Ast> | null
+  private astCache: Cache | null
   private astCacheSize: number
   private debug: boolean
 
@@ -55,7 +55,7 @@ export class Lits {
   public getRuntimeInfo(): LitsRuntimeInfo {
     return {
       astCacheSize: this.astCacheSize,
-      currentAstCacheSize: this.astCache?.size ?? 0,
+      astCache: this.astCache,
       debug: this.debug,
     }
   }
@@ -117,7 +117,9 @@ export class Lits {
     return this.evaluate(ast, params)
   }
 
-  private generateAst(program: string, getLocation: LocationGetter | undefined): Ast {
+  private generateAst(untrimmedProgram: string, getLocation: LocationGetter | undefined): Ast {
+    const program = untrimmedProgram.trim()
+
     if (this.astCache) {
       const cachedAst = this.astCache.get(program)
       if (cachedAst) {

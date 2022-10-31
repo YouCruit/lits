@@ -1,9 +1,10 @@
-import { addAnalyzeResults } from '../../analyze/utils'
 import { AnalyzeResult } from '../../analyze/interface'
+import { addAnalyzeResults } from '../../analyze/utils'
 import { LitsError } from '../../errors'
 import { Context, ContextStack, EvaluateAstNode } from '../../evaluator/interface'
 import {
   AstNode,
+  BindingNode,
   EvaluatedFunctionOverload,
   FUNCTION_SYMBOL,
   LitsFunction,
@@ -107,6 +108,11 @@ function createEvaluator(expressionName: ExpressionsName): BuiltinSpecialExpress
     const evaluatedFunctionOverloades: EvaluatedFunctionOverload[] = []
     for (const functionOverload of node.overloads) {
       const functionContext: Context = {}
+      for (const binding of functionOverload.arguments.bindings) {
+        const bindingValueNode = binding.value
+        const bindingValue = evaluateAstNode(bindingValueNode, contextStack)
+        functionContext[binding.name] = { value: bindingValue }
+      }
 
       const evaluatedFunctionOverload: EvaluatedFunctionOverload = {
         arguments: {
@@ -327,42 +333,54 @@ function parseFunctionArguments(
   position: number,
   parsers: ParserHelpers,
 ): [number, FunctionArguments] {
-  const { parseArgument } = parsers
+  const { parseArgument, parseBindings } = parsers
 
+  let bindings: BindingNode[] = []
   let restArgument: string | undefined = undefined
   const mandatoryArguments: string[] = []
-  let state: `mandatory` | `rest` = `mandatory`
+  let state: `mandatory` | `rest` | `let` = `mandatory`
   let tkn = token.as(tokens[position], `EOF`)
 
   position += 1
   tkn = token.as(tokens[position], `EOF`)
   while (!(tkn.type === `paren` && tkn.value === `]`)) {
-    const [newPosition, node] = parseArgument(tokens, position)
-    position = newPosition
-    tkn = token.as(tokens[position], `EOF`)
-
-    if (node.type === `Modifier`) {
-      switch (node.value) {
-        case `&`:
-          if (state === `rest`) {
-            throw new LitsError(`& can only appear once`, tkn.debugInfo)
-          }
-          state = `rest`
-          break
-        default:
-          throw new LitsError(`Illegal modifier: ${node.value}`, tkn.debugInfo)
-      }
+    if (state === `let`) {
+      ;[position, bindings] = parseBindings(tokens, position)
+      break
     } else {
-      switch (state) {
-        case `mandatory`:
-          mandatoryArguments.push(node.name)
-          break
-        case `rest`:
-          if (restArgument !== undefined) {
-            throw new LitsError(`Can only specify one rest argument`, tkn.debugInfo)
-          }
-          restArgument = node.name
-          break
+      const [newPosition, node] = parseArgument(tokens, position)
+      position = newPosition
+      tkn = token.as(tokens[position], `EOF`)
+
+      if (node.type === `Modifier`) {
+        switch (node.value) {
+          case `&`:
+            if (state === `rest`) {
+              throw new LitsError(`& can only appear once`, tkn.debugInfo)
+            }
+            state = `rest`
+            break
+          case `&let`:
+            if (state === `rest` && !restArgument) {
+              throw new LitsError(`No rest argument was spcified`, tkn.debugInfo)
+            }
+            state = `let`
+            break
+          default:
+            throw new LitsError(`Illegal modifier: ${node.value}`, tkn.debugInfo)
+        }
+      } else {
+        switch (state) {
+          case `mandatory`:
+            mandatoryArguments.push(node.name)
+            break
+          case `rest`:
+            if (restArgument !== undefined) {
+              throw new LitsError(`Can only specify one rest argument`, tkn.debugInfo)
+            }
+            restArgument = node.name
+            break
+        }
       }
     }
   }
@@ -376,6 +394,7 @@ function parseFunctionArguments(
   const args: FunctionArguments = {
     mandatoryArguments,
     restArgument,
+    bindings,
   }
 
   return [position, args]

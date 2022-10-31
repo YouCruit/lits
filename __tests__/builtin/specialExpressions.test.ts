@@ -398,6 +398,8 @@ describe(`specialExpressions`, () => {
     describe(`defn`, () => {
       test(`samples`, () => {
         expect(lits.run(`(defn add [a b] (+ a b)) (add 1 2)`)).toBe(3)
+        expect(lits.run(`(defn add [a b &let [x 10]] (+ a b x)) (add 1 2)`)).toBe(13)
+        expect(() => lits.run(`(defn add [a b & &let [x 10]] (+ a b x)) (add 1 2)`)).toThrow()
         expect(() => lits.run(`(defn add [] 10)`)).not.toThrow()
         expect(() => lits.run(`(defn true [] 10)`)).toThrow()
         expect(() => lits.run(`(defn false [] 10)`)).toThrow()

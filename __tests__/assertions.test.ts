@@ -37,7 +37,7 @@ describe(`utils`, () => {
     const node: AstNode = {
       type: `Name`,
       value: `test`,
-      token: { type: `name`, debugInfo: null, value: `X` },
+      token: { type: `name`, value: `X` },
     }
 
     expect(any.as(node, debugInfo)).toBe(node)
@@ -47,7 +47,7 @@ describe(`utils`, () => {
     const node: AstNode = {
       type: `Name`,
       value: `test`,
-      token: { type: `name`, debugInfo: null, value: `X` },
+      token: { type: `name`, value: `X` },
     }
 
     expect(() => any.assert(node, debugInfo)).not.toThrow()
@@ -57,7 +57,7 @@ describe(`utils`, () => {
     const node: AstNode = {
       type: `Name`,
       value: `test`,
-      token: { type: `name`, debugInfo: null, value: `X` },
+      token: { type: `name`, value: `X` },
     }
 
     expect(() => any.assert(node, debugInfo)).not.toThrow()
@@ -86,21 +86,18 @@ describe(`utils`, () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => nameNode.as(undefined, {} as any)).toThrow()
     expect(() =>
-      nameNode.as(
-        {
-          type: `Number`,
-          value: 12,
-          token: { type: `name`, debugInfo: null, value: `X` },
-        },
-        null,
-      ),
+      nameNode.as({
+        type: `Number`,
+        value: 12,
+        token: { type: `name`, value: `X` },
+      }),
     ).toThrow()
     const node: NameNode = {
       type: `Name`,
       value: `a-name`,
-      token: { type: `name`, debugInfo: null, value: `X` },
+      token: { type: `name`, value: `X` },
     }
-    expect(nameNode.as(node, node.token.debugInfo)).toBe(node)
+    expect(nameNode.as(node, node.token?.debugInfo)).toBe(node)
   })
   test(`assertNameNode`, () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -108,9 +105,9 @@ describe(`utils`, () => {
     const node: NameNode = {
       type: `Name`,
       value: `a-name`,
-      token: { type: `name`, debugInfo: null, value: `X` },
+      token: { type: `name`, value: `X` },
     }
-    nameNode.as(node, node.token.debugInfo)
+    nameNode.as(node, node.token?.debugInfo)
   })
   test(`asNotUndefined`, () => {
     expect(() => asValue(undefined, `EOF`)).toThrow()
@@ -179,7 +176,6 @@ describe(`utils`, () => {
   test(`assertRegExp`, () => {
     const a: RegularExpression = {
       [REGEXP_SYMBOL]: true,
-      debugInfo: null,
       source: `^ab`,
       flags: ``,
     }
@@ -200,13 +196,13 @@ describe(`utils`, () => {
     const astNodes: AstNode[] = arr.map(n => ({
       type: `Number`,
       value: n,
-      token: { type: `name`, debugInfo: null, value: `X` },
+      token: { type: `name`, value: `X` },
     }))
     return {
       name: `let`,
       params: astNodes,
       type: `NormalExpression`,
-      token: { type: `name`, debugInfo: null, value: `X` },
+      token: { type: `name`, value: `X` },
     }
   }
 
@@ -481,7 +477,6 @@ describe(`utils`, () => {
   test(`assertStringOrRegExp`, () => {
     const a: RegularExpression = {
       [REGEXP_SYMBOL]: true,
-      debugInfo: null,
       source: `^ab`,
       flags: ``,
     }
@@ -601,7 +596,6 @@ describe(`utils`, () => {
   test(`isRegexp`, () => {
     const a: RegularExpression = {
       [REGEXP_SYMBOL]: true,
-      debugInfo: null,
       source: `^ab`,
       flags: ``,
     }
@@ -617,7 +611,7 @@ describe(`utils`, () => {
         type: `NormalExpression`,
         params: [],
         name: `object`,
-        token: { type: `name`, debugInfo: null, value: `X` },
+        token: { type: `name`, value: `X` },
       }),
     ).toBe(true)
     expect(
@@ -631,7 +625,24 @@ describe(`utils`, () => {
             {
               type: `Number`,
               value: 2,
-              token: { type: `name`, debugInfo: null, value: `X` },
+              token: { type: `name`, value: `X` },
+            },
+          ],
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any),
+    ).toBe(false)
+    expect(
+      normalExpressionNodeWithName.is({
+        params: [],
+        expression: {
+          type: `NormalExpression`,
+          name: `+`,
+          params: [
+            {
+              type: `Number`,
+              value: 2,
+              token: { type: `name`, value: `X` },
             },
           ],
         },
@@ -726,19 +737,12 @@ describe(`utils`, () => {
     const nonTkn2: any = {
       ...tkn,
     }
-    delete nonTkn2.debugInfo
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nonTkn3: any = {
-      ...tkn,
-    }
-    delete nonTkn3.type
+    delete nonTkn2.type
     expect(token.is(tkn)).toBe(true)
     expect(token.is(nonTkn)).toBe(false)
     expect(() => token.assert(tkn, `EOF`)).not.toThrow()
     expect(() => token.assert(nonTkn, `EOF`)).toThrow()
     expect(() => token.assert(nonTkn2, `EOF`)).toThrow()
-    expect(() => token.assert(nonTkn3, `EOF`)).toThrow()
     expect(() => token.assert(tkn, `EOF`, { type: `name` })).not.toThrow()
     expect(() => token.assert(tkn, `EOF`, { type: `number` })).toThrow()
     expect(() => token.assert(tkn, `EOF`, { type: `name`, value: `Albert` })).not.toThrow()

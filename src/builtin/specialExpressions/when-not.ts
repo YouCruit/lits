@@ -15,7 +15,7 @@ export const whenNotSpecialExpression: BuiltinSpecialExpression<Any> = {
       type: `SpecialExpression`,
       name: `when-not`,
       params,
-      token: firstToken,
+      token: firstToken.debugInfo ? firstToken : undefined,
     }
 
     return [newPosition + 1, node]
@@ -24,7 +24,7 @@ export const whenNotSpecialExpression: BuiltinSpecialExpression<Any> = {
     castWhenNotExpressionNode(node)
 
     const [whenExpression, ...body] = node.params
-    astNode.assert(whenExpression, node.token.debugInfo)
+    astNode.assert(whenExpression, node.token?.debugInfo)
 
     if (evaluateAstNode(whenExpression, contextStack)) {
       return null
@@ -37,6 +37,10 @@ export const whenNotSpecialExpression: BuiltinSpecialExpression<Any> = {
     return result
   },
   validate: node => assertNumberOfParams({ min: 1 }, node),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castWhenNotExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
+  },
 }
 
 function castWhenNotExpressionNode(_node: SpecialExpressionNode): asserts _node is WhenNotSpecialExpressionNode {

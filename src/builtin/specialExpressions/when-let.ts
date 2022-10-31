@@ -1,3 +1,4 @@
+import { joinAnalyzeResults } from '../../analyze'
 import { LitsError } from '../../errors'
 import { Context } from '../../evaluator/interface'
 import { Any } from '../../interface'
@@ -29,7 +30,7 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
       name: `when-let`,
       binding: asValue(bindings[0], firstToken.debugInfo),
       params,
-      token: firstToken,
+      token: firstToken.debugInfo ? firstToken : undefined,
     }
     return [position + 1, node]
   },
@@ -50,6 +51,13 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     return result
   },
   validate: node => assertNumberOfParams({ min: 0 }, node),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castWhenLetExpressionNode(node)
+    const newContext: Context = { [node.binding.name]: { value: true } }
+    const bindingResult = analyzeAst(node.binding.value, contextStack)
+    const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext))
+    return joinAnalyzeResults(bindingResult, paramsResult)
+  },
 }
 
 function castWhenLetExpressionNode(_node: SpecialExpressionNode): asserts _node is WhenLetSpecialExpressionNode {

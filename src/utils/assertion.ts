@@ -31,13 +31,13 @@ class Asserter<T> {
     return this.predicate(value)
   }
 
-  public assert(value: unknown, debugInfo: DebugInfo): asserts value is T {
+  public assert(value: unknown, debugInfo?: DebugInfo): asserts value is T {
     if (!this.predicate(value)) {
       throw new LitsError(`Expected ${this.typeName}, got ${valueToString(value)}.`, getDebugInfo(value, debugInfo))
     }
   }
 
-  public as(value: unknown, debugInfo: DebugInfo): T {
+  public as(value: unknown, debugInfo?: DebugInfo): T {
     this.assert(value, debugInfo)
     return value
   }
@@ -113,12 +113,12 @@ export function assertNumberOfParams(
   node: NormalExpressionNode | SpecialExpressionNode,
 ): void {
   const length = node.params.length
-  const { debugInfo } = node.token
+  const debugInfo = node.token?.debugInfo
   if (typeof count === `number`) {
     if (length !== count) {
       throw new LitsError(
         `Wrong number of arguments to "${node.name}", expected ${count}, got ${valueToString(length)}.`,
-        node.token.debugInfo,
+        node.token?.debugInfo,
       )
     }
   } else {
@@ -148,19 +148,19 @@ export function assertEventNumberOfParams(node: NormalExpressionNode): void {
   if (length % 2 !== 0) {
     throw new LitsError(
       `Wrong number of arguments, expected an even number, got ${valueToString(length)}.`,
-      node.token.debugInfo,
+      node.token?.debugInfo,
     )
   }
 }
 
-export function asValue<T>(value: T | undefined, debugInfo: DebugInfo): T {
+export function asValue<T>(value: T | undefined, debugInfo?: DebugInfo): T {
   if (value === undefined) {
     throw new LitsError(`Unexpected nil`, getDebugInfo(value, debugInfo))
   }
   return value
 }
 
-export function assertValue<T>(value: T | undefined, debugInfo: DebugInfo): asserts value is T {
+export function assertValue<T>(value: T | undefined, debugInfo?: DebugInfo): asserts value is T {
   if (value === undefined) {
     throw new LitsError(`Unexpected nil.`, getDebugInfo(value, debugInfo))
   }

@@ -29,12 +29,10 @@ describe(`Tokenizer`, () => {
   })
 
   test(`comments`, () => {
-    expect(tokenize(`"Hi" ;This is a string`, { debug: false })).toEqual([
-      { type: `string`, value: `Hi`, debugInfo: null },
-    ])
+    expect(tokenize(`"Hi" ;This is a string`, { debug: false })).toEqual([{ type: `string`, value: `Hi` }])
     expect(tokenize(`"Hi" ;This is a string\n"there"`, { debug: false })).toEqual([
-      { type: `string`, value: `Hi`, debugInfo: null },
-      { type: `string`, value: `there`, debugInfo: null },
+      { type: `string`, value: `Hi` },
+      { type: `string`, value: `there` },
     ])
   })
 
@@ -46,17 +44,14 @@ describe(`Tokenizer`, () => {
       expect(tokenize(`"He\\"j"`, { debug: false })[0]).toEqual({
         type: `string`,
         value: `He"j`,
-        debugInfo: null,
       })
       expect(tokenize(`"He\\\\j"`, { debug: false })[0]).toEqual({
         type: `string`,
         value: `He\\j`,
-        debugInfo: null,
       })
       expect(tokenize(`"H\\ej"`, { debug: false })[0]).toEqual({
         type: `string`,
         value: `H\\ej`,
-        debugInfo: null,
       })
     })
   })

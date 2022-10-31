@@ -17,7 +17,7 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
         type: `SpecialExpression`,
         name: `and`,
         params,
-        token: firstToken,
+        token: firstToken.debugInfo ? firstToken : undefined,
       },
     ]
   },
@@ -33,6 +33,10 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
 
     return value
+  },
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castAndExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
   },
 }
 

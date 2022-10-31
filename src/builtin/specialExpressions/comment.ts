@@ -15,7 +15,7 @@ export const commentSpecialExpression: BuiltinSpecialExpression<Any> = {
       type: `SpecialExpression`,
       name: `comment`,
       params: [],
-      token: tkn,
+      token: tkn.debugInfo ? tkn : undefined,
     }
 
     while (!token.is(tkn, { type: `paren`, value: `)` })) {
@@ -27,4 +27,5 @@ export const commentSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [position + 1, node]
   },
   evaluate: () => null,
+  analyze: () => ({ undefinedSymbols: new Set() }),
 }

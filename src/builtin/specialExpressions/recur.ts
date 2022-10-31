@@ -17,18 +17,22 @@ export const recurSpecialExpression: BuiltinSpecialExpression<null> = {
       type: `SpecialExpression`,
       name: `recur`,
       params,
-      token: firstToken,
+      token: firstToken.debugInfo ? firstToken : undefined,
     }
 
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    castReturnExpressionNode(node)
+    castRecurExpressionNode(node)
     const params = node.params.map(paramNode => evaluateAstNode(paramNode, contextStack))
     throw new RecurSignal(params)
   },
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castRecurExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
+  },
 }
 
-function castReturnExpressionNode(_node: SpecialExpressionNode): asserts _node is RecurSpecialExpressionNode {
+function castRecurExpressionNode(_node: SpecialExpressionNode): asserts _node is RecurSpecialExpressionNode {
   return
 }

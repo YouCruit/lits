@@ -61,7 +61,9 @@ export function tokenize(input: string, params: TokenizeParams): Token[] {
     tokenized = false
 
     // Loop through all tokenizer until one matches
-    const debugInfo: DebugInfo = params.debug ? createDebugInfo(input, position, params.getLocation) : null
+    const debugInfo: DebugInfo | undefined = params.debug
+      ? createDebugInfo(input, position, params.getLocation)
+      : undefined
     for (const tokenize of tokenizers) {
       const [nbrOfCharacters, token] = tokenize(input, position, debugInfo)
 

@@ -1,10 +1,11 @@
+import { AnalyzeAst, AnalyzeResult } from '../../analyze'
 import { LitsError } from '../../errors'
 import { Context, ContextStack, EvaluateAstNode } from '../../evaluator/interface'
 import { Any, Arr } from '../../interface'
 import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
 import { Token, DebugInfo } from '../../tokenizer/interface'
 import { any, astNode, asValue, collection, sequence, token } from '../../utils/assertion'
-import { BuiltinSpecialExpression, Parsers } from '../interface'
+import { BuiltinSpecialExpression, ParserHelpers } from '../interface'
 
 interface LoopSpecialExpressionNode extends SpecialExpressionNode {
   name: `for` | `doseq`
@@ -22,7 +23,7 @@ type LoopBindingNode = {
 function parseLoopBinding(
   tokens: Token[],
   position: number,
-  { parseBinding, parseBindings, parseToken }: Parsers,
+  { parseBinding, parseBindings, parseToken }: ParserHelpers,
 ): [number, LoopBindingNode] {
   let bindingNode: BindingNode
   ;[position, bindingNode] = parseBinding(tokens, position)
@@ -69,7 +70,7 @@ function addToContext(
   context: Context,
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
-  debugInfo: DebugInfo,
+  debugInfo?: DebugInfo,
 ) {
   for (const binding of bindings) {
     if (context[binding.name]) {
@@ -79,7 +80,7 @@ function addToContext(
   }
 }
 
-function parseLoopBindings(tokens: Token[], position: number, parsers: Parsers): [number, LoopBindingNode[]] {
+function parseLoopBindings(tokens: Token[], position: number, parsers: ParserHelpers): [number, LoopBindingNode[]] {
   token.assert(tokens[position], `EOF`, { type: `paren`, value: `[` })
   position += 1
 
@@ -99,7 +100,7 @@ function parseLoop(
   name: `for` | `doseq`,
   tokens: Token[],
   position: number,
-  parsers: Parsers,
+  parsers: ParserHelpers,
 ): [number, LoopSpecialExpressionNode] {
   const firstToken = token.as(tokens[position], `EOF`)
   const { parseToken } = parsers
@@ -116,7 +117,7 @@ function parseLoop(
     type: `SpecialExpression`,
     loopBindings,
     params: [expression],
-    token: firstToken,
+    token: firstToken.debugInfo ? firstToken : undefined,
   }
 
   return [position + 1, node]
@@ -129,7 +130,7 @@ function evaluateLoop(
   evaluateAstNode: EvaluateAstNode,
 ) {
   castLoopExpressionNode(node)
-  const debugInfo = node.token.debugInfo
+  const debugInfo = node.token?.debugInfo
   const { loopBindings, params } = node
   const expression = astNode.as(params[0], debugInfo)
 
@@ -200,14 +201,53 @@ function evaluateLoop(
   return returnResult ? result : null
 }
 
+function analyze(node: SpecialExpressionNode, contextStack: ContextStack, analyzeAst: AnalyzeAst): AnalyzeResult {
+  castLoopExpressionNode(node)
+  const result: AnalyzeResult = {
+    undefinedSymbols: new Set(),
+  }
+  const newContext: Context = {}
+  node.loopBindings.forEach(loopBinding => {
+    const { binding, letBindings, whenNode, whileNode } = loopBinding
+    analyzeAst(binding.value, contextStack.withContext(newContext)).undefinedSymbols.forEach(symbol =>
+      result.undefinedSymbols.add(symbol),
+    )
+    newContext[binding.name] = { value: true }
+    if (letBindings) {
+      letBindings.forEach(letBinding => {
+        analyzeAst(letBinding.value, contextStack.withContext(newContext)).undefinedSymbols.forEach(symbol =>
+          result.undefinedSymbols.add(symbol),
+        )
+        newContext[letBinding.name] = { value: true }
+      })
+    }
+    if (whenNode) {
+      analyzeAst(whenNode, contextStack.withContext(newContext)).undefinedSymbols.forEach(symbol =>
+        result.undefinedSymbols.add(symbol),
+      )
+    }
+    if (whileNode) {
+      analyzeAst(whileNode, contextStack.withContext(newContext)).undefinedSymbols.forEach(symbol =>
+        result.undefinedSymbols.add(symbol),
+      )
+    }
+  })
+  analyzeAst(node.params, contextStack.withContext(newContext)).undefinedSymbols.forEach(symbol =>
+    result.undefinedSymbols.add(symbol),
+  )
+  return result
+}
+
 export const forSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, parsers) => parseLoop(`for`, tokens, position, parsers),
   evaluate: (node, contextStack, helpers) => evaluateLoop(true, node, contextStack, helpers.evaluateAstNode),
+  analyze: (node, contextStack, { analyzeAst }) => analyze(node, contextStack, analyzeAst),
 }
 
 export const doseqSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, parsers) => parseLoop(`doseq`, tokens, position, parsers),
   evaluate: (node, contextStack, helpers) => evaluateLoop(false, node, contextStack, helpers.evaluateAstNode),
+  analyze: (node, contextStack, { analyzeAst }) => analyze(node, contextStack, analyzeAst),
 }
 
 function castLoopExpressionNode(_node: SpecialExpressionNode): asserts _node is LoopSpecialExpressionNode {

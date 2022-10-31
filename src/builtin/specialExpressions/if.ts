@@ -17,13 +17,13 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
         type: `SpecialExpression`,
         name: `if`,
         params,
-        token: firstToken,
+        token: firstToken.debugInfo ? firstToken : undefined,
       },
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     castIfExpressionNode(node)
-    const debugInfo = node.token.debugInfo
+    const debugInfo = node.token?.debugInfo
 
     const [conditionNode, trueNode, falseNode] = node.params
     if (evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)) {
@@ -37,6 +37,10 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
   },
   validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castIfExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
+  },
 }
 
 function castIfExpressionNode(_node: SpecialExpressionNode): asserts _node is IfSpecialExpressionNode {

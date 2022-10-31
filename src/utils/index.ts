@@ -104,7 +104,7 @@ export function compare(a: unknown, b: unknown): number {
   }
 }
 
-export function deepEqual(a: Any, b: Any, debugInfo: DebugInfo): boolean {
+export function deepEqual(a: Any, b: Any, debugInfo?: DebugInfo): boolean {
   if (a === b) {
     return true
   }

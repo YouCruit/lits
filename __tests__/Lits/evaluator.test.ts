@@ -155,7 +155,26 @@ test(`evaluateAstNode`, () => {
       {
         type: `Modifier`,
         value: `&`,
-        token: { type: `name`, debugInfo: null, value: `X` },
+        token: { type: `name`, value: `X` },
+      },
+      createContextStack(),
+    ),
+  ).toThrow()
+  expect(() =>
+    evaluateAstNode(
+      {
+        type: `Modifier`,
+        value: `&`,
+      },
+      createContextStack(),
+    ),
+  ).toThrow()
+  expect(() =>
+    evaluateAstNode(
+      {
+        type: `Modifier`,
+        value: `&`,
+        token: { type: `name`, debugInfo: { code: ``, codeMarker: ``, column: 1, line: 1 }, value: `X` },
       },
       createContextStack(),
     ),

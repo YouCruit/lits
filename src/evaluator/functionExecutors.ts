@@ -27,7 +27,7 @@ type FunctionExecutors = Record<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fn: any,
     params: Arr,
-    debugInfo: DebugInfo,
+    debugInfo: DebugInfo | undefined,
     contextStack: ContextStack,
     helpers: { evaluateAstNode: EvaluateAstNode; executeFunction: ExecuteFunction },
   ) => Any
@@ -36,7 +36,7 @@ type FunctionExecutors = Record<
 function findOverloadFunction(
   overloads: EvaluatedFunctionOverload[],
   nbrOfParams: number,
-  debugInfo: DebugInfo,
+  debugInfo?: DebugInfo,
 ): EvaluatedFunctionOverload {
   const overloadFunction = overloads.find(overload => {
     const arity = overload.arity
@@ -93,7 +93,7 @@ export const functionExecutors: FunctionExecutors = {
     }
   },
   partial: (fn: PartialFunction, params, debugInfo, contextStack, { executeFunction }) => {
-    return executeFunction(fn.fn, [...fn.params, ...params], debugInfo, contextStack)
+    return executeFunction(fn.fn, [...fn.params, ...params], contextStack, debugInfo)
   },
   comp: (fn: CompFunction, params, debugInfo, contextStack, { executeFunction }) => {
     const { fns } = fn
@@ -105,7 +105,7 @@ export const functionExecutors: FunctionExecutors = {
     }
     return any.as(
       fns.reduceRight((result: Arr, fn) => {
-        return [executeFunction(toAny(fn), result, debugInfo, contextStack)]
+        return [executeFunction(toAny(fn), result, contextStack, debugInfo)]
       }, params)[0],
       debugInfo,
     )
@@ -114,15 +114,15 @@ export const functionExecutors: FunctionExecutors = {
     return fn.value
   },
   juxt: (fn: JuxtFunction, params, debugInfo, contextStack, { executeFunction }) => {
-    return fn.fns.map(fn => executeFunction(toAny(fn), params, debugInfo, contextStack))
+    return fn.fns.map(fn => executeFunction(toAny(fn), params, contextStack, debugInfo))
   },
   complement: (fn: ComplementFunction, params, debugInfo, contextStack, { executeFunction }) => {
-    return !executeFunction(fn.fn, params, debugInfo, contextStack)
+    return !executeFunction(fn.fn, params, contextStack, debugInfo)
   },
   'every-pred': (fn: EveryPredFunction, params, debugInfo, contextStack, { executeFunction }) => {
     for (const f of fn.fns) {
       for (const param of params) {
-        const result = executeFunction(toAny(f), [param], debugInfo, contextStack)
+        const result = executeFunction(toAny(f), [param], contextStack, debugInfo)
         if (!result) {
           return false
         }
@@ -133,7 +133,7 @@ export const functionExecutors: FunctionExecutors = {
   'some-pred': (fn: SomePredFunction, params, debugInfo, contextStack, { executeFunction }) => {
     for (const f of fn.fns) {
       for (const param of params) {
-        const result = executeFunction(toAny(f), [param], debugInfo, contextStack)
+        const result = executeFunction(toAny(f), [param], contextStack, debugInfo)
         if (result) {
           return true
         }
@@ -143,7 +143,7 @@ export const functionExecutors: FunctionExecutors = {
   },
   fnil: (fn: FNilFunction, params, debugInfo, contextStack, { executeFunction }) => {
     const fniledParams = params.map((param, index) => (param === null ? toAny(fn.params[index]) : param))
-    return executeFunction(toAny(fn.fn), fniledParams, debugInfo, contextStack)
+    return executeFunction(toAny(fn.fn), fniledParams, contextStack, debugInfo)
   },
   builtin: (fn: BuiltinFunction, params, debugInfo, contextStack, { executeFunction }) => {
     const normalExpression = asValue(normalExpressions[fn.name], debugInfo)

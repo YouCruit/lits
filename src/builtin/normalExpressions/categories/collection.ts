@@ -22,7 +22,11 @@ type CollMeta = {
   parent: Obj | Arr
 }
 
-function cloneAndGetMeta(originalColl: Coll, keys: Arr, debugInfo: DebugInfo): { coll: Coll; innerCollMeta: CollMeta } {
+function cloneAndGetMeta(
+  originalColl: Coll,
+  keys: Arr,
+  debugInfo?: DebugInfo,
+): { coll: Coll; innerCollMeta: CollMeta } {
   const coll = cloneColl(originalColl)
 
   const butLastKeys = keys.slice(0, keys.length - 1)
@@ -52,7 +56,7 @@ function cloneAndGetMeta(originalColl: Coll, keys: Arr, debugInfo: DebugInfo): {
   return { coll, innerCollMeta }
 }
 
-function get(coll: Coll, key: string | number, debugInfo: DebugInfo): Any | undefined {
+function get(coll: Coll, key: string | number, debugInfo?: DebugInfo): Any | undefined {
   if (object.is(coll)) {
     string.assert(key, debugInfo)
     if (collHasKey(coll, key)) {
@@ -72,14 +76,14 @@ function update(
   key: string | number,
   fn: LitsFunction,
   params: Arr,
-  debugInfo: DebugInfo,
   contextStack: ContextStack,
   executeFunction: ExecuteFunction,
+  debugInfo?: DebugInfo,
 ): Coll {
   if (object.is(coll)) {
     string.assert(key, debugInfo)
     const result = { ...coll }
-    result[key] = executeFunction(fn, [result[key], ...params], debugInfo, contextStack)
+    result[key] = executeFunction(fn, [result[key], ...params], contextStack, debugInfo)
     return result
   } else {
     number.assert(key, debugInfo)
@@ -88,25 +92,25 @@ function update(
     if (Array.isArray(coll)) {
       const result = coll.map((elem, index) => {
         if (intKey === index) {
-          return executeFunction(fn, [elem, ...params], debugInfo, contextStack)
+          return executeFunction(fn, [elem, ...params], contextStack, debugInfo)
         }
         return elem
       })
       if (intKey === coll.length) {
-        result[intKey] = executeFunction(fn, [undefined, ...params], debugInfo, contextStack)
+        result[intKey] = executeFunction(fn, [undefined, ...params], contextStack, debugInfo)
       }
       return result
     } else {
       const result = coll.split(``).map((elem, index) => {
         if (intKey === index) {
-          return string.as(executeFunction(fn, [elem, ...params], debugInfo, contextStack), debugInfo, {
+          return string.as(executeFunction(fn, [elem, ...params], contextStack, debugInfo), debugInfo, {
             char: true,
           })
         }
         return elem
       })
       if (intKey === coll.length) {
-        result[intKey] = string.as(executeFunction(fn, [undefined, ...params], debugInfo, contextStack), debugInfo, {
+        result[intKey] = string.as(executeFunction(fn, [undefined, ...params], contextStack, debugInfo), debugInfo, {
           char: true,
         })
       }
@@ -115,7 +119,7 @@ function update(
   }
 }
 
-function assoc(coll: Coll, key: string | number, value: Any, debugInfo: DebugInfo) {
+function assoc(coll: Coll, key: string | number, value: Any, debugInfo?: DebugInfo) {
   collection.assert(coll, debugInfo)
   stringOrNumber.assert(key, debugInfo)
   if (Array.isArray(coll) || typeof coll === `string`) {
@@ -311,7 +315,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       collection.assert(coll, debugInfo)
       stringOrNumber.assert(key, debugInfo)
       litsFunction.assert(fn, debugInfo)
-      return update(coll, key, fn, params, debugInfo, contextStack, executeFunction)
+      return update(coll, key, fn, params, contextStack, executeFunction, debugInfo)
     },
     validate: node => assertNumberOfParams({ min: 3 }, node),
   },
@@ -323,7 +327,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
 
       if (keys.length === 1) {
         stringOrNumber.assert(keys[0], debugInfo)
-        return update(originalColl, keys[0], fn, params, debugInfo, contextStack, executeFunction)
+        return update(originalColl, keys[0], fn, params, contextStack, executeFunction, debugInfo)
       }
 
       const { coll, innerCollMeta } = cloneAndGetMeta(originalColl, keys, debugInfo)
@@ -338,9 +342,9 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
           lastKey,
           fn,
           params,
-          debugInfo,
           contextStack,
           executeFunction,
+          debugInfo,
         )
       } else {
         string.assert(parentKey, debugInfo)
@@ -349,9 +353,9 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
           lastKey,
           fn,
           params,
-          debugInfo,
           contextStack,
           executeFunction,
+          debugInfo,
         )
       }
 
@@ -400,12 +404,12 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       collection.assert(coll, debugInfo)
 
       if (Array.isArray(coll)) {
-        return coll.every(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+        return coll.every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
       }
       if (string.is(coll)) {
-        return coll.split(``).every(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+        return coll.split(``).every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
       }
-      return Object.entries(coll).every(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+      return Object.entries(coll).every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
   },
@@ -415,12 +419,12 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       collection.assert(coll, debugInfo)
 
       if (Array.isArray(coll)) {
-        return coll.some(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+        return coll.some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
       }
       if (string.is(coll)) {
-        return coll.split(``).some(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+        return coll.split(``).some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
       }
-      return Object.entries(coll).some(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+      return Object.entries(coll).some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
   },
@@ -430,12 +434,12 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       collection.assert(coll, debugInfo)
 
       if (Array.isArray(coll)) {
-        return !coll.some(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+        return !coll.some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
       }
       if (string.is(coll)) {
-        return !coll.split(``).some(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+        return !coll.split(``).some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
       }
-      return !Object.entries(coll).some(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+      return !Object.entries(coll).some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
   },
@@ -445,12 +449,12 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       collection.assert(coll, debugInfo)
 
       if (Array.isArray(coll)) {
-        return !coll.every(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+        return !coll.every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
       }
       if (string.is(coll)) {
-        return !coll.split(``).every(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+        return !coll.split(``).every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
       }
-      return !Object.entries(coll).every(elem => executeFunction(fn, [elem], debugInfo, contextStack))
+      return !Object.entries(coll).every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
   },

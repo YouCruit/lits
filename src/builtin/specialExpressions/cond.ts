@@ -45,7 +45,7 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
         name: `cond`,
         conditions,
         params: [],
-        token: firstToken,
+        token: firstToken.debugInfo ? firstToken : undefined,
       },
     ]
   },
@@ -60,6 +60,11 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
       return evaluateAstNode(condition.form, contextStack)
     }
     return null
+  },
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castCondExpressionNode(node)
+    const astNodes = node.conditions.flatMap(condition => [condition.test, condition.form])
+    return analyzeAst(astNodes, contextStack)
   },
 }
 

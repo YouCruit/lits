@@ -158,7 +158,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       litsFunction.assert(func, debugInfo)
       try {
-        executeFunction(func, [], debugInfo, contextStack)
+        executeFunction(func, [], contextStack, debugInfo)
       } catch {
         return null
       }
@@ -172,7 +172,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       string.assert(throwMessage, debugInfo)
       litsFunction.assert(func, debugInfo)
       try {
-        executeFunction(func, [], debugInfo, contextStack)
+        executeFunction(func, [], contextStack, debugInfo)
       } catch (error) {
         const errorMessage = (error as LitsError).shortMessage
         if (errorMessage !== throwMessage) {
@@ -192,7 +192,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       message = typeof message === `string` && message ? ` "${message}"` : ``
       litsFunction.assert(func, debugInfo)
       try {
-        executeFunction(func, [], debugInfo, contextStack)
+        executeFunction(func, [], contextStack, debugInfo)
       } catch {
         throw new AssertionError(`Expected function not to throw.${message}`, debugInfo)
       }

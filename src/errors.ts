@@ -13,9 +13,9 @@ export class RecurSignal extends Error {
 }
 
 export abstract class AbstractLitsError extends Error {
-  public debugInfo: DebugInfo
+  public debugInfo?: DebugInfo
   public shortMessage: string
-  constructor(message: string | Error, debugInfo: DebugInfo) {
+  constructor(message: string | Error, debugInfo?: DebugInfo) {
     if (message instanceof Error) {
       message = `${message.name}${message.message ? `: ${message.message}` : ``}`
     }
@@ -28,7 +28,7 @@ export abstract class AbstractLitsError extends Error {
 }
 
 export class LitsError extends AbstractLitsError {
-  constructor(message: string | Error, debugInfo: DebugInfo) {
+  constructor(message: string | Error, debugInfo?: DebugInfo) {
     super(message, debugInfo)
     Object.setPrototypeOf(this, LitsError.prototype)
     this.name = `LitsError`
@@ -36,7 +36,7 @@ export class LitsError extends AbstractLitsError {
 }
 
 export class NotAFunctionError extends AbstractLitsError {
-  constructor(fn: unknown, debugInfo: DebugInfo) {
+  constructor(fn: unknown, debugInfo?: DebugInfo) {
     const message = `Expected function, got ${valueToString(fn)}.`
     super(message, debugInfo)
     Object.setPrototypeOf(this, NotAFunctionError.prototype)
@@ -45,7 +45,7 @@ export class NotAFunctionError extends AbstractLitsError {
 }
 
 export class UserDefinedError extends AbstractLitsError {
-  constructor(message: string | Error, debugInfo: DebugInfo) {
+  constructor(message: string | Error, debugInfo?: DebugInfo) {
     super(message, debugInfo)
     Object.setPrototypeOf(this, UserDefinedError.prototype)
     this.name = `UserDefinedError`
@@ -53,7 +53,7 @@ export class UserDefinedError extends AbstractLitsError {
 }
 
 export class AssertionError extends AbstractLitsError {
-  constructor(message: string | Error, debugInfo: DebugInfo) {
+  constructor(message: string | Error, debugInfo?: DebugInfo) {
     super(message, debugInfo)
     Object.setPrototypeOf(this, AssertionError.prototype)
     this.name = `AssertionError`
@@ -61,9 +61,11 @@ export class AssertionError extends AbstractLitsError {
 }
 
 export class UndefinedSymbolError extends AbstractLitsError {
-  constructor(symbolName: string, debugInfo: DebugInfo) {
+  public symbol: string
+  constructor(symbolName: string, debugInfo?: DebugInfo) {
     const message = `Undefined symbol '${symbolName}'.`
     super(message, debugInfo)
+    this.symbol = symbolName
     Object.setPrototypeOf(this, UndefinedSymbolError.prototype)
     this.name = `UndefinedSymbolError`
   }

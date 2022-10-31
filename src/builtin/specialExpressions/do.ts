@@ -16,7 +16,7 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
       type: `SpecialExpression`,
       name: `do`,
       params: [],
-      token: tkn,
+      token: tkn.debugInfo ? tkn : undefined,
     }
 
     while (!token.is(tkn, { type: `paren`, value: `)` })) {
@@ -37,6 +37,10 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
       result = evaluateAstNode(form, newContextStack)
     }
     return result
+  },
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castDoExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
   },
 }
 

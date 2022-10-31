@@ -17,7 +17,7 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
         type: `SpecialExpression`,
         name: `or`,
         params,
-        token: firstToken,
+        token: firstToken.debugInfo ? firstToken : undefined,
       },
     ]
   },
@@ -33,6 +33,10 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
 
     return value
+  },
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castOrExpressionNode(node)
+    return analyzeAst(node.params, contextStack)
   },
 }
 

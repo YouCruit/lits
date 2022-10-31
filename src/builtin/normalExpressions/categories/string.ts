@@ -288,7 +288,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
 }
 
 const doubleDollarRegexp = /\$\$/g
-function applyPlaceholders(templateString: string, placeholders: unknown[], debugInfo: DebugInfo): string {
+function applyPlaceholders(templateString: string, placeholders: unknown[], debugInfo?: DebugInfo): string {
   for (let i = 0; i < 9; i += 1) {
     // Matches $1, $2, ..., $9
     // Does not match $$1

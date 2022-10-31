@@ -18,17 +18,17 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
         type: `SpecialExpression`,
         name: `defs`,
         params,
-        token: firstToken,
+        token: firstToken.debugInfo ? firstToken : undefined,
       },
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode, builtin }) => {
     castDefsExpressionNode(node)
-    const debugInfo = node.token.debugInfo
+    const debugInfo = node.token?.debugInfo
     const name = evaluateAstNode(astNode.as(node.params[0], debugInfo), contextStack)
     string.assert(name, debugInfo)
 
-    assertNameNotDefined(name, contextStack, builtin, node.token.debugInfo)
+    assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
 
     const value = evaluateAstNode(astNode.as(node.params[1], debugInfo), contextStack)
 
@@ -37,6 +37,11 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
     return value
   },
   validate: node => assertNumberOfParams(2, node),
+  analyze: (node, contextStack, { analyzeAst }) => {
+    castDefsExpressionNode(node)
+    const subNode = astNode.as(node.params[1], node.token?.debugInfo)
+    return analyzeAst(subNode, contextStack)
+  },
 }
 
 function castDefsExpressionNode(_node: SpecialExpressionNode): asserts _node is DefsSpecialExpressionNode {

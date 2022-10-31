@@ -76,7 +76,7 @@ export const evaluateAstNode: EvaluateAstNode = (node, contextStack) => {
     case `SpecialExpression`:
       return evaluateSpecialExpression(node, contextStack)
     default:
-      throw new LitsError(`${node.type}-node cannot be evaluated`, node.token.debugInfo)
+      throw new LitsError(`${node.type}-node cannot be evaluated`, node.token?.debugInfo)
   }
 }
 
@@ -89,7 +89,7 @@ function evaluateString(node: StringNode): string {
 }
 
 function evaluateReservedName(node: ReservedNameNode): Any {
-  return asValue(reservedNamesRecord[node.value], node.token.debugInfo).value
+  return asValue(reservedNamesRecord[node.value], node.token?.debugInfo).value
 }
 
 function evaluateName(node: NameNode, contextStack: ContextStack): Any {
@@ -99,14 +99,13 @@ function evaluateName(node: NameNode, contextStack: ContextStack): Any {
   } else if (lookUpResult.builtinFunction) {
     return lookUpResult.builtinFunction
   }
-  throw new UndefinedSymbolError(node.value, node.token.debugInfo)
+  throw new UndefinedSymbolError(node.value, node.token?.debugInfo)
 }
 
-function lookUp(node: NameNode, contextStack: ContextStack): LookUpResult {
-  const {
-    value,
-    token: { debugInfo },
-  } = node
+export function lookUp(node: NameNode, contextStack: ContextStack): LookUpResult {
+  const value = node.value
+  const debugInfo = node.token?.debugInfo
+
   for (const context of contextStack.stack) {
     const variable = context[value]
     if (variable) {
@@ -148,24 +147,24 @@ function lookUp(node: NameNode, contextStack: ContextStack): LookUpResult {
 
 function evaluateNormalExpression(node: NormalExpressionNode, contextStack: ContextStack): Any {
   const params = node.params.map(paramNode => evaluateAstNode(paramNode, contextStack))
-  const { debugInfo } = node.token
+  const debugInfo = node.token?.debugInfo
   if (normalExpressionNodeWithName.is(node)) {
     for (const context of contextStack.stack) {
       const fn = context[node.name]?.value
       if (fn === undefined) {
         continue
       }
-      return executeFunction(fn, params, debugInfo, contextStack)
+      return executeFunction(fn, params, contextStack, debugInfo)
     }
 
     return evaluateBuiltinNormalExpression(node, params, contextStack)
   } else {
     const fn = evaluateAstNode(node.expression, contextStack)
-    return executeFunction(fn, params, debugInfo, contextStack)
+    return executeFunction(fn, params, contextStack, debugInfo)
   }
 }
 
-const executeFunction: ExecuteFunction = (fn, params, debugInfo, contextStack) => {
+const executeFunction: ExecuteFunction = (fn, params, contextStack, debugInfo) => {
   if (litsFunction.is(fn)) {
     return functionExecutors[fn.type](fn, params, debugInfo, contextStack, { evaluateAstNode, executeFunction })
   }
@@ -191,19 +190,19 @@ function evaluateBuiltinNormalExpression(
 ): Any {
   const normalExpression = builtin.normalExpressions[node.name]
   if (!normalExpression) {
-    throw new UndefinedSymbolError(node.name, node.token.debugInfo)
+    throw new UndefinedSymbolError(node.name, node.token?.debugInfo)
   }
 
-  return normalExpression.evaluate(params, node.token.debugInfo, contextStack, { executeFunction })
+  return normalExpression.evaluate(params, node.token?.debugInfo, contextStack, { executeFunction })
 }
 
 function evaluateSpecialExpression(node: SpecialExpressionNode, contextStack: ContextStack): Any {
-  const specialExpression = asValue(builtin.specialExpressions[node.name], node.token.debugInfo)
+  const specialExpression = asValue(builtin.specialExpressions[node.name], node.token?.debugInfo)
 
   return specialExpression.evaluate(node, contextStack, { evaluateAstNode, builtin, lookUp })
 }
 
-function evalueateObjectAsFunction(fn: Obj, params: Arr, debugInfo: DebugInfo): Any {
+function evalueateObjectAsFunction(fn: Obj, params: Arr, debugInfo?: DebugInfo): Any {
   if (params.length !== 1) {
     throw new LitsError(`Object as function requires one string parameter.`, debugInfo)
   }
@@ -212,7 +211,7 @@ function evalueateObjectAsFunction(fn: Obj, params: Arr, debugInfo: DebugInfo): 
   return toAny(fn[key])
 }
 
-function evaluateArrayAsFunction(fn: Arr, params: Arr, debugInfo: DebugInfo): Any {
+function evaluateArrayAsFunction(fn: Arr, params: Arr, debugInfo?: DebugInfo): Any {
   if (params.length !== 1) {
     throw new LitsError(`Array as function requires one non negative integer parameter.`, debugInfo)
   }
@@ -221,7 +220,7 @@ function evaluateArrayAsFunction(fn: Arr, params: Arr, debugInfo: DebugInfo): An
   return toAny(fn[index])
 }
 
-function evaluateStringAsFunction(fn: string, params: Arr, debugInfo: DebugInfo): Any {
+function evaluateStringAsFunction(fn: string, params: Arr, debugInfo?: DebugInfo): Any {
   if (params.length !== 1) {
     throw new LitsError(`String as function requires one Obj parameter.`, debugInfo)
   }
@@ -235,7 +234,7 @@ function evaluateStringAsFunction(fn: string, params: Arr, debugInfo: DebugInfo)
   throw new LitsError(`string as function expects Obj or integer parameter, got ${valueToString(param)}`, debugInfo)
 }
 
-function evaluateNumberAsFunction(fn: number, params: Arr, debugInfo: DebugInfo): Any {
+function evaluateNumberAsFunction(fn: number, params: Arr, debugInfo?: DebugInfo): Any {
   number.assert(fn, debugInfo, { integer: true })
   if (params.length !== 1) {
     throw new LitsError(`Number as function requires one Arr parameter.`, debugInfo)

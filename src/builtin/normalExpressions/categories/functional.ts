@@ -21,7 +21,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
       const last = params[paramsLength - 1]
       array.assert(last, debugInfo)
       const applyArray = [...params.slice(0, -1), ...last]
-      return executeFunction(func, applyArray, debugInfo, contextStack)
+      return executeFunction(func, applyArray, contextStack, debugInfo)
     },
     validate: node => assertNumberOfParams({ min: 2 }, node),
   },

@@ -37,25 +37,21 @@ describe(`utils`, () => {
     test(`RegExp`, () => {
       const a: RegularExpression = {
         [REGEXP_SYMBOL]: true,
-        debugInfo: null,
         source: `^ab`,
         flags: ``,
       }
       const b: RegularExpression = {
         [REGEXP_SYMBOL]: true,
-        debugInfo: null,
         source: `^ab`,
         flags: ``,
       }
       const c: RegularExpression = {
         [REGEXP_SYMBOL]: true,
-        debugInfo: null,
         source: `^ab`,
         flags: `g`,
       }
       const d: RegularExpression = {
         [REGEXP_SYMBOL]: true,
-        debugInfo: null,
         source: `^ab`,
         flags: `g`,
       }

@@ -429,6 +429,9 @@ describe(`specialExpressions`, () => {
       describe(`undefinedSymbols`, () => {
         test(`samples`, () => {
           expect(lits.analyze(`(defn foo [a] (if (= a 1) 1 (+ a (foo (dec a)))))`).undefinedSymbols).toEqual(new Set())
+          expect(
+            lits.analyze(`(defn foo [a &let [x y, y z]] (if (= a 1) 1 (+ a (foo (dec a)))))`).undefinedSymbols,
+          ).toEqual(new Set([`y`, `z`]))
           expect(lits.analyze(`(defn foo [a b] (str a b c))`).undefinedSymbols).toEqual(new Set([`c`]))
           expect(lits.analyze(`(defn foo [a b] (str a b c)) (foo x y)`).undefinedSymbols).toEqual(
             new Set([`c`, `x`, `y`]),

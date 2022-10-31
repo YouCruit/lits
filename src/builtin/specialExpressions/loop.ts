@@ -1,4 +1,4 @@
-import { joinAnalyzeResults } from '../../analyze'
+import { joinAnalyzeResults } from '../../analyze/utils'
 import { LitsError, RecurSignal } from '../../errors'
 import { Context } from '../../evaluator/interface'
 import { Any } from '../../interface'
@@ -64,7 +64,7 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
       return result
     }
   },
-  analyze: (node, contextStack, { analyzeAst }) => {
+  analyze: (node, contextStack, { analyzeAst, builtin }) => {
     castLoopExpressionNode(node)
     const newContext = node.bindings
       .map(binding => binding.name)
@@ -74,8 +74,8 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
       }, {})
 
     const bindingValueNodes = node.bindings.map(binding => binding.value)
-    const bindingsResult = analyzeAst(bindingValueNodes, contextStack)
-    const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext))
+    const bindingsResult = analyzeAst(bindingValueNodes, contextStack, builtin)
+    const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin)
     return joinAnalyzeResults(bindingsResult, paramsResult)
   },
 }

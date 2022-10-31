@@ -1,14 +1,11 @@
-import { builtin } from '../builtin'
+import { Builtin } from '../builtin/interface'
 import { lookUp } from '../evaluator'
 import { ContextStack } from '../evaluator/interface'
 import { AstNode } from '../parser/interface'
 import { asValue } from '../utils/assertion'
+import { AnalyzeAst, AnalyzeResult } from './interface'
 
-export type AnalyzeResult = {
-  undefinedSymbols: Set<string>
-}
-export type AnalyzeAst = (astNode: AstNode | AstNode[], contextStack: ContextStack) => AnalyzeResult
-export const analyzeAst: AnalyzeAst = (astNode, contextStack) => {
+export const analyzeAst: AnalyzeAst = (astNode, contextStack, builtin: Builtin) => {
   const astNodes = Array.isArray(astNode) ? astNode : [astNode]
 
   const analyzeResult: AnalyzeResult = {
@@ -16,14 +13,14 @@ export const analyzeAst: AnalyzeAst = (astNode, contextStack) => {
   }
 
   for (const subNode of astNodes) {
-    const result = analyzeAstNode(subNode, contextStack)
+    const result = analyzeAstNode(subNode, contextStack, builtin)
     result.undefinedSymbols.forEach(symbol => analyzeResult.undefinedSymbols.add(symbol))
   }
 
   return analyzeResult
 }
 
-function analyzeAstNode(astNode: AstNode, contextStack: ContextStack): AnalyzeResult {
+function analyzeAstNode(astNode: AstNode, contextStack: ContextStack, builtin: Builtin): AnalyzeResult {
   const emptySet = new Set<string>()
   switch (astNode.type) {
     case `Name`: {
@@ -58,7 +55,7 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack): AnalyzeRe
             break
           case `NormalExpression`:
           case `SpecialExpression`: {
-            const subResult = analyzeAstNode(expression, contextStack)
+            const subResult = analyzeAstNode(expression, contextStack, builtin)
             subResult.undefinedSymbols.forEach(symbol => undefinedSymbols.add(symbol))
             break
           }
@@ -66,7 +63,7 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack): AnalyzeRe
       }
 
       for (const subNode of astNode.params) {
-        const subNodeResult = analyzeAst(subNode, contextStack)
+        const subNodeResult = analyzeAst(subNode, contextStack, builtin)
         subNodeResult.undefinedSymbols.forEach(symbol => undefinedSymbols.add(symbol))
       }
       return { undefinedSymbols }
@@ -80,18 +77,4 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack): AnalyzeRe
       return result
     }
   }
-}
-
-export function joinAnalyzeResults(...results: AnalyzeResult[]): AnalyzeResult {
-  const result: AnalyzeResult = {
-    undefinedSymbols: new Set(),
-  }
-  for (const input of results) {
-    input.undefinedSymbols.forEach(symbol => result.undefinedSymbols.add(symbol))
-  }
-  return result
-}
-
-export function addAnalyzeResults(target: AnalyzeResult, source: AnalyzeResult): void {
-  source.undefinedSymbols.forEach(symbol => target.undefinedSymbols.add(symbol))
 }

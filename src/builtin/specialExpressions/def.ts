@@ -41,7 +41,7 @@ export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
     castDefExpressionNode(node)
     const debugInfo = node.token?.debugInfo
     const subNode = astNode.as(node.params[1], debugInfo)
-    const result = analyzeAst(subNode, contextStack)
+    const result = analyzeAst(subNode, contextStack, builtin)
     const name = nameNode.as(node.params[0], debugInfo).value
     assertNameNotDefined(name, contextStack, builtin, debugInfo)
     contextStack.globalContext[name] = { value: true }

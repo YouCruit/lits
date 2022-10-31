@@ -33,9 +33,9 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
     })
     throw new UserDefinedError(message, node.token?.debugInfo)
   },
-  analyze: (node, contextStack, { analyzeAst }) => {
+  analyze: (node, contextStack, { analyzeAst, builtin }) => {
     castThrowExpressionNode(node)
-    return analyzeAst(node.messageNode, contextStack)
+    return analyzeAst(node.messageNode, contextStack, builtin)
   },
 }
 

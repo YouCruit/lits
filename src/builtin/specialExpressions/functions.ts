@@ -1,4 +1,5 @@
-import { addAnalyzeResults, AnalyzeResult } from '../../analyze'
+import { addAnalyzeResults } from '../../analyze/utils'
+import { AnalyzeResult } from '../../analyze/interface'
 import { LitsError } from '../../errors'
 import { Context, ContextStack, EvaluateAstNode } from '../../evaluator/interface'
 import {
@@ -140,7 +141,7 @@ function createEvaluator(expressionName: ExpressionsName): BuiltinSpecialExpress
 export const defnSpecialExpression: BuiltinSpecialExpression<LitsFunction | null> = {
   parse: createParser(`defn`),
   evaluate: createEvaluator(`defn`),
-  analyze: (node, contextStack, { analyzeAst }) => {
+  analyze: (node, contextStack, { analyzeAst, builtin }) => {
     castDefnExpressionNode(node)
     contextStack.globalContext[node.functionName.value] = { value: true }
 
@@ -159,7 +160,7 @@ export const defnSpecialExpression: BuiltinSpecialExpression<LitsFunction | null
         newContext[overload.arguments.restArgument] = { value: true }
       }
       const newContextStack = contextStackWithFunctionName.withContext(newContext)
-      const overloadResult = analyzeAst(overload.body, newContextStack)
+      const overloadResult = analyzeAst(overload.body, newContextStack, builtin)
       addAnalyzeResults(result, overloadResult)
     }
     return result
@@ -169,7 +170,7 @@ export const defnSpecialExpression: BuiltinSpecialExpression<LitsFunction | null
 export const defnsSpecialExpression: BuiltinSpecialExpression<LitsFunction | null> = {
   parse: createParser(`defns`),
   evaluate: createEvaluator(`defns`),
-  analyze: (node, contextStack, { analyzeAst }) => {
+  analyze: (node, contextStack, { analyzeAst, builtin }) => {
     castDefnsExpressionNode(node)
     const result: AnalyzeResult = { undefinedSymbols: new Set() }
 
@@ -182,7 +183,7 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<LitsFunction | nul
         newContext[overload.arguments.restArgument] = { value: true }
       }
       const newContextStack = contextStack.withContext(newContext)
-      const overloadResult = analyzeAst(overload.body, newContextStack)
+      const overloadResult = analyzeAst(overload.body, newContextStack, builtin)
       addAnalyzeResults(result, overloadResult)
     }
     return result
@@ -192,7 +193,7 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<LitsFunction | nul
 export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction | null> = {
   parse: createParser(`fn`),
   evaluate: createEvaluator(`fn`),
-  analyze: (node, contextStack, { analyzeAst }) => {
+  analyze: (node, contextStack, { analyzeAst, builtin }) => {
     castFnExpressionNode(node)
     const result: AnalyzeResult = { undefinedSymbols: new Set() }
 
@@ -205,7 +206,7 @@ export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction | null> 
         newContext[overload.arguments.restArgument] = { value: true }
       }
       const newContextStack = contextStack.withContext(newContext)
-      const overloadResult = analyzeAst(overload.body, newContextStack)
+      const overloadResult = analyzeAst(overload.body, newContextStack, builtin)
       addAnalyzeResults(result, overloadResult)
     }
     return result

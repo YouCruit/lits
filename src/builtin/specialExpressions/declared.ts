@@ -30,9 +30,9 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<Any> = {
     return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression)
   },
   validate: node => assertNumberOfParams(1, node),
-  analyze: (node, contextStack, { analyzeAst }) => {
+  analyze: (node, contextStack, { analyzeAst, builtin }) => {
     castDeclaredExpressionNode(node)
-    return analyzeAst(node.params, contextStack)
+    return analyzeAst(node.params, contextStack, builtin)
   },
 }
 

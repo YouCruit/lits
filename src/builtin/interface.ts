@@ -12,7 +12,7 @@ import {
 import { Token, DebugInfo } from '../tokenizer/interface'
 import { NormalExpressionNode } from '../parser/interface'
 import { Any, Arr } from '../interface'
-import { AnalyzeAst, AnalyzeResult } from '../analyze'
+import { AnalyzeAst, AnalyzeResult } from '../analyze/interface'
 
 export type NormalExpressionEvaluator<T> = (
   params: Arr,

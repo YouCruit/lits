@@ -1,11 +1,11 @@
-import { AnalyzeAst, AnalyzeResult } from '../../analyze'
+import { AnalyzeAst, AnalyzeResult } from '../../analyze/interface'
 import { LitsError } from '../../errors'
 import { Context, ContextStack, EvaluateAstNode } from '../../evaluator/interface'
 import { Any, Arr } from '../../interface'
 import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
 import { Token, DebugInfo } from '../../tokenizer/interface'
 import { any, astNode, asValue, collection, sequence, token } from '../../utils/assertion'
-import { BuiltinSpecialExpression, ParserHelpers } from '../interface'
+import { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
 
 interface LoopSpecialExpressionNode extends SpecialExpressionNode {
   name: `for` | `doseq`
@@ -201,7 +201,12 @@ function evaluateLoop(
   return returnResult ? result : null
 }
 
-function analyze(node: SpecialExpressionNode, contextStack: ContextStack, analyzeAst: AnalyzeAst): AnalyzeResult {
+function analyze(
+  node: SpecialExpressionNode,
+  contextStack: ContextStack,
+  analyzeAst: AnalyzeAst,
+  builtin: Builtin,
+): AnalyzeResult {
   castLoopExpressionNode(node)
   const result: AnalyzeResult = {
     undefinedSymbols: new Set(),
@@ -209,30 +214,30 @@ function analyze(node: SpecialExpressionNode, contextStack: ContextStack, analyz
   const newContext: Context = {}
   node.loopBindings.forEach(loopBinding => {
     const { binding, letBindings, whenNode, whileNode } = loopBinding
-    analyzeAst(binding.value, contextStack.withContext(newContext)).undefinedSymbols.forEach(symbol =>
+    analyzeAst(binding.value, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
       result.undefinedSymbols.add(symbol),
     )
     newContext[binding.name] = { value: true }
     if (letBindings) {
       letBindings.forEach(letBinding => {
-        analyzeAst(letBinding.value, contextStack.withContext(newContext)).undefinedSymbols.forEach(symbol =>
+        analyzeAst(letBinding.value, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
           result.undefinedSymbols.add(symbol),
         )
         newContext[letBinding.name] = { value: true }
       })
     }
     if (whenNode) {
-      analyzeAst(whenNode, contextStack.withContext(newContext)).undefinedSymbols.forEach(symbol =>
+      analyzeAst(whenNode, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
         result.undefinedSymbols.add(symbol),
       )
     }
     if (whileNode) {
-      analyzeAst(whileNode, contextStack.withContext(newContext)).undefinedSymbols.forEach(symbol =>
+      analyzeAst(whileNode, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
         result.undefinedSymbols.add(symbol),
       )
     }
   })
-  analyzeAst(node.params, contextStack.withContext(newContext)).undefinedSymbols.forEach(symbol =>
+  analyzeAst(node.params, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
     result.undefinedSymbols.add(symbol),
   )
   return result
@@ -241,13 +246,13 @@ function analyze(node: SpecialExpressionNode, contextStack: ContextStack, analyz
 export const forSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, parsers) => parseLoop(`for`, tokens, position, parsers),
   evaluate: (node, contextStack, helpers) => evaluateLoop(true, node, contextStack, helpers.evaluateAstNode),
-  analyze: (node, contextStack, { analyzeAst }) => analyze(node, contextStack, analyzeAst),
+  analyze: (node, contextStack, { analyzeAst, builtin }) => analyze(node, contextStack, analyzeAst, builtin),
 }
 
 export const doseqSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, parsers) => parseLoop(`doseq`, tokens, position, parsers),
   evaluate: (node, contextStack, helpers) => evaluateLoop(false, node, contextStack, helpers.evaluateAstNode),
-  analyze: (node, contextStack, { analyzeAst }) => analyze(node, contextStack, analyzeAst),
+  analyze: (node, contextStack, { analyzeAst, builtin }) => analyze(node, contextStack, analyzeAst, builtin),
 }
 
 function castLoopExpressionNode(_node: SpecialExpressionNode): asserts _node is LoopSpecialExpressionNode {

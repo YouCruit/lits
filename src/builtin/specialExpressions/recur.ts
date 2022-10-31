@@ -27,9 +27,9 @@ export const recurSpecialExpression: BuiltinSpecialExpression<null> = {
     const params = node.params.map(paramNode => evaluateAstNode(paramNode, contextStack))
     throw new RecurSignal(params)
   },
-  analyze: (node, contextStack, { analyzeAst }) => {
+  analyze: (node, contextStack, { analyzeAst, builtin }) => {
     castRecurExpressionNode(node)
-    return analyzeAst(node.params, contextStack)
+    return analyzeAst(node.params, contextStack, builtin)
   },
 }
 

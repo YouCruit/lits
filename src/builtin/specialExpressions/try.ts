@@ -1,4 +1,4 @@
-import { joinAnalyzeResults } from '../../analyze'
+import { joinAnalyzeResults } from '../../analyze/utils'
 import { LitsError } from '../../errors'
 import { Context } from '../../evaluator/interface'
 import { Any } from '../../interface'
@@ -69,13 +69,13 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
       return evaluateAstNode(node.catchExpression, contextStack.withContext(newContext))
     }
   },
-  analyze: (node, contextStack, { analyzeAst }) => {
+  analyze: (node, contextStack, { analyzeAst, builtin }) => {
     castTryExpressionNode(node)
-    const tryResult = analyzeAst(node.tryExpression, contextStack)
+    const tryResult = analyzeAst(node.tryExpression, contextStack, builtin)
     const newContext: Context = {
       [node.error.value]: { value: true },
     }
-    const catchResult = analyzeAst(node.catchExpression, contextStack.withContext(newContext))
+    const catchResult = analyzeAst(node.catchExpression, contextStack.withContext(newContext), builtin)
     return joinAnalyzeResults(tryResult, catchResult)
   },
 }

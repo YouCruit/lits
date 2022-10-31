@@ -61,10 +61,10 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
     return null
   },
-  analyze: (node, contextStack, { analyzeAst }) => {
+  analyze: (node, contextStack, { analyzeAst, builtin }) => {
     castCondExpressionNode(node)
     const astNodes = node.conditions.flatMap(condition => [condition.test, condition.form])
-    return analyzeAst(astNodes, contextStack)
+    return analyzeAst(astNodes, contextStack, builtin)
   },
 }
 

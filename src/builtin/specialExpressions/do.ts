@@ -38,9 +38,9 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
     return result
   },
-  analyze: (node, contextStack, { analyzeAst }) => {
+  analyze: (node, contextStack, { analyzeAst, builtin }) => {
     castDoExpressionNode(node)
-    return analyzeAst(node.params, contextStack)
+    return analyzeAst(node.params, contextStack, builtin)
   },
 }
 

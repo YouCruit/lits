@@ -72,7 +72,8 @@ function getPlayground() {
     <div class="column"></span></div>
     <div class="column"><center>Playground</center></span></div>
     <div class="column right">
-      <span class="button" onclick="play()">Run [F2]</span>
+      <span class="button" onclick="run()">Run [F2]</span>
+      <span class="button" onclick="analyze()">Analyze [F3]</span>
       <span class="button" onclick="resetPlayground()">Reset</span>
     </div>
   </div>
@@ -80,6 +81,7 @@ function getPlayground() {
     <div id="params-panel">
       <div class="column textarea-header">
         <label for="params-textarea">Params (JSON)</label>
+        <a onclick="resetParams()">Clear</a>
       </div>
       <textarea id="params-textarea" class="fancy-scroll" spellcheck="false"></textarea>
     </div
@@ -89,6 +91,7 @@ function getPlayground() {
     ><div id="lits-panel">
       <div class="column textarea-header">
         <label for="lits-textarea">Lisp</label>
+        <a onclick="resetLits()">Clear</a>
       </div>
       <textarea id="lits-textarea" class="fancy-scroll" spellcheck="false"></textarea>
     </div
@@ -98,6 +101,7 @@ function getPlayground() {
     ><div id="output-panel">
       <div class="column textarea-header">
         <label for="output-textarea">Result</label>
+        <a onclick="resetOutput()">Clear</a>
       </div>
       <textarea id="output-textarea" class="fancy-scroll" readonly spellcheck="false" ></textarea>
     </div>

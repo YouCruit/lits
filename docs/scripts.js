@@ -73,18 +73,33 @@ function layout() {
 }
 
 function resetPlayground() {
+  if (confirm('Clear all data?')) {
+    resetParams()
+    resetLits()
+    resetOutput()
+
+    localStorage.removeItem('playground-height')
+    localStorage.removeItem('resize-divider-1-percent')
+    localStorage.removeItem('resize-divider-2-percent')
+    playgroundHeight = DEFAULT_PLAYGROUND_HEIGHT
+    resizeDivider1XPercent = DEFAULT_RESIZE_DIVIDER1_X_PERCENT
+    resizeDivider2XPercent = DEFAULT_RESIZE_DIVIDER2_X_PERCENT
+    layout()
+  }
+}
+
+function resetParams() {
   document.getElementById('params-textarea').value = ''
-  document.getElementById('lits-textarea').value = ''
-  document.getElementById('output-textarea').value = ''
-  localStorage.removeItem('lits-textarea')
   localStorage.removeItem('params-textarea')
-  localStorage.removeItem('playground-height')
-  localStorage.removeItem('resize-divider-1-percent')
-  localStorage.removeItem('resize-divider-2-percent')
-  playgroundHeight = DEFAULT_PLAYGROUND_HEIGHT
-  resizeDivider1XPercent = DEFAULT_RESIZE_DIVIDER1_X_PERCENT
-  resizeDivider2XPercent = DEFAULT_RESIZE_DIVIDER2_X_PERCENT
-  layout()
+}
+
+function resetLits() {
+  document.getElementById('lits-textarea').value = ''
+  localStorage.removeItem('lits-textarea')
+}
+
+function resetOutput() {
+  document.getElementById('output-textarea').value = ''
 }
 
 window.onload = function () {
@@ -176,7 +191,11 @@ window.onload = function () {
   window.addEventListener('keydown', function (evt) {
     if (evt.key === 'F2') {
       evt.preventDefault()
-      play()
+      run()
+    }
+    if (evt.key === 'F3') {
+      evt.preventDefault()
+      analyze()
     }
     if (evt.key === 'Escape') {
       evt.preventDefault()
@@ -209,7 +228,6 @@ window.onload = function () {
   paramsTextArea.value = localStorage.getItem('params-textarea') || ''
 
   layout()
-  play()
 }
 
 function keydownHandler(e) {
@@ -255,7 +273,7 @@ window.addEventListener('popstate', () => {
   showPage(id, 'none')
 })
 
-function play() {
+function run() {
   var code = document.getElementById('lits-textarea').value
   var paramsString = document.getElementById('params-textarea').value
   var output = document.getElementById('output-textarea')
@@ -309,6 +327,53 @@ function play() {
 
   output.value = newContent
 }
+
+function analyze() {
+  var code = document.getElementById('lits-textarea').value
+  var output = document.getElementById('output-textarea')
+  output.value = ''
+  var result
+  var oldLog = console.log
+  console.log = function () {
+    var args = Array.from(arguments)
+    oldLog.apply(console, args)
+    var logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    var oldContent = output.value
+    var newContent = oldContent ? oldContent + '\n' + logRow : logRow
+    output.value = newContent
+    output.scrollTop = output.scrollHeight
+  }
+  var oldWarn = console.warn
+  console.warn = function () {
+    var args = Array.from(arguments)
+    oldWarn.apply(console, args)
+    var logRow = args[0]
+    var oldContent = output.value
+    var newContent = oldContent ? oldContent + '\n' + logRow : logRow
+    output.value = newContent
+    output.scrollTop = output.scrollHeight
+  }
+  try {
+    result = lits.analyze(code)
+  } catch (error) {
+    output.value = error
+    output.classList.add('error')
+    return
+  } finally {
+    console.log = oldLog
+    console.warn = oldWarn
+  }
+  output.classList.remove('error')
+  var content = `Undefined symbols: ${stringifyValue([...result.undefinedSymbols])}`
+
+  var oldContent = output.value
+  var newContent = oldContent ? oldContent + '\n' + content : content
+  output.value = newContent
+  output.scrollTop = output.scrollHeight
+
+  output.value = newContent
+}
+
 function showPage(id, historyEvent) {
   inactivateAll()
 
@@ -395,5 +460,5 @@ function setPlayground(exampleId) {
     localStorage.setItem('lits-textarea', example.code)
   }
 
-  play()
+  run()
 }

@@ -726,16 +726,31 @@ var Lits = (function (exports) {
   }
   function createEvaluator(expressionName) {
       return function (node, contextStack, _a) {
-          var e_1, _b, _c;
-          var _d, _e;
+          var e_1, _b, e_2, _c, _d;
+          var _e, _f;
           var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
           var name = getFunctionName(expressionName, node, contextStack, evaluateAstNode);
-          assertNameNotDefined(name, contextStack, builtin, (_d = node.token) === null || _d === void 0 ? void 0 : _d.debugInfo);
+          assertNameNotDefined(name, contextStack, builtin, (_e = node.token) === null || _e === void 0 ? void 0 : _e.debugInfo);
           var evaluatedFunctionOverloades = [];
           try {
-              for (var _f = __values(node.overloads), _g = _f.next(); !_g.done; _g = _f.next()) {
-                  var functionOverload = _g.value;
+              for (var _g = __values(node.overloads), _h = _g.next(); !_h.done; _h = _g.next()) {
+                  var functionOverload = _h.value;
                   var functionContext = {};
+                  try {
+                      for (var _j = (e_2 = void 0, __values(functionOverload.arguments.bindings)), _k = _j.next(); !_k.done; _k = _j.next()) {
+                          var binding = _k.value;
+                          var bindingValueNode = binding.value;
+                          var bindingValue = evaluateAstNode(bindingValueNode, contextStack);
+                          functionContext[binding.name] = { value: bindingValue };
+                      }
+                  }
+                  catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                  finally {
+                      try {
+                          if (_k && !_k.done && (_c = _j.return)) _c.call(_j);
+                      }
+                      finally { if (e_2) throw e_2.error; }
+                  }
                   var evaluatedFunctionOverload = {
                       arguments: {
                           mandatoryArguments: functionOverload.arguments.mandatoryArguments,
@@ -751,17 +766,17 @@ var Lits = (function (exports) {
           catch (e_1_1) { e_1 = { error: e_1_1 }; }
           finally {
               try {
-                  if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
+                  if (_h && !_h.done && (_b = _g.return)) _b.call(_g);
               }
               finally { if (e_1) throw e_1.error; }
           }
-          var litsFunction = (_c = {},
-              _c[FUNCTION_SYMBOL] = true,
-              _c.debugInfo = (_e = node.token) === null || _e === void 0 ? void 0 : _e.debugInfo,
-              _c.type = "user-defined",
-              _c.name = name,
-              _c.overloads = evaluatedFunctionOverloades,
-              _c);
+          var litsFunction = (_d = {},
+              _d[FUNCTION_SYMBOL] = true,
+              _d.debugInfo = (_f = node.token) === null || _f === void 0 ? void 0 : _f.debugInfo,
+              _d.type = "user-defined",
+              _d.name = name,
+              _d.overloads = evaluatedFunctionOverloades,
+              _d);
           if (expressionName === "fn") {
               return litsFunction;
           }
@@ -773,7 +788,7 @@ var Lits = (function (exports) {
       parse: createParser("defn"),
       evaluate: createEvaluator("defn"),
       analyze: function (node, contextStack, _a) {
-          var _b, e_2, _c;
+          var _b, e_3, _c;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
           contextStack.globalContext[node.functionName.value] = { value: true };
           var result = { undefinedSymbols: new Set() };
@@ -797,12 +812,12 @@ var Lits = (function (exports) {
                   _loop_1(overload);
               }
           }
-          catch (e_2_1) { e_2 = { error: e_2_1 }; }
+          catch (e_3_1) { e_3 = { error: e_3_1 }; }
           finally {
               try {
                   if (_e && !_e.done && (_c = _d.return)) _c.call(_d);
               }
-              finally { if (e_2) throw e_2.error; }
+              finally { if (e_3) throw e_3.error; }
           }
           return result;
       },
@@ -811,7 +826,7 @@ var Lits = (function (exports) {
       parse: createParser("defns"),
       evaluate: createEvaluator("defns"),
       analyze: function (node, contextStack, _a) {
-          var e_3, _b;
+          var e_4, _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
           var result = { undefinedSymbols: new Set() };
           var _loop_2 = function (overload) {
@@ -832,12 +847,12 @@ var Lits = (function (exports) {
                   _loop_2(overload);
               }
           }
-          catch (e_3_1) { e_3 = { error: e_3_1 }; }
+          catch (e_4_1) { e_4 = { error: e_4_1 }; }
           finally {
               try {
                   if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
               }
-              finally { if (e_3) throw e_3.error; }
+              finally { if (e_4) throw e_4.error; }
           }
           return result;
       },
@@ -846,7 +861,7 @@ var Lits = (function (exports) {
       parse: createParser("fn"),
       evaluate: createEvaluator("fn"),
       analyze: function (node, contextStack, _a) {
-          var e_4, _b;
+          var e_5, _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
           var result = { undefinedSymbols: new Set() };
           var _loop_3 = function (overload) {
@@ -867,12 +882,12 @@ var Lits = (function (exports) {
                   _loop_3(overload);
               }
           }
-          catch (e_4_1) { e_4 = { error: e_4_1 }; }
+          catch (e_5_1) { e_5 = { error: e_5_1 }; }
           finally {
               try {
                   if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
               }
-              finally { if (e_4) throw e_4.error; }
+              finally { if (e_5) throw e_5.error; }
           }
           return result;
       },
@@ -963,7 +978,9 @@ var Lits = (function (exports) {
       }
   }
   function parseFunctionArguments(tokens, position, parsers) {
-      var parseArgument = parsers.parseArgument;
+      var _a;
+      var parseArgument = parsers.parseArgument, parseBindings = parsers.parseBindings;
+      var bindings = [];
       var restArgument = undefined;
       var mandatoryArguments = [];
       var state = "mandatory";
@@ -971,32 +988,44 @@ var Lits = (function (exports) {
       position += 1;
       tkn = token.as(tokens[position], "EOF");
       while (!(tkn.type === "paren" && tkn.value === "]")) {
-          var _a = __read(parseArgument(tokens, position), 2), newPosition = _a[0], node = _a[1];
-          position = newPosition;
-          tkn = token.as(tokens[position], "EOF");
-          if (node.type === "Modifier") {
-              switch (node.value) {
-                  case "&":
-                      if (state === "rest") {
-                          throw new LitsError("& can only appear once", tkn.debugInfo);
-                      }
-                      state = "rest";
-                      break;
-                  default:
-                      throw new LitsError("Illegal modifier: ".concat(node.value), tkn.debugInfo);
-              }
+          if (state === "let") {
+              _a = __read(parseBindings(tokens, position), 2), position = _a[0], bindings = _a[1];
+              break;
           }
           else {
-              switch (state) {
-                  case "mandatory":
-                      mandatoryArguments.push(node.name);
-                      break;
-                  case "rest":
-                      if (restArgument !== undefined) {
-                          throw new LitsError("Can only specify one rest argument", tkn.debugInfo);
-                      }
-                      restArgument = node.name;
-                      break;
+              var _b = __read(parseArgument(tokens, position), 2), newPosition = _b[0], node = _b[1];
+              position = newPosition;
+              tkn = token.as(tokens[position], "EOF");
+              if (node.type === "Modifier") {
+                  switch (node.value) {
+                      case "&":
+                          if (state === "rest") {
+                              throw new LitsError("& can only appear once", tkn.debugInfo);
+                          }
+                          state = "rest";
+                          break;
+                      case "&let":
+                          if (state === "rest" && !restArgument) {
+                              throw new LitsError("No rest argument was spcified", tkn.debugInfo);
+                          }
+                          state = "let";
+                          break;
+                      default:
+                          throw new LitsError("Illegal modifier: ".concat(node.value), tkn.debugInfo);
+                  }
+              }
+              else {
+                  switch (state) {
+                      case "mandatory":
+                          mandatoryArguments.push(node.name);
+                          break;
+                      case "rest":
+                          if (restArgument !== undefined) {
+                              throw new LitsError("Can only specify one rest argument", tkn.debugInfo);
+                          }
+                          restArgument = node.name;
+                          break;
+                  }
               }
           }
       }
@@ -1007,6 +1036,7 @@ var Lits = (function (exports) {
       var args = {
           mandatoryArguments: mandatoryArguments,
           restArgument: restArgument,
+          bindings: bindings,
       };
       return [position, args];
   }
@@ -4209,7 +4239,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.40";
+  var version = "1.0.41";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6171,6 +6201,7 @@ var Lits = (function (exports) {
           mandatoryArguments.push("%".concat(i));
       }
       var args = {
+          bindings: [],
           mandatoryArguments: mandatoryArguments,
       };
       var node = {

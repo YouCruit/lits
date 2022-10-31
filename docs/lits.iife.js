@@ -784,112 +784,69 @@ var Lits = (function (exports) {
           return null;
       };
   }
+  function addOverloadsUndefinedSymbols(overloads, contextStack, analyzeAst, builtin, functionNameContext) {
+      var e_3, _a;
+      var result = { undefinedSymbols: new Set() };
+      var contextStackWithFunctionName = functionNameContext
+          ? contextStack.withContext(functionNameContext)
+          : contextStack;
+      var _loop_1 = function (overload) {
+          var newContext = {};
+          overload.arguments.bindings.forEach(function (binding) {
+              var bindingResult = analyzeAst(binding.value, contextStack, builtin);
+              addAnalyzeResults(result, bindingResult);
+              newContext[binding.name] = { value: true };
+          });
+          overload.arguments.mandatoryArguments.forEach(function (arg) {
+              newContext[arg] = { value: true };
+          });
+          if (typeof overload.arguments.restArgument === "string") {
+              newContext[overload.arguments.restArgument] = { value: true };
+          }
+          var newContextStack = contextStackWithFunctionName.withContext(newContext);
+          var overloadResult = analyzeAst(overload.body, newContextStack, builtin);
+          addAnalyzeResults(result, overloadResult);
+      };
+      try {
+          for (var overloads_1 = __values(overloads), overloads_1_1 = overloads_1.next(); !overloads_1_1.done; overloads_1_1 = overloads_1.next()) {
+              var overload = overloads_1_1.value;
+              _loop_1(overload);
+          }
+      }
+      catch (e_3_1) { e_3 = { error: e_3_1 }; }
+      finally {
+          try {
+              if (overloads_1_1 && !overloads_1_1.done && (_a = overloads_1.return)) _a.call(overloads_1);
+          }
+          finally { if (e_3) throw e_3.error; }
+      }
+      return result;
+  }
   var defnSpecialExpression = {
       parse: createParser("defn"),
       evaluate: createEvaluator("defn"),
       analyze: function (node, contextStack, _a) {
-          var _b, e_3, _c;
+          var _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
           contextStack.globalContext[node.functionName.value] = { value: true };
-          var result = { undefinedSymbols: new Set() };
           var newContext = (_b = {}, _b[node.functionName.value] = { value: true }, _b);
-          var contextStackWithFunctionName = contextStack.withContext(newContext);
-          var _loop_1 = function (overload) {
-              var newContext_1 = {};
-              overload.arguments.mandatoryArguments.forEach(function (arg) {
-                  newContext_1[arg] = { value: true };
-              });
-              if (typeof overload.arguments.restArgument === "string") {
-                  newContext_1[overload.arguments.restArgument] = { value: true };
-              }
-              var newContextStack = contextStackWithFunctionName.withContext(newContext_1);
-              var overloadResult = analyzeAst(overload.body, newContextStack, builtin);
-              addAnalyzeResults(result, overloadResult);
-          };
-          try {
-              for (var _d = __values(node.overloads), _e = _d.next(); !_e.done; _e = _d.next()) {
-                  var overload = _e.value;
-                  _loop_1(overload);
-              }
-          }
-          catch (e_3_1) { e_3 = { error: e_3_1 }; }
-          finally {
-              try {
-                  if (_e && !_e.done && (_c = _d.return)) _c.call(_d);
-              }
-              finally { if (e_3) throw e_3.error; }
-          }
-          return result;
+          return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin, newContext);
       },
   };
   var defnsSpecialExpression = {
       parse: createParser("defns"),
       evaluate: createEvaluator("defns"),
       analyze: function (node, contextStack, _a) {
-          var e_4, _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var result = { undefinedSymbols: new Set() };
-          var _loop_2 = function (overload) {
-              var newContext = {};
-              overload.arguments.mandatoryArguments.forEach(function (arg) {
-                  newContext[arg] = { value: true };
-              });
-              if (typeof overload.arguments.restArgument === "string") {
-                  newContext[overload.arguments.restArgument] = { value: true };
-              }
-              var newContextStack = contextStack.withContext(newContext);
-              var overloadResult = analyzeAst(overload.body, newContextStack, builtin);
-              addAnalyzeResults(result, overloadResult);
-          };
-          try {
-              for (var _c = __values(node.overloads), _d = _c.next(); !_d.done; _d = _c.next()) {
-                  var overload = _d.value;
-                  _loop_2(overload);
-              }
-          }
-          catch (e_4_1) { e_4 = { error: e_4_1 }; }
-          finally {
-              try {
-                  if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-              }
-              finally { if (e_4) throw e_4.error; }
-          }
-          return result;
+          return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin);
       },
   };
   var fnSpecialExpression = {
       parse: createParser("fn"),
       evaluate: createEvaluator("fn"),
       analyze: function (node, contextStack, _a) {
-          var e_5, _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var result = { undefinedSymbols: new Set() };
-          var _loop_3 = function (overload) {
-              var newContext = {};
-              overload.arguments.mandatoryArguments.forEach(function (arg) {
-                  newContext[arg] = { value: true };
-              });
-              if (typeof overload.arguments.restArgument === "string") {
-                  newContext[overload.arguments.restArgument] = { value: true };
-              }
-              var newContextStack = contextStack.withContext(newContext);
-              var overloadResult = analyzeAst(overload.body, newContextStack, builtin);
-              addAnalyzeResults(result, overloadResult);
-          };
-          try {
-              for (var _c = __values(node.overloads), _d = _c.next(); !_d.done; _d = _c.next()) {
-                  var overload = _d.value;
-                  _loop_3(overload);
-              }
-          }
-          catch (e_5_1) { e_5 = { error: e_5_1 }; }
-          finally {
-              try {
-                  if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-              }
-              finally { if (e_5) throw e_5.error; }
-          }
-          return result;
+          return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin);
       },
   };
   function arityOk(overloadedFunctions, arity) {
@@ -4239,7 +4196,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.41";
+  var version = "1.0.42";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;

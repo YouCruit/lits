@@ -1,4 +1,4 @@
-import { Lits } from '../../src'
+import { Ast, Lits } from '../../src'
 import { UndefinedSymbolError } from '../../src/errors'
 import { Cache } from '../../src/Lits/Cache'
 import { litsFunction } from '../../src/utils/assertion'
@@ -54,6 +54,48 @@ describe(`context`, () => {
     const contexts = [lits.context(`(defn tripple [x] (* x 3))`, {})]
     expect(lits.run(`(tripple 10)`, { contexts })).toBe(30)
     expect(lits.run(`(tripple 10)`, { contexts })).toBe(30)
+  })
+
+  test(`a function - initial cache`, () => {
+    const initialCache: Record<string, Ast> = {
+      '(pow 2 4)': {
+        type: `Program`,
+        body: [
+          {
+            type: `NormalExpression`,
+            name: `pow`,
+            params: [
+              {
+                type: `Number`,
+                value: 2,
+                token: {
+                  type: `number`,
+                  value: `2`,
+                  debugInfo: null,
+                },
+              },
+              {
+                type: `Number`,
+                value: 4,
+                token: {
+                  type: `number`,
+                  value: `4`,
+                  debugInfo: null,
+                },
+              },
+            ],
+            token: {
+              type: `name`,
+              value: `pow`,
+              debugInfo: null,
+            },
+          },
+        ],
+      },
+    }
+    lits = new Lits({ astCacheSize: 10, initialCache })
+    expect(lits.run(`(pow 2 2)`)).toBe(4)
+    expect(lits.run(`(pow 2 4)`)).toBe(16)
   })
 
   test(`a variable.`, () => {

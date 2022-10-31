@@ -4209,7 +4209,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.37";
+  var version = "1.0.38";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;

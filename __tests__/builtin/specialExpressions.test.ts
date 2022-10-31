@@ -493,6 +493,7 @@ describe(`specialExpressions`, () => {
             new Set([`c`, `x`]),
           )
           expect(lits.analyze(`(fn ([a b & rest] (+ a b)) ([a] 10))`).undefinedSymbols).toEqual(new Set())
+          expect(lits.analyze(`(#(if %1 %2 %3) 0 4 6)`).undefinedSymbols).toEqual(new Set())
         })
       })
     })

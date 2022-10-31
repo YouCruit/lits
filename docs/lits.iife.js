@@ -4209,7 +4209,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.39";
+  var version = "1.0.40";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6723,6 +6723,13 @@ var Lits = (function (exports) {
               throw Error("1 is the minimum maxSize, got ".concat(valueToString$1(maxSize)));
           }
       }
+      Cache.prototype.getContent = function () {
+          return Object.entries(this.cache).reduce(function (result, _a) {
+              var _b = __read(_a, 2), key = _b[0], entry = _b[1];
+              result[key] = entry.value;
+              return result;
+          }, {});
+      };
       Object.defineProperty(Cache.prototype, "size", {
           get: function () {
               return this._size;

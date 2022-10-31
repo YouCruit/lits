@@ -2,10 +2,12 @@ var Lits = (function (exports) {
   'use strict';
 
   var FUNCTION_SYMBOL = "__LITS_FUNCTION__";
+  var REGEXP_SYMBOL = "__REGEXP__";
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
   function getDebugInfo(anyValue, debugInfo) {
-      return (anyValue === null || anyValue === void 0 ? void 0 : anyValue.debugInfo) || debugInfo;
+      var _a;
+      return (_a = anyValue === null || anyValue === void 0 ? void 0 : anyValue.debugInfo) !== null && _a !== void 0 ? _a : debugInfo;
   }
   function valueToString$1(value) {
       if (isLitsFunction(value)) {
@@ -47,9 +49,6 @@ var Lits = (function (exports) {
       if (!tkn.type || typeof tkn.value !== "string") {
           return false;
       }
-      if (!tkn.debugInfo && tkn.debugInfo !== null) {
-          return false;
-      }
       return !!tokenTypes[tkn.type];
   }
   var astTypes = {
@@ -68,9 +67,6 @@ var Lits = (function (exports) {
       if (value === null || typeof value !== "object") {
           return false;
       }
-      if (!value.token) {
-          return false;
-      }
       if (!astTypes[value.type]) {
           return false;
       }
@@ -81,6 +77,12 @@ var Lits = (function (exports) {
           return false;
       }
       return !!func[FUNCTION_SYMBOL];
+  }
+  function isRegularExpression(regexp) {
+      if (regexp === null || typeof regexp !== "object") {
+          return false;
+      }
+      return !!regexp[REGEXP_SYMBOL];
   }
 
   /******************************************************************************
@@ -239,6 +241,7 @@ var Lits = (function (exports) {
           var _this = this;
           var message = "Undefined symbol '".concat(symbolName, "'.");
           _this = _super.call(this, message, debugInfo) || this;
+          _this.symbol = symbolName;
           Object.setPrototypeOf(_this, UndefinedSymbolError.prototype);
           _this.name = "UndefinedSymbolError";
           return _this;
@@ -430,7 +433,8 @@ var Lits = (function (exports) {
           typeof value !== "object" ||
           Array.isArray(value) ||
           value instanceof RegExp ||
-          isLitsFunction(value));
+          isLitsFunction(value) ||
+          isRegularExpression(value));
   });
   var collection = new Asserter("Coll", function (value) { return sequence.is(value) || object.is(value); });
   var array = new Asserter("Arr", function (value) { return Array.isArray(value); });
@@ -451,8 +455,8 @@ var Lits = (function (exports) {
   });
   var stringArray = new Asserter("string array", function (value) { return Array.isArray(value) && value.every(function (v) { return typeof v === "string"; }); });
   var charArray = new Asserter("character array", function (value) { return Array.isArray(value) && value.every(function (v) { return typeof v === "string" && v.length === 1; }); });
-  var regExp = new Asserter("RegExp", function (value) { return value instanceof RegExp; });
-  var stringOrRegExp = new Asserter("string or RegExp", function (value) { return value instanceof RegExp || typeof value === "string"; });
+  var regularExpression = new Asserter("regularExpression", isRegularExpression);
+  var stringOrRegExp = new Asserter("string or regularExpression", function (value) { return isRegularExpression(value) || typeof value === "string"; });
   var expressionNode = new Asserter("expression node", function (value) {
       if (!astNode.is(value)) {
           return false;
@@ -463,11 +467,12 @@ var Lits = (function (exports) {
           value.type === "String");
   });
   function assertNumberOfParams(count, node) {
+      var _a, _b;
       var length = node.params.length;
-      var debugInfo = node.token.debugInfo;
+      var debugInfo = (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo;
       if (typeof count === "number") {
           if (length !== count) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.name, "\", expected ").concat(count, ", got ").concat(valueToString$1(length), "."), node.token.debugInfo);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.name, "\", expected ").concat(count, ", got ").concat(valueToString$1(length), "."), (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
           }
       }
       else {
@@ -484,9 +489,10 @@ var Lits = (function (exports) {
       }
   }
   function assertEventNumberOfParams(node) {
+      var _a;
       var length = node.params.length;
       if (length % 2 !== 0) {
-          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString$1(length), "."), node.token.debugInfo);
+          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString$1(length), "."), (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
       }
   }
   function asValue(value, debugInfo) {
@@ -512,7 +518,7 @@ var Lits = (function (exports) {
                   type: "SpecialExpression",
                   name: "and",
                   params: params,
-                  token: firstToken,
+                  token: firstToken.debugInfo ? firstToken : undefined,
               },
           ];
       },
@@ -537,6 +543,10 @@ var Lits = (function (exports) {
               finally { if (e_1) throw e_1.error; }
           }
           return value;
+      },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyzeAst(node.params, contextStack);
       },
   };
 
@@ -568,7 +578,7 @@ var Lits = (function (exports) {
                   name: "cond",
                   conditions: conditions,
                   params: [],
-                  token: firstToken,
+                  token: firstToken.debugInfo ? firstToken : undefined,
               },
           ];
       },
@@ -594,6 +604,11 @@ var Lits = (function (exports) {
           }
           return null;
       },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          var astNodes = node.conditions.flatMap(function (condition) { return [condition.test, condition.form]; });
+          return analyzeAst(astNodes, contextStack);
+      },
   };
 
   var reservedNamesRecord = {
@@ -608,970 +623,6 @@ var Lits = (function (exports) {
       '||': { value: null, forbidden: true },
   };
   var reservedNames = Object.keys(reservedNamesRecord);
-
-  function assertNameNotDefined(name, contextStack, builtin, debugInfo) {
-      if (typeof name !== "string") {
-          return;
-      }
-      if (builtin.specialExpressions[name]) {
-          throw new LitsError("Cannot define variable ".concat(name, ", it's a special expression."), debugInfo);
-      }
-      if (builtin.normalExpressions[name]) {
-          throw new LitsError("Cannot define variable ".concat(name, ", it's a builtin function."), debugInfo);
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (reservedNamesRecord[name]) {
-          throw new LitsError("Cannot define variable ".concat(name, ", it's a reserved name."), debugInfo);
-      }
-      if (contextStack.globalContext[name]) {
-          throw new LitsError("Name already defined \"".concat(name, "\"."), debugInfo);
-      }
-  }
-
-  function createParser(expressionName) {
-      return function (tokens, position, parsers) {
-          var _a, _b;
-          var firstToken = token.as(tokens[position], "EOF");
-          var parseToken = parsers.parseToken;
-          var functionName = undefined;
-          if (expressionName === "defn" || expressionName === "defns") {
-              _a = __read(parseToken(tokens, position), 2), position = _a[0], functionName = _a[1];
-              if (expressionName === "defn") {
-                  nameNode.assert(functionName, functionName.token.debugInfo);
-              }
-          }
-          var functionOverloades;
-          _b = __read(parseFunctionOverloades(tokens, position, parsers), 2), position = _b[0], functionOverloades = _b[1];
-          if (expressionName === "defn" || expressionName === "defns") {
-              return [
-                  position,
-                  {
-                      type: "SpecialExpression",
-                      name: expressionName,
-                      functionName: functionName,
-                      params: [],
-                      overloads: functionOverloades,
-                      token: firstToken,
-                  },
-              ];
-          }
-          return [
-              position,
-              {
-                  type: "SpecialExpression",
-                  name: expressionName,
-                  params: [],
-                  overloads: functionOverloades,
-                  token: firstToken,
-              },
-          ];
-      };
-  }
-  function getFunctionName(expressionName, node, contextStack, evaluateAstNode) {
-      var debugInfo = node.token.debugInfo;
-      if (expressionName === "defn") {
-          return node.functionName.value;
-      }
-      if (expressionName === "defns") {
-          var name_1 = evaluateAstNode(node.functionName, contextStack);
-          string.assert(name_1, debugInfo);
-          return name_1;
-      }
-      return undefined;
-  }
-  function createEvaluator(expressionName) {
-      return function (node, contextStack, _a) {
-          var e_1, _b, e_2, _c, _d;
-          var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
-          var name = getFunctionName(expressionName, node, contextStack, evaluateAstNode);
-          assertNameNotDefined(name, contextStack, builtin, node.token.debugInfo);
-          var evaluatedFunctionOverloades = [];
-          try {
-              for (var _e = __values(node.overloads), _f = _e.next(); !_f.done; _f = _e.next()) {
-                  var functionOverload = _f.value;
-                  var functionContext = {};
-                  try {
-                      for (var _g = (e_2 = void 0, __values(functionOverload.arguments.bindings)), _h = _g.next(); !_h.done; _h = _g.next()) {
-                          var binding = _h.value;
-                          var bindingValueNode = binding.value;
-                          var bindingValue = evaluateAstNode(bindingValueNode, contextStack);
-                          functionContext[binding.name] = { value: bindingValue };
-                      }
-                  }
-                  catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                  finally {
-                      try {
-                          if (_h && !_h.done && (_c = _g.return)) _c.call(_g);
-                      }
-                      finally { if (e_2) throw e_2.error; }
-                  }
-                  var evaluatedFunctionOverload = {
-                      arguments: {
-                          mandatoryArguments: functionOverload.arguments.mandatoryArguments,
-                          restArgument: functionOverload.arguments.restArgument,
-                      },
-                      arity: functionOverload.arity,
-                      body: functionOverload.body,
-                      functionContext: functionContext,
-                  };
-                  evaluatedFunctionOverloades.push(evaluatedFunctionOverload);
-              }
-          }
-          catch (e_1_1) { e_1 = { error: e_1_1 }; }
-          finally {
-              try {
-                  if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-              }
-              finally { if (e_1) throw e_1.error; }
-          }
-          var litsFunction = (_d = {},
-              _d[FUNCTION_SYMBOL] = true,
-              _d.debugInfo = node.token.debugInfo,
-              _d.type = "user-defined",
-              _d.name = name,
-              _d.overloads = evaluatedFunctionOverloades,
-              _d);
-          if (expressionName === "fn") {
-              return litsFunction;
-          }
-          contextStack.globalContext[name] = { value: litsFunction };
-          return null;
-      };
-  }
-  var defnSpecialExpression = {
-      parse: createParser("defn"),
-      evaluate: createEvaluator("defn"),
-  };
-  var defnsSpecialExpression = {
-      parse: createParser("defns"),
-      evaluate: createEvaluator("defns"),
-  };
-  var fnSpecialExpression = {
-      parse: createParser("fn"),
-      evaluate: createEvaluator("fn"),
-  };
-  function arityOk(overloadedFunctions, arity) {
-      if (typeof arity === "number") {
-          return overloadedFunctions.every(function (fun) {
-              if (typeof fun.arity === "number") {
-                  return fun.arity !== arity;
-              }
-              return fun.arity.min > arity;
-          });
-      }
-      return overloadedFunctions.every(function (fun) {
-          if (typeof fun.arity === "number") {
-              return fun.arity < arity.min;
-          }
-          return false;
-      });
-  }
-  function parseFunctionBody(tokens, position, _a) {
-      var _b;
-      var parseToken = _a.parseToken;
-      var tkn = token.as(tokens[position], "EOF");
-      var body = [];
-      while (!(tkn.type === "paren" && tkn.value === ")")) {
-          var bodyNode = void 0;
-          _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
-          body.push(bodyNode);
-          tkn = token.as(tokens[position], "EOF");
-      }
-      if (body.length === 0) {
-          throw new LitsError("Missing body in function", tkn.debugInfo);
-      }
-      return [position + 1, body];
-  }
-  function parseFunctionOverloades(tokens, position, parsers) {
-      var _a, _b, _c, _d;
-      var tkn = token.as(tokens[position], "EOF", { type: "paren" });
-      if (tkn.value === "(") {
-          var functionOverloades = [];
-          while (!(tkn.type === "paren" && tkn.value === ")")) {
-              position += 1;
-              tkn = token.as(tokens[position], "EOF");
-              var functionArguments = void 0;
-              _a = __read(parseFunctionArguments(tokens, position, parsers), 2), position = _a[0], functionArguments = _a[1];
-              var arity = functionArguments.restArgument
-                  ? { min: functionArguments.mandatoryArguments.length }
-                  : functionArguments.mandatoryArguments.length;
-              if (!arityOk(functionOverloades, arity)) {
-                  throw new LitsError("All overloaded functions must have different arity", tkn.debugInfo);
-              }
-              var functionBody = void 0;
-              _b = __read(parseFunctionBody(tokens, position, parsers), 2), position = _b[0], functionBody = _b[1];
-              functionOverloades.push({
-                  arguments: functionArguments,
-                  body: functionBody,
-                  arity: arity,
-              });
-              tkn = token.as(tokens[position], "EOF", { type: "paren" });
-              if (tkn.value !== ")" && tkn.value !== "(") {
-                  throw new LitsError("Expected ( or ) token, got ".concat(valueToString$1(tkn), "."), tkn.debugInfo);
-              }
-          }
-          return [position + 1, functionOverloades];
-      }
-      else if (tkn.value === "[") {
-          var functionArguments = void 0;
-          _c = __read(parseFunctionArguments(tokens, position, parsers), 2), position = _c[0], functionArguments = _c[1];
-          var arity = functionArguments.restArgument
-              ? { min: functionArguments.mandatoryArguments.length }
-              : functionArguments.mandatoryArguments.length;
-          var functionBody = void 0;
-          _d = __read(parseFunctionBody(tokens, position, parsers), 2), position = _d[0], functionBody = _d[1];
-          return [
-              position,
-              [
-                  {
-                      arguments: functionArguments,
-                      body: functionBody,
-                      arity: arity,
-                  },
-              ],
-          ];
-      }
-      else {
-          throw new LitsError("Expected [ or ( token, got ".concat(valueToString$1(tkn)), tkn.debugInfo);
-      }
-  }
-  function parseFunctionArguments(tokens, position, parsers) {
-      var _a;
-      var parseArgument = parsers.parseArgument, parseBindings = parsers.parseBindings;
-      var bindings = [];
-      var restArgument = undefined;
-      var mandatoryArguments = [];
-      var state = "mandatory";
-      var tkn = token.as(tokens[position], "EOF");
-      position += 1;
-      tkn = token.as(tokens[position], "EOF");
-      while (!(tkn.type === "paren" && tkn.value === "]")) {
-          if (state === "let") {
-              _a = __read(parseBindings(tokens, position), 2), position = _a[0], bindings = _a[1];
-              break;
-          }
-          else {
-              var _b = __read(parseArgument(tokens, position), 2), newPosition = _b[0], node = _b[1];
-              position = newPosition;
-              tkn = token.as(tokens[position], "EOF");
-              if (node.type === "Modifier") {
-                  switch (node.value) {
-                      case "&":
-                          if (state === "rest") {
-                              throw new LitsError("& can only appear once", tkn.debugInfo);
-                          }
-                          state = "rest";
-                          break;
-                      case "&let":
-                          if (state === "rest" && !restArgument) {
-                              throw new LitsError("No rest argument was spcified", tkn.debugInfo);
-                          }
-                          state = "let";
-                          break;
-                      default:
-                          throw new LitsError("Illegal modifier: ".concat(node.value), tkn.debugInfo);
-                  }
-              }
-              else {
-                  switch (state) {
-                      case "mandatory":
-                          mandatoryArguments.push(node.name);
-                          break;
-                      case "rest":
-                          if (restArgument !== undefined) {
-                              throw new LitsError("Can only specify one rest argument", tkn.debugInfo);
-                          }
-                          restArgument = node.name;
-                          break;
-                  }
-              }
-          }
-      }
-      if (state === "rest" && restArgument === undefined) {
-          throw new LitsError("Missing rest argument name", tkn.debugInfo);
-      }
-      position += 1;
-      var args = {
-          mandatoryArguments: mandatoryArguments,
-          restArgument: restArgument,
-          bindings: bindings,
-      };
-      return [position, args];
-  }
-
-  var defSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
-          nameNode.assert(params[0], firstToken.debugInfo);
-          return [
-              newPosition + 1,
-              {
-                  type: "SpecialExpression",
-                  name: "def",
-                  params: params,
-                  token: firstToken,
-              },
-          ];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
-          var debugInfo = node.token.debugInfo;
-          var name = nameNode.as(node.params[0], debugInfo).value;
-          assertNameNotDefined(name, contextStack, builtin, debugInfo);
-          var value = evaluateAstNode(astNode.as(node.params[1], debugInfo), contextStack);
-          contextStack.globalContext[name] = { value: value };
-          return value;
-      },
-      validate: function (node) { return assertNumberOfParams(2, node); },
-  };
-
-  var defsSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
-          return [
-              newPosition + 1,
-              {
-                  type: "SpecialExpression",
-                  name: "defs",
-                  params: params,
-                  token: firstToken,
-              },
-          ];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
-          var debugInfo = node.token.debugInfo;
-          var name = evaluateAstNode(astNode.as(node.params[0], debugInfo), contextStack);
-          string.assert(name, debugInfo);
-          assertNameNotDefined(name, contextStack, builtin, node.token.debugInfo);
-          var value = evaluateAstNode(astNode.as(node.params[1], debugInfo), contextStack);
-          contextStack.globalContext[name] = { value: value };
-          return value;
-      },
-      validate: function (node) { return assertNumberOfParams(2, node); },
-  };
-
-  var doSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var _b;
-          var parseToken = _a.parseToken;
-          var tkn = token.as(tokens[position], "EOF");
-          var node = {
-              type: "SpecialExpression",
-              name: "do",
-              params: [],
-              token: tkn,
-          };
-          while (!token.is(tkn, { type: "paren", value: ")" })) {
-              var bodyNode = void 0;
-              _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
-              node.params.push(bodyNode);
-              tkn = token.as(tokens[position], "EOF");
-          }
-          return [position + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var e_1, _b;
-          var evaluateAstNode = _a.evaluateAstNode;
-          var newContext = {};
-          var newContextStack = contextStack.withContext(newContext);
-          var result = null;
-          try {
-              for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
-                  var form = _d.value;
-                  result = evaluateAstNode(form, newContextStack);
-              }
-          }
-          catch (e_1_1) { e_1 = { error: e_1_1 }; }
-          finally {
-              try {
-                  if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-              }
-              finally { if (e_1) throw e_1.error; }
-          }
-          return result;
-      },
-  };
-
-  function parseLoopBinding(tokens, position, _a) {
-      var _b, _c, _d, _e;
-      var parseBinding = _a.parseBinding, parseBindings = _a.parseBindings, parseToken = _a.parseToken;
-      var bindingNode;
-      _b = __read(parseBinding(tokens, position), 2), position = _b[0], bindingNode = _b[1];
-      var loopBinding = {
-          binding: bindingNode,
-          modifiers: [],
-      };
-      var tkn = token.as(tokens[position], "EOF");
-      while (tkn.type === "modifier") {
-          switch (tkn.value) {
-              case "&let":
-                  if (loopBinding.letBindings) {
-                      throw new LitsError("Only one &let modifier allowed", tkn.debugInfo);
-                  }
-                  _c = __read(parseBindings(tokens, position + 1), 2), position = _c[0], loopBinding.letBindings = _c[1];
-                  loopBinding.modifiers.push("&let");
-                  break;
-              case "&when":
-                  if (loopBinding.whenNode) {
-                      throw new LitsError("Only one &when modifier allowed", tkn.debugInfo);
-                  }
-                  _d = __read(parseToken(tokens, position + 1), 2), position = _d[0], loopBinding.whenNode = _d[1];
-                  loopBinding.modifiers.push("&when");
-                  break;
-              case "&while":
-                  if (loopBinding.whileNode) {
-                      throw new LitsError("Only one &while modifier allowed", tkn.debugInfo);
-                  }
-                  _e = __read(parseToken(tokens, position + 1), 2), position = _e[0], loopBinding.whileNode = _e[1];
-                  loopBinding.modifiers.push("&while");
-                  break;
-              default:
-                  throw new LitsError("Illegal modifier: ".concat(tkn.value), tkn.debugInfo);
-          }
-          tkn = token.as(tokens[position], "EOF");
-      }
-      return [position, loopBinding];
-  }
-  function addToContext(bindings, context, contextStack, evaluateAstNode, debugInfo) {
-      var e_1, _a;
-      try {
-          for (var bindings_1 = __values(bindings), bindings_1_1 = bindings_1.next(); !bindings_1_1.done; bindings_1_1 = bindings_1.next()) {
-              var binding = bindings_1_1.value;
-              if (context[binding.name]) {
-                  throw new LitsError("Variable already defined: ".concat(binding.name, "."), debugInfo);
-              }
-              context[binding.name] = { value: evaluateAstNode(binding.value, contextStack) };
-          }
-      }
-      catch (e_1_1) { e_1 = { error: e_1_1 }; }
-      finally {
-          try {
-              if (bindings_1_1 && !bindings_1_1.done && (_a = bindings_1.return)) _a.call(bindings_1);
-          }
-          finally { if (e_1) throw e_1.error; }
-      }
-  }
-  function parseLoopBindings(tokens, position, parsers) {
-      var _a;
-      token.assert(tokens[position], "EOF", { type: "paren", value: "[" });
-      position += 1;
-      var loopBindings = [];
-      var tkn = token.as(tokens[position], "EOF");
-      while (!token.is(tkn, { type: "paren", value: "]" })) {
-          var loopBinding = void 0;
-          _a = __read(parseLoopBinding(tokens, position, parsers), 2), position = _a[0], loopBinding = _a[1];
-          loopBindings.push(loopBinding);
-          tkn = token.as(tokens[position], "EOF");
-      }
-      return [position + 1, loopBindings];
-  }
-  function parseLoop(name, tokens, position, parsers) {
-      var _a, _b;
-      var firstToken = token.as(tokens[position], "EOF");
-      var parseToken = parsers.parseToken;
-      var loopBindings;
-      _a = __read(parseLoopBindings(tokens, position, parsers), 2), position = _a[0], loopBindings = _a[1];
-      var expression;
-      _b = __read(parseToken(tokens, position), 2), position = _b[0], expression = _b[1];
-      token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
-      var node = {
-          name: name,
-          type: "SpecialExpression",
-          loopBindings: loopBindings,
-          params: [expression],
-          token: firstToken,
-      };
-      return [position + 1, node];
-  }
-  function evaluateLoop(returnResult, node, contextStack, evaluateAstNode) {
-      var e_2, _a;
-      var debugInfo = node.token.debugInfo;
-      var loopBindings = node.loopBindings, params = node.params;
-      var expression = astNode.as(params[0], debugInfo);
-      var result = [];
-      var bindingIndices = loopBindings.map(function () { return 0; });
-      var abort = false;
-      while (!abort) {
-          var context = {};
-          var newContextStack = contextStack.withContext(context);
-          var skip = false;
-          bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
-              var _b = asValue(loopBindings[bindingIndex], debugInfo), binding = _b.binding, letBindings = _b.letBindings, whenNode = _b.whenNode, whileNode = _b.whileNode, modifiers = _b.modifiers;
-              var coll = collection.as(evaluateAstNode(binding.value, newContextStack), debugInfo);
-              var seq = sequence.is(coll) ? coll : Object.entries(coll);
-              if (seq.length === 0) {
-                  skip = true;
-                  abort = true;
-                  break;
-              }
-              var index = asValue(bindingIndices[bindingIndex], debugInfo);
-              if (index >= seq.length) {
-                  skip = true;
-                  if (bindingIndex === 0) {
-                      abort = true;
-                      break;
-                  }
-                  bindingIndices[bindingIndex] = 0;
-                  bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], debugInfo) + 1;
-                  break;
-              }
-              if (context[binding.name]) {
-                  throw new LitsError("Variable already defined: ".concat(binding.name, "."), debugInfo);
-              }
-              context[binding.name] = {
-                  value: any.as(seq[index], debugInfo),
-              };
-              try {
-                  for (var modifiers_1 = (e_2 = void 0, __values(modifiers)), modifiers_1_1 = modifiers_1.next(); !modifiers_1_1.done; modifiers_1_1 = modifiers_1.next()) {
-                      var modifier = modifiers_1_1.value;
-                      switch (modifier) {
-                          case "&let":
-                              addToContext(asValue(letBindings, debugInfo), context, newContextStack, evaluateAstNode, debugInfo);
-                              break;
-                          case "&when":
-                              if (!evaluateAstNode(astNode.as(whenNode, debugInfo), newContextStack)) {
-                                  bindingIndices[bindingIndex] = asValue(bindingIndices[bindingIndex], debugInfo) + 1;
-                                  skip = true;
-                                  break bindingsLoop;
-                              }
-                              break;
-                          case "&while":
-                              if (!evaluateAstNode(astNode.as(whileNode, debugInfo), newContextStack)) {
-                                  bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY;
-                                  skip = true;
-                                  break bindingsLoop;
-                              }
-                              break;
-                      }
-                  }
-              }
-              catch (e_2_1) { e_2 = { error: e_2_1 }; }
-              finally {
-                  try {
-                      if (modifiers_1_1 && !modifiers_1_1.done && (_a = modifiers_1.return)) _a.call(modifiers_1);
-                  }
-                  finally { if (e_2) throw e_2.error; }
-              }
-          }
-          if (!skip) {
-              var value = evaluateAstNode(expression, newContextStack);
-              if (returnResult) {
-                  result.push(value);
-              }
-              bindingIndices[bindingIndices.length - 1] += 1;
-          }
-      }
-      return returnResult ? result : null;
-  }
-  var forSpecialExpression = {
-      parse: function (tokens, position, parsers) { return parseLoop("for", tokens, position, parsers); },
-      evaluate: function (node, contextStack, helpers) { return evaluateLoop(true, node, contextStack, helpers.evaluateAstNode); },
-  };
-  var doseqSpecialExpression = {
-      parse: function (tokens, position, parsers) { return parseLoop("doseq", tokens, position, parsers); },
-      evaluate: function (node, contextStack, helpers) { return evaluateLoop(false, node, contextStack, helpers.evaluateAstNode); },
-  };
-
-  var ifLetSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var _b, _c;
-          var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var bindings;
-          _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
-          if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.debugInfo);
-          }
-          var params;
-          _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "if-let",
-              binding: asValue(bindings[0], firstToken.debugInfo),
-              params: params,
-              token: firstToken,
-          };
-          return [position + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = node.token.debugInfo;
-          var locals = {};
-          var bindingValue = evaluateAstNode(node.binding.value, contextStack);
-          if (bindingValue) {
-              locals[node.binding.name] = { value: bindingValue };
-              var newContextStack = contextStack.withContext(locals);
-              var thenForm = astNode.as(node.params[0], debugInfo);
-              return evaluateAstNode(thenForm, newContextStack);
-          }
-          if (node.params.length === 2) {
-              var elseForm = astNode.as(node.params[1], debugInfo);
-              return evaluateAstNode(elseForm, contextStack);
-          }
-          return null;
-      },
-      validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-  };
-
-  var ifNotSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
-          return [
-              newPosition + 1,
-              {
-                  type: "SpecialExpression",
-                  name: "if-not",
-                  params: params,
-                  token: firstToken,
-              },
-          ];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = node.token.debugInfo;
-          var _b = __read(node.params, 3), conditionNode = _b[0], trueNode = _b[1], falseNode = _b[2];
-          if (!evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)) {
-              return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
-          }
-          else {
-              if (node.params.length === 3) {
-                  return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
-              }
-              else {
-                  return null;
-              }
-          }
-      },
-      validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-  };
-
-  var ifSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
-          return [
-              newPosition + 1,
-              {
-                  type: "SpecialExpression",
-                  name: "if",
-                  params: params,
-                  token: firstToken,
-              },
-          ];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = node.token.debugInfo;
-          var _b = __read(node.params, 3), conditionNode = _b[0], trueNode = _b[1], falseNode = _b[2];
-          if (evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)) {
-              return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
-          }
-          else {
-              if (node.params.length === 3) {
-                  return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
-              }
-              else {
-                  return null;
-              }
-          }
-      },
-      validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-  };
-
-  var letSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var _b, _c;
-          var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var bindings;
-          _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
-          var params;
-          _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "let",
-              params: params,
-              bindings: bindings,
-              token: firstToken,
-          };
-          return [position + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var e_1, _b, e_2, _c;
-          var evaluateAstNode = _a.evaluateAstNode;
-          var locals = {};
-          var newContextStack = contextStack.withContext(locals);
-          try {
-              for (var _d = __values(node.bindings), _e = _d.next(); !_e.done; _e = _d.next()) {
-                  var binding = _e.value;
-                  var bindingValueNode = binding.value;
-                  var bindingValue = evaluateAstNode(bindingValueNode, newContextStack);
-                  locals[binding.name] = { value: bindingValue };
-              }
-          }
-          catch (e_1_1) { e_1 = { error: e_1_1 }; }
-          finally {
-              try {
-                  if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
-              }
-              finally { if (e_1) throw e_1.error; }
-          }
-          var result = null;
-          try {
-              for (var _f = __values(node.params), _g = _f.next(); !_g.done; _g = _f.next()) {
-                  var astNode = _g.value;
-                  result = evaluateAstNode(astNode, newContextStack);
-              }
-          }
-          catch (e_2_1) { e_2 = { error: e_2_1 }; }
-          finally {
-              try {
-                  if (_g && !_g.done && (_c = _f.return)) _c.call(_f);
-              }
-              finally { if (e_2) throw e_2.error; }
-          }
-          return result;
-      },
-  };
-
-  var loopSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var _b, _c;
-          var parseTokens = _a.parseTokens, parseBindings = _a.parseBindings;
-          var firstToken = token.as(tokens[position], "EOF");
-          var bindings;
-          _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
-          var params;
-          _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "loop",
-              params: params,
-              bindings: bindings,
-              token: firstToken,
-          };
-          return [position + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = node.token.debugInfo;
-          var bindingContext = node.bindings.reduce(function (result, binding) {
-              result[binding.name] = { value: evaluateAstNode(binding.value, contextStack) };
-              return result;
-          }, {});
-          var newContextStack = contextStack.withContext(bindingContext);
-          var _loop_1 = function () {
-              var e_1, _b;
-              var result = null;
-              try {
-                  try {
-                      for (var _c = (e_1 = void 0, __values(node.params)), _d = _c.next(); !_d.done; _d = _c.next()) {
-                          var form = _d.value;
-                          result = evaluateAstNode(form, newContextStack);
-                      }
-                  }
-                  catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                  finally {
-                      try {
-                          if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-                      }
-                      finally { if (e_1) throw e_1.error; }
-                  }
-              }
-              catch (error) {
-                  if (error instanceof RecurSignal) {
-                      var params_1 = error.params;
-                      if (params_1.length !== node.bindings.length) {
-                          throw new LitsError("recur expected ".concat(node.bindings.length, " parameters, got ").concat(valueToString$1(params_1.length)), debugInfo);
-                      }
-                      node.bindings.forEach(function (binding, index) {
-                          asValue(bindingContext[binding.name], debugInfo).value = any.as(params_1[index], debugInfo);
-                      });
-                      return "continue";
-                  }
-                  throw error;
-              }
-              return { value: result };
-          };
-          for (;;) {
-              var state_1 = _loop_1();
-              if (typeof state_1 === "object")
-                  return state_1.value;
-          }
-      },
-  };
-
-  var orSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
-          return [
-              newPosition + 1,
-              {
-                  type: "SpecialExpression",
-                  name: "or",
-                  params: params,
-                  token: firstToken,
-              },
-          ];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var e_1, _b;
-          var evaluateAstNode = _a.evaluateAstNode;
-          var value = false;
-          try {
-              for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
-                  var param = _d.value;
-                  value = evaluateAstNode(param, contextStack);
-                  if (value) {
-                      break;
-                  }
-              }
-          }
-          catch (e_1_1) { e_1 = { error: e_1_1 }; }
-          finally {
-              try {
-                  if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-              }
-              finally { if (e_1) throw e_1.error; }
-          }
-          return value;
-      },
-  };
-
-  var recurSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var _b;
-          var parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var params;
-          _b = __read(parseTokens(tokens, position), 2), position = _b[0], params = _b[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "recur",
-              params: params,
-              token: firstToken,
-          };
-          return [position + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var evaluateAstNode = _a.evaluateAstNode;
-          var params = node.params.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
-          throw new RecurSignal(params);
-      },
-  };
-
-  var throwSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseToken = _a.parseToken;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseToken(tokens, position), 2), newPosition = _b[0], messageNode = _b[1];
-          position = newPosition;
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
-          position += 1;
-          var node = {
-              type: "SpecialExpression",
-              name: "throw",
-              params: [],
-              messageNode: messageNode,
-              token: firstToken,
-          };
-          return [position, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var evaluateAstNode = _a.evaluateAstNode;
-          var message = string.as(evaluateAstNode(node.messageNode, contextStack), node.token.debugInfo, {
-              nonEmpty: true,
-          });
-          throw new UserDefinedError(message, node.token.debugInfo);
-      },
-  };
-
-  var timeSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseToken = _a.parseToken;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseToken(tokens, position), 2), newPosition = _b[0], astNode = _b[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "time!",
-              params: [astNode],
-              token: firstToken,
-          };
-          return [newPosition + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var evaluateAstNode = _a.evaluateAstNode;
-          var _b = __read(node.params, 1), param = _b[0];
-          astNode.assert(param, node.token.debugInfo);
-          var startTime = Date.now();
-          var result = evaluateAstNode(param, contextStack);
-          var totalTime = Date.now() - startTime;
-          // eslint-disable-next-line no-console
-          console.log("Elapsed time: ".concat(totalTime, " ms"));
-          return result;
-      },
-      validate: function (node) { return assertNumberOfParams(1, node); },
-  };
-
-  var trySpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var _b, _c, _d, _e;
-          var parseToken = _a.parseToken;
-          var firstToken = token.as(tokens[position], "EOF");
-          var tryExpression;
-          _b = __read(parseToken(tokens, position), 2), position = _b[0], tryExpression = _b[1];
-          token.assert(tokens[position], "EOF", { type: "paren", value: "(" });
-          position += 1;
-          var catchNode;
-          _c = __read(parseToken(tokens, position), 2), position = _c[0], catchNode = _c[1];
-          nameNode.assert(catchNode, catchNode.token.debugInfo);
-          if (catchNode.value !== "catch") {
-              throw new LitsError("Expected 'catch', got '".concat(catchNode.value, "'."), getDebugInfo(catchNode, catchNode.token.debugInfo));
-          }
-          var error;
-          _d = __read(parseToken(tokens, position), 2), position = _d[0], error = _d[1];
-          nameNode.assert(error, error.token.debugInfo);
-          var catchExpression;
-          _e = __read(parseToken(tokens, position), 2), position = _e[0], catchExpression = _e[1];
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
-          position += 1;
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
-          position += 1;
-          var node = {
-              type: "SpecialExpression",
-              name: "try",
-              params: [],
-              tryExpression: tryExpression,
-              catchExpression: catchExpression,
-              error: error,
-              token: firstToken,
-          };
-          return [position, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var _b;
-          var evaluateAstNode = _a.evaluateAstNode;
-          try {
-              return evaluateAstNode(node.tryExpression, contextStack);
-          }
-          catch (error) {
-              var newContext = (_b = {},
-                  _b[node.error.value] = { value: any.as(error, node.token.debugInfo) },
-                  _b);
-              return evaluateAstNode(node.catchExpression, contextStack.withContext(newContext));
-          }
-      },
-  };
 
   function collHasKey(coll, key) {
       if (!collection.is(coll)) {
@@ -1614,7 +665,7 @@ var Lits = (function (exports) {
       else if (object.is(value)) {
           return "object";
       }
-      else if (regExp.is(value)) {
+      else if (regularExpression.is(value)) {
           return "regexp";
       }
       else {
@@ -1691,8 +742,8 @@ var Lits = (function (exports) {
           }
           return true;
       }
-      if (a instanceof RegExp && b instanceof RegExp) {
-          return a.toString() === b.toString();
+      if (isRegularExpression(a) && isRegularExpression(b)) {
+          return a.source === b.source && a.flags === b.flags;
       }
       if (typeof a === "object" && a !== null && typeof b === "object" && b !== null) {
           var aObj = a;
@@ -1744,190 +795,6 @@ var Lits = (function (exports) {
           return context;
       }, {});
   }
-
-  var whenFirstSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var _b, _c;
-          var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var bindings;
-          _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
-          if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.debugInfo);
-          }
-          var params;
-          _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "when-first",
-              binding: asValue(bindings[0], firstToken.debugInfo),
-              params: params,
-              token: firstToken,
-          };
-          return [position + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var e_1, _b;
-          var evaluateAstNode = _a.evaluateAstNode;
-          var locals = {};
-          var evaluatedBindingForm = evaluateAstNode(node.binding.value, contextStack);
-          if (!sequence.is(evaluatedBindingForm)) {
-              throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString$1(evaluatedBindingForm)), node.token.debugInfo);
-          }
-          if (evaluatedBindingForm.length === 0) {
-              return null;
-          }
-          var bindingValue = toAny(evaluatedBindingForm[0]);
-          locals[node.binding.name] = { value: bindingValue };
-          var newContextStack = contextStack.withContext(locals);
-          var result = null;
-          try {
-              for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
-                  var form = _d.value;
-                  result = evaluateAstNode(form, newContextStack);
-              }
-          }
-          catch (e_1_1) { e_1 = { error: e_1_1 }; }
-          finally {
-              try {
-                  if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-              }
-              finally { if (e_1) throw e_1.error; }
-          }
-          return result;
-      },
-      validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
-  };
-
-  var whenLetSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var _b, _c;
-          var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var bindings;
-          _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
-          if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.debugInfo);
-          }
-          var params;
-          _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "when-let",
-              binding: asValue(bindings[0], firstToken.debugInfo),
-              params: params,
-              token: firstToken,
-          };
-          return [position + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var e_1, _b;
-          var evaluateAstNode = _a.evaluateAstNode;
-          var locals = {};
-          var bindingValue = evaluateAstNode(node.binding.value, contextStack);
-          if (!bindingValue) {
-              return null;
-          }
-          locals[node.binding.name] = { value: bindingValue };
-          var newContextStack = contextStack.withContext(locals);
-          var result = null;
-          try {
-              for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
-                  var form = _d.value;
-                  result = evaluateAstNode(form, newContextStack);
-              }
-          }
-          catch (e_1_1) { e_1 = { error: e_1_1 }; }
-          finally {
-              try {
-                  if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-              }
-              finally { if (e_1) throw e_1.error; }
-          }
-          return result;
-      },
-      validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
-  };
-
-  var whenNotSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "when-not",
-              params: params,
-              token: firstToken,
-          };
-          return [newPosition + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var e_1, _b;
-          var evaluateAstNode = _a.evaluateAstNode;
-          var _c = __read(node.params), whenExpression = _c[0], body = _c.slice(1);
-          astNode.assert(whenExpression, node.token.debugInfo);
-          if (evaluateAstNode(whenExpression, contextStack)) {
-              return null;
-          }
-          var result = null;
-          try {
-              for (var body_1 = __values(body), body_1_1 = body_1.next(); !body_1_1.done; body_1_1 = body_1.next()) {
-                  var form = body_1_1.value;
-                  result = evaluateAstNode(form, contextStack);
-              }
-          }
-          catch (e_1_1) { e_1 = { error: e_1_1 }; }
-          finally {
-              try {
-                  if (body_1_1 && !body_1_1.done && (_b = body_1.return)) _b.call(body_1);
-              }
-              finally { if (e_1) throw e_1.error; }
-          }
-          return result;
-      },
-      validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
-  };
-
-  var whenSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "when",
-              params: params,
-              token: firstToken,
-          };
-          return [newPosition + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var e_1, _b;
-          var evaluateAstNode = _a.evaluateAstNode;
-          var _c = __read(node.params), whenExpression = _c[0], body = _c.slice(1);
-          astNode.assert(whenExpression, node.token.debugInfo);
-          if (!evaluateAstNode(whenExpression, contextStack)) {
-              return null;
-          }
-          var result = null;
-          try {
-              for (var body_1 = __values(body), body_1_1 = body_1.next(); !body_1_1.done; body_1_1 = body_1.next()) {
-                  var form = body_1_1.value;
-                  result = evaluateAstNode(form, contextStack);
-              }
-          }
-          catch (e_1_1) { e_1 = { error: e_1_1 }; }
-          finally {
-              try {
-                  if (body_1_1 && !body_1_1.done && (_b = body_1.return)) _b.call(body_1);
-              }
-              finally { if (e_1) throw e_1.error; }
-          }
-          return result;
-      },
-      validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
-  };
 
   var bitwiseNormalExpression = {
       'bit-shift-left': {
@@ -2080,11 +947,11 @@ var Lits = (function (exports) {
       }
       return undefined;
   }
-  function update(coll, key, fn, params, debugInfo, contextStack, executeFunction) {
+  function update(coll, key, fn, params, contextStack, executeFunction, debugInfo) {
       if (object.is(coll)) {
           string.assert(key, debugInfo);
           var result = __assign({}, coll);
-          result[key] = executeFunction(fn, __spreadArray([result[key]], __read(params), false), debugInfo, contextStack);
+          result[key] = executeFunction(fn, __spreadArray([result[key]], __read(params), false), contextStack, debugInfo);
           return result;
       }
       else {
@@ -2094,26 +961,26 @@ var Lits = (function (exports) {
           if (Array.isArray(coll)) {
               var result = coll.map(function (elem, index) {
                   if (intKey_1 === index) {
-                      return executeFunction(fn, __spreadArray([elem], __read(params), false), debugInfo, contextStack);
+                      return executeFunction(fn, __spreadArray([elem], __read(params), false), contextStack, debugInfo);
                   }
                   return elem;
               });
               if (intKey_1 === coll.length) {
-                  result[intKey_1] = executeFunction(fn, __spreadArray([undefined], __read(params), false), debugInfo, contextStack);
+                  result[intKey_1] = executeFunction(fn, __spreadArray([undefined], __read(params), false), contextStack, debugInfo);
               }
               return result;
           }
           else {
               var result = coll.split("").map(function (elem, index) {
                   if (intKey_1 === index) {
-                      return string.as(executeFunction(fn, __spreadArray([elem], __read(params), false), debugInfo, contextStack), debugInfo, {
+                      return string.as(executeFunction(fn, __spreadArray([elem], __read(params), false), contextStack, debugInfo), debugInfo, {
                           char: true,
                       });
                   }
                   return elem;
               });
               if (intKey_1 === coll.length) {
-                  result[intKey_1] = string.as(executeFunction(fn, __spreadArray([undefined], __read(params), false), debugInfo, contextStack), debugInfo, {
+                  result[intKey_1] = string.as(executeFunction(fn, __spreadArray([undefined], __read(params), false), contextStack, debugInfo), debugInfo, {
                       char: true,
                   });
               }
@@ -2395,7 +1262,7 @@ var Lits = (function (exports) {
               collection.assert(coll, debugInfo);
               stringOrNumber.assert(key, debugInfo);
               litsFunction.assert(fn, debugInfo);
-              return update(coll, key, fn, params, debugInfo, contextStack, executeFunction);
+              return update(coll, key, fn, params, contextStack, executeFunction, debugInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 3 }, node); },
       },
@@ -2408,18 +1275,18 @@ var Lits = (function (exports) {
               litsFunction.assert(fn, debugInfo);
               if (keys.length === 1) {
                   stringOrNumber.assert(keys[0], debugInfo);
-                  return update(originalColl, keys[0], fn, params, debugInfo, contextStack, executeFunction);
+                  return update(originalColl, keys[0], fn, params, contextStack, executeFunction, debugInfo);
               }
               var _d = cloneAndGetMeta(originalColl, keys, debugInfo), coll = _d.coll, innerCollMeta = _d.innerCollMeta;
               var lastKey = stringOrNumber.as(keys[keys.length - 1], debugInfo);
               var parentKey = stringOrNumber.as(keys[keys.length - 2], debugInfo);
               if (array.is(innerCollMeta.parent)) {
                   number.assert(parentKey, debugInfo);
-                  innerCollMeta.parent[parentKey] = update(innerCollMeta.coll, lastKey, fn, params, debugInfo, contextStack, executeFunction);
+                  innerCollMeta.parent[parentKey] = update(innerCollMeta.coll, lastKey, fn, params, contextStack, executeFunction, debugInfo);
               }
               else {
                   string.assert(parentKey, debugInfo);
-                  innerCollMeta.parent[parentKey] = update(innerCollMeta.coll, lastKey, fn, params, debugInfo, contextStack, executeFunction);
+                  innerCollMeta.parent[parentKey] = update(innerCollMeta.coll, lastKey, fn, params, contextStack, executeFunction, debugInfo);
               }
               return coll;
           },
@@ -2470,12 +1337,12 @@ var Lits = (function (exports) {
               litsFunction.assert(fn, debugInfo);
               collection.assert(coll, debugInfo);
               if (Array.isArray(coll)) {
-                  return coll.every(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+                  return coll.every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
               }
               if (string.is(coll)) {
-                  return coll.split("").every(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+                  return coll.split("").every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
               }
-              return Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+              return Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
@@ -2486,12 +1353,12 @@ var Lits = (function (exports) {
               litsFunction.assert(fn, debugInfo);
               collection.assert(coll, debugInfo);
               if (Array.isArray(coll)) {
-                  return coll.some(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+                  return coll.some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
               }
               if (string.is(coll)) {
-                  return coll.split("").some(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+                  return coll.split("").some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
               }
-              return Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+              return Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
@@ -2502,12 +1369,12 @@ var Lits = (function (exports) {
               litsFunction.assert(fn, debugInfo);
               collection.assert(coll, debugInfo);
               if (Array.isArray(coll)) {
-                  return !coll.some(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+                  return !coll.some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
               }
               if (string.is(coll)) {
-                  return !coll.split("").some(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+                  return !coll.split("").some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
               }
-              return !Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+              return !Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
@@ -2518,12 +1385,12 @@ var Lits = (function (exports) {
               litsFunction.assert(fn, debugInfo);
               collection.assert(coll, debugInfo);
               if (Array.isArray(coll)) {
-                  return !coll.every(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+                  return !coll.every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
               }
               if (string.is(coll)) {
-                  return !coll.split("").every(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+                  return !coll.split("").every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
               }
-              return !Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+              return !Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
@@ -2538,13 +1405,13 @@ var Lits = (function (exports) {
       var length = firstList.length;
       if (params.length === 2) {
           if (array.is(firstList)) {
-              return firstList.map(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+              return firstList.map(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           }
           else {
               return firstList
                   .split("")
                   .map(function (elem) {
-                  var newVal = executeFunction(fn, [elem], debugInfo, contextStack);
+                  var newVal = executeFunction(fn, [elem], contextStack, debugInfo);
                   string.assert(newVal, debugInfo, { char: true });
                   return newVal;
               })
@@ -2567,7 +1434,7 @@ var Lits = (function (exports) {
               var result = "";
               var _loop_1 = function (i) {
                   var fnParams = params.slice(1).map(function (l) { return l[i]; });
-                  var newValue = executeFunction(fn, fnParams, debugInfo, contextStack);
+                  var newValue = executeFunction(fn, fnParams, contextStack, debugInfo);
                   string.assert(newValue, debugInfo, { char: true });
                   result += newValue;
               };
@@ -2580,7 +1447,7 @@ var Lits = (function (exports) {
               var result = [];
               var _loop_2 = function (i) {
                   var fnParams = params.slice(1).map(function (l) { return toAny(l[i]); });
-                  result.push(executeFunction(fn, fnParams, debugInfo, contextStack));
+                  result.push(executeFunction(fn, fnParams, contextStack, debugInfo));
               };
               for (var i = 0; i < length; i += 1) {
                   _loop_2(i);
@@ -2623,11 +1490,11 @@ var Lits = (function (exports) {
               litsFunction.assert(fn, debugInfo);
               sequence.assert(seq, debugInfo);
               if (Array.isArray(seq)) {
-                  return seq.filter(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+                  return seq.filter(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
               }
               return seq
                   .split("")
-                  .filter(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); })
+                  .filter(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); })
                   .join("");
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
@@ -2672,11 +1539,11 @@ var Lits = (function (exports) {
               litsFunction.assert(fn, debugInfo);
               sequence.assert(seq, debugInfo);
               if (string.is(seq)) {
-                  var index = seq.split("").findIndex(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+                  var index = seq.split("").findIndex(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
                   return index !== -1 ? index : null;
               }
               else {
-                  var index = seq.findIndex(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); });
+                  var index = seq.findIndex(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
                   return index !== -1 ? index : null;
               }
           },
@@ -2722,7 +1589,7 @@ var Lits = (function (exports) {
                   var _b = __read(params, 2), arr = _b[1];
                   sequence.assert(arr, debugInfo);
                   if (arr.length === 0) {
-                      return [executeFunction(fn, [], debugInfo, contextStack)];
+                      return [executeFunction(fn, [], contextStack, debugInfo)];
                   }
                   else if (arr.length === 1) {
                       return [toAny(arr[0])];
@@ -2731,7 +1598,7 @@ var Lits = (function (exports) {
                       var chars = arr.split("");
                       var resultArray_1 = [any.as(chars[0], debugInfo)];
                       chars.slice(1).reduce(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
                           resultArray_1.push(newVal);
                           return newVal;
                       }, any.as(chars[0], debugInfo));
@@ -2740,7 +1607,7 @@ var Lits = (function (exports) {
                   else {
                       var resultArray_2 = [toAny(arr[0])];
                       arr.slice(1).reduce(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
                           resultArray_2.push(newVal);
                           return newVal;
                       }, toAny(arr[0]));
@@ -2758,7 +1625,7 @@ var Lits = (function (exports) {
                       }
                       var resultArray_3 = [val];
                       seq.split("").reduce(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
                           resultArray_3.push(newVal);
                           return newVal;
                       }, val);
@@ -2770,7 +1637,7 @@ var Lits = (function (exports) {
                       }
                       var resultArray_4 = [val];
                       seq.reduce(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
                           resultArray_4.push(newVal);
                           return newVal;
                       }, val);
@@ -2789,7 +1656,7 @@ var Lits = (function (exports) {
                   var _b = __read(params, 2), arr = _b[1];
                   sequence.assert(arr, debugInfo);
                   if (arr.length === 0) {
-                      return executeFunction(fn, [], debugInfo, contextStack);
+                      return executeFunction(fn, [], contextStack, debugInfo);
                   }
                   else if (arr.length === 1) {
                       return toAny(arr[0]);
@@ -2797,13 +1664,13 @@ var Lits = (function (exports) {
                   if (string.is(arr)) {
                       var chars = arr.split("");
                       return chars.slice(1).reduce(function (result, elem) {
-                          var val = executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          var val = executeFunction(fn, [result, elem], contextStack, debugInfo);
                           return val;
                       }, any.as(chars[0], debugInfo));
                   }
                   else {
                       return arr.slice(1).reduce(function (result, elem) {
-                          return executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          return executeFunction(fn, [result, elem], contextStack, debugInfo);
                       }, toAny(arr[0]));
                   }
               }
@@ -2817,7 +1684,7 @@ var Lits = (function (exports) {
                           return val;
                       }
                       return seq.split("").reduce(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
                           return newVal;
                       }, val);
                   }
@@ -2826,7 +1693,7 @@ var Lits = (function (exports) {
                           return val;
                       }
                       return seq.reduce(function (result, elem) {
-                          return executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          return executeFunction(fn, [result, elem], contextStack, debugInfo);
                       }, val);
                   }
               }
@@ -2842,7 +1709,7 @@ var Lits = (function (exports) {
                   var _b = __read(params, 2), seq = _b[1];
                   sequence.assert(seq, debugInfo);
                   if (seq.length === 0) {
-                      return executeFunction(fn, [], debugInfo, contextStack);
+                      return executeFunction(fn, [], contextStack, debugInfo);
                   }
                   else if (seq.length === 1) {
                       return toAny(seq[0]);
@@ -2850,14 +1717,14 @@ var Lits = (function (exports) {
                   if (string.is(seq)) {
                       var chars = seq.split("");
                       return chars.slice(0, chars.length - 1).reduceRight(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
                           string.assert(newVal, debugInfo);
                           return newVal;
                       }, chars[chars.length - 1]);
                   }
                   else {
                       return seq.slice(0, seq.length - 1).reduceRight(function (result, elem) {
-                          return executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          return executeFunction(fn, [result, elem], contextStack, debugInfo);
                       }, any.as(seq[seq.length - 1], debugInfo));
                   }
               }
@@ -2870,7 +1737,7 @@ var Lits = (function (exports) {
                           return val;
                       }
                       return seq.split("").reduceRight(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
                           return newVal;
                       }, val);
                   }
@@ -2879,7 +1746,7 @@ var Lits = (function (exports) {
                           return val;
                       }
                       return seq.reduceRight(function (result, elem) {
-                          return executeFunction(fn, [result, elem], debugInfo, contextStack);
+                          return executeFunction(fn, [result, elem], contextStack, debugInfo);
                       }, val);
                   }
               }
@@ -3005,9 +1872,9 @@ var Lits = (function (exports) {
                   return null;
               }
               if (string.is(seq)) {
-                  return (_c = seq.split("").find(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); })) !== null && _c !== void 0 ? _c : null;
+                  return (_c = seq.split("").find(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); })) !== null && _c !== void 0 ? _c : null;
               }
-              return toAny(seq.find(function (elem) { return executeFunction(fn, [elem], debugInfo, contextStack); }));
+              return toAny(seq.find(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); }));
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
@@ -3026,7 +1893,7 @@ var Lits = (function (exports) {
                   else {
                       litsFunction.assert(comparer, debugInfo);
                       result_1.sort(function (a, b) {
-                          var compareValue = executeFunction(comparer, [a, b], debugInfo, contextStack);
+                          var compareValue = executeFunction(comparer, [a, b], contextStack, debugInfo);
                           number.assert(compareValue, debugInfo, { finite: true });
                           return compareValue;
                       });
@@ -3040,7 +1907,7 @@ var Lits = (function (exports) {
               else {
                   result.sort(function (a, b) {
                       litsFunction.assert(comparer, debugInfo);
-                      var compareValue = executeFunction(comparer, [a, b], debugInfo, contextStack);
+                      var compareValue = executeFunction(comparer, [a, b], contextStack, debugInfo);
                       number.assert(compareValue, debugInfo, { finite: true });
                       return compareValue;
                   });
@@ -3060,17 +1927,17 @@ var Lits = (function (exports) {
                   var result_2 = seq.split("");
                   if (defaultComparer) {
                       result_2.sort(function (a, b) {
-                          var aKey = executeFunction(keyfn, [a], debugInfo, contextStack);
-                          var bKey = executeFunction(keyfn, [b], debugInfo, contextStack);
+                          var aKey = executeFunction(keyfn, [a], contextStack, debugInfo);
+                          var bKey = executeFunction(keyfn, [b], contextStack, debugInfo);
                           return compare(aKey, bKey);
                       });
                   }
                   else {
                       litsFunction.assert(comparer, debugInfo);
                       result_2.sort(function (a, b) {
-                          var aKey = executeFunction(keyfn, [a], debugInfo, contextStack);
-                          var bKey = executeFunction(keyfn, [b], debugInfo, contextStack);
-                          var compareValue = executeFunction(comparer, [aKey, bKey], debugInfo, contextStack);
+                          var aKey = executeFunction(keyfn, [a], contextStack, debugInfo);
+                          var bKey = executeFunction(keyfn, [b], contextStack, debugInfo);
+                          var compareValue = executeFunction(comparer, [aKey, bKey], contextStack, debugInfo);
                           number.assert(compareValue, debugInfo, { finite: true });
                           return compareValue;
                       });
@@ -3080,17 +1947,17 @@ var Lits = (function (exports) {
               var result = __spreadArray([], __read(seq), false);
               if (defaultComparer) {
                   result.sort(function (a, b) {
-                      var aKey = executeFunction(keyfn, [a], debugInfo, contextStack);
-                      var bKey = executeFunction(keyfn, [b], debugInfo, contextStack);
+                      var aKey = executeFunction(keyfn, [a], contextStack, debugInfo);
+                      var bKey = executeFunction(keyfn, [b], contextStack, debugInfo);
                       return compare(aKey, bKey);
                   });
               }
               else {
                   litsFunction.assert(comparer, debugInfo);
                   result.sort(function (a, b) {
-                      var aKey = executeFunction(keyfn, [a], debugInfo, contextStack);
-                      var bKey = executeFunction(keyfn, [b], debugInfo, contextStack);
-                      var compareValue = executeFunction(comparer, [aKey, bKey], debugInfo, contextStack);
+                      var aKey = executeFunction(keyfn, [a], contextStack, debugInfo);
+                      var bKey = executeFunction(keyfn, [b], contextStack, debugInfo);
+                      var compareValue = executeFunction(comparer, [aKey, bKey], contextStack, debugInfo);
                       number.assert(compareValue, debugInfo, { finite: true });
                       return compareValue;
                   });
@@ -3131,7 +1998,7 @@ var Lits = (function (exports) {
               try {
                   for (var seq_1 = __values(seq), seq_1_1 = seq_1.next(); !seq_1_1.done; seq_1_1 = seq_1.next()) {
                       var item = seq_1_1.value;
-                      if (executeFunction(fn, [item], debugInfo, contextStack)) {
+                      if (executeFunction(fn, [item], contextStack, debugInfo)) {
                           result.push(item);
                       }
                       else {
@@ -3178,11 +2045,11 @@ var Lits = (function (exports) {
               sequence.assert(seq, debugInfo);
               litsFunction.assert(fn, debugInfo);
               if (Array.isArray(seq)) {
-                  var from_1 = seq.findIndex(function (elem) { return !executeFunction(fn, [elem], debugInfo, contextStack); });
+                  var from_1 = seq.findIndex(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); });
                   return seq.slice(from_1);
               }
               var charArray = seq.split("");
-              var from = charArray.findIndex(function (elem) { return !executeFunction(fn, [elem], debugInfo, contextStack); });
+              var from = charArray.findIndex(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); });
               return charArray.slice(from).join("");
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
@@ -3273,11 +2140,11 @@ var Lits = (function (exports) {
               litsFunction.assert(fn, debugInfo);
               sequence.assert(input, debugInfo);
               if (Array.isArray(input)) {
-                  return input.filter(function (elem) { return !executeFunction(fn, [elem], debugInfo, contextStack); });
+                  return input.filter(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); });
               }
               return input
                   .split("")
-                  .filter(function (elem) { return !executeFunction(fn, [elem], debugInfo, contextStack); })
+                  .filter(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); })
                   .join("");
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
@@ -3318,7 +2185,7 @@ var Lits = (function (exports) {
               sequence.assert(seq, debugInfo);
               var seqIsArray = Array.isArray(seq);
               var arr = seqIsArray ? seq : seq.split("");
-              var index = arr.findIndex(function (elem) { return !executeFunction(fn, [elem], debugInfo, contextStack); });
+              var index = arr.findIndex(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); });
               if (index === -1) {
                   return [seq, seqIsArray ? [] : ""];
               }
@@ -3352,7 +2219,7 @@ var Lits = (function (exports) {
               sequence.assert(seq, debugInfo);
               var arr = Array.isArray(seq) ? seq : seq.split("");
               return arr.reduce(function (result, val) {
-                  var key = executeFunction(fn, [val], debugInfo, contextStack);
+                  var key = executeFunction(fn, [val], contextStack, debugInfo);
                   string.assert(key, debugInfo);
                   if (!collHasKey(result, key)) {
                       result[key] = [];
@@ -3397,7 +2264,7 @@ var Lits = (function (exports) {
               var isStringSeq = string.is(seq);
               var oldValue = undefined;
               var result = (isStringSeq ? seq.split("") : seq).reduce(function (result, elem) {
-                  var value = executeFunction(fn, [elem], debugInfo, contextStack);
+                  var value = executeFunction(fn, [elem], contextStack, debugInfo);
                   if (value !== oldValue) {
                       result.push([]);
                       oldValue = value;
@@ -3927,7 +2794,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.35";
+  var version = "1.0.36";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -4353,7 +3220,7 @@ var Lits = (function (exports) {
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               litsFunction.assert(func, debugInfo);
               try {
-                  executeFunction(func, [], debugInfo, contextStack);
+                  executeFunction(func, [], contextStack, debugInfo);
               }
               catch (_d) {
                   return null;
@@ -4370,7 +3237,7 @@ var Lits = (function (exports) {
               string.assert(throwMessage, debugInfo);
               litsFunction.assert(func, debugInfo);
               try {
-                  executeFunction(func, [], debugInfo, contextStack);
+                  executeFunction(func, [], contextStack, debugInfo);
               }
               catch (error) {
                   var errorMessage = error.shortMessage;
@@ -4390,7 +3257,7 @@ var Lits = (function (exports) {
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               litsFunction.assert(func, debugInfo);
               try {
-                  executeFunction(func, [], debugInfo, contextStack);
+                  executeFunction(func, [], contextStack, debugInfo);
               }
               catch (_d) {
                   throw new AssertionError("Expected function not to throw.".concat(message), debugInfo);
@@ -4491,7 +3358,7 @@ var Lits = (function (exports) {
                       var key = string.as(entry[0], debugInfo);
                       var val = toAny(entry[1]);
                       if (collHasKey(result, key)) {
-                          result[key] = executeFunction(fn, [result[key], val], debugInfo, contextStack);
+                          result[key] = executeFunction(fn, [result[key], val], contextStack, debugInfo);
                       }
                       else {
                           result[key] = val;
@@ -4646,8 +3513,8 @@ var Lits = (function (exports) {
       },
       'regexp?': {
           evaluate: function (_a) {
-              var _b = __read(_a, 1), first = _b[0];
-              return first !== null && !Array.isArray(first) && typeof first === "object" && first instanceof RegExp;
+              var _b = __read(_a, 1), value = _b[0];
+              return isRegularExpression(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
@@ -4729,23 +3596,28 @@ var Lits = (function (exports) {
 
   var regexpNormalExpression = {
       regexp: {
-          evaluate: function (params, debugInfo) {
-              var _a = __read(params, 2), first = _a[0], second = _a[1];
-              string.assert(first, debugInfo);
-              if (params.length === 1) {
-                  return new RegExp(first);
-              }
-              string.assert(second, debugInfo);
-              return new RegExp(first, second);
+          evaluate: function (_a, debugInfo) {
+              var _b;
+              var _c = __read(_a, 2), sourceArg = _c[0], flagsArg = _c[1];
+              string.assert(sourceArg, debugInfo);
+              var source = sourceArg || "(?:)";
+              var flags = string.is(flagsArg) ? flagsArg : "";
+              return _b = {},
+                  _b[REGEXP_SYMBOL] = true,
+                  _b.debugInfo = debugInfo,
+                  _b.source = source,
+                  _b.flags = flags,
+                  _b;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       match: {
           evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), first = _b[0], second = _b[1];
-              regExp.assert(first, debugInfo);
-              string.assert(second, debugInfo);
-              var match = first.exec(second);
+              var _b = __read(_a, 2), regexp = _b[0], text = _b[1];
+              regularExpression.assert(regexp, debugInfo);
+              string.assert(text, debugInfo);
+              var regExp = new RegExp(regexp.source, regexp.flags);
+              var match = regExp.exec(text);
               if (match) {
                   return __spreadArray([], __read(match), false);
               }
@@ -4757,9 +3629,10 @@ var Lits = (function (exports) {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 3), str = _b[0], regexp = _b[1], value = _b[2];
               string.assert(str, debugInfo);
-              regExp.assert(regexp, debugInfo);
+              regularExpression.assert(regexp, debugInfo);
               string.assert(value, debugInfo);
-              return str.replace(regexp, value);
+              var regExp = new RegExp(regexp.source, regexp.flags);
+              return str.replace(regExp, value);
           },
           validate: function (node) { return assertNumberOfParams(3, node); },
       },
@@ -4909,12 +3782,15 @@ var Lits = (function (exports) {
       },
       split: {
           evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 3), str = _b[0], delimiter = _b[1], limit = _b[2];
+              var _b = __read(_a, 3), str = _b[0], stringOrRegExpValue = _b[1], limit = _b[2];
               string.assert(str, debugInfo);
-              stringOrRegExp.assert(delimiter, debugInfo);
+              stringOrRegExp.assert(stringOrRegExpValue, debugInfo);
               if (limit !== undefined) {
                   number.assert(limit, debugInfo, { integer: true, nonNegative: true });
               }
+              var delimiter = typeof stringOrRegExpValue === "string"
+                  ? stringOrRegExpValue
+                  : new RegExp(stringOrRegExpValue.source, stringOrRegExpValue.flags);
               return str.split(delimiter, limit);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
@@ -5049,7 +3925,7 @@ var Lits = (function (exports) {
               var last = params[paramsLength - 1];
               array.assert(last, debugInfo);
               var applyArray = __spreadArray(__spreadArray([], __read(params.slice(0, -1)), false), __read(last), false);
-              return executeFunction(func, applyArray, debugInfo, contextStack);
+              return executeFunction(func, applyArray, contextStack, debugInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
       },
@@ -5171,92 +4047,6 @@ var Lits = (function (exports) {
 
   var normalExpressions = __assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign({}, bitwiseNormalExpression), collectionNormalExpression), arrayNormalExpression), sequenceNormalExpression), mathNormalExpression), miscNormalExpression), assertNormalExpression), objectNormalExpression), predicatesNormalExpression), regexpNormalExpression), stringNormalExpression), functionalNormalExpression);
 
-  var commentSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var _b;
-          var parseToken = _a.parseToken;
-          var tkn = token.as(tokens[position], "EOF");
-          var node = {
-              type: "SpecialExpression",
-              name: "comment",
-              params: [],
-              token: tkn,
-          };
-          while (!token.is(tkn, { type: "paren", value: ")" })) {
-              var bodyNode = void 0;
-              _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
-              node.params.push(bodyNode);
-              tkn = token.as(tokens[position], "EOF");
-          }
-          return [position + 1, node];
-      },
-      evaluate: function () { return null; },
-  };
-
-  var declaredSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "declared?",
-              params: params,
-              token: firstToken,
-          };
-          return [newPosition + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var lookUp = _a.lookUp;
-          var _b = __read(node.params, 1), astNode = _b[0];
-          nameNode.assert(astNode, node.token.debugInfo);
-          var lookUpResult = lookUp(astNode, contextStack);
-          return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
-      },
-      validate: function (node) { return assertNumberOfParams(1, node); },
-  };
-
-  var specialExpressions = {
-      and: andSpecialExpression,
-      comment: commentSpecialExpression,
-      cond: condSpecialExpression,
-      def: defSpecialExpression,
-      defn: defnSpecialExpression,
-      defns: defnsSpecialExpression,
-      defs: defsSpecialExpression,
-      do: doSpecialExpression,
-      doseq: doseqSpecialExpression,
-      for: forSpecialExpression,
-      fn: fnSpecialExpression,
-      if: ifSpecialExpression,
-      'if-let': ifLetSpecialExpression,
-      'if-not': ifNotSpecialExpression,
-      let: letSpecialExpression,
-      loop: loopSpecialExpression,
-      or: orSpecialExpression,
-      recur: recurSpecialExpression,
-      throw: throwSpecialExpression,
-      'time!': timeSpecialExpression,
-      try: trySpecialExpression,
-      when: whenSpecialExpression,
-      'when-first': whenFirstSpecialExpression,
-      'when-let': whenLetSpecialExpression,
-      'when-not': whenNotSpecialExpression,
-      'declared?': declaredSpecialExpression,
-  };
-  Object.keys(specialExpressions).forEach(function (key) {
-      /* istanbul ignore next */
-      if (normalExpressions[key]) {
-          throw Error("Expression ".concat(key, " is defined as both a normal expression and a special expression"));
-      }
-  });
-  var builtin = {
-      normalExpressions: normalExpressions,
-      specialExpressions: specialExpressions,
-  };
-  var normalExpressionKeys = Object.keys(normalExpressions);
-  var specialExpressionKeys = Object.keys(specialExpressions);
-
   function findOverloadFunction(overloads, nbrOfParams, debugInfo) {
       var overloadFunction = overloads.find(function (overload) {
           var arity = overload.arity;
@@ -5324,7 +4114,7 @@ var Lits = (function (exports) {
       },
       partial: function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          return executeFunction(fn.fn, __spreadArray(__spreadArray([], __read(fn.params), false), __read(params), false), debugInfo, contextStack);
+          return executeFunction(fn.fn, __spreadArray(__spreadArray([], __read(fn.params), false), __read(params), false), contextStack, debugInfo);
       },
       comp: function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
@@ -5336,7 +4126,7 @@ var Lits = (function (exports) {
               return any.as(params[0], debugInfo);
           }
           return any.as(fns.reduceRight(function (result, fn) {
-              return [executeFunction(toAny(fn), result, debugInfo, contextStack)];
+              return [executeFunction(toAny(fn), result, contextStack, debugInfo)];
           }, params)[0], debugInfo);
       },
       constantly: function (fn) {
@@ -5344,11 +4134,11 @@ var Lits = (function (exports) {
       },
       juxt: function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          return fn.fns.map(function (fn) { return executeFunction(toAny(fn), params, debugInfo, contextStack); });
+          return fn.fns.map(function (fn) { return executeFunction(toAny(fn), params, contextStack, debugInfo); });
       },
       complement: function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          return !executeFunction(fn.fn, params, debugInfo, contextStack);
+          return !executeFunction(fn.fn, params, contextStack, debugInfo);
       },
       'every-pred': function (fn, params, debugInfo, contextStack, _a) {
           var e_2, _b, e_3, _c;
@@ -5359,7 +4149,7 @@ var Lits = (function (exports) {
                   try {
                       for (var params_1 = (e_3 = void 0, __values(params)), params_1_1 = params_1.next(); !params_1_1.done; params_1_1 = params_1.next()) {
                           var param = params_1_1.value;
-                          var result = executeFunction(toAny(f), [param], debugInfo, contextStack);
+                          var result = executeFunction(toAny(f), [param], contextStack, debugInfo);
                           if (!result) {
                               return false;
                           }
@@ -5392,7 +4182,7 @@ var Lits = (function (exports) {
                   try {
                       for (var params_2 = (e_5 = void 0, __values(params)), params_2_1 = params_2.next(); !params_2_1.done; params_2_1 = params_2.next()) {
                           var param = params_2_1.value;
-                          var result = executeFunction(toAny(f), [param], debugInfo, contextStack);
+                          var result = executeFunction(toAny(f), [param], contextStack, debugInfo);
                           if (result) {
                               return true;
                           }
@@ -5419,7 +4209,7 @@ var Lits = (function (exports) {
       fnil: function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
           var fniledParams = params.map(function (param, index) { return (param === null ? toAny(fn.params[index]) : param); });
-          return executeFunction(toAny(fn.fn), fniledParams, debugInfo, contextStack);
+          return executeFunction(toAny(fn.fn), fniledParams, contextStack, debugInfo);
       },
       builtin: function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
@@ -5465,6 +4255,7 @@ var Lits = (function (exports) {
       return result;
   }
   var evaluateAstNode = function (node, contextStack) {
+      var _a;
       switch (node.type) {
           case "Number":
               return evaluateNumber(node);
@@ -5479,7 +4270,7 @@ var Lits = (function (exports) {
           case "SpecialExpression":
               return evaluateSpecialExpression(node, contextStack);
           default:
-              throw new LitsError("".concat(node.type, "-node cannot be evaluated"), node.token.debugInfo);
+              throw new LitsError("".concat(node.type, "-node cannot be evaluated"), (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
       }
   };
   function evaluateNumber(node) {
@@ -5489,9 +4280,11 @@ var Lits = (function (exports) {
       return node.value;
   }
   function evaluateReservedName(node) {
-      return asValue(reservedNamesRecord[node.value], node.token.debugInfo).value;
+      var _a;
+      return asValue(reservedNamesRecord[node.value], (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo).value;
   }
   function evaluateName(node, contextStack) {
+      var _a;
       var lookUpResult = lookUp(node, contextStack);
       if (lookUpResult.contextEntry) {
           return lookUpResult.contextEntry.value;
@@ -5499,14 +4292,16 @@ var Lits = (function (exports) {
       else if (lookUpResult.builtinFunction) {
           return lookUpResult.builtinFunction;
       }
-      throw new UndefinedSymbolError(node.value, node.token.debugInfo);
+      throw new UndefinedSymbolError(node.value, (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
   }
   function lookUp(node, contextStack) {
       var e_2, _a, _b;
-      var value = node.value, debugInfo = node.token.debugInfo;
+      var _c;
+      var value = node.value;
+      var debugInfo = (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo;
       try {
-          for (var _c = __values(contextStack.stack), _d = _c.next(); !_d.done; _d = _c.next()) {
-              var context = _d.value;
+          for (var _d = __values(contextStack.stack), _e = _d.next(); !_e.done; _e = _d.next()) {
+              var context = _e.value;
               var variable = context[value];
               if (variable) {
                   return {
@@ -5520,7 +4315,7 @@ var Lits = (function (exports) {
       catch (e_2_1) { e_2 = { error: e_2_1 }; }
       finally {
           try {
-              if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+              if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
           }
           finally { if (e_2) throw e_2.error; }
       }
@@ -5552,24 +4347,24 @@ var Lits = (function (exports) {
   }
   function evaluateNormalExpression(node, contextStack) {
       var e_3, _a;
-      var _b;
+      var _b, _c;
       var params = node.params.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
-      var debugInfo = node.token.debugInfo;
+      var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
       if (normalExpressionNodeWithName.is(node)) {
           try {
-              for (var _c = __values(contextStack.stack), _d = _c.next(); !_d.done; _d = _c.next()) {
-                  var context = _d.value;
-                  var fn = (_b = context[node.name]) === null || _b === void 0 ? void 0 : _b.value;
+              for (var _d = __values(contextStack.stack), _e = _d.next(); !_e.done; _e = _d.next()) {
+                  var context = _e.value;
+                  var fn = (_c = context[node.name]) === null || _c === void 0 ? void 0 : _c.value;
                   if (fn === undefined) {
                       continue;
                   }
-                  return executeFunction(fn, params, debugInfo, contextStack);
+                  return executeFunction(fn, params, contextStack, debugInfo);
               }
           }
           catch (e_3_1) { e_3 = { error: e_3_1 }; }
           finally {
               try {
-                  if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                  if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
               }
               finally { if (e_3) throw e_3.error; }
           }
@@ -5577,10 +4372,10 @@ var Lits = (function (exports) {
       }
       else {
           var fn = evaluateAstNode(node.expression, contextStack);
-          return executeFunction(fn, params, debugInfo, contextStack);
+          return executeFunction(fn, params, contextStack, debugInfo);
       }
   }
-  var executeFunction = function (fn, params, debugInfo, contextStack) {
+  var executeFunction = function (fn, params, contextStack, debugInfo) {
       if (litsFunction.is(fn)) {
           return functionExecutors[fn.type](fn, params, debugInfo, contextStack, { evaluateAstNode: evaluateAstNode, executeFunction: executeFunction });
       }
@@ -5599,14 +4394,16 @@ var Lits = (function (exports) {
       throw new NotAFunctionError(fn, debugInfo);
   };
   function evaluateBuiltinNormalExpression(node, params, contextStack) {
+      var _a, _b;
       var normalExpression = builtin.normalExpressions[node.name];
       if (!normalExpression) {
-          throw new UndefinedSymbolError(node.name, node.token.debugInfo);
+          throw new UndefinedSymbolError(node.name, (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
       }
-      return normalExpression.evaluate(params, node.token.debugInfo, contextStack, { executeFunction: executeFunction });
+      return normalExpression.evaluate(params, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo, contextStack, { executeFunction: executeFunction });
   }
   function evaluateSpecialExpression(node, contextStack) {
-      var specialExpression = asValue(builtin.specialExpressions[node.name], node.token.debugInfo);
+      var _a;
+      var specialExpression = asValue(builtin.specialExpressions[node.name], (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
       return specialExpression.evaluate(node, contextStack, { evaluateAstNode: evaluateAstNode, builtin: builtin, lookUp: lookUp });
   }
   function evalueateObjectAsFunction(fn, params, debugInfo) {
@@ -5641,28 +4438,1627 @@ var Lits = (function (exports) {
   function evaluateNumberAsFunction(fn, params, debugInfo) {
       number.assert(fn, debugInfo, { integer: true });
       if (params.length !== 1) {
-          throw new LitsError("String as function requires one Arr parameter.", debugInfo);
+          throw new LitsError("Number as function requires one Arr parameter.", debugInfo);
       }
       var param = params[0];
       sequence.assert(param, debugInfo);
       return toAny(param[fn]);
   }
 
+  var analyzeAst = function (astNode, contextStack) {
+      var e_1, _a;
+      var astNodes = Array.isArray(astNode) ? astNode : [astNode];
+      var analyzeResult = {
+          undefinedSymbols: new Set(),
+      };
+      try {
+          for (var astNodes_1 = __values(astNodes), astNodes_1_1 = astNodes_1.next(); !astNodes_1_1.done; astNodes_1_1 = astNodes_1.next()) {
+              var subNode = astNodes_1_1.value;
+              var result = analyzeAstNode(subNode, contextStack);
+              result.undefinedSymbols.forEach(function (symbol) { return analyzeResult.undefinedSymbols.add(symbol); });
+          }
+      }
+      catch (e_1_1) { e_1 = { error: e_1_1 }; }
+      finally {
+          try {
+              if (astNodes_1_1 && !astNodes_1_1.done && (_a = astNodes_1.return)) _a.call(astNodes_1);
+          }
+          finally { if (e_1) throw e_1.error; }
+      }
+      return analyzeResult;
+  };
+  function analyzeAstNode(astNode, contextStack) {
+      var e_2, _a;
+      var _b;
+      var emptySet = new Set();
+      switch (astNode.type) {
+          case "Name": {
+              var lookUpResult = lookUp(astNode, contextStack);
+              if (!lookUpResult.builtinFunction && !lookUpResult.contextEntry && !lookUpResult.specialExpression) {
+                  return { undefinedSymbols: new Set([astNode.value]) };
+              }
+              return { undefinedSymbols: emptySet };
+          }
+          case "String":
+          case "Number":
+          case "Modifier":
+          case "ReservedName":
+              return { undefinedSymbols: emptySet };
+          case "NormalExpression": {
+              var undefinedSymbols_1 = new Set();
+              var expression = astNode.expression, name_1 = astNode.name, token = astNode.token;
+              if (typeof name_1 === "string") {
+                  var lookUpResult = lookUp({ type: "Name", value: name_1, token: token }, contextStack);
+                  if (lookUpResult.builtinFunction === null &&
+                      lookUpResult.contextEntry === null &&
+                      lookUpResult.specialExpression === null) {
+                      undefinedSymbols_1.add(name_1);
+                  }
+              }
+              if (expression) {
+                  switch (expression.type) {
+                      case "String":
+                      case "Number":
+                          break;
+                      case "NormalExpression":
+                      case "SpecialExpression": {
+                          var subResult = analyzeAstNode(expression, contextStack);
+                          subResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
+                          break;
+                      }
+                  }
+              }
+              try {
+                  for (var _c = __values(astNode.params), _d = _c.next(); !_d.done; _d = _c.next()) {
+                      var subNode = _d.value;
+                      var subNodeResult = analyzeAst(subNode, contextStack);
+                      subNodeResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
+                  }
+              }
+              catch (e_2_1) { e_2 = { error: e_2_1 }; }
+              finally {
+                  try {
+                      if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                  }
+                  finally { if (e_2) throw e_2.error; }
+              }
+              return { undefinedSymbols: undefinedSymbols_1 };
+          }
+          case "SpecialExpression": {
+              var specialExpression = asValue(builtin.specialExpressions[astNode.name], (_b = astNode.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+              var result = specialExpression.analyze(astNode, contextStack, {
+                  analyzeAst: analyzeAst,
+                  builtin: builtin,
+              });
+              return result;
+          }
+      }
+  }
+  function joinAnalyzeResults() {
+      var e_3, _a;
+      var results = [];
+      for (var _i = 0; _i < arguments.length; _i++) {
+          results[_i] = arguments[_i];
+      }
+      var result = {
+          undefinedSymbols: new Set(),
+      };
+      try {
+          for (var results_1 = __values(results), results_1_1 = results_1.next(); !results_1_1.done; results_1_1 = results_1.next()) {
+              var input = results_1_1.value;
+              input.undefinedSymbols.forEach(function (symbol) { return result.undefinedSymbols.add(symbol); });
+          }
+      }
+      catch (e_3_1) { e_3 = { error: e_3_1 }; }
+      finally {
+          try {
+              if (results_1_1 && !results_1_1.done && (_a = results_1.return)) _a.call(results_1);
+          }
+          finally { if (e_3) throw e_3.error; }
+      }
+      return result;
+  }
+  function addAnalyzeResults(target, source) {
+      source.undefinedSymbols.forEach(function (symbol) { return target.undefinedSymbols.add(symbol); });
+  }
+
+  function assertNameNotDefined(name, contextStack, builtin, debugInfo) {
+      if (typeof name !== "string") {
+          return;
+      }
+      if (builtin.specialExpressions[name]) {
+          throw new LitsError("Cannot define variable ".concat(name, ", it's a special expression."), debugInfo);
+      }
+      if (builtin.normalExpressions[name]) {
+          throw new LitsError("Cannot define variable ".concat(name, ", it's a builtin function."), debugInfo);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (reservedNamesRecord[name]) {
+          throw new LitsError("Cannot define variable ".concat(name, ", it's a reserved name."), debugInfo);
+      }
+      if (contextStack.globalContext[name]) {
+          throw new LitsError("Name already defined \"".concat(name, "\"."), debugInfo);
+      }
+  }
+
+  function createParser(expressionName) {
+      return function (tokens, position, parsers) {
+          var _a, _b;
+          var _c;
+          var firstToken = token.as(tokens[position], "EOF");
+          var parseToken = parsers.parseToken;
+          var functionName = undefined;
+          if (expressionName === "defn" || expressionName === "defns") {
+              _a = __read(parseToken(tokens, position), 2), position = _a[0], functionName = _a[1];
+              if (expressionName === "defn") {
+                  nameNode.assert(functionName, (_c = functionName.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+              }
+          }
+          var functionOverloades;
+          _b = __read(parseFunctionOverloades(tokens, position, parsers), 2), position = _b[0], functionOverloades = _b[1];
+          if (expressionName === "defn" || expressionName === "defns") {
+              return [
+                  position,
+                  {
+                      type: "SpecialExpression",
+                      name: expressionName,
+                      functionName: functionName,
+                      params: [],
+                      overloads: functionOverloades,
+                      token: firstToken.debugInfo ? firstToken : undefined,
+                  },
+              ];
+          }
+          return [
+              position,
+              {
+                  type: "SpecialExpression",
+                  name: expressionName,
+                  params: [],
+                  overloads: functionOverloades,
+                  token: firstToken.debugInfo ? firstToken : undefined,
+              },
+          ];
+      };
+  }
+  function getFunctionName(expressionName, node, contextStack, evaluateAstNode) {
+      var _a;
+      var debugInfo = (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo;
+      if (expressionName === "defn") {
+          return node.functionName.value;
+      }
+      if (expressionName === "defns") {
+          var name_1 = evaluateAstNode(node.functionName, contextStack);
+          string.assert(name_1, debugInfo);
+          return name_1;
+      }
+      return undefined;
+  }
+  function createEvaluator(expressionName) {
+      return function (node, contextStack, _a) {
+          var e_1, _b, _c;
+          var _d, _e;
+          var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
+          var name = getFunctionName(expressionName, node, contextStack, evaluateAstNode);
+          assertNameNotDefined(name, contextStack, builtin, (_d = node.token) === null || _d === void 0 ? void 0 : _d.debugInfo);
+          var evaluatedFunctionOverloades = [];
+          try {
+              for (var _f = __values(node.overloads), _g = _f.next(); !_g.done; _g = _f.next()) {
+                  var functionOverload = _g.value;
+                  var functionContext = {};
+                  var evaluatedFunctionOverload = {
+                      arguments: {
+                          mandatoryArguments: functionOverload.arguments.mandatoryArguments,
+                          restArgument: functionOverload.arguments.restArgument,
+                      },
+                      arity: functionOverload.arity,
+                      body: functionOverload.body,
+                      functionContext: functionContext,
+                  };
+                  evaluatedFunctionOverloades.push(evaluatedFunctionOverload);
+              }
+          }
+          catch (e_1_1) { e_1 = { error: e_1_1 }; }
+          finally {
+              try {
+                  if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
+              }
+              finally { if (e_1) throw e_1.error; }
+          }
+          var litsFunction = (_c = {},
+              _c[FUNCTION_SYMBOL] = true,
+              _c.debugInfo = (_e = node.token) === null || _e === void 0 ? void 0 : _e.debugInfo,
+              _c.type = "user-defined",
+              _c.name = name,
+              _c.overloads = evaluatedFunctionOverloades,
+              _c);
+          if (expressionName === "fn") {
+              return litsFunction;
+          }
+          contextStack.globalContext[name] = { value: litsFunction };
+          return null;
+      };
+  }
+  var defnSpecialExpression = {
+      parse: createParser("defn"),
+      evaluate: createEvaluator("defn"),
+      analyze: function (node, contextStack, _a) {
+          var _b, e_2, _c;
+          var analyzeAst = _a.analyzeAst;
+          contextStack.globalContext[node.functionName.value] = { value: true };
+          var result = { undefinedSymbols: new Set() };
+          var newContext = (_b = {}, _b[node.functionName.value] = { value: true }, _b);
+          var contextStackWithFunctionName = contextStack.withContext(newContext);
+          var _loop_1 = function (overload) {
+              var newContext_1 = {};
+              overload.arguments.mandatoryArguments.forEach(function (arg) {
+                  newContext_1[arg] = { value: true };
+              });
+              if (typeof overload.arguments.restArgument === "string") {
+                  newContext_1[overload.arguments.restArgument] = { value: true };
+              }
+              var newContextStack = contextStackWithFunctionName.withContext(newContext_1);
+              var overloadResult = analyzeAst(overload.body, newContextStack);
+              addAnalyzeResults(result, overloadResult);
+          };
+          try {
+              for (var _d = __values(node.overloads), _e = _d.next(); !_e.done; _e = _d.next()) {
+                  var overload = _e.value;
+                  _loop_1(overload);
+              }
+          }
+          catch (e_2_1) { e_2 = { error: e_2_1 }; }
+          finally {
+              try {
+                  if (_e && !_e.done && (_c = _d.return)) _c.call(_d);
+              }
+              finally { if (e_2) throw e_2.error; }
+          }
+          return result;
+      },
+  };
+  var defnsSpecialExpression = {
+      parse: createParser("defns"),
+      evaluate: createEvaluator("defns"),
+      analyze: function (node, contextStack, _a) {
+          var e_3, _b;
+          var analyzeAst = _a.analyzeAst;
+          var result = { undefinedSymbols: new Set() };
+          var _loop_2 = function (overload) {
+              var newContext = {};
+              overload.arguments.mandatoryArguments.forEach(function (arg) {
+                  newContext[arg] = { value: true };
+              });
+              if (typeof overload.arguments.restArgument === "string") {
+                  newContext[overload.arguments.restArgument] = { value: true };
+              }
+              var newContextStack = contextStack.withContext(newContext);
+              var overloadResult = analyzeAst(overload.body, newContextStack);
+              addAnalyzeResults(result, overloadResult);
+          };
+          try {
+              for (var _c = __values(node.overloads), _d = _c.next(); !_d.done; _d = _c.next()) {
+                  var overload = _d.value;
+                  _loop_2(overload);
+              }
+          }
+          catch (e_3_1) { e_3 = { error: e_3_1 }; }
+          finally {
+              try {
+                  if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+              }
+              finally { if (e_3) throw e_3.error; }
+          }
+          return result;
+      },
+  };
+  var fnSpecialExpression = {
+      parse: createParser("fn"),
+      evaluate: createEvaluator("fn"),
+      analyze: function (node, contextStack, _a) {
+          var e_4, _b;
+          var analyzeAst = _a.analyzeAst;
+          var result = { undefinedSymbols: new Set() };
+          var _loop_3 = function (overload) {
+              var newContext = {};
+              overload.arguments.mandatoryArguments.forEach(function (arg) {
+                  newContext[arg] = { value: true };
+              });
+              if (typeof overload.arguments.restArgument === "string") {
+                  newContext[overload.arguments.restArgument] = { value: true };
+              }
+              var newContextStack = contextStack.withContext(newContext);
+              var overloadResult = analyzeAst(overload.body, newContextStack);
+              addAnalyzeResults(result, overloadResult);
+          };
+          try {
+              for (var _c = __values(node.overloads), _d = _c.next(); !_d.done; _d = _c.next()) {
+                  var overload = _d.value;
+                  _loop_3(overload);
+              }
+          }
+          catch (e_4_1) { e_4 = { error: e_4_1 }; }
+          finally {
+              try {
+                  if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+              }
+              finally { if (e_4) throw e_4.error; }
+          }
+          return result;
+      },
+  };
+  function arityOk(overloadedFunctions, arity) {
+      if (typeof arity === "number") {
+          return overloadedFunctions.every(function (fun) {
+              if (typeof fun.arity === "number") {
+                  return fun.arity !== arity;
+              }
+              return fun.arity.min > arity;
+          });
+      }
+      return overloadedFunctions.every(function (fun) {
+          if (typeof fun.arity === "number") {
+              return fun.arity < arity.min;
+          }
+          return false;
+      });
+  }
+  function parseFunctionBody(tokens, position, _a) {
+      var _b;
+      var parseToken = _a.parseToken;
+      var tkn = token.as(tokens[position], "EOF");
+      var body = [];
+      while (!(tkn.type === "paren" && tkn.value === ")")) {
+          var bodyNode = void 0;
+          _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
+          body.push(bodyNode);
+          tkn = token.as(tokens[position], "EOF");
+      }
+      if (body.length === 0) {
+          throw new LitsError("Missing body in function", tkn.debugInfo);
+      }
+      return [position + 1, body];
+  }
+  function parseFunctionOverloades(tokens, position, parsers) {
+      var _a, _b, _c, _d;
+      var tkn = token.as(tokens[position], "EOF", { type: "paren" });
+      if (tkn.value === "(") {
+          var functionOverloades = [];
+          while (!(tkn.type === "paren" && tkn.value === ")")) {
+              position += 1;
+              tkn = token.as(tokens[position], "EOF");
+              var functionArguments = void 0;
+              _a = __read(parseFunctionArguments(tokens, position, parsers), 2), position = _a[0], functionArguments = _a[1];
+              var arity = functionArguments.restArgument
+                  ? { min: functionArguments.mandatoryArguments.length }
+                  : functionArguments.mandatoryArguments.length;
+              if (!arityOk(functionOverloades, arity)) {
+                  throw new LitsError("All overloaded functions must have different arity", tkn.debugInfo);
+              }
+              var functionBody = void 0;
+              _b = __read(parseFunctionBody(tokens, position, parsers), 2), position = _b[0], functionBody = _b[1];
+              functionOverloades.push({
+                  arguments: functionArguments,
+                  body: functionBody,
+                  arity: arity,
+              });
+              tkn = token.as(tokens[position], "EOF", { type: "paren" });
+              if (tkn.value !== ")" && tkn.value !== "(") {
+                  throw new LitsError("Expected ( or ) token, got ".concat(valueToString$1(tkn), "."), tkn.debugInfo);
+              }
+          }
+          return [position + 1, functionOverloades];
+      }
+      else if (tkn.value === "[") {
+          var functionArguments = void 0;
+          _c = __read(parseFunctionArguments(tokens, position, parsers), 2), position = _c[0], functionArguments = _c[1];
+          var arity = functionArguments.restArgument
+              ? { min: functionArguments.mandatoryArguments.length }
+              : functionArguments.mandatoryArguments.length;
+          var functionBody = void 0;
+          _d = __read(parseFunctionBody(tokens, position, parsers), 2), position = _d[0], functionBody = _d[1];
+          return [
+              position,
+              [
+                  {
+                      arguments: functionArguments,
+                      body: functionBody,
+                      arity: arity,
+                  },
+              ],
+          ];
+      }
+      else {
+          throw new LitsError("Expected [ or ( token, got ".concat(valueToString$1(tkn)), tkn.debugInfo);
+      }
+  }
+  function parseFunctionArguments(tokens, position, parsers) {
+      var parseArgument = parsers.parseArgument;
+      var restArgument = undefined;
+      var mandatoryArguments = [];
+      var state = "mandatory";
+      var tkn = token.as(tokens[position], "EOF");
+      position += 1;
+      tkn = token.as(tokens[position], "EOF");
+      while (!(tkn.type === "paren" && tkn.value === "]")) {
+          var _a = __read(parseArgument(tokens, position), 2), newPosition = _a[0], node = _a[1];
+          position = newPosition;
+          tkn = token.as(tokens[position], "EOF");
+          if (node.type === "Modifier") {
+              switch (node.value) {
+                  case "&":
+                      if (state === "rest") {
+                          throw new LitsError("& can only appear once", tkn.debugInfo);
+                      }
+                      state = "rest";
+                      break;
+                  default:
+                      throw new LitsError("Illegal modifier: ".concat(node.value), tkn.debugInfo);
+              }
+          }
+          else {
+              switch (state) {
+                  case "mandatory":
+                      mandatoryArguments.push(node.name);
+                      break;
+                  case "rest":
+                      if (restArgument !== undefined) {
+                          throw new LitsError("Can only specify one rest argument", tkn.debugInfo);
+                      }
+                      restArgument = node.name;
+                      break;
+              }
+          }
+      }
+      if (state === "rest" && restArgument === undefined) {
+          throw new LitsError("Missing rest argument name", tkn.debugInfo);
+      }
+      position += 1;
+      var args = {
+          mandatoryArguments: mandatoryArguments,
+          restArgument: restArgument,
+      };
+      return [position, args];
+  }
+
+  var defSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          nameNode.assert(params[0], firstToken.debugInfo);
+          return [
+              newPosition + 1,
+              {
+                  type: "SpecialExpression",
+                  name: "def",
+                  params: params,
+                  token: firstToken.debugInfo ? firstToken : undefined,
+              },
+          ];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b;
+          var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
+          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
+          var name = nameNode.as(node.params[0], debugInfo).value;
+          assertNameNotDefined(name, contextStack, builtin, debugInfo);
+          var value = evaluateAstNode(astNode.as(node.params[1], debugInfo), contextStack);
+          contextStack.globalContext[name] = { value: value };
+          return value;
+      },
+      validate: function (node) { return assertNumberOfParams(2, node); },
+      analyze: function (node, contextStack, _a) {
+          var _b;
+          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
+          var subNode = astNode.as(node.params[1], debugInfo);
+          var result = analyzeAst(subNode, contextStack);
+          var name = nameNode.as(node.params[0], debugInfo).value;
+          assertNameNotDefined(name, contextStack, builtin, debugInfo);
+          contextStack.globalContext[name] = { value: true };
+          return result;
+      },
+  };
+
+  var defsSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          return [
+              newPosition + 1,
+              {
+                  type: "SpecialExpression",
+                  name: "defs",
+                  params: params,
+                  token: firstToken.debugInfo ? firstToken : undefined,
+              },
+          ];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b, _c;
+          var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
+          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
+          var name = evaluateAstNode(astNode.as(node.params[0], debugInfo), contextStack);
+          string.assert(name, debugInfo);
+          assertNameNotDefined(name, contextStack, builtin, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+          var value = evaluateAstNode(astNode.as(node.params[1], debugInfo), contextStack);
+          contextStack.globalContext[name] = { value: value };
+          return value;
+      },
+      validate: function (node) { return assertNumberOfParams(2, node); },
+      analyze: function (node, contextStack, _a) {
+          var _b;
+          var analyzeAst = _a.analyzeAst;
+          var subNode = astNode.as(node.params[1], (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          return analyzeAst(subNode, contextStack);
+      },
+  };
+
+  var doSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b;
+          var parseToken = _a.parseToken;
+          var tkn = token.as(tokens[position], "EOF");
+          var node = {
+              type: "SpecialExpression",
+              name: "do",
+              params: [],
+              token: tkn.debugInfo ? tkn : undefined,
+          };
+          while (!token.is(tkn, { type: "paren", value: ")" })) {
+              var bodyNode = void 0;
+              _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
+              node.params.push(bodyNode);
+              tkn = token.as(tokens[position], "EOF");
+          }
+          return [position + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var e_1, _b;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var newContext = {};
+          var newContextStack = contextStack.withContext(newContext);
+          var result = null;
+          try {
+              for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
+                  var form = _d.value;
+                  result = evaluateAstNode(form, newContextStack);
+              }
+          }
+          catch (e_1_1) { e_1 = { error: e_1_1 }; }
+          finally {
+              try {
+                  if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+              }
+              finally { if (e_1) throw e_1.error; }
+          }
+          return result;
+      },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyzeAst(node.params, contextStack);
+      },
+  };
+
+  function parseLoopBinding(tokens, position, _a) {
+      var _b, _c, _d, _e;
+      var parseBinding = _a.parseBinding, parseBindings = _a.parseBindings, parseToken = _a.parseToken;
+      var bindingNode;
+      _b = __read(parseBinding(tokens, position), 2), position = _b[0], bindingNode = _b[1];
+      var loopBinding = {
+          binding: bindingNode,
+          modifiers: [],
+      };
+      var tkn = token.as(tokens[position], "EOF");
+      while (tkn.type === "modifier") {
+          switch (tkn.value) {
+              case "&let":
+                  if (loopBinding.letBindings) {
+                      throw new LitsError("Only one &let modifier allowed", tkn.debugInfo);
+                  }
+                  _c = __read(parseBindings(tokens, position + 1), 2), position = _c[0], loopBinding.letBindings = _c[1];
+                  loopBinding.modifiers.push("&let");
+                  break;
+              case "&when":
+                  if (loopBinding.whenNode) {
+                      throw new LitsError("Only one &when modifier allowed", tkn.debugInfo);
+                  }
+                  _d = __read(parseToken(tokens, position + 1), 2), position = _d[0], loopBinding.whenNode = _d[1];
+                  loopBinding.modifiers.push("&when");
+                  break;
+              case "&while":
+                  if (loopBinding.whileNode) {
+                      throw new LitsError("Only one &while modifier allowed", tkn.debugInfo);
+                  }
+                  _e = __read(parseToken(tokens, position + 1), 2), position = _e[0], loopBinding.whileNode = _e[1];
+                  loopBinding.modifiers.push("&while");
+                  break;
+              default:
+                  throw new LitsError("Illegal modifier: ".concat(tkn.value), tkn.debugInfo);
+          }
+          tkn = token.as(tokens[position], "EOF");
+      }
+      return [position, loopBinding];
+  }
+  function addToContext(bindings, context, contextStack, evaluateAstNode, debugInfo) {
+      var e_1, _a;
+      try {
+          for (var bindings_1 = __values(bindings), bindings_1_1 = bindings_1.next(); !bindings_1_1.done; bindings_1_1 = bindings_1.next()) {
+              var binding = bindings_1_1.value;
+              if (context[binding.name]) {
+                  throw new LitsError("Variable already defined: ".concat(binding.name, "."), debugInfo);
+              }
+              context[binding.name] = { value: evaluateAstNode(binding.value, contextStack) };
+          }
+      }
+      catch (e_1_1) { e_1 = { error: e_1_1 }; }
+      finally {
+          try {
+              if (bindings_1_1 && !bindings_1_1.done && (_a = bindings_1.return)) _a.call(bindings_1);
+          }
+          finally { if (e_1) throw e_1.error; }
+      }
+  }
+  function parseLoopBindings(tokens, position, parsers) {
+      var _a;
+      token.assert(tokens[position], "EOF", { type: "paren", value: "[" });
+      position += 1;
+      var loopBindings = [];
+      var tkn = token.as(tokens[position], "EOF");
+      while (!token.is(tkn, { type: "paren", value: "]" })) {
+          var loopBinding = void 0;
+          _a = __read(parseLoopBinding(tokens, position, parsers), 2), position = _a[0], loopBinding = _a[1];
+          loopBindings.push(loopBinding);
+          tkn = token.as(tokens[position], "EOF");
+      }
+      return [position + 1, loopBindings];
+  }
+  function parseLoop(name, tokens, position, parsers) {
+      var _a, _b;
+      var firstToken = token.as(tokens[position], "EOF");
+      var parseToken = parsers.parseToken;
+      var loopBindings;
+      _a = __read(parseLoopBindings(tokens, position, parsers), 2), position = _a[0], loopBindings = _a[1];
+      var expression;
+      _b = __read(parseToken(tokens, position), 2), position = _b[0], expression = _b[1];
+      token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
+      var node = {
+          name: name,
+          type: "SpecialExpression",
+          loopBindings: loopBindings,
+          params: [expression],
+          token: firstToken.debugInfo ? firstToken : undefined,
+      };
+      return [position + 1, node];
+  }
+  function evaluateLoop(returnResult, node, contextStack, evaluateAstNode) {
+      var e_2, _a;
+      var _b;
+      var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
+      var loopBindings = node.loopBindings, params = node.params;
+      var expression = astNode.as(params[0], debugInfo);
+      var result = [];
+      var bindingIndices = loopBindings.map(function () { return 0; });
+      var abort = false;
+      while (!abort) {
+          var context = {};
+          var newContextStack = contextStack.withContext(context);
+          var skip = false;
+          bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
+              var _c = asValue(loopBindings[bindingIndex], debugInfo), binding = _c.binding, letBindings = _c.letBindings, whenNode = _c.whenNode, whileNode = _c.whileNode, modifiers = _c.modifiers;
+              var coll = collection.as(evaluateAstNode(binding.value, newContextStack), debugInfo);
+              var seq = sequence.is(coll) ? coll : Object.entries(coll);
+              if (seq.length === 0) {
+                  skip = true;
+                  abort = true;
+                  break;
+              }
+              var index = asValue(bindingIndices[bindingIndex], debugInfo);
+              if (index >= seq.length) {
+                  skip = true;
+                  if (bindingIndex === 0) {
+                      abort = true;
+                      break;
+                  }
+                  bindingIndices[bindingIndex] = 0;
+                  bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], debugInfo) + 1;
+                  break;
+              }
+              if (context[binding.name]) {
+                  throw new LitsError("Variable already defined: ".concat(binding.name, "."), debugInfo);
+              }
+              context[binding.name] = {
+                  value: any.as(seq[index], debugInfo),
+              };
+              try {
+                  for (var modifiers_1 = (e_2 = void 0, __values(modifiers)), modifiers_1_1 = modifiers_1.next(); !modifiers_1_1.done; modifiers_1_1 = modifiers_1.next()) {
+                      var modifier = modifiers_1_1.value;
+                      switch (modifier) {
+                          case "&let":
+                              addToContext(asValue(letBindings, debugInfo), context, newContextStack, evaluateAstNode, debugInfo);
+                              break;
+                          case "&when":
+                              if (!evaluateAstNode(astNode.as(whenNode, debugInfo), newContextStack)) {
+                                  bindingIndices[bindingIndex] = asValue(bindingIndices[bindingIndex], debugInfo) + 1;
+                                  skip = true;
+                                  break bindingsLoop;
+                              }
+                              break;
+                          case "&while":
+                              if (!evaluateAstNode(astNode.as(whileNode, debugInfo), newContextStack)) {
+                                  bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY;
+                                  skip = true;
+                                  break bindingsLoop;
+                              }
+                              break;
+                      }
+                  }
+              }
+              catch (e_2_1) { e_2 = { error: e_2_1 }; }
+              finally {
+                  try {
+                      if (modifiers_1_1 && !modifiers_1_1.done && (_a = modifiers_1.return)) _a.call(modifiers_1);
+                  }
+                  finally { if (e_2) throw e_2.error; }
+              }
+          }
+          if (!skip) {
+              var value = evaluateAstNode(expression, newContextStack);
+              if (returnResult) {
+                  result.push(value);
+              }
+              bindingIndices[bindingIndices.length - 1] += 1;
+          }
+      }
+      return returnResult ? result : null;
+  }
+  function analyze(node, contextStack, analyzeAst) {
+      var result = {
+          undefinedSymbols: new Set(),
+      };
+      var newContext = {};
+      node.loopBindings.forEach(function (loopBinding) {
+          var binding = loopBinding.binding, letBindings = loopBinding.letBindings, whenNode = loopBinding.whenNode, whileNode = loopBinding.whileNode;
+          analyzeAst(binding.value, contextStack.withContext(newContext)).undefinedSymbols.forEach(function (symbol) {
+              return result.undefinedSymbols.add(symbol);
+          });
+          newContext[binding.name] = { value: true };
+          if (letBindings) {
+              letBindings.forEach(function (letBinding) {
+                  analyzeAst(letBinding.value, contextStack.withContext(newContext)).undefinedSymbols.forEach(function (symbol) {
+                      return result.undefinedSymbols.add(symbol);
+                  });
+                  newContext[letBinding.name] = { value: true };
+              });
+          }
+          if (whenNode) {
+              analyzeAst(whenNode, contextStack.withContext(newContext)).undefinedSymbols.forEach(function (symbol) {
+                  return result.undefinedSymbols.add(symbol);
+              });
+          }
+          if (whileNode) {
+              analyzeAst(whileNode, contextStack.withContext(newContext)).undefinedSymbols.forEach(function (symbol) {
+                  return result.undefinedSymbols.add(symbol);
+              });
+          }
+      });
+      analyzeAst(node.params, contextStack.withContext(newContext)).undefinedSymbols.forEach(function (symbol) {
+          return result.undefinedSymbols.add(symbol);
+      });
+      return result;
+  }
+  var forSpecialExpression = {
+      parse: function (tokens, position, parsers) { return parseLoop("for", tokens, position, parsers); },
+      evaluate: function (node, contextStack, helpers) { return evaluateLoop(true, node, contextStack, helpers.evaluateAstNode); },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyze(node, contextStack, analyzeAst);
+      },
+  };
+  var doseqSpecialExpression = {
+      parse: function (tokens, position, parsers) { return parseLoop("doseq", tokens, position, parsers); },
+      evaluate: function (node, contextStack, helpers) { return evaluateLoop(false, node, contextStack, helpers.evaluateAstNode); },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyze(node, contextStack, analyzeAst);
+      },
+  };
+
+  var ifLetSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b, _c;
+          var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var bindings;
+          _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
+          if (bindings.length !== 1) {
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.debugInfo);
+          }
+          var params;
+          _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "if-let",
+              binding: asValue(bindings[0], firstToken.debugInfo),
+              params: params,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [position + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
+          var locals = {};
+          var bindingValue = evaluateAstNode(node.binding.value, contextStack);
+          if (bindingValue) {
+              locals[node.binding.name] = { value: bindingValue };
+              var newContextStack = contextStack.withContext(locals);
+              var thenForm = astNode.as(node.params[0], debugInfo);
+              return evaluateAstNode(thenForm, newContextStack);
+          }
+          if (node.params.length === 2) {
+              var elseForm = astNode.as(node.params[1], debugInfo);
+              return evaluateAstNode(elseForm, contextStack);
+          }
+          return null;
+      },
+      validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      analyze: function (node, contextStack, _a) {
+          var _b;
+          var analyzeAst = _a.analyzeAst;
+          var newContext = (_b = {}, _b[node.binding.name] = { value: true }, _b);
+          var bindingResult = analyzeAst(node.binding.value, contextStack);
+          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext));
+          return joinAnalyzeResults(bindingResult, paramsResult);
+      },
+  };
+
+  var ifNotSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          return [
+              newPosition + 1,
+              {
+                  type: "SpecialExpression",
+                  name: "if-not",
+                  params: params,
+                  token: firstToken.debugInfo ? firstToken : undefined,
+              },
+          ];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
+          var _c = __read(node.params, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
+          if (!evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)) {
+              return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
+          }
+          else {
+              if (node.params.length === 3) {
+                  return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
+              }
+              else {
+                  return null;
+              }
+          }
+      },
+      validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyzeAst(node.params, contextStack);
+      },
+  };
+
+  var ifSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          return [
+              newPosition + 1,
+              {
+                  type: "SpecialExpression",
+                  name: "if",
+                  params: params,
+                  token: firstToken.debugInfo ? firstToken : undefined,
+              },
+          ];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
+          var _c = __read(node.params, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
+          if (evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)) {
+              return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
+          }
+          else {
+              if (node.params.length === 3) {
+                  return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
+              }
+              else {
+                  return null;
+              }
+          }
+      },
+      validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyzeAst(node.params, contextStack);
+      },
+  };
+
+  var letSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b, _c;
+          var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var bindings;
+          _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
+          var params;
+          _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "let",
+              params: params,
+              bindings: bindings,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [position + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var e_1, _b, e_2, _c;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var locals = {};
+          var newContextStack = contextStack.withContext(locals);
+          try {
+              for (var _d = __values(node.bindings), _e = _d.next(); !_e.done; _e = _d.next()) {
+                  var binding = _e.value;
+                  var bindingValueNode = binding.value;
+                  var bindingValue = evaluateAstNode(bindingValueNode, newContextStack);
+                  locals[binding.name] = { value: bindingValue };
+              }
+          }
+          catch (e_1_1) { e_1 = { error: e_1_1 }; }
+          finally {
+              try {
+                  if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
+              }
+              finally { if (e_1) throw e_1.error; }
+          }
+          var result = null;
+          try {
+              for (var _f = __values(node.params), _g = _f.next(); !_g.done; _g = _f.next()) {
+                  var astNode = _g.value;
+                  result = evaluateAstNode(astNode, newContextStack);
+              }
+          }
+          catch (e_2_1) { e_2 = { error: e_2_1 }; }
+          finally {
+              try {
+                  if (_g && !_g.done && (_c = _f.return)) _c.call(_f);
+              }
+              finally { if (e_2) throw e_2.error; }
+          }
+          return result;
+      },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          var newContext = node.bindings
+              .map(function (binding) { return binding.name; })
+              .reduce(function (context, name) {
+              context[name] = { value: true };
+              return context;
+          }, {});
+          var bindingValueNodes = node.bindings.map(function (binding) { return binding.value; });
+          var bindingsResult = analyzeAst(bindingValueNodes, contextStack);
+          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext));
+          return joinAnalyzeResults(bindingsResult, paramsResult);
+      },
+  };
+
+  var loopSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b, _c;
+          var parseTokens = _a.parseTokens, parseBindings = _a.parseBindings;
+          var firstToken = token.as(tokens[position], "EOF");
+          var bindings;
+          _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
+          var params;
+          _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "loop",
+              params: params,
+              bindings: bindings,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [position + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
+          var bindingContext = node.bindings.reduce(function (result, binding) {
+              result[binding.name] = { value: evaluateAstNode(binding.value, contextStack) };
+              return result;
+          }, {});
+          var newContextStack = contextStack.withContext(bindingContext);
+          var _loop_1 = function () {
+              var e_1, _c;
+              var result = null;
+              try {
+                  try {
+                      for (var _d = (e_1 = void 0, __values(node.params)), _e = _d.next(); !_e.done; _e = _d.next()) {
+                          var form = _e.value;
+                          result = evaluateAstNode(form, newContextStack);
+                      }
+                  }
+                  catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                  finally {
+                      try {
+                          if (_e && !_e.done && (_c = _d.return)) _c.call(_d);
+                      }
+                      finally { if (e_1) throw e_1.error; }
+                  }
+              }
+              catch (error) {
+                  if (error instanceof RecurSignal) {
+                      var params_1 = error.params;
+                      if (params_1.length !== node.bindings.length) {
+                          throw new LitsError("recur expected ".concat(node.bindings.length, " parameters, got ").concat(valueToString$1(params_1.length)), debugInfo);
+                      }
+                      node.bindings.forEach(function (binding, index) {
+                          asValue(bindingContext[binding.name], debugInfo).value = any.as(params_1[index], debugInfo);
+                      });
+                      return "continue";
+                  }
+                  throw error;
+              }
+              return { value: result };
+          };
+          for (;;) {
+              var state_1 = _loop_1();
+              if (typeof state_1 === "object")
+                  return state_1.value;
+          }
+      },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          var newContext = node.bindings
+              .map(function (binding) { return binding.name; })
+              .reduce(function (context, name) {
+              context[name] = { value: true };
+              return context;
+          }, {});
+          var bindingValueNodes = node.bindings.map(function (binding) { return binding.value; });
+          var bindingsResult = analyzeAst(bindingValueNodes, contextStack);
+          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext));
+          return joinAnalyzeResults(bindingsResult, paramsResult);
+      },
+  };
+
+  var orSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          return [
+              newPosition + 1,
+              {
+                  type: "SpecialExpression",
+                  name: "or",
+                  params: params,
+                  token: firstToken.debugInfo ? firstToken : undefined,
+              },
+          ];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var e_1, _b;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var value = false;
+          try {
+              for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
+                  var param = _d.value;
+                  value = evaluateAstNode(param, contextStack);
+                  if (value) {
+                      break;
+                  }
+              }
+          }
+          catch (e_1_1) { e_1 = { error: e_1_1 }; }
+          finally {
+              try {
+                  if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+              }
+              finally { if (e_1) throw e_1.error; }
+          }
+          return value;
+      },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyzeAst(node.params, contextStack);
+      },
+  };
+
+  var recurSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b;
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var params;
+          _b = __read(parseTokens(tokens, position), 2), position = _b[0], params = _b[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "recur",
+              params: params,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [position + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var evaluateAstNode = _a.evaluateAstNode;
+          var params = node.params.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
+          throw new RecurSignal(params);
+      },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyzeAst(node.params, contextStack);
+      },
+  };
+
+  var throwSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseToken = _a.parseToken;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseToken(tokens, position), 2), newPosition = _b[0], messageNode = _b[1];
+          position = newPosition;
+          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
+          position += 1;
+          var node = {
+              type: "SpecialExpression",
+              name: "throw",
+              params: [],
+              messageNode: messageNode,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [position, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b, _c;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var message = string.as(evaluateAstNode(node.messageNode, contextStack), (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo, {
+              nonEmpty: true,
+          });
+          throw new UserDefinedError(message, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+      },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyzeAst(node.messageNode, contextStack);
+      },
+  };
+
+  var timeSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseToken = _a.parseToken;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseToken(tokens, position), 2), newPosition = _b[0], astNode = _b[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "time!",
+              params: [astNode],
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [newPosition + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var _c = __read(node.params, 1), param = _c[0];
+          astNode.assert(param, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          var startTime = Date.now();
+          var result = evaluateAstNode(param, contextStack);
+          var totalTime = Date.now() - startTime;
+          // eslint-disable-next-line no-console
+          console.log("Elapsed time: ".concat(totalTime, " ms"));
+          return result;
+      },
+      validate: function (node) { return assertNumberOfParams(1, node); },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyzeAst(node.params, contextStack);
+      },
+  };
+
+  var trySpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b, _c, _d, _e;
+          var _f, _g, _h;
+          var parseToken = _a.parseToken;
+          var firstToken = token.as(tokens[position], "EOF");
+          var tryExpression;
+          _b = __read(parseToken(tokens, position), 2), position = _b[0], tryExpression = _b[1];
+          token.assert(tokens[position], "EOF", { type: "paren", value: "(" });
+          position += 1;
+          var catchNode;
+          _c = __read(parseToken(tokens, position), 2), position = _c[0], catchNode = _c[1];
+          nameNode.assert(catchNode, (_f = catchNode.token) === null || _f === void 0 ? void 0 : _f.debugInfo);
+          if (catchNode.value !== "catch") {
+              throw new LitsError("Expected 'catch', got '".concat(catchNode.value, "'."), getDebugInfo(catchNode, (_g = catchNode.token) === null || _g === void 0 ? void 0 : _g.debugInfo));
+          }
+          var error;
+          _d = __read(parseToken(tokens, position), 2), position = _d[0], error = _d[1];
+          nameNode.assert(error, (_h = error.token) === null || _h === void 0 ? void 0 : _h.debugInfo);
+          var catchExpression;
+          _e = __read(parseToken(tokens, position), 2), position = _e[0], catchExpression = _e[1];
+          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
+          position += 1;
+          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
+          position += 1;
+          var node = {
+              type: "SpecialExpression",
+              name: "try",
+              params: [],
+              tryExpression: tryExpression,
+              catchExpression: catchExpression,
+              error: error,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [position, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b;
+          var _c;
+          var evaluateAstNode = _a.evaluateAstNode;
+          try {
+              return evaluateAstNode(node.tryExpression, contextStack);
+          }
+          catch (error) {
+              var newContext = (_b = {},
+                  _b[node.error.value] = { value: any.as(error, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo) },
+                  _b);
+              return evaluateAstNode(node.catchExpression, contextStack.withContext(newContext));
+          }
+      },
+      analyze: function (node, contextStack, _a) {
+          var _b;
+          var analyzeAst = _a.analyzeAst;
+          var tryResult = analyzeAst(node.tryExpression, contextStack);
+          var newContext = (_b = {},
+              _b[node.error.value] = { value: true },
+              _b);
+          var catchResult = analyzeAst(node.catchExpression, contextStack.withContext(newContext));
+          return joinAnalyzeResults(tryResult, catchResult);
+      },
+  };
+
+  var whenFirstSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b, _c;
+          var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var bindings;
+          _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
+          if (bindings.length !== 1) {
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.debugInfo);
+          }
+          var params;
+          _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "when-first",
+              binding: asValue(bindings[0], firstToken.debugInfo),
+              params: params,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [position + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var e_1, _b;
+          var _c;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var locals = {};
+          var evaluatedBindingForm = evaluateAstNode(node.binding.value, contextStack);
+          if (!sequence.is(evaluatedBindingForm)) {
+              throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString$1(evaluatedBindingForm)), (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+          }
+          if (evaluatedBindingForm.length === 0) {
+              return null;
+          }
+          var bindingValue = toAny(evaluatedBindingForm[0]);
+          locals[node.binding.name] = { value: bindingValue };
+          var newContextStack = contextStack.withContext(locals);
+          var result = null;
+          try {
+              for (var _d = __values(node.params), _e = _d.next(); !_e.done; _e = _d.next()) {
+                  var form = _e.value;
+                  result = evaluateAstNode(form, newContextStack);
+              }
+          }
+          catch (e_1_1) { e_1 = { error: e_1_1 }; }
+          finally {
+              try {
+                  if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
+              }
+              finally { if (e_1) throw e_1.error; }
+          }
+          return result;
+      },
+      validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
+      analyze: function (node, contextStack, _a) {
+          var _b;
+          var analyzeAst = _a.analyzeAst;
+          var newContext = (_b = {}, _b[node.binding.name] = { value: true }, _b);
+          var bindingResult = analyzeAst(node.binding.value, contextStack);
+          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext));
+          return joinAnalyzeResults(bindingResult, paramsResult);
+      },
+  };
+
+  var whenLetSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b, _c;
+          var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var bindings;
+          _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
+          if (bindings.length !== 1) {
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.debugInfo);
+          }
+          var params;
+          _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "when-let",
+              binding: asValue(bindings[0], firstToken.debugInfo),
+              params: params,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [position + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var e_1, _b;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var locals = {};
+          var bindingValue = evaluateAstNode(node.binding.value, contextStack);
+          if (!bindingValue) {
+              return null;
+          }
+          locals[node.binding.name] = { value: bindingValue };
+          var newContextStack = contextStack.withContext(locals);
+          var result = null;
+          try {
+              for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
+                  var form = _d.value;
+                  result = evaluateAstNode(form, newContextStack);
+              }
+          }
+          catch (e_1_1) { e_1 = { error: e_1_1 }; }
+          finally {
+              try {
+                  if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+              }
+              finally { if (e_1) throw e_1.error; }
+          }
+          return result;
+      },
+      validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
+      analyze: function (node, contextStack, _a) {
+          var _b;
+          var analyzeAst = _a.analyzeAst;
+          var newContext = (_b = {}, _b[node.binding.name] = { value: true }, _b);
+          var bindingResult = analyzeAst(node.binding.value, contextStack);
+          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext));
+          return joinAnalyzeResults(bindingResult, paramsResult);
+      },
+  };
+
+  var whenNotSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "when-not",
+              params: params,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [newPosition + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var e_1, _b;
+          var _c;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var _d = __read(node.params), whenExpression = _d[0], body = _d.slice(1);
+          astNode.assert(whenExpression, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+          if (evaluateAstNode(whenExpression, contextStack)) {
+              return null;
+          }
+          var result = null;
+          try {
+              for (var body_1 = __values(body), body_1_1 = body_1.next(); !body_1_1.done; body_1_1 = body_1.next()) {
+                  var form = body_1_1.value;
+                  result = evaluateAstNode(form, contextStack);
+              }
+          }
+          catch (e_1_1) { e_1 = { error: e_1_1 }; }
+          finally {
+              try {
+                  if (body_1_1 && !body_1_1.done && (_b = body_1.return)) _b.call(body_1);
+              }
+              finally { if (e_1) throw e_1.error; }
+          }
+          return result;
+      },
+      validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyzeAst(node.params, contextStack);
+      },
+  };
+
+  var whenSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "when",
+              params: params,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [newPosition + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var e_1, _b;
+          var _c;
+          var evaluateAstNode = _a.evaluateAstNode;
+          var _d = __read(node.params), whenExpression = _d[0], body = _d.slice(1);
+          astNode.assert(whenExpression, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+          if (!evaluateAstNode(whenExpression, contextStack)) {
+              return null;
+          }
+          var result = null;
+          try {
+              for (var body_1 = __values(body), body_1_1 = body_1.next(); !body_1_1.done; body_1_1 = body_1.next()) {
+                  var form = body_1_1.value;
+                  result = evaluateAstNode(form, contextStack);
+              }
+          }
+          catch (e_1_1) { e_1 = { error: e_1_1 }; }
+          finally {
+              try {
+                  if (body_1_1 && !body_1_1.done && (_b = body_1.return)) _b.call(body_1);
+              }
+              finally { if (e_1) throw e_1.error; }
+          }
+          return result;
+      },
+      validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyzeAst(node.params, contextStack);
+      },
+  };
+
+  var commentSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b;
+          var parseToken = _a.parseToken;
+          var tkn = token.as(tokens[position], "EOF");
+          var node = {
+              type: "SpecialExpression",
+              name: "comment",
+              params: [],
+              token: tkn.debugInfo ? tkn : undefined,
+          };
+          while (!token.is(tkn, { type: "paren", value: ")" })) {
+              var bodyNode = void 0;
+              _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
+              node.params.push(bodyNode);
+              tkn = token.as(tokens[position], "EOF");
+          }
+          return [position + 1, node];
+      },
+      evaluate: function () { return null; },
+      analyze: function () { return ({ undefinedSymbols: new Set() }); },
+  };
+
+  var declaredSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "declared?",
+              params: params,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [newPosition + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b;
+          var lookUp = _a.lookUp;
+          var _c = __read(node.params, 1), astNode = _c[0];
+          nameNode.assert(astNode, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          var lookUpResult = lookUp(astNode, contextStack);
+          return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
+      },
+      validate: function (node) { return assertNumberOfParams(1, node); },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst;
+          return analyzeAst(node.params, contextStack);
+      },
+  };
+
+  var specialExpressions = {
+      and: andSpecialExpression,
+      comment: commentSpecialExpression,
+      cond: condSpecialExpression,
+      def: defSpecialExpression,
+      defn: defnSpecialExpression,
+      defns: defnsSpecialExpression,
+      defs: defsSpecialExpression,
+      do: doSpecialExpression,
+      doseq: doseqSpecialExpression,
+      for: forSpecialExpression,
+      fn: fnSpecialExpression,
+      if: ifSpecialExpression,
+      'if-let': ifLetSpecialExpression,
+      'if-not': ifNotSpecialExpression,
+      let: letSpecialExpression,
+      loop: loopSpecialExpression,
+      or: orSpecialExpression,
+      recur: recurSpecialExpression,
+      throw: throwSpecialExpression,
+      'time!': timeSpecialExpression,
+      try: trySpecialExpression,
+      when: whenSpecialExpression,
+      'when-first': whenFirstSpecialExpression,
+      'when-let': whenLetSpecialExpression,
+      'when-not': whenNotSpecialExpression,
+      'declared?': declaredSpecialExpression,
+  };
+  Object.keys(specialExpressions).forEach(function (key) {
+      /* istanbul ignore next */
+      if (normalExpressions[key]) {
+          throw Error("Expression ".concat(key, " is defined as both a normal expression and a special expression"));
+      }
+  });
+  var builtin = {
+      normalExpressions: normalExpressions,
+      specialExpressions: specialExpressions,
+  };
+  var normalExpressionKeys = Object.keys(normalExpressions);
+  var specialExpressionKeys = Object.keys(specialExpressions);
+
   var parseNumber = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
-      return [position + 1, { type: "Number", value: Number(tkn.value), token: tkn }];
+      return [position + 1, { type: "Number", value: Number(tkn.value), token: tkn.debugInfo ? tkn : undefined }];
   };
   var parseString = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
-      return [position + 1, { type: "String", value: tkn.value, token: tkn }];
+      return [position + 1, { type: "String", value: tkn.value, token: tkn.debugInfo ? tkn : undefined }];
   };
   var parseName = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
-      return [position + 1, { type: "Name", value: tkn.value, token: tkn }];
+      return [position + 1, { type: "Name", value: tkn.value, token: tkn.debugInfo ? tkn : undefined }];
   };
   var parseReservedName = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
-      return [position + 1, { type: "ReservedName", value: tkn.value, token: tkn }];
+      return [
+          position + 1,
+          { type: "ReservedName", value: tkn.value, token: tkn.debugInfo ? tkn : undefined },
+      ];
   };
   var parseTokens = function (tokens, position) {
       var _a;
@@ -5701,7 +6097,7 @@ var Lits = (function (exports) {
           type: "NormalExpression",
           name: "array",
           params: params,
-          token: firstToken,
+          token: firstToken.debugInfo ? firstToken : undefined,
       };
       return [position, node];
   };
@@ -5722,7 +6118,7 @@ var Lits = (function (exports) {
           type: "NormalExpression",
           name: "object",
           params: params,
-          token: firstToken,
+          token: firstToken.debugInfo ? firstToken : undefined,
       };
       assertEventNumberOfParams(node);
       return [position, node];
@@ -5732,19 +6128,19 @@ var Lits = (function (exports) {
       var stringNode = {
           type: "String",
           value: tkn.value,
-          token: tkn,
+          token: tkn.debugInfo ? tkn : undefined,
       };
       assertValue(tkn.options, tkn.debugInfo);
       var optionsNode = {
           type: "String",
           value: "".concat(tkn.options.g ? "g" : "").concat(tkn.options.i ? "i" : ""),
-          token: tkn,
+          token: tkn.debugInfo ? tkn : undefined,
       };
       var node = {
           type: "NormalExpression",
           name: "regexp",
           params: [stringNode, optionsNode],
-          token: tkn,
+          token: tkn.debugInfo ? tkn : undefined,
       };
       return [position + 1, node];
   };
@@ -5774,7 +6170,6 @@ var Lits = (function (exports) {
           mandatoryArguments.push("%".concat(i));
       }
       var args = {
-          bindings: [],
           mandatoryArguments: mandatoryArguments,
       };
       var node = {
@@ -5788,7 +6183,7 @@ var Lits = (function (exports) {
                   arity: args.mandatoryArguments.length,
               },
           ],
-          token: firstToken,
+          token: firstToken.debugInfo ? firstToken : undefined,
       };
       return [newPosition, node];
   };
@@ -5799,7 +6194,7 @@ var Lits = (function (exports) {
       }
       else if (tkn.type === "modifier") {
           var value = tkn.value;
-          return [position + 1, { type: "Modifier", value: value, token: tkn }];
+          return [position + 1, { type: "Modifier", value: value, token: tkn.debugInfo ? tkn : undefined }];
       }
       else {
           throw new LitsError("Expected name or modifier token, got ".concat(valueToString$1(tkn), "."), tkn.debugInfo);
@@ -5831,14 +6226,14 @@ var Lits = (function (exports) {
           type: "Binding",
           name: name,
           value: value,
-          token: firstToken,
+          token: firstToken.debugInfo ? firstToken : undefined,
       };
       return [position, node];
   };
   var parseNormalExpression = function (tokens, position) {
       var _a;
-      var _b;
-      var _c = __read(parseToken(tokens, position), 2), newPosition = _c[0], fnNode = _c[1];
+      var _b, _c;
+      var _d = __read(parseToken(tokens, position), 2), newPosition = _d[0], fnNode = _d[1];
       var params;
       _a = __read(parseTokens(tokens, newPosition), 2), position = _a[0], params = _a[1];
       position += 1;
@@ -5851,7 +6246,7 @@ var Lits = (function (exports) {
           };
           return [position, node_1];
       }
-      nameNode.assert(fnNode, fnNode.token.debugInfo);
+      nameNode.assert(fnNode, (_b = fnNode.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
       var node = {
           type: "NormalExpression",
           name: fnNode.value,
@@ -5860,7 +6255,7 @@ var Lits = (function (exports) {
       };
       var builtinExpression = builtin.normalExpressions[node.name];
       if (builtinExpression) {
-          (_b = builtinExpression.validate) === null || _b === void 0 ? void 0 : _b.call(builtinExpression, node);
+          (_c = builtinExpression.validate) === null || _c === void 0 ? void 0 : _c.call(builtinExpression, node);
       }
       return [position, node];
   };
@@ -6284,7 +6679,9 @@ var Lits = (function (exports) {
       while (position < input.length) {
           tokenized = false;
           // Loop through all tokenizer until one matches
-          var debugInfo = params.debug ? createDebugInfo(input, position, params.getLocation) : null;
+          var debugInfo = params.debug
+              ? createDebugInfo(input, position, params.getLocation)
+              : undefined;
           try {
               for (var tokenizers_1 = (e_1 = void 0, __values(tokenizers)), tokenizers_1_1 = tokenizers_1.next(); !tokenizers_1_1.done; tokenizers_1_1 = tokenizers_1.next()) {
                   var tokenize_1 = tokenizers_1_1.value;
@@ -6374,12 +6771,27 @@ var Lits = (function (exports) {
 
   var Lits = /** @class */ (function () {
       function Lits(config) {
+          var e_1, _a;
           if (config === void 0) { config = {}; }
-          var _a, _b;
-          this.debug = (_a = config.debug) !== null && _a !== void 0 ? _a : false;
-          this.astCacheSize = (_b = config.astCacheSize) !== null && _b !== void 0 ? _b : 0;
+          var _b, _c, _d;
+          this.debug = (_b = config.debug) !== null && _b !== void 0 ? _b : false;
+          this.astCacheSize = (_c = config.astCacheSize) !== null && _c !== void 0 ? _c : 0;
           if (this.astCacheSize > 0) {
               this.astCache = new Cache(this.astCacheSize);
+              var initialCache = (_d = config.initialCache) !== null && _d !== void 0 ? _d : {};
+              try {
+                  for (var _e = __values(Object.keys(initialCache)), _f = _e.next(); !_f.done; _f = _e.next()) {
+                      var cacheEntry = _f.value;
+                      this.astCache.set(cacheEntry, initialCache[cacheEntry]);
+                  }
+              }
+              catch (e_1_1) { e_1 = { error: e_1_1 }; }
+              finally {
+                  try {
+                      if (_f && !_f.done && (_a = _e.return)) _a.call(_e);
+                  }
+                  finally { if (e_1) throw e_1.error; }
+              }
           }
           else {
               this.astCache = null;
@@ -6405,6 +6817,12 @@ var Lits = (function (exports) {
           var ast = this.generateAst(program, params.getLocation);
           evaluate(ast, contextStack);
           return contextStack.globalContext;
+      };
+      Lits.prototype.analyze = function (program, params) {
+          if (params === void 0) { params = {}; }
+          var contextStack = createContextStackFromParams(params);
+          var ast = this.generateAst(program, params.getLocation);
+          return analyzeAst(ast.body, contextStack);
       };
       Lits.prototype.tokenize = function (program, getLocation) {
           return tokenize(program, { debug: this.debug, getLocation: getLocation });

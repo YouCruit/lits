@@ -16,7 +16,7 @@
   <div class="row">
     <div class="column"></div>
     <div class="column header">Lits</div>
-    <div class="column right version"><span>v1.0.35</span></div>
+    <div class="column right version"><span>v1.0.36</span></div>
   </div>
 </header>
     <main id="main-panel" class="fancy-scroll">
@@ -1673,8 +1673,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [2,3,8,9] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> "Ae" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [1,2,3,4,7,9,10] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> "Alt" </span> </span></pre>
   </div>
 </div>
 
@@ -1697,8 +1697,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 8 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-nth! ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rand-nth! "Albert") <span class="gray">=> "t" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 9 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-nth! ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rand-nth! "Albert") <span class="gray">=> "r" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-nth! [])')"> <span class="icon-button">▶</span> (rand-nth! []) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -1722,8 +1722,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [2,10,9,3,6,1,4,5,8,7] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> "tbAiroerjMl " </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [6,8,4,5,10,7,9,3,2,1] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> "riAMt ejlorb" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2])')"> <span class="icon-button">▶</span> (shuffle! [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1])')"> <span class="icon-button">▶</span> (shuffle! [1]) <span class="gray">=> [1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [])')"> <span class="icon-button">▶</span> (shuffle! []) <span class="gray">=> [] </span> </span></pre>
@@ -2882,9 +2882,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.39522215046995934 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.002486371551497619 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 0.5265427932352951 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.24365466625334453 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.00618863184246444 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 1.8357733217548444 </span> </span></pre>
   </div>
 </div>
 
@@ -2908,8 +2908,8 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(rand-int! 1)')"> <span class="icon-button">▶</span> (rand-int! 1) <span class="gray">=> 0 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 1 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 118 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 9 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 22 </span> </span></pre>
   </div>
 </div>
 
@@ -3689,7 +3689,7 @@
 <pre><span class="example" onclick="addToPlayground('(write! 100 ___double_quote___items___double_quote___)')"> <span class="icon-button">▶</span> (write! 100 "items") <span class="gray">=> "items" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(write! (object :a 10))')"> <span class="icon-button">▶</span> (write! (object :a 10)) <span class="gray">=> {"a":10} </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(write! [:a :b :c])')"> <span class="icon-button">▶</span> (write! [:a :b :c]) <span class="gray">=> ["a","b","c"] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(write! #___double_quote___^start___double_quote___)')"> <span class="icon-button">▶</span> (write! #"^start") <span class="gray">=> /^start/ </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(write! #___double_quote___^start___double_quote___)')"> <span class="icon-button">▶</span> (write! #"^start") <span class="gray">=> {"__REGEXP__":true,"debugInfo":{"line":1,"column":9,"code":"(write! #\"^start\")"},"source":"^start","flags":""} </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(write! nil true false)')"> <span class="icon-button">▶</span> (write! nil true false) <span class="gray">=> false </span> </span></pre>
   </div>
 </div>
@@ -3713,7 +3713,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1666129756746 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1667200992182 </span> </span></pre>
   </div>
 </div>
 
@@ -3863,7 +3863,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.35" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.36" </span> </span></pre>
   </div>
 </div>
 
@@ -3886,7 +3886,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "a7543dab-5e73-46de-9fff-61b1f2410fb6" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "74e518cd-499d-4886-b3b6-107fc3629054" </span> </span></pre>
   </div>
 </div>
 
@@ -4846,10 +4846,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(regexp ___double_quote___^\s*(.*)$___double_quote___)')"> <span class="icon-button">▶</span> (regexp "^\s*(.*)$") <span class="gray">=> /^\s*(.*)$/ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('#___double_quote___^\s*(.*)$___double_quote___')"> <span class="icon-button">▶</span> #"^\s*(.*)$" <span class="gray">=> /^\s*(.*)$/ </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(regexp ___double_quote___albert___double_quote___ :i)')"> <span class="icon-button">▶</span> (regexp "albert" :i) <span class="gray">=> /albert/i </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('#___double_quote___albert___double_quote___ig')"> <span class="icon-button">▶</span> #"albert"ig <span class="gray">=> /albert/gi </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(regexp ___double_quote___^\s*(.*)$___double_quote___)')"> <span class="icon-button">▶</span> (regexp "^\s*(.*)$") <span class="gray">=> {"__REGEXP__":true,"debugInfo":{"line":1,"column":2,"code":"(regexp \"^\\s*(.*)$\")"},"source":"^\\s*(.*)$","flags":""} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('#___double_quote___^\s*(.*)$___double_quote___')"> <span class="icon-button">▶</span> #"^\s*(.*)$" <span class="gray">=> {"__REGEXP__":true,"debugInfo":{"line":1,"column":1,"code":"#\"^\\s*(.*)$\""},"source":"^\\s*(.*)$","flags":""} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(regexp ___double_quote___albert___double_quote___ :i)')"> <span class="icon-button">▶</span> (regexp "albert" :i) <span class="gray">=> {"__REGEXP__":true,"debugInfo":{"line":1,"column":2,"code":"(regexp \"albert\" :i)"},"source":"albert","flags":"i"} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('#___double_quote___albert___double_quote___ig')"> <span class="icon-button">▶</span> #"albert"ig <span class="gray">=> {"__REGEXP__":true,"debugInfo":{"line":1,"column":1,"code":"#\"albert\"ig"},"source":"albert","flags":"gi"} </span> </span></pre>
   </div>
 </div>
 
@@ -5662,7 +5662,7 @@
     <pre><span class="example" onclick="addToPlayground('(str ___double_quote___A string___double_quote___ ___double_quote___, and another string___double_quote___ ___double_quote___ ...and more___double_quote___)')"> <span class="icon-button">▶</span> (str "A string" ", and another string" " ...and more") <span class="gray">=> "A string, and another string ...and more" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(str ___double_quote___Just one string___double_quote___)')"> <span class="icon-button">▶</span> (str "Just one string") <span class="gray">=> "Just one string" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(str)')"> <span class="icon-button">▶</span> (str) <span class="gray">=> "" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(str 0 false true nil #___double_quote___^kalle___double_quote___ [1 2 3] {:a :a})')"> <span class="icon-button">▶</span> (str 0 false true nil #"^kalle" [1 2 3] {:a :a}) <span class="gray">=> "0falsetrue/^kalle/[1,2,3]{\"a\":\"a\"}" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(str 0 false true nil #___double_quote___^kalle___double_quote___ [1 2 3] {:a :a})')"> <span class="icon-button">▶</span> (str 0 false true nil #"^kalle" [1 2 3] {:a :a}) <span class="gray">=> "0falsetrue[object Object][1,2,3]{\"a\":\"a\"}" </span> </span></pre>
   </div>
 </div>
 

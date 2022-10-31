@@ -71,7 +71,8 @@ export class Lits {
     return contextStack.globalContext
   }
 
-  public analyze(program: string, params: LitsParams = {}): AnalyzeResult {
+  public analyze(program: string): AnalyzeResult {
+    const params: LitsParams = {}
     const contextStack = createContextStackFromParams(params)
     const ast = this.generateAst(program, params.getLocation)
 

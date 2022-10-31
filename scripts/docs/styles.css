@@ -100,6 +100,11 @@ a:link, a:visited, a:hover, a:active {
   flex: 15;
 }
 
+.column.shrink {
+  flex: 0;
+
+}
+
 .column.scoll {
   overflow: auto;
 }

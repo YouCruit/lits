@@ -116,6 +116,7 @@ window.onload = function () {
     : DEFAULT_RESIZE_DIVIDER2_X_PERCENT
 
   lits = new Lits.Lits({ debug: true })
+  litsNoDebug = new Lits.Lits({ debug: false })
 
   document.getElementById('resize-playground').onmousedown = event => {
     moveParams = {
@@ -196,6 +197,22 @@ window.onload = function () {
     if (evt.key === 'F3') {
       evt.preventDefault()
       analyze()
+    }
+    if (evt.key === 'F4') {
+      evt.preventDefault()
+      tokenize(false)
+    }
+    if (evt.key === 'F5') {
+      evt.preventDefault()
+      tokenize(true)
+    }
+    if (evt.key === 'F6') {
+      evt.preventDefault()
+      parse(false)
+    }
+    if (evt.key === 'F7') {
+      evt.preventDefault()
+      parse(true)
     }
     if (evt.key === 'Escape') {
       evt.preventDefault()
@@ -365,6 +382,108 @@ function analyze() {
   }
   output.classList.remove('error')
   var content = `Undefined symbols: ${stringifyValue([...result.undefinedSymbols])}`
+
+  var oldContent = output.value
+  var newContent = oldContent ? oldContent + '\n' + content : content
+  output.value = newContent
+  output.scrollTop = output.scrollHeight
+
+  output.value = newContent
+}
+
+function parse(debug) {
+  var code = document.getElementById('lits-textarea').value
+  var output = document.getElementById('output-textarea')
+  output.value = ''
+  var result
+  var oldLog = console.log
+  console.log = function () {
+    var args = Array.from(arguments)
+    oldLog.apply(console, args)
+    var logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    var oldContent = output.value
+    var newContent = oldContent ? oldContent + '\n' + logRow : logRow
+    output.value = newContent
+    output.scrollTop = output.scrollHeight
+  }
+  var oldWarn = console.warn
+  console.warn = function () {
+    var args = Array.from(arguments)
+    oldWarn.apply(console, args)
+    var logRow = args[0]
+    var oldContent = output.value
+    var newContent = oldContent ? oldContent + '\n' + logRow : logRow
+    output.value = newContent
+    output.scrollTop = output.scrollHeight
+  }
+  try {
+    if (debug) {
+      const tokens = lits.tokenize(code)
+      result = lits.parse(tokens)
+    } else {
+      const tokens = litsNoDebug.tokenize(code, { debug: false })
+      result = litsNoDebug.parse(tokens)
+    }
+  } catch (error) {
+    output.value = error
+    output.classList.add('error')
+    return
+  } finally {
+    console.log = oldLog
+    console.warn = oldWarn
+  }
+  output.classList.remove('error')
+  var content = JSON.stringify(result, null, 2)
+
+  var oldContent = output.value
+  var newContent = oldContent ? oldContent + '\n' + content : content
+  output.value = newContent
+  output.scrollTop = output.scrollHeight
+
+  output.value = newContent
+}
+
+function tokenize(debug) {
+  var code = document.getElementById('lits-textarea').value
+  var output = document.getElementById('output-textarea')
+  output.value = ''
+  var result
+  var oldLog = console.log
+  console.log = function () {
+    var args = Array.from(arguments)
+    oldLog.apply(console, args)
+    var logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    var oldContent = output.value
+    var newContent = oldContent ? oldContent + '\n' + logRow : logRow
+    output.value = newContent
+    output.scrollTop = output.scrollHeight
+  }
+  var oldWarn = console.warn
+  console.warn = function () {
+    var args = Array.from(arguments)
+    oldWarn.apply(console, args)
+    var logRow = args[0]
+    var oldContent = output.value
+    var newContent = oldContent ? oldContent + '\n' + logRow : logRow
+    output.value = newContent
+    output.scrollTop = output.scrollHeight
+  }
+  try {
+    if (debug) {
+      result = lits.tokenize(code)
+    } else {
+      result = litsNoDebug.tokenize(code, { debug: false })
+    }
+  } catch (error) {
+    output.value = error
+    output.classList.add('error')
+    return
+  } finally {
+    console.log = oldLog
+    console.warn = oldWarn
+  }
+  output.classList.remove('error')
+  var content = JSON.stringify(result, null, 2)
 
   var oldContent = output.value
   var newContent = oldContent ? oldContent + '\n' + content : content

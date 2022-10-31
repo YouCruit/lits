@@ -156,11 +156,14 @@ describe(`Cache`, () => {
     expect(() => cache.set(`a`, ast(2))).toThrow()
   })
 
-  test(`getCache`, () => {
+  test(`getContent`, () => {
     const cache = new Cache(10)
     cache.set(`a`, ast(1))
     cache.set(`b`, ast(2))
-    expect(cache).toMatchSnapshot()
+    expect(cache.getContent()).toEqual({
+      a: ast(1),
+      b: ast(2),
+    })
   })
 
   test(`max cache size must be at least 1`, () => {

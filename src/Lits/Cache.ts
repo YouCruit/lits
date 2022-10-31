@@ -21,6 +21,13 @@ export class Cache {
     }
   }
 
+  public getContent(): Record<string, Ast> {
+    return Object.entries(this.cache).reduce((result: Record<string, Ast>, [key, entry]) => {
+      result[key] = entry.value
+      return result
+    }, {})
+  }
+
   public get size(): number {
     return this._size
   }

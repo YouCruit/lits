@@ -4196,7 +4196,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.42";
+  var version = "1.0.43";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6706,8 +6706,8 @@ var Lits = (function (exports) {
           this.firstEntry = undefined;
           this.lastEntry = undefined;
           this._size = 0;
-          this.maxSize = toNonNegativeInteger(maxSize);
-          if (this.maxSize < 1) {
+          this.maxSize = maxSize === null ? null : toNonNegativeInteger(maxSize);
+          if (typeof this.maxSize === "number" && this.maxSize < 1) {
               throw Error("1 is the minimum maxSize, got ".concat(valueToString$1(maxSize)));
           }
       }
@@ -6752,7 +6752,7 @@ var Lits = (function (exports) {
           if (!this.firstEntry) {
               this.firstEntry = this.lastEntry;
           }
-          while (this.size > this.maxSize) {
+          while (this.maxSize !== null && this.size > this.maxSize) {
               this.dropFirstEntry();
           }
       };
@@ -6771,8 +6771,8 @@ var Lits = (function (exports) {
           if (config === void 0) { config = {}; }
           var _b, _c, _d;
           this.debug = (_b = config.debug) !== null && _b !== void 0 ? _b : false;
-          this.astCacheSize = (_c = config.astCacheSize) !== null && _c !== void 0 ? _c : 0;
-          if (this.astCacheSize > 0) {
+          this.astCacheSize = (_c = config.astCacheSize) !== null && _c !== void 0 ? _c : null;
+          if (this.astCacheSize !== 0) {
               this.astCache = new Cache(this.astCacheSize);
               var initialCache = (_d = config.initialCache) !== null && _d !== void 0 ? _d : {};
               try {

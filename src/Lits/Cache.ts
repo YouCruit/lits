@@ -13,10 +13,10 @@ export class Cache {
   private firstEntry: CacheEntry | undefined = undefined
   private lastEntry: CacheEntry | undefined = undefined
   private _size = 0
-  private maxSize: number
-  constructor(maxSize: number) {
-    this.maxSize = toNonNegativeInteger(maxSize)
-    if (this.maxSize < 1) {
+  private maxSize: number | null
+  constructor(maxSize: number | null) {
+    this.maxSize = maxSize === null ? null : toNonNegativeInteger(maxSize)
+    if (typeof this.maxSize === `number` && this.maxSize < 1) {
       throw Error(`1 is the minimum maxSize, got ${valueToString(maxSize)}`)
     }
   }
@@ -65,7 +65,7 @@ export class Cache {
       this.firstEntry = this.lastEntry
     }
 
-    while (this.size > this.maxSize) {
+    while (this.maxSize !== null && this.size > this.maxSize) {
       this.dropFirstEntry()
     }
   }

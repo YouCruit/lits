@@ -16,7 +16,7 @@ export type LocationGetter = (line: number, col: number) => string
 
 export type LitsRuntimeInfo = {
   astCache: Cache | null
-  astCacheSize: number
+  astCacheSize: number | null
   debug: boolean
 }
 
@@ -29,19 +29,19 @@ export type LitsParams = {
 
 type LitsConfig = {
   initialCache?: Record<string, Ast>
-  astCacheSize?: number
+  astCacheSize?: number | null
   debug?: boolean
 }
 
 export class Lits {
   private astCache: Cache | null
-  private astCacheSize: number
+  private astCacheSize: number | null
   private debug: boolean
 
   constructor(config: LitsConfig = {}) {
     this.debug = config.debug ?? false
-    this.astCacheSize = config.astCacheSize ?? 0
-    if (this.astCacheSize > 0) {
+    this.astCacheSize = config.astCacheSize ?? null
+    if (this.astCacheSize !== 0) {
       this.astCache = new Cache(this.astCacheSize)
       const initialCache = config.initialCache ?? {}
       for (const cacheEntry of Object.keys(initialCache)) {

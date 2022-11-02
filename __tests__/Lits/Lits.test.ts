@@ -6,7 +6,7 @@ import { litsFunction } from '../../src/utils/assertion'
 describe(`TEST`, () => {
   let lits: Lits
   beforeEach(() => {
-    lits = new Lits({ debug: true })
+    lits = new Lits({ debug: true, astCacheSize: 0 })
   })
   test(`without params`, () => {
     const fn = lits.run(`#(+ %1 %2)`)
@@ -31,8 +31,12 @@ describe(`runtime info`, () => {
     const lits = new Lits()
     expect(lits.getRuntimeInfo()).toMatchSnapshot()
   })
-  test(`getRuntimeInfo() with ast cache`, () => {
+  test(`getRuntimeInfo() with ast cache > 0`, () => {
     const lits = new Lits({ astCacheSize: 10 })
+    expect(lits.getRuntimeInfo()).toMatchSnapshot()
+  })
+  test(`getRuntimeInfo() with ast cache = 0`, () => {
+    const lits = new Lits({ astCacheSize: 0 })
     expect(lits.getRuntimeInfo()).toMatchSnapshot()
   })
 })

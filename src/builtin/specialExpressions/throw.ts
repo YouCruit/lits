@@ -3,8 +3,7 @@ import { AstNode, SpecialExpressionNode } from '../../parser/interface'
 import { string, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
-interface ThrowSpecialExpressionNode extends SpecialExpressionNode {
-  name: `throw`
+type ThrowNode = SpecialExpressionNode & {
   messageNode: AstNode
 }
 
@@ -17,7 +16,7 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
     token.assert(tokens[position], `EOF`, { type: `paren`, value: `)` })
     position += 1
 
-    const node: ThrowSpecialExpressionNode = {
+    const node: ThrowNode = {
       type: `SpecialExpression`,
       name: `throw`,
       params: [],
@@ -27,18 +26,11 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
     return [position, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    castThrowExpressionNode(node)
-    const message = string.as(evaluateAstNode(node.messageNode, contextStack), node.token?.debugInfo, {
+    const message = string.as(evaluateAstNode((node as ThrowNode).messageNode, contextStack), node.token?.debugInfo, {
       nonEmpty: true,
     })
     throw new UserDefinedError(message, node.token?.debugInfo)
   },
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castThrowExpressionNode(node)
-    return analyzeAst(node.messageNode, contextStack, builtin)
-  },
-}
-
-function castThrowExpressionNode(_node: SpecialExpressionNode): asserts _node is ThrowSpecialExpressionNode {
-  return
+  analyze: (node, contextStack, { analyzeAst, builtin }) =>
+    analyzeAst((node as ThrowNode).messageNode, contextStack, builtin),
 }

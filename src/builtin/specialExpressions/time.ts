@@ -4,15 +4,11 @@ import { assertNumberOfParams, astNode } from '../../utils/assertion'
 import { token } from '../../utils/tokenAssertion'
 import { BuiltinSpecialExpression } from '../interface'
 
-interface TimeSpecialExpressionNode extends SpecialExpressionNode {
-  name: `time!`
-}
-
 export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseToken }) => {
     const firstToken = token.as(tokens[position], `EOF`)
     const [newPosition, astNode] = parseToken(tokens, position)
-    const node: TimeSpecialExpressionNode = {
+    const node: SpecialExpressionNode = {
       type: `SpecialExpression`,
       name: `time!`,
       params: [astNode],
@@ -22,8 +18,6 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [newPosition + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    castTimeExpressionNode(node)
-
     const [param] = node.params
     astNode.assert(param, node.token?.debugInfo)
 
@@ -36,12 +30,5 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
     return result
   },
   validate: node => assertNumberOfParams(1, node),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castTimeExpressionNode(node)
-    return analyzeAst(node.params, contextStack, builtin)
-  },
-}
-
-function castTimeExpressionNode(_node: SpecialExpressionNode): asserts _node is TimeSpecialExpressionNode {
-  return
+  analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.params, contextStack, builtin),
 }

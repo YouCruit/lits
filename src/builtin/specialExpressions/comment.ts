@@ -1,17 +1,12 @@
-import { Any } from '../../interface'
 import { AstNode, SpecialExpressionNode } from '../../parser/interface'
 import { token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
-interface CommentSpecialExpressionNode extends SpecialExpressionNode {
-  name: `comment`
-}
-
-export const commentSpecialExpression: BuiltinSpecialExpression<Any> = {
+export const commentSpecialExpression: BuiltinSpecialExpression<null> = {
   parse: (tokens, position, { parseToken }) => {
     let tkn = token.as(tokens[position], `EOF`)
 
-    const node: CommentSpecialExpressionNode = {
+    const node: SpecialExpressionNode = {
       type: `SpecialExpression`,
       name: `comment`,
       params: [],

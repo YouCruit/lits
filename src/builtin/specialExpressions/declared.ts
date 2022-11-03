@@ -1,17 +1,12 @@
-import { Any } from '../../interface'
 import { SpecialExpressionNode } from '../../parser/interface'
 import { assertNumberOfParams, token, nameNode } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
-interface DeclaredSpecialExpressionNode extends SpecialExpressionNode {
-  name: `declared?`
-}
-
-export const declaredSpecialExpression: BuiltinSpecialExpression<Any> = {
+export const declaredSpecialExpression: BuiltinSpecialExpression<boolean> = {
   parse: (tokens, position, { parseTokens }) => {
     const firstToken = token.as(tokens[position], `EOF`)
     const [newPosition, params] = parseTokens(tokens, position)
-    const node: DeclaredSpecialExpressionNode = {
+    const node: SpecialExpressionNode = {
       type: `SpecialExpression`,
       name: `declared?`,
       params,
@@ -21,8 +16,6 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [newPosition + 1, node]
   },
   evaluate: (node, contextStack, { lookUp }) => {
-    castDeclaredExpressionNode(node)
-
     const [astNode] = node.params
     nameNode.assert(astNode, node.token?.debugInfo)
 
@@ -30,12 +23,5 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<Any> = {
     return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression)
   },
   validate: node => assertNumberOfParams(1, node),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castDeclaredExpressionNode(node)
-    return analyzeAst(node.params, contextStack, builtin)
-  },
-}
-
-function castDeclaredExpressionNode(_node: SpecialExpressionNode): asserts _node is DeclaredSpecialExpressionNode {
-  return
+  analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.params, contextStack, builtin),
 }

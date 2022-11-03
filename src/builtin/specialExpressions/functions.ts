@@ -17,115 +17,49 @@ import { valueToString } from '../../utils/helpers'
 import { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
 import { Arity, assertNameNotDefined, FunctionArguments, FunctionOverload } from '../utils'
 
-interface DefnSpecialExpressionNode extends SpecialExpressionNode {
-  name: `defn`
+type DefnNode = SpecialExpressionNode & {
   functionName: NameNode
   overloads: FunctionOverload[]
 }
 
-interface DefnsSpecialExpressionNode extends SpecialExpressionNode {
-  name: `defns`
+type DefnsNode = SpecialExpressionNode & {
   functionName: AstNode
   overloads: FunctionOverload[]
 }
 
-export interface FnSpecialExpressionNode extends SpecialExpressionNode {
-  name: `fn`
+export type FnNode = SpecialExpressionNode & {
   overloads: FunctionOverload[]
 }
 
-type FunctionNode = DefnSpecialExpressionNode | DefnsSpecialExpressionNode | FnSpecialExpressionNode
-
-type ExpressionsName = `defn` | `defns` | `fn`
-
-function createParser(expressionName: ExpressionsName): BuiltinSpecialExpression<FunctionNode>[`parse`] {
-  return (tokens, position, parsers) => {
+export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
+  parse: (tokens, position, parsers) => {
     const firstToken = token.as(tokens[position], `EOF`)
     const { parseToken } = parsers
     let functionName = undefined
-    if (expressionName === `defn` || expressionName === `defns`) {
-      ;[position, functionName] = parseToken(tokens, position)
-      if (expressionName === `defn`) {
-        nameNode.assert(functionName, functionName.token?.debugInfo)
-      }
-    }
+    ;[position, functionName] = parseToken(tokens, position)
+    nameNode.assert(functionName, functionName.token?.debugInfo)
 
     let functionOverloades: FunctionOverload[]
     ;[position, functionOverloades] = parseFunctionOverloades(tokens, position, parsers)
-
-    if (expressionName === `defn` || expressionName === `defns`) {
-      return [
-        position,
-        {
-          type: `SpecialExpression`,
-          name: expressionName,
-          functionName: functionName as AstNode,
-          params: [],
-          overloads: functionOverloades,
-          token: firstToken.debugInfo ? firstToken : undefined,
-        },
-      ]
-    }
 
     return [
       position,
       {
         type: `SpecialExpression`,
-        name: expressionName,
+        name: `defn`,
+        functionName,
         params: [],
         overloads: functionOverloades,
         token: firstToken.debugInfo ? firstToken : undefined,
       },
     ]
-  }
-}
-
-function getFunctionName(
-  expressionName: ExpressionsName,
-  node: FunctionNode,
-  contextStack: ContextStack,
-  evaluateAstNode: EvaluateAstNode,
-): string | undefined {
-  const debugInfo = node.token?.debugInfo
-  if (expressionName === `defn`) {
-    return ((node as DefnSpecialExpressionNode).functionName as NameNode).value
-  }
-  if (expressionName === `defns`) {
-    const name = evaluateAstNode((node as DefnsSpecialExpressionNode).functionName, contextStack)
-    string.assert(name, debugInfo)
-    return name
-  }
-  return undefined
-}
-
-function createEvaluator(expressionName: ExpressionsName): BuiltinSpecialExpression<LitsFunction | null>[`evaluate`] {
-  return (node, contextStack, { evaluateAstNode, builtin }) => {
-    castExpressionNode(node)
-    const name = getFunctionName(expressionName, node, contextStack, evaluateAstNode)
+  },
+  evaluate: (node, contextStack, { builtin, evaluateAstNode }) => {
+    const name = getFunctionName(`defn`, node, contextStack, evaluateAstNode)
 
     assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
 
-    const evaluatedFunctionOverloades: EvaluatedFunctionOverload[] = []
-    for (const functionOverload of node.overloads) {
-      const functionContext: Context = {}
-      for (const binding of functionOverload.arguments.bindings) {
-        const bindingValueNode = binding.value
-        const bindingValue = evaluateAstNode(bindingValueNode, contextStack)
-        functionContext[binding.name] = { value: bindingValue }
-      }
-
-      const evaluatedFunctionOverload: EvaluatedFunctionOverload = {
-        arguments: {
-          mandatoryArguments: functionOverload.arguments.mandatoryArguments,
-          restArgument: functionOverload.arguments.restArgument,
-        },
-        arity: functionOverload.arity,
-        body: functionOverload.body,
-        functionContext,
-      }
-
-      evaluatedFunctionOverloades.push(evaluatedFunctionOverload)
-    }
+    const evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode)
 
     const litsFunction: LitsFunction = {
       [FUNCTION_SYMBOL]: true,
@@ -135,13 +69,138 @@ function createEvaluator(expressionName: ExpressionsName): BuiltinSpecialExpress
       overloads: evaluatedFunctionOverloades,
     }
 
-    if (expressionName === `fn`) {
-      return litsFunction
+    contextStack.globalContext[name as string] = { value: litsFunction }
+    return null
+  },
+  analyze: (node, contextStack, { analyzeAst, builtin }) => {
+    contextStack.globalContext[(node as DefnNode).functionName.value] = { value: true }
+    const newContext: Context = { [(node as DefnNode).functionName.value]: { value: true } }
+    return addOverloadsUndefinedSymbols((node as DefnNode).overloads, contextStack, analyzeAst, builtin, newContext)
+  },
+}
+
+export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
+  parse: (tokens, position, parsers) => {
+    const firstToken = token.as(tokens[position], `EOF`)
+    const { parseToken } = parsers
+    let functionName: AstNode
+    ;[position, functionName] = parseToken(tokens, position)
+
+    let functionOverloades: FunctionOverload[]
+    ;[position, functionOverloades] = parseFunctionOverloades(tokens, position, parsers)
+
+    return [
+      position,
+      {
+        type: `SpecialExpression`,
+        name: `defns`,
+        functionName,
+        params: [],
+        overloads: functionOverloades,
+        token: firstToken.debugInfo ? firstToken : undefined,
+      },
+    ]
+  },
+  evaluate: (node, contextStack, { builtin, evaluateAstNode }) => {
+    const name = getFunctionName(`defns`, node, contextStack, evaluateAstNode)
+
+    assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
+
+    const evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode)
+
+    const litsFunction: LitsFunction = {
+      [FUNCTION_SYMBOL]: true,
+      debugInfo: node.token?.debugInfo,
+      type: `user-defined`,
+      name,
+      overloads: evaluatedFunctionOverloades,
     }
 
     contextStack.globalContext[name as string] = { value: litsFunction }
     return null
+  },
+  analyze: (node, contextStack, { analyzeAst, builtin }) =>
+    addOverloadsUndefinedSymbols((node as DefnsNode).overloads, contextStack, analyzeAst, builtin),
+}
+
+export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
+  parse: (tokens, position, parsers) => {
+    const firstToken = token.as(tokens[position], `EOF`)
+
+    let functionOverloades: FunctionOverload[]
+    ;[position, functionOverloades] = parseFunctionOverloades(tokens, position, parsers)
+
+    return [
+      position,
+      {
+        type: `SpecialExpression`,
+        name: `fn`,
+        params: [],
+        overloads: functionOverloades,
+        token: firstToken.debugInfo ? firstToken : undefined,
+      },
+    ]
+  },
+  evaluate: (node, contextStack, { evaluateAstNode }) => {
+    const evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode)
+
+    const litsFunction: LitsFunction = {
+      [FUNCTION_SYMBOL]: true,
+      debugInfo: node.token?.debugInfo,
+      type: `user-defined`,
+      name: undefined,
+      overloads: evaluatedFunctionOverloades,
+    }
+
+    return litsFunction
+  },
+  analyze: (node, contextStack, { analyzeAst, builtin }) =>
+    addOverloadsUndefinedSymbols((node as FnNode).overloads, contextStack, analyzeAst, builtin),
+}
+
+function getFunctionName(
+  expressionName: `defn` | `defns`,
+  node: SpecialExpressionNode,
+  contextStack: ContextStack,
+  evaluateAstNode: EvaluateAstNode,
+): string {
+  const debugInfo = node.token?.debugInfo
+  if (expressionName === `defn`) {
+    return ((node as DefnNode).functionName as NameNode).value
   }
+
+  const name = evaluateAstNode((node as DefnsNode).functionName, contextStack)
+  string.assert(name, debugInfo)
+  return name
+}
+
+function evaluateFunctionOverloades(
+  node: SpecialExpressionNode,
+  contextStack: ContextStack,
+  evaluateAstNode: EvaluateAstNode,
+): EvaluatedFunctionOverload[] {
+  const evaluatedFunctionOverloades: EvaluatedFunctionOverload[] = []
+  for (const functionOverload of (node as DefnNode | DefnsNode | FnNode).overloads) {
+    const functionContext: Context = {}
+    for (const binding of functionOverload.arguments.bindings) {
+      const bindingValueNode = binding.value
+      const bindingValue = evaluateAstNode(bindingValueNode, contextStack)
+      functionContext[binding.name] = { value: bindingValue }
+    }
+
+    const evaluatedFunctionOverload: EvaluatedFunctionOverload = {
+      arguments: {
+        mandatoryArguments: functionOverload.arguments.mandatoryArguments,
+        restArgument: functionOverload.arguments.restArgument,
+      },
+      arity: functionOverload.arity,
+      body: functionOverload.body,
+      functionContext,
+    }
+
+    evaluatedFunctionOverloades.push(evaluatedFunctionOverload)
+  }
+  return evaluatedFunctionOverloades
 }
 
 function addOverloadsUndefinedSymbols(
@@ -173,53 +232,6 @@ function addOverloadsUndefinedSymbols(
     addAnalyzeResults(result, overloadResult)
   }
   return result
-}
-
-export const defnSpecialExpression: BuiltinSpecialExpression<LitsFunction | null> = {
-  parse: createParser(`defn`),
-  evaluate: createEvaluator(`defn`),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castDefnExpressionNode(node)
-    contextStack.globalContext[node.functionName.value] = { value: true }
-    const newContext: Context = { [node.functionName.value]: { value: true } }
-    return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin, newContext)
-  },
-}
-
-export const defnsSpecialExpression: BuiltinSpecialExpression<LitsFunction | null> = {
-  parse: createParser(`defns`),
-  evaluate: createEvaluator(`defns`),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castDefnsExpressionNode(node)
-    return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin)
-  },
-}
-
-export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction | null> = {
-  parse: createParser(`fn`),
-  evaluate: createEvaluator(`fn`),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castFnExpressionNode(node)
-    return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin)
-  },
-}
-
-function castExpressionNode(
-  _node: SpecialExpressionNode,
-): asserts _node is DefnSpecialExpressionNode | DefnsSpecialExpressionNode | FnSpecialExpressionNode {
-  return
-}
-
-function castDefnExpressionNode(_node: SpecialExpressionNode): asserts _node is DefnSpecialExpressionNode {
-  return
-}
-
-function castDefnsExpressionNode(_node: SpecialExpressionNode): asserts _node is DefnsSpecialExpressionNode {
-  return
-}
-
-function castFnExpressionNode(_node: SpecialExpressionNode): asserts _node is FnSpecialExpressionNode {
-  return
 }
 
 function arityOk(overloadedFunctions: FunctionOverload[], arity: Arity) {
@@ -347,7 +359,7 @@ function parseFunctionArguments(
             break
           case `&let`:
             if (state === `rest` && !restArgument) {
-              throw new LitsError(`No rest argument was spcified`, tkn.debugInfo)
+              throw new LitsError(`No rest argument was specified`, tkn.debugInfo)
             }
             state = `let`
             break

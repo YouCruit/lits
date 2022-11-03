@@ -7,8 +7,7 @@ import { assertNumberOfParams, astNode, asValue, token } from '../../utils/asser
 import { valueToString } from '../../utils/helpers'
 import { BuiltinSpecialExpression } from '../interface'
 
-interface IfLetSpecialExpressionNode extends SpecialExpressionNode {
-  name: `if-let`
+type IfLetNode = SpecialExpressionNode & {
   binding: BindingNode
 }
 
@@ -25,7 +24,7 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     let params: AstNode[]
     ;[position, params] = parseTokens(tokens, position)
 
-    const node: IfLetSpecialExpressionNode = {
+    const node: IfLetNode = {
       type: `SpecialExpression`,
       name: `if-let`,
       binding: asValue(bindings[0], firstToken.debugInfo),
@@ -35,12 +34,11 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    castIfLetExpressionNode(node)
     const debugInfo = node.token?.debugInfo
     const locals: Context = {}
-    const bindingValue = evaluateAstNode(node.binding.value, contextStack)
+    const bindingValue = evaluateAstNode((node as IfLetNode).binding.value, contextStack)
     if (bindingValue) {
-      locals[node.binding.name] = { value: bindingValue }
+      locals[(node as IfLetNode).binding.name] = { value: bindingValue }
       const newContextStack = contextStack.withContext(locals)
       const thenForm = astNode.as(node.params[0], debugInfo)
       return evaluateAstNode(thenForm, newContextStack)
@@ -53,14 +51,9 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castIfLetExpressionNode(node)
-    const newContext: Context = { [node.binding.name]: { value: true } }
-    const bindingResult = analyzeAst(node.binding.value, contextStack, builtin)
+    const newContext: Context = { [(node as IfLetNode).binding.name]: { value: true } }
+    const bindingResult = analyzeAst((node as IfLetNode).binding.value, contextStack, builtin)
     const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin)
     return joinAnalyzeResults(bindingResult, paramsResult)
   },
-}
-
-function castIfLetExpressionNode(_node: SpecialExpressionNode): asserts _node is IfLetSpecialExpressionNode {
-  return
 }

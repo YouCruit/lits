@@ -5,8 +5,7 @@ import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interf
 import { token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
-interface LetSpecialExpressionNode extends SpecialExpressionNode {
-  name: `let`
+type LetNode = SpecialExpressionNode & {
   bindings: BindingNode[]
 }
 
@@ -19,7 +18,7 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
     let params: AstNode[]
     ;[position, params] = parseTokens(tokens, position)
 
-    const node: LetSpecialExpressionNode = {
+    const node: LetNode = {
       type: `SpecialExpression`,
       name: `let`,
       params,
@@ -29,10 +28,9 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    castLetExpressionNode(node)
     const locals: Context = {}
     const newContextStack = contextStack.withContext(locals)
-    for (const binding of node.bindings) {
+    for (const binding of (node as LetNode).bindings) {
       const bindingValueNode = binding.value
       const bindingValue = evaluateAstNode(bindingValueNode, newContextStack)
       locals[binding.name] = { value: bindingValue }
@@ -45,20 +43,15 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
     return result
   },
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castLetExpressionNode(node)
-    const newContext = node.bindings
+    const newContext = (node as LetNode).bindings
       .map(binding => binding.name)
       .reduce((context: Context, name) => {
         context[name] = { value: true }
         return context
       }, {})
-    const bindingValueNodes = node.bindings.map(binding => binding.value)
+    const bindingValueNodes = (node as LetNode).bindings.map(binding => binding.value)
     const bindingsResult = analyzeAst(bindingValueNodes, contextStack, builtin)
     const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin)
     return joinAnalyzeResults(bindingsResult, paramsResult)
   },
-}
-
-function castLetExpressionNode(_node: SpecialExpressionNode): asserts _node is LetSpecialExpressionNode {
-  return
 }

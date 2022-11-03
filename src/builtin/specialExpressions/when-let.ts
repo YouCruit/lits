@@ -7,8 +7,7 @@ import { assertNumberOfParams, asValue, token } from '../../utils/assertion'
 import { valueToString } from '../../utils/helpers'
 import { BuiltinSpecialExpression } from '../interface'
 
-interface WhenLetSpecialExpressionNode extends SpecialExpressionNode {
-  name: `when-let`
+type WhenLetNode = SpecialExpressionNode & {
   binding: BindingNode
 }
 
@@ -25,7 +24,7 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     let params: AstNode[]
     ;[position, params] = parseTokens(tokens, position)
 
-    const node: WhenLetSpecialExpressionNode = {
+    const node: WhenLetNode = {
       type: `SpecialExpression`,
       name: `when-let`,
       binding: asValue(bindings[0], firstToken.debugInfo),
@@ -35,13 +34,13 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    castWhenLetExpressionNode(node)
+    const { binding } = node as WhenLetNode
     const locals: Context = {}
-    const bindingValue = evaluateAstNode(node.binding.value, contextStack)
+    const bindingValue = evaluateAstNode(binding.value, contextStack)
     if (!bindingValue) {
       return null
     }
-    locals[node.binding.name] = { value: bindingValue }
+    locals[binding.name] = { value: bindingValue }
     const newContextStack = contextStack.withContext(locals)
 
     let result: Any = null
@@ -52,14 +51,10 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   validate: node => assertNumberOfParams({ min: 0 }, node),
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castWhenLetExpressionNode(node)
-    const newContext: Context = { [node.binding.name]: { value: true } }
-    const bindingResult = analyzeAst(node.binding.value, contextStack, builtin)
+    const { binding } = node as WhenLetNode
+    const newContext: Context = { [binding.name]: { value: true } }
+    const bindingResult = analyzeAst(binding.value, contextStack, builtin)
     const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin)
     return joinAnalyzeResults(bindingResult, paramsResult)
   },
-}
-
-function castWhenLetExpressionNode(_node: SpecialExpressionNode): asserts _node is WhenLetSpecialExpressionNode {
-  return
 }

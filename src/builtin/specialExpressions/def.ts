@@ -1,12 +1,7 @@
 import { Any } from '../../interface'
-import { SpecialExpressionNode } from '../../parser/interface'
 import { assertNumberOfParams, astNode, nameNode, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 import { assertNameNotDefined } from '../utils'
-
-interface DefSpecialExpressionNode extends SpecialExpressionNode {
-  name: `def`
-}
 
 export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens }) => {
@@ -24,7 +19,6 @@ export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode, builtin }) => {
-    castDefExpressionNode(node)
     const debugInfo = node.token?.debugInfo
     const name = nameNode.as(node.params[0], debugInfo).value
 
@@ -38,7 +32,6 @@ export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   validate: node => assertNumberOfParams(2, node),
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castDefExpressionNode(node)
     const debugInfo = node.token?.debugInfo
     const subNode = astNode.as(node.params[1], debugInfo)
     const result = analyzeAst(subNode, contextStack, builtin)
@@ -47,8 +40,4 @@ export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
     contextStack.globalContext[name] = { value: true }
     return result
   },
-}
-
-function castDefExpressionNode(_node: SpecialExpressionNode): asserts _node is DefSpecialExpressionNode {
-  return
 }

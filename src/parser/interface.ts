@@ -1,5 +1,7 @@
 import { SpecialExpressionName } from '../builtin/interface'
-import { Arity } from '../builtin/utils'
+import { Condition } from '../builtin/specialExpressions/cond'
+import { LoopBindingNode } from '../builtin/specialExpressions/loops'
+import { Arity, FunctionOverload } from '../builtin/utils'
 import { Context } from '../evaluator/interface'
 import { Any, Arr } from '../interface'
 import { ReservedName } from '../reservedNames'
@@ -183,6 +185,16 @@ export interface SpecialExpressionNode extends GenericNode {
   type: `SpecialExpression`
   name: SpecialExpressionName
   params: AstNode[]
+  binding?: BindingNode
+  bindings?: BindingNode[]
+  conditions?: Condition[]
+  functionName?: AstNode
+  overloads?: FunctionOverload[]
+  loopBindings?: LoopBindingNode[]
+  messageNode?: AstNode
+  tryExpression?: AstNode
+  error?: NameNode
+  catchExpression?: AstNode
 }
 
 export type AstNode =
@@ -191,8 +203,8 @@ export type AstNode =
   | ReservedNameNode
   | NameNode
   | NormalExpressionNode
-  | SpecialExpressionNode
   | ModifierNode
+  | SpecialExpressionNode
 
 export type Ast = {
   type: `Program`

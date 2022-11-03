@@ -5,9 +5,9 @@ import {
   ParseExpression,
   ParseTokens,
   ParseToken,
-  SpecialExpressionNode,
   ParseBinding,
   NameNode,
+  SpecialExpressionNode,
 } from '../parser/interface'
 import { Token, DebugInfo } from '../tokenizer/interface'
 import { NormalExpressionNode } from '../parser/interface'
@@ -44,11 +44,15 @@ type EvaluateHelpers = {
   builtin: Builtin
   lookUp(nameNode: NameNode, contextStack: ContextStack): LookUpResult
 }
-export type BuiltinSpecialExpression<T, N extends SpecialExpressionNode = SpecialExpressionNode> = {
-  parse: (tokens: Token[], position: number, parsers: ParserHelpers) => [number, N]
-  evaluate: (node: N, contextStack: ContextStack, helpers: EvaluateHelpers) => T
-  validate?: (node: N) => void
-  analyze(node: N, contextStack: ContextStack, params: { analyzeAst: AnalyzeAst; builtin: Builtin }): AnalyzeResult
+export type BuiltinSpecialExpression<T> = {
+  parse: (tokens: Token[], position: number, parsers: ParserHelpers) => [number, SpecialExpressionNode]
+  evaluate: (node: SpecialExpressionNode, contextStack: ContextStack, helpers: EvaluateHelpers) => T
+  validate?: (node: SpecialExpressionNode) => void
+  analyze(
+    node: SpecialExpressionNode,
+    contextStack: ContextStack,
+    params: { analyzeAst: AnalyzeAst; builtin: Builtin },
+  ): AnalyzeResult
 }
 
 export type SpecialExpressionName =

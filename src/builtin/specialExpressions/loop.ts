@@ -7,10 +7,7 @@ import { any, asValue, token } from '../../utils/assertion'
 import { valueToString } from '../../utils/helpers'
 import { BuiltinSpecialExpression } from '../interface'
 
-interface LoopSpecialExpressionNode extends SpecialExpressionNode {
-  name: `loop`
-  bindings: BindingNode[]
-}
+type LoopNode = SpecialExpressionNode & { bindings: BindingNode[] }
 
 export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens, parseBindings }) => {
@@ -21,7 +18,7 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
     let params: AstNode[]
     ;[position, params] = parseTokens(tokens, position)
 
-    const node: LoopSpecialExpressionNode = {
+    const node: LoopNode = {
       type: `SpecialExpression`,
       name: `loop`,
       params,
@@ -32,8 +29,7 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const debugInfo = node.token?.debugInfo
-    castLoopExpressionNode(node)
-    const bindingContext: Context = node.bindings.reduce((result: Context, binding) => {
+    const bindingContext: Context = (node as LoopNode).bindings.reduce((result: Context, binding) => {
       result[binding.name] = { value: evaluateAstNode(binding.value, contextStack) }
       return result
     }, {})
@@ -48,13 +44,13 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
       } catch (error) {
         if (error instanceof RecurSignal) {
           const params = error.params
-          if (params.length !== node.bindings.length) {
+          if (params.length !== (node as LoopNode).bindings.length) {
             throw new LitsError(
-              `recur expected ${node.bindings.length} parameters, got ${valueToString(params.length)}`,
+              `recur expected ${(node as LoopNode).bindings.length} parameters, got ${valueToString(params.length)}`,
               debugInfo,
             )
           }
-          node.bindings.forEach((binding, index) => {
+          ;(node as LoopNode).bindings.forEach((binding, index) => {
             asValue(bindingContext[binding.name], debugInfo).value = any.as(params[index], debugInfo)
           })
           continue
@@ -65,21 +61,16 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
   },
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castLoopExpressionNode(node)
-    const newContext = node.bindings
+    const newContext = (node as LoopNode).bindings
       .map(binding => binding.name)
       .reduce((context: Context, name) => {
         context[name] = { value: true }
         return context
       }, {})
 
-    const bindingValueNodes = node.bindings.map(binding => binding.value)
+    const bindingValueNodes = (node as LoopNode).bindings.map(binding => binding.value)
     const bindingsResult = analyzeAst(bindingValueNodes, contextStack, builtin)
     const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin)
     return joinAnalyzeResults(bindingsResult, paramsResult)
   },
-}
-
-function castLoopExpressionNode(_node: SpecialExpressionNode): asserts _node is LoopSpecialExpressionNode {
-  return
 }

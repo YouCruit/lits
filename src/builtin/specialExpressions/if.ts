@@ -1,11 +1,6 @@
 import { Any } from '../../interface'
-import { SpecialExpressionNode } from '../../parser/interface'
 import { assertNumberOfParams, astNode, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
-
-interface IfSpecialExpressionNode extends SpecialExpressionNode {
-  name: `if`
-}
 
 export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens }) => {
@@ -22,7 +17,6 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    castIfExpressionNode(node)
     const debugInfo = node.token?.debugInfo
 
     const [conditionNode, trueNode, falseNode] = node.params
@@ -37,12 +31,5 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
   },
   validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    castIfExpressionNode(node)
-    return analyzeAst(node.params, contextStack, builtin)
-  },
-}
-
-function castIfExpressionNode(_node: SpecialExpressionNode): asserts _node is IfSpecialExpressionNode {
-  return
+  analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.params, contextStack, builtin),
 }

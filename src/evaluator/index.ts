@@ -1,6 +1,5 @@
 import {
   NormalExpressionNode,
-  SpecialExpressionNode,
   NameNode,
   NumberNode,
   StringNode,
@@ -8,6 +7,7 @@ import {
   FUNCTION_SYMBOL,
   NormalExpressionNodeWithName,
   BuiltinFunction,
+  SpecialExpressionNode,
 } from '../parser/interface'
 import { Ast } from '../parser/interface'
 import { builtin } from '../builtin'

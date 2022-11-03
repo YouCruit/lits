@@ -21,7 +21,7 @@ import {
 import { builtin } from '../builtin'
 import { ReservedName } from '../reservedNames'
 import { LitsError } from '../errors'
-import { FnSpecialExpressionNode } from '../builtin/specialExpressions/functions'
+import { FnNode } from '../builtin/specialExpressions/functions'
 import { FunctionArguments } from '../builtin/utils'
 import { assertEventNumberOfParams, assertValue, asValue, expressionNode, nameNode, token } from '../utils/assertion'
 import { valueToString } from '../utils/helpers'
@@ -157,7 +157,7 @@ const parseRegexpShorthand: ParseRegexpShorthand = (tokens, position) => {
 }
 
 const placeholderRegexp = /^%([1-9][0-9]?$)/
-type ParseFnShorthand = (tokens: Token[], position: number) => [number, FnSpecialExpressionNode]
+type ParseFnShorthand = (tokens: Token[], position: number) => [number, FnNode]
 const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
   const firstToken = token.as(tokens[position], `EOF`)
 
@@ -192,7 +192,7 @@ const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
     mandatoryArguments,
   }
 
-  const node: FnSpecialExpressionNode = {
+  const node: FnNode = {
     type: `SpecialExpression`,
     name: `fn`,
     params: [],

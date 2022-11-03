@@ -8,8 +8,8 @@ import {
   NodeType,
   NormalExpressionNode,
   NormalExpressionNodeWithName,
-  SpecialExpressionNode,
   RegularExpression,
+  SpecialExpressionNode,
 } from '../parser/interface'
 import { DebugInfo } from '../tokenizer/interface'
 import { getDebugInfo, isAstNode, isLitsFunction, isRegularExpression, valueToString } from './helpers'

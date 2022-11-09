@@ -165,7 +165,7 @@ module.exports = {
       },
     ],
     description: `Returns milliseconds elapsed since the UNIX epoch to \`date-time\`.`,
-    examples: [`(iso-date-time->inst-ms "2022-04-12T09:37:10.899Z") (iso-date-time->inst-ms "1980-01-01")`],
+    examples: [`(iso-date-time->inst-ms "2022-04-12T09:37:10.899Z")`, `(iso-date-time->inst-ms "1980-01-01")`],
   },
   'inst-ms->iso-date-time': {
     name: `inst-ms->iso-date-time`,
@@ -181,7 +181,7 @@ module.exports = {
       },
     ],
     description: `Returns IOS date time string from \`ms\` (milliseconds elapsed since the UNIX epoch).`,
-    examples: [`(inst-ms->iso-date-time 1649756230899) (inst-ms->iso-date-time 0)`],
+    examples: [`(inst-ms->iso-date-time 1649756230899)`, `(inst-ms->iso-date-time 0)`],
   },
   'debug!': {
     name: `debug!`,

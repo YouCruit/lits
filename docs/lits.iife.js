@@ -184,7 +184,7 @@ var Lits = (function (exports) {
           if (message instanceof Error) {
               message = "".concat(message.name).concat(message.message ? ": ".concat(message.message) : "");
           }
-          _this = _super.call(this, "".concat(message).concat(debugInfo ? "\n".concat(debugInfo) : "")) || this;
+          _this = _super.call(this, "".concat(message).concat(debugInfo ? "\n".concat(debugInfo === "EOF" ? "EOF" : "".concat(debugInfo.code, "\n").concat(debugInfo.codeMarker)) : "")) || this;
           _this.shortMessage = message;
           _this.debugInfo = debugInfo;
           Object.setPrototypeOf(_this, AbstractLitsError.prototype);
@@ -4262,7 +4262,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.47";
+  var version = "1.0.48";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6384,28 +6384,6 @@ var Lits = (function (exports) {
       return ast;
   }
 
-  var SourceCodeInfoImpl = /** @class */ (function () {
-      function SourceCodeInfoImpl(line, column, code, getLocation) {
-          this.line = line;
-          this.column = column;
-          this.code = code;
-          this.getLocation = getLocation;
-      }
-      Object.defineProperty(SourceCodeInfoImpl.prototype, "codeMarker", {
-          get: function () {
-              var leftPadding = this.column - 1;
-              var rightPadding = this.code.length - leftPadding - 1;
-              return "".concat(" ".repeat(leftPadding), "^").concat(" ".repeat(rightPadding));
-          },
-          enumerable: false,
-          configurable: true
-      });
-      SourceCodeInfoImpl.prototype.toString = function () {
-          return "".concat(this.code, "\n").concat(this.codeMarker);
-      };
-      return SourceCodeInfoImpl;
-  }());
-
   var NO_MATCH = [0, undefined];
   // A name (function or variable) can contain a lot of different characters
   var nameRegExp = /[@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>+*/-]/;
@@ -6720,11 +6698,25 @@ var Lits = (function (exports) {
   function getSourceCodeLine(input, lineNbr) {
       return input.split(/\r\n|\r|\n/)[lineNbr];
   }
+  function getCodeMarker(code, column) {
+      var leftPadding = column - 1;
+      var rightPadding = code.length - leftPadding - 1;
+      return "".concat(" ".repeat(Math.max(leftPadding, 0)), "^").concat(" ".repeat(Math.max(rightPadding, 0)));
+  }
   function createDebugInfo(input, position, getLocation) {
       var lines = input.substr(0, position + 1).split(/\r\n|\r|\n/);
       var lastLine = lines[lines.length - 1];
-      var sourceCodeLine = getSourceCodeLine(input, lines.length - 1);
-      return new SourceCodeInfoImpl(lines.length, lastLine.length, sourceCodeLine, getLocation);
+      var code = getSourceCodeLine(input, lines.length - 1);
+      var line = lines.length;
+      var column = lastLine.length;
+      var codeMarker = getCodeMarker(code, column);
+      return {
+          code: code,
+          line: line,
+          column: column,
+          codeMarker: codeMarker,
+          getLocation: getLocation,
+      };
   }
   function tokenize(input, params) {
       var e_1, _a;

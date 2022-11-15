@@ -9,6 +9,11 @@ var Lits = (function (exports) {
       var _a;
       return (_a = anyValue === null || anyValue === void 0 ? void 0 : anyValue.debugInfo) !== null && _a !== void 0 ? _a : debugInfo;
   }
+  function getCodeMarker(sourceCodeInfo) {
+      var leftPadding = sourceCodeInfo.column - 1;
+      var rightPadding = sourceCodeInfo.code.length - leftPadding - 1;
+      return "".concat(" ".repeat(Math.max(leftPadding, 0)), "^").concat(" ".repeat(Math.max(rightPadding, 0)));
+  }
   function valueToString$1(value) {
       if (isLitsFunction(value)) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -166,6 +171,9 @@ var Lits = (function (exports) {
       return to.concat(ar || Array.prototype.slice.call(from));
   }
 
+  function getLitsErrorMessage(message, debugInfo) {
+      return "".concat(message).concat(debugInfo ? "\n".concat(debugInfo === "EOF" ? "EOF" : "".concat(debugInfo.code, "\n").concat(getCodeMarker(debugInfo))) : "");
+  }
   var RecurSignal = /** @class */ (function (_super) {
       __extends(RecurSignal, _super);
       function RecurSignal(params) {
@@ -184,7 +192,7 @@ var Lits = (function (exports) {
           if (message instanceof Error) {
               message = "".concat(message.name).concat(message.message ? ": ".concat(message.message) : "");
           }
-          _this = _super.call(this, "".concat(message).concat(debugInfo ? "\n".concat(debugInfo === "EOF" ? "EOF" : "".concat(debugInfo.code, "\n").concat(debugInfo.codeMarker)) : "")) || this;
+          _this = _super.call(this, getLitsErrorMessage(message, debugInfo)) || this;
           _this.shortMessage = message;
           _this.debugInfo = debugInfo;
           Object.setPrototypeOf(_this, AbstractLitsError.prototype);
@@ -4262,7 +4270,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.49";
+  var version = "1.0.50";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6698,23 +6706,16 @@ var Lits = (function (exports) {
   function getSourceCodeLine(input, lineNbr) {
       return input.split(/\r\n|\r|\n/)[lineNbr];
   }
-  function getCodeMarker(code, column) {
-      var leftPadding = column - 1;
-      var rightPadding = code.length - leftPadding - 1;
-      return "".concat(" ".repeat(Math.max(leftPadding, 0)), "^").concat(" ".repeat(Math.max(rightPadding, 0)));
-  }
   function createDebugInfo(input, position, getLocation) {
       var lines = input.substr(0, position + 1).split(/\r\n|\r|\n/);
       var lastLine = lines[lines.length - 1];
       var code = getSourceCodeLine(input, lines.length - 1);
       var line = lines.length;
       var column = lastLine.length;
-      var codeMarker = getCodeMarker(code, column);
       return {
           code: code,
           line: line,
           column: column,
-          codeMarker: codeMarker,
           getLocation: getLocation,
       };
   }

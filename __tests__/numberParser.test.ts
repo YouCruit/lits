@@ -27,9 +27,9 @@ describe(`parse numbers`, () => {
 
       numberSamples.forEach(sample => {
         test(`number sample: ${sample}`, () => {
-          expect(tokenizeNumber(sample, 0, { line: 0, column: 0, code: ``, codeMarker: `` })).toEqual([
+          expect(tokenizeNumber(sample, 0, { line: 0, column: 0, code: `` })).toEqual([
             sample.length,
-            { type: `number`, value: sample, debugInfo: { line: 0, column: 0, code: ``, codeMarker: `` } },
+            { type: `number`, value: sample, debugInfo: { line: 0, column: 0, code: `` } },
           ])
           expect(lits.run(sample)).toEqual(Number(sample))
         })
@@ -58,7 +58,7 @@ describe(`parse numbers`, () => {
 
       numberSamples.forEach(sample => {
         test(`number sample: ${sample}`, () => {
-          expect(tokenizeNumber(sample, 0, { line: 0, column: 0, code: ``, codeMarker: `` })).toEqual([0, undefined])
+          expect(tokenizeNumber(sample, 0, { line: 0, column: 0, code: `` })).toEqual([0, undefined])
         })
       })
     })

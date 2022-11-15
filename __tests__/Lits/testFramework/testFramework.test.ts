@@ -171,7 +171,6 @@ not ok 1 equals
   test(`getErrorYaml`, () => {
     const error = new LitsError(`Error`, {
       code: `x`,
-      codeMarker: `^`,
       column: 1,
       line: 1,
     })

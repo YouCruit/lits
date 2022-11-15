@@ -11,7 +11,6 @@ describe(`errors`, () => {
       line: 1,
       column: 1,
       code: `(+ 1 2)`,
-      codeMarker: `^      `,
     })
     expect(err).toBeInstanceOf(UserDefinedError)
     expect(err.name).toBe(`UserDefinedError`)

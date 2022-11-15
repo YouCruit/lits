@@ -14,7 +14,6 @@ export type SourceCodeInfo = {
   line: number
   column: number
   code: string
-  codeMarker: string
   getLocation?: LocationGetter
 }
 

@@ -1,6 +1,12 @@
 import { Arr } from './interface'
 import { DebugInfo } from './tokenizer/interface'
-import { valueToString } from './utils/helpers'
+import { getCodeMarker, valueToString } from './utils/helpers'
+
+function getLitsErrorMessage(message: string, debugInfo?: DebugInfo) {
+  return `${message}${
+    debugInfo ? `\n${debugInfo === `EOF` ? `EOF` : `${debugInfo.code}\n${getCodeMarker(debugInfo)}`}` : ``
+  }`
+}
 
 export class RecurSignal extends Error {
   public params: Arr
@@ -19,9 +25,7 @@ export abstract class AbstractLitsError extends Error {
     if (message instanceof Error) {
       message = `${message.name}${message.message ? `: ${message.message}` : ``}`
     }
-    super(
-      `${message}${debugInfo ? `\n${debugInfo === `EOF` ? `EOF` : `${debugInfo.code}\n${debugInfo.codeMarker}`}` : ``}`,
-    )
+    super(getLitsErrorMessage(message, debugInfo))
     this.shortMessage = message
     this.debugInfo = debugInfo
     Object.setPrototypeOf(this, AbstractLitsError.prototype)

@@ -174,7 +174,7 @@ test(`evaluateAstNode`, () => {
       {
         type: `Modifier`,
         value: `&`,
-        token: { type: `name`, debugInfo: { code: ``, codeMarker: ``, column: 1, line: 1 }, value: `X` },
+        token: { type: `name`, debugInfo: { code: ``, column: 1, line: 1 }, value: `X` },
       },
       createContextStack(),
     ),

@@ -63,7 +63,7 @@ describe(`Tokenizer`, () => {
           type: `regexpShorthand`,
           value: `Hej`,
           options: {},
-          debugInfo: { line: 1, column: 1, code: `#"Hej"`, codeMarker: `^     `, getLocation: undefined },
+          debugInfo: { line: 1, column: 1, code: `#"Hej"`, getLocation: undefined },
         },
       ])
       expect(tokenize(`#"Hej"g`, { debug: true })).toEqual([
@@ -71,7 +71,7 @@ describe(`Tokenizer`, () => {
           type: `regexpShorthand`,
           value: `Hej`,
           options: { g: true },
-          debugInfo: { line: 1, column: 1, code: `#"Hej"g`, codeMarker: `^      `, getLocation: undefined },
+          debugInfo: { line: 1, column: 1, code: `#"Hej"g`, getLocation: undefined },
         },
       ])
       expect(tokenize(`#"Hej"i`, { debug: true })).toEqual([
@@ -79,7 +79,7 @@ describe(`Tokenizer`, () => {
           type: `regexpShorthand`,
           value: `Hej`,
           options: { i: true },
-          debugInfo: { line: 1, column: 1, code: `#"Hej"i`, codeMarker: `^      `, getLocation: undefined },
+          debugInfo: { line: 1, column: 1, code: `#"Hej"i`, getLocation: undefined },
         },
       ])
       expect(tokenize(`#"Hej"gi`, { debug: true })).toEqual([
@@ -87,7 +87,7 @@ describe(`Tokenizer`, () => {
           type: `regexpShorthand`,
           value: `Hej`,
           options: { i: true, g: true },
-          debugInfo: { line: 1, column: 1, code: `#"Hej"gi`, codeMarker: `^       `, getLocation: undefined },
+          debugInfo: { line: 1, column: 1, code: `#"Hej"gi`, getLocation: undefined },
         },
       ])
       expect(tokenize(`#"Hej"ig`, { debug: true })).toEqual([
@@ -95,7 +95,7 @@ describe(`Tokenizer`, () => {
           type: `regexpShorthand`,
           value: `Hej`,
           options: { i: true, g: true },
-          debugInfo: { line: 1, column: 1, code: `#"Hej"ig`, codeMarker: `^       `, getLocation: undefined },
+          debugInfo: { line: 1, column: 1, code: `#"Hej"ig`, getLocation: undefined },
         },
       ])
       expect(() => tokenize(`#"Hej"gg`, { debug: true })).toThrow()
@@ -110,12 +110,12 @@ describe(`Tokenizer`, () => {
         {
           type: `fnShorthand`,
           value: `#`,
-          debugInfo: { line: 1, column: 1, code: `#(`, codeMarker: `^ `, getLocation: undefined },
+          debugInfo: { line: 1, column: 1, code: `#(`, getLocation: undefined },
         },
         {
           type: `paren`,
           value: `(`,
-          debugInfo: { line: 1, column: 2, code: `#(`, codeMarker: ` ^`, getLocation: undefined },
+          debugInfo: { line: 1, column: 2, code: `#(`, getLocation: undefined },
         },
       ])
       expect(() => tokenize(`#`, { debug: true })).toThrow()

@@ -173,7 +173,7 @@ export function getErrorYaml(error: unknown): string {
 `
   }
 
-  const getLocation = debugInfo.getLocation ?? (() => undefined)
+  const getLocation = debugInfo.getLocation ?? ((line: number, column: number) => `(${line}:${column})`)
   const location = getLocation(debugInfo.line, debugInfo.column)
   const formattedMessage = message.includes(`\n`)
     ? `|\n    ${message.split(/\r?\n/).join(`\n    `)}`

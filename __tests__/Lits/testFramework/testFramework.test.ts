@@ -179,7 +179,7 @@ not ok 1 equals
   ---
   error: "LitsError"
   message: "Error"
-  location: undefined
+  location: "(1:1)"
   code:
     - "x"
     - "^"

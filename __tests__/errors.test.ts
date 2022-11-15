@@ -10,12 +10,11 @@ describe(`errors`, () => {
     const err = new UserDefinedError(`A message`, {
       line: 1,
       column: 1,
-      toString: () => `(1:1)`,
-      code: ``,
-      codeMarker: ``,
+      code: `(+ 1 2)`,
+      codeMarker: `^      `,
     })
     expect(err).toBeInstanceOf(UserDefinedError)
     expect(err.name).toBe(`UserDefinedError`)
-    expect(err.message).toBe(`A message\n(1:1)`)
+    expect(err.message).toBe(`A message\n(+ 1 2)\n^      `)
   })
 })

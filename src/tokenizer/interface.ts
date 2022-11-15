@@ -15,8 +15,7 @@ export type SourceCodeInfo = {
   column: number
   code: string
   codeMarker: string
-  filename?: string
-  toString(): string
+  getLocation?: LocationGetter
 }
 
 export type DebugInfo = SourceCodeInfo | `EOF`

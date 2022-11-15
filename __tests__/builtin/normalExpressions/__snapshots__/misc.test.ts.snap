@@ -41,9 +41,10 @@ exports[`misc functions debug! debug value. 2`] = `
 {
   \\"__LITS_FUNCTION__\\": true,
   \\"debugInfo\\": {
+    \\"code\\": \\"(debug! #(> %1 2))\\",
     \\"line\\": 1,
     \\"column\\": 9,
-    \\"code\\": \\"(debug! #(> %1 2))\\"
+    \\"codeMarker\\": \\"        ^         \\"
   },
   \\"type\\": \\"user-defined\\",
   \\"overloads\\": [
@@ -66,9 +67,10 @@ exports[`misc functions debug! debug value. 2`] = `
                 \\"type\\": \\"name\\",
                 \\"value\\": \\"%1\\",
                 \\"debugInfo\\": {
+                  \\"code\\": \\"(debug! #(> %1 2))\\",
                   \\"line\\": 1,
                   \\"column\\": 13,
-                  \\"code\\": \\"(debug! #(> %1 2))\\"
+                  \\"codeMarker\\": \\"            ^     \\"
                 }
               }
             },
@@ -79,9 +81,10 @@ exports[`misc functions debug! debug value. 2`] = `
                 \\"type\\": \\"number\\",
                 \\"value\\": \\"2\\",
                 \\"debugInfo\\": {
+                  \\"code\\": \\"(debug! #(> %1 2))\\",
                   \\"line\\": 1,
                   \\"column\\": 16,
-                  \\"code\\": \\"(debug! #(> %1 2))\\"
+                  \\"codeMarker\\": \\"               ^  \\"
                 }
               }
             }
@@ -90,9 +93,10 @@ exports[`misc functions debug! debug value. 2`] = `
             \\"type\\": \\"name\\",
             \\"value\\": \\">\\",
             \\"debugInfo\\": {
+              \\"code\\": \\"(debug! #(> %1 2))\\",
               \\"line\\": 1,
               \\"column\\": 11,
-              \\"code\\": \\"(debug! #(> %1 2))\\"
+              \\"codeMarker\\": \\"          ^       \\"
             }
           }
         }

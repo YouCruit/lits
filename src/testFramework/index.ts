@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { AbstractLitsError } from '../errors'
-import { Lits, LocationGetter } from '../Lits/Lits'
-import { SourceCodeInfoImpl } from '../tokenizer/SourceCodeInfoImpl'
+import { Lits } from '../Lits/Lits'
 
 const fs = require(`fs`)
 const path = require(`path`)
@@ -151,9 +150,9 @@ function getTestChunks(testProgram: string): TestChunk[] {
   }, [])
 }
 
-function getErrorYaml(error: unknown): string {
+export function getErrorYaml(error: unknown): string {
   const message = getErrorMessage(error)
-  // This is a fallbak, should not happen (Lits should be throwing AbstractLitsErrors)
+  // This is a fallback, should not happen (Lits should be throwing AbstractLitsErrors)
   /* istanbul ignore next */
   if (!isAbstractLitsError(error)) {
     return `
@@ -163,8 +162,9 @@ function getErrorYaml(error: unknown): string {
 `
   }
 
+  const debugInfo = error.debugInfo
   /* istanbul ignore next */
-  if (!(error.debugInfo instanceof SourceCodeInfoImpl)) {
+  if (!debugInfo || typeof debugInfo === `string`) {
     return `
   ---
   message: ${JSON.stringify(message)}
@@ -172,7 +172,9 @@ function getErrorYaml(error: unknown): string {
   ...
 `
   }
-  const location = (error.debugInfo.getLocation as LocationGetter)(error.debugInfo.line, error.debugInfo.column)
+
+  const getLocation = debugInfo.getLocation ?? (() => undefined)
+  const location = getLocation(debugInfo.line, debugInfo.column)
   const formattedMessage = message.includes(`\n`)
     ? `|\n    ${message.split(/\r?\n/).join(`\n    `)}`
     : JSON.stringify(message)
@@ -182,8 +184,8 @@ function getErrorYaml(error: unknown): string {
   message: ${formattedMessage}
   location: ${JSON.stringify(location)}
   code:
-    - "${error.debugInfo.code}"
-    - "${error.debugInfo.codeMarker}"
+    - "${debugInfo.code}"
+    - "${debugInfo.codeMarker}"
   ...
 `
 }

@@ -19,7 +19,9 @@ export abstract class AbstractLitsError extends Error {
     if (message instanceof Error) {
       message = `${message.name}${message.message ? `: ${message.message}` : ``}`
     }
-    super(`${message}${debugInfo ? `\n${debugInfo}` : ``}`)
+    super(
+      `${message}${debugInfo ? `\n${debugInfo === `EOF` ? `EOF` : `${debugInfo.code}\n${debugInfo.codeMarker}`}` : ``}`,
+    )
     this.shortMessage = message
     this.debugInfo = debugInfo
     Object.setPrototypeOf(this, AbstractLitsError.prototype)

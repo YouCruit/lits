@@ -1,5 +1,6 @@
 import path from 'path'
-import { runTest } from '../../../src/testFramework'
+import { LitsError } from '../../../src/errors'
+import { getErrorYaml, runTest } from '../../../src/testFramework'
 
 describe(`testFramework`, () => {
   test(`expecting .lits file`, () => {
@@ -164,6 +165,24 @@ not ok 1 equals
   code:
     - "(assert-equal obj-a obj-b)"
     - " ^                        "
+  ...
+`)
+  })
+  test(`getErrorYaml`, () => {
+    const error = new LitsError(`Error`, {
+      code: `x`,
+      codeMarker: `^`,
+      column: 1,
+      line: 1,
+    })
+    expect(getErrorYaml(error)).toBe(`
+  ---
+  error: "LitsError"
+  message: "Error"
+  location: undefined
+  code:
+    - "x"
+    - "^"
   ...
 `)
   })

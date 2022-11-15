@@ -78,8 +78,9 @@ Array [
   },
   Object {
     "__REGEXP__": true,
-    "debugInfo": SourceCodeInfoImpl {
+    "debugInfo": Object {
       "code": "(sort [1 true 2 false  -100 nil (regexp \\"abc\\") (regexp \\"ABC\\") [] [1 2 3] [0 1 2] [0 0 0 0] {:a 1} {} \\"Albert\\" \\"albert\\"])",
+      "codeMarker": "                                                ^                                                                       ",
       "column": 49,
       "getLocation": undefined,
       "line": 1,
@@ -89,8 +90,9 @@ Array [
   },
   Object {
     "__REGEXP__": true,
-    "debugInfo": SourceCodeInfoImpl {
+    "debugInfo": Object {
       "code": "(sort [1 true 2 false  -100 nil (regexp \\"abc\\") (regexp \\"ABC\\") [] [1 2 3] [0 1 2] [0 0 0 0] {:a 1} {} \\"Albert\\" \\"albert\\"])",
+      "codeMarker": "                                 ^                                                                                      ",
       "column": 34,
       "getLocation": undefined,
       "line": 1,

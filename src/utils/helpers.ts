@@ -1,9 +1,15 @@
 import { AstNode, FUNCTION_SYMBOL, LitsFunction, NodeType, REGEXP_SYMBOL, RegularExpression } from '../parser/interface'
-import { DebugInfo, Token, TokenizerType } from '../tokenizer/interface'
+import { DebugInfo, SourceCodeInfo, Token, TokenizerType } from '../tokenizer/interface'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
 export function getDebugInfo(anyValue: any, debugInfo?: DebugInfo): DebugInfo | undefined {
   return anyValue?.debugInfo ?? debugInfo
+}
+
+export function getCodeMarker(sourceCodeInfo: SourceCodeInfo): string {
+  const leftPadding = sourceCodeInfo.column - 1
+  const rightPadding = sourceCodeInfo.code.length - leftPadding - 1
+  return `${` `.repeat(Math.max(leftPadding, 0))}^${` `.repeat(Math.max(rightPadding, 0))}`
 }
 
 export function valueToString(value: unknown): string {

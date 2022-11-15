@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { AbstractLitsError } from '../errors'
 import { Lits } from '../Lits/Lits'
+import { getCodeMarker } from '../utils/helpers'
 
 const fs = require(`fs`)
 const path = require(`path`)
@@ -185,7 +186,7 @@ export function getErrorYaml(error: unknown): string {
   location: ${JSON.stringify(location)}
   code:
     - "${debugInfo.code}"
-    - "${debugInfo.codeMarker}"
+    - "${getCodeMarker(debugInfo)}"
   ...
 `
 }

@@ -8,7 +8,7 @@ const contextStack: ContextStack = createContextStack([{ a: { value: 1 } }, {}])
 
 describe(`builtin utils`, () => {
   test(`assertNameNotDefined`, () => {
-    const debugInfo: DebugInfo = { line: 1, column: 1, code: ``, codeMarker: `` }
+    const debugInfo: DebugInfo = { line: 1, column: 1, code: `` }
     expect(() => assertNameNotDefined(undefined, contextStack, builtin, debugInfo)).not.toThrow()
     expect(() => assertNameNotDefined(`b`, contextStack, builtin, debugInfo)).not.toThrow()
     expect(() => assertNameNotDefined(`a`, contextStack, builtin, debugInfo)).toThrow()

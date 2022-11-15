@@ -44,12 +44,6 @@ function getSourceCodeLine(input: string, lineNbr: number): string {
   return input.split(/\r\n|\r|\n/)[lineNbr] as string
 }
 
-function getCodeMarker(code: string, column: number): string {
-  const leftPadding = column - 1
-  const rightPadding = code.length - leftPadding - 1
-  return `${` `.repeat(Math.max(leftPadding, 0))}^${` `.repeat(Math.max(rightPadding, 0))}`
-}
-
 function createDebugInfo(input: string, position: number, getLocation?: LocationGetter): DebugInfo {
   const lines = input.substr(0, position + 1).split(/\r\n|\r|\n/)
   const lastLine = lines[lines.length - 1] as string
@@ -57,12 +51,10 @@ function createDebugInfo(input: string, position: number, getLocation?: Location
   const code = getSourceCodeLine(input, lines.length - 1)
   const line = lines.length
   const column = lastLine.length
-  const codeMarker = getCodeMarker(code, column)
   return {
     code,
     line,
     column,
-    codeMarker,
     getLocation,
   }
 }

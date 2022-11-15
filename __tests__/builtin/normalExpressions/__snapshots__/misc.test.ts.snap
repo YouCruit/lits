@@ -43,8 +43,7 @@ exports[`misc functions debug! debug value. 2`] = `
   \\"debugInfo\\": {
     \\"code\\": \\"(debug! #(> %1 2))\\",
     \\"line\\": 1,
-    \\"column\\": 9,
-    \\"codeMarker\\": \\"        ^         \\"
+    \\"column\\": 9
   },
   \\"type\\": \\"user-defined\\",
   \\"overloads\\": [
@@ -69,8 +68,7 @@ exports[`misc functions debug! debug value. 2`] = `
                 \\"debugInfo\\": {
                   \\"code\\": \\"(debug! #(> %1 2))\\",
                   \\"line\\": 1,
-                  \\"column\\": 13,
-                  \\"codeMarker\\": \\"            ^     \\"
+                  \\"column\\": 13
                 }
               }
             },
@@ -83,8 +81,7 @@ exports[`misc functions debug! debug value. 2`] = `
                 \\"debugInfo\\": {
                   \\"code\\": \\"(debug! #(> %1 2))\\",
                   \\"line\\": 1,
-                  \\"column\\": 16,
-                  \\"codeMarker\\": \\"               ^  \\"
+                  \\"column\\": 16
                 }
               }
             }
@@ -95,8 +92,7 @@ exports[`misc functions debug! debug value. 2`] = `
             \\"debugInfo\\": {
               \\"code\\": \\"(debug! #(> %1 2))\\",
               \\"line\\": 1,
-              \\"column\\": 11,
-              \\"codeMarker\\": \\"          ^       \\"
+              \\"column\\": 11
             }
           }
         }

@@ -8,10 +8,6 @@
   "bin": {
     "lits": "cli/index.js"
   },
-  "engines": {
-    "node": "16.14.0",
-    "npm": "8.3.1"
-  },
   "scripts": {
     "lint": "eslint \"src/**/*.ts\" \"__tests__/**/*.ts\" \"cli/**/*.js\" \"cli/**/*.js\"",
     "build": "node ./scripts/generateVersion.js && rm -rf dist && rollup -c && npm run build-docs",

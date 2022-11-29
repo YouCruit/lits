@@ -4270,7 +4270,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.50";
+  var version = "1.0.51";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;

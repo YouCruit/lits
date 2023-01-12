@@ -277,6 +277,7 @@ describe(`specialExpressions`, () => {
       describe(`undefinedSymbols`, () => {
         test(`samples`, () => {
           expect(lits.analyze(`(let [a (> (count name) 4)] a b)`).undefinedSymbols).toEqual(new Set([`name`, `b`]))
+          expect(lits.analyze(`(let [data 1, data2 (+ data 1)] data2)`).undefinedSymbols).toEqual(new Set([]))
         })
       })
     })

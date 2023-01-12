@@ -49,9 +49,15 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
         context[name] = { value: true }
         return context
       }, {})
-    const bindingValueNodes = (node as LetNode).bindings.map(binding => binding.value)
-    const bindingsResult = analyzeAst(bindingValueNodes, contextStack, builtin)
+    const bindingContext: Context = {}
+    const bindingResults = (node as LetNode).bindings.map(bindingNode => {
+      const valueNode = bindingNode.value
+      const bindingsResult = analyzeAst(valueNode, contextStack.withContext(bindingContext), builtin)
+      bindingContext[bindingNode.name] = { value: true }
+      return bindingsResult
+    })
+
     const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin)
-    return joinAnalyzeResults(bindingsResult, paramsResult)
+    return joinAnalyzeResults(...bindingResults, paramsResult)
   },
 }

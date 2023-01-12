@@ -1601,10 +1601,15 @@ var Lits = (function (exports) {
               context[name] = { value: true };
               return context;
           }, {});
-          var bindingValueNodes = node.bindings.map(function (binding) { return binding.value; });
-          var bindingsResult = analyzeAst(bindingValueNodes, contextStack, builtin);
+          var bindingContext = {};
+          var bindingResults = node.bindings.map(function (bindingNode) {
+              var valueNode = bindingNode.value;
+              var bindingsResult = analyzeAst(valueNode, contextStack.withContext(bindingContext), builtin);
+              bindingContext[bindingNode.name] = { value: true };
+              return bindingsResult;
+          });
           var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin);
-          return joinAnalyzeResults(bindingsResult, paramsResult);
+          return joinAnalyzeResults.apply(void 0, __spreadArray(__spreadArray([], __read(bindingResults), false), [paramsResult], false));
       },
   };
 
@@ -4270,7 +4275,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.51";
+  var version = "1.0.52";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;

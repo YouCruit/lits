@@ -5,7 +5,7 @@ import { Token } from '../tokenizer/interface'
 
 export type UndefinedSymbolEntry = {
   symbol: string
-  token?: Token
+  token: Token | undefined
 }
 
 export type AnalyzeResult = {

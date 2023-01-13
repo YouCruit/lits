@@ -26,7 +26,7 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack, builtin: B
     case `Name`: {
       const lookUpResult = lookUp(astNode, contextStack)
       if (!lookUpResult.builtinFunction && !lookUpResult.contextEntry && !lookUpResult.specialExpression) {
-        return { undefinedSymbols: new Set([{ symbol: astNode.value }]) }
+        return { undefinedSymbols: new Set([{ symbol: astNode.value, token: astNode.token }]) }
       }
       return { undefinedSymbols: emptySet }
     }

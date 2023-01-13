@@ -4275,7 +4275,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.53";
+  var version = "1.0.54";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6048,7 +6048,7 @@ var Lits = (function (exports) {
           case "Name": {
               var lookUpResult = lookUp(astNode, contextStack);
               if (!lookUpResult.builtinFunction && !lookUpResult.contextEntry && !lookUpResult.specialExpression) {
-                  return { undefinedSymbols: new Set([{ symbol: astNode.value }]) };
+                  return { undefinedSymbols: new Set([{ symbol: astNode.value, token: astNode.token }]) };
               }
               return { undefinedSymbols: emptySet };
           }

@@ -3,6 +3,7 @@ import { analyzeAst } from '../src/analyze'
 import { builtin } from '../src/builtin'
 import { createContextStack } from '../src/evaluator'
 import { AstNode } from '../src/parser/interface'
+import { getUndefinedSymbolNames } from './testUtils'
 
 describe(`analyzeAst.`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
@@ -12,7 +13,7 @@ describe(`analyzeAst.`, () => {
       const ast = lits.parse(tokens)
       const astNode = ast.body[0] as AstNode
       const analyzeResult = analyzeAst(astNode, createContextStack(), builtin)
-      expect(analyzeResult.undefinedSymbols).toEqual(new Set([`a`, `b`]))
+      expect(getUndefinedSymbolNames(analyzeResult)).toEqual(new Set([`a`, `b`]))
     })
   }
 })

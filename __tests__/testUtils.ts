@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 
+import { AnalyzeResult } from '../src/analyze/interface'
 import { Obj } from '../src/interface'
 import { regularExpression } from '../src/utils/assertion'
 
@@ -82,4 +83,9 @@ export function regexpEquals(udr: unknown, r: RegExp): boolean {
   const sortedUdrFlags = udr.flags.split(``).sort().join(``)
   const sortedRFlags = r.flags.split(``).sort().join(``)
   return udr.source === r.source && sortedRFlags === sortedUdrFlags
+}
+
+export function getUndefinedSymbolNames(result: AnalyzeResult): Set<string> {
+  const names = [...result.undefinedSymbols].map(entry => entry.symbol)
+  return new Set<string>(names)
 }

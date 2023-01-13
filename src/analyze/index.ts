@@ -3,13 +3,13 @@ import { lookUp } from '../evaluator'
 import { ContextStack } from '../evaluator/interface'
 import { AstNode } from '../parser/interface'
 import { asValue } from '../utils/assertion'
-import { AnalyzeAst, AnalyzeResult } from './interface'
+import { AnalyzeAst, AnalyzeResult, UndefinedSymbolEntry } from './interface'
 
 export const analyzeAst: AnalyzeAst = (astNode, contextStack, builtin: Builtin) => {
   const astNodes = Array.isArray(astNode) ? astNode : [astNode]
 
   const analyzeResult: AnalyzeResult = {
-    undefinedSymbols: new Set<string>(),
+    undefinedSymbols: new Set<UndefinedSymbolEntry>(),
   }
 
   for (const subNode of astNodes) {
@@ -21,12 +21,12 @@ export const analyzeAst: AnalyzeAst = (astNode, contextStack, builtin: Builtin) 
 }
 
 function analyzeAstNode(astNode: AstNode, contextStack: ContextStack, builtin: Builtin): AnalyzeResult {
-  const emptySet = new Set<string>()
+  const emptySet = new Set<UndefinedSymbolEntry>()
   switch (astNode.type) {
     case `Name`: {
       const lookUpResult = lookUp(astNode, contextStack)
       if (!lookUpResult.builtinFunction && !lookUpResult.contextEntry && !lookUpResult.specialExpression) {
-        return { undefinedSymbols: new Set([astNode.value]) }
+        return { undefinedSymbols: new Set([{ symbol: astNode.value }]) }
       }
       return { undefinedSymbols: emptySet }
     }
@@ -36,7 +36,7 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack, builtin: B
     case `ReservedName`:
       return { undefinedSymbols: emptySet }
     case `NormalExpression`: {
-      const undefinedSymbols = new Set<string>()
+      const undefinedSymbols = new Set<UndefinedSymbolEntry>()
       const { expression, name, token } = astNode
       if (typeof name === `string`) {
         const lookUpResult = lookUp({ type: `Name`, value: name, token }, contextStack)
@@ -45,7 +45,7 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack, builtin: B
           lookUpResult.contextEntry === null &&
           lookUpResult.specialExpression === null
         ) {
-          undefinedSymbols.add(name)
+          undefinedSymbols.add({ symbol: name, token: astNode.token })
         }
       }
       if (expression) {

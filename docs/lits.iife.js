@@ -4275,7 +4275,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.52";
+  var version = "1.0.53";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6048,7 +6048,7 @@ var Lits = (function (exports) {
           case "Name": {
               var lookUpResult = lookUp(astNode, contextStack);
               if (!lookUpResult.builtinFunction && !lookUpResult.contextEntry && !lookUpResult.specialExpression) {
-                  return { undefinedSymbols: new Set([astNode.value]) };
+                  return { undefinedSymbols: new Set([{ symbol: astNode.value }]) };
               }
               return { undefinedSymbols: emptySet };
           }
@@ -6065,7 +6065,7 @@ var Lits = (function (exports) {
                   if (lookUpResult.builtinFunction === null &&
                       lookUpResult.contextEntry === null &&
                       lookUpResult.specialExpression === null) {
-                      undefinedSymbols_1.add(name_1);
+                      undefinedSymbols_1.add({ symbol: name_1, token: astNode.token });
                   }
               }
               if (expression) {

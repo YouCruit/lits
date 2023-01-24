@@ -395,7 +395,7 @@ module.exports = {
         type: `variants`,
       },
     ],
-    description: `Used for branching. Variants are tested sequentially from the top. I no branch is tested truthy, \`nil\` is returned.`,
+    description: `Used for branching. Variants are tested sequentially from the top. If no branch is tested truthy, \`nil\` is returned.`,
     examples: [
       `(cond false (write! "FALSE") nil (write! "nil") true (write! "TRUE"))`,
       `(cond false (write! "FALSE") nil (write! "nil"))`,

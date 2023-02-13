@@ -1,5 +1,5 @@
-import { AnalyzeAst, AnalyzeResult } from '../../analyze/interface'
-import { addAnalyzeResults } from '../../analyze/utils'
+import { FindUndefinedSymbols, UndefinedSymbolEntry } from '../../analyze/undefinedSymbols/interface'
+import { addAnalyzeResults } from '../../analyze/undefinedSymbols/utils'
 import { LitsError } from '../../errors'
 import { Context, ContextStack, EvaluateAstNode } from '../../evaluator/interface'
 import {
@@ -72,10 +72,16 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
     contextStack.globalContext[name as string] = { value: litsFunction }
     return null
   },
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
+  findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) => {
     contextStack.globalContext[(node as DefnNode).functionName.value] = { value: true }
     const newContext: Context = { [(node as DefnNode).functionName.value]: { value: true } }
-    return addOverloadsUndefinedSymbols((node as DefnNode).overloads, contextStack, analyzeAst, builtin, newContext)
+    return addOverloadsUndefinedSymbols(
+      (node as DefnNode).overloads,
+      contextStack,
+      findUndefinedSymbols,
+      builtin,
+      newContext,
+    )
   },
 }
 
@@ -119,8 +125,8 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
     contextStack.globalContext[name as string] = { value: litsFunction }
     return null
   },
-  analyze: (node, contextStack, { analyzeAst, builtin }) =>
-    addOverloadsUndefinedSymbols((node as DefnsNode).overloads, contextStack, analyzeAst, builtin),
+  findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
+    addOverloadsUndefinedSymbols((node as DefnsNode).overloads, contextStack, findUndefinedSymbols, builtin),
 }
 
 export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
@@ -154,8 +160,8 @@ export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
 
     return litsFunction
   },
-  analyze: (node, contextStack, { analyzeAst, builtin }) =>
-    addOverloadsUndefinedSymbols((node as FnNode).overloads, contextStack, analyzeAst, builtin),
+  findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
+    addOverloadsUndefinedSymbols((node as FnNode).overloads, contextStack, findUndefinedSymbols, builtin),
 }
 
 function getFunctionName(
@@ -206,18 +212,18 @@ function evaluateFunctionOverloades(
 function addOverloadsUndefinedSymbols(
   overloads: FunctionOverload[],
   contextStack: ContextStack,
-  analyzeAst: AnalyzeAst,
+  findUndefinedSymbols: FindUndefinedSymbols,
   builtin: Builtin,
   functionNameContext?: Context,
-): AnalyzeResult {
-  const result: AnalyzeResult = { undefinedSymbols: new Set() }
+): Set<UndefinedSymbolEntry> {
+  const result: Set<UndefinedSymbolEntry> = new Set()
   const contextStackWithFunctionName = functionNameContext
     ? contextStack.withContext(functionNameContext)
     : contextStack
   for (const overload of overloads) {
     const newContext: Context = {}
     overload.arguments.bindings.forEach(binding => {
-      const bindingResult = analyzeAst(binding.value, contextStack, builtin)
+      const bindingResult = findUndefinedSymbols(binding.value, contextStack, builtin)
       addAnalyzeResults(result, bindingResult)
       newContext[binding.name] = { value: true }
     })
@@ -228,7 +234,7 @@ function addOverloadsUndefinedSymbols(
       newContext[overload.arguments.restArgument] = { value: true }
     }
     const newContextStack = contextStackWithFunctionName.withContext(newContext)
-    const overloadResult = analyzeAst(overload.body, newContextStack, builtin)
+    const overloadResult = findUndefinedSymbols(overload.body, newContextStack, builtin)
     addAnalyzeResults(result, overloadResult)
   }
   return result

@@ -31,8 +31,8 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
     return value
   },
   validate: node => assertNumberOfParams(2, node),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
+  findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) => {
     const subNode = astNode.as(node.params[1], node.token?.debugInfo)
-    return analyzeAst(subNode, contextStack, builtin)
+    return findUndefinedSymbols(subNode, contextStack, builtin)
   },
 }

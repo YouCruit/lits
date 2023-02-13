@@ -1,4 +1,4 @@
-import { joinAnalyzeResults } from '../../analyze/utils'
+import { joinUndefinedSymbols } from '../../analyze/undefinedSymbols/utils'
 import { LitsError } from '../../errors'
 import { Context } from '../../evaluator/interface'
 import { Any } from '../../interface'
@@ -50,10 +50,10 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     return null
   },
   validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
+  findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) => {
     const newContext: Context = { [(node as IfLetNode).binding.name]: { value: true } }
-    const bindingResult = analyzeAst((node as IfLetNode).binding.value, contextStack, builtin)
-    const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin)
-    return joinAnalyzeResults(bindingResult, paramsResult)
+    const bindingResult = findUndefinedSymbols((node as IfLetNode).binding.value, contextStack, builtin)
+    const paramsResult = findUndefinedSymbols(node.params, contextStack.withContext(newContext), builtin)
+    return joinUndefinedSymbols(bindingResult, paramsResult)
   },
 }

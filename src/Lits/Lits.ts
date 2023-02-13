@@ -1,6 +1,6 @@
 import { LitsFunction } from '..'
-import { analyzeAst } from '../analyze'
-import { AnalyzeResult } from '../analyze/interface'
+import { findUndefinedSymbols } from '../analyze/undefinedSymbols'
+import { UndefinedSymbolEntry } from '../analyze/undefinedSymbols/interface'
 import { builtin } from '../builtin'
 import { createContextStack, evaluate } from '../evaluator'
 import { Context, ContextStack } from '../evaluator/interface'
@@ -73,12 +73,12 @@ export class Lits {
     return contextStack.globalContext
   }
 
-  public analyze(program: string): AnalyzeResult {
+  public findUndefinedSymbols(program: string): Set<UndefinedSymbolEntry> {
     const params: LitsParams = {}
     const contextStack = createContextStackFromParams(params)
     const ast = this.generateAst(program, params.getLocation)
 
-    return analyzeAst(ast.body, contextStack, builtin)
+    return findUndefinedSymbols(ast.body, contextStack, builtin)
   }
 
   public tokenize(program: string, getLocation?: LocationGetter): Token[] {

@@ -48,8 +48,11 @@ export class DataType {
 
   public static unknown = new DataType(UNKNWON)
 
-  public static or(a: DataType, b: DataType): DataType {
-    return new DataType(a.typeMask | b.typeMask)
+  public static or(...types: DataType[]): DataType {
+    const newTypeMask = types.reduce((result, type) => {
+      return result | type.typeMask
+    }, 0)
+    return new DataType(newTypeMask)
   }
 
   private constructor(typeMask: number) {

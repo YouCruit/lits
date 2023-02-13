@@ -1,4 +1,5 @@
 import { LitsFunction } from '../../..'
+import { DataType } from '../../../analyze/dataTypes/DataType'
 import { ContextStack, ExecuteFunction } from '../../../evaluator/interface'
 import { Any, Arr, Coll, Obj } from '../../../interface'
 import { DebugInfo } from '../../../tokenizer/interface'
@@ -14,6 +15,7 @@ import {
   array,
   string,
   assertNumberOfParams,
+  assertValue,
 } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
 
@@ -154,6 +156,24 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return result === undefined ? defaultValue : result
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+    getDataType: (node, getDataType) => {
+      const [coll, key, defaultValue] = node.params
+      assertValue(coll)
+      assertValue(key)
+
+      const collType = getDataType(coll)
+      const deffaultValueType: DataType = defaultValue ? getDataType(defaultValue) : DataType.nil
+
+      if (collType.isNil()) {
+        return deffaultValueType
+      }
+
+      if (collType.isString()) {
+        return DataType.or(DataType.string, deffaultValueType)
+      }
+
+      return DataType.unknown
+    },
   },
   'get-in': {
     evaluate: (params, debugInfo): Any => {

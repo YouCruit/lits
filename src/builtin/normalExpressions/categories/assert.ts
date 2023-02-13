@@ -2,7 +2,8 @@ import { AssertionError, LitsError } from '../../../errors'
 import { Any } from '../../../interface'
 import { compare, deepEqual } from '../../../utils'
 import { BuiltinNormalExpressions } from '../../interface'
-import { any, assertNumberOfParams, litsFunction, string } from '../../../utils/assertion'
+import { any, assertNumberOfParams, asValue, litsFunction, string } from '../../../utils/assertion'
+import { DataType } from '../../../analyze/dataTypes/DataType'
 
 export const assertNormalExpression: BuiltinNormalExpressions = {
   assert: {
@@ -16,6 +17,10 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return any.as(value, debugInfo)
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+    getDataType: (node, getDataType) => {
+      const firstParam = asValue(node.params[0])
+      return getDataType(firstParam)
+    },
   },
   'assert=': {
     evaluate: ([first, second, message], debugInfo): null => {
@@ -26,6 +31,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert-not=': {
     evaluate: ([first, second, message], debugInfo): null => {
@@ -36,6 +42,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert-equal': {
     evaluate: ([first, second, message], debugInfo): null => {
@@ -49,6 +56,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert-not-equal': {
     evaluate: ([first, second, message], debugInfo): null => {
@@ -62,6 +70,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert>': {
     evaluate: ([first, second, message], debugInfo): null => {
@@ -72,6 +81,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert>=': {
     evaluate: ([first, second, message], debugInfo): null => {
@@ -82,6 +92,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert<': {
     evaluate: ([first, second, message], debugInfo): null => {
@@ -92,6 +103,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert<=': {
     evaluate: ([first, second, message], debugInfo): null => {
@@ -102,6 +114,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert-true': {
     evaluate: ([first, message], debugInfo): null => {
@@ -112,6 +125,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert-false': {
     evaluate: ([first, message], debugInfo): null => {
@@ -122,6 +136,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert-truthy': {
     evaluate: ([first, message], debugInfo): null => {
@@ -132,6 +147,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert-falsy': {
     evaluate: ([first, message], debugInfo): null => {
@@ -142,6 +158,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert-nil': {
     evaluate: ([first, message], debugInfo): null => {
@@ -152,6 +169,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert-throws': {
     evaluate: ([func, message], debugInfo, contextStack, { executeFunction }): null => {
@@ -165,6 +183,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       throw new AssertionError(`Expected function to throw.${message}`, debugInfo)
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert-throws-error': {
     evaluate: ([func, throwMessage, message], debugInfo, contextStack, { executeFunction }): null => {
@@ -186,6 +205,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       throw new AssertionError(`Expected function to throw "${throwMessage}".${message}`, debugInfo)
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+    getDataType: () => DataType.nil,
   },
   'assert-not-throws': {
     evaluate: ([func, message], debugInfo, contextStack, { executeFunction }): null => {
@@ -199,5 +219,6 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return null
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+    getDataType: () => DataType.nil,
   },
 }

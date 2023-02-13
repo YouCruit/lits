@@ -1,3 +1,4 @@
+import { DataType } from '../../../analyze/dataTypes/DataType'
 import { Arr } from '../../../interface'
 import { array, assertNumberOfParams, number } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
@@ -5,6 +6,7 @@ import { evaluateMap } from './sequence'
 export const arrayNormalExpression: BuiltinNormalExpressions = {
   array: {
     evaluate: (params): Arr => params,
+    getDataType: () => DataType.array,
   },
 
   range: {
@@ -48,6 +50,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       return result
     },
     validate: node => assertNumberOfParams({ min: 1, max: 3 }, node),
+    getDataType: () => DataType.array,
   },
 
   repeat: {
@@ -60,6 +63,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       return result
     },
     validate: node => assertNumberOfParams(2, node),
+    getDataType: () => DataType.array,
   },
 
   flatten: {
@@ -70,9 +74,11 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       return seq.flat(Number.POSITIVE_INFINITY)
     },
     validate: node => assertNumberOfParams(1, node),
+    getDataType: () => DataType.array,
   },
+
   mapcat: {
-    evaluate: (params, debugInfo, contextStack, helpers): Arr | string => {
+    evaluate: (params, debugInfo, contextStack, helpers): Arr => {
       params.slice(1).forEach(arr => {
         array.assert(arr, debugInfo)
       })
@@ -81,5 +87,6 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       return mapResult.flat(1)
     },
     validate: node => assertNumberOfParams({ min: 2 }, node),
+    getDataType: () => DataType.array,
   },
 }

@@ -92,6 +92,8 @@ describe(`collection functions`, () => {
         expect(lits.run(`(get-in "Albert" [0])`)).toBe(`A`)
         expect(lits.run(`(get-in "Albert" [:0])`)).toBe(null)
 
+        expect(lits.run(`(get-in "Albert" nil "DEFAULT")`)).toBe(`Albert`)
+
         expect(() => lits.run(`(get-in)`)).toThrow()
         expect(() => lits.run(`(get-in [])`)).toThrow()
         expect(() => lits.run(`(get-in 12)`)).toThrow()

@@ -156,7 +156,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   'get-in': {
     evaluate: (params, debugInfo): Any => {
       let coll = toAny(params[0])
-      const keys = params[1]
+      const keys = params[1] ?? [] // nil behaves as empty array
       const defaultValue = toAny(params[2])
       array.assert(keys, debugInfo)
       for (const key of keys) {

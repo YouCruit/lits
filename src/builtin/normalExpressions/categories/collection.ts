@@ -58,15 +58,13 @@ function cloneAndGetMeta(
   return { coll, innerCollMeta }
 }
 
-function get(coll: Coll, key: string | number, debugInfo?: DebugInfo): Any | undefined {
+function get(coll: Coll, key: string | number): Any | undefined {
   if (object.is(coll)) {
-    string.assert(key, debugInfo)
-    if (collHasKey(coll, key)) {
+    if (string.is(key) && collHasKey(coll, key)) {
       return toAny(coll[key])
     }
   } else {
-    number.assert(key, debugInfo, { integer: true })
-    if (key >= 0 && key < coll.length) {
+    if (number.is(key, { nonNegative: true, integer: true }) && key >= 0 && key < coll.length) {
       return toAny(coll[key])
     }
   }
@@ -152,7 +150,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         return defaultValue
       }
       collection.assert(coll, debugInfo)
-      const result = get(coll, key, debugInfo)
+      const result = get(coll, key)
       return result === undefined ? defaultValue : result
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
@@ -177,20 +175,24 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   },
   'get-in': {
     evaluate: (params, debugInfo): Any => {
-      let coll = params[0]
+      let coll = toAny(params[0])
       const keys = params[1]
       const defaultValue = toAny(params[2])
-      collection.assert(coll, debugInfo)
       array.assert(keys, debugInfo)
       for (const key of keys) {
         stringOrNumber.assert(key, debugInfo)
         if (collection.is(coll)) {
-          coll = get(coll, key, debugInfo)
+          const nextValue = get(coll, key)
+          if (nextValue !== undefined) {
+            coll = nextValue
+          } else {
+            return defaultValue
+          }
         } else {
           return defaultValue
         }
       }
-      return any.is(coll) ? coll : defaultValue
+      return coll
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
   },

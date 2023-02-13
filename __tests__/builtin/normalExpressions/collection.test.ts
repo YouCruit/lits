@@ -70,6 +70,28 @@ describe(`collection functions`, () => {
         expect(lits.run(`(get-in {:a ["Albert" "Mojir"]} [:a 2] "DEFAULT")`)).toBe(`DEFAULT`)
         expect(lits.run(`(get-in {:a ["Albert" "Mojir"]} [:a 2 :x] "DEFAULT")`)).toBe(`DEFAULT`)
 
+        expect(lits.run(`(get-in nil [] "DEFAULT")`)).toBe(null)
+        expect(lits.run(`(get-in nil [1] "DEFAULT")`)).toBe(`DEFAULT`)
+        expect(lits.run(`(get-in [] [] "DEFAULT")`)).toEqual([])
+        expect(lits.run(`(get-in [1 2] [1] "DEFAULT")`)).toBe(2)
+        expect(lits.run(`(get-in [1 2] [1 2] "DEFAULT")`)).toBe(`DEFAULT`)
+        expect(lits.run(`(get-in [] [1] "DEFAULT")`)).toBe(`DEFAULT`)
+        expect(lits.run(`(get-in 2 [1] "DEFAULT")`)).toBe(`DEFAULT`)
+        expect(lits.run(`(get-in 2 [] "DEFAULT")`)).toBe(2)
+
+        expect(lits.run(`(get-in nil [])`)).toBe(null)
+        expect(lits.run(`(get-in nil [1])`)).toBe(null)
+        expect(lits.run(`(get-in [] [])`)).toEqual([])
+        expect(lits.run(`(get-in [1 2] [1])`)).toBe(2)
+        expect(lits.run(`(get-in [1 2] [1 2])`)).toBe(null)
+        expect(lits.run(`(get-in [] [1])`)).toBe(null)
+        expect(lits.run(`(get-in 2 [1])`)).toBe(null)
+        expect(lits.run(`(get-in 2 [])`)).toBe(2)
+
+        expect(lits.run(`(get-in "Albert" [])`)).toBe(`Albert`)
+        expect(lits.run(`(get-in "Albert" [0])`)).toBe(`A`)
+        expect(lits.run(`(get-in "Albert" [:0])`)).toBe(null)
+
         expect(() => lits.run(`(get-in)`)).toThrow()
         expect(() => lits.run(`(get-in [])`)).toThrow()
         expect(() => lits.run(`(get-in 12)`)).toThrow()

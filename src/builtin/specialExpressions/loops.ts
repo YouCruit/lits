@@ -233,6 +233,7 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [position + 1, node]
   },
   evaluate: (node, contextStack, helpers) => evaluateLoop(true, node, contextStack, helpers.evaluateAstNode),
+  validate: () => undefined,
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
     analyze(node, contextStack, findUndefinedSymbols, builtin),
 }
@@ -263,6 +264,7 @@ export const doseqSpecialExpression: BuiltinSpecialExpression<null> = {
     evaluateLoop(false, node, contextStack, helpers.evaluateAstNode)
     return null
   },
+  validate: () => undefined,
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
     analyze(node, contextStack, findUndefinedSymbols, builtin),
 }

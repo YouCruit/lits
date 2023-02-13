@@ -26,6 +26,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return result + param
       }, 0)
     },
+    validate: () => undefined,
   },
 
   '*': {
@@ -35,6 +36,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return result * param
       }, 1)
     },
+    validate: () => undefined,
   },
 
   '/': {
@@ -53,6 +55,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return result / param
       }, first)
     },
+    validate: () => undefined,
   },
 
   '-': {
@@ -70,6 +73,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return result - param
       }, first)
     },
+    validate: () => undefined,
   },
 
   quot: {

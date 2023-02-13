@@ -61,6 +61,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
         fns,
       }
     },
+    validate: () => undefined,
   },
 
   constantly: {

@@ -28,6 +28,7 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     return value
   },
+  validate: () => undefined,
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
     findUndefinedSymbols(node.params, contextStack, builtin),
 }

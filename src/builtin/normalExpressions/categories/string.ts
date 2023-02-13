@@ -55,6 +55,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
         return result + paramStr
       }, ``)
     },
+    validate: () => undefined,
   },
 
   number: {

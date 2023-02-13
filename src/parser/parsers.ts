@@ -283,7 +283,7 @@ const parseNormalExpression: ParseNormalExpression = (tokens, position) => {
   const builtinExpression = builtin.normalExpressions[node.name]
 
   if (builtinExpression) {
-    builtinExpression.validate?.(node)
+    builtinExpression.validate(node)
   }
 
   return [position, node]
@@ -304,7 +304,7 @@ const parseSpecialExpression: ParseSpecialExpression = (tokens, position) => {
     parseArgument,
   })
 
-  validate?.(node)
+  validate(node)
 
   return [positionAfterParse, node]
 }

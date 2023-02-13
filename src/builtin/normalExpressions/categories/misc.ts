@@ -132,6 +132,7 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
 
       return null
     },
+    validate: () => undefined,
   },
   'debug!': {
     evaluate: (params, debugInfo, contextStack): Any => {

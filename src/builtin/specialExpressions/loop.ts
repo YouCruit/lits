@@ -60,6 +60,7 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
       return result
     }
   },
+  validate: () => undefined,
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) => {
     const newContext = (node as LoopNode).bindings
       .map(binding => binding.name)

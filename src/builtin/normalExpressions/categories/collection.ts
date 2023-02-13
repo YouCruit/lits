@@ -154,13 +154,13 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return result === undefined ? defaultValue : result
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
-    getDataType: (node, getDataType) => {
+    getDataType: (node, { getDataType, nameTypes }) => {
       const [coll, key, defaultValue] = node.params
       assertValue(coll)
       assertValue(key)
 
-      const collType = getDataType(coll)
-      const deffaultValueType: DataType = defaultValue ? getDataType(defaultValue) : DataType.nil
+      const collType = getDataType(coll, nameTypes)
+      const deffaultValueType: DataType = defaultValue ? getDataType(defaultValue, nameTypes) : DataType.nil
 
       if (collType.isNil()) {
         return deffaultValueType
@@ -195,6 +195,20 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return coll
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+    getDataType: (node, { getDataType, nameTypes }) => {
+      const [coll, keys] = node.params
+      assertValue(coll)
+      assertValue(keys)
+
+      const collType = getDataType(coll, nameTypes)
+      const keysType = getDataType(keys, nameTypes)
+
+      if (keysType.isNil()) {
+        return collType
+      }
+
+      return DataType.unknown
+    },
   },
   count: {
     evaluate: ([coll], debugInfo): number => {

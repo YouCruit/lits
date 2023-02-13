@@ -6,6 +6,7 @@ import { evaluateMap } from './sequence'
 export const arrayNormalExpression: BuiltinNormalExpressions = {
   array: {
     evaluate: (params): Arr => params,
+    validate: () => undefined,
     getDataType: () => DataType.array,
   },
 

@@ -13,9 +13,8 @@ import { Ast } from '../parser/interface'
 import { builtin } from '../builtin'
 import { reservedNamesRecord } from '../reservedNames'
 import { toAny } from '../utils'
-import { Context, EvaluateAstNode, ExecuteFunction, LookUpResult } from './interface'
+import { EvaluateAstNode, ExecuteFunction, LookUpResult } from './interface'
 import { Any, Arr, Obj } from '../interface'
-import { ContextStack } from './interface'
 import { functionExecutors } from './functionExecutors'
 import { DebugInfo } from '../tokenizer/interface'
 import { LitsError, NotAFunctionError, UndefinedSymbolError } from '../errors'
@@ -29,29 +28,7 @@ import {
   string,
 } from '../utils/assertion'
 import { valueToString } from '../utils/helpers'
-
-export function createContextStack(contexts: Context[] = []): ContextStack {
-  if (contexts.length === 0) {
-    contexts.push({})
-  }
-
-  return new ContextStackImpl(contexts, 0)
-}
-
-class ContextStackImpl implements ContextStack {
-  public stack: Context[]
-  public globalContext: Context
-  public numberOfImportedContexts: number
-  constructor(contexts: Context[], globalContextIndex: number) {
-    this.stack = contexts
-    this.numberOfImportedContexts = contexts.length - (globalContextIndex + 1)
-    this.globalContext = contexts[globalContextIndex] as Context
-  }
-
-  public withContext(context: Context): ContextStack {
-    return new ContextStackImpl([context, ...this.stack], this.stack.length - this.numberOfImportedContexts)
-  }
-}
+import { ContextStack } from '../ContextStack'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null

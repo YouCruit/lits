@@ -1,6 +1,6 @@
 import { joinUndefinedSymbols } from '../../analyze/undefinedSymbols/utils'
+import { Context } from '../../ContextStack/interface'
 import { LitsError } from '../../errors'
-import { Context } from '../../evaluator/interface'
 import { Any } from '../../interface'
 import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
 import { assertNumberOfParams, asValue, token } from '../../utils/assertion'

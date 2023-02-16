@@ -1,4 +1,4 @@
-import { LocationGetter } from '../Lits/Lits'
+import { LocationGetter } from '../Lits/interface'
 
 export type TokenizerType =
   | `paren`

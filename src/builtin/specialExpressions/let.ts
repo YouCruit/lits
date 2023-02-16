@@ -1,5 +1,5 @@
 import { joinUndefinedSymbols } from '../../analyze/undefinedSymbols/utils'
-import { Context } from '../../evaluator/interface'
+import { Context } from '../../ContextStack/interface'
 import { Any } from '../../interface'
 import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
 import { token } from '../../utils/assertion'

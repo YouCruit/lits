@@ -1,7 +1,9 @@
 import { FindUndefinedSymbols, UndefinedSymbolEntry } from '../../analyze/undefinedSymbols/interface'
 import { addAnalyzeResults } from '../../analyze/undefinedSymbols/utils'
+import { ContextStack } from '../../ContextStack'
+import { Context } from '../../ContextStack/interface'
 import { LitsError } from '../../errors'
-import { Context, ContextStack, EvaluateAstNode } from '../../evaluator/interface'
+import { EvaluateAstNode } from '../../evaluator/interface'
 import {
   AstNode,
   BindingNode,

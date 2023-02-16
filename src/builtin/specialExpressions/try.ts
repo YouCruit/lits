@@ -1,6 +1,6 @@
 import { joinUndefinedSymbols } from '../../analyze/undefinedSymbols/utils'
 import { LitsError } from '../../errors'
-import { Context } from '../../evaluator/interface'
+import { Context } from '../../ContextStack/interface'
 import { Any } from '../../interface'
 import { AstNode, NameNode, SpecialExpressionNode } from '../../parser/interface'
 import { any, nameNode, token } from '../../utils/assertion'

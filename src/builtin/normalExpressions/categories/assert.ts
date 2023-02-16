@@ -17,9 +17,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       return any.as(value, debugInfo)
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
-    getDataType: (node, { getDataType, nameTypes }) => {
+    getDataType: (node, { getDataType, contextStack }) => {
       const firstParam = asValue(node.params[0])
-      return getDataType(firstParam, nameTypes)
+      return getDataType(firstParam, contextStack)
     },
   },
   'assert=': {

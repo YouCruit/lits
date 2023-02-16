@@ -1,5 +1,5 @@
 import { Builtin } from '../../builtin/interface'
-import { ContextStack } from '../../evaluator/interface'
+import { ContextStack } from '../../ContextStack'
 import { AstNode } from '../../parser/interface'
 import { Token } from '../../tokenizer/interface'
 

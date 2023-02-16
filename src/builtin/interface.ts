@@ -1,4 +1,4 @@
-import { ContextStack, EvaluateAstNode, ExecuteFunction, LookUpResult } from '../evaluator/interface'
+import { EvaluateAstNode, ExecuteFunction, LookUpResult } from '../evaluator/interface'
 import {
   ParseArgument,
   ParseBindings,
@@ -15,6 +15,7 @@ import { Any, Arr } from '../interface'
 import { FindUndefinedSymbols, UndefinedSymbolEntry } from '../analyze/undefinedSymbols/interface'
 import { GetDataType } from '../analyze/dataTypes/interface'
 import { DataType } from '../analyze/dataTypes/DataType'
+import { ContextStack } from '../ContextStack'
 
 export type NormalExpressionEvaluator<T> = (
   params: Arr,
@@ -30,7 +31,7 @@ type BuiltinNormalExpression<T> = {
   getDataType?(
     node: SpecialExpressionNode,
     params: {
-      nameTypes: Array<Record<string, DataType>>
+      contextStack: ContextStack
       getDataType: GetDataType
     },
   ): DataType

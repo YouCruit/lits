@@ -1,5 +1,5 @@
 import { LitsError } from '../errors'
-import { LocationGetter } from '../Lits/Lits'
+import { LocationGetter } from '../Lits/interface'
 import { Token, Tokenizer, DebugInfo, TokenizeParams } from './interface'
 import {
   skipComment,

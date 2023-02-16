@@ -1,74 +1,53 @@
-import { AstNode } from '../../parser/interface'
+import { ContextStack } from '../../ContextStack'
+import { AstNode, NameNode } from '../../parser/interface'
 import { DataType } from './DataType'
 import { GetDataType } from './interface'
 
-export const getDataType: GetDataType = astNode => {
+export const getDataType: GetDataType = (astNode, contextStack) => {
   const astNodes = Array.isArray(astNode) ? astNode : [astNode]
 
-  const node = astNodes.length > 0 ? astNodes[astNodes.length - 1] : null
-
-  if (!node) {
-    return DataType.nil
+  let result = DataType.nil
+  for (const node of astNodes) {
+    result = calculateDataTypesOnAstNode(node, contextStack)
   }
 
-  return calculateDataTypesOnAstNode(node)
+  return result
 }
 
-function calculateDataTypesOnAstNode(_astNode: AstNode): DataType {
-  return DataType.nil
-  // switch (astNode.type) {
-  //   case `Name`: {
-  //     const lookUpResult = lookUp(astNode, contextStack)
-  //     if (!lookUpResult.builtinFunction && !lookUpResult.contextEntry && !lookUpResult.specialExpression) {
-  //       return new Set([{ symbol: astNode.value, token: astNode.token }])
-  //     }
-  //     return emptySet
-  //   }
-  //   case `String`:
-  //   case `Number`:
-  //   case `Modifier`:
-  //   case `ReservedName`:
-  //     return emptySet
-  //   case `NormalExpression`: {
-  //     const undefinedSymbols = new Set<UndefinedSymbolEntry>()
-  //     const { expression, name, token } = astNode
-  //     if (typeof name === `string`) {
-  //       const lookUpResult = lookUp({ type: `Name`, value: name, token }, contextStack)
-  //       if (
-  //         lookUpResult.builtinFunction === null &&
-  //         lookUpResult.contextEntry === null &&
-  //         lookUpResult.specialExpression === null
-  //       ) {
-  //         undefinedSymbols.add({ symbol: name, token: astNode.token })
-  //       }
-  //     }
-  //     if (expression) {
-  //       switch (expression.type) {
-  //         case `String`:
-  //         case `Number`:
-  //           break
-  //         case `NormalExpression`:
-  //         case `SpecialExpression`: {
-  //           const innerUndefinedSymbols = calculateUndefinedSymbolsOnAstNode(expression, contextStack, builtin)
-  //           innerUndefinedSymbols.forEach(symbol => undefinedSymbols.add(symbol))
-  //           break
-  //         }
-  //       }
-  //     }
+function lookupNameType(nameNode: NameNode, contextStack: ContextStack): DataType {
+  const key = nameNode.value
 
-  //     for (const subNode of astNode.params) {
-  //       const subNodeResult = findUndefinedSymbols(subNode, contextStack, builtin)
-  //       subNodeResult.forEach(symbol => undefinedSymbols.add(symbol))
-  //     }
-  //     return undefinedSymbols
-  //   }
-  //   case `SpecialExpression`: {
-  //     const specialExpression = asValue(builtin.specialExpressions[astNode.name], astNode.token?.debugInfo)
-  //     const result = specialExpression.findUndefinedSymbols(astNode, contextStack, {
-  //       findUndefinedSymbols,
-  //       builtin,
-  //     })
-  //     return result
-  //   }
-  // }
+  for (const context of contextStack.stack) {
+    const type = context[key]
+    if (type) {
+      return type as unknown as DataType
+    }
+  }
+  return DataType.unknown
+}
+
+function calculateDataTypesOnAstNode(astNode: AstNode, contextStack: ContextStack): DataType {
+  switch (astNode.type) {
+    case `Name`: {
+      return lookupNameType(astNode, contextStack)
+    }
+    case `String`:
+      return DataType.string
+    case `Number`:
+      return DataType.number
+    case `Modifier`:
+      throw Error(`Should not come here`)
+    case `ReservedName`:
+      switch (astNode.value) {
+        case `false`:
+          return DataType.boolean
+        case `true`:
+          return DataType.boolean
+        default:
+          return DataType.nil
+      }
+    case `NormalExpression`:
+    case `SpecialExpression`:
+  }
+  return DataType.nil
 }

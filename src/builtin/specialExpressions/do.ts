@@ -1,4 +1,4 @@
-import { Context } from '../../evaluator/interface'
+import { Context } from '../../ContextStack/interface'
 import { Any } from '../../interface'
 import { AstNode, SpecialExpressionNode } from '../../parser/interface'
 import { token } from '../../utils/assertion'

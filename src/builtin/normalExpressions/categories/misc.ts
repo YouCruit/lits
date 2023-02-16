@@ -1,9 +1,10 @@
-import { Context, ContextEntry, ContextStack } from '../../../evaluator/interface'
 import { Any } from '../../../interface'
 import { compare, deepEqual } from '../../../utils'
 import { BuiltinNormalExpressions } from '../../interface'
 import { version } from '../../../version'
 import { any, assertNumberOfParams, litsFunction, number, string } from '../../../utils/assertion'
+import { ContextStack } from '../../../ContextStack'
+import { Context, ContextEntry } from '../../../ContextStack/interface'
 const uuidTemplate = `xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx`
 const xyRegexp = /[xy]/g
 

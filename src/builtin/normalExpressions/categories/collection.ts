@@ -1,6 +1,7 @@
 import { LitsFunction } from '../../..'
 import { DataType } from '../../../analyze/dataTypes/DataType'
-import { ContextStack, ExecuteFunction } from '../../../evaluator/interface'
+import { ContextStack } from '../../../ContextStack'
+import { ExecuteFunction } from '../../../evaluator/interface'
 import { Any, Arr, Coll, Obj } from '../../../interface'
 import { DebugInfo } from '../../../tokenizer/interface'
 import { toNonNegativeInteger, toAny, collHasKey, cloneColl } from '../../../utils'
@@ -154,13 +155,13 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return result === undefined ? defaultValue : result
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
-    getDataType: (node, { getDataType, nameTypes }) => {
+    getDataType: (node, { getDataType, contextStack }) => {
       const [coll, key, defaultValue] = node.params
       assertValue(coll)
       assertValue(key)
 
-      const collType = getDataType(coll, nameTypes)
-      const deffaultValueType: DataType = defaultValue ? getDataType(defaultValue, nameTypes) : DataType.nil
+      const collType = getDataType(coll, contextStack)
+      const deffaultValueType: DataType = defaultValue ? getDataType(defaultValue, contextStack) : DataType.nil
 
       if (collType.isNil()) {
         return deffaultValueType
@@ -195,13 +196,13 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return coll
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
-    getDataType: (node, { getDataType, nameTypes }) => {
+    getDataType: (node, { getDataType, contextStack }) => {
       const [coll, keys] = node.params
       assertValue(coll)
       assertValue(keys)
 
-      const collType = getDataType(coll, nameTypes)
-      const keysType = getDataType(keys, nameTypes)
+      const collType = getDataType(coll, contextStack)
+      const keysType = getDataType(keys, contextStack)
 
       if (keysType.isNil()) {
         return collType

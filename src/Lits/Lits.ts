@@ -1,30 +1,24 @@
 import { LitsFunction } from '..'
+import { getDataType } from '../analyze/dataTypes'
+import { DataType } from '../analyze/dataTypes/DataType'
 import { findUndefinedSymbols } from '../analyze/undefinedSymbols'
 import { UndefinedSymbolEntry } from '../analyze/undefinedSymbols/interface'
 import { builtin } from '../builtin'
-import { createContextStack, evaluate } from '../evaluator'
-import { Context, ContextStack } from '../evaluator/interface'
+import { ContextStack } from '../ContextStack'
+import { Context } from '../ContextStack/interface'
+import { evaluate } from '../evaluator'
 import { Any, Obj } from '../interface'
 import { parse } from '../parser'
 import { Ast } from '../parser/interface'
 import { tokenize } from '../tokenizer'
 import { Token } from '../tokenizer/interface'
-import { createContextFromValues } from '../utils'
 import { Cache } from './Cache'
-
-export type LocationGetter = (line: number, col: number) => string
+import { LitsParams, LocationGetter } from './interface'
 
 export type LitsRuntimeInfo = {
   astCache: Cache | null
   astCacheSize: number | null
   debug: boolean
-}
-
-export type LitsParams = {
-  contexts?: Context[]
-  globals?: Obj
-  globalContext?: Context
-  getLocation?: LocationGetter
 }
 
 type LitsConfig = {
@@ -67,7 +61,7 @@ export class Lits {
   }
 
   public context(program: string, params: LitsParams = {}): Context {
-    const contextStack = createContextStackFromParams(params)
+    const contextStack = ContextStack.createFromParams(params)
     const ast = this.generateAst(program, params.getLocation)
     evaluate(ast, contextStack)
     return contextStack.globalContext
@@ -75,10 +69,17 @@ export class Lits {
 
   public findUndefinedSymbols(program: string): Set<UndefinedSymbolEntry> {
     const params: LitsParams = {}
-    const contextStack = createContextStackFromParams(params)
+    const contextStack = ContextStack.createFromParams(params)
     const ast = this.generateAst(program, params.getLocation)
 
     return findUndefinedSymbols(ast.body, contextStack, builtin)
+  }
+
+  public getDataType(program: string): DataType {
+    const contextStack = ContextStack.createFromParams({})
+    const ast = this.generateAst(program, undefined)
+
+    return getDataType(ast.body, contextStack)
   }
 
   public tokenize(program: string, getLocation?: LocationGetter): Token[] {
@@ -90,7 +91,7 @@ export class Lits {
   }
 
   private evaluate(ast: Ast, params: LitsParams): Any {
-    const contextStack = createContextStackFromParams(params)
+    const contextStack = ContextStack.createFromParams(params)
     return evaluate(ast, contextStack)
   }
 
@@ -131,11 +132,4 @@ export class Lits {
     this.astCache?.set(program, ast)
     return ast
   }
-}
-
-function createContextStackFromParams(params: LitsParams): ContextStack {
-  const globalContext: Context = params.globalContext ?? {}
-  Object.assign(globalContext, createContextFromValues(params.globals))
-  const contextStack = createContextStack([globalContext, ...(params.contexts ?? [])])
-  return contextStack
 }

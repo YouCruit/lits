@@ -75,7 +75,7 @@ pipeline {
                     ]
                 )
                 // This works around a Jenkins issue regarding not finding tests due to create date
-                sh 'find . -name "*.xml" -print0 | xargs -0 touch'
+                sh 'find . -name "*.xml" -exec {} +'
                 junit(testResults: '**/test-report.xml', allowEmptyResults: false)
                 archiveArtifacts artifacts: '**/test-report.xml', fingerprint: false, allowEmptyArchive: true
             }

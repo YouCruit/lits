@@ -130,4 +130,39 @@ export class DataType {
   isNilableRegexp(): boolean {
     return this.isNilable(`regexp`)
   }
+
+  toString(): string {
+    if (this.isUnknown()) {
+      return `unknown`
+    }
+    if (this.isNilableArray()) {
+      return `nilableArray`
+    }
+    if (this.isNilableBoolean()) {
+      return `nilableBoolean`
+    }
+    if (this.isNilableFunction()) {
+      return `nilableFunction`
+    }
+    if (this.isNilableNumber()) {
+      return `nilableNumber`
+    }
+    if (this.isNilableObject()) {
+      return `nilableObject`
+    }
+    if (this.isNilableRegexp()) {
+      return `nilableRegexp`
+    }
+    if (this.isNilableString()) {
+      return `nilableString`
+    }
+    const types = Object.entries(bitValues).reduce((result: string[], entry) => {
+      const [name, bitValue] = entry
+      if (this.typeMask & bitValue) {
+        result.push(name)
+      }
+      return result
+    }, [])
+    return types.join(` | `)
+  }
 }

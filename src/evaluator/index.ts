@@ -4,16 +4,14 @@ import {
   NumberNode,
   StringNode,
   ReservedNameNode,
-  FUNCTION_SYMBOL,
   NormalExpressionNodeWithName,
-  BuiltinFunction,
   SpecialExpressionNode,
 } from '../parser/interface'
 import { Ast } from '../parser/interface'
 import { builtin } from '../builtin'
 import { reservedNamesRecord } from '../reservedNames'
 import { toAny } from '../utils'
-import { EvaluateAstNode, ExecuteFunction, LookUpResult } from './interface'
+import { EvaluateAstNode, ExecuteFunction } from './interface'
 import { Any, Arr, Obj } from '../interface'
 import { functionExecutors } from './functionExecutors'
 import { DebugInfo } from '../tokenizer/interface'
@@ -29,6 +27,7 @@ import {
 } from '../utils/assertion'
 import { valueToString } from '../utils/helpers'
 import { ContextStack } from '../ContextStack'
+import { lookUp } from '../lookup'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null
@@ -77,49 +76,6 @@ function evaluateName(node: NameNode, contextStack: ContextStack): Any {
     return lookUpResult.builtinFunction
   }
   throw new UndefinedSymbolError(node.value, node.token?.debugInfo)
-}
-
-export function lookUp(node: NameNode, contextStack: ContextStack): LookUpResult {
-  const value = node.value
-  const debugInfo = node.token?.debugInfo
-
-  for (const context of contextStack.stack) {
-    const variable = context[value]
-    if (variable) {
-      return {
-        builtinFunction: null,
-        contextEntry: variable,
-        specialExpression: null,
-      }
-    }
-  }
-  if (builtin.normalExpressions[value]) {
-    const builtinFunction: BuiltinFunction = {
-      [FUNCTION_SYMBOL]: true,
-      debugInfo,
-      type: `builtin`,
-      name: value,
-    }
-    return {
-      builtinFunction,
-      contextEntry: null,
-      specialExpression: null,
-    }
-  }
-
-  if (builtin.specialExpressions[value]) {
-    return {
-      specialExpression: true,
-      builtinFunction: null,
-      contextEntry: null,
-    }
-  }
-
-  return {
-    specialExpression: null,
-    builtinFunction: null,
-    contextEntry: null,
-  }
 }
 
 function evaluateNormalExpression(node: NormalExpressionNode, contextStack: ContextStack): Any {

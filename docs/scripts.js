@@ -196,21 +196,25 @@ window.onload = function () {
     }
     if (evt.key === 'F3') {
       evt.preventDefault()
-      analyze()
+      getDataType()
     }
     if (evt.key === 'F4') {
       evt.preventDefault()
-      tokenize(false)
+      undefinedSymbols()
     }
     if (evt.key === 'F5') {
       evt.preventDefault()
-      tokenize(true)
+      tokenize(false)
     }
     if (evt.key === 'F6') {
       evt.preventDefault()
-      parse(false)
+      tokenize(true)
     }
     if (evt.key === 'F7') {
+      evt.preventDefault()
+      parse(false)
+    }
+    if (evt.key === 'F8') {
       evt.preventDefault()
       parse(true)
     }
@@ -345,11 +349,11 @@ function run() {
   output.value = newContent
 }
 
-function analyze() {
+function undefinedSymbols() {
   var code = document.getElementById('lits-textarea').value
   var output = document.getElementById('output-textarea')
   output.value = ''
-  var result
+  var undefinedSymbols
   var oldLog = console.log
   console.log = function () {
     var args = Array.from(arguments)
@@ -371,7 +375,54 @@ function analyze() {
     output.scrollTop = output.scrollHeight
   }
   try {
-    result = lits.analyze(code)
+    undefinedSymbols = lits.findUndefinedSymbols(code)
+  } catch (error) {
+    output.value = error
+    output.classList.add('error')
+    return
+  } finally {
+    console.log = oldLog
+    console.warn = oldWarn
+  }
+
+  output.classList.remove('error')
+  var content = undefinedSymbols.length > 0 ? `Undefined symbols: ${stringifyValue([...undefinedSymbols])}` : `No undefined symbols`
+
+  var oldContent = output.value
+  var newContent = oldContent ? oldContent + '\n' + content : content
+  output.value = newContent
+  output.scrollTop = output.scrollHeight
+
+  output.value = newContent
+}
+
+function getDataType() {
+  var code = document.getElementById('lits-textarea').value
+  var output = document.getElementById('output-textarea')
+  output.value = ''
+  var dataType
+  var oldLog = console.log
+  console.log = function () {
+    var args = Array.from(arguments)
+    oldLog.apply(console, args)
+    var logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    var oldContent = output.value
+    var newContent = oldContent ? oldContent + '\n' + logRow : logRow
+    output.value = newContent
+    output.scrollTop = output.scrollHeight
+  }
+  var oldWarn = console.warn
+  console.warn = function () {
+    var args = Array.from(arguments)
+    oldWarn.apply(console, args)
+    var logRow = args[0]
+    var oldContent = output.value
+    var newContent = oldContent ? oldContent + '\n' + logRow : logRow
+    output.value = newContent
+    output.scrollTop = output.scrollHeight
+  }
+  try {
+    dataType = lits.getDataType(code)
   } catch (error) {
     output.value = error
     output.classList.add('error')
@@ -381,7 +432,7 @@ function analyze() {
     console.warn = oldWarn
   }
   output.classList.remove('error')
-  var content = `Undefined symbols: ${stringifyValue([...result.undefinedSymbols])}`
+  var content = `Data type: ${dataType.toString()}\n`
 
   var oldContent = output.value
   var newContent = oldContent ? oldContent + '\n' + content : content

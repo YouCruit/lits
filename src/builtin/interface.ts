@@ -1,4 +1,4 @@
-import { EvaluateAstNode, ExecuteFunction, LookUpResult } from '../evaluator/interface'
+import { EvaluateAstNode, ExecuteFunction } from '../evaluator/interface'
 import {
   ParseArgument,
   ParseBindings,
@@ -16,6 +16,7 @@ import { FindUndefinedSymbols, UndefinedSymbolEntry } from '../analyze/undefined
 import { GetDataType } from '../analyze/dataTypes/interface'
 import { DataType } from '../analyze/dataTypes/DataType'
 import { ContextStack } from '../ContextStack'
+import { LookUpResult } from '../lookup/interface'
 
 export type NormalExpressionEvaluator<T> = (
   params: Arr,
@@ -28,13 +29,11 @@ type ValidateNode = (node: NormalExpressionNode) => void
 type BuiltinNormalExpression<T> = {
   evaluate: NormalExpressionEvaluator<T>
   validate: ValidateNode
-  getDataType?(
-    node: SpecialExpressionNode,
-    params: {
-      contextStack: ContextStack
-      getDataType: GetDataType
-    },
-  ): DataType
+  getDataType?(options: {
+    params: DataType[]
+    contextStack: ContextStack<DataType>
+    getDataType: GetDataType
+  }): DataType
 }
 
 export type ParserHelpers = {

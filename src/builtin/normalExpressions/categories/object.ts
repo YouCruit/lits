@@ -1,3 +1,4 @@
+import { DataType } from '../../../analyze/dataTypes/DataType'
 import { Any, Arr, Obj } from '../../../interface'
 import { collHasKey, toAny } from '../../../utils'
 import {
@@ -24,6 +25,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
       return result
     },
     validate: node => assertEventNumberOfParams(node),
+    getDataType: () => DataType.object,
   },
 
   keys: {

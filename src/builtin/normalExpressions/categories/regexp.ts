@@ -1,3 +1,4 @@
+import { DataType } from '../../../analyze/dataTypes/DataType'
 import { REGEXP_SYMBOL, RegularExpression } from '../../../parser/interface'
 import { assertNumberOfParams, regularExpression, string } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
@@ -17,6 +18,7 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
       }
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+    getDataType: () => DataType.regexp,
   },
   match: {
     evaluate: ([regexp, text], debugInfo): string[] | null => {

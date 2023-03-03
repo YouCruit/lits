@@ -552,9 +552,10 @@ var Lits = (function (exports) {
           }
           return value;
       },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
       },
   };
 
@@ -612,39 +613,38 @@ var Lits = (function (exports) {
           }
           return null;
       },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var astNodes = node.conditions.flatMap(function (condition) { return [condition.test, condition.form]; });
-          return analyzeAst(astNodes, contextStack, builtin);
+          return findUndefinedSymbols(astNodes, contextStack, builtin);
       },
   };
 
-  function joinAnalyzeResults() {
+  function joinUndefinedSymbols() {
       var e_1, _a;
-      var results = [];
+      var undefinedSymbolsSets = [];
       for (var _i = 0; _i < arguments.length; _i++) {
-          results[_i] = arguments[_i];
+          undefinedSymbolsSets[_i] = arguments[_i];
       }
-      var result = {
-          undefinedSymbols: new Set(),
-      };
+      var undefinedSymbols = new Set();
       try {
-          for (var results_1 = __values(results), results_1_1 = results_1.next(); !results_1_1.done; results_1_1 = results_1.next()) {
-              var input = results_1_1.value;
-              input.undefinedSymbols.forEach(function (symbol) { return result.undefinedSymbols.add(symbol); });
+          for (var undefinedSymbolsSets_1 = __values(undefinedSymbolsSets), undefinedSymbolsSets_1_1 = undefinedSymbolsSets_1.next(); !undefinedSymbolsSets_1_1.done; undefinedSymbolsSets_1_1 = undefinedSymbolsSets_1.next()) {
+              var set = undefinedSymbolsSets_1_1.value;
+              set.forEach(function (symbol) { return undefinedSymbols.add(symbol); });
           }
       }
       catch (e_1_1) { e_1 = { error: e_1_1 }; }
       finally {
           try {
-              if (results_1_1 && !results_1_1.done && (_a = results_1.return)) _a.call(results_1);
+              if (undefinedSymbolsSets_1_1 && !undefinedSymbolsSets_1_1.done && (_a = undefinedSymbolsSets_1.return)) _a.call(undefinedSymbolsSets_1);
           }
           finally { if (e_1) throw e_1.error; }
       }
-      return result;
+      return undefinedSymbols;
   }
   function addAnalyzeResults(target, source) {
-      source.undefinedSymbols.forEach(function (symbol) { return target.undefinedSymbols.add(symbol); });
+      source.forEach(function (symbol) { return target.add(symbol); });
   }
 
   var reservedNamesRecord = {
@@ -719,12 +719,13 @@ var Lits = (function (exports) {
           contextStack.globalContext[name] = { value: litsFunction };
           return null;
       },
-      analyze: function (node, contextStack, _a) {
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           contextStack.globalContext[node.functionName.value] = { value: true };
           var newContext = (_b = {}, _b[node.functionName.value] = { value: true }, _b);
-          return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin, newContext);
+          return addOverloadsUndefinedSymbols(node.overloads, contextStack, findUndefinedSymbols, builtin, newContext);
       },
   };
   var defnsSpecialExpression = {
@@ -765,9 +766,10 @@ var Lits = (function (exports) {
           contextStack.globalContext[name] = { value: litsFunction };
           return null;
       },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin);
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return addOverloadsUndefinedSymbols(node.overloads, contextStack, findUndefinedSymbols, builtin);
       },
   };
   var fnSpecialExpression = {
@@ -801,9 +803,10 @@ var Lits = (function (exports) {
               _b);
           return litsFunction;
       },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin);
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return addOverloadsUndefinedSymbols(node.overloads, contextStack, findUndefinedSymbols, builtin);
       },
   };
   function getFunctionName(expressionName, node, contextStack, evaluateAstNode) {
@@ -859,16 +862,16 @@ var Lits = (function (exports) {
       }
       return evaluatedFunctionOverloades;
   }
-  function addOverloadsUndefinedSymbols(overloads, contextStack, analyzeAst, builtin, functionNameContext) {
+  function addOverloadsUndefinedSymbols(overloads, contextStack, findUndefinedSymbols, builtin, functionNameContext) {
       var e_3, _a;
-      var result = { undefinedSymbols: new Set() };
+      var result = new Set();
       var contextStackWithFunctionName = functionNameContext
           ? contextStack.withContext(functionNameContext)
           : contextStack;
       var _loop_1 = function (overload) {
           var newContext = {};
           overload.arguments.bindings.forEach(function (binding) {
-              var bindingResult = analyzeAst(binding.value, contextStack, builtin);
+              var bindingResult = findUndefinedSymbols(binding.value, contextStack, builtin);
               addAnalyzeResults(result, bindingResult);
               newContext[binding.name] = { value: true };
           });
@@ -879,7 +882,7 @@ var Lits = (function (exports) {
               newContext[overload.arguments.restArgument] = { value: true };
           }
           var newContextStack = contextStackWithFunctionName.withContext(newContext);
-          var overloadResult = analyzeAst(overload.body, newContextStack, builtin);
+          var overloadResult = findUndefinedSymbols(overload.body, newContextStack, builtin);
           addAnalyzeResults(result, overloadResult);
       };
       try {
@@ -1073,12 +1076,12 @@ var Lits = (function (exports) {
           return value;
       },
       validate: function (node) { return assertNumberOfParams(2, node); },
-      analyze: function (node, contextStack, _a) {
+      findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
           var subNode = astNode.as(node.params[1], debugInfo);
-          var result = analyzeAst(subNode, contextStack, builtin);
+          var result = findUndefinedSymbols(subNode, contextStack, builtin);
           var name = nameNode.as(node.params[0], debugInfo).value;
           assertNameNotDefined(name, contextStack, builtin, debugInfo);
           contextStack.globalContext[name] = { value: true };
@@ -1113,11 +1116,11 @@ var Lits = (function (exports) {
           return value;
       },
       validate: function (node) { return assertNumberOfParams(2, node); },
-      analyze: function (node, contextStack, _a) {
+      findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var subNode = astNode.as(node.params[1], (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
-          return analyzeAst(subNode, contextStack, builtin);
+          return findUndefinedSymbols(subNode, contextStack, builtin);
       },
   };
 
@@ -1161,9 +1164,10 @@ var Lits = (function (exports) {
           }
           return result;
       },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
       },
   };
 
@@ -1321,40 +1325,36 @@ var Lits = (function (exports) {
       }
       return returnResult ? result : null;
   }
-  function analyze(node, contextStack, analyzeAst, builtin) {
-      var result = {
-          undefinedSymbols: new Set(),
-      };
+  function analyze(node, contextStack, findUndefinedSymbols, builtin) {
+      var result = new Set();
       var newContext = {};
       var loopBindings = node.loopBindings;
       loopBindings.forEach(function (loopBinding) {
           var binding = loopBinding.binding, letBindings = loopBinding.letBindings, whenNode = loopBinding.whenNode, whileNode = loopBinding.whileNode;
-          analyzeAst(binding.value, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
-              return result.undefinedSymbols.add(symbol);
+          findUndefinedSymbols(binding.value, contextStack.withContext(newContext), builtin).forEach(function (symbol) {
+              return result.add(symbol);
           });
           newContext[binding.name] = { value: true };
           if (letBindings) {
               letBindings.forEach(function (letBinding) {
-                  analyzeAst(letBinding.value, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
-                      return result.undefinedSymbols.add(symbol);
+                  findUndefinedSymbols(letBinding.value, contextStack.withContext(newContext), builtin).forEach(function (symbol) {
+                      return result.add(symbol);
                   });
                   newContext[letBinding.name] = { value: true };
               });
           }
           if (whenNode) {
-              analyzeAst(whenNode, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
-                  return result.undefinedSymbols.add(symbol);
+              findUndefinedSymbols(whenNode, contextStack.withContext(newContext), builtin).forEach(function (symbol) {
+                  return result.add(symbol);
               });
           }
           if (whileNode) {
-              analyzeAst(whileNode, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
-                  return result.undefinedSymbols.add(symbol);
+              findUndefinedSymbols(whileNode, contextStack.withContext(newContext), builtin).forEach(function (symbol) {
+                  return result.add(symbol);
               });
           }
       });
-      analyzeAst(node.params, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
-          return result.undefinedSymbols.add(symbol);
-      });
+      findUndefinedSymbols(node.params, contextStack.withContext(newContext), builtin).forEach(function (symbol) { return result.add(symbol); });
       return result;
   }
   var forSpecialExpression = {
@@ -1377,9 +1377,10 @@ var Lits = (function (exports) {
           return [position + 1, node];
       },
       evaluate: function (node, contextStack, helpers) { return evaluateLoop(true, node, contextStack, helpers.evaluateAstNode); },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyze(node, contextStack, analyzeAst, builtin);
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return analyze(node, contextStack, findUndefinedSymbols, builtin);
       },
   };
   var doseqSpecialExpression = {
@@ -1405,9 +1406,10 @@ var Lits = (function (exports) {
           evaluateLoop(false, node, contextStack, helpers.evaluateAstNode);
           return null;
       },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyze(node, contextStack, analyzeAst, builtin);
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return analyze(node, contextStack, findUndefinedSymbols, builtin);
       },
   };
 
@@ -1451,13 +1453,13 @@ var Lits = (function (exports) {
           return null;
       },
       validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-      analyze: function (node, contextStack, _a) {
+      findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var newContext = (_b = {}, _b[node.binding.name] = { value: true }, _b);
-          var bindingResult = analyzeAst(node.binding.value, contextStack, builtin);
-          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin);
-          return joinAnalyzeResults(bindingResult, paramsResult);
+          var bindingResult = findUndefinedSymbols(node.binding.value, contextStack, builtin);
+          var paramsResult = findUndefinedSymbols(node.params, contextStack.withContext(newContext), builtin);
+          return joinUndefinedSymbols(bindingResult, paramsResult);
       },
   };
 
@@ -1494,9 +1496,9 @@ var Lits = (function (exports) {
           }
       },
       validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
       },
   };
 
@@ -1533,9 +1535,9 @@ var Lits = (function (exports) {
           }
       },
       validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
       },
   };
 
@@ -1593,8 +1595,9 @@ var Lits = (function (exports) {
           }
           return result;
       },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var newContext = node.bindings
               .map(function (binding) { return binding.name; })
               .reduce(function (context, name) {
@@ -1604,12 +1607,12 @@ var Lits = (function (exports) {
           var bindingContext = {};
           var bindingResults = node.bindings.map(function (bindingNode) {
               var valueNode = bindingNode.value;
-              var bindingsResult = analyzeAst(valueNode, contextStack.withContext(bindingContext), builtin);
+              var bindingsResult = findUndefinedSymbols(valueNode, contextStack.withContext(bindingContext), builtin);
               bindingContext[bindingNode.name] = { value: true };
               return bindingsResult;
           });
-          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin);
-          return joinAnalyzeResults.apply(void 0, __spreadArray(__spreadArray([], __read(bindingResults), false), [paramsResult], false));
+          var paramsResult = findUndefinedSymbols(node.params, contextStack.withContext(newContext), builtin);
+          return joinUndefinedSymbols.apply(void 0, __spreadArray(__spreadArray([], __read(bindingResults), false), [paramsResult], false));
       },
   };
 
@@ -1679,8 +1682,9 @@ var Lits = (function (exports) {
                   return state_1.value;
           }
       },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var newContext = node.bindings
               .map(function (binding) { return binding.name; })
               .reduce(function (context, name) {
@@ -1688,9 +1692,9 @@ var Lits = (function (exports) {
               return context;
           }, {});
           var bindingValueNodes = node.bindings.map(function (binding) { return binding.value; });
-          var bindingsResult = analyzeAst(bindingValueNodes, contextStack, builtin);
-          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin);
-          return joinAnalyzeResults(bindingsResult, paramsResult);
+          var bindingsResult = findUndefinedSymbols(bindingValueNodes, contextStack, builtin);
+          var paramsResult = findUndefinedSymbols(node.params, contextStack.withContext(newContext), builtin);
+          return joinUndefinedSymbols(bindingsResult, paramsResult);
       },
   };
 
@@ -1731,9 +1735,10 @@ var Lits = (function (exports) {
           }
           return value;
       },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
       },
   };
 
@@ -1757,9 +1762,10 @@ var Lits = (function (exports) {
           var params = node.params.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
           throw new RecurSignal(params);
       },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
       },
   };
 
@@ -1788,9 +1794,10 @@ var Lits = (function (exports) {
           });
           throw new UserDefinedError(message, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
       },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.messageNode, contextStack, builtin);
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.messageNode, contextStack, builtin);
       },
   };
 
@@ -1820,9 +1827,9 @@ var Lits = (function (exports) {
           return result;
       },
       validate: function (node) { return assertNumberOfParams(1, node); },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
       },
   };
 
@@ -1877,16 +1884,17 @@ var Lits = (function (exports) {
               return evaluateAstNode(catchExpression, contextStack.withContext(newContext));
           }
       },
-      analyze: function (node, contextStack, _a) {
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var _c = node, tryExpression = _c.tryExpression, catchExpression = _c.catchExpression, errorNode = _c.error;
-          var tryResult = analyzeAst(tryExpression, contextStack, builtin);
+          var tryResult = findUndefinedSymbols(tryExpression, contextStack, builtin);
           var newContext = (_b = {},
               _b[errorNode.value] = { value: true },
               _b);
-          var catchResult = analyzeAst(catchExpression, contextStack.withContext(newContext), builtin);
-          return joinAnalyzeResults(tryResult, catchResult);
+          var catchResult = findUndefinedSymbols(catchExpression, contextStack.withContext(newContext), builtin);
+          return joinUndefinedSymbols(tryResult, catchResult);
       },
   };
 
@@ -2051,16 +2059,6 @@ var Lits = (function (exports) {
   function cloneColl(value) {
       return clone(value);
   }
-  function createContextFromValues(values) {
-      if (!values) {
-          return {};
-      }
-      return Object.entries(values).reduce(function (context, _a) {
-          var _b = __read(_a, 2), key = _b[0], value = _b[1];
-          context[key] = { value: toAny(value) };
-          return context;
-      }, {});
-  }
 
   var whenFirstSpecialExpression = {
       parse: function (tokens, position, _a) {
@@ -2116,14 +2114,14 @@ var Lits = (function (exports) {
           return result;
       },
       validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
-      analyze: function (node, contextStack, _a) {
+      findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var binding = node.binding;
           var newContext = (_b = {}, _b[binding.name] = { value: true }, _b);
-          var bindingResult = analyzeAst(binding.value, contextStack, builtin);
-          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin);
-          return joinAnalyzeResults(bindingResult, paramsResult);
+          var bindingResult = findUndefinedSymbols(binding.value, contextStack, builtin);
+          var paramsResult = findUndefinedSymbols(node.params, contextStack.withContext(newContext), builtin);
+          return joinUndefinedSymbols(bindingResult, paramsResult);
       },
   };
 
@@ -2176,14 +2174,14 @@ var Lits = (function (exports) {
           return result;
       },
       validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
-      analyze: function (node, contextStack, _a) {
+      findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var binding = node.binding;
           var newContext = (_b = {}, _b[binding.name] = { value: true }, _b);
-          var bindingResult = analyzeAst(binding.value, contextStack, builtin);
-          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin);
-          return joinAnalyzeResults(bindingResult, paramsResult);
+          var bindingResult = findUndefinedSymbols(binding.value, contextStack, builtin);
+          var paramsResult = findUndefinedSymbols(node.params, contextStack.withContext(newContext), builtin);
+          return joinUndefinedSymbols(bindingResult, paramsResult);
       },
   };
 
@@ -2226,9 +2224,9 @@ var Lits = (function (exports) {
           return result;
       },
       validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
       },
   };
 
@@ -2271,11 +2269,144 @@ var Lits = (function (exports) {
           return result;
       },
       validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
       },
   };
+
+  var bitValues = {
+      nil: 1,
+      string: 2,
+      number: 4,
+      boolean: 8,
+      array: 16,
+      object: 32,
+      function: 64,
+      regexp: 128,
+  };
+  var UNKNWON = 255;
+  var DataType = /** @class */ (function () {
+      function DataType(typeMask) {
+          this.typeMask = typeMask;
+      }
+      DataType.or = function () {
+          var types = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              types[_i] = arguments[_i];
+          }
+          var newTypeMask = types.reduce(function (result, type) {
+              return result | type.typeMask;
+          }, 0);
+          return new DataType(newTypeMask);
+      };
+      DataType.prototype.is = function (primitive) {
+          return this.typeMask === bitValues[primitive];
+      };
+      DataType.prototype.isNilable = function (primitive) {
+          return this.typeMask === bitValues[primitive] + bitValues["nil"];
+      };
+      DataType.prototype.isUnknown = function () {
+          return this.typeMask === UNKNWON;
+      };
+      DataType.prototype.isNil = function () {
+          return this.is("nil");
+      };
+      DataType.prototype.isBoolean = function () {
+          return this.is("boolean");
+      };
+      DataType.prototype.isString = function () {
+          return this.is("string");
+      };
+      DataType.prototype.isNumber = function () {
+          return this.is("number");
+      };
+      DataType.prototype.isArray = function () {
+          return this.is("array");
+      };
+      DataType.prototype.isObject = function () {
+          return this.is("object");
+      };
+      DataType.prototype.isFunction = function () {
+          return this.is("function");
+      };
+      DataType.prototype.isRegexp = function () {
+          return this.is("regexp");
+      };
+      DataType.prototype.isNilableBoolean = function () {
+          return this.isNilable("boolean");
+      };
+      DataType.prototype.isNilableString = function () {
+          return this.isNilable("string");
+      };
+      DataType.prototype.isNilableNumber = function () {
+          return this.isNilable("number");
+      };
+      DataType.prototype.isNilableArray = function () {
+          return this.isNilable("array");
+      };
+      DataType.prototype.isNilableObject = function () {
+          return this.isNilable("object");
+      };
+      DataType.prototype.isNilableFunction = function () {
+          return this.isNilable("function");
+      };
+      DataType.prototype.isNilableRegexp = function () {
+          return this.isNilable("regexp");
+      };
+      DataType.prototype.toString = function () {
+          var _this = this;
+          if (this.isUnknown()) {
+              return "unknown";
+          }
+          if (this.isNilableArray()) {
+              return "nilableArray";
+          }
+          if (this.isNilableBoolean()) {
+              return "nilableBoolean";
+          }
+          if (this.isNilableFunction()) {
+              return "nilableFunction";
+          }
+          if (this.isNilableNumber()) {
+              return "nilableNumber";
+          }
+          if (this.isNilableObject()) {
+              return "nilableObject";
+          }
+          if (this.isNilableRegexp()) {
+              return "nilableRegexp";
+          }
+          if (this.isNilableString()) {
+              return "nilableString";
+          }
+          var types = Object.entries(bitValues).reduce(function (result, entry) {
+              var _a = __read(entry, 2), name = _a[0], bitValue = _a[1];
+              if (_this.typeMask & bitValue) {
+                  result.push(name);
+              }
+              return result;
+          }, []);
+          return types.join(" | ");
+      };
+      DataType.nil = new DataType(bitValues["nil"]);
+      DataType.string = new DataType(bitValues["string"]);
+      DataType.nilableString = new DataType(bitValues["nil"] + bitValues["string"]);
+      DataType.number = new DataType(bitValues["number"]);
+      DataType.nilableNumber = new DataType(bitValues["nil"] + bitValues["number"]);
+      DataType.boolean = new DataType(bitValues["boolean"]);
+      DataType.nilableBoolean = new DataType(bitValues["nil"] + bitValues["boolean"]);
+      DataType.array = new DataType(bitValues["array"]);
+      DataType.nilableArray = new DataType(bitValues["nil"] + bitValues["array"]);
+      DataType.object = new DataType(bitValues["object"]);
+      DataType.nilableObject = new DataType(bitValues["nil"] + bitValues["object"]);
+      DataType.regexp = new DataType(bitValues["regexp"]);
+      DataType.nilableRegexp = new DataType(bitValues["nil"] + bitValues["regexp"]);
+      DataType.function = new DataType(bitValues["function"]);
+      DataType.nilableFunction = new DataType(bitValues["nil"] + bitValues["function"]);
+      DataType.unknown = new DataType(UNKNWON);
+      return DataType;
+  }());
 
   var bitwiseNormalExpression = {
       'bit-shift-left': {
@@ -2286,6 +2417,7 @@ var Lits = (function (exports) {
               return num << count;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.number; },
       },
       'bit-shift-right': {
           evaluate: function (_a, debugInfo) {
@@ -2295,6 +2427,7 @@ var Lits = (function (exports) {
               return num >> count;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.number; },
       },
       'bit-not': {
           evaluate: function (_a, debugInfo) {
@@ -2303,6 +2436,7 @@ var Lits = (function (exports) {
               return ~num;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
+          getDataType: function () { return DataType.number; },
       },
       'bit-and': {
           evaluate: function (_a, debugInfo) {
@@ -2314,6 +2448,7 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          getDataType: function () { return DataType.number; },
       },
       'bit-and-not': {
           evaluate: function (_a, debugInfo) {
@@ -2325,6 +2460,7 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          getDataType: function () { return DataType.number; },
       },
       'bit-or': {
           evaluate: function (_a, debugInfo) {
@@ -2336,6 +2472,7 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          getDataType: function () { return DataType.number; },
       },
       'bit-xor': {
           evaluate: function (_a, debugInfo) {
@@ -2347,6 +2484,7 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          getDataType: function () { return DataType.number; },
       },
       'bit-flip': {
           evaluate: function (_a, debugInfo) {
@@ -2357,6 +2495,7 @@ var Lits = (function (exports) {
               return (num ^= mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.number; },
       },
       'bit-set': {
           evaluate: function (_a, debugInfo) {
@@ -2367,6 +2506,7 @@ var Lits = (function (exports) {
               return (num |= mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.number; },
       },
       'bit-clear': {
           evaluate: function (_a, debugInfo) {
@@ -2377,6 +2517,7 @@ var Lits = (function (exports) {
               return (num &= ~mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.number; },
       },
       'bit-test': {
           evaluate: function (_a, debugInfo) {
@@ -2387,6 +2528,7 @@ var Lits = (function (exports) {
               return !!(num & mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.boolean; },
       },
   };
 
@@ -2413,16 +2555,14 @@ var Lits = (function (exports) {
       }, { coll: coll, parent: {} });
       return { coll: coll, innerCollMeta: innerCollMeta };
   }
-  function get(coll, key, debugInfo) {
+  function get(coll, key) {
       if (object.is(coll)) {
-          string.assert(key, debugInfo);
-          if (collHasKey(coll, key)) {
+          if (string.is(key) && collHasKey(coll, key)) {
               return toAny(coll[key]);
           }
       }
       else {
-          number.assert(key, debugInfo, { integer: true });
-          if (key >= 0 && key < coll.length) {
+          if (number.is(key, { nonNegative: true, integer: true }) && key >= 0 && key < coll.length) {
               return toAny(coll[key]);
           }
       }
@@ -2499,25 +2639,46 @@ var Lits = (function (exports) {
                   return defaultValue;
               }
               collection.assert(coll, debugInfo);
-              var result = get(coll, key, debugInfo);
+              var result = get(coll, key);
               return result === undefined ? defaultValue : result;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          getDataType: function (_a) {
+              var _b;
+              var params = _a.params;
+              var _c = __read(params, 2), collType = _c[0], keyType = _c[1];
+              var defaultValueType = (_b = params[2]) !== null && _b !== void 0 ? _b : DataType.nil;
+              assertValue(collType);
+              assertValue(keyType);
+              if (collType.isNil()) {
+                  return defaultValueType;
+              }
+              if (collType.isString()) {
+                  return DataType.or(DataType.nilableString, defaultValueType);
+              }
+              return DataType.unknown;
+          },
       },
       'get-in': {
           evaluate: function (params, debugInfo) {
               var e_1, _a;
-              var coll = params[0];
-              var keys = params[1];
+              var _b;
+              var coll = toAny(params[0]);
+              var keys = (_b = params[1]) !== null && _b !== void 0 ? _b : []; // nil behaves as empty array
               var defaultValue = toAny(params[2]);
-              collection.assert(coll, debugInfo);
               array.assert(keys, debugInfo);
               try {
                   for (var keys_1 = __values(keys), keys_1_1 = keys_1.next(); !keys_1_1.done; keys_1_1 = keys_1.next()) {
                       var key = keys_1_1.value;
                       stringOrNumber.assert(key, debugInfo);
                       if (collection.is(coll)) {
-                          coll = get(coll, key, debugInfo);
+                          var nextValue = get(coll, key);
+                          if (nextValue !== undefined) {
+                              coll = nextValue;
+                          }
+                          else {
+                              return defaultValue;
+                          }
                       }
                       else {
                           return defaultValue;
@@ -2531,9 +2692,19 @@ var Lits = (function (exports) {
                   }
                   finally { if (e_1) throw e_1.error; }
               }
-              return any.is(coll) ? coll : defaultValue;
+              return coll;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          getDataType: function (_a) {
+              var params = _a.params;
+              var _b = __read(params, 2), collType = _b[0], keysType = _b[1];
+              assertValue(collType);
+              assertValue(keysType);
+              if (keysType.isNil()) {
+                  return collType;
+              }
+              return DataType.unknown;
+          },
       },
       count: {
           evaluate: function (_a, debugInfo) {
@@ -2548,6 +2719,12 @@ var Lits = (function (exports) {
               return Object.keys(coll).length;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
+          getDataType: function (_a) {
+              var params = _a.params;
+              var _b = __read(params, 1), collType = _b[0];
+              assertValue(collType);
+              return DataType.number;
+          },
       },
       'contains?': {
           evaluate: function (_a, debugInfo) {
@@ -2564,6 +2741,7 @@ var Lits = (function (exports) {
               return !!Object.getOwnPropertyDescriptor(coll, key);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.boolean; },
       },
       'has?': {
           evaluate: function (_a, debugInfo) {
@@ -2578,6 +2756,7 @@ var Lits = (function (exports) {
               return Object.values(coll).includes(value);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.boolean; },
       },
       'has-some?': {
           evaluate: function (_a, debugInfo) {
@@ -2639,6 +2818,7 @@ var Lits = (function (exports) {
               return false;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.boolean; },
       },
       'has-every?': {
           evaluate: function (_a, debugInfo) {
@@ -2700,6 +2880,7 @@ var Lits = (function (exports) {
               return true;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.boolean; },
       },
       assoc: {
           evaluate: function (_a, debugInfo) {
@@ -2826,6 +3007,7 @@ var Lits = (function (exports) {
               return Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.boolean; },
       },
       'any?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -2842,6 +3024,7 @@ var Lits = (function (exports) {
               return Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.boolean; },
       },
       'not-any?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -2858,6 +3041,7 @@ var Lits = (function (exports) {
               return !Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.boolean; },
       },
       'not-every?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -2874,6 +3058,7 @@ var Lits = (function (exports) {
               return !Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.boolean; },
       },
   };
 
@@ -3790,6 +3975,8 @@ var Lits = (function (exports) {
   var arrayNormalExpression = {
       array: {
           evaluate: function (params) { return params; },
+          validate: function () { return undefined; },
+          getDataType: function () { return DataType.array; },
       },
       range: {
           evaluate: function (params, debugInfo) {
@@ -3832,6 +4019,7 @@ var Lits = (function (exports) {
               return result;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 3 }, node); },
+          getDataType: function () { return DataType.array; },
       },
       repeat: {
           evaluate: function (_a, debugInfo) {
@@ -3844,6 +4032,7 @@ var Lits = (function (exports) {
               return result;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
+          getDataType: function () { return DataType.array; },
       },
       flatten: {
           evaluate: function (_a) {
@@ -3854,6 +4043,7 @@ var Lits = (function (exports) {
               return seq.flat(Number.POSITIVE_INFINITY);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
+          getDataType: function () { return DataType.array; },
       },
       mapcat: {
           evaluate: function (params, debugInfo, contextStack, helpers) {
@@ -3865,6 +4055,7 @@ var Lits = (function (exports) {
               return mapResult.flat(1);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          getDataType: function () { return DataType.array; },
       },
   };
 
@@ -3892,6 +4083,7 @@ var Lits = (function (exports) {
                   return result + param;
               }, 0);
           },
+          validate: function () { return undefined; },
       },
       '*': {
           evaluate: function (params, debugInfo) {
@@ -3900,6 +4092,7 @@ var Lits = (function (exports) {
                   return result * param;
               }, 1);
           },
+          validate: function () { return undefined; },
       },
       '/': {
           evaluate: function (params, debugInfo) {
@@ -3917,6 +4110,7 @@ var Lits = (function (exports) {
                   return result / param;
               }, first);
           },
+          validate: function () { return undefined; },
       },
       '-': {
           evaluate: function (params, debugInfo) {
@@ -3933,6 +4127,7 @@ var Lits = (function (exports) {
                   return result - param;
               }, first);
           },
+          validate: function () { return undefined; },
       },
       quot: {
           evaluate: function (_a, debugInfo) {
@@ -4275,7 +4470,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.54";
+  var version = "1.0.55-alpha.0";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -4463,6 +4658,7 @@ var Lits = (function (exports) {
               }
               return null;
           },
+          validate: function () { return undefined; },
       },
       'debug!': {
           evaluate: function (params, debugInfo, contextStack) {
@@ -4550,6 +4746,10 @@ var Lits = (function (exports) {
               return any.as(value, debugInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          getDataType: function (_a) {
+              var params = _a.params;
+              return asValue(params[0]);
+          },
       },
       'assert=': {
           evaluate: function (_a, debugInfo) {
@@ -4561,6 +4761,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert-not=': {
           evaluate: function (_a, debugInfo) {
@@ -4572,6 +4773,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert-equal': {
           evaluate: function (_a, debugInfo) {
@@ -4583,6 +4785,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert-not-equal': {
           evaluate: function (_a, debugInfo) {
@@ -4594,6 +4797,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert>': {
           evaluate: function (_a, debugInfo) {
@@ -4605,6 +4809,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert>=': {
           evaluate: function (_a, debugInfo) {
@@ -4616,6 +4821,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert<': {
           evaluate: function (_a, debugInfo) {
@@ -4627,6 +4833,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert<=': {
           evaluate: function (_a, debugInfo) {
@@ -4638,6 +4845,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert-true': {
           evaluate: function (_a, debugInfo) {
@@ -4649,6 +4857,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert-false': {
           evaluate: function (_a, debugInfo) {
@@ -4660,6 +4869,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert-truthy': {
           evaluate: function (_a, debugInfo) {
@@ -4671,6 +4881,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert-falsy': {
           evaluate: function (_a, debugInfo) {
@@ -4682,6 +4893,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert-nil': {
           evaluate: function (_a, debugInfo) {
@@ -4693,6 +4905,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert-throws': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -4709,6 +4922,7 @@ var Lits = (function (exports) {
               throw new AssertionError("Expected function to throw.".concat(message), debugInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert-throws-error': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -4730,6 +4944,7 @@ var Lits = (function (exports) {
               throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\".").concat(message), debugInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
       'assert-not-throws': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -4746,6 +4961,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          getDataType: function () { return DataType.nil; },
       },
   };
 
@@ -4762,6 +4978,7 @@ var Lits = (function (exports) {
               return result;
           },
           validate: function (node) { return assertEventNumberOfParams(node); },
+          getDataType: function () { return DataType.object; },
       },
       keys: {
           evaluate: function (_a, debugInfo) {
@@ -5091,6 +5308,7 @@ var Lits = (function (exports) {
                   _b;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          getDataType: function () { return DataType.regexp; },
       },
       match: {
           evaluate: function (_a, debugInfo) {
@@ -5155,6 +5373,7 @@ var Lits = (function (exports) {
                   return result + paramStr;
               }, "");
           },
+          validate: function () { return undefined; },
       },
       number: {
           evaluate: function (_a, debugInfo) {
@@ -5447,6 +5666,7 @@ var Lits = (function (exports) {
                   _a.fns = fns,
                   _a;
           },
+          validate: function () { return undefined; },
       },
       constantly: {
           evaluate: function (_a, debugInfo) {
@@ -5548,7 +5768,8 @@ var Lits = (function (exports) {
           return [position + 1, node];
       },
       evaluate: function () { return null; },
-      analyze: function () { return ({ undefinedSymbols: new Set() }); },
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function () { return new Set(); },
   };
 
   var declaredSpecialExpression = {
@@ -5573,9 +5794,9 @@ var Lits = (function (exports) {
           return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
       },
       validate: function (node) { return assertNumberOfParams(1, node); },
-      analyze: function (node, contextStack, _a) {
-          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
       },
   };
 
@@ -5619,6 +5840,273 @@ var Lits = (function (exports) {
   };
   var normalExpressionKeys = Object.keys(normalExpressions);
   var specialExpressionKeys = Object.keys(specialExpressions);
+
+  var getDataType = function (astNode, contextStack) {
+      var e_1, _a;
+      var astNodes = Array.isArray(astNode) ? astNode : [astNode];
+      var result = DataType.nil;
+      try {
+          for (var astNodes_1 = __values(astNodes), astNodes_1_1 = astNodes_1.next(); !astNodes_1_1.done; astNodes_1_1 = astNodes_1.next()) {
+              var node = astNodes_1_1.value;
+              result = calculateDataTypesOnAstNode(node, contextStack);
+          }
+      }
+      catch (e_1_1) { e_1 = { error: e_1_1 }; }
+      finally {
+          try {
+              if (astNodes_1_1 && !astNodes_1_1.done && (_a = astNodes_1.return)) _a.call(astNodes_1);
+          }
+          finally { if (e_1) throw e_1.error; }
+      }
+      return result;
+  };
+  function lookupNameType(nameNode, contextStack) {
+      var e_2, _a;
+      var key = nameNode.value;
+      try {
+          for (var _b = __values(contextStack.stack), _c = _b.next(); !_c.done; _c = _b.next()) {
+              var context = _c.value;
+              var type = context[key];
+              if (type) {
+                  return type;
+              }
+          }
+      }
+      catch (e_2_1) { e_2 = { error: e_2_1 }; }
+      finally {
+          try {
+              if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+          }
+          finally { if (e_2) throw e_2.error; }
+      }
+      return DataType.unknown;
+  }
+  function calculateDataTypesOnAstNode(astNode, contextStack) {
+      switch (astNode.type) {
+          case "Name": {
+              return lookupNameType(astNode, contextStack);
+          }
+          case "String":
+              return DataType.string;
+          case "Number":
+              return DataType.number;
+          case "Modifier":
+              throw Error("Should not come here");
+          case "ReservedName":
+              switch (astNode.value) {
+                  case "false":
+                      return DataType.boolean;
+                  case "true":
+                      return DataType.boolean;
+                  default:
+                      return DataType.nil;
+              }
+          case "NormalExpression":
+              return calculateDataTypesOnNormalExpression(astNode, contextStack);
+      }
+      return DataType.nil;
+  }
+  function calculateDataTypesOnNormalExpression(node, contextStack) {
+      var e_3, _a;
+      var _b;
+      var paramTypes = node.params.map(function (paramNode) { return calculateDataTypesOnAstNode(paramNode, contextStack); });
+      if (normalExpressionNodeWithName.is(node)) {
+          try {
+              for (var _c = __values(contextStack.stack), _d = _c.next(); !_d.done; _d = _c.next()) {
+                  var context = _d.value;
+                  var fn = (_b = context[node.name]) === null || _b === void 0 ? void 0 : _b.value;
+                  if (fn === undefined) {
+                      continue;
+                  }
+                  return DataType.unknown;
+              }
+          }
+          catch (e_3_1) { e_3 = { error: e_3_1 }; }
+          finally {
+              try {
+                  if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+              }
+              finally { if (e_3) throw e_3.error; }
+          }
+          return calculateDataTypesOnBuiltinNormalExpression(node, paramTypes, contextStack);
+      }
+      else {
+          return DataType.unknown;
+      }
+  }
+  function calculateDataTypesOnBuiltinNormalExpression(node, params, contextStack) {
+      var _a, _b, _c;
+      var normalExpression = builtin.normalExpressions[node.name];
+      if (!normalExpression) {
+          throw new UndefinedSymbolError(node.name, (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
+      }
+      return (_c = (_b = normalExpression.getDataType) === null || _b === void 0 ? void 0 : _b.call(normalExpression, { params: params, contextStack: contextStack, getDataType: getDataType })) !== null && _c !== void 0 ? _c : DataType.unknown;
+  }
+
+  function lookUp(node, contextStack) {
+      var e_1, _a, _b;
+      var _c;
+      var value = node.value;
+      var debugInfo = (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo;
+      try {
+          for (var _d = __values(contextStack.stack), _e = _d.next(); !_e.done; _e = _d.next()) {
+              var context = _e.value;
+              var variable = context[value];
+              if (variable) {
+                  return {
+                      builtinFunction: null,
+                      contextEntry: variable,
+                      specialExpression: null,
+                  };
+              }
+          }
+      }
+      catch (e_1_1) { e_1 = { error: e_1_1 }; }
+      finally {
+          try {
+              if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
+          }
+          finally { if (e_1) throw e_1.error; }
+      }
+      if (builtin.normalExpressions[value]) {
+          var builtinFunction = (_b = {},
+              _b[FUNCTION_SYMBOL] = true,
+              _b.debugInfo = debugInfo,
+              _b.type = "builtin",
+              _b.name = value,
+              _b);
+          return {
+              builtinFunction: builtinFunction,
+              contextEntry: null,
+              specialExpression: null,
+          };
+      }
+      if (builtin.specialExpressions[value]) {
+          return {
+              specialExpression: true,
+              builtinFunction: null,
+              contextEntry: null,
+          };
+      }
+      return {
+          specialExpression: null,
+          builtinFunction: null,
+          contextEntry: null,
+      };
+  }
+
+  var findUndefinedSymbols = function (astNode, contextStack, builtin) {
+      var e_1, _a;
+      var astNodes = Array.isArray(astNode) ? astNode : [astNode];
+      var undefinedSymbols = new Set();
+      try {
+          for (var astNodes_1 = __values(astNodes), astNodes_1_1 = astNodes_1.next(); !astNodes_1_1.done; astNodes_1_1 = astNodes_1.next()) {
+              var subNode = astNodes_1_1.value;
+              var innerUndefinedSymbols = calculateUndefinedSymbolsOnAstNode(subNode, contextStack, builtin);
+              innerUndefinedSymbols.forEach(function (symbol) { return undefinedSymbols.add(symbol); });
+          }
+      }
+      catch (e_1_1) { e_1 = { error: e_1_1 }; }
+      finally {
+          try {
+              if (astNodes_1_1 && !astNodes_1_1.done && (_a = astNodes_1.return)) _a.call(astNodes_1);
+          }
+          finally { if (e_1) throw e_1.error; }
+      }
+      return undefinedSymbols;
+  };
+  function calculateUndefinedSymbolsOnAstNode(astNode, contextStack, builtin) {
+      var e_2, _a;
+      var _b;
+      var emptySet = new Set();
+      switch (astNode.type) {
+          case "Name": {
+              var lookUpResult = lookUp(astNode, contextStack);
+              if (!lookUpResult.builtinFunction && !lookUpResult.contextEntry && !lookUpResult.specialExpression) {
+                  return new Set([{ symbol: astNode.value, token: astNode.token }]);
+              }
+              return emptySet;
+          }
+          case "String":
+          case "Number":
+          case "Modifier":
+          case "ReservedName":
+              return emptySet;
+          case "NormalExpression": {
+              var undefinedSymbols_1 = new Set();
+              var expression = astNode.expression, name_1 = astNode.name, token = astNode.token;
+              if (typeof name_1 === "string") {
+                  var lookUpResult = lookUp({ type: "Name", value: name_1, token: token }, contextStack);
+                  if (lookUpResult.builtinFunction === null &&
+                      lookUpResult.contextEntry === null &&
+                      lookUpResult.specialExpression === null) {
+                      undefinedSymbols_1.add({ symbol: name_1, token: astNode.token });
+                  }
+              }
+              if (expression) {
+                  switch (expression.type) {
+                      case "String":
+                      case "Number":
+                          break;
+                      case "NormalExpression":
+                      case "SpecialExpression": {
+                          var innerUndefinedSymbols = calculateUndefinedSymbolsOnAstNode(expression, contextStack, builtin);
+                          innerUndefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
+                          break;
+                      }
+                  }
+              }
+              try {
+                  for (var _c = __values(astNode.params), _d = _c.next(); !_d.done; _d = _c.next()) {
+                      var subNode = _d.value;
+                      var subNodeResult = findUndefinedSymbols(subNode, contextStack, builtin);
+                      subNodeResult.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
+                  }
+              }
+              catch (e_2_1) { e_2 = { error: e_2_1 }; }
+              finally {
+                  try {
+                      if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                  }
+                  finally { if (e_2) throw e_2.error; }
+              }
+              return undefinedSymbols_1;
+          }
+          case "SpecialExpression": {
+              var specialExpression = asValue(builtin.specialExpressions[astNode.name], (_b = astNode.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+              var result = specialExpression.findUndefinedSymbols(astNode, contextStack, {
+                  findUndefinedSymbols: findUndefinedSymbols,
+                  builtin: builtin,
+              });
+              return result;
+          }
+      }
+  }
+
+  var ContextStack = /** @class */ (function () {
+      function ContextStack(contexts, globalContextIndex) {
+          this.stack = contexts;
+          this.numberOfImportedContexts = contexts.length - (globalContextIndex + 1);
+          this.globalContext = contexts[globalContextIndex];
+      }
+      ContextStack.create = function (contexts) {
+          if (contexts === void 0) { contexts = []; }
+          if (contexts.length === 0) {
+              contexts.push({});
+          }
+          return new ContextStack(contexts, 0);
+      };
+      ContextStack.createFromParams = function (params) {
+          var _a, _b;
+          var globalContext = (_a = params.globalContext) !== null && _a !== void 0 ? _a : {};
+          var contextStack = ContextStack.create(__spreadArray([globalContext], __read(((_b = params.contexts) !== null && _b !== void 0 ? _b : [])), false));
+          return contextStack;
+      };
+      ContextStack.prototype.withContext = function (context) {
+          return new ContextStack(__spreadArray([context], __read(this.stack), false), this.stack.length - this.numberOfImportedContexts);
+      };
+      return ContextStack;
+  }());
 
   function findOverloadFunction(overloads, nbrOfParams, debugInfo) {
       var overloadFunction = overloads.find(function (overload) {
@@ -5791,24 +6279,6 @@ var Lits = (function (exports) {
       },
   };
 
-  function createContextStack(contexts) {
-      if (contexts === void 0) { contexts = []; }
-      if (contexts.length === 0) {
-          contexts.push({});
-      }
-      return new ContextStackImpl(contexts, 0);
-  }
-  var ContextStackImpl = /** @class */ (function () {
-      function ContextStackImpl(contexts, globalContextIndex) {
-          this.stack = contexts;
-          this.numberOfImportedContexts = contexts.length - (globalContextIndex + 1);
-          this.globalContext = contexts[globalContextIndex];
-      }
-      ContextStackImpl.prototype.withContext = function (context) {
-          return new ContextStackImpl(__spreadArray([context], __read(this.stack), false), this.stack.length - this.numberOfImportedContexts);
-      };
-      return ContextStackImpl;
-  }());
   function evaluate(ast, contextStack) {
       var e_1, _a;
       var result = null;
@@ -5867,59 +6337,8 @@ var Lits = (function (exports) {
       }
       throw new UndefinedSymbolError(node.value, (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
   }
-  function lookUp(node, contextStack) {
-      var e_2, _a, _b;
-      var _c;
-      var value = node.value;
-      var debugInfo = (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo;
-      try {
-          for (var _d = __values(contextStack.stack), _e = _d.next(); !_e.done; _e = _d.next()) {
-              var context = _e.value;
-              var variable = context[value];
-              if (variable) {
-                  return {
-                      builtinFunction: null,
-                      contextEntry: variable,
-                      specialExpression: null,
-                  };
-              }
-          }
-      }
-      catch (e_2_1) { e_2 = { error: e_2_1 }; }
-      finally {
-          try {
-              if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
-          }
-          finally { if (e_2) throw e_2.error; }
-      }
-      if (builtin.normalExpressions[value]) {
-          var builtinFunction = (_b = {},
-              _b[FUNCTION_SYMBOL] = true,
-              _b.debugInfo = debugInfo,
-              _b.type = "builtin",
-              _b.name = value,
-              _b);
-          return {
-              builtinFunction: builtinFunction,
-              contextEntry: null,
-              specialExpression: null,
-          };
-      }
-      if (builtin.specialExpressions[value]) {
-          return {
-              specialExpression: true,
-              builtinFunction: null,
-              contextEntry: null,
-          };
-      }
-      return {
-          specialExpression: null,
-          builtinFunction: null,
-          contextEntry: null,
-      };
-  }
   function evaluateNormalExpression(node, contextStack) {
-      var e_3, _a;
+      var e_2, _a;
       var _b, _c;
       var params = node.params.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
       var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
@@ -5934,12 +6353,12 @@ var Lits = (function (exports) {
                   return executeFunction(fn, params, contextStack, debugInfo);
               }
           }
-          catch (e_3_1) { e_3 = { error: e_3_1 }; }
+          catch (e_2_1) { e_2 = { error: e_2_1 }; }
           finally {
               try {
                   if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
               }
-              finally { if (e_3) throw e_3.error; }
+              finally { if (e_2) throw e_2.error; }
           }
           return evaluateBuiltinNormalExpression(node, params, contextStack);
       }
@@ -6016,96 +6435,6 @@ var Lits = (function (exports) {
       var param = params[0];
       sequence.assert(param, debugInfo);
       return toAny(param[fn]);
-  }
-
-  var analyzeAst = function (astNode, contextStack, builtin) {
-      var e_1, _a;
-      var astNodes = Array.isArray(astNode) ? astNode : [astNode];
-      var analyzeResult = {
-          undefinedSymbols: new Set(),
-      };
-      try {
-          for (var astNodes_1 = __values(astNodes), astNodes_1_1 = astNodes_1.next(); !astNodes_1_1.done; astNodes_1_1 = astNodes_1.next()) {
-              var subNode = astNodes_1_1.value;
-              var result = analyzeAstNode(subNode, contextStack, builtin);
-              result.undefinedSymbols.forEach(function (symbol) { return analyzeResult.undefinedSymbols.add(symbol); });
-          }
-      }
-      catch (e_1_1) { e_1 = { error: e_1_1 }; }
-      finally {
-          try {
-              if (astNodes_1_1 && !astNodes_1_1.done && (_a = astNodes_1.return)) _a.call(astNodes_1);
-          }
-          finally { if (e_1) throw e_1.error; }
-      }
-      return analyzeResult;
-  };
-  function analyzeAstNode(astNode, contextStack, builtin) {
-      var e_2, _a;
-      var _b;
-      var emptySet = new Set();
-      switch (astNode.type) {
-          case "Name": {
-              var lookUpResult = lookUp(astNode, contextStack);
-              if (!lookUpResult.builtinFunction && !lookUpResult.contextEntry && !lookUpResult.specialExpression) {
-                  return { undefinedSymbols: new Set([{ symbol: astNode.value, token: astNode.token }]) };
-              }
-              return { undefinedSymbols: emptySet };
-          }
-          case "String":
-          case "Number":
-          case "Modifier":
-          case "ReservedName":
-              return { undefinedSymbols: emptySet };
-          case "NormalExpression": {
-              var undefinedSymbols_1 = new Set();
-              var expression = astNode.expression, name_1 = astNode.name, token = astNode.token;
-              if (typeof name_1 === "string") {
-                  var lookUpResult = lookUp({ type: "Name", value: name_1, token: token }, contextStack);
-                  if (lookUpResult.builtinFunction === null &&
-                      lookUpResult.contextEntry === null &&
-                      lookUpResult.specialExpression === null) {
-                      undefinedSymbols_1.add({ symbol: name_1, token: astNode.token });
-                  }
-              }
-              if (expression) {
-                  switch (expression.type) {
-                      case "String":
-                      case "Number":
-                          break;
-                      case "NormalExpression":
-                      case "SpecialExpression": {
-                          var subResult = analyzeAstNode(expression, contextStack, builtin);
-                          subResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
-                          break;
-                      }
-                  }
-              }
-              try {
-                  for (var _c = __values(astNode.params), _d = _c.next(); !_d.done; _d = _c.next()) {
-                      var subNode = _d.value;
-                      var subNodeResult = analyzeAst(subNode, contextStack, builtin);
-                      subNodeResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
-                  }
-              }
-              catch (e_2_1) { e_2 = { error: e_2_1 }; }
-              finally {
-                  try {
-                      if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-                  }
-                  finally { if (e_2) throw e_2.error; }
-              }
-              return { undefinedSymbols: undefinedSymbols_1 };
-          }
-          case "SpecialExpression": {
-              var specialExpression = asValue(builtin.specialExpressions[astNode.name], (_b = astNode.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
-              var result = specialExpression.analyze(astNode, contextStack, {
-                  analyzeAst: analyzeAst,
-                  builtin: builtin,
-              });
-              return result;
-          }
-      }
   }
 
   var parseNumber = function (tokens, position) {
@@ -6300,8 +6629,8 @@ var Lits = (function (exports) {
   };
   var parseNormalExpression = function (tokens, position) {
       var _a;
-      var _b, _c;
-      var _d = __read(parseToken(tokens, position), 2), newPosition = _d[0], fnNode = _d[1];
+      var _b;
+      var _c = __read(parseToken(tokens, position), 2), newPosition = _c[0], fnNode = _c[1];
       var params;
       _a = __read(parseTokens(tokens, newPosition), 2), position = _a[0], params = _a[1];
       position += 1;
@@ -6323,7 +6652,7 @@ var Lits = (function (exports) {
       };
       var builtinExpression = builtin.normalExpressions[node.name];
       if (builtinExpression) {
-          (_c = builtinExpression.validate) === null || _c === void 0 ? void 0 : _c.call(builtinExpression, node);
+          builtinExpression.validate(node);
       }
       return [position, node];
   };
@@ -6339,7 +6668,7 @@ var Lits = (function (exports) {
           parseBindings: parseBindings,
           parseArgument: parseArgument,
       }), 2), positionAfterParse = _c[0], node = _c[1];
-      validate === null || validate === void 0 ? void 0 : validate(node);
+      validate(node);
       return [positionAfterParse, node];
   };
   var parseToken = function (tokens, position) {
@@ -6872,16 +7201,21 @@ var Lits = (function (exports) {
       };
       Lits.prototype.context = function (program, params) {
           if (params === void 0) { params = {}; }
-          var contextStack = createContextStackFromParams(params);
+          var contextStack = ContextStack.createFromParams(params);
           var ast = this.generateAst(program, params.getLocation);
           evaluate(ast, contextStack);
           return contextStack.globalContext;
       };
-      Lits.prototype.analyze = function (program) {
+      Lits.prototype.findUndefinedSymbols = function (program) {
           var params = {};
-          var contextStack = createContextStackFromParams(params);
+          var contextStack = ContextStack.createFromParams(params);
           var ast = this.generateAst(program, params.getLocation);
-          return analyzeAst(ast.body, contextStack, builtin);
+          return findUndefinedSymbols(ast.body, contextStack, builtin);
+      };
+      Lits.prototype.getDataType = function (program) {
+          var contextStack = ContextStack.create();
+          var ast = this.generateAst(program, undefined);
+          return getDataType(ast.body, contextStack);
       };
       Lits.prototype.tokenize = function (program, getLocation) {
           return tokenize(program, { debug: this.debug, getLocation: getLocation });
@@ -6890,7 +7224,7 @@ var Lits = (function (exports) {
           return parse(tokens);
       };
       Lits.prototype.evaluate = function (ast, params) {
-          var contextStack = createContextStackFromParams(params);
+          var contextStack = ContextStack.createFromParams(params);
           return evaluate(ast, contextStack);
       };
       Lits.prototype.apply = function (fn, fnParams, params) {
@@ -6927,13 +7261,6 @@ var Lits = (function (exports) {
       };
       return Lits;
   }());
-  function createContextStackFromParams(params) {
-      var _a, _b;
-      var globalContext = (_a = params.globalContext) !== null && _a !== void 0 ? _a : {};
-      Object.assign(globalContext, createContextFromValues(params.globals));
-      var contextStack = createContextStack(__spreadArray([globalContext], __read(((_b = params.contexts) !== null && _b !== void 0 ? _b : [])), false));
-      return contextStack;
-  }
 
   exports.Lits = Lits;
   exports.isLitsFunction = isLitsFunction;

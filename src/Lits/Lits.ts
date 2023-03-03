@@ -76,7 +76,7 @@ export class Lits {
   }
 
   public getDataType(program: string): DataType {
-    const contextStack = ContextStack.createFromParams({})
+    const contextStack = ContextStack.create<DataType>()
     const ast = this.generateAst(program, undefined)
 
     return getDataType(ast.body, contextStack)

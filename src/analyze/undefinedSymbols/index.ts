@@ -1,6 +1,6 @@
 import { Builtin } from '../../builtin/interface'
 import { ContextStack } from '../../ContextStack'
-import { lookUp } from '../../evaluator'
+import { lookUp } from '../../lookup'
 import { AstNode } from '../../parser/interface'
 import { asValue } from '../../utils/assertion'
 import { FindUndefinedSymbols, UndefinedSymbolEntry } from './interface'

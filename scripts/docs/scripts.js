@@ -386,7 +386,8 @@ function undefinedSymbols() {
   }
 
   output.classList.remove('error')
-  var content = undefinedSymbols.length > 0 ? `Undefined symbols: ${stringifyValue([...undefinedSymbols])}` : `No undefined symbols`
+  var content =
+    undefinedSymbols.length > 0 ? `Undefined symbols: ${stringifyValue([...undefinedSymbols])}` : `No undefined symbols`
 
   var oldContent = output.value
   var newContent = oldContent ? oldContent + '\n' + content : content

@@ -24,8 +24,22 @@ const FALSY_BITS = typeToBitRecord.nil | typeToBitRecord.zero | typeToBitRecord.
 // All non falsy bits
 const TRUTHY_BITS = UNKNWON_BITS & ~FALSY_BITS
 
+function stringifyBitMask(bitMaks: number): string {
+  const mask = allBitValues
+    .reduce((result, bitValue, index) => {
+      const zeroOrOne = (bitMaks & bitValue) === 0 ? `0` : `1`
+      const space = index > 0 && index % 4 === 0 ? ` ` : ``
+      return `${result}${space}${zeroOrOne}`
+    }, ``)
+    .split(``)
+    .reverse()
+    .join(``)
+
+  const padding = `0`.repeat((4 - (allBitValues.length % 4)) % 4)
+  return `${padding}${mask}`
+}
 export class DataType {
-  public readonly bits: number
+  public readonly bitMask: number
 
   public static nil = new DataType(typeToBitRecord.nil)
 
@@ -91,45 +105,45 @@ export class DataType {
 
   public static or(type: DataType, ...types: DataType[]): DataType {
     const newTypeMask = [type, ...types].reduce((result, type) => {
-      return result | type.bits
+      return result | type.bitMask
     }, 0)
     return new DataType(newTypeMask)
   }
 
   public static and(type: DataType, ...types: DataType[]): DataType {
     const newTypeMask = [type, ...types].reduce((result, type) => {
-      return result & type.bits
+      return result & type.bitMask
     }, UNKNWON_BITS)
     return new DataType(newTypeMask)
   }
 
   public static exclude(type: DataType, ...types: DataType[]): DataType {
     const typeMask = types.reduce((result, type) => {
-      return result | type.bits
+      return result | type.bitMask
     }, 0)
 
-    const newTypeMask = type.bits & ~typeMask
+    const newTypeMask = type.bitMask & ~typeMask
     return new DataType(newTypeMask)
   }
 
   public static is(dataType1: DataType, dataType2: DataType): boolean {
-    const bits = dataType2.bits
-    return (dataType1.bits & bits) > 0 && (dataType1.bits & ~bits) === 0
+    const bits = dataType2.bitMask
+    return (dataType1.bitMask & bits) > 0 && (dataType1.bitMask & ~bits) === 0
   }
 
   public static equals(dataType1: DataType, dataType2: DataType): boolean {
-    return dataType1.bits === dataType2.bits
+    return dataType1.bitMask === dataType2.bitMask
   }
 
   public static isUnionType(dataType: DataType): boolean {
-    return !allBitValues.includes(dataType.bits)
+    return !allBitValues.includes(dataType.bitMask)
   }
 
   private constructor(bitMask: number) {
     if (bitMask < 0 || bitMask > UNKNWON_BITS) {
       throw Error(`Illegal bitMask. Should be between 1 and ${UNKNWON_BITS}, got ${bitMask}`)
     }
-    this.bits = bitMask
+    this.bitMask = bitMask
   }
 
   public or(...dataTypes: DataType[]): DataType {
@@ -157,20 +171,21 @@ export class DataType {
   }
 
   isUnknown(): boolean {
-    return this.bits === UNKNWON_BITS
+    return this.bitMask === UNKNWON_BITS
   }
 
   toString(): string {
+    const suffix = ` [Bitmask = ${stringifyBitMask(this.bitMask)}  (${this.bitMask})]`
     if (this.isUnknown()) {
-      return `unknown`
+      return `unknown${suffix}`
     }
     const types = Object.entries(typeToBitRecord).reduce((result: string[], entry) => {
       const [name, bitValue] = entry
-      if (this.bits & bitValue) {
+      if (this.bitMask & bitValue) {
         result.push(name)
       }
       return result
     }, [])
-    return types.join(` | `)
+    return `${types.join(` | `)}${suffix}`
   }
 }

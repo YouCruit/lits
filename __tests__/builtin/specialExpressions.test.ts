@@ -364,8 +364,8 @@ describe(`specialExpressions`, () => {
           expect(lits.getDataType(`(and 1)`)).toEqual(DataType.nonZeroNumber)
           expect(lits.getDataType(`(and :foo 0)`)).toEqual(DataType.zero)
           expect(lits.getDataType(`(and 1 :foo)`)).toEqual(DataType.nonEmptyString)
-          expect(lits.getDataType(`(and 1 {})`)).toEqual(DataType.object)
-          expect(lits.getDataType(`(and 1 [])`)).toEqual(DataType.array)
+          expect(lits.getDataType(`(and 1 {})`)).toEqual(DataType.emptyObject)
+          expect(lits.getDataType(`(and 1 [])`)).toEqual(DataType.emptyArray)
 
           expect(lits.getDataType(`(and)`).is(DataType.truthy)).toBe(true)
           expect(lits.getDataType(`(and 1)`).is(DataType.truthy)).toBe(true)
@@ -422,8 +422,8 @@ describe(`specialExpressions`, () => {
           expect(lits.getDataType(`(or "" 0)`)).toEqual(DataType.zero)
           expect(lits.getDataType(`(or 0 "")`)).toEqual(DataType.emptyString)
           expect(lits.getDataType(`(or 1 :foo)`)).toEqual(DataType.nonZeroNumber)
-          expect(lits.getDataType(`(or {} 1)`)).toEqual(DataType.object)
-          expect(lits.getDataType(`(or [] 1)`)).toEqual(DataType.array)
+          expect(lits.getDataType(`(or {} 1)`)).toEqual(DataType.emptyObject)
+          expect(lits.getDataType(`(or [] 1)`)).toEqual(DataType.emptyArray)
 
           expect(lits.getDataType(`(or)`).is(DataType.falsy)).toBe(true)
           expect(lits.getDataType(`(or 1)`).is(DataType.truthy)).toBe(true)

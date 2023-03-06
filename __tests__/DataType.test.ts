@@ -2,56 +2,58 @@ import { DataType, typeToBitRecord } from '../src/analyze/dataTypes/DataType'
 
 describe(`DataType`, () => {
   test(`standard types.`, () => {
-    expect(DataType.nil.bits).toBe(typeToBitRecord.nil)
+    expect(DataType.nil.bitMask).toBe(typeToBitRecord.nil)
 
-    expect(DataType.true.bits).toBe(typeToBitRecord.true)
-    expect(DataType.false.bits).toBe(typeToBitRecord.false)
-    expect(DataType.boolean.bits).toBe(typeToBitRecord.true | typeToBitRecord.false)
-    expect(DataType.emptyString.bits).toBe(typeToBitRecord.emptyString)
-    expect(DataType.nonEmptyString.bits).toBe(typeToBitRecord.nonEmptyString)
-    expect(DataType.string.bits).toBe(typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString)
-    expect(DataType.zero.bits).toBe(typeToBitRecord.zero)
-    expect(DataType.nonZeroNumber.bits).toBe(typeToBitRecord.nonZeroNumber)
-    expect(DataType.number.bits).toBe(typeToBitRecord.zero | typeToBitRecord.nonZeroNumber)
-    expect(DataType.nonEmptyArray.bits).toBe(typeToBitRecord.nonEmptyArray)
-    expect(DataType.emptyArray.bits).toBe(typeToBitRecord.emptyArray)
-    expect(DataType.array.bits).toBe(typeToBitRecord.nonEmptyArray | typeToBitRecord.emptyArray)
-    expect(DataType.nonEmptyObject.bits).toBe(typeToBitRecord.nonEmptyObject)
-    expect(DataType.emptyObject.bits).toBe(typeToBitRecord.emptyObject)
-    expect(DataType.object.bits).toBe(typeToBitRecord.nonEmptyObject | typeToBitRecord.emptyObject)
-    expect(DataType.function.bits).toBe(typeToBitRecord.function)
-    expect(DataType.regexp.bits).toBe(typeToBitRecord.regexp)
+    expect(DataType.true.bitMask).toBe(typeToBitRecord.true)
+    expect(DataType.false.bitMask).toBe(typeToBitRecord.false)
+    expect(DataType.boolean.bitMask).toBe(typeToBitRecord.true | typeToBitRecord.false)
+    expect(DataType.emptyString.bitMask).toBe(typeToBitRecord.emptyString)
+    expect(DataType.nonEmptyString.bitMask).toBe(typeToBitRecord.nonEmptyString)
+    expect(DataType.string.bitMask).toBe(typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString)
+    expect(DataType.zero.bitMask).toBe(typeToBitRecord.zero)
+    expect(DataType.nonZeroNumber.bitMask).toBe(typeToBitRecord.nonZeroNumber)
+    expect(DataType.number.bitMask).toBe(typeToBitRecord.zero | typeToBitRecord.nonZeroNumber)
+    expect(DataType.nonEmptyArray.bitMask).toBe(typeToBitRecord.nonEmptyArray)
+    expect(DataType.emptyArray.bitMask).toBe(typeToBitRecord.emptyArray)
+    expect(DataType.array.bitMask).toBe(typeToBitRecord.nonEmptyArray | typeToBitRecord.emptyArray)
+    expect(DataType.nonEmptyObject.bitMask).toBe(typeToBitRecord.nonEmptyObject)
+    expect(DataType.emptyObject.bitMask).toBe(typeToBitRecord.emptyObject)
+    expect(DataType.object.bitMask).toBe(typeToBitRecord.nonEmptyObject | typeToBitRecord.emptyObject)
+    expect(DataType.function.bitMask).toBe(typeToBitRecord.function)
+    expect(DataType.regexp.bitMask).toBe(typeToBitRecord.regexp)
 
-    expect(DataType.nilableTrue.bits).toBe(typeToBitRecord.nil | typeToBitRecord.true)
-    expect(DataType.nilableFalse.bits).toBe(typeToBitRecord.nil | typeToBitRecord.false)
-    expect(DataType.nilableBoolean.bits).toBe(typeToBitRecord.nil | typeToBitRecord.true | typeToBitRecord.false)
-    expect(DataType.nilableEmptyString.bits).toBe(typeToBitRecord.nil | typeToBitRecord.emptyString)
-    expect(DataType.nilableNonEmptyString.bits).toBe(typeToBitRecord.nil | typeToBitRecord.nonEmptyString)
-    expect(DataType.nilableString.bits).toBe(
+    expect(DataType.nilableTrue.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.true)
+    expect(DataType.nilableFalse.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.false)
+    expect(DataType.nilableBoolean.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.true | typeToBitRecord.false)
+    expect(DataType.nilableEmptyString.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.emptyString)
+    expect(DataType.nilableNonEmptyString.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.nonEmptyString)
+    expect(DataType.nilableString.bitMask).toBe(
       typeToBitRecord.nil | typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString,
     )
-    expect(DataType.nilableZero.bits).toBe(typeToBitRecord.nil | typeToBitRecord.zero)
-    expect(DataType.nilableNonZeroNumber.bits).toBe(typeToBitRecord.nil | typeToBitRecord.nonZeroNumber)
-    expect(DataType.nilableNumber.bits).toBe(typeToBitRecord.nil | typeToBitRecord.zero | typeToBitRecord.nonZeroNumber)
-    expect(DataType.nilableNonEmptyArray.bits).toBe(typeToBitRecord.nil | typeToBitRecord.nonEmptyArray)
-    expect(DataType.nilableEmptyArray.bits).toBe(typeToBitRecord.nil | typeToBitRecord.emptyArray)
-    expect(DataType.nilableArray.bits).toBe(
+    expect(DataType.nilableZero.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.zero)
+    expect(DataType.nilableNonZeroNumber.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.nonZeroNumber)
+    expect(DataType.nilableNumber.bitMask).toBe(
+      typeToBitRecord.nil | typeToBitRecord.zero | typeToBitRecord.nonZeroNumber,
+    )
+    expect(DataType.nilableNonEmptyArray.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.nonEmptyArray)
+    expect(DataType.nilableEmptyArray.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.emptyArray)
+    expect(DataType.nilableArray.bitMask).toBe(
       typeToBitRecord.nil | typeToBitRecord.nonEmptyArray | typeToBitRecord.emptyArray,
     )
-    expect(DataType.nilableNonEmptyObject.bits).toBe(typeToBitRecord.nil | typeToBitRecord.nonEmptyObject)
-    expect(DataType.nilableEmptyObject.bits).toBe(typeToBitRecord.nil | typeToBitRecord.emptyObject)
-    expect(DataType.nilableObject.bits).toBe(
+    expect(DataType.nilableNonEmptyObject.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.nonEmptyObject)
+    expect(DataType.nilableEmptyObject.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.emptyObject)
+    expect(DataType.nilableObject.bitMask).toBe(
       typeToBitRecord.nil | typeToBitRecord.nonEmptyObject | typeToBitRecord.emptyObject,
     )
-    expect(DataType.nilableFunction.bits).toBe(typeToBitRecord.nil | typeToBitRecord.function)
-    expect(DataType.nilableRegexp.bits).toBe(typeToBitRecord.nil | typeToBitRecord.regexp)
+    expect(DataType.nilableFunction.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.function)
+    expect(DataType.nilableRegexp.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.regexp)
 
-    expect(DataType.unknown.bits).toBe((1 << Object.keys(typeToBitRecord).length) - 1)
+    expect(DataType.unknown.bitMask).toBe((1 << Object.keys(typeToBitRecord).length) - 1)
 
-    expect(DataType.falsy.bits).toBe(
+    expect(DataType.falsy.bitMask).toBe(
       typeToBitRecord.nil | typeToBitRecord.emptyString | typeToBitRecord.zero | typeToBitRecord.false,
     )
-    expect(DataType.truthy.bits).toBe(
+    expect(DataType.truthy.bitMask).toBe(
       typeToBitRecord.nonEmptyString |
         typeToBitRecord.nonZeroNumber |
         typeToBitRecord.true |
@@ -63,13 +65,13 @@ describe(`DataType`, () => {
         typeToBitRecord.regexp,
     )
 
-    expect(DataType.emptyCollection.bits).toBe(
+    expect(DataType.emptyCollection.bitMask).toBe(
       typeToBitRecord.emptyArray | typeToBitRecord.emptyObject | typeToBitRecord.emptyString,
     )
-    expect(DataType.nonEmptyCollection.bits).toBe(
+    expect(DataType.nonEmptyCollection.bitMask).toBe(
       typeToBitRecord.nonEmptyArray | typeToBitRecord.nonEmptyObject | typeToBitRecord.nonEmptyString,
     )
-    expect(DataType.collection.bits).toBe(
+    expect(DataType.collection.bitMask).toBe(
       typeToBitRecord.emptyArray |
         typeToBitRecord.emptyObject |
         typeToBitRecord.emptyString |
@@ -110,23 +112,23 @@ describe(`DataType`, () => {
       expect(DataType.or(DataType.truthy, DataType.falsy)).toEqual(DataType.unknown)
     })
     test(`create nilable types`, () => {
-      expect(DataType.or(DataType.nil, DataType.boolean).bits).toBe(
+      expect(DataType.or(DataType.nil, DataType.boolean).bitMask).toBe(
         typeToBitRecord.true | typeToBitRecord.false | typeToBitRecord.nil,
       )
-      expect(DataType.or(DataType.nil, DataType.string).bits).toBe(
+      expect(DataType.or(DataType.nil, DataType.string).bitMask).toBe(
         typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString | typeToBitRecord.nil,
       )
-      expect(DataType.or(DataType.nil, DataType.number).bits).toBe(
+      expect(DataType.or(DataType.nil, DataType.number).bitMask).toBe(
         typeToBitRecord.zero | typeToBitRecord.nonZeroNumber | typeToBitRecord.nil,
       )
-      expect(DataType.or(DataType.nil, DataType.array).bits).toBe(
+      expect(DataType.or(DataType.nil, DataType.array).bitMask).toBe(
         typeToBitRecord.nonEmptyArray | typeToBitRecord.emptyArray | typeToBitRecord.nil,
       )
-      expect(DataType.or(DataType.nil, DataType.object).bits).toBe(
+      expect(DataType.or(DataType.nil, DataType.object).bitMask).toBe(
         typeToBitRecord.nonEmptyObject | typeToBitRecord.emptyObject | typeToBitRecord.nil,
       )
-      expect(DataType.or(DataType.nil, DataType.function).bits).toBe(typeToBitRecord.function | typeToBitRecord.nil)
-      expect(DataType.or(DataType.nil, DataType.regexp).bits).toBe(typeToBitRecord.regexp | typeToBitRecord.nil)
+      expect(DataType.or(DataType.nil, DataType.function).bitMask).toBe(typeToBitRecord.function | typeToBitRecord.nil)
+      expect(DataType.or(DataType.nil, DataType.regexp).bitMask).toBe(typeToBitRecord.regexp | typeToBitRecord.nil)
     })
     test(`the disjunction over all types should be unknown`, () => {
       const unknown1 = DataType.or(
@@ -321,10 +323,12 @@ describe(`DataType`, () => {
 
   describe(`DataType.toString`, () => {
     test(`samples`, () => {
-      expect(DataType.unknown.toString()).toBe(`unknown`)
-      expect(DataType.nil.toString()).toBe(`nil`)
-      expect(DataType.string.toString()).toBe(`emptyString | nonEmptyString`)
-      expect(DataType.nil.or(DataType.string).toString()).toBe(`nil | emptyString | nonEmptyString`)
+      expect(DataType.unknown.toString()).toBe(`unknown [Bitmask = 0001 1111 1111 1111  (8191)]`)
+      expect(DataType.nil.toString()).toBe(`nil [Bitmask = 0000 0000 0000 0001  (1)]`)
+      expect(DataType.string.toString()).toBe(`emptyString | nonEmptyString [Bitmask = 0000 0000 0000 0110  (6)]`)
+      expect(DataType.nil.or(DataType.string).toString()).toBe(
+        `nil | emptyString | nonEmptyString [Bitmask = 0000 0000 0000 0111  (7)]`,
+      )
     })
   })
 })

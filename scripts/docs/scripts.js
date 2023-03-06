@@ -433,7 +433,7 @@ function getDataType() {
     console.warn = oldWarn
   }
   output.classList.remove('error')
-  var content = `Data type: ${dataType.toString()}\n`
+  var content = `${dataType.toString()}\n`
 
   var oldContent = output.value
   var newContent = oldContent ? oldContent + '\n' + content : content

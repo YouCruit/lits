@@ -171,6 +171,185 @@ var Lits = (function (exports) {
       return to.concat(ar || Array.prototype.slice.call(from));
   }
 
+  var typeToBitRecord = {
+      nil: 1 << 0,
+      emptyString: 1 << 1,
+      nonEmptyString: 1 << 2,
+      zero: 1 << 3,
+      nonZeroNumber: 1 << 4,
+      true: 1 << 5,
+      false: 1 << 6,
+      emptyArray: 1 << 7,
+      nonEmptyArray: 1 << 8,
+      emptyObject: 1 << 9,
+      nonEmptyObject: 1 << 10,
+      function: 1 << 11,
+      regexp: 1 << 12,
+  };
+  var allBitValues = Object.values(typeToBitRecord);
+  // All bits set to 1
+  var UNKNWON_BITS = allBitValues.reduce(function (result, bit) { return result | bit; }, 0);
+  var FALSY_BITS = typeToBitRecord.nil | typeToBitRecord.zero | typeToBitRecord.emptyString | typeToBitRecord.false;
+  // All non falsy bits
+  var TRUTHY_BITS = UNKNWON_BITS & ~FALSY_BITS;
+  function stringifyBitMask(bitMaks) {
+      var mask = allBitValues
+          .reduce(function (result, bitValue, index) {
+          var zeroOrOne = (bitMaks & bitValue) === 0 ? "0" : "1";
+          var space = index > 0 && index % 4 === 0 ? " " : "";
+          return "".concat(result).concat(space).concat(zeroOrOne);
+      }, "")
+          .split("")
+          .reverse()
+          .join("");
+      var padding = "0".repeat((4 - (allBitValues.length % 4)) % 4);
+      return "".concat(padding).concat(mask);
+  }
+  var DataType = /** @class */ (function () {
+      function DataType(bitMask) {
+          if (bitMask < 0 || bitMask > UNKNWON_BITS) {
+              throw Error("Illegal bitMask. Should be between 1 and ".concat(UNKNWON_BITS, ", got ").concat(bitMask));
+          }
+          this.bitMask = bitMask;
+      }
+      DataType.or = function (type) {
+          var types = [];
+          for (var _i = 1; _i < arguments.length; _i++) {
+              types[_i - 1] = arguments[_i];
+          }
+          var newTypeMask = __spreadArray([type], __read(types), false).reduce(function (result, type) {
+              return result | type.bitMask;
+          }, 0);
+          return new DataType(newTypeMask);
+      };
+      DataType.and = function (type) {
+          var types = [];
+          for (var _i = 1; _i < arguments.length; _i++) {
+              types[_i - 1] = arguments[_i];
+          }
+          var newTypeMask = __spreadArray([type], __read(types), false).reduce(function (result, type) {
+              return result & type.bitMask;
+          }, UNKNWON_BITS);
+          return new DataType(newTypeMask);
+      };
+      DataType.exclude = function (type) {
+          var types = [];
+          for (var _i = 1; _i < arguments.length; _i++) {
+              types[_i - 1] = arguments[_i];
+          }
+          var typeMask = types.reduce(function (result, type) {
+              return result | type.bitMask;
+          }, 0);
+          var newTypeMask = type.bitMask & ~typeMask;
+          return new DataType(newTypeMask);
+      };
+      DataType.is = function (dataType1, dataType2) {
+          var bits = dataType2.bitMask;
+          return (dataType1.bitMask & bits) > 0 && (dataType1.bitMask & ~bits) === 0;
+      };
+      DataType.equals = function (dataType1, dataType2) {
+          return dataType1.bitMask === dataType2.bitMask;
+      };
+      DataType.isUnionType = function (dataType) {
+          return !allBitValues.includes(dataType.bitMask);
+      };
+      DataType.prototype.or = function () {
+          var dataTypes = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              dataTypes[_i] = arguments[_i];
+          }
+          return DataType.or.apply(DataType, __spreadArray([this], __read(dataTypes), false));
+      };
+      DataType.prototype.and = function () {
+          var dataTypes = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              dataTypes[_i] = arguments[_i];
+          }
+          return DataType.and.apply(DataType, __spreadArray([this], __read(dataTypes), false));
+      };
+      DataType.prototype.exclude = function () {
+          var dataTypes = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              dataTypes[_i] = arguments[_i];
+          }
+          return DataType.exclude.apply(DataType, __spreadArray([this], __read(dataTypes), false));
+      };
+      DataType.prototype.is = function (dataType) {
+          return DataType.is(this, dataType);
+      };
+      DataType.prototype.equals = function (dataType) {
+          return DataType.equals(this, dataType);
+      };
+      DataType.prototype.isUnionType = function () {
+          return DataType.isUnionType(this);
+      };
+      DataType.prototype.isUnknown = function () {
+          return this.bitMask === UNKNWON_BITS;
+      };
+      DataType.prototype.toString = function () {
+          var _this = this;
+          var suffix = " [Bit mask = ".concat(stringifyBitMask(this.bitMask), "  (").concat(this.bitMask, ")]");
+          if (this.isUnknown()) {
+              return "unknown".concat(suffix);
+          }
+          var types = Object.entries(typeToBitRecord).reduce(function (result, entry) {
+              var _a = __read(entry, 2), name = _a[0], bitValue = _a[1];
+              if (_this.bitMask & bitValue) {
+                  result.push(name);
+              }
+              return result;
+          }, []);
+          return "".concat(types.join(" | ")).concat(suffix);
+      };
+      DataType.nil = new DataType(typeToBitRecord.nil);
+      DataType.emptyString = new DataType(typeToBitRecord.emptyString);
+      DataType.nonEmptyString = new DataType(typeToBitRecord.nonEmptyString);
+      DataType.string = new DataType(typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString);
+      DataType.zero = new DataType(typeToBitRecord.zero);
+      DataType.nonZeroNumber = new DataType(typeToBitRecord.nonZeroNumber);
+      DataType.number = new DataType(typeToBitRecord.zero | typeToBitRecord.nonZeroNumber);
+      DataType.true = new DataType(typeToBitRecord.true);
+      DataType.false = new DataType(typeToBitRecord.false);
+      DataType.boolean = new DataType(typeToBitRecord.true | typeToBitRecord.false);
+      DataType.emptyArray = new DataType(typeToBitRecord.emptyArray);
+      DataType.nonEmptyArray = new DataType(typeToBitRecord.nonEmptyArray);
+      DataType.array = new DataType(typeToBitRecord.emptyArray | typeToBitRecord.nonEmptyArray);
+      DataType.emptyObject = new DataType(typeToBitRecord.emptyObject);
+      DataType.nonEmptyObject = new DataType(typeToBitRecord.nonEmptyObject);
+      DataType.object = new DataType(typeToBitRecord.emptyObject | typeToBitRecord.nonEmptyObject);
+      DataType.regexp = new DataType(typeToBitRecord.regexp);
+      DataType.function = new DataType(typeToBitRecord.function);
+      DataType.nilableEmptyString = new DataType(typeToBitRecord.nil | typeToBitRecord.emptyString);
+      DataType.nilableNonEmptyString = new DataType(typeToBitRecord.nil | typeToBitRecord.nonEmptyString);
+      DataType.nilableString = new DataType(typeToBitRecord.nil | typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString);
+      DataType.nilableZero = new DataType(typeToBitRecord.nil | typeToBitRecord.zero);
+      DataType.nilableNonZeroNumber = new DataType(typeToBitRecord.nil | typeToBitRecord.nonZeroNumber);
+      DataType.nilableNumber = new DataType(typeToBitRecord.nil | typeToBitRecord.zero | typeToBitRecord.nonZeroNumber);
+      DataType.nilableTrue = new DataType(typeToBitRecord.nil | typeToBitRecord.true);
+      DataType.nilableFalse = new DataType(typeToBitRecord.nil | typeToBitRecord.false);
+      DataType.nilableBoolean = new DataType(typeToBitRecord.nil | typeToBitRecord.true | typeToBitRecord.false);
+      DataType.nilableEmptyArray = new DataType(typeToBitRecord.nil | typeToBitRecord.emptyArray);
+      DataType.nilableNonEmptyArray = new DataType(typeToBitRecord.nil | typeToBitRecord.nonEmptyArray);
+      DataType.nilableArray = new DataType(typeToBitRecord.nil | typeToBitRecord.emptyArray | typeToBitRecord.nonEmptyArray);
+      DataType.nilableEmptyObject = new DataType(typeToBitRecord.nil | typeToBitRecord.emptyObject);
+      DataType.nilableNonEmptyObject = new DataType(typeToBitRecord.nil | typeToBitRecord.nonEmptyObject);
+      DataType.nilableObject = new DataType(typeToBitRecord.nil | typeToBitRecord.emptyObject | typeToBitRecord.nonEmptyObject);
+      DataType.nilableRegexp = new DataType(typeToBitRecord.nil | typeToBitRecord.regexp);
+      DataType.nilableFunction = new DataType(typeToBitRecord.nil | typeToBitRecord.function);
+      DataType.unknown = new DataType(UNKNWON_BITS);
+      DataType.truthy = new DataType(TRUTHY_BITS);
+      DataType.falsy = new DataType(FALSY_BITS);
+      DataType.emptyCollection = new DataType(typeToBitRecord.emptyString | typeToBitRecord.emptyArray | typeToBitRecord.emptyObject);
+      DataType.nonEmptyCollection = new DataType(typeToBitRecord.nonEmptyString | typeToBitRecord.nonEmptyArray | typeToBitRecord.nonEmptyObject);
+      DataType.collection = new DataType(typeToBitRecord.emptyString |
+          typeToBitRecord.nonEmptyString |
+          typeToBitRecord.emptyArray |
+          typeToBitRecord.nonEmptyArray |
+          typeToBitRecord.emptyObject |
+          typeToBitRecord.nonEmptyObject);
+      return DataType;
+  }());
+
   function getLitsErrorMessage(message, debugInfo) {
       return "".concat(message).concat(debugInfo ? "\n".concat(debugInfo === "EOF" ? "EOF" : "".concat(debugInfo.code, "\n").concat(getCodeMarker(debugInfo))) : "");
   }
@@ -556,6 +735,29 @@ var Lits = (function (exports) {
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
+      },
+      getDataType: function (node, contextStack, helpers) {
+          var e_2, _a;
+          if (node.params.length === 0) {
+              return DataType.true;
+          }
+          var params = node.params.map(function (p) { return helpers.getDataType(p, contextStack); });
+          try {
+              for (var params_1 = __values(params), params_1_1 = params_1.next(); !params_1_1.done; params_1_1 = params_1.next()) {
+                  var param = params_1_1.value;
+                  if (param.is(DataType.falsy)) {
+                      return param;
+                  }
+              }
+          }
+          catch (e_2_1) { e_2 = { error: e_2_1 }; }
+          finally {
+              try {
+                  if (params_1_1 && !params_1_1.done && (_a = params_1.return)) _a.call(params_1);
+              }
+              finally { if (e_2) throw e_2.error; }
+          }
+          return asValue(params[params.length - 1]);
       },
   };
 
@@ -1539,6 +1741,21 @@ var Lits = (function (exports) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
       },
+      getDataType: function (node, contextStack, _a) {
+          var getDataType = _a.getDataType;
+          var conditionType = getDataType(asValue(node.params[0]), contextStack);
+          var truthyBranchType = getDataType(asValue(node.params[1]), contextStack);
+          var falsyBranchType = getDataType(asValue(node.params[2]), contextStack);
+          if (conditionType.is(DataType.truthy)) {
+              return truthyBranchType;
+          }
+          else if (conditionType.is(DataType.falsy)) {
+              return falsyBranchType;
+          }
+          else {
+              return truthyBranchType.or(falsyBranchType);
+          }
+      },
   };
 
   var letSpecialExpression = {
@@ -1739,6 +1956,29 @@ var Lits = (function (exports) {
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
+      },
+      getDataType: function (node, contextStack, helpers) {
+          var e_2, _a;
+          if (node.params.length === 0) {
+              return DataType.false;
+          }
+          var params = node.params.map(function (p) { return helpers.getDataType(p, contextStack); });
+          try {
+              for (var params_1 = __values(params), params_1_1 = params_1.next(); !params_1_1.done; params_1_1 = params_1.next()) {
+                  var param = params_1_1.value;
+                  if (param.is(DataType.truthy)) {
+                      return param;
+                  }
+              }
+          }
+          catch (e_2_1) { e_2 = { error: e_2_1 }; }
+          finally {
+              try {
+                  if (params_1_1 && !params_1_1.done && (_a = params_1.return)) _a.call(params_1);
+              }
+              finally { if (e_2) throw e_2.error; }
+          }
+          return asValue(params[params.length - 1]);
       },
   };
 
@@ -2275,139 +2515,6 @@ var Lits = (function (exports) {
       },
   };
 
-  var bitValues = {
-      nil: 1,
-      string: 2,
-      number: 4,
-      boolean: 8,
-      array: 16,
-      object: 32,
-      function: 64,
-      regexp: 128,
-  };
-  var UNKNWON = 255;
-  var DataType = /** @class */ (function () {
-      function DataType(typeMask) {
-          this.typeMask = typeMask;
-      }
-      DataType.or = function () {
-          var types = [];
-          for (var _i = 0; _i < arguments.length; _i++) {
-              types[_i] = arguments[_i];
-          }
-          var newTypeMask = types.reduce(function (result, type) {
-              return result | type.typeMask;
-          }, 0);
-          return new DataType(newTypeMask);
-      };
-      DataType.prototype.is = function (primitive) {
-          return this.typeMask === bitValues[primitive];
-      };
-      DataType.prototype.isNilable = function (primitive) {
-          return this.typeMask === bitValues[primitive] + bitValues["nil"];
-      };
-      DataType.prototype.isUnknown = function () {
-          return this.typeMask === UNKNWON;
-      };
-      DataType.prototype.isNil = function () {
-          return this.is("nil");
-      };
-      DataType.prototype.isBoolean = function () {
-          return this.is("boolean");
-      };
-      DataType.prototype.isString = function () {
-          return this.is("string");
-      };
-      DataType.prototype.isNumber = function () {
-          return this.is("number");
-      };
-      DataType.prototype.isArray = function () {
-          return this.is("array");
-      };
-      DataType.prototype.isObject = function () {
-          return this.is("object");
-      };
-      DataType.prototype.isFunction = function () {
-          return this.is("function");
-      };
-      DataType.prototype.isRegexp = function () {
-          return this.is("regexp");
-      };
-      DataType.prototype.isNilableBoolean = function () {
-          return this.isNilable("boolean");
-      };
-      DataType.prototype.isNilableString = function () {
-          return this.isNilable("string");
-      };
-      DataType.prototype.isNilableNumber = function () {
-          return this.isNilable("number");
-      };
-      DataType.prototype.isNilableArray = function () {
-          return this.isNilable("array");
-      };
-      DataType.prototype.isNilableObject = function () {
-          return this.isNilable("object");
-      };
-      DataType.prototype.isNilableFunction = function () {
-          return this.isNilable("function");
-      };
-      DataType.prototype.isNilableRegexp = function () {
-          return this.isNilable("regexp");
-      };
-      DataType.prototype.toString = function () {
-          var _this = this;
-          if (this.isUnknown()) {
-              return "unknown";
-          }
-          if (this.isNilableArray()) {
-              return "nilableArray";
-          }
-          if (this.isNilableBoolean()) {
-              return "nilableBoolean";
-          }
-          if (this.isNilableFunction()) {
-              return "nilableFunction";
-          }
-          if (this.isNilableNumber()) {
-              return "nilableNumber";
-          }
-          if (this.isNilableObject()) {
-              return "nilableObject";
-          }
-          if (this.isNilableRegexp()) {
-              return "nilableRegexp";
-          }
-          if (this.isNilableString()) {
-              return "nilableString";
-          }
-          var types = Object.entries(bitValues).reduce(function (result, entry) {
-              var _a = __read(entry, 2), name = _a[0], bitValue = _a[1];
-              if (_this.typeMask & bitValue) {
-                  result.push(name);
-              }
-              return result;
-          }, []);
-          return types.join(" | ");
-      };
-      DataType.nil = new DataType(bitValues["nil"]);
-      DataType.string = new DataType(bitValues["string"]);
-      DataType.nilableString = new DataType(bitValues["nil"] + bitValues["string"]);
-      DataType.number = new DataType(bitValues["number"]);
-      DataType.nilableNumber = new DataType(bitValues["nil"] + bitValues["number"]);
-      DataType.boolean = new DataType(bitValues["boolean"]);
-      DataType.nilableBoolean = new DataType(bitValues["nil"] + bitValues["boolean"]);
-      DataType.array = new DataType(bitValues["array"]);
-      DataType.nilableArray = new DataType(bitValues["nil"] + bitValues["array"]);
-      DataType.object = new DataType(bitValues["object"]);
-      DataType.nilableObject = new DataType(bitValues["nil"] + bitValues["object"]);
-      DataType.regexp = new DataType(bitValues["regexp"]);
-      DataType.nilableRegexp = new DataType(bitValues["nil"] + bitValues["regexp"]);
-      DataType.function = new DataType(bitValues["function"]);
-      DataType.nilableFunction = new DataType(bitValues["nil"] + bitValues["function"]);
-      DataType.unknown = new DataType(UNKNWON);
-      return DataType;
-  }());
-
   var bitwiseNormalExpression = {
       'bit-shift-left': {
           evaluate: function (_a, debugInfo) {
@@ -2650,11 +2757,11 @@ var Lits = (function (exports) {
               var defaultValueType = (_b = params[2]) !== null && _b !== void 0 ? _b : DataType.nil;
               assertValue(collType);
               assertValue(keyType);
-              if (collType.isNil()) {
+              if (collType.is(DataType.nil)) {
                   return defaultValueType;
               }
-              if (collType.isString()) {
-                  return DataType.or(DataType.nilableString, defaultValueType);
+              if (collType.is(DataType.string)) {
+                  return DataType.nilableString.or(defaultValueType);
               }
               return DataType.unknown;
           },
@@ -2700,7 +2807,7 @@ var Lits = (function (exports) {
               var _b = __read(params, 2), collType = _b[0], keysType = _b[1];
               assertValue(collType);
               assertValue(keysType);
-              if (keysType.isNil()) {
+              if (keysType.is(DataType.nil)) {
                   return collType;
               }
               return DataType.unknown;
@@ -2723,7 +2830,11 @@ var Lits = (function (exports) {
               var params = _a.params;
               var _b = __read(params, 1), collType = _b[0];
               assertValue(collType);
-              return DataType.number;
+              return collType.is(DataType.emptyCollection)
+                  ? DataType.zero
+                  : collType.is(DataType.nonEmptyCollection)
+                      ? DataType.nonZeroNumber
+                      : DataType.number;
           },
       },
       'contains?': {
@@ -3976,7 +4087,10 @@ var Lits = (function (exports) {
       array: {
           evaluate: function (params) { return params; },
           validate: function () { return undefined; },
-          getDataType: function () { return DataType.array; },
+          getDataType: function (_a) {
+              var params = _a.params;
+              return (params.length > 0 ? DataType.nonEmptyArray : DataType.emptyArray);
+          },
       },
       range: {
           evaluate: function (params, debugInfo) {
@@ -4019,7 +4133,17 @@ var Lits = (function (exports) {
               return result;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 3 }, node); },
-          getDataType: function () { return DataType.array; },
+          getDataType: function (_a) {
+              var params = _a.params;
+              var fromType = asValue(params[0]);
+              if (params.length === 1) {
+                  // Here we always know if it is emptyArray or nonEmptyArray
+                  return fromType.is(DataType.zero) ? DataType.emptyArray : DataType.nonEmptyArray;
+              }
+              var toType = asValue(params[1]);
+              // If both from and to are zero -> emptyArray, otherwise we don't know -> array
+              return fromType.is(DataType.zero) && toType.is(DataType.zero) ? DataType.emptyArray : DataType.array;
+          },
       },
       repeat: {
           evaluate: function (_a, debugInfo) {
@@ -4978,7 +5102,10 @@ var Lits = (function (exports) {
               return result;
           },
           validate: function (node) { return assertEventNumberOfParams(node); },
-          getDataType: function () { return DataType.object; },
+          getDataType: function (_a) {
+              var params = _a.params;
+              return (params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject);
+          },
       },
       keys: {
           evaluate: function (_a, debugInfo) {
@@ -5887,24 +6014,31 @@ var Lits = (function (exports) {
               return lookupNameType(astNode, contextStack);
           }
           case "String":
-              return DataType.string;
+              return astNode.value.length > 0 ? DataType.nonEmptyString : DataType.emptyString;
           case "Number":
-              return DataType.number;
+              return astNode.value === 0 ? DataType.zero : DataType.nonZeroNumber;
           case "Modifier":
               throw Error("Should not come here");
           case "ReservedName":
               switch (astNode.value) {
-                  case "false":
-                      return DataType.boolean;
                   case "true":
-                      return DataType.boolean;
+                      return DataType.true;
+                  case "false":
+                      return DataType.false;
                   default:
                       return DataType.nil;
               }
           case "NormalExpression":
               return calculateDataTypesOnNormalExpression(astNode, contextStack);
+          case "SpecialExpression":
+              return calculateDataTypesOnSpecialExpression(astNode, contextStack);
       }
       return DataType.nil;
+  }
+  function calculateDataTypesOnSpecialExpression(node, contextStack) {
+      var _a, _b, _c;
+      var specialExpression = asValue(builtin.specialExpressions[node.name], (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
+      return (_c = (_b = specialExpression === null || specialExpression === void 0 ? void 0 : specialExpression.getDataType) === null || _b === void 0 ? void 0 : _b.call(specialExpression, node, contextStack, { getDataType: getDataType })) !== null && _c !== void 0 ? _c : DataType.unknown;
   }
   function calculateDataTypesOnNormalExpression(node, contextStack) {
       var e_3, _a;
@@ -5928,19 +6062,19 @@ var Lits = (function (exports) {
               }
               finally { if (e_3) throw e_3.error; }
           }
-          return calculateDataTypesOnBuiltinNormalExpression(node, paramTypes, contextStack);
+          return calculateDataTypesOnBuiltinNormalExpression(node, paramTypes);
       }
       else {
           return DataType.unknown;
       }
   }
-  function calculateDataTypesOnBuiltinNormalExpression(node, params, contextStack) {
-      var _a, _b, _c;
+  function calculateDataTypesOnBuiltinNormalExpression(node, params) {
+      var _a, _b;
       var normalExpression = builtin.normalExpressions[node.name];
       if (!normalExpression) {
-          throw new UndefinedSymbolError(node.name, (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
+          return DataType.unknown;
       }
-      return (_c = (_b = normalExpression.getDataType) === null || _b === void 0 ? void 0 : _b.call(normalExpression, { params: params, contextStack: contextStack, getDataType: getDataType })) !== null && _c !== void 0 ? _c : DataType.unknown;
+      return (_b = (_a = normalExpression.getDataType) === null || _a === void 0 ? void 0 : _a.call(normalExpression, { params: params, getDataType: getDataType })) !== null && _b !== void 0 ? _b : DataType.unknown;
   }
 
   function lookUp(node, contextStack) {
@@ -6083,6 +6217,16 @@ var Lits = (function (exports) {
       }
   }
 
+  function createContextFromValues(values) {
+      if (!values) {
+          return {};
+      }
+      return Object.entries(values).reduce(function (context, _a) {
+          var _b = __read(_a, 2), key = _b[0], value = _b[1];
+          context[key] = { value: toAny(value) };
+          return context;
+      }, {});
+  }
   var ContextStack = /** @class */ (function () {
       function ContextStack(contexts, globalContextIndex) {
           this.stack = contexts;
@@ -6099,6 +6243,7 @@ var Lits = (function (exports) {
       ContextStack.createFromParams = function (params) {
           var _a, _b;
           var globalContext = (_a = params.globalContext) !== null && _a !== void 0 ? _a : {};
+          Object.assign(globalContext, createContextFromValues(params.globals));
           var contextStack = ContextStack.create(__spreadArray([globalContext], __read(((_b = params.contexts) !== null && _b !== void 0 ? _b : [])), false));
           return contextStack;
       };

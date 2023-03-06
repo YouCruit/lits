@@ -155,7 +155,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return result === undefined ? defaultValue : result
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
-    getDataType: ({ params }) => {
+    dataType: ({ params }) => {
       const [collType, keyType] = params
       const defaultValueType = params[2] ?? DataType.nil
       assertValue(collType)
@@ -194,7 +194,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return coll
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
-    getDataType: ({ params }) => {
+    dataType: ({ params }) => {
       const [collType, keysType] = params
       assertValue(collType)
       assertValue(keysType)
@@ -218,7 +218,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return Object.keys(coll).length
     },
     validate: node => assertNumberOfParams(1, node),
-    getDataType: ({ params }) => {
+    dataType: ({ params }) => {
       const [collType] = params
       assertValue(collType)
       return collType.is(DataType.emptyCollection)
@@ -242,7 +242,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return !!Object.getOwnPropertyDescriptor(coll, key)
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
+    dataType: () => DataType.boolean,
   },
   'has?': {
     evaluate: ([coll, value], debugInfo): boolean => {
@@ -256,7 +256,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return Object.values(coll).includes(value)
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
+    dataType: () => DataType.boolean,
   },
   'has-some?': {
     evaluate: ([coll, seq], debugInfo): boolean => {
@@ -286,7 +286,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return false
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
+    dataType: () => DataType.boolean,
   },
   'has-every?': {
     evaluate: ([coll, seq], debugInfo): boolean => {
@@ -316,7 +316,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return true
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
+    dataType: () => DataType.boolean,
   },
   assoc: {
     evaluate: ([coll, key, value], debugInfo): Coll => {
@@ -457,7 +457,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return Object.entries(coll).every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
+    dataType: () => DataType.boolean,
   },
   'any?': {
     evaluate: ([fn, coll], debugInfo, contextStack, { executeFunction }): boolean => {
@@ -473,7 +473,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return Object.entries(coll).some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
+    dataType: () => DataType.boolean,
   },
   'not-any?': {
     evaluate: ([fn, coll], debugInfo, contextStack, { executeFunction }): boolean => {
@@ -489,7 +489,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return !Object.entries(coll).some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
+    dataType: () => DataType.boolean,
   },
   'not-every?': {
     evaluate: ([fn, coll], debugInfo, contextStack, { executeFunction }): boolean => {
@@ -505,6 +505,6 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return !Object.entries(coll).every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
+    dataType: () => DataType.boolean,
   },
 }

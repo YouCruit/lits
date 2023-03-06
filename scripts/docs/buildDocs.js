@@ -72,7 +72,7 @@ function getPlayground() {
     <div class="column shrink">Playground</span></div>
     <div class="column right">
       <span class="button" onclick="run()">Run [F2]</span>
-      <span class="button" onclick="getDataType()">Data type [F3]</span>
+      <span class="button" onclick="dataType()">Data type [F3]</span>
       <span class="button" onclick="undefinedSymbols()">Undefined symbols [F4]</span>
       <span class="button" onclick="tokenize(false)">Tokenize [F5]</span>
       <span class="button" onclick="tokenize(true)">Tokenize (debug) [F6]</span>

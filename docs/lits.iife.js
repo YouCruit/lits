@@ -288,7 +288,7 @@ var Lits = (function (exports) {
       };
       DataType.prototype.toString = function () {
           var _this = this;
-          var suffix = " [Bit mask = ".concat(stringifyBitMask(this.bitMask), "  (").concat(this.bitMask, ")]");
+          var suffix = " [Bitmask = ".concat(stringifyBitMask(this.bitMask), "  (").concat(this.bitMask, ")]");
           if (this.isUnknown()) {
               return "unknown".concat(suffix);
           }
@@ -736,12 +736,12 @@ var Lits = (function (exports) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
       },
-      getDataType: function (node, contextStack, helpers) {
+      dataType: function (node, contextStack, helpers) {
           var e_2, _a;
           if (node.params.length === 0) {
               return DataType.true;
           }
-          var params = node.params.map(function (p) { return helpers.getDataType(p, contextStack); });
+          var params = node.params.map(function (p) { return helpers.dataType(p, contextStack); });
           try {
               for (var params_1 = __values(params), params_1_1 = params_1.next(); !params_1_1.done; params_1_1 = params_1.next()) {
                   var param = params_1_1.value;
@@ -1741,11 +1741,11 @@ var Lits = (function (exports) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
       },
-      getDataType: function (node, contextStack, _a) {
-          var getDataType = _a.getDataType;
-          var conditionType = getDataType(asValue(node.params[0]), contextStack);
-          var truthyBranchType = getDataType(asValue(node.params[1]), contextStack);
-          var falsyBranchType = getDataType(asValue(node.params[2]), contextStack);
+      dataType: function (node, contextStack, _a) {
+          var dataType = _a.dataType;
+          var conditionType = dataType(asValue(node.params[0]), contextStack);
+          var truthyBranchType = dataType(asValue(node.params[1]), contextStack);
+          var falsyBranchType = dataType(asValue(node.params[2]), contextStack);
           if (conditionType.is(DataType.truthy)) {
               return truthyBranchType;
           }
@@ -1957,12 +1957,12 @@ var Lits = (function (exports) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
       },
-      getDataType: function (node, contextStack, helpers) {
+      dataType: function (node, contextStack, helpers) {
           var e_2, _a;
           if (node.params.length === 0) {
               return DataType.false;
           }
-          var params = node.params.map(function (p) { return helpers.getDataType(p, contextStack); });
+          var params = node.params.map(function (p) { return helpers.dataType(p, contextStack); });
           try {
               for (var params_1 = __values(params), params_1_1 = params_1.next(); !params_1_1.done; params_1_1 = params_1.next()) {
                   var param = params_1_1.value;
@@ -2524,7 +2524,7 @@ var Lits = (function (exports) {
               return num << count;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.number; },
+          dataType: function () { return DataType.number; },
       },
       'bit-shift-right': {
           evaluate: function (_a, debugInfo) {
@@ -2534,7 +2534,7 @@ var Lits = (function (exports) {
               return num >> count;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.number; },
+          dataType: function () { return DataType.number; },
       },
       'bit-not': {
           evaluate: function (_a, debugInfo) {
@@ -2543,7 +2543,7 @@ var Lits = (function (exports) {
               return ~num;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
-          getDataType: function () { return DataType.number; },
+          dataType: function () { return DataType.number; },
       },
       'bit-and': {
           evaluate: function (_a, debugInfo) {
@@ -2555,7 +2555,7 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-          getDataType: function () { return DataType.number; },
+          dataType: function () { return DataType.number; },
       },
       'bit-and-not': {
           evaluate: function (_a, debugInfo) {
@@ -2567,7 +2567,7 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-          getDataType: function () { return DataType.number; },
+          dataType: function () { return DataType.number; },
       },
       'bit-or': {
           evaluate: function (_a, debugInfo) {
@@ -2579,7 +2579,7 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-          getDataType: function () { return DataType.number; },
+          dataType: function () { return DataType.number; },
       },
       'bit-xor': {
           evaluate: function (_a, debugInfo) {
@@ -2591,7 +2591,7 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-          getDataType: function () { return DataType.number; },
+          dataType: function () { return DataType.number; },
       },
       'bit-flip': {
           evaluate: function (_a, debugInfo) {
@@ -2602,7 +2602,7 @@ var Lits = (function (exports) {
               return (num ^= mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.number; },
+          dataType: function () { return DataType.number; },
       },
       'bit-set': {
           evaluate: function (_a, debugInfo) {
@@ -2613,7 +2613,7 @@ var Lits = (function (exports) {
               return (num |= mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.number; },
+          dataType: function () { return DataType.number; },
       },
       'bit-clear': {
           evaluate: function (_a, debugInfo) {
@@ -2624,7 +2624,7 @@ var Lits = (function (exports) {
               return (num &= ~mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.number; },
+          dataType: function () { return DataType.number; },
       },
       'bit-test': {
           evaluate: function (_a, debugInfo) {
@@ -2635,7 +2635,7 @@ var Lits = (function (exports) {
               return !!(num & mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
+          dataType: function () { return DataType.boolean; },
       },
   };
 
@@ -2750,7 +2750,7 @@ var Lits = (function (exports) {
               return result === undefined ? defaultValue : result;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function (_a) {
+          dataType: function (_a) {
               var _b;
               var params = _a.params;
               var _c = __read(params, 2), collType = _c[0], keyType = _c[1];
@@ -2802,7 +2802,7 @@ var Lits = (function (exports) {
               return coll;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function (_a) {
+          dataType: function (_a) {
               var params = _a.params;
               var _b = __read(params, 2), collType = _b[0], keysType = _b[1];
               assertValue(collType);
@@ -2826,7 +2826,7 @@ var Lits = (function (exports) {
               return Object.keys(coll).length;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
-          getDataType: function (_a) {
+          dataType: function (_a) {
               var params = _a.params;
               var _b = __read(params, 1), collType = _b[0];
               assertValue(collType);
@@ -2852,7 +2852,7 @@ var Lits = (function (exports) {
               return !!Object.getOwnPropertyDescriptor(coll, key);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
+          dataType: function () { return DataType.boolean; },
       },
       'has?': {
           evaluate: function (_a, debugInfo) {
@@ -2867,7 +2867,7 @@ var Lits = (function (exports) {
               return Object.values(coll).includes(value);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
+          dataType: function () { return DataType.boolean; },
       },
       'has-some?': {
           evaluate: function (_a, debugInfo) {
@@ -2929,7 +2929,7 @@ var Lits = (function (exports) {
               return false;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
+          dataType: function () { return DataType.boolean; },
       },
       'has-every?': {
           evaluate: function (_a, debugInfo) {
@@ -2991,7 +2991,7 @@ var Lits = (function (exports) {
               return true;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
+          dataType: function () { return DataType.boolean; },
       },
       assoc: {
           evaluate: function (_a, debugInfo) {
@@ -3118,7 +3118,7 @@ var Lits = (function (exports) {
               return Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
+          dataType: function () { return DataType.boolean; },
       },
       'any?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3135,7 +3135,7 @@ var Lits = (function (exports) {
               return Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
+          dataType: function () { return DataType.boolean; },
       },
       'not-any?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3152,7 +3152,7 @@ var Lits = (function (exports) {
               return !Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
+          dataType: function () { return DataType.boolean; },
       },
       'not-every?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3169,7 +3169,7 @@ var Lits = (function (exports) {
               return !Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
+          dataType: function () { return DataType.boolean; },
       },
   };
 
@@ -4087,7 +4087,7 @@ var Lits = (function (exports) {
       array: {
           evaluate: function (params) { return params; },
           validate: function () { return undefined; },
-          getDataType: function (_a) {
+          dataType: function (_a) {
               var params = _a.params;
               return (params.length > 0 ? DataType.nonEmptyArray : DataType.emptyArray);
           },
@@ -4133,7 +4133,7 @@ var Lits = (function (exports) {
               return result;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 3 }, node); },
-          getDataType: function (_a) {
+          dataType: function (_a) {
               var params = _a.params;
               var fromType = asValue(params[0]);
               if (params.length === 1) {
@@ -4156,7 +4156,7 @@ var Lits = (function (exports) {
               return result;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.array; },
+          dataType: function () { return DataType.array; },
       },
       flatten: {
           evaluate: function (_a) {
@@ -4167,7 +4167,7 @@ var Lits = (function (exports) {
               return seq.flat(Number.POSITIVE_INFINITY);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
-          getDataType: function () { return DataType.array; },
+          dataType: function () { return DataType.array; },
       },
       mapcat: {
           evaluate: function (params, debugInfo, contextStack, helpers) {
@@ -4179,7 +4179,7 @@ var Lits = (function (exports) {
               return mapResult.flat(1);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-          getDataType: function () { return DataType.array; },
+          dataType: function () { return DataType.array; },
       },
   };
 
@@ -4870,7 +4870,7 @@ var Lits = (function (exports) {
               return any.as(value, debugInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function (_a) {
+          dataType: function (_a) {
               var params = _a.params;
               return asValue(params[0]);
           },
@@ -4885,7 +4885,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert-not=': {
           evaluate: function (_a, debugInfo) {
@@ -4897,7 +4897,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert-equal': {
           evaluate: function (_a, debugInfo) {
@@ -4909,7 +4909,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert-not-equal': {
           evaluate: function (_a, debugInfo) {
@@ -4921,7 +4921,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert>': {
           evaluate: function (_a, debugInfo) {
@@ -4933,7 +4933,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert>=': {
           evaluate: function (_a, debugInfo) {
@@ -4945,7 +4945,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert<': {
           evaluate: function (_a, debugInfo) {
@@ -4957,7 +4957,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert<=': {
           evaluate: function (_a, debugInfo) {
@@ -4969,7 +4969,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert-true': {
           evaluate: function (_a, debugInfo) {
@@ -4981,7 +4981,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert-false': {
           evaluate: function (_a, debugInfo) {
@@ -4993,7 +4993,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert-truthy': {
           evaluate: function (_a, debugInfo) {
@@ -5005,7 +5005,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert-falsy': {
           evaluate: function (_a, debugInfo) {
@@ -5017,7 +5017,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert-nil': {
           evaluate: function (_a, debugInfo) {
@@ -5029,7 +5029,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert-throws': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -5046,7 +5046,7 @@ var Lits = (function (exports) {
               throw new AssertionError("Expected function to throw.".concat(message), debugInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert-throws-error': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -5068,7 +5068,7 @@ var Lits = (function (exports) {
               throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\".").concat(message), debugInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
       'assert-not-throws': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -5085,7 +5085,7 @@ var Lits = (function (exports) {
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
+          dataType: function () { return DataType.nil; },
       },
   };
 
@@ -5102,7 +5102,7 @@ var Lits = (function (exports) {
               return result;
           },
           validate: function (node) { return assertEventNumberOfParams(node); },
-          getDataType: function (_a) {
+          dataType: function (_a) {
               var params = _a.params;
               return (params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject);
           },
@@ -5435,7 +5435,7 @@ var Lits = (function (exports) {
                   _b;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.regexp; },
+          dataType: function () { return DataType.regexp; },
       },
       match: {
           evaluate: function (_a, debugInfo) {
@@ -5968,7 +5968,7 @@ var Lits = (function (exports) {
   var normalExpressionKeys = Object.keys(normalExpressions);
   var specialExpressionKeys = Object.keys(specialExpressions);
 
-  var getDataType = function (astNode, contextStack) {
+  var dataType = function (astNode, contextStack) {
       var e_1, _a;
       var astNodes = Array.isArray(astNode) ? astNode : [astNode];
       var result = DataType.nil;
@@ -6038,7 +6038,7 @@ var Lits = (function (exports) {
   function calculateDataTypesOnSpecialExpression(node, contextStack) {
       var _a, _b, _c;
       var specialExpression = asValue(builtin.specialExpressions[node.name], (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
-      return (_c = (_b = specialExpression === null || specialExpression === void 0 ? void 0 : specialExpression.getDataType) === null || _b === void 0 ? void 0 : _b.call(specialExpression, node, contextStack, { getDataType: getDataType })) !== null && _c !== void 0 ? _c : DataType.unknown;
+      return (_c = (_b = specialExpression === null || specialExpression === void 0 ? void 0 : specialExpression.dataType) === null || _b === void 0 ? void 0 : _b.call(specialExpression, node, contextStack, { dataType: dataType })) !== null && _c !== void 0 ? _c : DataType.unknown;
   }
   function calculateDataTypesOnNormalExpression(node, contextStack) {
       var e_3, _a;
@@ -6074,7 +6074,7 @@ var Lits = (function (exports) {
       if (!normalExpression) {
           return DataType.unknown;
       }
-      return (_b = (_a = normalExpression.getDataType) === null || _a === void 0 ? void 0 : _a.call(normalExpression, { params: params, getDataType: getDataType })) !== null && _b !== void 0 ? _b : DataType.unknown;
+      return (_b = (_a = normalExpression.dataType) === null || _a === void 0 ? void 0 : _a.call(normalExpression, { params: params, dataType: dataType })) !== null && _b !== void 0 ? _b : DataType.unknown;
   }
 
   function lookUp(node, contextStack) {
@@ -7357,10 +7357,10 @@ var Lits = (function (exports) {
           var ast = this.generateAst(program, params.getLocation);
           return findUndefinedSymbols(ast.body, contextStack, builtin);
       };
-      Lits.prototype.getDataType = function (program) {
+      Lits.prototype.dataType = function (program) {
           var contextStack = ContextStack.create();
           var ast = this.generateAst(program, undefined);
-          return getDataType(ast.body, contextStack);
+          return dataType(ast.body, contextStack);
       };
       Lits.prototype.tokenize = function (program, getLocation) {
           return tokenize(program, { debug: this.debug, getLocation: getLocation });

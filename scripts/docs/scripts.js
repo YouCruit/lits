@@ -196,7 +196,7 @@ window.onload = function () {
     }
     if (evt.key === 'F3') {
       evt.preventDefault()
-      getDataType()
+      dataType()
     }
     if (evt.key === 'F4') {
       evt.preventDefault()
@@ -397,7 +397,7 @@ function undefinedSymbols() {
   output.value = newContent
 }
 
-function getDataType() {
+function dataType() {
   var code = document.getElementById('lits-textarea').value
   var output = document.getElementById('output-textarea')
   output.value = ''
@@ -423,7 +423,7 @@ function getDataType() {
     output.scrollTop = output.scrollHeight
   }
   try {
-    dataType = lits.getDataType(code)
+    dataType = lits.dataType(code)
   } catch (error) {
     output.value = error
     output.classList.add('error')

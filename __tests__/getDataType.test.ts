@@ -1,11 +1,11 @@
 import { Lits } from '../src'
 import { DataType } from '../src/analyze/dataTypes/DataType'
 
-describe(`getDataType.`, () => {
+describe(`dataType.`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
     test(`non zero number`, () => {
       const program = `5.1`
-      const dataType = lits.getDataType(program)
+      const dataType = lits.dataType(program)
       expect(dataType.is(DataType.number)).toBe(true)
       expect(dataType.is(DataType.zero)).toBe(false)
       expect(dataType.is(DataType.nonZeroNumber)).toBe(true)
@@ -14,7 +14,7 @@ describe(`getDataType.`, () => {
     })
     test(`zero`, () => {
       const program = `0`
-      const dataType = lits.getDataType(program)
+      const dataType = lits.dataType(program)
       expect(dataType.is(DataType.number)).toBe(true)
       expect(dataType.is(DataType.zero)).toBe(true)
       expect(dataType.is(DataType.nonZeroNumber)).toBe(false)
@@ -23,7 +23,7 @@ describe(`getDataType.`, () => {
     })
     test(`non empty string`, () => {
       const program = `" "`
-      const dataType = lits.getDataType(program)
+      const dataType = lits.dataType(program)
       expect(dataType.is(DataType.string)).toBe(true)
       expect(dataType.is(DataType.emptyString)).toBe(false)
       expect(dataType.is(DataType.nonEmptyString)).toBe(true)
@@ -32,7 +32,7 @@ describe(`getDataType.`, () => {
     })
     test(`empty string`, () => {
       const program = `""`
-      const dataType = lits.getDataType(program)
+      const dataType = lits.dataType(program)
       expect(dataType.is(DataType.string)).toBe(true)
       expect(dataType.is(DataType.emptyString)).toBe(true)
       expect(dataType.is(DataType.nonEmptyString)).toBe(false)
@@ -41,7 +41,7 @@ describe(`getDataType.`, () => {
     })
     test(`true`, () => {
       const program = `true`
-      const dataType = lits.getDataType(program)
+      const dataType = lits.dataType(program)
       expect(dataType.is(DataType.boolean)).toBe(true)
       expect(dataType.is(DataType.false)).toBe(false)
       expect(dataType.is(DataType.true)).toBe(true)
@@ -50,7 +50,7 @@ describe(`getDataType.`, () => {
     })
     test(`false`, () => {
       const program = `false`
-      const dataType = lits.getDataType(program)
+      const dataType = lits.dataType(program)
       expect(dataType.is(DataType.boolean)).toBe(true)
       expect(dataType.is(DataType.false)).toBe(true)
       expect(dataType.is(DataType.true)).toBe(false)

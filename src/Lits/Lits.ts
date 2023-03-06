@@ -1,5 +1,5 @@
 import { LitsFunction } from '..'
-import { getDataType } from '../analyze/dataTypes'
+import { dataType } from '../analyze/dataTypes'
 import { DataType } from '../analyze/dataTypes/DataType'
 import { findUndefinedSymbols } from '../analyze/undefinedSymbols'
 import { UndefinedSymbolEntry } from '../analyze/undefinedSymbols/interface'
@@ -75,11 +75,11 @@ export class Lits {
     return findUndefinedSymbols(ast.body, contextStack, builtin)
   }
 
-  public getDataType(program: string): DataType {
+  public dataType(program: string): DataType {
     const contextStack = ContextStack.create<DataType>()
     const ast = this.generateAst(program, undefined)
 
-    return getDataType(ast.body, contextStack)
+    return dataType(ast.body, contextStack)
   }
 
   public tokenize(program: string, getLocation?: LocationGetter): Token[] {

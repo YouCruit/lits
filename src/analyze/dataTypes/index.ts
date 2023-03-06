@@ -11,7 +11,7 @@ import { asValue, normalExpressionNodeWithName } from '../../utils/assertion'
 import { DataType } from './DataType'
 import { GetDataType } from './interface'
 
-export const getDataType: GetDataType = (astNode, contextStack) => {
+export const dataType: GetDataType = (astNode, contextStack) => {
   const astNodes = Array.isArray(astNode) ? astNode : [astNode]
 
   let result = DataType.nil
@@ -68,7 +68,7 @@ function calculateDataTypesOnSpecialExpression(
 ): DataType {
   const specialExpression = asValue(builtin.specialExpressions[node.name], node.token?.debugInfo)
 
-  return specialExpression?.getDataType?.(node, contextStack, { getDataType }) ?? DataType.unknown
+  return specialExpression?.dataType?.(node, contextStack, { dataType }) ?? DataType.unknown
 }
 
 function calculateDataTypesOnNormalExpression(
@@ -97,5 +97,5 @@ function calculateDataTypesOnBuiltinNormalExpression(node: NormalExpressionNodeW
     return DataType.unknown
   }
 
-  return normalExpression.getDataType?.({ params, getDataType }) ?? DataType.unknown
+  return normalExpression.dataType?.({ params, dataType }) ?? DataType.unknown
 }

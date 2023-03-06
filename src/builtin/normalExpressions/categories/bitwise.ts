@@ -12,7 +12,7 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
       return num << count
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.number,
+    dataType: () => DataType.number,
   },
   'bit-shift-right': {
     evaluate: ([num, count], debugInfo): number => {
@@ -22,7 +22,7 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
       return num >> count
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.number,
+    dataType: () => DataType.number,
   },
   'bit-not': {
     evaluate: ([num], debugInfo): number => {
@@ -30,7 +30,7 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
       return ~num
     },
     validate: node => assertNumberOfParams(1, node),
-    getDataType: () => DataType.number,
+    dataType: () => DataType.number,
   },
   'bit-and': {
     evaluate: ([first, ...rest], debugInfo): number => {
@@ -42,7 +42,7 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
       }, first)
     },
     validate: node => assertNumberOfParams({ min: 2 }, node),
-    getDataType: () => DataType.number,
+    dataType: () => DataType.number,
   },
   'bit-and-not': {
     evaluate: ([first, ...rest], debugInfo): number => {
@@ -54,7 +54,7 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
       }, first)
     },
     validate: node => assertNumberOfParams({ min: 2 }, node),
-    getDataType: () => DataType.number,
+    dataType: () => DataType.number,
   },
   'bit-or': {
     evaluate: ([first, ...rest], debugInfo): number => {
@@ -66,7 +66,7 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
       }, first)
     },
     validate: node => assertNumberOfParams({ min: 2 }, node),
-    getDataType: () => DataType.number,
+    dataType: () => DataType.number,
   },
   'bit-xor': {
     evaluate: ([first, ...rest], debugInfo): number => {
@@ -78,7 +78,7 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
       }, first)
     },
     validate: node => assertNumberOfParams({ min: 2 }, node),
-    getDataType: () => DataType.number,
+    dataType: () => DataType.number,
   },
   'bit-flip': {
     evaluate: ([num, index], debugInfo): number => {
@@ -89,7 +89,7 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
       return (num ^= mask)
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.number,
+    dataType: () => DataType.number,
   },
   'bit-set': {
     evaluate: ([num, index], debugInfo): number => {
@@ -100,7 +100,7 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
       return (num |= mask)
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.number,
+    dataType: () => DataType.number,
   },
   'bit-clear': {
     evaluate: ([num, index], debugInfo): number => {
@@ -111,7 +111,7 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
       return (num &= ~mask)
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.number,
+    dataType: () => DataType.number,
   },
   'bit-test': {
     evaluate: ([num, index], debugInfo): boolean => {
@@ -122,6 +122,6 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
       return !!(num & mask)
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
+    dataType: () => DataType.boolean,
   },
 }

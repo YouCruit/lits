@@ -7,7 +7,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
   array: {
     evaluate: (params): Arr => params,
     validate: () => undefined,
-    getDataType: ({ params }) => (params.length > 0 ? DataType.nonEmptyArray : DataType.emptyArray),
+    dataType: ({ params }) => (params.length > 0 ? DataType.nonEmptyArray : DataType.emptyArray),
   },
 
   range: {
@@ -51,7 +51,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       return result
     },
     validate: node => assertNumberOfParams({ min: 1, max: 3 }, node),
-    getDataType: ({ params }) => {
+    dataType: ({ params }) => {
       const fromType = asValue(params[0])
       if (params.length === 1) {
         // Here we always know if it is emptyArray or nonEmptyArray
@@ -73,7 +73,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       return result
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.array,
+    dataType: () => DataType.array,
   },
 
   flatten: {
@@ -84,7 +84,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       return seq.flat(Number.POSITIVE_INFINITY)
     },
     validate: node => assertNumberOfParams(1, node),
-    getDataType: () => DataType.array,
+    dataType: () => DataType.array,
   },
 
   mapcat: {
@@ -97,6 +97,6 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       return mapResult.flat(1)
     },
     validate: node => assertNumberOfParams({ min: 2 }, node),
-    getDataType: () => DataType.array,
+    dataType: () => DataType.array,
   },
 }

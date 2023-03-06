@@ -35,11 +35,11 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
     findUndefinedSymbols(node.params, contextStack, builtin),
 
-  getDataType(node, contextStack, helpers) {
+  dataType(node, contextStack, helpers) {
     if (node.params.length === 0) {
       return DataType.true
     }
-    const params = node.params.map(p => helpers.getDataType(p, contextStack))
+    const params = node.params.map(p => helpers.dataType(p, contextStack))
     for (const param of params) {
       if (param.is(DataType.falsy)) {
         return param

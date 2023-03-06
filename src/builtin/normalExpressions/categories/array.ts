@@ -1,13 +1,13 @@
 import { DataType } from '../../../analyze/dataTypes/DataType'
 import { Arr } from '../../../interface'
-import { array, assertNumberOfParams, number } from '../../../utils/assertion'
+import { array, assertNumberOfParams, asValue, number } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
 import { evaluateMap } from './sequence'
 export const arrayNormalExpression: BuiltinNormalExpressions = {
   array: {
     evaluate: (params): Arr => params,
     validate: () => undefined,
-    getDataType: () => DataType.array,
+    getDataType: ({ params }) => (params.length > 0 ? DataType.nonEmptyArray : DataType.emptyArray),
   },
 
   range: {
@@ -51,7 +51,16 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       return result
     },
     validate: node => assertNumberOfParams({ min: 1, max: 3 }, node),
-    getDataType: () => DataType.array,
+    getDataType: ({ params }) => {
+      const fromType = asValue(params[0])
+      if (params.length === 1) {
+        // Here we always know if it is emptyArray or nonEmptyArray
+        return fromType.is(DataType.zero) ? DataType.emptyArray : DataType.nonEmptyArray
+      }
+      const toType = asValue(params[1])
+      // If both from and to are zero -> emptyArray, otherwise we don't know -> array
+      return fromType.is(DataType.zero) && toType.is(DataType.zero) ? DataType.emptyArray : DataType.array
+    },
   },
 
   repeat: {

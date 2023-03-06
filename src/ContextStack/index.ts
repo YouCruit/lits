@@ -29,6 +29,7 @@ export class ContextStack<T extends Any | DataType = Any> {
 
   public static createFromParams(params: LitsParams): ContextStack {
     const globalContext: Context = params.globalContext ?? {}
+    Object.assign(globalContext, createContextFromValues(params.globals))
     const contextStack = ContextStack.create([globalContext, ...(params.contexts ?? [])])
     return contextStack
   }

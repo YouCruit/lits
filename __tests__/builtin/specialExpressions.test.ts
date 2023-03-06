@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Lits } from '../../src'
+import { DataType } from '../../src/analyze/dataTypes/DataType'
 import { UserDefinedError } from '../../src/errors'
 import { getUndefinedSymbolNames } from '../testUtils'
 
@@ -39,6 +40,7 @@ describe(`specialExpressions`, () => {
     }
   })
 
+  // const lits = new Lits()
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
     describe(`defs`, () => {
       test(`samples`, () => {
@@ -145,6 +147,14 @@ describe(`specialExpressions`, () => {
           expect(getUndefinedSymbolNames(lits.findUndefinedSymbols(`(if (> a b) c d)`))).toEqual(
             new Set([`a`, `b`, `c`, `d`]),
           )
+        })
+      })
+
+      describe(`getDataType`, () => {
+        test(`samples`, () => {
+          expect(lits.getDataType(`(if true :A "")`)).toEqual(DataType.nonEmptyString)
+          expect(lits.getDataType(`(if false :A "")`)).toEqual(DataType.emptyString)
+          expect(lits.getDataType(`(if (@foo) :A "")`)).toEqual(DataType.string)
         })
       })
     })
@@ -348,6 +358,23 @@ describe(`specialExpressions`, () => {
           expect(getUndefinedSymbolNames(lits.findUndefinedSymbols(`(and false b)`))).toEqual(new Set([`b`]))
         })
       })
+      describe(`getDataType`, () => {
+        test(`samples`, () => {
+          expect(lits.getDataType(`(and)`)).toEqual(DataType.true)
+          expect(lits.getDataType(`(and 1)`)).toEqual(DataType.nonZeroNumber)
+          expect(lits.getDataType(`(and :foo 0)`)).toEqual(DataType.zero)
+          expect(lits.getDataType(`(and 1 :foo)`)).toEqual(DataType.nonEmptyString)
+          expect(lits.getDataType(`(and 1 {})`)).toEqual(DataType.object)
+          expect(lits.getDataType(`(and 1 [])`)).toEqual(DataType.array)
+
+          expect(lits.getDataType(`(and)`).is(DataType.truthy)).toBe(true)
+          expect(lits.getDataType(`(and 1)`).is(DataType.truthy)).toBe(true)
+          expect(lits.getDataType(`(and :foo 0)`).is(DataType.falsy)).toBe(true)
+          expect(lits.getDataType(`(and 1 :foo)`).is(DataType.truthy)).toBe(true)
+          expect(lits.getDataType(`(and 1 {})`).is(DataType.truthy)).toBe(true)
+          expect(lits.getDataType(`(and 1 [])`).is(DataType.truthy)).toBe(true)
+        })
+      })
     })
 
     describe(`or`, () => {
@@ -386,6 +413,25 @@ describe(`specialExpressions`, () => {
           expect(getUndefinedSymbolNames(lits.findUndefinedSymbols(`(or true b (+ c d))`))).toEqual(
             new Set([`b`, `c`, `d`]),
           )
+        })
+      })
+      describe(`getDataType`, () => {
+        test(`samples`, () => {
+          expect(lits.getDataType(`(or)`)).toEqual(DataType.false)
+          expect(lits.getDataType(`(or 1)`)).toEqual(DataType.nonZeroNumber)
+          expect(lits.getDataType(`(or "" 0)`)).toEqual(DataType.zero)
+          expect(lits.getDataType(`(or 0 "")`)).toEqual(DataType.emptyString)
+          expect(lits.getDataType(`(or 1 :foo)`)).toEqual(DataType.nonZeroNumber)
+          expect(lits.getDataType(`(or {} 1)`)).toEqual(DataType.object)
+          expect(lits.getDataType(`(or [] 1)`)).toEqual(DataType.array)
+
+          expect(lits.getDataType(`(or)`).is(DataType.falsy)).toBe(true)
+          expect(lits.getDataType(`(or 1)`).is(DataType.truthy)).toBe(true)
+          expect(lits.getDataType(`(or "" 0)`).is(DataType.falsy)).toBe(true)
+          expect(lits.getDataType(`(or 0 "")`).is(DataType.falsy)).toBe(true)
+          expect(lits.getDataType(`(or 1 :foo)`).is(DataType.truthy)).toBe(true)
+          expect(lits.getDataType(`(or {} 1)`).is(DataType.truthy)).toBe(true)
+          expect(lits.getDataType(`(or [] 1)`).is(DataType.truthy)).toBe(true)
         })
       })
     })

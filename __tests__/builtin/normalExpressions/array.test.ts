@@ -1,4 +1,5 @@
 import { Lits } from '../../../src'
+import { DataType } from '../../../src/analyze/dataTypes/DataType'
 import { Arr } from '../../../src/interface'
 import { checkTestData, createTestData, TestData } from '../../testUtils'
 
@@ -34,6 +35,11 @@ describe(`array functions`, () => {
         expect((lits.run(`[nil]`) as Arr)[0]).toEqual(null)
         expect(lits.run(`[0 :1 nil true false [[]] (object)]`)).toEqual([0, `1`, null, true, false, [[]], {}])
       })
+
+      test(`getDataType`, () => {
+        expect(lits.getDataType(`[]`)).toEqual(DataType.emptyArray)
+        expect(lits.getDataType(`[0 1 2]`)).toEqual(DataType.nonEmptyArray)
+      })
     })
 
     describe(`range`, () => {
@@ -53,6 +59,17 @@ describe(`array functions`, () => {
         expect(() => lits.run(`(range false 1 2)`)).toThrow()
         expect(() => lits.run(`(range 0 2 "y")`)).toThrow()
         expect(() => lits.run(`(range (object) "x" "y")`)).toThrow()
+      })
+      test(`getDataType`, () => {
+        expect(lits.getDataType(`(range 0)`)).toEqual(DataType.emptyArray)
+        expect(lits.getDataType(`(range 5)`)).toEqual(DataType.nonEmptyArray)
+        expect(lits.getDataType(`(range -5)`)).toEqual(DataType.nonEmptyArray)
+        expect(lits.getDataType(`(range 5 1)`)).toEqual(DataType.array)
+        expect(lits.getDataType(`(range 1 5)`)).toEqual(DataType.array)
+        expect(lits.getDataType(`(range 5 1 -2)`)).toEqual(DataType.array)
+        expect(lits.getDataType(`(range 0 0.5 0.125)`)).toEqual(DataType.array)
+        expect(lits.getDataType(`(range 0 0)`)).toEqual(DataType.emptyArray)
+        expect(lits.getDataType(`(range 0 0 0.1)`)).toEqual(DataType.emptyArray)
       })
     })
 

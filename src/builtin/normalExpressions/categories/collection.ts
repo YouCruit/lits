@@ -161,12 +161,12 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       assertValue(collType)
       assertValue(keyType)
 
-      if (collType.isNil()) {
+      if (collType.is(DataType.nil)) {
         return defaultValueType
       }
 
-      if (collType.isString()) {
-        return DataType.or(DataType.nilableString, defaultValueType)
+      if (collType.is(DataType.string)) {
+        return DataType.nilableString.or(defaultValueType)
       }
 
       return DataType.unknown
@@ -199,7 +199,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       assertValue(collType)
       assertValue(keysType)
 
-      if (keysType.isNil()) {
+      if (keysType.is(DataType.nil)) {
         return collType
       }
 
@@ -221,7 +221,11 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
     getDataType: ({ params }) => {
       const [collType] = params
       assertValue(collType)
-      return DataType.number
+      return collType.is(DataType.emptyCollection)
+        ? DataType.zero
+        : collType.is(DataType.nonEmptyCollection)
+        ? DataType.nonZeroNumber
+        : DataType.number
     },
   },
   'contains?': {

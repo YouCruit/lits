@@ -1,5 +1,6 @@
+import { DataType } from '../../analyze/dataTypes/DataType'
 import { Any } from '../../interface'
-import { token } from '../../utils/assertion'
+import { asValue, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
 export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
@@ -28,7 +29,22 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     return value
   },
+
   validate: () => undefined,
+
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
     findUndefinedSymbols(node.params, contextStack, builtin),
+
+  getDataType(node, contextStack, helpers) {
+    if (node.params.length === 0) {
+      return DataType.false
+    }
+    const params = node.params.map(p => helpers.getDataType(p, contextStack))
+    for (const param of params) {
+      if (param.is(DataType.truthy)) {
+        return param
+      }
+    }
+    return asValue(params[params.length - 1])
+  },
 }

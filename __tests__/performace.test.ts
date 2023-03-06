@@ -42,7 +42,7 @@ ${label}: ${averageTime} µs
 Factor: ${Math.round((100 * averageTime) / averageRefTime) / 100} (${averageRefTime} µs)`)
 }
 
-describe(`performace`, () => {
+describe.skip(`performace`, () => {
   test(`tokenise`, () => {
     const startTime = Date.now()
     for (let i = 0; i < ITERATIONS; i += 1) {

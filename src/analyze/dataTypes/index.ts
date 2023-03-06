@@ -1,6 +1,5 @@
 import { builtin } from '../../builtin'
 import { ContextStack } from '../../ContextStack'
-import { UndefinedSymbolError } from '../../errors'
 import {
   AstNode,
   NameNode,
@@ -8,7 +7,7 @@ import {
   NormalExpressionNodeWithName,
   SpecialExpressionNode,
 } from '../../parser/interface'
-import { normalExpressionNodeWithName } from '../../utils/assertion'
+import { asValue, normalExpressionNodeWithName } from '../../utils/assertion'
 import { DataType } from './DataType'
 import { GetDataType } from './interface'
 
@@ -41,17 +40,17 @@ function calculateDataTypesOnAstNode(astNode: AstNode, contextStack: ContextStac
       return lookupNameType(astNode, contextStack)
     }
     case `String`:
-      return DataType.string
+      return astNode.value.length > 0 ? DataType.nonEmptyString : DataType.emptyString
     case `Number`:
-      return DataType.number
+      return astNode.value === 0 ? DataType.zero : DataType.nonZeroNumber
     case `Modifier`:
       throw Error(`Should not come here`)
     case `ReservedName`:
       switch (astNode.value) {
-        case `false`:
-          return DataType.boolean
         case `true`:
-          return DataType.boolean
+          return DataType.true
+        case `false`:
+          return DataType.false
         default:
           return DataType.nil
       }
@@ -64,12 +63,12 @@ function calculateDataTypesOnAstNode(astNode: AstNode, contextStack: ContextStac
 }
 
 function calculateDataTypesOnSpecialExpression(
-  _node: SpecialExpressionNode,
-  _contextStack: ContextStack<DataType>,
+  node: SpecialExpressionNode,
+  contextStack: ContextStack<DataType>,
 ): DataType {
-  return DataType.unknown
-  //const specialExpression = asValue(builtin.specialExpressions[node.name], node.token?.debugInfo)
-  // return specialExpression?.getDataType(node, contextStack, { evaluateAstNode, builtin, lookUp })
+  const specialExpression = asValue(builtin.specialExpressions[node.name], node.token?.debugInfo)
+
+  return specialExpression?.getDataType?.(node, contextStack, { getDataType }) ?? DataType.unknown
 }
 
 function calculateDataTypesOnNormalExpression(
@@ -86,22 +85,17 @@ function calculateDataTypesOnNormalExpression(
       return DataType.unknown
     }
 
-    return calculateDataTypesOnBuiltinNormalExpression(node, paramTypes, contextStack)
+    return calculateDataTypesOnBuiltinNormalExpression(node, paramTypes)
   } else {
     return DataType.unknown
   }
-  return DataType.nil
 }
 
-function calculateDataTypesOnBuiltinNormalExpression(
-  node: NormalExpressionNodeWithName,
-  params: DataType[],
-  contextStack: ContextStack<DataType>,
-): DataType {
+function calculateDataTypesOnBuiltinNormalExpression(node: NormalExpressionNodeWithName, params: DataType[]): DataType {
   const normalExpression = builtin.normalExpressions[node.name]
   if (!normalExpression) {
-    throw new UndefinedSymbolError(node.name, node.token?.debugInfo)
+    return DataType.unknown
   }
 
-  return normalExpression.getDataType?.({ params, contextStack, getDataType }) ?? DataType.unknown
+  return normalExpression.getDataType?.({ params, getDataType }) ?? DataType.unknown
 }

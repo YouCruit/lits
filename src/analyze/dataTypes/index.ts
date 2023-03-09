@@ -48,11 +48,9 @@ function calculateDataTypesOnAstNode(astNode: AstNode, contextStack: ContextStac
       const integer = Number.isInteger(astNode.value)
       const positive = astNode.value > 0
       if (integer) {
-        return positive ? DataType.positiveNumber.and(DataType.integer) : DataType.negativeNumber.and(DataType.integer)
+        return positive ? DataType.positiveInteger : DataType.negativeInteger
       } else {
-        return positive
-          ? DataType.positiveNumber.exclude(DataType.integer)
-          : DataType.negativeNumber.exclude(DataType.integer)
+        return positive ? DataType.positiveNonInteger : DataType.negativeNonInteger
       }
     }
 
@@ -81,7 +79,7 @@ function calculateDataTypesOnSpecialExpression(
 ): DataType {
   const specialExpression = asValue(builtin.specialExpressions[node.name], node.token?.debugInfo)
 
-  return specialExpression?.getDataType?.(node, contextStack, { getDataType: getDataType, builtin }) ?? DataType.unknown
+  return specialExpression?.getDataType?.(node, contextStack, { getDataType, builtin }) ?? DataType.unknown
 }
 
 function calculateDataTypesOnNormalExpression(

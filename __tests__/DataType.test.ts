@@ -31,7 +31,7 @@ describe(`DataType`, () => {
     expect(DataType.object.bitmask).toBe(typeToBitRecord.nonEmptyObject | typeToBitRecord.emptyObject)
     expect(DataType.regexp.bitmask).toBe(typeToBitRecord.regexp)
 
-    expect(DataType.unknown.bitmask).toBe((1 << Object.keys(typeToBitRecord).length) - 1)
+    expect(DataType.unknown.bitmask).toBe(Object.values(typeToBitRecord).reduce((result, value) => result | value, 0))
 
     expect(DataType.falsy.bitmask).toBe(
       typeToBitRecord.nil | typeToBitRecord.emptyString | typeToBitRecord.zero | typeToBitRecord.false,
@@ -88,9 +88,11 @@ describe(`DataType`, () => {
           DataType.function,
         ),
       )
+
       expect(DataType.truthy.exclude(DataType.string.or(DataType.number))).toEqual(
         DataType.true.or(DataType.array).or(DataType.object).or(DataType.function).or(DataType.regexp),
       )
+
       expect(DataType.unknown.exclude(DataType.truthy)).toEqual(DataType.falsy)
       expect(DataType.unknown.exclude(DataType.falsy)).toEqual(DataType.truthy)
     })
@@ -293,11 +295,13 @@ describe(`DataType`, () => {
 
   describe(`DataType.toString`, () => {
     test(`samples`, () => {
-      expect(DataType.unknown.toString()).toBe(`unknown [Bitmask = 1111 1111 1111 1111  (65535)]`)
-      expect(DataType.nil.toString()).toBe(`nil [Bitmask = 0000 0000 0000 0001  (1)]`)
-      expect(DataType.string.toString()).toBe(`emptyString | nonEmptyString [Bitmask = 0000 0000 0000 0110  (6)]`)
-      expect(DataType.nil.or(DataType.string).toString()).toBe(
-        `nil | emptyString | nonEmptyString [Bitmask = 0000 0000 0000 0111  (7)]`,
+      expect(DataType.unknown.toString()).toBe(`unknown [Bitmask = 0001 0011 0011 1111 0111 1111  (1261439)]`)
+      expect(DataType.nil.toString()).toBe(`nil [Bitmask = 0000 0000 0000 0000 0000 0001  (1)]`)
+      expect(DataType.string.toString()).toBe(
+        `emptyString | nonEmptyString [Bitmask = 0000 0000 0000 0000 0010 0010  (34)]`,
+      )
+      expect(DataType.string.nilable().toString()).toBe(
+        `nil | emptyString | nonEmptyString [Bitmask = 0000 0000 0000 0000 0010 0011  (35)]`,
       )
     })
   })

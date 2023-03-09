@@ -48,7 +48,7 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
     } else if (conditionType.is(DataType.falsy)) {
       return falsyBranchType
     } else {
-      return truthyBranchType.or(falsyBranchType)
+      return DataType.or(truthyBranchType, falsyBranchType)
     }
   },
 }

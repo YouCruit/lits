@@ -65,7 +65,7 @@ describe(`collection functions`, () => {
         expect(() => lits.run(`(get undefined)`)).toThrow()
       })
       test(`dataType`, () => {
-        expect(lits.getDataType(`(get "Albert" 1)`)).toEqual(DataType.string.or(DataType.nil))
+        expect(lits.getDataType(`(get "Albert" 1)`)).toEqual(DataType.string.nilable())
         expect(lits.getDataType(`(get [1 2 3] 1)`)).toEqual(DataType.unknown)
         expect(lits.getDataType(`(get {:a 1 :b 2} 1)`)).toEqual(DataType.unknown)
       })

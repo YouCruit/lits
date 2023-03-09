@@ -166,7 +166,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       }
 
       if (collType.is(DataType.string)) {
-        return DataType.or(DataType.nil, DataType.string, defaultValueType)
+        return DataType.or(DataType.string.nilable(), defaultValueType)
       }
 
       return DataType.unknown
@@ -224,8 +224,8 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return collType.is(DataType.emptyCollection)
         ? DataType.zero
         : collType.is(DataType.nonEmptyCollection)
-        ? DataType.integer.and(DataType.positiveNumber).exclude(DataType.zero)
-        : DataType.number
+        ? DataType.positiveInteger
+        : DataType.nonNegativeInteger
     },
   },
   'contains?': {

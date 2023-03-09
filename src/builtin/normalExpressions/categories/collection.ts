@@ -155,7 +155,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return result === undefined ? defaultValue : result
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
-    dataType: ({ params }) => {
+    getDataType: ({ params }) => {
       const [collType, keyType] = params
       const defaultValueType = params[2] ?? DataType.nil
       assertValue(collType)
@@ -166,7 +166,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       }
 
       if (collType.is(DataType.string)) {
-        return DataType.nilableString.or(defaultValueType)
+        return DataType.or(DataType.nil, DataType.string, defaultValueType)
       }
 
       return DataType.unknown
@@ -194,7 +194,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return coll
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
-    dataType: ({ params }) => {
+    getDataType: ({ params }) => {
       const [collType, keysType] = params
       assertValue(collType)
       assertValue(keysType)
@@ -218,13 +218,13 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return Object.keys(coll).length
     },
     validate: node => assertNumberOfParams(1, node),
-    dataType: ({ params }) => {
+    getDataType: ({ params }) => {
       const [collType] = params
       assertValue(collType)
       return collType.is(DataType.emptyCollection)
         ? DataType.zero
         : collType.is(DataType.nonEmptyCollection)
-        ? DataType.nonZeroNumber
+        ? DataType.integer.and(DataType.positiveNumber).exclude(DataType.zero)
         : DataType.number
     },
   },
@@ -242,7 +242,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return !!Object.getOwnPropertyDescriptor(coll, key)
     },
     validate: node => assertNumberOfParams(2, node),
-    dataType: () => DataType.boolean,
+    getDataType: () => DataType.boolean,
   },
   'has?': {
     evaluate: ([coll, value], debugInfo): boolean => {
@@ -256,7 +256,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return Object.values(coll).includes(value)
     },
     validate: node => assertNumberOfParams(2, node),
-    dataType: () => DataType.boolean,
+    getDataType: () => DataType.boolean,
   },
   'has-some?': {
     evaluate: ([coll, seq], debugInfo): boolean => {
@@ -286,7 +286,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return false
     },
     validate: node => assertNumberOfParams(2, node),
-    dataType: () => DataType.boolean,
+    getDataType: () => DataType.boolean,
   },
   'has-every?': {
     evaluate: ([coll, seq], debugInfo): boolean => {
@@ -316,7 +316,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return true
     },
     validate: node => assertNumberOfParams(2, node),
-    dataType: () => DataType.boolean,
+    getDataType: () => DataType.boolean,
   },
   assoc: {
     evaluate: ([coll, key, value], debugInfo): Coll => {
@@ -457,7 +457,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return Object.entries(coll).every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    dataType: () => DataType.boolean,
+    getDataType: () => DataType.boolean,
   },
   'any?': {
     evaluate: ([fn, coll], debugInfo, contextStack, { executeFunction }): boolean => {
@@ -473,7 +473,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return Object.entries(coll).some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    dataType: () => DataType.boolean,
+    getDataType: () => DataType.boolean,
   },
   'not-any?': {
     evaluate: ([fn, coll], debugInfo, contextStack, { executeFunction }): boolean => {
@@ -489,7 +489,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return !Object.entries(coll).some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    dataType: () => DataType.boolean,
+    getDataType: () => DataType.boolean,
   },
   'not-every?': {
     evaluate: ([fn, coll], debugInfo, contextStack, { executeFunction }): boolean => {
@@ -505,6 +505,6 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return !Object.entries(coll).every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    dataType: () => DataType.boolean,
+    getDataType: () => DataType.boolean,
   },
 }

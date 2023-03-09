@@ -25,7 +25,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
       return result
     },
     validate: node => assertEventNumberOfParams(node),
-    dataType: ({ params }) => (params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject),
+    getDataType: ({ params }) => (params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject),
   },
 
   keys: {

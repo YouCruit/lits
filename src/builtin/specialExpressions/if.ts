@@ -38,7 +38,7 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
     findUndefinedSymbols(node.params, contextStack, builtin),
 
-  dataType(node, contextStack, { dataType }) {
+  getDataType(node, contextStack, { getDataType: dataType }) {
     const conditionType = dataType(asValue(node.params[0]), contextStack)
     const truthyBranchType = dataType(asValue(node.params[1]), contextStack)
     const falsyBranchType = dataType(asValue(node.params[2]), contextStack)

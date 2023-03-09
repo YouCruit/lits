@@ -1,3 +1,5 @@
+import { DataType } from '../../analyze/dataTypes/DataType'
+import { GetDataType } from '../../analyze/dataTypes/interface'
 import { FindUndefinedSymbols, UndefinedSymbolEntry } from '../../analyze/undefinedSymbols/interface'
 import { addAnalyzeResults } from '../../analyze/undefinedSymbols/utils'
 import { ContextStack } from '../../ContextStack'
@@ -57,7 +59,7 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
     ]
   },
   evaluate: (node, contextStack, { builtin, evaluateAstNode }) => {
-    const name = getFunctionName(`defn`, node, contextStack, evaluateAstNode)
+    const name = ((node as DefnNode).functionName as NameNode).value
 
     assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
 
@@ -86,6 +88,13 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
       newContext,
     )
   },
+  getDataType: (node, contextStack, { getDataType: dataType, builtin }) => {
+    const name = ((node as DefnNode).functionName as NameNode).value
+    assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
+    const type = getFunctionOverloadeDataType(node as DefnNode, contextStack, dataType)
+    contextStack.globalContext[name] = { value: type }
+    return DataType.nil
+  },
 }
 
 export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
@@ -111,7 +120,7 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
     ]
   },
   evaluate: (node, contextStack, { builtin, evaluateAstNode }) => {
-    const name = getFunctionName(`defns`, node, contextStack, evaluateAstNode)
+    const name = getDefnsFunctionName(node as DefnsNode, contextStack, evaluateAstNode)
 
     assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
 
@@ -169,17 +178,8 @@ export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
     addOverloadsUndefinedSymbols((node as FnNode).overloads, contextStack, findUndefinedSymbols, builtin),
 }
 
-function getFunctionName(
-  expressionName: `defn` | `defns`,
-  node: SpecialExpressionNode,
-  contextStack: ContextStack,
-  evaluateAstNode: EvaluateAstNode,
-): string {
+function getDefnsFunctionName(node: DefnsNode, contextStack: ContextStack, evaluateAstNode: EvaluateAstNode): string {
   const debugInfo = node.token?.debugInfo
-  if (expressionName === `defn`) {
-    return ((node as DefnNode).functionName as NameNode).value
-  }
-
   const name = evaluateAstNode((node as DefnsNode).functionName, contextStack)
   string.assert(name, debugInfo)
   return name
@@ -212,6 +212,22 @@ function evaluateFunctionOverloades(
     evaluatedFunctionOverloades.push(evaluatedFunctionOverload)
   }
   return evaluatedFunctionOverloades
+}
+
+function getFunctionOverloadeDataType(
+  node: DefnNode | FnNode,
+  contextStack: ContextStack<DataType>,
+  dataType: GetDataType,
+): DataType {
+  const types = node.overloads.map(functionOverload => {
+    const functionContext: Context<DataType> = {}
+    for (const binding of functionOverload.arguments.bindings) {
+      const bindingType = dataType(binding.value, contextStack)
+      functionContext[binding.name] = { value: bindingType }
+    }
+    return DataType.function.withReturnType(dataType(functionOverload.body, contextStack.withContext(functionContext)))
+  })
+  return DataType.or(...types)
 }
 
 function addOverloadsUndefinedSymbols(

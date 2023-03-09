@@ -2,60 +2,46 @@ import { DataType, typeToBitRecord } from '../src/analyze/dataTypes/DataType'
 
 describe(`DataType`, () => {
   test(`standard types.`, () => {
-    expect(DataType.nil.bitMask).toBe(typeToBitRecord.nil)
+    expect(DataType.nil.bitmask).toBe(typeToBitRecord.nil)
 
-    expect(DataType.true.bitMask).toBe(typeToBitRecord.true)
-    expect(DataType.false.bitMask).toBe(typeToBitRecord.false)
-    expect(DataType.boolean.bitMask).toBe(typeToBitRecord.true | typeToBitRecord.false)
-    expect(DataType.emptyString.bitMask).toBe(typeToBitRecord.emptyString)
-    expect(DataType.nonEmptyString.bitMask).toBe(typeToBitRecord.nonEmptyString)
-    expect(DataType.string.bitMask).toBe(typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString)
-    expect(DataType.zero.bitMask).toBe(typeToBitRecord.zero)
-    expect(DataType.nonZeroNumber.bitMask).toBe(typeToBitRecord.nonZeroNumber)
-    expect(DataType.number.bitMask).toBe(typeToBitRecord.zero | typeToBitRecord.nonZeroNumber)
-    expect(DataType.nonEmptyArray.bitMask).toBe(typeToBitRecord.nonEmptyArray)
-    expect(DataType.emptyArray.bitMask).toBe(typeToBitRecord.emptyArray)
-    expect(DataType.array.bitMask).toBe(typeToBitRecord.nonEmptyArray | typeToBitRecord.emptyArray)
-    expect(DataType.nonEmptyObject.bitMask).toBe(typeToBitRecord.nonEmptyObject)
-    expect(DataType.emptyObject.bitMask).toBe(typeToBitRecord.emptyObject)
-    expect(DataType.object.bitMask).toBe(typeToBitRecord.nonEmptyObject | typeToBitRecord.emptyObject)
-    expect(DataType.function.bitMask).toBe(typeToBitRecord.function)
-    expect(DataType.regexp.bitMask).toBe(typeToBitRecord.regexp)
+    expect(DataType.true.bitmask).toBe(typeToBitRecord.true)
+    expect(DataType.false.bitmask).toBe(typeToBitRecord.false)
+    expect(DataType.boolean.bitmask).toBe(typeToBitRecord.true | typeToBitRecord.false)
+    expect(DataType.emptyString.bitmask).toBe(typeToBitRecord.emptyString)
+    expect(DataType.nonEmptyString.bitmask).toBe(typeToBitRecord.nonEmptyString)
+    expect(DataType.string.bitmask).toBe(typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString)
+    expect(DataType.zero.bitmask).toBe(typeToBitRecord.zero)
+    expect(DataType.positiveNumber.bitmask).toBe(typeToBitRecord.positiveInteger | typeToBitRecord.positiveNonInteger)
+    expect(DataType.negativeNumber.bitmask).toBe(typeToBitRecord.negativeInteger | typeToBitRecord.negativeNonInteger)
+    expect(DataType.number.bitmask).toBe(
+      typeToBitRecord.zero |
+        typeToBitRecord.positiveInteger |
+        typeToBitRecord.positiveNonInteger |
+        typeToBitRecord.negativeInteger |
+        typeToBitRecord.negativeNonInteger,
+    )
+    expect(DataType.integer.bitmask).toBe(
+      typeToBitRecord.zero | typeToBitRecord.positiveInteger | typeToBitRecord.negativeInteger,
+    )
+    expect(DataType.nonEmptyArray.bitmask).toBe(typeToBitRecord.nonEmptyArray)
+    expect(DataType.emptyArray.bitmask).toBe(typeToBitRecord.emptyArray)
+    expect(DataType.array.bitmask).toBe(typeToBitRecord.nonEmptyArray | typeToBitRecord.emptyArray)
+    expect(DataType.nonEmptyObject.bitmask).toBe(typeToBitRecord.nonEmptyObject)
+    expect(DataType.emptyObject.bitmask).toBe(typeToBitRecord.emptyObject)
+    expect(DataType.object.bitmask).toBe(typeToBitRecord.nonEmptyObject | typeToBitRecord.emptyObject)
+    expect(DataType.regexp.bitmask).toBe(typeToBitRecord.regexp)
 
-    expect(DataType.nilableTrue.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.true)
-    expect(DataType.nilableFalse.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.false)
-    expect(DataType.nilableBoolean.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.true | typeToBitRecord.false)
-    expect(DataType.nilableEmptyString.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.emptyString)
-    expect(DataType.nilableNonEmptyString.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.nonEmptyString)
-    expect(DataType.nilableString.bitMask).toBe(
-      typeToBitRecord.nil | typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString,
-    )
-    expect(DataType.nilableZero.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.zero)
-    expect(DataType.nilableNonZeroNumber.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.nonZeroNumber)
-    expect(DataType.nilableNumber.bitMask).toBe(
-      typeToBitRecord.nil | typeToBitRecord.zero | typeToBitRecord.nonZeroNumber,
-    )
-    expect(DataType.nilableNonEmptyArray.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.nonEmptyArray)
-    expect(DataType.nilableEmptyArray.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.emptyArray)
-    expect(DataType.nilableArray.bitMask).toBe(
-      typeToBitRecord.nil | typeToBitRecord.nonEmptyArray | typeToBitRecord.emptyArray,
-    )
-    expect(DataType.nilableNonEmptyObject.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.nonEmptyObject)
-    expect(DataType.nilableEmptyObject.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.emptyObject)
-    expect(DataType.nilableObject.bitMask).toBe(
-      typeToBitRecord.nil | typeToBitRecord.nonEmptyObject | typeToBitRecord.emptyObject,
-    )
-    expect(DataType.nilableFunction.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.function)
-    expect(DataType.nilableRegexp.bitMask).toBe(typeToBitRecord.nil | typeToBitRecord.regexp)
+    expect(DataType.unknown.bitmask).toBe((1 << Object.keys(typeToBitRecord).length) - 1)
 
-    expect(DataType.unknown.bitMask).toBe((1 << Object.keys(typeToBitRecord).length) - 1)
-
-    expect(DataType.falsy.bitMask).toBe(
+    expect(DataType.falsy.bitmask).toBe(
       typeToBitRecord.nil | typeToBitRecord.emptyString | typeToBitRecord.zero | typeToBitRecord.false,
     )
-    expect(DataType.truthy.bitMask).toBe(
+    expect(DataType.truthy.bitmask).toBe(
       typeToBitRecord.nonEmptyString |
-        typeToBitRecord.nonZeroNumber |
+        typeToBitRecord.positiveInteger |
+        typeToBitRecord.positiveNonInteger |
+        typeToBitRecord.negativeInteger |
+        typeToBitRecord.negativeNonInteger |
         typeToBitRecord.true |
         typeToBitRecord.nonEmptyArray |
         typeToBitRecord.emptyArray |
@@ -65,13 +51,13 @@ describe(`DataType`, () => {
         typeToBitRecord.regexp,
     )
 
-    expect(DataType.emptyCollection.bitMask).toBe(
+    expect(DataType.emptyCollection.bitmask).toBe(
       typeToBitRecord.emptyArray | typeToBitRecord.emptyObject | typeToBitRecord.emptyString,
     )
-    expect(DataType.nonEmptyCollection.bitMask).toBe(
+    expect(DataType.nonEmptyCollection.bitmask).toBe(
       typeToBitRecord.nonEmptyArray | typeToBitRecord.nonEmptyObject | typeToBitRecord.nonEmptyString,
     )
-    expect(DataType.collection.bitMask).toBe(
+    expect(DataType.collection.bitmask).toBe(
       typeToBitRecord.emptyArray |
         typeToBitRecord.emptyObject |
         typeToBitRecord.emptyString |
@@ -84,7 +70,7 @@ describe(`DataType`, () => {
     test(`samples`, () => {
       expect(DataType.truthy.and(DataType.string)).toEqual(DataType.nonEmptyString)
       expect(DataType.truthy.and(DataType.string.or(DataType.number))).toEqual(
-        DataType.nonEmptyString.or(DataType.nonZeroNumber),
+        DataType.nonEmptyString.or(DataType.positiveNumber).or(DataType.negativeNumber),
       )
     })
   })
@@ -92,12 +78,15 @@ describe(`DataType`, () => {
   describe(`DataType.exclude`, () => {
     test(`samples`, () => {
       expect(DataType.truthy.exclude(DataType.string)).toEqual(
-        DataType.nonZeroNumber
-          .or(DataType.true)
-          .or(DataType.array)
-          .or(DataType.object)
-          .or(DataType.function)
-          .or(DataType.regexp),
+        DataType.or(
+          DataType.positiveNumber,
+          DataType.negativeNumber,
+          DataType.true,
+          DataType.array,
+          DataType.object,
+          DataType.regexp,
+          DataType.function,
+        ),
       )
       expect(DataType.truthy.exclude(DataType.string.or(DataType.number))).toEqual(
         DataType.true.or(DataType.array).or(DataType.object).or(DataType.function).or(DataType.regexp),
@@ -112,23 +101,28 @@ describe(`DataType`, () => {
       expect(DataType.or(DataType.truthy, DataType.falsy)).toEqual(DataType.unknown)
     })
     test(`create nilable types`, () => {
-      expect(DataType.or(DataType.nil, DataType.boolean).bitMask).toBe(
+      expect(DataType.or(DataType.nil, DataType.boolean).bitmask).toBe(
         typeToBitRecord.true | typeToBitRecord.false | typeToBitRecord.nil,
       )
-      expect(DataType.or(DataType.nil, DataType.string).bitMask).toBe(
+      expect(DataType.or(DataType.nil, DataType.string).bitmask).toBe(
         typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString | typeToBitRecord.nil,
       )
-      expect(DataType.or(DataType.nil, DataType.number).bitMask).toBe(
-        typeToBitRecord.zero | typeToBitRecord.nonZeroNumber | typeToBitRecord.nil,
+      expect(DataType.or(DataType.nil, DataType.number).bitmask).toBe(
+        typeToBitRecord.zero |
+          typeToBitRecord.positiveInteger |
+          typeToBitRecord.positiveNonInteger |
+          typeToBitRecord.negativeInteger |
+          typeToBitRecord.negativeNonInteger |
+          typeToBitRecord.nil,
       )
-      expect(DataType.or(DataType.nil, DataType.array).bitMask).toBe(
+      expect(DataType.or(DataType.nil, DataType.array).bitmask).toBe(
         typeToBitRecord.nonEmptyArray | typeToBitRecord.emptyArray | typeToBitRecord.nil,
       )
-      expect(DataType.or(DataType.nil, DataType.object).bitMask).toBe(
+      expect(DataType.or(DataType.nil, DataType.object).bitmask).toBe(
         typeToBitRecord.nonEmptyObject | typeToBitRecord.emptyObject | typeToBitRecord.nil,
       )
-      expect(DataType.or(DataType.nil, DataType.function).bitMask).toBe(typeToBitRecord.function | typeToBitRecord.nil)
-      expect(DataType.or(DataType.nil, DataType.regexp).bitMask).toBe(typeToBitRecord.regexp | typeToBitRecord.nil)
+      expect(DataType.or(DataType.nil, DataType.function).bitmask).toBe(typeToBitRecord.function | typeToBitRecord.nil)
+      expect(DataType.or(DataType.nil, DataType.regexp).bitmask).toBe(typeToBitRecord.regexp | typeToBitRecord.nil)
     })
     test(`the disjunction over all types should be unknown`, () => {
       const unknown1 = DataType.or(
@@ -138,8 +132,8 @@ describe(`DataType`, () => {
         DataType.number,
         DataType.array,
         DataType.object,
-        DataType.function,
         DataType.regexp,
+        DataType.function,
       )
       const unknown2 = DataType.or(
         DataType.nil,
@@ -148,11 +142,12 @@ describe(`DataType`, () => {
         DataType.emptyString,
         DataType.nonEmptyString,
         DataType.zero,
-        DataType.nonZeroNumber,
+        DataType.positiveNumber,
+        DataType.negativeNumber,
         DataType.array,
         DataType.object,
-        DataType.function,
         DataType.regexp,
+        DataType.function,
       )
       expect(unknown1.isUnknown()).toBe(true)
       expect(unknown1).toEqual(DataType.unknown)
@@ -171,27 +166,13 @@ describe(`DataType`, () => {
       expect(DataType.nonEmptyString.is(DataType.falsy)).toBe(false)
       expect(DataType.string.is(DataType.falsy)).toBe(false)
       expect(DataType.zero.is(DataType.falsy)).toBe(true)
-      expect(DataType.nonZeroNumber.is(DataType.falsy)).toBe(false)
+      expect(DataType.positiveNumber.is(DataType.falsy)).toBe(false)
+      expect(DataType.negativeNumber.is(DataType.falsy)).toBe(false)
       expect(DataType.number.is(DataType.falsy)).toBe(false)
       expect(DataType.array.is(DataType.falsy)).toBe(false)
       expect(DataType.object.is(DataType.falsy)).toBe(false)
       expect(DataType.regexp.is(DataType.falsy)).toBe(false)
       expect(DataType.function.is(DataType.falsy)).toBe(false)
-
-      expect(DataType.nilableTrue.is(DataType.falsy)).toBe(false)
-      expect(DataType.nilableFalse.is(DataType.falsy)).toBe(true)
-      expect(DataType.nilableBoolean.is(DataType.falsy)).toBe(false)
-      expect(DataType.nilableEmptyString.is(DataType.falsy)).toBe(true)
-      expect(DataType.nilableNonEmptyString.is(DataType.falsy)).toBe(false)
-      expect(DataType.nilableString.is(DataType.falsy)).toBe(false)
-      expect(DataType.nilableZero.is(DataType.falsy)).toBe(true)
-      expect(DataType.nilableNonZeroNumber.is(DataType.falsy)).toBe(false)
-      expect(DataType.nilableNumber.is(DataType.falsy)).toBe(false)
-      expect(DataType.nilableArray.is(DataType.falsy)).toBe(false)
-      expect(DataType.nilableObject.is(DataType.falsy)).toBe(false)
-      expect(DataType.nilableRegexp.is(DataType.falsy)).toBe(false)
-      expect(DataType.nilableFunction.is(DataType.falsy)).toBe(false)
-
       expect(DataType.unknown.is(DataType.falsy)).toBe(false)
       expect(DataType.or(DataType.nil, DataType.false, DataType.emptyString, DataType.zero).is(DataType.falsy)).toBe(
         true,
@@ -211,7 +192,8 @@ describe(`DataType`, () => {
       expect(DataType.nonEmptyString.is(DataType.truthy)).toBe(true)
       expect(DataType.string.is(DataType.truthy)).toBe(false)
       expect(DataType.zero.is(DataType.truthy)).toBe(false)
-      expect(DataType.nonZeroNumber.is(DataType.truthy)).toBe(true)
+      expect(DataType.positiveNumber.is(DataType.truthy)).toBe(true)
+      expect(DataType.negativeNumber.is(DataType.truthy)).toBe(true)
       expect(DataType.number.is(DataType.truthy)).toBe(false)
       expect(DataType.array.is(DataType.truthy)).toBe(true)
       expect(DataType.object.is(DataType.truthy)).toBe(true)
@@ -222,7 +204,8 @@ describe(`DataType`, () => {
         DataType.or(
           DataType.true,
           DataType.nonEmptyString,
-          DataType.nonZeroNumber,
+          DataType.positiveNumber,
+          DataType.negativeNumber,
           DataType.function,
           DataType.regexp,
           DataType.function,
@@ -235,7 +218,8 @@ describe(`DataType`, () => {
           DataType.string,
           DataType.true,
           DataType.nonEmptyString,
-          DataType.nonZeroNumber,
+          DataType.positiveNumber,
+          DataType.negativeNumber,
           DataType.function,
           DataType.regexp,
           DataType.function,
@@ -256,26 +240,13 @@ describe(`DataType`, () => {
       expect(DataType.nonEmptyString.is(DataType.unknown)).toBe(true)
       expect(DataType.string.is(DataType.unknown)).toBe(true)
       expect(DataType.zero.is(DataType.unknown)).toBe(true)
-      expect(DataType.nonZeroNumber.is(DataType.unknown)).toBe(true)
+      expect(DataType.positiveNumber.is(DataType.unknown)).toBe(true)
+      expect(DataType.negativeNumber.is(DataType.unknown)).toBe(true)
       expect(DataType.number.is(DataType.unknown)).toBe(true)
       expect(DataType.array.is(DataType.unknown)).toBe(true)
       expect(DataType.function.is(DataType.unknown)).toBe(true)
       expect(DataType.object.is(DataType.unknown)).toBe(true)
       expect(DataType.regexp.is(DataType.unknown)).toBe(true)
-
-      expect(DataType.nilableTrue.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableFalse.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableBoolean.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableEmptyString.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableNonEmptyString.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableString.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableZero.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableNonZeroNumber.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableNumber.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableArray.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableFunction.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableObject.is(DataType.unknown)).toBe(true)
-      expect(DataType.nilableRegexp.is(DataType.unknown)).toBe(true)
 
       expect(DataType.unknown.is(DataType.unknown)).toBe(true)
       expect(DataType.falsy.is(DataType.unknown)).toBe(true)
@@ -284,7 +255,6 @@ describe(`DataType`, () => {
       expect(DataType.or(DataType.string, DataType.number, DataType.boolean).is(DataType.unknown)).toBe(true)
     })
     test(`nil samples`, () => {
-      expect(DataType.nil.is(DataType.nilableBoolean)).toBe(true)
       expect(DataType.nil.is(DataType.or(DataType.array, DataType.true, DataType.nil))).toBe(true)
     })
   })
@@ -292,7 +262,6 @@ describe(`DataType`, () => {
   describe(`DataType.equals`, () => {
     test(`sampples`, () => {
       expect(DataType.truthy.or(DataType.falsy).equals(DataType.unknown)).toBe(true)
-      expect(DataType.nil.or(DataType.boolean).equals(DataType.nilableBoolean)).toBe(true)
     })
   })
 
@@ -314,7 +283,8 @@ describe(`DataType`, () => {
       expect(DataType.nonEmptyString.isUnionType()).toBe(false)
       expect(DataType.string.isUnionType()).toBe(true)
       expect(DataType.zero.isUnionType()).toBe(false)
-      expect(DataType.nonZeroNumber.isUnionType()).toBe(false)
+      expect(DataType.positiveNumber.isUnionType()).toBe(true)
+      expect(DataType.negativeNumber.isUnionType()).toBe(true)
       expect(DataType.number.isUnionType()).toBe(true)
       expect(DataType.truthy.isUnionType()).toBe(true)
       expect(DataType.falsy.isUnionType()).toBe(true)
@@ -323,7 +293,7 @@ describe(`DataType`, () => {
 
   describe(`DataType.toString`, () => {
     test(`samples`, () => {
-      expect(DataType.unknown.toString()).toBe(`unknown [Bitmask = 0001 1111 1111 1111  (8191)]`)
+      expect(DataType.unknown.toString()).toBe(`unknown [Bitmask = 1111 1111 1111 1111  (65535)]`)
       expect(DataType.nil.toString()).toBe(`nil [Bitmask = 0000 0000 0000 0001  (1)]`)
       expect(DataType.string.toString()).toBe(`emptyString | nonEmptyString [Bitmask = 0000 0000 0000 0110  (6)]`)
       expect(DataType.nil.or(DataType.string).toString()).toBe(

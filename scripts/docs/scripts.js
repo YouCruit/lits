@@ -196,7 +196,7 @@ window.onload = function () {
     }
     if (evt.key === 'F3') {
       evt.preventDefault()
-      dataType()
+      getDataType()
     }
     if (evt.key === 'F4') {
       evt.preventDefault()
@@ -217,10 +217,6 @@ window.onload = function () {
     if (evt.key === 'F8') {
       evt.preventDefault()
       parse(true)
-    }
-    if (evt.key === 'Escape') {
-      evt.preventDefault()
-      minimizeAll()
     }
   })
   document.getElementById('lits-textarea').addEventListener('keydown', keydownHandler)
@@ -397,7 +393,7 @@ function undefinedSymbols() {
   output.value = newContent
 }
 
-function dataType() {
+function getDataType() {
   var code = document.getElementById('lits-textarea').value
   var output = document.getElementById('output-textarea')
   output.value = ''
@@ -423,7 +419,7 @@ function dataType() {
     output.scrollTop = output.scrollHeight
   }
   try {
-    dataType = lits.dataType(code)
+    dataType = lits.getDataType(code)
   } catch (error) {
     output.value = error
     output.classList.add('error')

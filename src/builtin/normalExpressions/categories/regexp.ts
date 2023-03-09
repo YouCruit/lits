@@ -18,7 +18,7 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
       }
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
-    dataType: () => DataType.regexp,
+    getDataType: () => DataType.regexp,
   },
   match: {
     evaluate: ([regexp, text], debugInfo): string[] | null => {

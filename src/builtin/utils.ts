@@ -1,5 +1,7 @@
+import { DataType } from '../analyze/dataTypes/DataType'
 import { ContextStack } from '../ContextStack'
 import { LitsError } from '../errors'
+import { Any } from '../interface'
 import { AstNode, BindingNode } from '../parser/interface'
 import { reservedNamesRecord } from '../reservedNames'
 import { DebugInfo } from '../tokenizer/interface'
@@ -21,7 +23,7 @@ export type FunctionArguments = {
 
 export function assertNameNotDefined<T>(
   name: T,
-  contextStack: ContextStack,
+  contextStack: ContextStack<Any | DataType>,
   builtin: Builtin,
   debugInfo?: DebugInfo,
 ): asserts name is T {

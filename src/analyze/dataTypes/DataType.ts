@@ -3,147 +3,218 @@ export const typeToBitRecord = {
   emptyString: 1 << 1,
   nonEmptyString: 1 << 2,
   zero: 1 << 3,
-  nonZeroNumber: 1 << 4,
-  true: 1 << 5,
-  false: 1 << 6,
-  emptyArray: 1 << 7,
-  nonEmptyArray: 1 << 8,
-  emptyObject: 1 << 9,
-  nonEmptyObject: 1 << 10,
-  function: 1 << 11,
-  regexp: 1 << 12,
+  positiveInteger: 1 << 4,
+  negativeInteger: 1 << 5,
+  positiveNonInteger: 1 << 6,
+  negativeNonInteger: 1 << 7,
+  true: 1 << 8,
+  false: 1 << 9,
+  emptyArray: 1 << 10,
+  nonEmptyArray: 1 << 11,
+  emptyObject: 1 << 12,
+  nonEmptyObject: 1 << 13,
+  regexp: 1 << 14,
+  function: 1 << 15,
 }
 
 const allBitValues = Object.values(typeToBitRecord)
+if (allBitValues.length > 16) {
+  throw Error(`Only 16 different types allowed`)
+}
 
 // All bits set to 1
 const UNKNWON_BITS = allBitValues.reduce((result, bit) => result | bit, 0)
 
+// console.log(stringifyBitMask(UNKNWON_BITS))
 const FALSY_BITS = typeToBitRecord.nil | typeToBitRecord.zero | typeToBitRecord.emptyString | typeToBitRecord.false
 
 // All non falsy bits
 const TRUTHY_BITS = UNKNWON_BITS & ~FALSY_BITS
 
 function stringifyBitMask(bitMaks: number): string {
-  const mask = allBitValues
-    .reduce((result, bitValue, index) => {
-      const zeroOrOne = (bitMaks & bitValue) === 0 ? `0` : `1`
-      const space = index > 0 && index % 4 === 0 ? ` ` : ``
-      return `${result}${space}${zeroOrOne}`
-    }, ``)
-    .split(``)
-    .reverse()
-    .join(``)
+  let mask = ``
 
-  const padding = `0`.repeat((4 - (allBitValues.length % 4)) % 4)
-  return `${padding}${mask}`
+  for (let index = 15; index >= 0; index -= 1) {
+    const bitValue = 1 << index
+    const zeroOrOne = (bitMaks & bitValue) === 0 ? `0` : `1`
+    const space = index !== 15 && (index + 1) % 4 === 0 ? ` ` : ``
+    mask += `${space}${zeroOrOne}`
+  }
+  return mask
+}
+const builtinTypesBitMasks = {
+  nil: typeToBitRecord.nil,
+  emptyString: typeToBitRecord.emptyString,
+  nonEmptyString: typeToBitRecord.nonEmptyString,
+  string: typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString,
+  zero: typeToBitRecord.zero,
+  nonZeroNumber:
+    typeToBitRecord.negativeNonInteger |
+    typeToBitRecord.negativeInteger |
+    typeToBitRecord.positiveNonInteger |
+    typeToBitRecord.positiveInteger,
+  positiveNumber: typeToBitRecord.positiveNonInteger | typeToBitRecord.positiveInteger,
+  negativeNumber: typeToBitRecord.negativeNonInteger | typeToBitRecord.negativeInteger,
+  integer: typeToBitRecord.zero | typeToBitRecord.positiveInteger | typeToBitRecord.negativeInteger,
+  number:
+    typeToBitRecord.zero |
+    typeToBitRecord.positiveNonInteger |
+    typeToBitRecord.positiveInteger |
+    typeToBitRecord.negativeNonInteger |
+    typeToBitRecord.negativeInteger,
+  true: typeToBitRecord.true,
+  false: typeToBitRecord.false,
+  boolean: typeToBitRecord.true | typeToBitRecord.false,
+  emptyArray: typeToBitRecord.emptyArray,
+  nonEmptyArray: typeToBitRecord.nonEmptyArray,
+  array: typeToBitRecord.emptyArray | typeToBitRecord.nonEmptyArray,
+  emptyObject: typeToBitRecord.emptyObject,
+  nonEmptyObject: typeToBitRecord.nonEmptyObject,
+  object: typeToBitRecord.emptyObject | typeToBitRecord.nonEmptyObject,
+  regexp: typeToBitRecord.regexp,
+  function: typeToBitRecord.function,
+  unknown: UNKNWON_BITS,
+  truthy: TRUTHY_BITS,
+  falsy: FALSY_BITS,
+  emptyCollection: typeToBitRecord.emptyString | typeToBitRecord.emptyArray | typeToBitRecord.emptyObject,
+  nonEmptyCollection: typeToBitRecord.nonEmptyString | typeToBitRecord.nonEmptyArray | typeToBitRecord.nonEmptyObject,
+  collection:
+    typeToBitRecord.emptyString |
+    typeToBitRecord.nonEmptyString |
+    typeToBitRecord.emptyArray |
+    typeToBitRecord.nonEmptyArray |
+    typeToBitRecord.emptyObject |
+    typeToBitRecord.nonEmptyObject,
 }
 export class DataType {
-  public readonly bitMask: number
+  public readonly bitmask: number
+  public readonly fnReturnType: DataType | undefined
 
-  public static nil = new DataType(typeToBitRecord.nil)
-
-  public static emptyString = new DataType(typeToBitRecord.emptyString)
-  public static nonEmptyString = new DataType(typeToBitRecord.nonEmptyString)
-  public static string = new DataType(typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString)
-  public static zero = new DataType(typeToBitRecord.zero)
-  public static nonZeroNumber = new DataType(typeToBitRecord.nonZeroNumber)
-  public static number = new DataType(typeToBitRecord.zero | typeToBitRecord.nonZeroNumber)
-  public static true = new DataType(typeToBitRecord.true)
-  public static false = new DataType(typeToBitRecord.false)
-  public static boolean = new DataType(typeToBitRecord.true | typeToBitRecord.false)
-  public static emptyArray = new DataType(typeToBitRecord.emptyArray)
-  public static nonEmptyArray = new DataType(typeToBitRecord.nonEmptyArray)
-  public static array = new DataType(typeToBitRecord.emptyArray | typeToBitRecord.nonEmptyArray)
-  public static emptyObject = new DataType(typeToBitRecord.emptyObject)
-  public static nonEmptyObject = new DataType(typeToBitRecord.nonEmptyObject)
-  public static object = new DataType(typeToBitRecord.emptyObject | typeToBitRecord.nonEmptyObject)
-  public static regexp = new DataType(typeToBitRecord.regexp)
-  public static function = new DataType(typeToBitRecord.function)
-
-  public static nilableEmptyString = new DataType(typeToBitRecord.nil | typeToBitRecord.emptyString)
-  public static nilableNonEmptyString = new DataType(typeToBitRecord.nil | typeToBitRecord.nonEmptyString)
-  public static nilableString = new DataType(
-    typeToBitRecord.nil | typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString,
-  )
-  public static nilableZero = new DataType(typeToBitRecord.nil | typeToBitRecord.zero)
-  public static nilableNonZeroNumber = new DataType(typeToBitRecord.nil | typeToBitRecord.nonZeroNumber)
-  public static nilableNumber = new DataType(typeToBitRecord.nil | typeToBitRecord.zero | typeToBitRecord.nonZeroNumber)
-  public static nilableTrue = new DataType(typeToBitRecord.nil | typeToBitRecord.true)
-  public static nilableFalse = new DataType(typeToBitRecord.nil | typeToBitRecord.false)
-  public static nilableBoolean = new DataType(typeToBitRecord.nil | typeToBitRecord.true | typeToBitRecord.false)
-  public static nilableEmptyArray = new DataType(typeToBitRecord.nil | typeToBitRecord.emptyArray)
-  public static nilableNonEmptyArray = new DataType(typeToBitRecord.nil | typeToBitRecord.nonEmptyArray)
-  public static nilableArray = new DataType(
-    typeToBitRecord.nil | typeToBitRecord.emptyArray | typeToBitRecord.nonEmptyArray,
-  )
-  public static nilableEmptyObject = new DataType(typeToBitRecord.nil | typeToBitRecord.emptyObject)
-  public static nilableNonEmptyObject = new DataType(typeToBitRecord.nil | typeToBitRecord.nonEmptyObject)
-  public static nilableObject = new DataType(
-    typeToBitRecord.nil | typeToBitRecord.emptyObject | typeToBitRecord.nonEmptyObject,
-  )
-  public static nilableRegexp = new DataType(typeToBitRecord.nil | typeToBitRecord.regexp)
-  public static nilableFunction = new DataType(typeToBitRecord.nil | typeToBitRecord.function)
-
-  public static unknown = new DataType(UNKNWON_BITS)
-  public static truthy = new DataType(TRUTHY_BITS)
-  public static falsy = new DataType(FALSY_BITS)
-  public static emptyCollection = new DataType(
-    typeToBitRecord.emptyString | typeToBitRecord.emptyArray | typeToBitRecord.emptyObject,
-  )
-  public static nonEmptyCollection = new DataType(
-    typeToBitRecord.nonEmptyString | typeToBitRecord.nonEmptyArray | typeToBitRecord.nonEmptyObject,
-  )
-  public static collection = new DataType(
-    typeToBitRecord.emptyString |
-      typeToBitRecord.nonEmptyString |
-      typeToBitRecord.emptyArray |
-      typeToBitRecord.nonEmptyArray |
-      typeToBitRecord.emptyObject |
-      typeToBitRecord.nonEmptyObject,
-  )
-
-  public static or(type: DataType, ...types: DataType[]): DataType {
-    const newTypeMask = [type, ...types].reduce((result, type) => {
-      return result | type.bitMask
-    }, 0)
-    return new DataType(newTypeMask)
+  private constructor(bitMask: number, fnReturnType?: DataType) {
+    this.bitmask = bitMask
+    this.fnReturnType = fnReturnType
+    Object.freeze(this.fnReturnType)
   }
 
-  public static and(type: DataType, ...types: DataType[]): DataType {
-    const newTypeMask = [type, ...types].reduce((result, type) => {
-      return result & type.bitMask
+  public static readonly never = new DataType(0)
+  public static readonly nil = new DataType(builtinTypesBitMasks.nil)
+  public static readonly emptyString = new DataType(builtinTypesBitMasks.emptyString)
+  public static readonly nonEmptyString = new DataType(builtinTypesBitMasks.nonEmptyString)
+  public static readonly string = new DataType(builtinTypesBitMasks.string)
+  public static readonly zero = new DataType(builtinTypesBitMasks.zero)
+  public static readonly positiveNumber = new DataType(builtinTypesBitMasks.positiveNumber)
+  public static readonly negativeNumber = new DataType(builtinTypesBitMasks.negativeNumber)
+  public static readonly integer = new DataType(builtinTypesBitMasks.integer)
+  public static readonly number = new DataType(builtinTypesBitMasks.number)
+  public static readonly true = new DataType(builtinTypesBitMasks.true)
+  public static readonly false = new DataType(builtinTypesBitMasks.false)
+  public static readonly boolean = new DataType(builtinTypesBitMasks.boolean)
+  public static readonly emptyArray = new DataType(builtinTypesBitMasks.emptyArray)
+  public static readonly nonEmptyArray = new DataType(builtinTypesBitMasks.nonEmptyArray)
+  public static readonly array = new DataType(builtinTypesBitMasks.array)
+  public static readonly emptyObject = new DataType(builtinTypesBitMasks.emptyObject)
+  public static readonly nonEmptyObject = new DataType(builtinTypesBitMasks.nonEmptyObject)
+  public static readonly object = new DataType(builtinTypesBitMasks.object)
+  public static readonly regexp = new DataType(builtinTypesBitMasks.regexp)
+  public static readonly truthy = new DataType(builtinTypesBitMasks.truthy)
+  public static readonly falsy = new DataType(builtinTypesBitMasks.falsy)
+  public static readonly emptyCollection = new DataType(builtinTypesBitMasks.emptyCollection)
+  public static readonly nonEmptyCollection = new DataType(builtinTypesBitMasks.nonEmptyCollection)
+  public static readonly collection = new DataType(builtinTypesBitMasks.collection)
+  public static readonly unknown = new DataType(builtinTypesBitMasks.unknown)
+  public static readonly function = new DataType(builtinTypesBitMasks.function)
+
+  public static or(...types: DataType[]): DataType {
+    const newTypeMask = types.reduce((result, type) => {
+      return result | type.bitmask
+    }, 0)
+    const functions = types.filter(type => type.isFunction())
+    if (functions.some(f => !f.fnReturnType)) {
+      return new DataType(newTypeMask)
+    }
+    const returnTypes = functions.map(type => type.fnReturnType) as DataType[]
+    const fnReturnType = returnTypes.length > 0 ? DataType.or(...returnTypes) : undefined
+    return new DataType(newTypeMask, fnReturnType)
+  }
+
+  public static and(...types: DataType[]): DataType {
+    const newTypeMask = types.reduce((result, type) => {
+      return result & type.bitmask
     }, UNKNWON_BITS)
+
+    // At least one of the types is a function
+    if (newTypeMask & builtinTypesBitMasks.function) {
+      const returnFunctions = types.filter(type => type.isFunction())
+      const returnFunction = DataType.and(...returnFunctions)
+      if (returnFunction.bitmask === 0) {
+        return new DataType(newTypeMask & ~builtinTypesBitMasks.function)
+      } else {
+        return new DataType(newTypeMask, returnFunction)
+      }
+    }
+
     return new DataType(newTypeMask)
   }
 
-  public static exclude(type: DataType, ...types: DataType[]): DataType {
-    const typeMask = types.reduce((result, type) => {
-      return result | type.bitMask
-    }, 0)
-
-    const newTypeMask = type.bitMask & ~typeMask
-    return new DataType(newTypeMask)
+  public static exclude(first: DataType, ...rest: DataType[]): DataType {
+    return rest.reduce((result, type) => {
+      const newBitmask = result.bitmask & ~type.bitmask
+      // Only remove function bit if functions are equal
+      if (result.isFunction() && type.isFunction()) {
+        const returnType: DataType = !type.fnReturnType
+          ? DataType.never
+          : !result.fnReturnType
+          ? DataType.unknown.exclude(type.fnReturnType)
+          : result.fnReturnType.exclude(type.fnReturnType)
+        if (returnType.bitmask === 0) {
+          return new DataType(newBitmask)
+        } else {
+          return new DataType(newBitmask | builtinTypesBitMasks.function, returnType)
+        }
+      }
+      return new DataType(newBitmask)
+    }, first)
   }
 
-  public static is(dataType1: DataType, dataType2: DataType): boolean {
-    const bits = dataType2.bitMask
-    return (dataType1.bitMask & bits) > 0 && (dataType1.bitMask & ~bits) === 0
+  public static is(a: DataType, b: DataType): boolean {
+    const { bitmask: bitmaskA, fnReturnType: fnReturnTypeA } = a
+    const { bitmask: bitmaskB, fnReturnType: fnReturnTypeB } = b
+
+    // some bits must be the same AND no bits in a can appear in b
+    const success = bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB)
+
+    if (!success) {
+      return false
+    }
+    if (a.isFunction()) {
+      if (!fnReturnTypeB) {
+        return true
+      }
+      if (!fnReturnTypeA) {
+        return false
+      }
+      return fnReturnTypeA.is(fnReturnTypeB)
+    }
+    return true
   }
 
-  public static equals(dataType1: DataType, dataType2: DataType): boolean {
-    return dataType1.bitMask === dataType2.bitMask
+  public static equals(type: DataType, ...types: DataType[]): boolean {
+    return types.every(t => {
+      if (type.bitmask !== t.bitmask) {
+        return false
+      }
+      if (!type.fnReturnType && !t.fnReturnType) {
+        return true
+      }
+      if (type.fnReturnType && t.fnReturnType) {
+        return type.fnReturnType.equals(t.fnReturnType)
+      }
+      return false
+    })
   }
 
   public static isUnionType(dataType: DataType): boolean {
-    return !allBitValues.includes(dataType.bitMask)
-  }
-
-  private constructor(bitMask: number) {
-    if (bitMask < 0 || bitMask > UNKNWON_BITS) {
-      throw Error(`Illegal bitMask. Should be between 1 and ${UNKNWON_BITS}, got ${bitMask}`)
-    }
-    this.bitMask = bitMask
+    return !allBitValues.includes(dataType.bitmask)
   }
 
   public or(...dataTypes: DataType[]): DataType {
@@ -162,30 +233,41 @@ export class DataType {
     return DataType.is(this, dataType)
   }
 
-  public equals(dataType: DataType): boolean {
-    return DataType.equals(this, dataType)
+  public equals(...types: DataType[]): boolean {
+    return DataType.equals(this, ...types)
   }
 
   public isUnionType(): boolean {
     return DataType.isUnionType(this)
   }
 
-  isUnknown(): boolean {
-    return this.bitMask === UNKNWON_BITS
+  public withReturnType(dataType: DataType): DataType {
+    return new DataType(this.bitmask, dataType)
   }
 
-  toString(): string {
-    const suffix = ` [Bitmask = ${stringifyBitMask(this.bitMask)}  (${this.bitMask})]`
+  public isFunction(): boolean {
+    return !!(this.bitmask & builtinTypesBitMasks.function)
+  }
+
+  public isUnknown(): boolean {
+    return this.bitmask === UNKNWON_BITS
+  }
+
+  public toString(indent = 0): string {
+    const padding = ` `.repeat(indent)
+    const suffix = ` [Bitmask = ${stringifyBitMask(this.bitmask)}  (${this.bitmask})]`
     if (this.isUnknown()) {
-      return `unknown${suffix}`
+      return `${padding}unknown${suffix}`
     }
     const types = Object.entries(typeToBitRecord).reduce((result: string[], entry) => {
       const [name, bitValue] = entry
-      if (this.bitMask & bitValue) {
+      if (this.bitmask & bitValue) {
         result.push(name)
       }
       return result
     }, [])
-    return `${types.join(` | `)}${suffix}`
+    return `${padding}${types.join(` | `)}${suffix}${
+      this.fnReturnType ? ` =>\n${this.fnReturnType.toString(indent + 2)}` : ``
+    }`
   }
 }

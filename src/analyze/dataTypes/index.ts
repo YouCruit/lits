@@ -11,7 +11,7 @@ import { asValue, normalExpressionNodeWithName } from '../../utils/assertion'
 import { DataType } from './DataType'
 import { GetDataType } from './interface'
 
-export const dataType: GetDataType = (astNode, contextStack) => {
+export const getDataType: GetDataType = (astNode, contextStack) => {
   const astNodes = Array.isArray(astNode) ? astNode : [astNode]
 
   let result = DataType.nil
@@ -28,7 +28,7 @@ function lookupNameType(nameNode: NameNode, contextStack: ContextStack<DataType>
   for (const context of contextStack.stack) {
     const type = context[key]
     if (type) {
-      return type as unknown as DataType
+      return type.value
     }
   }
   return DataType.unknown
@@ -41,8 +41,21 @@ function calculateDataTypesOnAstNode(astNode: AstNode, contextStack: ContextStac
     }
     case `String`:
       return astNode.value.length > 0 ? DataType.nonEmptyString : DataType.emptyString
-    case `Number`:
-      return astNode.value === 0 ? DataType.zero : DataType.nonZeroNumber
+    case `Number`: {
+      if (astNode.value === 0) {
+        return DataType.zero
+      }
+      const integer = Number.isInteger(astNode.value)
+      const positive = astNode.value > 0
+      if (integer) {
+        return positive ? DataType.positiveNumber.and(DataType.integer) : DataType.negativeNumber.and(DataType.integer)
+      } else {
+        return positive
+          ? DataType.positiveNumber.exclude(DataType.integer)
+          : DataType.negativeNumber.exclude(DataType.integer)
+      }
+    }
+
     case `Modifier`:
       throw Error(`Should not come here`)
     case `ReservedName`:
@@ -68,7 +81,7 @@ function calculateDataTypesOnSpecialExpression(
 ): DataType {
   const specialExpression = asValue(builtin.specialExpressions[node.name], node.token?.debugInfo)
 
-  return specialExpression?.dataType?.(node, contextStack, { dataType }) ?? DataType.unknown
+  return specialExpression?.getDataType?.(node, contextStack, { getDataType: getDataType, builtin }) ?? DataType.unknown
 }
 
 function calculateDataTypesOnNormalExpression(
@@ -97,5 +110,5 @@ function calculateDataTypesOnBuiltinNormalExpression(node: NormalExpressionNodeW
     return DataType.unknown
   }
 
-  return normalExpression.dataType?.({ params, dataType }) ?? DataType.unknown
+  return normalExpression.getDataType?.({ params, getDataType: getDataType }) ?? DataType.unknown
 }

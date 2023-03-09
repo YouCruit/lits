@@ -29,7 +29,7 @@ type ValidateNode = (node: NormalExpressionNode) => void
 type BuiltinNormalExpression<T> = {
   evaluate: NormalExpressionEvaluator<T>
   validate: ValidateNode
-  dataType?(options: { params: DataType[]; dataType: GetDataType }): DataType
+  getDataType?(options: { params: DataType[]; getDataType: GetDataType }): DataType
 }
 
 export type ParserHelpers = {
@@ -50,7 +50,8 @@ type EvaluateHelpers = {
   lookUp(nameNode: NameNode, contextStack: ContextStack): LookUpResult
 }
 type GetDataTypeHelpers = {
-  dataType: GetDataType
+  getDataType: GetDataType
+  builtin: Builtin
 }
 export type BuiltinSpecialExpression<T> = {
   parse: (tokens: Token[], position: number, parsers: ParserHelpers) => [number, SpecialExpressionNode]
@@ -61,7 +62,7 @@ export type BuiltinSpecialExpression<T> = {
     contextStack: ContextStack,
     params: { findUndefinedSymbols: FindUndefinedSymbols; builtin: Builtin },
   ): Set<UndefinedSymbolEntry>
-  dataType?(node: SpecialExpressionNode, contextStack: ContextStack<DataType>, helpers: GetDataTypeHelpers): DataType
+  getDataType?(node: SpecialExpressionNode, contextStack: ContextStack<DataType>, helpers: GetDataTypeHelpers): DataType
 }
 
 export type SpecialExpressionName =

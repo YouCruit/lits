@@ -128,8 +128,8 @@ export class DataType {
   public readonly bitmask: number
   public readonly fnReturnType: DataType | undefined
 
-  private constructor(bitMask: number, fnReturnType?: DataType) {
-    this.bitmask = bitMask
+  private constructor(bitmask: number, fnReturnType?: DataType) {
+    this.bitmask = bitmask
     this.fnReturnType = fnReturnType
     Object.freeze(this.fnReturnType)
   }

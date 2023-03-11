@@ -172,27 +172,36 @@ var Lits = (function (exports) {
   }
 
   var typeToBitRecord = {
+      // Group 1: Falsy types
+      // 0000 0000 0000 0000 0000 1111
       nil: 1 << 0,
       emptyString: 1 << 1,
-      nonEmptyString: 1 << 2,
-      zero: 1 << 3,
-      positiveInteger: 1 << 4,
-      negativeInteger: 1 << 5,
-      positiveNonInteger: 1 << 6,
-      negativeNonInteger: 1 << 7,
-      true: 1 << 8,
-      false: 1 << 9,
-      emptyArray: 1 << 10,
-      nonEmptyArray: 1 << 11,
-      emptyObject: 1 << 12,
-      nonEmptyObject: 1 << 13,
-      regexp: 1 << 14,
-      function: 1 << 15,
+      zero: 1 << 2,
+      false: 1 << 3,
+      // Group 2: Simple truthy types
+      // 0000 0000 0000 0000 0111 0000
+      true: 1 << 4,
+      nonEmptyString: 1 << 5,
+      regexp: 1 << 6,
+      // Group 3: Truthy number types
+      // 0000 0000 0000 1111 0000 0000
+      positiveInteger: 1 << 8,
+      negativeInteger: 1 << 9,
+      positiveNonInteger: 1 << 10,
+      negativeNonInteger: 1 << 11,
+      // Group 4: Arrays types
+      // 0000 0000 0011 0000 0000 0000
+      emptyArray: 1 << 12,
+      nonEmptyArray: 1 << 13,
+      // Group 5: Object types
+      // 0000 0011 0000 0000 0000 0000
+      emptyObject: 1 << 16,
+      nonEmptyObject: 1 << 17,
+      // Group 6: Function type
+      // 0001 0000 0000 0000 0000 0000
+      function: 1 << 20,
   };
   var allBitValues = Object.values(typeToBitRecord);
-  if (allBitValues.length > 16) {
-      throw Error("Only 16 different types allowed");
-  }
   // All bits set to 1
   var UNKNWON_BITS = allBitValues.reduce(function (result, bit) { return result | bit; }, 0);
   // console.log(stringifyBitMask(UNKNWON_BITS))
@@ -218,6 +227,8 @@ var Lits = (function (exports) {
       nonZeroInteger: typeToBitRecord.negativeInteger | typeToBitRecord.positiveInteger,
       positiveInteger: typeToBitRecord.positiveInteger,
       negativeInteger: typeToBitRecord.negativeInteger,
+      positiveNonInteger: typeToBitRecord.positiveNonInteger,
+      negativeNonInteger: typeToBitRecord.negativeNonInteger,
       nonPositiveInteger: typeToBitRecord.zero | typeToBitRecord.negativeInteger,
       nonNegativeInteger: typeToBitRecord.zero | typeToBitRecord.positiveInteger,
       number: typeToBitRecord.zero |
@@ -250,17 +261,17 @@ var Lits = (function (exports) {
   };
   function stringifyBitMask(bitMaks) {
       var mask = "";
-      for (var index = 15; index >= 0; index -= 1) {
+      for (var index = 23; index >= 0; index -= 1) {
           var bitValue = 1 << index;
           var zeroOrOne = (bitMaks & bitValue) === builtinTypesBitMasks.never ? "0" : "1";
-          var space = index !== 15 && (index + 1) % 4 === 0 ? " " : "";
+          var space = index !== 23 && (index + 1) % 4 === 0 ? " " : "";
           mask += "".concat(space).concat(zeroOrOne);
       }
       return mask;
   }
   var DataType = /** @class */ (function () {
-      function DataType(bitMask, fnReturnType) {
-          this.bitmask = bitMask;
+      function DataType(bitmask, fnReturnType) {
+          this.bitmask = bitmask;
           this.fnReturnType = fnReturnType;
           Object.freeze(this.fnReturnType);
       }
@@ -400,7 +411,13 @@ var Lits = (function (exports) {
           return DataType.isUnionType(this);
       };
       DataType.prototype.withReturnType = function (dataType) {
+          if (!dataType.isFunction()) {
+              throw Error("Only functions can have return types");
+          }
           return new DataType(this.bitmask, dataType);
+      };
+      DataType.prototype.nilable = function () {
+          return this.or(DataType.nil);
       };
       DataType.prototype.isFunction = function () {
           return !!(this.bitmask & builtinTypesBitMasks.function);
@@ -425,7 +442,7 @@ var Lits = (function (exports) {
           }, []);
           return "".concat(padding).concat(types.join(" | ")).concat(suffix).concat(this.fnReturnType ? " =>\n".concat(this.fnReturnType.toString(indent + 2)) : "");
       };
-      DataType.never = new DataType(builtinTypesBitMasks.nil);
+      DataType.never = new DataType(builtinTypesBitMasks.never);
       DataType.nil = new DataType(builtinTypesBitMasks.nil);
       DataType.emptyString = new DataType(builtinTypesBitMasks.emptyString);
       DataType.nonEmptyString = new DataType(builtinTypesBitMasks.nonEmptyString);
@@ -441,6 +458,8 @@ var Lits = (function (exports) {
       DataType.nonZeroInteger = new DataType(builtinTypesBitMasks.nonZeroInteger);
       DataType.positiveInteger = new DataType(builtinTypesBitMasks.positiveInteger);
       DataType.negativeInteger = new DataType(builtinTypesBitMasks.negativeInteger);
+      DataType.positiveNonInteger = new DataType(builtinTypesBitMasks.positiveNonInteger);
+      DataType.negativeNonInteger = new DataType(builtinTypesBitMasks.negativeNonInteger);
       DataType.nonPositiveInteger = new DataType(builtinTypesBitMasks.nonPositiveInteger);
       DataType.nonNegativeInteger = new DataType(builtinTypesBitMasks.nonNegativeInteger);
       DataType.true = new DataType(builtinTypesBitMasks.true);
@@ -1894,7 +1913,7 @@ var Lits = (function (exports) {
               return falsyBranchType;
           }
           else {
-              return truthyBranchType.or(falsyBranchType);
+              return DataType.or(truthyBranchType, falsyBranchType);
           }
       },
   };
@@ -2902,7 +2921,7 @@ var Lits = (function (exports) {
                   return defaultValueType;
               }
               if (collType.is(DataType.string)) {
-                  return DataType.or(DataType.nil, DataType.string, defaultValueType);
+                  return DataType.or(DataType.string.nilable(), defaultValueType);
               }
               return DataType.unknown;
           },
@@ -2974,8 +2993,8 @@ var Lits = (function (exports) {
               return collType.is(DataType.emptyCollection)
                   ? DataType.zero
                   : collType.is(DataType.nonEmptyCollection)
-                      ? DataType.integer.and(DataType.positiveNumber).exclude(DataType.zero)
-                      : DataType.number;
+                      ? DataType.positiveInteger
+                      : DataType.nonNegativeInteger;
           },
       },
       'contains?': {
@@ -6163,12 +6182,10 @@ var Lits = (function (exports) {
               var integer = Number.isInteger(astNode.value);
               var positive = astNode.value > 0;
               if (integer) {
-                  return positive ? DataType.positiveNumber.and(DataType.integer) : DataType.negativeNumber.and(DataType.integer);
+                  return positive ? DataType.positiveInteger : DataType.negativeInteger;
               }
               else {
-                  return positive
-                      ? DataType.positiveNumber.exclude(DataType.integer)
-                      : DataType.negativeNumber.exclude(DataType.integer);
+                  return positive ? DataType.positiveNonInteger : DataType.negativeNonInteger;
               }
           }
           case "Modifier":

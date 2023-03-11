@@ -1,3 +1,5 @@
+import { LitsError } from '../../errors'
+
 export const typeToBitRecord = {
   // Group 1: Falsy types
   // 0000 0000 0000 0000 0000 1111
@@ -292,6 +294,18 @@ export class DataType {
     return DataType.is(this, dataType)
   }
 
+  public assertIs(dataType: DataType): void {
+    if (!this.is(dataType)) {
+      throw new LitsError(`Expected to be of type ${dataType.toString()}, but was ${this.toString()}`)
+    }
+  }
+
+  public assertEquals(dataType: DataType): void {
+    if (!this.equals(dataType)) {
+      throw new LitsError(`Expected to be ${dataType.toString()}, but was ${this.toString()}`)
+    }
+  }
+
   public equals(...types: DataType[]): boolean {
     return DataType.equals(this, ...types)
   }
@@ -301,7 +315,7 @@ export class DataType {
   }
 
   public withReturnType(dataType: DataType): DataType {
-    if (!dataType.isFunction()) {
+    if (!this.isFunction()) {
       throw Error(`Only functions can have return types`)
     }
     return new DataType(this.bitmask, dataType)

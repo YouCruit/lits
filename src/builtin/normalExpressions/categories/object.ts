@@ -6,7 +6,7 @@ import {
   object,
   array,
   string,
-  assertEventNumberOfParams,
+  assertEvenNumberOfParams,
   assertNumberOfParams,
   stringArray,
 } from '../../../utils/assertion'
@@ -24,7 +24,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
       }
       return result
     },
-    validate: node => assertEventNumberOfParams(node),
+    validate: node => assertEvenNumberOfParams(node),
     getDataType: ({ params }) => (params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject),
   },
 

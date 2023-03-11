@@ -23,7 +23,7 @@ import { ReservedName } from '../reservedNames'
 import { LitsError } from '../errors'
 import { FnNode } from '../builtin/specialExpressions/functions'
 import { FunctionArguments } from '../builtin/utils'
-import { assertEventNumberOfParams, assertValue, asValue, expressionNode, nameNode, token } from '../utils/assertion'
+import { assertEvenNumberOfParams, assertValue, asValue, expressionNode, nameNode, token } from '../utils/assertion'
 import { valueToString } from '../utils/helpers'
 
 type ParseNumber = (tokens: Token[], position: number) => [number, NumberNode]
@@ -124,7 +124,7 @@ const parseObjectLitteral: ParseObjectLitteral = (tokens, position) => {
     token: firstToken.debugInfo ? firstToken : undefined,
   }
 
-  assertEventNumberOfParams(node)
+  assertEvenNumberOfParams(node)
 
   return [position, node]
 }

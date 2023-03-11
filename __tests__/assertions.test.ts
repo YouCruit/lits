@@ -21,7 +21,7 @@ import {
   asValue,
   assertValue,
   regularExpression,
-  assertEventNumberOfParams,
+  assertEvenNumberOfParams,
   assertNumberOfParams,
   stringOrRegExp,
   normalExpressionNodeWithName,
@@ -207,13 +207,13 @@ describe(`utils`, () => {
   }
 
   test(`assertLengthEven`, () => {
-    expect(() => assertEventNumberOfParams(node([]))).not.toThrow()
-    expect(() => assertEventNumberOfParams(node([0]))).toThrow()
-    expect(() => assertEventNumberOfParams(node([0, 1]))).not.toThrow()
-    expect(() => assertEventNumberOfParams(node([0, 1, 2]))).toThrow()
-    expect(() => assertEventNumberOfParams(node([0, 1, 2, 3]))).not.toThrow()
-    expect(() => assertEventNumberOfParams(node([0, 1, 2, 3, 4]))).toThrow()
-    expect(() => assertEventNumberOfParams(node([0, 1, 2, 3, 4, 5]))).not.toThrow()
+    expect(() => assertEvenNumberOfParams(node([]))).not.toThrow()
+    expect(() => assertEvenNumberOfParams(node([0]))).toThrow()
+    expect(() => assertEvenNumberOfParams(node([0, 1]))).not.toThrow()
+    expect(() => assertEvenNumberOfParams(node([0, 1, 2]))).toThrow()
+    expect(() => assertEvenNumberOfParams(node([0, 1, 2, 3]))).not.toThrow()
+    expect(() => assertEvenNumberOfParams(node([0, 1, 2, 3, 4]))).toThrow()
+    expect(() => assertEvenNumberOfParams(node([0, 1, 2, 3, 4, 5]))).not.toThrow()
   })
 
   test(`assertLength`, () => {

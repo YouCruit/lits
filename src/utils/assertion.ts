@@ -143,7 +143,7 @@ export function assertNumberOfParams(
   }
 }
 
-export function assertEventNumberOfParams(node: NormalExpressionNode): void {
+export function assertEvenNumberOfParams(node: NormalExpressionNode): void {
   const length = node.params.length
   if (length % 2 !== 0) {
     throw new LitsError(

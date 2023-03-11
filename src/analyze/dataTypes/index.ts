@@ -93,7 +93,7 @@ function calculateDataTypesOnNormalExpression(
       if (fn === undefined) {
         continue
       }
-      return DataType.unknown
+      return asValue(fn.fnReturnType)
     }
 
     return calculateDataTypesOnBuiltinNormalExpression(node, paramTypes)

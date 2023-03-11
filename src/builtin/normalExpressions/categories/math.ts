@@ -1,3 +1,4 @@
+import { DataType } from '../../../analyze/dataTypes/DataType'
 import { NormalExpressionNode } from '../../../parser/interface'
 import { assertNumberOfParams, number } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
@@ -27,6 +28,33 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
       }, 0)
     },
     validate: () => undefined,
+    getDataType: ({ params }) => {
+      return params.reduce((result: DataType, x) => {
+        const param = x.and(DataType.number)
+
+        if (result.is(DataType.zero)) {
+          return param
+        }
+
+        const baseType = result.is(DataType.integer) && param.is(DataType.integer) ? DataType.integer : DataType.number
+
+        if (result.is(DataType.negativeNumber)) {
+          if (param.is(DataType.zero) || param.is(DataType.negativeNumber)) {
+            return DataType.and(baseType, DataType.negativeNumber)
+          } else {
+            return baseType
+          }
+        } else if (result.is(DataType.positiveNumber)) {
+          if (param.is(DataType.zero) || param.is(DataType.positiveNumber)) {
+            return DataType.and(baseType, DataType.positiveNumber)
+          } else {
+            return baseType
+          }
+        } else {
+          return DataType.and(baseType, DataType.number)
+        }
+      }, DataType.zero)
+    },
   },
 
   '*': {

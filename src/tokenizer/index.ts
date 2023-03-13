@@ -18,6 +18,7 @@ import {
   tokenizeRegexpShorthand,
   tokenizeFnShorthand,
   tokenizeSymbolString,
+  tokenizeTypeName,
 } from './tokenizers'
 
 // All tokenizers, order matters!
@@ -30,6 +31,7 @@ const tokenizers: Tokenizer[] = [
   tokenizeRightBracket,
   tokenizeLeftCurly,
   tokenizeRightCurly,
+  tokenizeTypeName,
   tokenizeString,
   tokenizeSymbolString,
   tokenizeNumber,

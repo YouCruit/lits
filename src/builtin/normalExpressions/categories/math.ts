@@ -40,14 +40,30 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
             result.is(DataType.integer) && param.is(DataType.integer) ? DataType.integer : DataType.number
 
           if (result.is(DataType.negativeNumber)) {
-            if (param.is(DataType.zero) || param.is(DataType.negativeNumber)) {
+            if (param.is(DataType.nonPositiveNumber)) {
               return DataType.and(baseType, DataType.negativeNumber)
             } else {
               return baseType
             }
+          } else if (result.is(DataType.nonPositiveNumber)) {
+            if (param.is(DataType.negativeNumber)) {
+              return DataType.and(baseType, DataType.negativeNumber)
+            } else if (param.is(DataType.nonPositiveNumber)) {
+              return DataType.and(baseType, DataType.nonPositiveNumber)
+            } else {
+              return baseType
+            }
           } else if (result.is(DataType.positiveNumber)) {
-            if (param.is(DataType.zero) || param.is(DataType.positiveNumber)) {
+            if (param.is(DataType.nonNegativeNumber)) {
               return DataType.and(baseType, DataType.positiveNumber)
+            } else {
+              return baseType
+            }
+          } else if (result.is(DataType.nonNegativeNumber)) {
+            if (param.is(DataType.positiveNumber)) {
+              return DataType.and(baseType, DataType.positiveNumber)
+            } else if (param.is(DataType.nonNegativeNumber)) {
+              return DataType.and(baseType, DataType.nonNegativeNumber)
             } else {
               return baseType
             }

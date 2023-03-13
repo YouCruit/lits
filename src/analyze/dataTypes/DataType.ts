@@ -2,6 +2,55 @@ import { LitsError } from '../../errors'
 import { DebugInfo } from '../../tokenizer/interface'
 import { any, array, litsFunction, object, regularExpression } from '../../utils/assertion'
 
+const typeNames = [
+  `never`,
+  `nil`,
+  `empty-string`,
+  `non-empty-string`,
+  `string`,
+  `zero`,
+  `non-zero-number`,
+  `positive-number`,
+  `negative-number`,
+  `non-positive-number`,
+  `non-negative-number`,
+  `integer`,
+  `non-zero-integer`,
+  `positive-integer`,
+  `negative-integer`,
+  `positive-non-integer`,
+  `negative-non-integer`,
+  `non-positive-integer`,
+  `non-negative-integer`,
+  `number`,
+  `true`,
+  `false`,
+  `boolean`,
+  `empty-array`,
+  `non-empty-array`,
+  `array`,
+  `empty-object`,
+  `non-empty-object`,
+  `object`,
+  `regexp`,
+  `function`,
+  `unknown`,
+  `truthy`,
+  `falsy`,
+  `empty-collection`,
+  `non-empty-collection`,
+  `collection`,
+  `empty-sequence`,
+  `non-empty-sequence`,
+  `sequence`,
+] as const
+
+export type TypeName = typeof typeNames[number]
+
+export function isTypeName(typeName: string): typeName is TypeName {
+  return typeNames.includes(typeName as TypeName)
+}
+
 export const typeToBitRecord = {
   // Group 1: Falsy types
   // 0000 0000 0000 0000 0000 1111
@@ -114,6 +163,14 @@ const builtinTypesBitMasks = {
     typeToBitRecord.nonEmptyArray |
     typeToBitRecord.emptyObject |
     typeToBitRecord.nonEmptyObject,
+
+  emptySequence: typeToBitRecord.emptyString | typeToBitRecord.emptyArray,
+  nonEmptySequence: typeToBitRecord.nonEmptyString | typeToBitRecord.nonEmptyArray,
+  sequence:
+    typeToBitRecord.emptyString |
+    typeToBitRecord.nonEmptyString |
+    typeToBitRecord.emptyArray |
+    typeToBitRecord.nonEmptyArray,
 }
 
 function stringifyBitMask(bitMaks: number): string {
@@ -179,6 +236,10 @@ export class DataType {
   public static readonly emptyCollection = new DataType(builtinTypesBitMasks.emptyCollection)
   public static readonly nonEmptyCollection = new DataType(builtinTypesBitMasks.nonEmptyCollection)
   public static readonly collection = new DataType(builtinTypesBitMasks.collection)
+
+  public static readonly emptySequence = new DataType(builtinTypesBitMasks.emptySequence)
+  public static readonly nonEmptySequence = new DataType(builtinTypesBitMasks.nonEmptySequence)
+  public static readonly sequence = new DataType(builtinTypesBitMasks.sequence)
 
   public static readonly truthy = new DataType(builtinTypesBitMasks.truthy)
   public static readonly falsy = new DataType(builtinTypesBitMasks.falsy)
@@ -387,6 +448,9 @@ export class DataType {
     const suffix = ` [Bitmask = ${stringifyBitMask(this.bitmask)}  (${this.bitmask})]`
     if (this.isUnknown()) {
       return `${padding}unknown${suffix}`
+    }
+    if (this.bitmask === 0) {
+      return `${padding}never${suffix}`
     }
     const types = Object.entries(typeToBitRecord).reduce((result: string[], entry) => {
       const [name, bitValue] = entry

@@ -196,25 +196,21 @@ window.onload = function () {
     }
     if (evt.key === 'F3') {
       evt.preventDefault()
-      getDataType()
+      undefinedSymbols()
     }
     if (evt.key === 'F4') {
       evt.preventDefault()
-      undefinedSymbols()
+      tokenize(false)
     }
     if (evt.key === 'F5') {
       evt.preventDefault()
-      tokenize(false)
+      tokenize(true)
     }
     if (evt.key === 'F6') {
       evt.preventDefault()
-      tokenize(true)
-    }
-    if (evt.key === 'F7') {
-      evt.preventDefault()
       parse(false)
     }
-    if (evt.key === 'F8') {
+    if (evt.key === 'F7') {
       evt.preventDefault()
       parse(true)
     }
@@ -393,52 +389,6 @@ function undefinedSymbols() {
   output.value = newContent
 }
 
-function getDataType() {
-  var code = document.getElementById('lits-textarea').value
-  var output = document.getElementById('output-textarea')
-  output.value = ''
-  var dataType
-  var oldLog = console.log
-  console.log = function () {
-    var args = Array.from(arguments)
-    oldLog.apply(console, args)
-    var logRow = args.map(arg => stringifyValue(arg)).join(' ')
-    var oldContent = output.value
-    var newContent = oldContent ? oldContent + '\n' + logRow : logRow
-    output.value = newContent
-    output.scrollTop = output.scrollHeight
-  }
-  var oldWarn = console.warn
-  console.warn = function () {
-    var args = Array.from(arguments)
-    oldWarn.apply(console, args)
-    var logRow = args[0]
-    var oldContent = output.value
-    var newContent = oldContent ? oldContent + '\n' + logRow : logRow
-    output.value = newContent
-    output.scrollTop = output.scrollHeight
-  }
-  try {
-    dataType = lits.getDataType(code)
-  } catch (error) {
-    output.value = error
-    output.classList.add('error')
-    return
-  } finally {
-    console.log = oldLog
-    console.warn = oldWarn
-  }
-  output.classList.remove('error')
-  var content = `${dataType.toString()}\n`
-
-  var oldContent = output.value
-  var newContent = oldContent ? oldContent + '\n' + content : content
-  output.value = newContent
-  output.scrollTop = output.scrollHeight
-
-  output.value = newContent
-}
-
 function parse(debug) {
   var code = document.getElementById('lits-textarea').value
   var output = document.getElementById('output-textarea')
@@ -592,6 +542,9 @@ function stringifyValue(value) {
     return `${value}`
   }
   if (typeof value === 'object' && value instanceof Error) {
+    return value.toString()
+  }
+  if (value !== null && typeof value === 'object' && value.constructor && value.constructor.name === 'DataType') {
     return value.toString()
   }
   return JSON.stringify(value)

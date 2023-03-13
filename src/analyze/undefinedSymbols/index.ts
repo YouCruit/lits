@@ -32,6 +32,7 @@ function calculateUndefinedSymbolsOnAstNode(
       }
       return emptySet
     }
+    case `TypeName`:
     case `String`:
     case `Number`:
     case `Modifier`:

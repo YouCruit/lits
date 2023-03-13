@@ -17,6 +17,7 @@ import {
   ParseBindings,
   NormalExpressionNodeWithName,
   ParseBinding,
+  TypeNameNode,
 } from './interface'
 import { builtin } from '../builtin'
 import { ReservedName } from '../reservedNames'
@@ -25,11 +26,18 @@ import { FnNode } from '../builtin/specialExpressions/functions'
 import { FunctionArguments } from '../builtin/utils'
 import { assertEvenNumberOfParams, assertValue, asValue, expressionNode, nameNode, token } from '../utils/assertion'
 import { valueToString } from '../utils/helpers'
+import { TypeName } from '../analyze/dataTypes/DataType'
 
 type ParseNumber = (tokens: Token[], position: number) => [number, NumberNode]
 export const parseNumber: ParseNumber = (tokens: Token[], position: number) => {
   const tkn = token.as(tokens[position], `EOF`)
   return [position + 1, { type: `Number`, value: Number(tkn.value), token: tkn.debugInfo ? tkn : undefined }]
+}
+
+type ParseTypeName = (tokens: Token[], position: number) => [number, TypeNameNode]
+export const parseTypeName: ParseTypeName = (tokens: Token[], position: number) => {
+  const tkn = token.as(tokens[position], `EOF`)
+  return [position + 1, { type: `TypeName`, value: tkn.value as TypeName, token: tkn.debugInfo ? tkn : undefined }]
 }
 
 type ParseString = (tokens: Token[], position: number) => [number, StringNode]
@@ -315,6 +323,9 @@ export const parseToken: ParseToken = (tokens, position) => {
   switch (tkn.type) {
     case `number`:
       nodeDescriptor = parseNumber(tokens, position)
+      break
+    case `typeName`:
+      nodeDescriptor = parseTypeName(tokens, position)
       break
     case `string`:
       nodeDescriptor = parseString(tokens, position)

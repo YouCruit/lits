@@ -45,6 +45,7 @@ var Lits = (function (exports) {
       regexpShorthand: true,
       reservedName: true,
       string: true,
+      typeName: true,
   };
   function isToken(value) {
       if (typeof value !== "object" || value === null) {
@@ -67,6 +68,7 @@ var Lits = (function (exports) {
       Binding: true,
       Argument: true,
       Partial: true,
+      TypeName: true,
   };
   function isAstNode(value) {
       if (value === null || typeof value !== "object") {
@@ -170,317 +172,6 @@ var Lits = (function (exports) {
       }
       return to.concat(ar || Array.prototype.slice.call(from));
   }
-
-  var typeToBitRecord = {
-      // Group 1: Falsy types
-      // 0000 0000 0000 0000 0000 1111
-      nil: 1 << 0,
-      emptyString: 1 << 1,
-      zero: 1 << 2,
-      false: 1 << 3,
-      // Group 2: Simple truthy types
-      // 0000 0000 0000 0000 0111 0000
-      true: 1 << 4,
-      nonEmptyString: 1 << 5,
-      regexp: 1 << 6,
-      // Group 3: Truthy number types
-      // 0000 0000 0000 1111 0000 0000
-      positiveInteger: 1 << 8,
-      negativeInteger: 1 << 9,
-      positiveNonInteger: 1 << 10,
-      negativeNonInteger: 1 << 11,
-      // Group 4: Arrays types
-      // 0000 0000 0011 0000 0000 0000
-      emptyArray: 1 << 12,
-      nonEmptyArray: 1 << 13,
-      // Group 5: Object types
-      // 0000 0011 0000 0000 0000 0000
-      emptyObject: 1 << 16,
-      nonEmptyObject: 1 << 17,
-      // Group 6: Function type
-      // 0001 0000 0000 0000 0000 0000
-      function: 1 << 20,
-  };
-  var allBitValues = Object.values(typeToBitRecord);
-  // All bits set to 1
-  var UNKNWON_BITS = allBitValues.reduce(function (result, bit) { return result | bit; }, 0);
-  // console.log(stringifyBitMask(UNKNWON_BITS))
-  var FALSY_BITS = typeToBitRecord.nil | typeToBitRecord.zero | typeToBitRecord.emptyString | typeToBitRecord.false;
-  // All non falsy bits
-  var TRUTHY_BITS = UNKNWON_BITS & ~FALSY_BITS;
-  var builtinTypesBitMasks = {
-      never: 0,
-      nil: typeToBitRecord.nil,
-      emptyString: typeToBitRecord.emptyString,
-      nonEmptyString: typeToBitRecord.nonEmptyString,
-      string: typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString,
-      zero: typeToBitRecord.zero,
-      nonZeroNumber: typeToBitRecord.negativeNonInteger |
-          typeToBitRecord.negativeInteger |
-          typeToBitRecord.positiveNonInteger |
-          typeToBitRecord.positiveInteger,
-      positiveNumber: typeToBitRecord.positiveNonInteger | typeToBitRecord.positiveInteger,
-      negativeNumber: typeToBitRecord.negativeNonInteger | typeToBitRecord.negativeInteger,
-      nonPositiveNumber: typeToBitRecord.zero | typeToBitRecord.positiveNonInteger | typeToBitRecord.negativeInteger,
-      nonNegativeNumber: typeToBitRecord.zero | typeToBitRecord.negativeNonInteger | typeToBitRecord.positiveInteger,
-      integer: typeToBitRecord.zero | typeToBitRecord.positiveInteger | typeToBitRecord.negativeInteger,
-      nonZeroInteger: typeToBitRecord.negativeInteger | typeToBitRecord.positiveInteger,
-      positiveInteger: typeToBitRecord.positiveInteger,
-      negativeInteger: typeToBitRecord.negativeInteger,
-      positiveNonInteger: typeToBitRecord.positiveNonInteger,
-      negativeNonInteger: typeToBitRecord.negativeNonInteger,
-      nonPositiveInteger: typeToBitRecord.zero | typeToBitRecord.negativeInteger,
-      nonNegativeInteger: typeToBitRecord.zero | typeToBitRecord.positiveInteger,
-      number: typeToBitRecord.zero |
-          typeToBitRecord.positiveNonInteger |
-          typeToBitRecord.positiveInteger |
-          typeToBitRecord.negativeNonInteger |
-          typeToBitRecord.negativeInteger,
-      true: typeToBitRecord.true,
-      false: typeToBitRecord.false,
-      boolean: typeToBitRecord.true | typeToBitRecord.false,
-      emptyArray: typeToBitRecord.emptyArray,
-      nonEmptyArray: typeToBitRecord.nonEmptyArray,
-      array: typeToBitRecord.emptyArray | typeToBitRecord.nonEmptyArray,
-      emptyObject: typeToBitRecord.emptyObject,
-      nonEmptyObject: typeToBitRecord.nonEmptyObject,
-      object: typeToBitRecord.emptyObject | typeToBitRecord.nonEmptyObject,
-      regexp: typeToBitRecord.regexp,
-      function: typeToBitRecord.function,
-      unknown: UNKNWON_BITS,
-      truthy: TRUTHY_BITS,
-      falsy: FALSY_BITS,
-      emptyCollection: typeToBitRecord.emptyString | typeToBitRecord.emptyArray | typeToBitRecord.emptyObject,
-      nonEmptyCollection: typeToBitRecord.nonEmptyString | typeToBitRecord.nonEmptyArray | typeToBitRecord.nonEmptyObject,
-      collection: typeToBitRecord.emptyString |
-          typeToBitRecord.nonEmptyString |
-          typeToBitRecord.emptyArray |
-          typeToBitRecord.nonEmptyArray |
-          typeToBitRecord.emptyObject |
-          typeToBitRecord.nonEmptyObject,
-  };
-  function stringifyBitMask(bitMaks) {
-      var mask = "";
-      for (var index = 23; index >= 0; index -= 1) {
-          var bitValue = 1 << index;
-          var zeroOrOne = (bitMaks & bitValue) === builtinTypesBitMasks.never ? "0" : "1";
-          var space = index !== 23 && (index + 1) % 4 === 0 ? " " : "";
-          mask += "".concat(space).concat(zeroOrOne);
-      }
-      return mask;
-  }
-  var DataType = /** @class */ (function () {
-      function DataType(bitmask, fnReturnType) {
-          this.bitmask = bitmask;
-          this.fnReturnType = fnReturnType;
-          Object.freeze(this.fnReturnType);
-      }
-      DataType.or = function () {
-          var types = [];
-          for (var _i = 0; _i < arguments.length; _i++) {
-              types[_i] = arguments[_i];
-          }
-          var newTypeMask = types.reduce(function (result, type) {
-              return result | type.bitmask;
-          }, 0);
-          var functions = types.filter(function (type) { return type.isFunction(); });
-          if (functions.some(function (f) { return !f.fnReturnType; })) {
-              return new DataType(newTypeMask);
-          }
-          var returnTypes = functions.map(function (type) { return type.fnReturnType; });
-          var fnReturnType = returnTypes.length > 0 ? DataType.or.apply(DataType, __spreadArray([], __read(returnTypes), false)) : undefined;
-          return new DataType(newTypeMask, fnReturnType);
-      };
-      DataType.and = function () {
-          var types = [];
-          for (var _i = 0; _i < arguments.length; _i++) {
-              types[_i] = arguments[_i];
-          }
-          var newTypeMask = types.reduce(function (result, type) {
-              return result & type.bitmask;
-          }, UNKNWON_BITS);
-          // At least one of the types is a function
-          if (newTypeMask & builtinTypesBitMasks.function) {
-              var returnFunctions = types.filter(function (type) { return type.isFunction(); });
-              var returnFunction = DataType.and.apply(DataType, __spreadArray([], __read(returnFunctions), false));
-              if (returnFunction.bitmask === builtinTypesBitMasks.never) {
-                  return new DataType(newTypeMask & ~builtinTypesBitMasks.function);
-              }
-              else {
-                  return new DataType(newTypeMask, returnFunction);
-              }
-          }
-          return new DataType(newTypeMask);
-      };
-      DataType.exclude = function (first) {
-          var rest = [];
-          for (var _i = 1; _i < arguments.length; _i++) {
-              rest[_i - 1] = arguments[_i];
-          }
-          return rest.reduce(function (result, type) {
-              var newBitmask = result.bitmask & ~type.bitmask;
-              // Only remove function bit if functions are equal
-              if (result.isFunction() && type.isFunction()) {
-                  var returnType = !type.fnReturnType
-                      ? DataType.never
-                      : !result.fnReturnType
-                          ? DataType.unknown.exclude(type.fnReturnType)
-                          : result.fnReturnType.exclude(type.fnReturnType);
-                  if (returnType.bitmask === builtinTypesBitMasks.never) {
-                      return new DataType(newBitmask);
-                  }
-                  else {
-                      return new DataType(newBitmask | builtinTypesBitMasks.function, returnType);
-                  }
-              }
-              return new DataType(newBitmask);
-          }, first);
-      };
-      DataType.is = function (a, b) {
-          var bitmaskA = a.bitmask, fnReturnTypeA = a.fnReturnType;
-          var bitmaskB = b.bitmask, fnReturnTypeB = b.fnReturnType;
-          // some bits must be the same AND no bits in a can appear in b
-          var success = bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB);
-          if (!success) {
-              return false;
-          }
-          if (a.isFunction()) {
-              if (!fnReturnTypeB) {
-                  return true;
-              }
-              if (!fnReturnTypeA) {
-                  return false;
-              }
-              return fnReturnTypeA.is(fnReturnTypeB);
-          }
-          return true;
-      };
-      DataType.equals = function (type) {
-          var types = [];
-          for (var _i = 1; _i < arguments.length; _i++) {
-              types[_i - 1] = arguments[_i];
-          }
-          return types.every(function (t) {
-              if (type.bitmask !== t.bitmask) {
-                  return false;
-              }
-              if (!type.fnReturnType && !t.fnReturnType) {
-                  return true;
-              }
-              if (type.fnReturnType && t.fnReturnType) {
-                  return type.fnReturnType.equals(t.fnReturnType);
-              }
-              return false;
-          });
-      };
-      DataType.isUnionType = function (dataType) {
-          return !allBitValues.includes(dataType.bitmask);
-      };
-      DataType.prototype.or = function () {
-          var dataTypes = [];
-          for (var _i = 0; _i < arguments.length; _i++) {
-              dataTypes[_i] = arguments[_i];
-          }
-          return DataType.or.apply(DataType, __spreadArray([this], __read(dataTypes), false));
-      };
-      DataType.prototype.and = function () {
-          var dataTypes = [];
-          for (var _i = 0; _i < arguments.length; _i++) {
-              dataTypes[_i] = arguments[_i];
-          }
-          return DataType.and.apply(DataType, __spreadArray([this], __read(dataTypes), false));
-      };
-      DataType.prototype.exclude = function () {
-          var dataTypes = [];
-          for (var _i = 0; _i < arguments.length; _i++) {
-              dataTypes[_i] = arguments[_i];
-          }
-          return DataType.exclude.apply(DataType, __spreadArray([this], __read(dataTypes), false));
-      };
-      DataType.prototype.is = function (dataType) {
-          return DataType.is(this, dataType);
-      };
-      DataType.prototype.equals = function () {
-          var types = [];
-          for (var _i = 0; _i < arguments.length; _i++) {
-              types[_i] = arguments[_i];
-          }
-          return DataType.equals.apply(DataType, __spreadArray([this], __read(types), false));
-      };
-      DataType.prototype.isUnionType = function () {
-          return DataType.isUnionType(this);
-      };
-      DataType.prototype.withReturnType = function (dataType) {
-          if (!dataType.isFunction()) {
-              throw Error("Only functions can have return types");
-          }
-          return new DataType(this.bitmask, dataType);
-      };
-      DataType.prototype.nilable = function () {
-          return this.or(DataType.nil);
-      };
-      DataType.prototype.isFunction = function () {
-          return !!(this.bitmask & builtinTypesBitMasks.function);
-      };
-      DataType.prototype.isUnknown = function () {
-          return this.bitmask === UNKNWON_BITS;
-      };
-      DataType.prototype.toString = function (indent) {
-          var _this = this;
-          if (indent === void 0) { indent = 0; }
-          var padding = " ".repeat(indent);
-          var suffix = " [Bitmask = ".concat(stringifyBitMask(this.bitmask), "  (").concat(this.bitmask, ")]");
-          if (this.isUnknown()) {
-              return "".concat(padding, "unknown").concat(suffix);
-          }
-          var types = Object.entries(typeToBitRecord).reduce(function (result, entry) {
-              var _a = __read(entry, 2), name = _a[0], bitValue = _a[1];
-              if (_this.bitmask & bitValue) {
-                  result.push(name);
-              }
-              return result;
-          }, []);
-          return "".concat(padding).concat(types.join(" | ")).concat(suffix).concat(this.fnReturnType ? " =>\n".concat(this.fnReturnType.toString(indent + 2)) : "");
-      };
-      DataType.never = new DataType(builtinTypesBitMasks.never);
-      DataType.nil = new DataType(builtinTypesBitMasks.nil);
-      DataType.emptyString = new DataType(builtinTypesBitMasks.emptyString);
-      DataType.nonEmptyString = new DataType(builtinTypesBitMasks.nonEmptyString);
-      DataType.string = new DataType(builtinTypesBitMasks.string);
-      DataType.zero = new DataType(builtinTypesBitMasks.zero);
-      DataType.number = new DataType(builtinTypesBitMasks.number);
-      DataType.integer = new DataType(builtinTypesBitMasks.integer);
-      DataType.nonZeroNumber = new DataType(builtinTypesBitMasks.nonZeroNumber);
-      DataType.positiveNumber = new DataType(builtinTypesBitMasks.positiveNumber);
-      DataType.negativeNumber = new DataType(builtinTypesBitMasks.negativeNumber);
-      DataType.nonPositiveNumber = new DataType(builtinTypesBitMasks.nonPositiveNumber);
-      DataType.nonNegativeNumber = new DataType(builtinTypesBitMasks.nonNegativeNumber);
-      DataType.nonZeroInteger = new DataType(builtinTypesBitMasks.nonZeroInteger);
-      DataType.positiveInteger = new DataType(builtinTypesBitMasks.positiveInteger);
-      DataType.negativeInteger = new DataType(builtinTypesBitMasks.negativeInteger);
-      DataType.positiveNonInteger = new DataType(builtinTypesBitMasks.positiveNonInteger);
-      DataType.negativeNonInteger = new DataType(builtinTypesBitMasks.negativeNonInteger);
-      DataType.nonPositiveInteger = new DataType(builtinTypesBitMasks.nonPositiveInteger);
-      DataType.nonNegativeInteger = new DataType(builtinTypesBitMasks.nonNegativeInteger);
-      DataType.true = new DataType(builtinTypesBitMasks.true);
-      DataType.false = new DataType(builtinTypesBitMasks.false);
-      DataType.boolean = new DataType(builtinTypesBitMasks.boolean);
-      DataType.emptyArray = new DataType(builtinTypesBitMasks.emptyArray);
-      DataType.nonEmptyArray = new DataType(builtinTypesBitMasks.nonEmptyArray);
-      DataType.array = new DataType(builtinTypesBitMasks.array);
-      DataType.emptyObject = new DataType(builtinTypesBitMasks.emptyObject);
-      DataType.nonEmptyObject = new DataType(builtinTypesBitMasks.nonEmptyObject);
-      DataType.object = new DataType(builtinTypesBitMasks.object);
-      DataType.regexp = new DataType(builtinTypesBitMasks.regexp);
-      DataType.emptyCollection = new DataType(builtinTypesBitMasks.emptyCollection);
-      DataType.nonEmptyCollection = new DataType(builtinTypesBitMasks.nonEmptyCollection);
-      DataType.collection = new DataType(builtinTypesBitMasks.collection);
-      DataType.truthy = new DataType(builtinTypesBitMasks.truthy);
-      DataType.falsy = new DataType(builtinTypesBitMasks.falsy);
-      DataType.unknown = new DataType(builtinTypesBitMasks.unknown);
-      DataType.function = new DataType(builtinTypesBitMasks.function);
-      return DataType;
-  }());
 
   function getLitsErrorMessage(message, debugInfo) {
       return "".concat(message).concat(debugInfo ? "\n".concat(debugInfo === "EOF" ? "EOF" : "".concat(debugInfo.code, "\n").concat(getCodeMarker(debugInfo))) : "");
@@ -726,21 +417,30 @@ var Lits = (function (exports) {
 
   var Asserter = /** @class */ (function () {
       function Asserter(typeName, predicate) {
+          var _this = this;
+          this.is = function (value) {
+              return _this.predicate(value);
+          };
+          this.isNot = function (value) {
+              return !_this.predicate(value);
+          };
+          this.assert = function (value, debugInfo) {
+              if (!_this.predicate(value)) {
+                  throw new LitsError("Expected ".concat(_this.typeName, ", got ").concat(valueToString$1(value), "."), getDebugInfo(value, debugInfo));
+              }
+          };
+          this.assertNot = function (value, debugInfo) {
+              if (!_this.predicate(value)) {
+                  throw new LitsError("Expected ".concat(_this.typeName, ", got ").concat(valueToString$1(value), "."), getDebugInfo(value, debugInfo));
+              }
+          };
+          this.as = function (value, debugInfo) {
+              _this.assert(value, debugInfo);
+              return value;
+          };
           this.typeName = typeName;
           this.predicate = predicate;
       }
-      Asserter.prototype.is = function (value) {
-          return this.predicate(value);
-      };
-      Asserter.prototype.assert = function (value, debugInfo) {
-          if (!this.predicate(value)) {
-              throw new LitsError("Expected ".concat(this.typeName, ", got ").concat(valueToString$1(value), "."), getDebugInfo(value, debugInfo));
-          }
-      };
-      Asserter.prototype.as = function (value, debugInfo) {
-          this.assert(value, debugInfo);
-          return value;
-      };
       return Asserter;
   }());
   var litsFunction = new Asserter("LitsFunction", isLitsFunction);
@@ -785,6 +485,7 @@ var Lits = (function (exports) {
           value.type === "Number" ||
           value.type === "String");
   });
+  var dataType = new Asserter("DataType", function (value) { return value instanceof DataType; });
   function assertNumberOfParams(count, node) {
       var _a, _b;
       var length = node.params.length;
@@ -807,7 +508,7 @@ var Lits = (function (exports) {
           }
       }
   }
-  function assertEventNumberOfParams(node) {
+  function assertEvenNumberOfParams(node) {
       var _a;
       var length = node.params.length;
       if (length % 2 !== 0) {
@@ -825,6 +526,437 @@ var Lits = (function (exports) {
           throw new LitsError("Unexpected nil.", getDebugInfo(value, debugInfo));
       }
   }
+
+  var typeNames = [
+      "never",
+      "nil",
+      "empty-string",
+      "non-empty-string",
+      "string",
+      "zero",
+      "non-zero-number",
+      "positive-number",
+      "negative-number",
+      "non-positive-number",
+      "non-negative-number",
+      "integer",
+      "non-zero-integer",
+      "positive-integer",
+      "negative-integer",
+      "positive-non-integer",
+      "negative-non-integer",
+      "non-positive-integer",
+      "non-negative-integer",
+      "number",
+      "true",
+      "false",
+      "boolean",
+      "empty-array",
+      "non-empty-array",
+      "array",
+      "empty-object",
+      "non-empty-object",
+      "object",
+      "regexp",
+      "function",
+      "unknown",
+      "truthy",
+      "falsy",
+      "empty-collection",
+      "non-empty-collection",
+      "collection",
+      "empty-sequence",
+      "non-empty-sequence",
+      "sequence",
+  ];
+  function isTypeName(typeName) {
+      return typeNames.includes(typeName);
+  }
+  var typeToBitRecord = {
+      // Group 1: Falsy types
+      // 0000 0000 0000 0000 0000 1111
+      nil: 1 << 0,
+      emptyString: 1 << 1,
+      zero: 1 << 2,
+      false: 1 << 3,
+      // Group 2: Simple truthy types
+      // 0000 0000 0000 0000 0111 0000
+      true: 1 << 4,
+      nonEmptyString: 1 << 5,
+      regexp: 1 << 6,
+      // Group 3: Truthy number types
+      // 0000 0000 0000 1111 0000 0000
+      positiveInteger: 1 << 8,
+      negativeInteger: 1 << 9,
+      positiveNonInteger: 1 << 10,
+      negativeNonInteger: 1 << 11,
+      // Group 4: Arrays types
+      // 0000 0000 0011 0000 0000 0000
+      emptyArray: 1 << 12,
+      nonEmptyArray: 1 << 13,
+      // Group 5: Object types
+      // 0000 0011 0000 0000 0000 0000
+      emptyObject: 1 << 16,
+      nonEmptyObject: 1 << 17,
+      // Group 6: Function type
+      // 0001 0000 0000 0000 0000 0000
+      function: 1 << 20,
+  };
+  var allBitValues = Object.values(typeToBitRecord);
+  // All bits set to 1
+  var UNKNWON_BITS = allBitValues.reduce(function (result, bit) { return result | bit; }, 0);
+  // console.log(stringifyBitMask(UNKNWON_BITS))
+  var FALSY_BITS = typeToBitRecord.nil | typeToBitRecord.zero | typeToBitRecord.emptyString | typeToBitRecord.false;
+  // All non falsy bits
+  var TRUTHY_BITS = UNKNWON_BITS & ~FALSY_BITS;
+  var builtinTypesBitMasks = {
+      never: 0,
+      nil: typeToBitRecord.nil,
+      emptyString: typeToBitRecord.emptyString,
+      nonEmptyString: typeToBitRecord.nonEmptyString,
+      string: typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString,
+      zero: typeToBitRecord.zero,
+      nonZeroNumber: typeToBitRecord.negativeNonInteger |
+          typeToBitRecord.negativeInteger |
+          typeToBitRecord.positiveNonInteger |
+          typeToBitRecord.positiveInteger,
+      positiveNumber: typeToBitRecord.positiveNonInteger | typeToBitRecord.positiveInteger,
+      negativeNumber: typeToBitRecord.negativeNonInteger | typeToBitRecord.negativeInteger,
+      nonPositiveNumber: typeToBitRecord.zero | typeToBitRecord.positiveNonInteger | typeToBitRecord.negativeInteger,
+      nonNegativeNumber: typeToBitRecord.zero | typeToBitRecord.negativeNonInteger | typeToBitRecord.positiveInteger,
+      integer: typeToBitRecord.zero | typeToBitRecord.positiveInteger | typeToBitRecord.negativeInteger,
+      nonZeroInteger: typeToBitRecord.negativeInteger | typeToBitRecord.positiveInteger,
+      positiveInteger: typeToBitRecord.positiveInteger,
+      negativeInteger: typeToBitRecord.negativeInteger,
+      positiveNonInteger: typeToBitRecord.positiveNonInteger,
+      negativeNonInteger: typeToBitRecord.negativeNonInteger,
+      nonPositiveInteger: typeToBitRecord.zero | typeToBitRecord.negativeInteger,
+      nonNegativeInteger: typeToBitRecord.zero | typeToBitRecord.positiveInteger,
+      number: typeToBitRecord.zero |
+          typeToBitRecord.positiveNonInteger |
+          typeToBitRecord.positiveInteger |
+          typeToBitRecord.negativeNonInteger |
+          typeToBitRecord.negativeInteger,
+      true: typeToBitRecord.true,
+      false: typeToBitRecord.false,
+      boolean: typeToBitRecord.true | typeToBitRecord.false,
+      emptyArray: typeToBitRecord.emptyArray,
+      nonEmptyArray: typeToBitRecord.nonEmptyArray,
+      array: typeToBitRecord.emptyArray | typeToBitRecord.nonEmptyArray,
+      emptyObject: typeToBitRecord.emptyObject,
+      nonEmptyObject: typeToBitRecord.nonEmptyObject,
+      object: typeToBitRecord.emptyObject | typeToBitRecord.nonEmptyObject,
+      regexp: typeToBitRecord.regexp,
+      function: typeToBitRecord.function,
+      unknown: UNKNWON_BITS,
+      truthy: TRUTHY_BITS,
+      falsy: FALSY_BITS,
+      emptyCollection: typeToBitRecord.emptyString | typeToBitRecord.emptyArray | typeToBitRecord.emptyObject,
+      nonEmptyCollection: typeToBitRecord.nonEmptyString | typeToBitRecord.nonEmptyArray | typeToBitRecord.nonEmptyObject,
+      collection: typeToBitRecord.emptyString |
+          typeToBitRecord.nonEmptyString |
+          typeToBitRecord.emptyArray |
+          typeToBitRecord.nonEmptyArray |
+          typeToBitRecord.emptyObject |
+          typeToBitRecord.nonEmptyObject,
+      emptySequence: typeToBitRecord.emptyString | typeToBitRecord.emptyArray,
+      nonEmptySequence: typeToBitRecord.nonEmptyString | typeToBitRecord.nonEmptyArray,
+      sequence: typeToBitRecord.emptyString |
+          typeToBitRecord.nonEmptyString |
+          typeToBitRecord.emptyArray |
+          typeToBitRecord.nonEmptyArray,
+  };
+  function stringifyBitMask(bitMaks) {
+      var mask = "";
+      for (var index = 23; index >= 0; index -= 1) {
+          var bitValue = 1 << index;
+          var zeroOrOne = (bitMaks & bitValue) === builtinTypesBitMasks.never ? "0" : "1";
+          var space = index !== 23 && (index + 1) % 4 === 0 ? " " : "";
+          mask += "".concat(space).concat(zeroOrOne);
+      }
+      return mask;
+  }
+  var DataType = /** @class */ (function () {
+      function DataType(bitmask, fnReturnType) {
+          this.bitmask = bitmask;
+          this.fnReturnType = fnReturnType;
+          Object.freeze(this.fnReturnType);
+      }
+      DataType.of = function (input) {
+          any.assert(input);
+          if (input instanceof DataType) {
+              return input;
+          }
+          if (input === null) {
+              return DataType.nil;
+          }
+          else if (input === true) {
+              return DataType.true;
+          }
+          else if (input === false) {
+              return DataType.false;
+          }
+          else if (typeof input === "string") {
+              return input ? DataType.nonEmptyString : DataType.emptyString;
+          }
+          else if (typeof input === "number") {
+              if (input === 0) {
+                  return DataType.zero;
+              }
+              else if (Number.isInteger(input)) {
+                  return input > 0 ? DataType.positiveInteger : DataType.negativeInteger;
+              }
+              else {
+                  return input > 0 ? DataType.positiveNonInteger : DataType.negativeNonInteger;
+              }
+          }
+          else if (array.is(input)) {
+              return input.length === 0 ? DataType.emptyArray : DataType.nonEmptyArray;
+          }
+          else if (object.is(input)) {
+              return Object.keys(input).length === 0 ? DataType.emptyObject : DataType.nonEmptyObject;
+          }
+          else if (regularExpression.is(input)) {
+              return DataType.regexp;
+          }
+          else if (litsFunction.is(input)) {
+              return DataType.function;
+          }
+          throw Error("Unexpected error, could not figure out type of ".concat(input));
+      };
+      DataType.or = function () {
+          var types = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              types[_i] = arguments[_i];
+          }
+          var newTypeMask = types.reduce(function (result, type) {
+              return result | type.bitmask;
+          }, 0);
+          var functions = types.filter(function (type) { return type.isFunction(); });
+          if (functions.some(function (f) { return !f.fnReturnType; })) {
+              return new DataType(newTypeMask);
+          }
+          var returnTypes = functions.map(function (type) { return type.fnReturnType; });
+          var fnReturnType = returnTypes.length > 0 ? DataType.or.apply(DataType, __spreadArray([], __read(returnTypes), false)) : undefined;
+          return new DataType(newTypeMask, fnReturnType);
+      };
+      DataType.and = function () {
+          var types = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              types[_i] = arguments[_i];
+          }
+          var newTypeMask = types.reduce(function (result, type) {
+              return result & type.bitmask;
+          }, UNKNWON_BITS);
+          // At least one of the types is a function
+          if (newTypeMask & builtinTypesBitMasks.function) {
+              var returnFunctions = types.filter(function (type) { return type.isFunction(); });
+              var returnFunction = DataType.and.apply(DataType, __spreadArray([], __read(returnFunctions), false));
+              if (returnFunction.bitmask === builtinTypesBitMasks.never) {
+                  return new DataType(newTypeMask & ~builtinTypesBitMasks.function);
+              }
+              else {
+                  return new DataType(newTypeMask, returnFunction);
+              }
+          }
+          return new DataType(newTypeMask);
+      };
+      DataType.exclude = function (first) {
+          var rest = [];
+          for (var _i = 1; _i < arguments.length; _i++) {
+              rest[_i - 1] = arguments[_i];
+          }
+          return rest.reduce(function (result, type) {
+              var newBitmask = result.bitmask & ~type.bitmask;
+              // Only remove function bit if functions are equal
+              if (result.isFunction() && type.isFunction()) {
+                  var returnType = !type.fnReturnType
+                      ? DataType.never
+                      : !result.fnReturnType
+                          ? DataType.unknown.exclude(type.fnReturnType)
+                          : result.fnReturnType.exclude(type.fnReturnType);
+                  if (returnType.bitmask === builtinTypesBitMasks.never) {
+                      return new DataType(newBitmask);
+                  }
+                  else {
+                      return new DataType(newBitmask | builtinTypesBitMasks.function, returnType);
+                  }
+              }
+              return new DataType(newBitmask);
+          }, first);
+      };
+      DataType.is = function (a, b) {
+          var bitmaskA = a.bitmask, fnReturnTypeA = a.fnReturnType;
+          var bitmaskB = b.bitmask, fnReturnTypeB = b.fnReturnType;
+          // some bits must be the same AND no bits in a can appear in b
+          var success = bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB);
+          if (!success) {
+              return false;
+          }
+          if (a.isFunction()) {
+              if (!fnReturnTypeB) {
+                  return true;
+              }
+              if (!fnReturnTypeA) {
+                  return false;
+              }
+              return fnReturnTypeA.is(fnReturnTypeB);
+          }
+          return true;
+      };
+      DataType.equals = function (type) {
+          var types = [];
+          for (var _i = 1; _i < arguments.length; _i++) {
+              types[_i - 1] = arguments[_i];
+          }
+          return types.every(function (t) {
+              if (type.bitmask !== t.bitmask) {
+                  return false;
+              }
+              if (!type.fnReturnType && !t.fnReturnType) {
+                  return true;
+              }
+              if (type.fnReturnType && t.fnReturnType) {
+                  return type.fnReturnType.equals(t.fnReturnType);
+              }
+              return false;
+          });
+      };
+      DataType.intersects = function (a, b) {
+          return a.is(b) || b.is(a);
+      };
+      DataType.isUnionType = function (dataType) {
+          return !allBitValues.includes(dataType.bitmask);
+      };
+      DataType.prototype.or = function () {
+          var dataTypes = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              dataTypes[_i] = arguments[_i];
+          }
+          return DataType.or.apply(DataType, __spreadArray([this], __read(dataTypes), false));
+      };
+      DataType.prototype.and = function () {
+          var dataTypes = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              dataTypes[_i] = arguments[_i];
+          }
+          return DataType.and.apply(DataType, __spreadArray([this], __read(dataTypes), false));
+      };
+      DataType.prototype.exclude = function () {
+          var dataTypes = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              dataTypes[_i] = arguments[_i];
+          }
+          return DataType.exclude.apply(DataType, __spreadArray([this], __read(dataTypes), false));
+      };
+      DataType.prototype.is = function (dataType) {
+          return DataType.is(this, dataType);
+      };
+      DataType.prototype.intersects = function (dataType) {
+          return DataType.intersects(this, dataType);
+      };
+      DataType.prototype.assertIs = function (dataType, debugInfo) {
+          if (!this.is(dataType)) {
+              throw new LitsError("Expected to be of type ".concat(dataType.toString(), ", but was ").concat(this.toString()), debugInfo);
+          }
+      };
+      DataType.prototype.assertEquals = function (dataType, debugInfo) {
+          if (!this.equals(dataType)) {
+              throw new LitsError("Expected to be ".concat(dataType.toString(), ", but was ").concat(this.toString()), debugInfo);
+          }
+      };
+      DataType.prototype.assertIntersects = function (dataType, debugInfo) {
+          if (!this.intersects(dataType)) {
+              throw new LitsError("Expected to intersect ".concat(dataType.toString(), ", but was ").concat(this.toString()), debugInfo);
+          }
+      };
+      DataType.prototype.equals = function () {
+          var types = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              types[_i] = arguments[_i];
+          }
+          return DataType.equals.apply(DataType, __spreadArray([this], __read(types), false));
+      };
+      DataType.prototype.isUnionType = function () {
+          return DataType.isUnionType(this);
+      };
+      DataType.prototype.withReturnType = function (dataType) {
+          if (!this.isFunction()) {
+              throw Error("Only functions can have return types");
+          }
+          return new DataType(this.bitmask, dataType);
+      };
+      DataType.prototype.nilable = function () {
+          return this.or(DataType.nil);
+      };
+      DataType.prototype.isFunction = function () {
+          return !!(this.bitmask & builtinTypesBitMasks.function);
+      };
+      DataType.prototype.isUnknown = function () {
+          return this.bitmask === UNKNWON_BITS;
+      };
+      DataType.prototype.toString = function (indent) {
+          var _this = this;
+          if (indent === void 0) { indent = 0; }
+          var padding = " ".repeat(indent);
+          var suffix = " [Bitmask = ".concat(stringifyBitMask(this.bitmask), "  (").concat(this.bitmask, ")]");
+          if (this.isUnknown()) {
+              return "".concat(padding, "unknown").concat(suffix);
+          }
+          if (this.bitmask === 0) {
+              return "".concat(padding, "never").concat(suffix);
+          }
+          var types = Object.entries(typeToBitRecord).reduce(function (result, entry) {
+              var _a = __read(entry, 2), name = _a[0], bitValue = _a[1];
+              if (_this.bitmask & bitValue) {
+                  result.push(name);
+              }
+              return result;
+          }, []);
+          return "".concat(padding).concat(types.join(" | ")).concat(suffix).concat(this.fnReturnType ? " =>\n".concat(this.fnReturnType.toString(indent + 2)) : "");
+      };
+      DataType.never = new DataType(builtinTypesBitMasks.never);
+      DataType.nil = new DataType(builtinTypesBitMasks.nil);
+      DataType.emptyString = new DataType(builtinTypesBitMasks.emptyString);
+      DataType.nonEmptyString = new DataType(builtinTypesBitMasks.nonEmptyString);
+      DataType.string = new DataType(builtinTypesBitMasks.string);
+      DataType.zero = new DataType(builtinTypesBitMasks.zero);
+      DataType.number = new DataType(builtinTypesBitMasks.number);
+      DataType.integer = new DataType(builtinTypesBitMasks.integer);
+      DataType.nonZeroNumber = new DataType(builtinTypesBitMasks.nonZeroNumber);
+      DataType.positiveNumber = new DataType(builtinTypesBitMasks.positiveNumber);
+      DataType.negativeNumber = new DataType(builtinTypesBitMasks.negativeNumber);
+      DataType.nonPositiveNumber = new DataType(builtinTypesBitMasks.nonPositiveNumber);
+      DataType.nonNegativeNumber = new DataType(builtinTypesBitMasks.nonNegativeNumber);
+      DataType.nonZeroInteger = new DataType(builtinTypesBitMasks.nonZeroInteger);
+      DataType.positiveInteger = new DataType(builtinTypesBitMasks.positiveInteger);
+      DataType.negativeInteger = new DataType(builtinTypesBitMasks.negativeInteger);
+      DataType.positiveNonInteger = new DataType(builtinTypesBitMasks.positiveNonInteger);
+      DataType.negativeNonInteger = new DataType(builtinTypesBitMasks.negativeNonInteger);
+      DataType.nonPositiveInteger = new DataType(builtinTypesBitMasks.nonPositiveInteger);
+      DataType.nonNegativeInteger = new DataType(builtinTypesBitMasks.nonNegativeInteger);
+      DataType.true = new DataType(builtinTypesBitMasks.true);
+      DataType.false = new DataType(builtinTypesBitMasks.false);
+      DataType.boolean = new DataType(builtinTypesBitMasks.boolean);
+      DataType.emptyArray = new DataType(builtinTypesBitMasks.emptyArray);
+      DataType.nonEmptyArray = new DataType(builtinTypesBitMasks.nonEmptyArray);
+      DataType.array = new DataType(builtinTypesBitMasks.array);
+      DataType.emptyObject = new DataType(builtinTypesBitMasks.emptyObject);
+      DataType.nonEmptyObject = new DataType(builtinTypesBitMasks.nonEmptyObject);
+      DataType.object = new DataType(builtinTypesBitMasks.object);
+      DataType.regexp = new DataType(builtinTypesBitMasks.regexp);
+      DataType.emptyCollection = new DataType(builtinTypesBitMasks.emptyCollection);
+      DataType.nonEmptyCollection = new DataType(builtinTypesBitMasks.nonEmptyCollection);
+      DataType.collection = new DataType(builtinTypesBitMasks.collection);
+      DataType.emptySequence = new DataType(builtinTypesBitMasks.emptySequence);
+      DataType.nonEmptySequence = new DataType(builtinTypesBitMasks.nonEmptySequence);
+      DataType.sequence = new DataType(builtinTypesBitMasks.sequence);
+      DataType.truthy = new DataType(builtinTypesBitMasks.truthy);
+      DataType.falsy = new DataType(builtinTypesBitMasks.falsy);
+      DataType.unknown = new DataType(builtinTypesBitMasks.unknown);
+      DataType.function = new DataType(builtinTypesBitMasks.function);
+      return DataType;
+  }());
 
   var andSpecialExpression = {
       parse: function (tokens, position, _a) {
@@ -844,13 +976,17 @@ var Lits = (function (exports) {
       evaluate: function (node, contextStack, _a) {
           var e_1, _b;
           var evaluateAstNode = _a.evaluateAstNode;
+          var possibleValues = [];
           var value = true;
           try {
               for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var param = _d.value;
                   value = evaluateAstNode(param, contextStack);
-                  if (!value) {
+                  if ((dataType.is(value) && value.is(DataType.falsy)) || !value) {
                       break;
+                  }
+                  else if (dataType.is(value)) {
+                      possibleValues.push(value);
                   }
               }
           }
@@ -861,35 +997,20 @@ var Lits = (function (exports) {
               }
               finally { if (e_1) throw e_1.error; }
           }
-          return value;
+          if (possibleValues.length === 0) {
+              return value;
+          }
+          else if (possibleValues.length === 1) {
+              return asValue(possibleValues[0]);
+          }
+          else {
+              return DataType.or.apply(DataType, __spreadArray([], __read(possibleValues.map(DataType.of)), false));
+          }
       },
       validate: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
-      },
-      getDataType: function (node, contextStack, helpers) {
-          var e_2, _a;
-          if (node.params.length === 0) {
-              return DataType.true;
-          }
-          var params = node.params.map(function (p) { return helpers.getDataType(p, contextStack); });
-          try {
-              for (var params_1 = __values(params), params_1_1 = params_1.next(); !params_1_1.done; params_1_1 = params_1.next()) {
-                  var param = params_1_1.value;
-                  if (param.is(DataType.falsy)) {
-                      return param;
-                  }
-              }
-          }
-          catch (e_2_1) { e_2 = { error: e_2_1 }; }
-          finally {
-              try {
-                  if (params_1_1 && !params_1_1.done && (_a = params_1.return)) _a.call(params_1);
-              }
-              finally { if (e_2) throw e_2.error; }
-          }
-          return asValue(params[params.length - 1]);
       },
   };
 
@@ -1061,15 +1182,13 @@ var Lits = (function (exports) {
           var newContext = (_b = {}, _b[node.functionName.value] = { value: true }, _b);
           return addOverloadsUndefinedSymbols(node.overloads, contextStack, findUndefinedSymbols, builtin, newContext);
       },
-      getDataType: function (node, contextStack, _a) {
-          var _b;
-          var dataType = _a.getDataType, builtin = _a.builtin;
-          var name = node.functionName.value;
-          assertNameNotDefined(name, contextStack, builtin, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
-          var type = getFunctionOverloadeDataType(node, contextStack, dataType);
-          contextStack.globalContext[name] = { value: type };
-          return DataType.nil;
-      },
+      // getDataType: (node, contextStack, { getDataType: dataType, builtin }) => {
+      //   const name = ((node as DefnNode).functionName as NameNode).value
+      //   assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
+      //   const type = getFunctionOverloadeDataType(node as DefnNode, contextStack, dataType)
+      //   contextStack.globalContext[name] = { value: type }
+      //   return DataType.nil
+      // },
   };
   var defnsSpecialExpression = {
       parse: function (tokens, position, parsers) {
@@ -1202,30 +1321,23 @@ var Lits = (function (exports) {
       }
       return evaluatedFunctionOverloades;
   }
-  function getFunctionOverloadeDataType(node, contextStack, dataType) {
-      var types = node.overloads.map(function (functionOverload) {
-          var e_3, _a;
-          var functionContext = {};
-          try {
-              for (var _b = __values(functionOverload.arguments.bindings), _c = _b.next(); !_c.done; _c = _b.next()) {
-                  var binding = _c.value;
-                  var bindingType = dataType(binding.value, contextStack);
-                  functionContext[binding.name] = { value: bindingType };
-              }
-          }
-          catch (e_3_1) { e_3 = { error: e_3_1 }; }
-          finally {
-              try {
-                  if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-              }
-              finally { if (e_3) throw e_3.error; }
-          }
-          return DataType.function.withReturnType(dataType(functionOverload.body, contextStack.withContext(functionContext)));
-      });
-      return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
-  }
+  // function getFunctionOverloadeDataType(
+  //   node: DefnNode | FnNode,
+  //   contextStack: ContextStack,
+  //   dataType: GetDataType,
+  // ): DataType {
+  //   const types = node.overloads.map(functionOverload => {
+  //     const functionContext: Context = {}
+  //     for (const binding of functionOverload.arguments.bindings) {
+  //       const bindingType = dataType(binding.value, contextStack)
+  //       functionContext[binding.name] = { value: bindingType }
+  //     }
+  //     return DataType.function.withReturnType(dataType(functionOverload.body, contextStack.withContext(functionContext)))
+  //   })
+  //   return DataType.or(...types)
+  // }
   function addOverloadsUndefinedSymbols(overloads, contextStack, findUndefinedSymbols, builtin, functionNameContext) {
-      var e_4, _a;
+      var e_3, _a;
       var result = new Set();
       var contextStackWithFunctionName = functionNameContext
           ? contextStack.withContext(functionNameContext)
@@ -1253,12 +1365,12 @@ var Lits = (function (exports) {
               _loop_1(overload);
           }
       }
-      catch (e_4_1) { e_4 = { error: e_4_1 }; }
+      catch (e_3_1) { e_3 = { error: e_3_1 }; }
       finally {
           try {
               if (overloads_1_1 && !overloads_1_1.done && (_a = overloads_1.return)) _a.call(overloads_1);
           }
-          finally { if (e_4) throw e_4.error; }
+          finally { if (e_3) throw e_3.error; }
       }
       return result;
   }
@@ -1884,10 +1996,11 @@ var Lits = (function (exports) {
           var evaluateAstNode = _a.evaluateAstNode;
           var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
           var _c = __read(node.params, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
-          if (evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)) {
+          var conditionValue = evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack);
+          if ((dataType.is(conditionNode) && conditionNode.is(DataType.truthy)) || !!conditionValue) {
               return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
           }
-          else {
+          else if ((dataType.is(conditionNode) && conditionNode.is(DataType.falsy)) || !conditionValue) {
               if (node.params.length === 3) {
                   return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
               }
@@ -1895,26 +2008,16 @@ var Lits = (function (exports) {
                   return null;
               }
           }
+          else {
+              var trueBranchValue = evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
+              var falseBranchValue = evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
+              return DataType.or(DataType.of(trueBranchValue), DataType.of(falseBranchValue));
+          }
       },
       validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
-      },
-      getDataType: function (node, contextStack, _a) {
-          var dataType = _a.getDataType;
-          var conditionType = dataType(asValue(node.params[0]), contextStack);
-          var truthyBranchType = dataType(asValue(node.params[1]), contextStack);
-          var falsyBranchType = dataType(asValue(node.params[2]), contextStack);
-          if (conditionType.is(DataType.truthy)) {
-              return truthyBranchType;
-          }
-          else if (conditionType.is(DataType.falsy)) {
-              return falsyBranchType;
-          }
-          else {
-              return DataType.or(truthyBranchType, falsyBranchType);
-          }
       },
   };
 
@@ -2093,13 +2196,21 @@ var Lits = (function (exports) {
       evaluate: function (node, contextStack, _a) {
           var e_1, _b;
           var evaluateAstNode = _a.evaluateAstNode;
+          var possibleValues = [];
           var value = false;
+          if (node.params.length === 0) {
+              return false;
+          }
           try {
               for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var param = _d.value;
                   value = evaluateAstNode(param, contextStack);
-                  if (value) {
+                  if ((dataType.is(value) && value.is(DataType.truthy)) || value) {
+                      possibleValues.push(value);
                       break;
+                  }
+                  else if (dataType.is(value) && value.intersects(DataType.truthy)) {
+                      possibleValues.push(value);
                   }
               }
           }
@@ -2110,35 +2221,20 @@ var Lits = (function (exports) {
               }
               finally { if (e_1) throw e_1.error; }
           }
-          return value;
+          if (possibleValues.length === 0) {
+              return value;
+          }
+          else if (possibleValues.length === 1) {
+              return asValue(possibleValues[0]);
+          }
+          else {
+              return DataType.or.apply(DataType, __spreadArray([], __read(possibleValues.map(DataType.of)), false));
+          }
       },
       validate: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
-      },
-      getDataType: function (node, contextStack, helpers) {
-          var e_2, _a;
-          if (node.params.length === 0) {
-              return DataType.false;
-          }
-          var params = node.params.map(function (p) { return helpers.getDataType(p, contextStack); });
-          try {
-              for (var params_1 = __values(params), params_1_1 = params_1.next(); !params_1_1.done; params_1_1 = params_1.next()) {
-                  var param = params_1_1.value;
-                  if (param.is(DataType.truthy)) {
-                      return param;
-                  }
-              }
-          }
-          catch (e_2_1) { e_2 = { error: e_2_1 }; }
-          finally {
-              try {
-                  if (params_1_1 && !params_1_1.done && (_a = params_1.return)) _a.call(params_1);
-              }
-              finally { if (e_2) throw e_2.error; }
-          }
-          return asValue(params[params.length - 1]);
       },
   };
 
@@ -2684,7 +2780,6 @@ var Lits = (function (exports) {
               return num << count;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.number; },
       },
       'bit-shift-right': {
           evaluate: function (_a, debugInfo) {
@@ -2694,7 +2789,6 @@ var Lits = (function (exports) {
               return num >> count;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.number; },
       },
       'bit-not': {
           evaluate: function (_a, debugInfo) {
@@ -2703,7 +2797,6 @@ var Lits = (function (exports) {
               return ~num;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
-          getDataType: function () { return DataType.number; },
       },
       'bit-and': {
           evaluate: function (_a, debugInfo) {
@@ -2715,7 +2808,6 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-          getDataType: function () { return DataType.number; },
       },
       'bit-and-not': {
           evaluate: function (_a, debugInfo) {
@@ -2727,7 +2819,6 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-          getDataType: function () { return DataType.number; },
       },
       'bit-or': {
           evaluate: function (_a, debugInfo) {
@@ -2739,7 +2830,6 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-          getDataType: function () { return DataType.number; },
       },
       'bit-xor': {
           evaluate: function (_a, debugInfo) {
@@ -2751,7 +2841,6 @@ var Lits = (function (exports) {
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-          getDataType: function () { return DataType.number; },
       },
       'bit-flip': {
           evaluate: function (_a, debugInfo) {
@@ -2762,7 +2851,6 @@ var Lits = (function (exports) {
               return (num ^= mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.number; },
       },
       'bit-set': {
           evaluate: function (_a, debugInfo) {
@@ -2773,7 +2861,6 @@ var Lits = (function (exports) {
               return (num |= mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.number; },
       },
       'bit-clear': {
           evaluate: function (_a, debugInfo) {
@@ -2784,7 +2871,6 @@ var Lits = (function (exports) {
               return (num &= ~mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.number; },
       },
       'bit-test': {
           evaluate: function (_a, debugInfo) {
@@ -2795,7 +2881,6 @@ var Lits = (function (exports) {
               return !!(num & mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
       },
   };
 
@@ -2899,135 +2984,156 @@ var Lits = (function (exports) {
   var collectionNormalExpression = {
       get: {
           evaluate: function (params, debugInfo) {
-              var _a = __read(params, 2), coll = _a[0], key = _a[1];
-              var defaultValue = toAny(params[2]);
-              stringOrNumber.assert(key, debugInfo);
-              if (coll === null) {
-                  return defaultValue;
+              if (params.every(dataType.isNot)) {
+                  var _a = __read(params, 2), coll = _a[0], key = _a[1];
+                  var defaultValue = toAny(params[2]);
+                  stringOrNumber.assert(key, debugInfo);
+                  if (coll === null) {
+                      return defaultValue;
+                  }
+                  collection.assert(coll, debugInfo);
+                  var result = get(coll, key);
+                  return result === undefined ? defaultValue : result;
               }
-              collection.assert(coll, debugInfo);
-              var result = get(coll, key);
-              return result === undefined ? defaultValue : result;
+              else {
+                  var collType = DataType.of(params[0]);
+                  var keyType = DataType.of(params[1]);
+                  var defaultValueType = dataType.is(params[2])
+                      ? params[2]
+                      : params[2] === undefined
+                          ? DataType.nil
+                          : DataType.of(params[2]);
+                  collType.assertIs(DataType.collection.nilable(), debugInfo);
+                  keyType.assertIs(DataType.or(DataType.string, DataType.number, DataType.nil), debugInfo);
+                  if (collType.is(DataType.nil)) {
+                      return defaultValueType;
+                  }
+                  if (collType.is(DataType.string)) {
+                      return DataType.or(DataType.string.nilable(), defaultValueType);
+                  }
+                  return DataType.unknown;
+              }
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function (_a) {
-              var _b;
-              var params = _a.params;
-              var _c = __read(params, 2), collType = _c[0], keyType = _c[1];
-              var defaultValueType = (_b = params[2]) !== null && _b !== void 0 ? _b : DataType.nil;
-              assertValue(collType);
-              assertValue(keyType);
-              if (collType.is(DataType.nil)) {
-                  return defaultValueType;
-              }
-              if (collType.is(DataType.string)) {
-                  return DataType.or(DataType.string.nilable(), defaultValueType);
-              }
-              return DataType.unknown;
-          },
       },
       'get-in': {
           evaluate: function (params, debugInfo) {
               var e_1, _a;
               var _b;
-              var coll = toAny(params[0]);
-              var keys = (_b = params[1]) !== null && _b !== void 0 ? _b : []; // nil behaves as empty array
-              var defaultValue = toAny(params[2]);
-              array.assert(keys, debugInfo);
-              try {
-                  for (var keys_1 = __values(keys), keys_1_1 = keys_1.next(); !keys_1_1.done; keys_1_1 = keys_1.next()) {
-                      var key = keys_1_1.value;
-                      stringOrNumber.assert(key, debugInfo);
-                      if (collection.is(coll)) {
-                          var nextValue = get(coll, key);
-                          if (nextValue !== undefined) {
-                              coll = nextValue;
+              if (params.every(dataType.isNot)) {
+                  var coll = toAny(params[0]);
+                  var keys = (_b = params[1]) !== null && _b !== void 0 ? _b : []; // nil behaves as empty array
+                  var defaultValue = toAny(params[2]);
+                  array.assert(keys, debugInfo);
+                  try {
+                      for (var keys_1 = __values(keys), keys_1_1 = keys_1.next(); !keys_1_1.done; keys_1_1 = keys_1.next()) {
+                          var key = keys_1_1.value;
+                          stringOrNumber.assert(key, debugInfo);
+                          if (collection.is(coll)) {
+                              var nextValue = get(coll, key);
+                              if (nextValue !== undefined) {
+                                  coll = nextValue;
+                              }
+                              else {
+                                  return defaultValue;
+                              }
                           }
                           else {
                               return defaultValue;
                           }
                       }
-                      else {
-                          return defaultValue;
+                  }
+                  catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                  finally {
+                      try {
+                          if (keys_1_1 && !keys_1_1.done && (_a = keys_1.return)) _a.call(keys_1);
                       }
+                      finally { if (e_1) throw e_1.error; }
                   }
+                  return coll;
               }
-              catch (e_1_1) { e_1 = { error: e_1_1 }; }
-              finally {
-                  try {
-                      if (keys_1_1 && !keys_1_1.done && (_a = keys_1.return)) _a.call(keys_1);
+              else {
+                  var collType = DataType.of(params[0]);
+                  var keysType = DataType.of(params[1]);
+                  collType.assertIs(DataType.collection.nilable(), debugInfo);
+                  keysType.assertIs(DataType.array.nilable(), debugInfo);
+                  if (keysType.is(DataType.nil)) {
+                      return collType;
                   }
-                  finally { if (e_1) throw e_1.error; }
+                  return DataType.unknown;
               }
-              return coll;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function (_a) {
-              var params = _a.params;
-              var _b = __read(params, 2), collType = _b[0], keysType = _b[1];
-              assertValue(collType);
-              assertValue(keysType);
-              if (keysType.is(DataType.nil)) {
-                  return collType;
-              }
-              return DataType.unknown;
-          },
       },
       count: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), coll = _b[0];
-              if (typeof coll === "string") {
-                  return coll.length;
+              if (dataType.isNot(coll)) {
+                  if (typeof coll === "string") {
+                      return coll.length;
+                  }
+                  collection.assert(coll, debugInfo);
+                  if (Array.isArray(coll)) {
+                      return coll.length;
+                  }
+                  return Object.keys(coll).length;
               }
-              collection.assert(coll, debugInfo);
-              if (Array.isArray(coll)) {
-                  return coll.length;
+              else {
+                  var collType = DataType.of(coll);
+                  collType.assertIs(DataType.collection, debugInfo);
+                  return collType.is(DataType.emptyCollection)
+                      ? DataType.zero
+                      : collType.is(DataType.nonEmptyCollection)
+                          ? DataType.positiveInteger
+                          : DataType.nonNegativeInteger;
               }
-              return Object.keys(coll).length;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
-          getDataType: function (_a) {
-              var params = _a.params;
-              var _b = __read(params, 1), collType = _b[0];
-              assertValue(collType);
-              return collType.is(DataType.emptyCollection)
-                  ? DataType.zero
-                  : collType.is(DataType.nonEmptyCollection)
-                      ? DataType.positiveInteger
-                      : DataType.nonNegativeInteger;
-          },
       },
       'contains?': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), coll = _b[0], key = _b[1];
-              collection.assert(coll, debugInfo);
-              stringOrNumber.assert(key, debugInfo);
-              if (sequence.is(coll)) {
-                  if (!number.is(key, { integer: true })) {
-                      return false;
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var _a = __read(params, 2), coll = _a[0], key = _a[1];
+                  collection.assert(coll, debugInfo);
+                  stringOrNumber.assert(key, debugInfo);
+                  if (sequence.is(coll)) {
+                      if (!number.is(key, { integer: true })) {
+                          return false;
+                      }
+                      number.assert(key, debugInfo, { integer: true });
+                      return key >= 0 && key < coll.length;
                   }
-                  number.assert(key, debugInfo, { integer: true });
-                  return key >= 0 && key < coll.length;
+                  return !!Object.getOwnPropertyDescriptor(coll, key);
               }
-              return !!Object.getOwnPropertyDescriptor(coll, key);
+              else {
+                  var collType = DataType.of(params[0]);
+                  return collType.is(DataType.emptyCollection) ? DataType.false : DataType.boolean;
+              }
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
       },
       'has?': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), coll = _b[0], value = _b[1];
-              collection.assert(coll, debugInfo);
-              if (array.is(coll)) {
-                  return coll.includes(value);
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var _a = __read(params, 2), coll = _a[0], value = _a[1];
+                  collection.assert(coll, debugInfo);
+                  if ((array.is(coll) && coll.some(dataType.is)) || (object.is(coll) && Object.values(coll).some(dataType.is))) {
+                      return DataType.boolean;
+                  }
+                  if (array.is(coll)) {
+                      return coll.includes(value);
+                  }
+                  if (string.is(coll)) {
+                      return string.is(value) ? coll.split("").includes(value) : false;
+                  }
+                  return Object.values(coll).includes(value);
               }
-              if (string.is(coll)) {
-                  return string.is(value) ? coll.split("").includes(value) : false;
+              else {
+                  var collType = DataType.of(params[0]);
+                  return collType.is(DataType.emptyCollection) ? DataType.false : DataType.boolean;
               }
-              return Object.values(coll).includes(value);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
       },
       'has-some?': {
           evaluate: function (_a, debugInfo) {
@@ -3089,7 +3195,6 @@ var Lits = (function (exports) {
               return false;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
       },
       'has-every?': {
           evaluate: function (_a, debugInfo) {
@@ -3151,7 +3256,6 @@ var Lits = (function (exports) {
               return true;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
       },
       assoc: {
           evaluate: function (_a, debugInfo) {
@@ -3278,7 +3382,6 @@ var Lits = (function (exports) {
               return Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
       },
       'any?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3295,7 +3398,6 @@ var Lits = (function (exports) {
               return Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
       },
       'not-any?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3312,7 +3414,6 @@ var Lits = (function (exports) {
               return !Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
       },
       'not-every?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3329,7 +3430,6 @@ var Lits = (function (exports) {
               return !Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.boolean; },
       },
   };
 
@@ -4247,76 +4347,84 @@ var Lits = (function (exports) {
       array: {
           evaluate: function (params) { return params; },
           validate: function () { return undefined; },
-          getDataType: function (_a) {
-              var params = _a.params;
-              return (params.length > 0 ? DataType.nonEmptyArray : DataType.emptyArray);
-          },
       },
       range: {
           evaluate: function (params, debugInfo) {
-              var _a = __read(params, 3), first = _a[0], second = _a[1], third = _a[2];
-              var from;
-              var to;
-              var step;
-              number.assert(first, debugInfo, { finite: true });
-              if (params.length === 1) {
-                  from = 0;
-                  to = first;
-                  step = to >= 0 ? 1 : -1;
-              }
-              else if (params.length === 2) {
-                  number.assert(second, debugInfo, { finite: true });
-                  from = first;
-                  to = second;
-                  step = to >= from ? 1 : -1;
-              }
-              else {
-                  number.assert(second, debugInfo, { finite: true });
-                  number.assert(third, debugInfo, { finite: true });
-                  from = first;
-                  to = second;
-                  step = third;
-                  if (to > from) {
-                      number.assert(step, debugInfo, { positive: true });
+              if (params.every(function (param) { return !(param instanceof DataType); })) {
+                  var _a = __read(params, 3), first = _a[0], second = _a[1], third = _a[2];
+                  var from = void 0;
+                  var to = void 0;
+                  var step = void 0;
+                  number.assert(first, debugInfo, { finite: true });
+                  if (params.length === 1) {
+                      from = 0;
+                      to = first;
+                      step = to >= 0 ? 1 : -1;
                   }
-                  else if (to < from) {
-                      number.assert(step, debugInfo, { negative: true });
+                  else if (params.length === 2) {
+                      number.assert(second, debugInfo, { finite: true });
+                      from = first;
+                      to = second;
+                      step = to >= from ? 1 : -1;
                   }
                   else {
-                      number.assert(step, debugInfo, { nonZero: true });
+                      number.assert(second, debugInfo, { finite: true });
+                      number.assert(third, debugInfo, { finite: true });
+                      from = first;
+                      to = second;
+                      step = third;
+                      if (to > from) {
+                          number.assert(step, debugInfo, { positive: true });
+                      }
+                      else if (to < from) {
+                          number.assert(step, debugInfo, { negative: true });
+                      }
+                      else {
+                          number.assert(step, debugInfo, { nonZero: true });
+                      }
                   }
+                  var result = [];
+                  for (var i = from; step < 0 ? i > to : i < to; i += step) {
+                      result.push(i);
+                  }
+                  return result;
               }
-              var result = [];
-              for (var i = from; step < 0 ? i > to : i < to; i += step) {
-                  result.push(i);
+              else {
+                  var paramTypes = params.map(function (param) {
+                      var type = DataType.of(param);
+                      type.assertIs(DataType.number, debugInfo);
+                      return type;
+                  });
+                  var fromType = asValue(paramTypes[0]);
+                  if (paramTypes.length === 1) {
+                      // Here we always know if it is emptyArray or nonEmptyArray
+                      return fromType.is(DataType.zero) ? DataType.emptyArray : DataType.nonEmptyArray;
+                  }
+                  var toType = asValue(paramTypes[1]);
+                  // If both from and to are zero -> emptyArray, otherwise we don't know -> array
+                  return fromType.is(DataType.zero) && toType.is(DataType.zero) ? DataType.emptyArray : DataType.array;
               }
-              return result;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 3 }, node); },
-          getDataType: function (_a) {
-              var params = _a.params;
-              var fromType = asValue(params[0]);
-              if (params.length === 1) {
-                  // Here we always know if it is emptyArray or nonEmptyArray
-                  return fromType.is(DataType.zero) ? DataType.emptyArray : DataType.nonEmptyArray;
-              }
-              var toType = asValue(params[1]);
-              // If both from and to are zero -> emptyArray, otherwise we don't know -> array
-              return fromType.is(DataType.zero) && toType.is(DataType.zero) ? DataType.emptyArray : DataType.array;
-          },
       },
       repeat: {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), count = _b[0], value = _b[1];
-              number.assert(count, debugInfo, { integer: true, nonNegative: true });
-              var result = [];
-              for (var i = 0; i < count; i += 1) {
-                  result.push(value);
+          evaluate: function (params, debugInfo) {
+              if (params.every(function (param) { return dataType.isNot(param); })) {
+                  var _a = __read(params, 2), count = _a[0], value = _a[1];
+                  number.assert(count, debugInfo, { integer: true, nonNegative: true });
+                  var result = [];
+                  for (var i = 0; i < count; i += 1) {
+                      result.push(value);
+                  }
+                  return result;
               }
-              return result;
+              else {
+                  var countType = DataType.of(params[0]);
+                  countType.assertIs(DataType.nonNegativeInteger, debugInfo);
+                  return countType.is(DataType.zero) ? DataType.emptyArray : DataType.nonEmptyArray;
+              }
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
-          getDataType: function () { return DataType.array; },
       },
       flatten: {
           evaluate: function (_a) {
@@ -4327,7 +4435,6 @@ var Lits = (function (exports) {
               return seq.flat(Number.POSITIVE_INFINITY);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
-          getDataType: function () { return DataType.array; },
       },
       mapcat: {
           evaluate: function (params, debugInfo, contextStack, helpers) {
@@ -4339,7 +4446,6 @@ var Lits = (function (exports) {
               return mapResult.flat(1);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-          getDataType: function () { return DataType.array; },
       },
   };
 
@@ -4362,10 +4468,63 @@ var Lits = (function (exports) {
       },
       '+': {
           evaluate: function (params, debugInfo) {
-              return params.reduce(function (result, param) {
-                  number.assert(param, debugInfo);
-                  return result + param;
-              }, 0);
+              if (params.every(function (param) { return !(param instanceof DataType); })) {
+                  return params.reduce(function (result, param) {
+                      number.assert(param, debugInfo);
+                      return result + param;
+                  }, 0);
+              }
+              else {
+                  var paramTypes = params.map(function (param) { return DataType.of(param); });
+                  return paramTypes.reduce(function (result, x) {
+                      var param = x.and(DataType.number);
+                      if (result.is(DataType.zero)) {
+                          return param;
+                      }
+                      var baseType = result.is(DataType.integer) && param.is(DataType.integer) ? DataType.integer : DataType.number;
+                      if (result.is(DataType.negativeNumber)) {
+                          if (param.is(DataType.nonPositiveNumber)) {
+                              return DataType.and(baseType, DataType.negativeNumber);
+                          }
+                          else {
+                              return baseType;
+                          }
+                      }
+                      else if (result.is(DataType.nonPositiveNumber)) {
+                          if (param.is(DataType.negativeNumber)) {
+                              return DataType.and(baseType, DataType.negativeNumber);
+                          }
+                          else if (param.is(DataType.nonPositiveNumber)) {
+                              return DataType.and(baseType, DataType.nonPositiveNumber);
+                          }
+                          else {
+                              return baseType;
+                          }
+                      }
+                      else if (result.is(DataType.positiveNumber)) {
+                          if (param.is(DataType.nonNegativeNumber)) {
+                              return DataType.and(baseType, DataType.positiveNumber);
+                          }
+                          else {
+                              return baseType;
+                          }
+                      }
+                      else if (result.is(DataType.nonNegativeNumber)) {
+                          if (param.is(DataType.positiveNumber)) {
+                              return DataType.and(baseType, DataType.positiveNumber);
+                          }
+                          else if (param.is(DataType.nonNegativeNumber)) {
+                              return DataType.and(baseType, DataType.nonNegativeNumber);
+                          }
+                          else {
+                              return baseType;
+                          }
+                      }
+                      else {
+                          return DataType.and(baseType, DataType.number);
+                      }
+                  }, DataType.zero);
+              }
           },
           validate: function () { return undefined; },
       },
@@ -5021,251 +5180,351 @@ var Lits = (function (exports) {
   var assertNormalExpression = {
       assert: {
           evaluate: function (params, debugInfo) {
-              var value = params[0];
-              var message = params.length === 2 ? params[1] : "".concat(value);
-              string.assert(message, debugInfo);
-              if (!value) {
-                  throw new AssertionError(message, debugInfo);
+              if (params.every(dataType.isNot)) {
+                  var value = params[0];
+                  var message = params.length === 2 ? params[1] : "".concat(value);
+                  string.assert(message, debugInfo);
+                  if (!value) {
+                      throw new AssertionError(message, debugInfo);
+                  }
+                  return any.as(value, debugInfo);
               }
-              return any.as(value, debugInfo);
+              else {
+                  var valueType = DataType.of(params[0]);
+                  valueType.assertIs(DataType.truthy, debugInfo);
+                  return valueType;
+              }
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function (_a) {
-              var params = _a.params;
-              return asValue(params[0]);
-          },
       },
       'assert=': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (first !== second) {
-                  throw new AssertionError("Expected ".concat(first, " to be ").concat(second, ".").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert-not=': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (first === second) {
-                  throw new AssertionError("Expected ".concat(first, " not to be ").concat(second, ".").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert-equal': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (!deepEqual(any.as(first, debugInfo), any.as(second, debugInfo), debugInfo)) {
-                  throw new AssertionError("Expected\n".concat(JSON.stringify(first, null, 2), "\nto deep equal\n").concat(JSON.stringify(second, null, 2), ".").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert-not-equal': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (deepEqual(any.as(first, debugInfo), any.as(second, debugInfo), debugInfo)) {
-                  throw new AssertionError("Expected ".concat(JSON.stringify(first), " not to deep equal ").concat(JSON.stringify(second), ".").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert>': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (compare(first, second) <= 0) {
-                  throw new AssertionError("Expected ".concat(first, " to be grater than ").concat(second, ".").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert>=': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (compare(first, second) < 0) {
-                  throw new AssertionError("Expected ".concat(first, " to be grater than or equal to ").concat(second, ".").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert<': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (compare(first, second) >= 0) {
-                  throw new AssertionError("Expected ".concat(first, " to be less than ").concat(second, ".").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert<=': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (compare(first, second) > 0) {
-                  throw new AssertionError("Expected ".concat(first, " to be less than or equal to ").concat(second, ".").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert-true': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), first = _b[0], message = _b[1];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (first !== true) {
-                  throw new AssertionError("Expected ".concat(first, " to be true.").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert-false': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), first = _b[0], message = _b[1];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (first !== false) {
-                  throw new AssertionError("Expected ".concat(first, " to be false.").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert-truthy': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), first = _b[0], message = _b[1];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (!first) {
-                  throw new AssertionError("Expected ".concat(first, " to be truthy.").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert-falsy': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), first = _b[0], message = _b[1];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (first) {
-                  throw new AssertionError("Expected ".concat(first, " to be falsy.").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert-nil': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), first = _b[0], message = _b[1];
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (first !== null) {
-                  throw new AssertionError("Expected ".concat(first, " to be nil.").concat(message), debugInfo);
-              }
-              return null;
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert-throws': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
-              var _c = __read(_a, 2), func = _c[0], message = _c[1];
-              var executeFunction = _b.executeFunction;
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              litsFunction.assert(func, debugInfo);
-              try {
-                  executeFunction(func, [], contextStack, debugInfo);
-              }
-              catch (_d) {
-                  return null;
-              }
-              throw new AssertionError("Expected function to throw.".concat(message), debugInfo);
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
-      },
-      'assert-throws-error': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
-              var _c = __read(_a, 3), func = _c[0], throwMessage = _c[1], message = _c[2];
-              var executeFunction = _b.executeFunction;
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              string.assert(throwMessage, debugInfo);
-              litsFunction.assert(func, debugInfo);
-              try {
-                  executeFunction(func, [], contextStack, debugInfo);
-              }
-              catch (error) {
-                  var errorMessage = error.shortMessage;
-                  if (errorMessage !== throwMessage) {
-                      throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\", but thrown \"").concat(errorMessage, "\".").concat(message), debugInfo);
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var _a = __read(params, 2), first = _a[0], second = _a[1];
+                  var message = params[2];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (first !== second) {
+                      throw new AssertionError("Expected ".concat(first, " to be ").concat(second, ".").concat(message), debugInfo);
                   }
                   return null;
               }
-              throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\".").concat(message), debugInfo);
+              else {
+                  var aType = DataType.of(params[0]);
+                  var bType = DataType.of(params[1]);
+                  aType.assertIntersects(bType, debugInfo);
+                  return DataType.nil;
+              }
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-          getDataType: function () { return DataType.nil; },
       },
-      'assert-not-throws': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
-              var _c = __read(_a, 2), func = _c[0], message = _c[1];
-              var executeFunction = _b.executeFunction;
-              message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              litsFunction.assert(func, debugInfo);
-              try {
-                  executeFunction(func, [], contextStack, debugInfo);
+      'assert-not=': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var _a = __read(params, 2), first = _a[0], second = _a[1];
+                  var message = params[2];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (first === second) {
+                      throw new AssertionError("Expected ".concat(first, " not to be ").concat(second, ".").concat(message), debugInfo);
+                  }
+                  return null;
               }
-              catch (_d) {
-                  throw new AssertionError("Expected function not to throw.".concat(message), debugInfo);
+              else {
+                  return DataType.nil;
               }
-              return null;
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert-equal': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var _a = __read(params, 2), first = _a[0], second = _a[1];
+                  var message = params[2];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (!deepEqual(any.as(first, debugInfo), any.as(second, debugInfo), debugInfo)) {
+                      throw new AssertionError("Expected\n".concat(JSON.stringify(first, null, 2), "\nto deep equal\n").concat(JSON.stringify(second, null, 2), ".").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  var aType = DataType.of(params[0]);
+                  var bType = DataType.of(params[1]);
+                  aType.assertIntersects(bType, debugInfo);
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert-not-equal': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var _a = __read(params, 2), first = _a[0], second = _a[1];
+                  var message = params[2];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (deepEqual(any.as(first, debugInfo), any.as(second, debugInfo), debugInfo)) {
+                      throw new AssertionError("Expected ".concat(JSON.stringify(first), " not to deep equal ").concat(JSON.stringify(second), ".").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert>': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var _a = __read(params, 2), first = _a[0], second = _a[1];
+                  var message = params[2];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (compare(first, second) <= 0) {
+                      throw new AssertionError("Expected ".concat(first, " to be grater than ").concat(second, ".").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert>=': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var _a = __read(params, 2), first = _a[0], second = _a[1];
+                  var message = params[2];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (compare(first, second) < 0) {
+                      throw new AssertionError("Expected ".concat(first, " to be grater than or equal to ").concat(second, ".").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert<': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var _a = __read(params, 2), first = _a[0], second = _a[1];
+                  var message = params[2];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (compare(first, second) >= 0) {
+                      throw new AssertionError("Expected ".concat(first, " to be less than ").concat(second, ".").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert<=': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var _a = __read(params, 2), first = _a[0], second = _a[1];
+                  var message = params[2];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (compare(first, second) > 0) {
+                      throw new AssertionError("Expected ".concat(first, " to be less than or equal to ").concat(second, ".").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert-true': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var first = params[0];
+                  var message = params[0];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (first !== true) {
+                      throw new AssertionError("Expected ".concat(first, " to be true.").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  var type = DataType.of(params[0]);
+                  type.assertIntersects(DataType.false, debugInfo);
+                  return DataType.nil;
+              }
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.nil; },
+      },
+      'assert-false': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var first = params[0];
+                  var message = params[0];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (first !== false) {
+                      throw new AssertionError("Expected ".concat(first, " to be false.").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  var type = DataType.of(params[0]);
+                  type.assertIntersects(DataType.false, debugInfo);
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      'assert-truthy': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var first = params[0];
+                  var message = params[0];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (!first) {
+                      throw new AssertionError("Expected ".concat(first, " to be truthy.").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  var type = DataType.of(params[0]);
+                  type.assertIntersects(DataType.truthy, debugInfo);
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      'assert-falsy': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var first = params[0];
+                  var message = params[0];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (first) {
+                      throw new AssertionError("Expected ".concat(first, " to be falsy.").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  var type = DataType.of(params[0]);
+                  type.assertIntersects(DataType.falsy, debugInfo);
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      'assert-nil': {
+          evaluate: function (params, debugInfo) {
+              if (params.every(dataType.isNot)) {
+                  var first = params[0];
+                  var message = params[0];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  if (first !== null) {
+                      throw new AssertionError("Expected ".concat(first, " to be nil.").concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  var type = DataType.of(params[0]);
+                  type.assertIntersects(DataType.nil, debugInfo);
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      'assert-throws': {
+          evaluate: function (params, debugInfo, contextStack, _a) {
+              var executeFunction = _a.executeFunction;
+              if (params.every(dataType.isNot)) {
+                  var func = params[0];
+                  var message = params[1];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  litsFunction.assert(func, debugInfo);
+                  try {
+                      executeFunction(func, [], contextStack, debugInfo);
+                  }
+                  catch (_b) {
+                      return null;
+                  }
+                  throw new AssertionError("Expected function to throw.".concat(message), debugInfo);
+              }
+              else {
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      },
+      'assert-throws-error': {
+          evaluate: function (params, debugInfo, contextStack, _a) {
+              var executeFunction = _a.executeFunction;
+              if (params.every(dataType.isNot)) {
+                  var _b = __read(params, 2), func = _b[0], throwMessage = _b[1];
+                  var message = params[2];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  string.assert(throwMessage, debugInfo);
+                  litsFunction.assert(func, debugInfo);
+                  try {
+                      executeFunction(func, [], contextStack, debugInfo);
+                  }
+                  catch (error) {
+                      var errorMessage = error.shortMessage;
+                      if (errorMessage !== throwMessage) {
+                          throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\", but thrown \"").concat(errorMessage, "\".").concat(message), debugInfo);
+                      }
+                      return null;
+                  }
+                  throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\".").concat(message), debugInfo);
+              }
+              else {
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      },
+      'assert-not-throws': {
+          evaluate: function (params, debugInfo, contextStack, _a) {
+              var executeFunction = _a.executeFunction;
+              if (params.every(dataType.isNot)) {
+                  var func = params[0];
+                  var message = params[0];
+                  message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
+                  litsFunction.assert(func, debugInfo);
+                  try {
+                      executeFunction(func, [], contextStack, debugInfo);
+                  }
+                  catch (_b) {
+                      throw new AssertionError("Expected function not to throw.".concat(message), debugInfo);
+                  }
+                  return null;
+              }
+              else {
+                  return DataType.nil;
+              }
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
   };
 
   var objectNormalExpression = {
       object: {
           evaluate: function (params, debugInfo) {
-              var result = {};
-              for (var i = 0; i < params.length; i += 2) {
-                  var key = params[i];
-                  var value = params[i + 1];
-                  string.assert(key, debugInfo);
-                  result[key] = value;
+              if (params.every(dataType.isNot)) {
+                  var result = {};
+                  for (var i = 0; i < params.length; i += 2) {
+                      var key = params[i];
+                      var value = params[i + 1];
+                      string.assert(key, debugInfo);
+                      result[key] = value;
+                  }
+                  return result;
               }
-              return result;
+              else {
+                  return params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject;
+              }
           },
-          validate: function (node) { return assertEventNumberOfParams(node); },
-          getDataType: function (_a) {
-              var params = _a.params;
-              return (params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject);
-          },
+          validate: function (node) { return assertEvenNumberOfParams(node); },
       },
       keys: {
           evaluate: function (_a, debugInfo) {
@@ -5581,21 +5840,25 @@ var Lits = (function (exports) {
 
   var regexpNormalExpression = {
       regexp: {
-          evaluate: function (_a, debugInfo) {
-              var _b;
-              var _c = __read(_a, 2), sourceArg = _c[0], flagsArg = _c[1];
-              string.assert(sourceArg, debugInfo);
-              var source = sourceArg || "(?:)";
-              var flags = string.is(flagsArg) ? flagsArg : "";
-              return _b = {},
-                  _b[REGEXP_SYMBOL] = true,
-                  _b.debugInfo = debugInfo,
-                  _b.source = source,
-                  _b.flags = flags,
-                  _b;
+          evaluate: function (params, debugInfo) {
+              var _a;
+              if (params.every(dataType.isNot)) {
+                  var _b = __read(params, 2), sourceArg = _b[0], flagsArg = _b[1];
+                  string.assert(sourceArg, debugInfo);
+                  var source = sourceArg || "(?:)";
+                  var flags = string.is(flagsArg) ? flagsArg : "";
+                  return _a = {},
+                      _a[REGEXP_SYMBOL] = true,
+                      _a.debugInfo = debugInfo,
+                      _a.source = source,
+                      _a.flags = flags,
+                      _a;
+              }
+              else {
+                  return DataType.regexp;
+              }
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-          getDataType: function () { return DataType.regexp; },
       },
       match: {
           evaluate: function (_a, debugInfo) {
@@ -6033,221 +6296,6 @@ var Lits = (function (exports) {
       },
   };
 
-  var normalExpressions = __assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign({}, bitwiseNormalExpression), collectionNormalExpression), arrayNormalExpression), sequenceNormalExpression), mathNormalExpression), miscNormalExpression), assertNormalExpression), objectNormalExpression), predicatesNormalExpression), regexpNormalExpression), stringNormalExpression), functionalNormalExpression);
-
-  var commentSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var _b;
-          var parseToken = _a.parseToken;
-          var tkn = token.as(tokens[position], "EOF");
-          var node = {
-              type: "SpecialExpression",
-              name: "comment",
-              params: [],
-              token: tkn.debugInfo ? tkn : undefined,
-          };
-          while (!token.is(tkn, { type: "paren", value: ")" })) {
-              var bodyNode = void 0;
-              _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
-              node.params.push(bodyNode);
-              tkn = token.as(tokens[position], "EOF");
-          }
-          return [position + 1, node];
-      },
-      evaluate: function () { return null; },
-      validate: function () { return undefined; },
-      findUndefinedSymbols: function () { return new Set(); },
-  };
-
-  var declaredSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "declared?",
-              params: params,
-              token: firstToken.debugInfo ? firstToken : undefined,
-          };
-          return [newPosition + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var _b;
-          var lookUp = _a.lookUp;
-          var _c = __read(node.params, 1), astNode = _c[0];
-          nameNode.assert(astNode, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
-          var lookUpResult = lookUp(astNode, contextStack);
-          return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
-      },
-      validate: function (node) { return assertNumberOfParams(1, node); },
-      findUndefinedSymbols: function (node, contextStack, _a) {
-          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
-          return findUndefinedSymbols(node.params, contextStack, builtin);
-      },
-  };
-
-  var specialExpressions = {
-      and: andSpecialExpression,
-      comment: commentSpecialExpression,
-      cond: condSpecialExpression,
-      def: defSpecialExpression,
-      defn: defnSpecialExpression,
-      defns: defnsSpecialExpression,
-      defs: defsSpecialExpression,
-      do: doSpecialExpression,
-      doseq: doseqSpecialExpression,
-      for: forSpecialExpression,
-      fn: fnSpecialExpression,
-      if: ifSpecialExpression,
-      'if-let': ifLetSpecialExpression,
-      'if-not': ifNotSpecialExpression,
-      let: letSpecialExpression,
-      loop: loopSpecialExpression,
-      or: orSpecialExpression,
-      recur: recurSpecialExpression,
-      throw: throwSpecialExpression,
-      'time!': timeSpecialExpression,
-      try: trySpecialExpression,
-      when: whenSpecialExpression,
-      'when-first': whenFirstSpecialExpression,
-      'when-let': whenLetSpecialExpression,
-      'when-not': whenNotSpecialExpression,
-      'declared?': declaredSpecialExpression,
-  };
-  Object.keys(specialExpressions).forEach(function (key) {
-      /* istanbul ignore next */
-      if (normalExpressions[key]) {
-          throw Error("Expression ".concat(key, " is defined as both a normal expression and a special expression"));
-      }
-  });
-  var builtin = {
-      normalExpressions: normalExpressions,
-      specialExpressions: specialExpressions,
-  };
-  var normalExpressionKeys = Object.keys(normalExpressions);
-  var specialExpressionKeys = Object.keys(specialExpressions);
-
-  var getDataType = function (astNode, contextStack) {
-      var e_1, _a;
-      var astNodes = Array.isArray(astNode) ? astNode : [astNode];
-      var result = DataType.nil;
-      try {
-          for (var astNodes_1 = __values(astNodes), astNodes_1_1 = astNodes_1.next(); !astNodes_1_1.done; astNodes_1_1 = astNodes_1.next()) {
-              var node = astNodes_1_1.value;
-              result = calculateDataTypesOnAstNode(node, contextStack);
-          }
-      }
-      catch (e_1_1) { e_1 = { error: e_1_1 }; }
-      finally {
-          try {
-              if (astNodes_1_1 && !astNodes_1_1.done && (_a = astNodes_1.return)) _a.call(astNodes_1);
-          }
-          finally { if (e_1) throw e_1.error; }
-      }
-      return result;
-  };
-  function lookupNameType(nameNode, contextStack) {
-      var e_2, _a;
-      var key = nameNode.value;
-      try {
-          for (var _b = __values(contextStack.stack), _c = _b.next(); !_c.done; _c = _b.next()) {
-              var context = _c.value;
-              var type = context[key];
-              if (type) {
-                  return type.value;
-              }
-          }
-      }
-      catch (e_2_1) { e_2 = { error: e_2_1 }; }
-      finally {
-          try {
-              if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-          }
-          finally { if (e_2) throw e_2.error; }
-      }
-      return DataType.unknown;
-  }
-  function calculateDataTypesOnAstNode(astNode, contextStack) {
-      switch (astNode.type) {
-          case "Name": {
-              return lookupNameType(astNode, contextStack);
-          }
-          case "String":
-              return astNode.value.length > 0 ? DataType.nonEmptyString : DataType.emptyString;
-          case "Number": {
-              if (astNode.value === 0) {
-                  return DataType.zero;
-              }
-              var integer = Number.isInteger(astNode.value);
-              var positive = astNode.value > 0;
-              if (integer) {
-                  return positive ? DataType.positiveInteger : DataType.negativeInteger;
-              }
-              else {
-                  return positive ? DataType.positiveNonInteger : DataType.negativeNonInteger;
-              }
-          }
-          case "Modifier":
-              throw Error("Should not come here");
-          case "ReservedName":
-              switch (astNode.value) {
-                  case "true":
-                      return DataType.true;
-                  case "false":
-                      return DataType.false;
-                  default:
-                      return DataType.nil;
-              }
-          case "NormalExpression":
-              return calculateDataTypesOnNormalExpression(astNode, contextStack);
-          case "SpecialExpression":
-              return calculateDataTypesOnSpecialExpression(astNode, contextStack);
-      }
-      return DataType.nil;
-  }
-  function calculateDataTypesOnSpecialExpression(node, contextStack) {
-      var _a, _b, _c;
-      var specialExpression = asValue(builtin.specialExpressions[node.name], (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
-      return (_c = (_b = specialExpression === null || specialExpression === void 0 ? void 0 : specialExpression.getDataType) === null || _b === void 0 ? void 0 : _b.call(specialExpression, node, contextStack, { getDataType: getDataType, builtin: builtin })) !== null && _c !== void 0 ? _c : DataType.unknown;
-  }
-  function calculateDataTypesOnNormalExpression(node, contextStack) {
-      var e_3, _a;
-      var _b;
-      var paramTypes = node.params.map(function (paramNode) { return calculateDataTypesOnAstNode(paramNode, contextStack); });
-      if (normalExpressionNodeWithName.is(node)) {
-          try {
-              for (var _c = __values(contextStack.stack), _d = _c.next(); !_d.done; _d = _c.next()) {
-                  var context = _d.value;
-                  var fn = (_b = context[node.name]) === null || _b === void 0 ? void 0 : _b.value;
-                  if (fn === undefined) {
-                      continue;
-                  }
-                  return DataType.unknown;
-              }
-          }
-          catch (e_3_1) { e_3 = { error: e_3_1 }; }
-          finally {
-              try {
-                  if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-              }
-              finally { if (e_3) throw e_3.error; }
-          }
-          return calculateDataTypesOnBuiltinNormalExpression(node, paramTypes);
-      }
-      else {
-          return DataType.unknown;
-      }
-  }
-  function calculateDataTypesOnBuiltinNormalExpression(node, params) {
-      var _a, _b;
-      var normalExpression = builtin.normalExpressions[node.name];
-      if (!normalExpression) {
-          return DataType.unknown;
-      }
-      return (_b = (_a = normalExpression.getDataType) === null || _a === void 0 ? void 0 : _a.call(normalExpression, { params: params, getDataType: getDataType })) !== null && _b !== void 0 ? _b : DataType.unknown;
-  }
-
   function lookUp(node, contextStack) {
       var e_1, _a, _b;
       var _c;
@@ -6332,6 +6380,7 @@ var Lits = (function (exports) {
               }
               return emptySet;
           }
+          case "TypeName":
           case "String":
           case "Number":
           case "Modifier":
@@ -6620,6 +6669,8 @@ var Lits = (function (exports) {
               return evaluateNumber(node);
           case "String":
               return evaluateString(node);
+          case "TypeName":
+              return evaluateTypeName(node);
           case "Name":
               return evaluateName(node, contextStack);
           case "ReservedName":
@@ -6637,6 +6688,90 @@ var Lits = (function (exports) {
   }
   function evaluateString(node) {
       return node.value;
+  }
+  function evaluateTypeName(node) {
+      switch (node.value) {
+          case "never":
+              return DataType.never;
+          case "nil":
+              return DataType.nil;
+          case "empty-string":
+              return DataType.emptyString;
+          case "non-empty-string":
+              return DataType.nonEmptyString;
+          case "string":
+              return DataType.string;
+          case "zero":
+              return DataType.zero;
+          case "non-zero-number":
+              return DataType.nonZeroNumber;
+          case "positive-number":
+              return DataType.positiveNumber;
+          case "negative-number":
+              return DataType.negativeNumber;
+          case "non-positive-number":
+              return DataType.nonPositiveNumber;
+          case "non-negative-number":
+              return DataType.nonNegativeNumber;
+          case "integer":
+              return DataType.integer;
+          case "non-zero-integer":
+              return DataType.nonZeroInteger;
+          case "positive-integer":
+              return DataType.positiveInteger;
+          case "negative-integer":
+              return DataType.negativeInteger;
+          case "positive-non-integer":
+              return DataType.positiveNonInteger;
+          case "negative-non-integer":
+              return DataType.negativeNonInteger;
+          case "non-positive-integer":
+              return DataType.nonPositiveInteger;
+          case "non-negative-integer":
+              return DataType.nonNegativeInteger;
+          case "number":
+              return DataType.number;
+          case "true":
+              return DataType.true;
+          case "false":
+              return DataType.false;
+          case "boolean":
+              return DataType.boolean;
+          case "empty-array":
+              return DataType.emptyArray;
+          case "non-empty-array":
+              return DataType.nonEmptyArray;
+          case "array":
+              return DataType.array;
+          case "empty-object":
+              return DataType.emptyObject;
+          case "non-empty-object":
+              return DataType.nonEmptyObject;
+          case "object":
+              return DataType.object;
+          case "regexp":
+              return DataType.regexp;
+          case "function":
+              return DataType.function;
+          case "unknown":
+              return DataType.unknown;
+          case "truthy":
+              return DataType.truthy;
+          case "falsy":
+              return DataType.falsy;
+          case "empty-collection":
+              return DataType.emptyCollection;
+          case "non-empty-collection":
+              return DataType.nonEmptyCollection;
+          case "collection":
+              return DataType.collection;
+          case "empty-sequence":
+              return DataType.emptySequence;
+          case "non-empty-sequence":
+              return DataType.nonEmptySequence;
+          case "sequence":
+              return DataType.sequence;
+      }
   }
   function evaluateReservedName(node) {
       var _a;
@@ -6757,6 +6892,10 @@ var Lits = (function (exports) {
       var tkn = token.as(tokens[position], "EOF");
       return [position + 1, { type: "Number", value: Number(tkn.value), token: tkn.debugInfo ? tkn : undefined }];
   };
+  var parseTypeName = function (tokens, position) {
+      var tkn = token.as(tokens[position], "EOF");
+      return [position + 1, { type: "TypeName", value: tkn.value, token: tkn.debugInfo ? tkn : undefined }];
+  };
   var parseString = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
       return [position + 1, { type: "String", value: tkn.value, token: tkn.debugInfo ? tkn : undefined }];
@@ -6832,7 +6971,7 @@ var Lits = (function (exports) {
           params: params,
           token: firstToken.debugInfo ? firstToken : undefined,
       };
-      assertEventNumberOfParams(node);
+      assertEvenNumberOfParams(node);
       return [position, node];
   };
   var parseRegexpShorthand = function (tokens, position) {
@@ -6994,6 +7133,9 @@ var Lits = (function (exports) {
           case "number":
               nodeDescriptor = parseNumber(tokens, position);
               break;
+          case "typeName":
+              nodeDescriptor = parseTypeName(tokens, position);
+              break;
           case "string":
               nodeDescriptor = parseString(tokens, position);
               break;
@@ -7131,6 +7273,23 @@ var Lits = (function (exports) {
           return NO_MATCH;
       }
       return [length, { type: "string", value: value, debugInfo: debugInfo }];
+  };
+  var tokenizeTypeName = function (input, position, debugInfo) {
+      if (input[position] !== ":" || input[position + 1] !== ":") {
+          return NO_MATCH;
+      }
+      var value = "";
+      var length = 2;
+      var char = input[position + length];
+      while (char && nameRegExp.test(char)) {
+          length += 1;
+          value += char;
+          char = input[position + length];
+      }
+      if (isTypeName(value)) {
+          return [length, { type: "typeName", value: value, debugInfo: debugInfo }];
+      }
+      return NO_MATCH;
   };
   var tokenizeRegexpShorthand = function (input, position, debugInfo) {
       var _a;
@@ -7344,6 +7503,7 @@ var Lits = (function (exports) {
       tokenizeRightBracket,
       tokenizeLeftCurly,
       tokenizeRightCurly,
+      tokenizeTypeName,
       tokenizeString,
       tokenizeSymbolString,
       tokenizeNumber,
@@ -7528,11 +7688,6 @@ var Lits = (function (exports) {
           var ast = this.generateAst(program, params.getLocation);
           return findUndefinedSymbols(ast.body, contextStack, builtin);
       };
-      Lits.prototype.getDataType = function (program) {
-          var contextStack = ContextStack.create();
-          var ast = this.generateAst(program, undefined);
-          return getDataType(ast.body, contextStack);
-      };
       Lits.prototype.tokenize = function (program, getLocation) {
           return tokenize(program, { debug: this.debug, getLocation: getLocation });
       };
@@ -7577,6 +7732,161 @@ var Lits = (function (exports) {
       };
       return Lits;
   }());
+
+  var typeNormalExpression = {
+      'type-of': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 1), value = _b[0];
+              any.assert(value, debugInfo);
+              return DataType.of(value);
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
+      },
+      'type-or': {
+          evaluate: function (params, debugInfo) {
+              params.forEach(function (param) { return dataType.assert(param, debugInfo); });
+              return DataType.or.apply(DataType, __spreadArray([], __read(params), false));
+          },
+          validate: function () { return undefined; },
+      },
+      'type-and': {
+          evaluate: function (params, debugInfo) {
+              params.forEach(function (param) { return dataType.assert(param, debugInfo); });
+              return DataType.and.apply(DataType, __spreadArray([], __read(params), false));
+          },
+          validate: function () { return undefined; },
+      },
+      'type-exclude': {
+          evaluate: function (params, debugInfo) {
+              params.forEach(function (param) { return dataType.assert(param, debugInfo); });
+              var first = dataType.as(params[0]);
+              return DataType.exclude.apply(DataType, __spreadArray([first], __read(params.slice(1)), false));
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+      },
+      'type-is?': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], second = _b[1];
+              dataType.assert(first, debugInfo);
+              dataType.assert(second, debugInfo);
+              return DataType.is(first, second);
+          },
+          validate: function (node) { return assertNumberOfParams(2, node); },
+      },
+      'type-equals?': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], second = _b[1];
+              dataType.assert(first, debugInfo);
+              dataType.assert(second, debugInfo);
+              return DataType.equals(first, second);
+          },
+          validate: function (node) { return assertNumberOfParams(2, node); },
+      },
+      'type-intersects?': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], second = _b[1];
+              dataType.assert(first, debugInfo);
+              dataType.assert(second, debugInfo);
+              return DataType.intersects(first, second);
+          },
+          validate: function (node) { return assertNumberOfParams(2, node); },
+      },
+  };
+
+  var normalExpressions = __assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign({}, bitwiseNormalExpression), collectionNormalExpression), arrayNormalExpression), sequenceNormalExpression), mathNormalExpression), miscNormalExpression), assertNormalExpression), objectNormalExpression), predicatesNormalExpression), regexpNormalExpression), stringNormalExpression), functionalNormalExpression), typeNormalExpression);
+
+  var commentSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b;
+          var parseToken = _a.parseToken;
+          var tkn = token.as(tokens[position], "EOF");
+          var node = {
+              type: "SpecialExpression",
+              name: "comment",
+              params: [],
+              token: tkn.debugInfo ? tkn : undefined,
+          };
+          while (!token.is(tkn, { type: "paren", value: ")" })) {
+              var bodyNode = void 0;
+              _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
+              node.params.push(bodyNode);
+              tkn = token.as(tokens[position], "EOF");
+          }
+          return [position + 1, node];
+      },
+      evaluate: function () { return null; },
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function () { return new Set(); },
+  };
+
+  var declaredSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "declared?",
+              params: params,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [newPosition + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b;
+          var lookUp = _a.lookUp;
+          var _c = __read(node.params, 1), astNode = _c[0];
+          nameNode.assert(astNode, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          var lookUpResult = lookUp(astNode, contextStack);
+          return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
+      },
+      validate: function (node) { return assertNumberOfParams(1, node); },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
+      },
+  };
+
+  var specialExpressions = {
+      and: andSpecialExpression,
+      comment: commentSpecialExpression,
+      cond: condSpecialExpression,
+      def: defSpecialExpression,
+      defn: defnSpecialExpression,
+      defns: defnsSpecialExpression,
+      defs: defsSpecialExpression,
+      do: doSpecialExpression,
+      doseq: doseqSpecialExpression,
+      for: forSpecialExpression,
+      fn: fnSpecialExpression,
+      if: ifSpecialExpression,
+      'if-let': ifLetSpecialExpression,
+      'if-not': ifNotSpecialExpression,
+      let: letSpecialExpression,
+      loop: loopSpecialExpression,
+      or: orSpecialExpression,
+      recur: recurSpecialExpression,
+      throw: throwSpecialExpression,
+      'time!': timeSpecialExpression,
+      try: trySpecialExpression,
+      when: whenSpecialExpression,
+      'when-first': whenFirstSpecialExpression,
+      'when-let': whenLetSpecialExpression,
+      'when-not': whenNotSpecialExpression,
+      'declared?': declaredSpecialExpression,
+  };
+  Object.keys(specialExpressions).forEach(function (key) {
+      /* istanbul ignore next */
+      if (normalExpressions[key]) {
+          throw Error("Expression ".concat(key, " is defined as both a normal expression and a special expression"));
+      }
+  });
+  var builtin = {
+      normalExpressions: normalExpressions,
+      specialExpressions: specialExpressions,
+  };
+  var normalExpressionKeys = Object.keys(normalExpressions);
+  var specialExpressionKeys = Object.keys(specialExpressions);
 
   exports.Lits = Lits;
   exports.isLitsFunction = isLitsFunction;

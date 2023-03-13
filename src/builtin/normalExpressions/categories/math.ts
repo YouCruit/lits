@@ -21,40 +21,43 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   },
 
   '+': {
-    evaluate: (params, debugInfo): number => {
-      return params.reduce((result: number, param) => {
-        number.assert(param, debugInfo)
-        return result + param
-      }, 0)
+    evaluate: (params, debugInfo): number | DataType => {
+      if (params.every(param => !(param instanceof DataType))) {
+        return params.reduce((result: number, param) => {
+          number.assert(param, debugInfo)
+          return result + param
+        }, 0)
+      } else {
+        const paramTypes = params.map(param => DataType.of(param))
+        return paramTypes.reduce((result: DataType, x) => {
+          const param = x.and(DataType.number)
+
+          if (result.is(DataType.zero)) {
+            return param
+          }
+
+          const baseType =
+            result.is(DataType.integer) && param.is(DataType.integer) ? DataType.integer : DataType.number
+
+          if (result.is(DataType.negativeNumber)) {
+            if (param.is(DataType.zero) || param.is(DataType.negativeNumber)) {
+              return DataType.and(baseType, DataType.negativeNumber)
+            } else {
+              return baseType
+            }
+          } else if (result.is(DataType.positiveNumber)) {
+            if (param.is(DataType.zero) || param.is(DataType.positiveNumber)) {
+              return DataType.and(baseType, DataType.positiveNumber)
+            } else {
+              return baseType
+            }
+          } else {
+            return DataType.and(baseType, DataType.number)
+          }
+        }, DataType.zero)
+      }
     },
     validate: () => undefined,
-    getDataType: ({ params }) => {
-      return params.reduce((result: DataType, x) => {
-        const param = x.and(DataType.number)
-
-        if (result.is(DataType.zero)) {
-          return param
-        }
-
-        const baseType = result.is(DataType.integer) && param.is(DataType.integer) ? DataType.integer : DataType.number
-
-        if (result.is(DataType.negativeNumber)) {
-          if (param.is(DataType.zero) || param.is(DataType.negativeNumber)) {
-            return DataType.and(baseType, DataType.negativeNumber)
-          } else {
-            return baseType
-          }
-        } else if (result.is(DataType.positiveNumber)) {
-          if (param.is(DataType.zero) || param.is(DataType.positiveNumber)) {
-            return DataType.and(baseType, DataType.positiveNumber)
-          } else {
-            return baseType
-          }
-        } else {
-          return DataType.and(baseType, DataType.number)
-        }
-      }, DataType.zero)
-    },
   },
 
   '*': {

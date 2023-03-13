@@ -9,23 +9,27 @@ import {
   assertEvenNumberOfParams,
   assertNumberOfParams,
   stringArray,
+  dataType,
 } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
 
 export const objectNormalExpression: BuiltinNormalExpressions = {
   object: {
-    evaluate: (params, debugInfo): Obj => {
-      const result: Obj = {}
-      for (let i = 0; i < params.length; i += 2) {
-        const key = params[i]
-        const value = params[i + 1]
-        string.assert(key, debugInfo)
-        result[key] = value
+    evaluate: (params, debugInfo): Obj | DataType => {
+      if (params.every(dataType.isNot)) {
+        const result: Obj = {}
+        for (let i = 0; i < params.length; i += 2) {
+          const key = params[i]
+          const value = params[i + 1]
+          string.assert(key, debugInfo)
+          result[key] = value
+        }
+        return result
+      } else {
+        return params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject
       }
-      return result
     },
     validate: node => assertEvenNumberOfParams(node),
-    getDataType: ({ params }) => (params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject),
   },
 
   keys: {

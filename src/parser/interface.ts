@@ -1,4 +1,3 @@
-import { DataType } from '../analyze/dataTypes/DataType'
 import { SpecialExpressionName } from '../builtin/interface'
 import { Condition } from '../builtin/specialExpressions/cond'
 import { LoopBindingNode } from '../builtin/specialExpressions/loops'
@@ -16,11 +15,11 @@ export type EvaluatedFunctionArguments = {
   restArgument?: string
 }
 
-export type EvaluatedFunctionOverload<T extends Any | DataType = Any> = {
+export type EvaluatedFunctionOverload = {
   arguments: EvaluatedFunctionArguments
   body: AstNode[]
   arity: Arity
-  functionContext: Context<T>
+  functionContext: Context
 }
 
 type GenericLitsFunction = {

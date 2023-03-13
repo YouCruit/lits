@@ -1,3 +1,4 @@
+import { DataType } from '../analyze/dataTypes/DataType'
 import { LitsError } from '../errors'
 import { Any, Arr, Coll, Obj, Seq } from '../interface'
 import {
@@ -27,17 +28,33 @@ class Asserter<T> {
     this.predicate = predicate
   }
 
-  public is(value: unknown): value is T {
+  public is: (value: unknown) => value is T = (value: unknown): value is T => {
     return this.predicate(value)
   }
 
-  public assert(value: unknown, debugInfo?: DebugInfo): asserts value is T {
+  public isNot: (value: unknown) => boolean = (value: unknown): boolean => {
+    return !this.predicate(value)
+  }
+
+  public assert: (value: unknown, debugInfo?: DebugInfo) => asserts value is T = (
+    value: unknown,
+    debugInfo?: DebugInfo,
+  ): asserts value is T => {
     if (!this.predicate(value)) {
       throw new LitsError(`Expected ${this.typeName}, got ${valueToString(value)}.`, getDebugInfo(value, debugInfo))
     }
   }
 
-  public as(value: unknown, debugInfo?: DebugInfo): T {
+  public assertNot: (value: unknown, debugInfo?: DebugInfo) => asserts value is T = (
+    value: unknown,
+    debugInfo?: DebugInfo,
+  ): asserts value is T => {
+    if (!this.predicate(value)) {
+      throw new LitsError(`Expected ${this.typeName}, got ${valueToString(value)}.`, getDebugInfo(value, debugInfo))
+    }
+  }
+
+  public as: (value: unknown, debugInfo?: DebugInfo) => T = (value: unknown, debugInfo?: DebugInfo): T => {
     this.assert(value, debugInfo)
     return value
   }
@@ -107,6 +124,8 @@ export const expressionNode: Asserter<ExpressionNode> = new Asserter(`expression
     value.type === `String`
   )
 })
+
+export const dataType: Asserter<DataType> = new Asserter(`DataType`, value => value instanceof DataType)
 
 export function assertNumberOfParams(
   count: number | { min?: number; max?: number },

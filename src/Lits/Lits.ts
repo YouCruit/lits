@@ -1,6 +1,4 @@
 import { LitsFunction } from '..'
-import { getDataType } from '../analyze/dataTypes'
-import { DataType } from '../analyze/dataTypes/DataType'
 import { findUndefinedSymbols } from '../analyze/undefinedSymbols'
 import { UndefinedSymbolEntry } from '../analyze/undefinedSymbols/interface'
 import { builtin } from '../builtin'
@@ -20,6 +18,8 @@ export type LitsRuntimeInfo = {
   astCacheSize: number | null
   debug: boolean
 }
+
+export { DataType } from '../analyze/dataTypes/DataType'
 
 type LitsConfig = {
   initialCache?: Record<string, Ast>
@@ -73,13 +73,6 @@ export class Lits {
     const ast = this.generateAst(program, params.getLocation)
 
     return findUndefinedSymbols(ast.body, contextStack, builtin)
-  }
-
-  public getDataType(program: string): DataType {
-    const contextStack = ContextStack.create<DataType>()
-    const ast = this.generateAst(program, undefined)
-
-    return getDataType(ast.body, contextStack)
   }
 
   public tokenize(program: string, getLocation?: LocationGetter): Token[] {

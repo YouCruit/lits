@@ -13,8 +13,6 @@ import { Token, DebugInfo } from '../tokenizer/interface'
 import { NormalExpressionNode } from '../parser/interface'
 import { Any, Arr } from '../interface'
 import { FindUndefinedSymbols, UndefinedSymbolEntry } from '../analyze/undefinedSymbols/interface'
-import { GetDataType } from '../analyze/dataTypes/interface'
-import { DataType } from '../analyze/dataTypes/DataType'
 import { ContextStack } from '../ContextStack'
 import { LookUpResult } from '../lookup/interface'
 
@@ -29,7 +27,6 @@ type ValidateNode = (node: NormalExpressionNode) => void
 type BuiltinNormalExpression<T> = {
   evaluate: NormalExpressionEvaluator<T>
   validate: ValidateNode
-  getDataType?(options: { params: DataType[]; getDataType: GetDataType }): DataType
 }
 
 export type ParserHelpers = {
@@ -49,10 +46,7 @@ type EvaluateHelpers = {
   builtin: Builtin
   lookUp(nameNode: NameNode, contextStack: ContextStack): LookUpResult
 }
-type GetDataTypeHelpers = {
-  getDataType: GetDataType
-  builtin: Builtin
-}
+
 export type BuiltinSpecialExpression<T> = {
   parse: (tokens: Token[], position: number, parsers: ParserHelpers) => [number, SpecialExpressionNode]
   evaluate: (node: SpecialExpressionNode, contextStack: ContextStack, helpers: EvaluateHelpers) => T
@@ -62,7 +56,6 @@ export type BuiltinSpecialExpression<T> = {
     contextStack: ContextStack,
     params: { findUndefinedSymbols: FindUndefinedSymbols; builtin: Builtin },
   ): Set<UndefinedSymbolEntry>
-  getDataType?(node: SpecialExpressionNode, contextStack: ContextStack<DataType>, helpers: GetDataTypeHelpers): DataType
 }
 
 export type SpecialExpressionName =

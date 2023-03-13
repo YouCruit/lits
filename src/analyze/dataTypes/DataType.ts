@@ -1,4 +1,6 @@
 import { LitsError } from '../../errors'
+import { DebugInfo } from '../../tokenizer/interface'
+import { any, array, litsFunction, object, regularExpression } from '../../utils/assertion'
 
 export const typeToBitRecord = {
   // Group 1: Falsy types
@@ -185,6 +187,39 @@ export class DataType {
 
   public static readonly function = new DataType(builtinTypesBitMasks.function)
 
+  public static of(input: unknown): DataType {
+    any.assert(input)
+    if (input instanceof DataType) {
+      return input
+    }
+    if (input === null) {
+      return DataType.nil
+    } else if (input === true) {
+      return DataType.true
+    } else if (input === false) {
+      return DataType.false
+    } else if (typeof input === `string`) {
+      return input ? DataType.nonEmptyString : DataType.emptyString
+    } else if (typeof input === `number`) {
+      if (input === 0) {
+        return DataType.zero
+      } else if (Number.isInteger(input)) {
+        return input > 0 ? DataType.positiveInteger : DataType.negativeInteger
+      } else {
+        return input > 0 ? DataType.positiveNonInteger : DataType.negativeNonInteger
+      }
+    } else if (array.is(input)) {
+      return input.length === 0 ? DataType.emptyArray : DataType.nonEmptyArray
+    } else if (object.is(input)) {
+      return Object.keys(input).length === 0 ? DataType.emptyObject : DataType.nonEmptyObject
+    } else if (regularExpression.is(input)) {
+      return DataType.regexp
+    } else if (litsFunction.is(input)) {
+      return DataType.function
+    }
+    throw Error(`Unexpected error, could not figure out type of ${input}`)
+  }
+
   public static or(...types: DataType[]): DataType {
     const newTypeMask = types.reduce((result, type) => {
       return result | type.bitmask
@@ -274,6 +309,10 @@ export class DataType {
     })
   }
 
+  public static intersects(a: DataType, b: DataType): boolean {
+    return a.is(b) || b.is(a)
+  }
+
   public static isUnionType(dataType: DataType): boolean {
     return !allBitValues.includes(dataType.bitmask)
   }
@@ -294,15 +333,25 @@ export class DataType {
     return DataType.is(this, dataType)
   }
 
-  public assertIs(dataType: DataType): void {
+  public intersects(dataType: DataType): boolean {
+    return DataType.intersects(this, dataType)
+  }
+
+  public assertIs(dataType: DataType, debugInfo: DebugInfo | undefined): void {
     if (!this.is(dataType)) {
-      throw new LitsError(`Expected to be of type ${dataType.toString()}, but was ${this.toString()}`)
+      throw new LitsError(`Expected to be of type ${dataType.toString()}, but was ${this.toString()}`, debugInfo)
     }
   }
 
-  public assertEquals(dataType: DataType): void {
+  public assertEquals(dataType: DataType, debugInfo: DebugInfo | undefined): void {
     if (!this.equals(dataType)) {
-      throw new LitsError(`Expected to be ${dataType.toString()}, but was ${this.toString()}`)
+      throw new LitsError(`Expected to be ${dataType.toString()}, but was ${this.toString()}`, debugInfo)
+    }
+  }
+
+  public assertIntersects(dataType: DataType, debugInfo: DebugInfo | undefined): void {
+    if (!this.intersects(dataType)) {
+      throw new LitsError(`Expected to intersect ${dataType.toString()}, but was ${this.toString()}`, debugInfo)
     }
   }
 

@@ -1,6 +1,6 @@
 import { DataType } from '../../analyze/dataTypes/DataType'
 import { Any } from '../../interface'
-import { asValue, token } from '../../utils/assertion'
+import { asValue, dataType, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
 export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
@@ -18,33 +18,29 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
+    const possibleValues: Any[] = []
     let value: Any = true
 
     for (const param of node.params) {
       value = evaluateAstNode(param, contextStack)
-      if (!value) {
+      if ((dataType.is(value) && value.is(DataType.falsy)) || !value) {
         break
+      } else if (dataType.is(value)) {
+        possibleValues.push(value)
       }
     }
 
-    return value
+    if (possibleValues.length === 0) {
+      return value
+    } else if (possibleValues.length === 1) {
+      return asValue(possibleValues[0])
+    } else {
+      return DataType.or(...possibleValues.map(DataType.of))
+    }
   },
 
   validate: () => undefined,
 
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
     findUndefinedSymbols(node.params, contextStack, builtin),
-
-  getDataType(node, contextStack, helpers) {
-    if (node.params.length === 0) {
-      return DataType.true
-    }
-    const params = node.params.map(p => helpers.getDataType(p, contextStack))
-    for (const param of params) {
-      if (param.is(DataType.falsy)) {
-        return param
-      }
-    }
-    return asValue(params[params.length - 1])
-  },
 }

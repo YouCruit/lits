@@ -1,5 +1,3 @@
-import { DataType } from '../../analyze/dataTypes/DataType'
-import { GetDataType } from '../../analyze/dataTypes/interface'
 import { FindUndefinedSymbols, UndefinedSymbolEntry } from '../../analyze/undefinedSymbols/interface'
 import { addAnalyzeResults } from '../../analyze/undefinedSymbols/utils'
 import { ContextStack } from '../../ContextStack'
@@ -88,13 +86,13 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
       newContext,
     )
   },
-  getDataType: (node, contextStack, { getDataType: dataType, builtin }) => {
-    const name = ((node as DefnNode).functionName as NameNode).value
-    assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
-    const type = getFunctionOverloadeDataType(node as DefnNode, contextStack, dataType)
-    contextStack.globalContext[name] = { value: type }
-    return DataType.nil
-  },
+  // getDataType: (node, contextStack, { getDataType: dataType, builtin }) => {
+  //   const name = ((node as DefnNode).functionName as NameNode).value
+  //   assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
+  //   const type = getFunctionOverloadeDataType(node as DefnNode, contextStack, dataType)
+  //   contextStack.globalContext[name] = { value: type }
+  //   return DataType.nil
+  // },
 }
 
 export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
@@ -214,21 +212,21 @@ function evaluateFunctionOverloades(
   return evaluatedFunctionOverloades
 }
 
-function getFunctionOverloadeDataType(
-  node: DefnNode | FnNode,
-  contextStack: ContextStack<DataType>,
-  dataType: GetDataType,
-): DataType {
-  const types = node.overloads.map(functionOverload => {
-    const functionContext: Context<DataType> = {}
-    for (const binding of functionOverload.arguments.bindings) {
-      const bindingType = dataType(binding.value, contextStack)
-      functionContext[binding.name] = { value: bindingType }
-    }
-    return DataType.function.withReturnType(dataType(functionOverload.body, contextStack.withContext(functionContext)))
-  })
-  return DataType.or(...types)
-}
+// function getFunctionOverloadeDataType(
+//   node: DefnNode | FnNode,
+//   contextStack: ContextStack,
+//   dataType: GetDataType,
+// ): DataType {
+//   const types = node.overloads.map(functionOverload => {
+//     const functionContext: Context = {}
+//     for (const binding of functionOverload.arguments.bindings) {
+//       const bindingType = dataType(binding.value, contextStack)
+//       functionContext[binding.name] = { value: bindingType }
+//     }
+//     return DataType.function.withReturnType(dataType(functionOverload.body, contextStack.withContext(functionContext)))
+//   })
+//   return DataType.or(...types)
+// }
 
 function addOverloadsUndefinedSymbols(
   overloads: FunctionOverload[],

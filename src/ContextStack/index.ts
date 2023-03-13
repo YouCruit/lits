@@ -1,4 +1,3 @@
-import { DataType } from '../analyze/dataTypes/DataType'
 import { Any, Arr, Obj } from '../interface'
 import { LitsParams } from '../Lits/interface'
 import { AstNode } from '../parser/interface'
@@ -19,8 +18,8 @@ export function createContextFromValues(values?: Obj): Context {
   }, {})
 }
 
-export class ContextStack<T extends Any | DataType = Any> {
-  public static create<T extends Any | DataType = Any>(contexts: Context<T>[] = []): ContextStack<T> {
+export class ContextStack {
+  public static create(contexts: Context[] = []): ContextStack {
     if (contexts.length === 0) {
       contexts.push({})
     }
@@ -34,16 +33,16 @@ export class ContextStack<T extends Any | DataType = Any> {
     return contextStack
   }
 
-  public stack: Context<T>[]
-  public globalContext: Context<T>
+  public stack: Context[]
+  public globalContext: Context
   public numberOfImportedContexts: number
-  private constructor(contexts: Context<T>[], globalContextIndex: number) {
+  private constructor(contexts: Context[], globalContextIndex: number) {
     this.stack = contexts
     this.numberOfImportedContexts = contexts.length - (globalContextIndex + 1)
-    this.globalContext = contexts[globalContextIndex] as Context<T>
+    this.globalContext = contexts[globalContextIndex] as Context
   }
 
-  public withContext(context: Context<T>): ContextStack<T> {
+  public withContext(context: Context): ContextStack {
     return new ContextStack([context, ...this.stack], this.stack.length - this.numberOfImportedContexts)
   }
 }

@@ -16,7 +16,7 @@ import {
   array,
   string,
   assertNumberOfParams,
-  assertValue,
+  dataType,
 } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
 
@@ -144,119 +144,144 @@ function assoc(coll: Coll, key: string | number, value: Any, debugInfo?: DebugIn
 export const collectionNormalExpression: BuiltinNormalExpressions = {
   get: {
     evaluate: (params, debugInfo) => {
-      const [coll, key] = params
-      const defaultValue = toAny(params[2])
-      stringOrNumber.assert(key, debugInfo)
-      if (coll === null) {
-        return defaultValue
+      if (params.every(dataType.isNot)) {
+        const [coll, key] = params
+        const defaultValue = toAny(params[2])
+        stringOrNumber.assert(key, debugInfo)
+        if (coll === null) {
+          return defaultValue
+        }
+        collection.assert(coll, debugInfo)
+        const result = get(coll, key)
+        return result === undefined ? defaultValue : result
+      } else {
+        const collType = DataType.of(params[0])
+        const keyType = DataType.of(params[1])
+        const defaultValueType = dataType.is(params[2])
+          ? params[2]
+          : params[2] === undefined
+          ? DataType.nil
+          : DataType.of(params[2])
+
+        collType.assertIs(DataType.collection.nilable(), debugInfo)
+        keyType.assertIs(DataType.or(DataType.string, DataType.number, DataType.nil), debugInfo)
+
+        if (collType.is(DataType.nil)) {
+          return defaultValueType
+        }
+
+        if (collType.is(DataType.string)) {
+          return DataType.or(DataType.string.nilable(), defaultValueType)
+        }
+
+        return DataType.unknown
       }
-      collection.assert(coll, debugInfo)
-      const result = get(coll, key)
-      return result === undefined ? defaultValue : result
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
-    getDataType: ({ params }) => {
-      const [collType, keyType] = params
-      const defaultValueType = params[2] ?? DataType.nil
-      assertValue(collType)
-      assertValue(keyType)
-
-      if (collType.is(DataType.nil)) {
-        return defaultValueType
-      }
-
-      if (collType.is(DataType.string)) {
-        return DataType.or(DataType.string.nilable(), defaultValueType)
-      }
-
-      return DataType.unknown
-    },
   },
   'get-in': {
     evaluate: (params, debugInfo): Any => {
-      let coll = toAny(params[0])
-      const keys = params[1] ?? [] // nil behaves as empty array
-      const defaultValue = toAny(params[2])
-      array.assert(keys, debugInfo)
-      for (const key of keys) {
-        stringOrNumber.assert(key, debugInfo)
-        if (collection.is(coll)) {
-          const nextValue = get(coll, key)
-          if (nextValue !== undefined) {
-            coll = nextValue
+      if (params.every(dataType.isNot)) {
+        let coll = toAny(params[0])
+        const keys = params[1] ?? [] // nil behaves as empty array
+        const defaultValue = toAny(params[2])
+        array.assert(keys, debugInfo)
+        for (const key of keys) {
+          stringOrNumber.assert(key, debugInfo)
+          if (collection.is(coll)) {
+            const nextValue = get(coll, key)
+            if (nextValue !== undefined) {
+              coll = nextValue
+            } else {
+              return defaultValue
+            }
           } else {
             return defaultValue
           }
-        } else {
-          return defaultValue
         }
+        return coll
+      } else {
+        const collType = DataType.of(params[0])
+        const keysType = DataType.of(params[1])
+        collType.assertIs(DataType.collection.nilable(), debugInfo)
+        keysType.assertIs(DataType.array.nilable(), debugInfo)
+
+        if (keysType.is(DataType.nil)) {
+          return collType
+        }
+
+        return DataType.unknown
       }
-      return coll
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
-    getDataType: ({ params }) => {
-      const [collType, keysType] = params
-      assertValue(collType)
-      assertValue(keysType)
-
-      if (keysType.is(DataType.nil)) {
-        return collType
-      }
-
-      return DataType.unknown
-    },
   },
   count: {
-    evaluate: ([coll], debugInfo): number => {
-      if (typeof coll === `string`) {
-        return coll.length
+    evaluate: ([coll], debugInfo): number | DataType => {
+      if (dataType.isNot(coll)) {
+        if (typeof coll === `string`) {
+          return coll.length
+        }
+        collection.assert(coll, debugInfo)
+        if (Array.isArray(coll)) {
+          return coll.length
+        }
+        return Object.keys(coll).length
+      } else {
+        const collType = DataType.of(coll)
+        collType.assertIs(DataType.collection, debugInfo)
+        return collType.is(DataType.emptyCollection)
+          ? DataType.zero
+          : collType.is(DataType.nonEmptyCollection)
+          ? DataType.positiveInteger
+          : DataType.nonNegativeInteger
       }
-      collection.assert(coll, debugInfo)
-      if (Array.isArray(coll)) {
-        return coll.length
-      }
-      return Object.keys(coll).length
     },
     validate: node => assertNumberOfParams(1, node),
-    getDataType: ({ params }) => {
-      const [collType] = params
-      assertValue(collType)
-      return collType.is(DataType.emptyCollection)
-        ? DataType.zero
-        : collType.is(DataType.nonEmptyCollection)
-        ? DataType.positiveInteger
-        : DataType.nonNegativeInteger
-    },
   },
   'contains?': {
-    evaluate: ([coll, key], debugInfo): boolean => {
-      collection.assert(coll, debugInfo)
-      stringOrNumber.assert(key, debugInfo)
-      if (sequence.is(coll)) {
-        if (!number.is(key, { integer: true })) {
-          return false
+    evaluate: (params, debugInfo): boolean | DataType => {
+      if (params.every(dataType.isNot)) {
+        const [coll, key] = params
+        collection.assert(coll, debugInfo)
+        stringOrNumber.assert(key, debugInfo)
+        if (sequence.is(coll)) {
+          if (!number.is(key, { integer: true })) {
+            return false
+          }
+          number.assert(key, debugInfo, { integer: true })
+          return key >= 0 && key < coll.length
         }
-        number.assert(key, debugInfo, { integer: true })
-        return key >= 0 && key < coll.length
+        return !!Object.getOwnPropertyDescriptor(coll, key)
+      } else {
+        const collType = DataType.of(params[0])
+        return collType.is(DataType.emptyCollection) ? DataType.false : DataType.boolean
       }
-      return !!Object.getOwnPropertyDescriptor(coll, key)
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
   },
   'has?': {
-    evaluate: ([coll, value], debugInfo): boolean => {
-      collection.assert(coll, debugInfo)
-      if (array.is(coll)) {
-        return coll.includes(value)
+    evaluate: (params, debugInfo): boolean | DataType => {
+      if (params.every(dataType.isNot)) {
+        const [coll, value] = params
+        collection.assert(coll, debugInfo)
+
+        if ((array.is(coll) && coll.some(dataType.is)) || (object.is(coll) && Object.values(coll).some(dataType.is))) {
+          return DataType.boolean
+        }
+
+        if (array.is(coll)) {
+          return coll.includes(value)
+        }
+        if (string.is(coll)) {
+          return string.is(value) ? coll.split(``).includes(value) : false
+        }
+        return Object.values(coll).includes(value)
+      } else {
+        const collType = DataType.of(params[0])
+        return collType.is(DataType.emptyCollection) ? DataType.false : DataType.boolean
       }
-      if (string.is(coll)) {
-        return string.is(value) ? coll.split(``).includes(value) : false
-      }
-      return Object.values(coll).includes(value)
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
   },
   'has-some?': {
     evaluate: ([coll, seq], debugInfo): boolean => {
@@ -286,7 +311,6 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return false
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
   },
   'has-every?': {
     evaluate: ([coll, seq], debugInfo): boolean => {
@@ -316,7 +340,6 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return true
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
   },
   assoc: {
     evaluate: ([coll, key, value], debugInfo): Coll => {
@@ -457,7 +480,6 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return Object.entries(coll).every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
   },
   'any?': {
     evaluate: ([fn, coll], debugInfo, contextStack, { executeFunction }): boolean => {
@@ -473,7 +495,6 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return Object.entries(coll).some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
   },
   'not-any?': {
     evaluate: ([fn, coll], debugInfo, contextStack, { executeFunction }): boolean => {
@@ -489,7 +510,6 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return !Object.entries(coll).some(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
   },
   'not-every?': {
     evaluate: ([fn, coll], debugInfo, contextStack, { executeFunction }): boolean => {
@@ -505,6 +525,5 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       return !Object.entries(coll).every(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     },
     validate: node => assertNumberOfParams(2, node),
-    getDataType: () => DataType.boolean,
   },
 }

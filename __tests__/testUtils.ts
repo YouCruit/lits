@@ -1,7 +1,9 @@
 /* istanbul ignore file */
 
+import { TypeName } from '../src/analyze/dataTypes/DataType'
 import { UndefinedSymbolEntry } from '../src/analyze/undefinedSymbols/interface'
 import { Obj } from '../src/interface'
+import { DataType, Lits } from '../src/Lits/Lits'
 import { regularExpression } from '../src/utils/assertion'
 
 interface Primitives extends Obj {
@@ -88,4 +90,22 @@ export function regexpEquals(udr: unknown, r: RegExp): boolean {
 export function getUndefinedSymbolNames(undefinedSymbols: Set<UndefinedSymbolEntry>): Set<string> {
   const names = [...undefinedSymbols].map(entry => entry.symbol)
   return new Set<string>(names)
+}
+
+export type TestTypeEvaluation = [Array<`::${TypeName}` | { expression: string }>, `::${TypeName}` | `ERROR`]
+
+export function testTypeEvaluations(lits: Lits, functionName: string, evaluations: TestTypeEvaluation[]) {
+  for (const evaluationData of evaluations) {
+    const [params, resultExpression] = evaluationData
+    const expression = `(${functionName} ${params.map(p => (typeof p === `string` ? p : p.expression)).join(` `)})`
+    test(`${expression} ==> ${resultExpression}`, () => {
+      if (resultExpression !== `ERROR`) {
+        const type = lits.run(expression) as DataType
+        const expectedType = lits.run(resultExpression) as DataType
+        expect(type.toString()).toBe(expectedType.toString())
+      } else {
+        expect(() => lits.run(expression)).toThrow()
+      }
+    })
+  }
 }

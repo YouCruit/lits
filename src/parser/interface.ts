@@ -1,4 +1,4 @@
-import { TypeName } from '../analyze/dataTypes/DataType'
+import { TypeName } from '../analyze/dataTypes/litsTypeNames'
 import { SpecialExpressionName } from '../builtin/interface'
 import { Condition } from '../builtin/specialExpressions/cond'
 import { LoopBindingNode } from '../builtin/specialExpressions/loops'

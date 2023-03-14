@@ -1,4 +1,4 @@
-import { isTypeName } from '../analyze/dataTypes/DataType'
+import { isTypeName } from '../analyze/dataTypes/litsTypeNames'
 import { LitsError } from '../errors'
 import { ModifierName } from '../parser/interface'
 import { reservedNamesRecord } from '../reservedNames'

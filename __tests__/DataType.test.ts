@@ -98,6 +98,33 @@ describe(`DataType`, () => {
     })
   })
 
+  describe(`DataType.intersects`, () => {
+    test(`samples`, () => {
+      expect(DataType.nonZeroInteger.intersects(DataType.negativeNumber)).toBe(true)
+    })
+  })
+
+  describe(`negateNumber`, () => {
+    test(`samples`, () => {
+      expect(DataType.zero.negateNumber()).toEqual(DataType.zero)
+      expect(DataType.number.negateNumber()).toEqual(DataType.number)
+      expect(DataType.integer.negateNumber()).toEqual(DataType.integer)
+      expect(DataType.nonZeroNumber.negateNumber()).toEqual(DataType.nonZeroNumber)
+      expect(DataType.nonZeroInteger.negateNumber()).toEqual(DataType.nonZeroInteger)
+      expect(DataType.nonInteger.negateNumber()).toEqual(DataType.nonInteger)
+      expect(DataType.positiveNumber.negateNumber().toString()).toEqual(DataType.negativeNumber.toString())
+      expect(DataType.nonPositiveNumber.negateNumber()).toEqual(DataType.nonNegativeNumber)
+      expect(DataType.positiveInteger.negateNumber()).toEqual(DataType.negativeInteger)
+      expect(DataType.positiveNonInteger.negateNumber()).toEqual(DataType.negativeNonInteger)
+      expect(DataType.nonPositiveInteger.negateNumber()).toEqual(DataType.nonNegativeInteger)
+      expect(DataType.negativeNumber.negateNumber()).toEqual(DataType.positiveNumber)
+      expect(DataType.nonNegativeNumber.negateNumber()).toEqual(DataType.nonPositiveNumber)
+      expect(DataType.negativeInteger.negateNumber()).toEqual(DataType.positiveInteger)
+      expect(DataType.negativeNonInteger.negateNumber()).toEqual(DataType.positiveNonInteger)
+      expect(DataType.nonNegativeInteger.negateNumber()).toEqual(DataType.nonPositiveInteger)
+    })
+  })
+
   describe(`DataType.or`, () => {
     test(`samples`, () => {
       expect(DataType.or(DataType.truthy, DataType.falsy)).toEqual(DataType.unknown)
@@ -258,6 +285,9 @@ describe(`DataType`, () => {
     })
     test(`nil samples`, () => {
       expect(DataType.nil.is(DataType.or(DataType.array, DataType.true, DataType.nil))).toBe(true)
+    })
+    test(`more samples`, () => {
+      expect(DataType.positiveNonInteger.is(DataType.nonPositiveNumber)).toBe(false)
     })
   })
 

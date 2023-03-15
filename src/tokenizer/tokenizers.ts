@@ -111,8 +111,9 @@ export const tokenizeTypeName: Tokenizer = (input, position, debugInfo) => {
   }
   if (isTypeName(value)) {
     return [length, { type: `typeName`, value, debugInfo }]
+  } else {
+    throw new LitsError(`Unrecognized typename ${value}.`, debugInfo)
   }
-  return NO_MATCH
 }
 
 export const tokenizeRegexpShorthand: Tokenizer = (input, position, debugInfo) => {

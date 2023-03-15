@@ -527,51 +527,6 @@ var Lits = (function (exports) {
       }
   }
 
-  var typeNames = [
-      "never",
-      "nil",
-      "empty-string",
-      "non-empty-string",
-      "string",
-      "zero",
-      "non-zero-number",
-      "positive-number",
-      "negative-number",
-      "non-positive-number",
-      "non-negative-number",
-      "integer",
-      "non-zero-integer",
-      "positive-integer",
-      "negative-integer",
-      "positive-non-integer",
-      "negative-non-integer",
-      "non-positive-integer",
-      "non-negative-integer",
-      "number",
-      "true",
-      "false",
-      "boolean",
-      "empty-array",
-      "non-empty-array",
-      "array",
-      "empty-object",
-      "non-empty-object",
-      "object",
-      "regexp",
-      "function",
-      "unknown",
-      "truthy",
-      "falsy",
-      "empty-collection",
-      "non-empty-collection",
-      "collection",
-      "empty-sequence",
-      "non-empty-sequence",
-      "sequence",
-  ];
-  function isTypeName(typeName) {
-      return typeNames.includes(typeName);
-  }
   var typeToBitRecord = {
       // Group 1: Falsy types
       // 0000 0000 0000 0000 0000 1111
@@ -615,28 +570,31 @@ var Lits = (function (exports) {
       emptyString: typeToBitRecord.emptyString,
       nonEmptyString: typeToBitRecord.nonEmptyString,
       string: typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString,
+      // Numbers
+      number: typeToBitRecord.zero |
+          typeToBitRecord.positiveNonInteger |
+          typeToBitRecord.positiveInteger |
+          typeToBitRecord.negativeNonInteger |
+          typeToBitRecord.negativeInteger,
       zero: typeToBitRecord.zero,
       nonZeroNumber: typeToBitRecord.negativeNonInteger |
           typeToBitRecord.negativeInteger |
           typeToBitRecord.positiveNonInteger |
           typeToBitRecord.positiveInteger,
       positiveNumber: typeToBitRecord.positiveNonInteger | typeToBitRecord.positiveInteger,
+      nonPositiveNumber: typeToBitRecord.zero | typeToBitRecord.negativeNonInteger | typeToBitRecord.negativeInteger,
       negativeNumber: typeToBitRecord.negativeNonInteger | typeToBitRecord.negativeInteger,
-      nonPositiveNumber: typeToBitRecord.zero | typeToBitRecord.positiveNonInteger | typeToBitRecord.negativeInteger,
-      nonNegativeNumber: typeToBitRecord.zero | typeToBitRecord.negativeNonInteger | typeToBitRecord.positiveInteger,
+      nonNegativeNumber: typeToBitRecord.zero | typeToBitRecord.positiveNonInteger | typeToBitRecord.positiveInteger,
       integer: typeToBitRecord.zero | typeToBitRecord.positiveInteger | typeToBitRecord.negativeInteger,
+      nonInteger: typeToBitRecord.positiveNonInteger | typeToBitRecord.negativeNonInteger,
       nonZeroInteger: typeToBitRecord.negativeInteger | typeToBitRecord.positiveInteger,
+      nonZeroNonInteger: typeToBitRecord.negativeNonInteger | typeToBitRecord.positiveNonInteger,
       positiveInteger: typeToBitRecord.positiveInteger,
-      negativeInteger: typeToBitRecord.negativeInteger,
       positiveNonInteger: typeToBitRecord.positiveNonInteger,
+      negativeInteger: typeToBitRecord.negativeInteger,
       negativeNonInteger: typeToBitRecord.negativeNonInteger,
       nonPositiveInteger: typeToBitRecord.zero | typeToBitRecord.negativeInteger,
       nonNegativeInteger: typeToBitRecord.zero | typeToBitRecord.positiveInteger,
-      number: typeToBitRecord.zero |
-          typeToBitRecord.positiveNonInteger |
-          typeToBitRecord.positiveInteger |
-          typeToBitRecord.negativeNonInteger |
-          typeToBitRecord.negativeInteger,
       true: typeToBitRecord.true,
       false: typeToBitRecord.false,
       boolean: typeToBitRecord.true | typeToBitRecord.false,
@@ -823,7 +781,7 @@ var Lits = (function (exports) {
           });
       };
       DataType.intersects = function (a, b) {
-          return a.is(b) || b.is(a);
+          return a.and(b).bitmask !== 0;
       };
       DataType.isUnionType = function (dataType) {
           return !allBitValues.includes(dataType.bitmask);
@@ -889,6 +847,25 @@ var Lits = (function (exports) {
       DataType.prototype.nilable = function () {
           return this.or(DataType.nil);
       };
+      DataType.prototype.isNever = function () {
+          return this.bitmask === 0;
+      };
+      DataType.prototype.negateNumber = function () {
+          var newBitmask = this.bitmask;
+          if (this.bitmask & typeToBitRecord.negativeInteger && !(this.bitmask & typeToBitRecord.positiveInteger)) {
+              newBitmask = (newBitmask | typeToBitRecord.positiveInteger) & ~typeToBitRecord.negativeInteger;
+          }
+          if (this.bitmask & typeToBitRecord.negativeNonInteger && !(this.bitmask & typeToBitRecord.positiveNonInteger)) {
+              newBitmask = (newBitmask | typeToBitRecord.positiveNonInteger) & ~typeToBitRecord.negativeNonInteger;
+          }
+          if (this.bitmask & typeToBitRecord.positiveInteger && !(this.bitmask & typeToBitRecord.negativeInteger)) {
+              newBitmask = (newBitmask | typeToBitRecord.negativeInteger) & ~typeToBitRecord.positiveInteger;
+          }
+          if (this.bitmask & typeToBitRecord.positiveNonInteger && !(this.bitmask & typeToBitRecord.negativeNonInteger)) {
+              newBitmask = (newBitmask | typeToBitRecord.negativeNonInteger) & ~typeToBitRecord.positiveNonInteger;
+          }
+          return new DataType(newBitmask, this.fnReturnType);
+      };
       DataType.prototype.isFunction = function () {
           return !!(this.bitmask & builtinTypesBitMasks.function);
       };
@@ -923,12 +900,14 @@ var Lits = (function (exports) {
       DataType.zero = new DataType(builtinTypesBitMasks.zero);
       DataType.number = new DataType(builtinTypesBitMasks.number);
       DataType.integer = new DataType(builtinTypesBitMasks.integer);
+      DataType.nonInteger = new DataType(builtinTypesBitMasks.nonInteger);
       DataType.nonZeroNumber = new DataType(builtinTypesBitMasks.nonZeroNumber);
       DataType.positiveNumber = new DataType(builtinTypesBitMasks.positiveNumber);
       DataType.negativeNumber = new DataType(builtinTypesBitMasks.negativeNumber);
       DataType.nonPositiveNumber = new DataType(builtinTypesBitMasks.nonPositiveNumber);
       DataType.nonNegativeNumber = new DataType(builtinTypesBitMasks.nonNegativeNumber);
       DataType.nonZeroInteger = new DataType(builtinTypesBitMasks.nonZeroInteger);
+      DataType.nonZeroNonInteger = new DataType(builtinTypesBitMasks.nonZeroNonInteger);
       DataType.positiveInteger = new DataType(builtinTypesBitMasks.positiveInteger);
       DataType.negativeInteger = new DataType(builtinTypesBitMasks.negativeInteger);
       DataType.positiveNonInteger = new DataType(builtinTypesBitMasks.positiveNonInteger);
@@ -4453,16 +4432,62 @@ var Lits = (function (exports) {
       inc: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              number.assert(first, debugInfo);
-              return first + 1;
+              if (dataType.isNot(first)) {
+                  number.assert(first, debugInfo);
+                  return first + 1;
+              }
+              else {
+                  var firstParam = DataType.and(DataType.of(first), DataType.number);
+                  var isInteger = firstParam.is(DataType.integer);
+                  var isNonInteger = firstParam.is(DataType.nonInteger);
+                  if (firstParam.intersects(DataType.negativeNumber)) {
+                      var additionalType = isInteger
+                          ? DataType.positiveInteger
+                          : isNonInteger
+                              ? DataType.positiveNonInteger
+                              : DataType.positiveNumber;
+                      return DataType.or(firstParam, isNonInteger ? DataType.never : DataType.zero, additionalType);
+                  }
+                  if (firstParam.is(DataType.nonNegativeNumber)) {
+                      return isInteger
+                          ? DataType.positiveInteger
+                          : isNonInteger
+                              ? DataType.positiveNonInteger
+                              : DataType.positiveNumber;
+                  }
+                  return firstParam;
+              }
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       dec: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              number.assert(first, debugInfo);
-              return first - 1;
+              if (dataType.isNot(first)) {
+                  number.assert(first, debugInfo);
+                  return first - 1;
+              }
+              else {
+                  var firstParam = DataType.and(DataType.of(first), DataType.number);
+                  var isInteger = firstParam.is(DataType.integer);
+                  var isNonInteger = firstParam.is(DataType.nonInteger);
+                  if (firstParam.intersects(DataType.positiveNumber)) {
+                      var additionalType = isInteger
+                          ? DataType.negativeInteger
+                          : isNonInteger
+                              ? DataType.negativeNonInteger
+                              : DataType.negativeNumber;
+                      return DataType.or(firstParam, isNonInteger ? DataType.never : DataType.zero, additionalType);
+                  }
+                  if (firstParam.is(DataType.nonPositiveNumber)) {
+                      return isInteger
+                          ? DataType.negativeInteger
+                          : isNonInteger
+                              ? DataType.negativeNonInteger
+                              : DataType.negativeNumber;
+                  }
+                  return firstParam;
+              }
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
@@ -4476,99 +4501,88 @@ var Lits = (function (exports) {
               }
               else {
                   var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  return paramTypes.reduce(function (result, x) {
-                      var param = x.and(DataType.number);
-                      if (result.is(DataType.zero)) {
-                          return param;
-                      }
-                      var baseType = result.is(DataType.integer) && param.is(DataType.integer) ? DataType.integer : DataType.number;
-                      if (result.is(DataType.negativeNumber)) {
-                          if (param.is(DataType.nonPositiveNumber)) {
-                              return DataType.and(baseType, DataType.negativeNumber);
-                          }
-                          else {
-                              return baseType;
-                          }
-                      }
-                      else if (result.is(DataType.nonPositiveNumber)) {
-                          if (param.is(DataType.negativeNumber)) {
-                              return DataType.and(baseType, DataType.negativeNumber);
-                          }
-                          else if (param.is(DataType.nonPositiveNumber)) {
-                              return DataType.and(baseType, DataType.nonPositiveNumber);
-                          }
-                          else {
-                              return baseType;
-                          }
-                      }
-                      else if (result.is(DataType.positiveNumber)) {
-                          if (param.is(DataType.nonNegativeNumber)) {
-                              return DataType.and(baseType, DataType.positiveNumber);
-                          }
-                          else {
-                              return baseType;
-                          }
-                      }
-                      else if (result.is(DataType.nonNegativeNumber)) {
-                          if (param.is(DataType.positiveNumber)) {
-                              return DataType.and(baseType, DataType.positiveNumber);
-                          }
-                          else if (param.is(DataType.nonNegativeNumber)) {
-                              return DataType.and(baseType, DataType.nonNegativeNumber);
-                          }
-                          else {
-                              return baseType;
-                          }
-                      }
-                      else {
-                          return DataType.and(baseType, DataType.number);
-                      }
-                  }, DataType.zero);
+                  return getTypeOfSum(paramTypes, debugInfo);
               }
           },
           validate: function () { return undefined; },
       },
       '*': {
           evaluate: function (params, debugInfo) {
-              return params.reduce(function (result, param) {
-                  number.assert(param, debugInfo);
-                  return result * param;
-              }, 1);
+              if (params.every(function (param) { return !(param instanceof DataType); })) {
+                  return params.reduce(function (result, param) {
+                      number.assert(param, debugInfo);
+                      return result * param;
+                  }, 1);
+              }
+              else {
+                  var paramTypes = params.map(function (param) { return DataType.of(param); });
+                  if (paramTypes.length === 1) {
+                      var firstParamType = asValue(paramTypes[0]);
+                      firstParamType.assertIs(DataType.number, debugInfo);
+                      return firstParamType;
+                  }
+                  return getTypeOfProduct(paramTypes, debugInfo);
+              }
           },
           validate: function () { return undefined; },
       },
       '/': {
           evaluate: function (params, debugInfo) {
-              if (params.length === 0) {
-                  return 1;
-              }
-              var _a = __read(params), first = _a[0], rest = _a.slice(1);
-              number.assert(first, debugInfo);
-              if (rest.length === 0) {
+              if (params.every(function (param) { return !(param instanceof DataType); })) {
+                  if (params.length === 0) {
+                      return 1;
+                  }
+                  var _a = __read(params), first = _a[0], rest = _a.slice(1);
                   number.assert(first, debugInfo);
-                  return 1 / first;
+                  if (rest.length === 0) {
+                      number.assert(first, debugInfo);
+                      return 1 / first;
+                  }
+                  return rest.reduce(function (result, param) {
+                      number.assert(param, debugInfo);
+                      return result / param;
+                  }, first);
               }
-              return rest.reduce(function (result, param) {
-                  number.assert(param, debugInfo);
-                  return result / param;
-              }, first);
+              else {
+                  var paramTypes = params.map(function (param) { return DataType.of(param); });
+                  var firstParamType = asValue(paramTypes[0]);
+                  if (paramTypes.length === 1) {
+                      firstParamType.assertIs(DataType.nonZeroNumber, debugInfo);
+                      var withoutZero = firstParamType.exclude(DataType.zero);
+                      return withoutZero.is(DataType.integer) ? withoutZero.exclude(DataType.integer) : withoutZero;
+                  }
+                  var restTypes = paramTypes.slice(1).map(function (t) { return t.negateNumber(); });
+                  restTypes.forEach(function (t) { return t.assertIs(DataType.nonZeroNumber, debugInfo); });
+                  return getTypeOfProduct(__spreadArray([firstParamType], __read(restTypes), false), debugInfo).exclude(DataType.zero);
+              }
           },
           validate: function () { return undefined; },
       },
       '-': {
           evaluate: function (params, debugInfo) {
-              if (params.length === 0) {
-                  return 0;
+              if (params.every(function (param) { return !(param instanceof DataType); })) {
+                  if (params.length === 0) {
+                      return 0;
+                  }
+                  var _a = __read(params), first = _a[0], rest = _a.slice(1);
+                  number.assert(first, debugInfo);
+                  if (rest.length === 0) {
+                      return -first;
+                  }
+                  return rest.reduce(function (result, param) {
+                      number.assert(param, debugInfo);
+                      return result - param;
+                  }, first);
               }
-              var _a = __read(params), first = _a[0], rest = _a.slice(1);
-              number.assert(first, debugInfo);
-              if (rest.length === 0) {
-                  return -first;
+              else {
+                  var paramTypes = params.map(function (param) { return DataType.of(param); });
+                  var firstParamType = asValue(paramTypes[0]);
+                  if (paramTypes.length === 1) {
+                      return firstParamType.negateNumber();
+                  }
+                  var restTypes = paramTypes.slice(1).map(function (t) { return t.negateNumber(); });
+                  return getTypeOfSum(__spreadArray([firstParamType], __read(restTypes), false), debugInfo);
               }
-              return rest.reduce(function (result, param) {
-                  number.assert(param, debugInfo);
-                  return result - param;
-              }, first);
           },
           validate: function () { return undefined; },
       },
@@ -4912,6 +4926,153 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
   };
+  function getTypeOfSum(paramTypes, debugInfo) {
+      return paramTypes.reduce(function (a, b) {
+          b.assertIs(DataType.number, debugInfo);
+          var param = b.and(DataType.number);
+          if (a.is(DataType.zero)) {
+              return param;
+          }
+          var aIntegerType = a.is(DataType.integer) ? "integer" : a.is(DataType.nonInteger) ? "nonInteger" : "number";
+          var bIntegerType = b.is(DataType.integer) ? "integer" : b.is(DataType.nonInteger) ? "nonInteger" : "number";
+          var baseType = aIntegerType === "number" || bIntegerType === "number"
+              ? DataType.number
+              : aIntegerType === "integer" && bIntegerType === "integer"
+                  ? DataType.integer
+                  : aIntegerType === "nonInteger" && bIntegerType === "nonInteger"
+                      ? DataType.number
+                      : DataType.nonInteger;
+          if (a.is(DataType.negativeNumber)) {
+              if (param.is(DataType.nonPositiveNumber)) {
+                  return DataType.and(baseType, DataType.negativeNumber);
+              }
+              else {
+                  return baseType;
+              }
+          }
+          else if (a.is(DataType.nonPositiveNumber)) {
+              if (param.is(DataType.negativeNumber)) {
+                  return DataType.and(baseType, DataType.negativeNumber);
+              }
+              else if (param.is(DataType.nonPositiveNumber)) {
+                  return DataType.and(baseType, DataType.nonPositiveNumber);
+              }
+              else {
+                  return baseType;
+              }
+          }
+          else if (a.is(DataType.positiveNumber)) {
+              if (param.is(DataType.nonNegativeNumber)) {
+                  return DataType.and(baseType, DataType.positiveNumber);
+              }
+              else {
+                  return baseType;
+              }
+          }
+          else if (a.is(DataType.nonNegativeNumber)) {
+              if (param.is(DataType.positiveNumber)) {
+                  return DataType.and(baseType, DataType.positiveNumber);
+              }
+              else if (param.is(DataType.nonNegativeNumber)) {
+                  return DataType.and(baseType, DataType.nonNegativeNumber);
+              }
+              else {
+                  return baseType;
+              }
+          }
+          else {
+              return DataType.and(baseType, DataType.number);
+          }
+      }, DataType.zero);
+  }
+  function getTypeOfProduct(paramTypes, debugInfo) {
+      var first = asValue(paramTypes[0]);
+      return paramTypes.slice(1).reduce(function (a, b) {
+          a.assertIs(DataType.number, debugInfo);
+          b.assertIs(DataType.number, debugInfo);
+          if (a.is(DataType.zero) || b.is(DataType.zero)) {
+              return DataType.zero;
+          }
+          var aIntegerType = a.is(DataType.integer) ? "integer" : a.is(DataType.nonInteger) ? "nonInteger" : "number";
+          var bIntegerType = b.is(DataType.integer) ? "integer" : b.is(DataType.nonInteger) ? "nonInteger" : "number";
+          var baseType = aIntegerType === "number" || bIntegerType === "number"
+              ? DataType.number
+              : aIntegerType === "integer" && bIntegerType === "integer"
+                  ? DataType.integer
+                  : aIntegerType === "nonInteger" && bIntegerType === "nonInteger"
+                      ? DataType.nonInteger
+                      : DataType.number;
+          var aSign = a.is(DataType.negativeNumber)
+              ? "<0"
+              : a.is(DataType.nonPositiveNumber)
+                  ? "<=0"
+                  : a.is(DataType.positiveNumber)
+                      ? ">0"
+                      : a.is(DataType.nonNegativeNumber)
+                          ? ">=0"
+                          : "?";
+          var bSign = b.is(DataType.negativeNumber)
+              ? "<0"
+              : b.is(DataType.nonPositiveNumber)
+                  ? "<=0"
+                  : b.is(DataType.positiveNumber)
+                      ? ">0"
+                      : b.is(DataType.nonNegativeNumber)
+                          ? ">=0"
+                          : "?";
+          switch (aSign) {
+              case "<0":
+                  switch (bSign) {
+                      case "<0":
+                          return DataType.and(baseType, DataType.positiveNumber);
+                      case "<=0":
+                          return DataType.and(baseType, DataType.nonNegativeNumber);
+                      case ">0":
+                          return DataType.and(baseType, DataType.negativeNumber);
+                      case ">=0":
+                          return DataType.and(baseType, DataType.nonPositiveNumber);
+                  }
+                  break;
+              case "<=0":
+                  switch (bSign) {
+                      case "<0":
+                          return DataType.and(baseType, DataType.nonNegativeNumber);
+                      case "<=0":
+                          return DataType.and(baseType, DataType.nonNegativeNumber);
+                      case ">0":
+                          return DataType.and(baseType, DataType.nonPositiveNumber);
+                      case ">=0":
+                          return DataType.and(baseType, DataType.nonPositiveNumber);
+                  }
+                  break;
+              case ">0":
+                  switch (bSign) {
+                      case "<0":
+                          return DataType.and(baseType, DataType.negativeNumber);
+                      case "<=0":
+                          return DataType.and(baseType, DataType.nonPositiveNumber);
+                      case ">0":
+                          return DataType.and(baseType, DataType.positiveNumber);
+                      case ">=0":
+                          return DataType.and(baseType, DataType.nonNegativeNumber);
+                  }
+                  break;
+              case ">=0":
+                  switch (bSign) {
+                      case "<0":
+                          return DataType.and(baseType, DataType.nonPositiveNumber);
+                      case "<=0":
+                          return DataType.and(baseType, DataType.nonPositiveNumber);
+                      case ">0":
+                          return DataType.and(baseType, DataType.nonNegativeNumber);
+                      case ">=0":
+                          return DataType.and(baseType, DataType.nonNegativeNumber);
+                  }
+                  break;
+          }
+          return baseType;
+      }, first);
+  }
 
   var version = "1.0.55-alpha.0";
 
@@ -6715,8 +6876,12 @@ var Lits = (function (exports) {
               return DataType.nonNegativeNumber;
           case "integer":
               return DataType.integer;
+          case "non-integer":
+              return DataType.nonInteger;
           case "non-zero-integer":
               return DataType.nonZeroInteger;
+          case "non-zero-non-integer":
+              return DataType.nonZeroNonInteger;
           case "positive-integer":
               return DataType.positiveInteger;
           case "negative-integer":
@@ -7184,6 +7349,54 @@ var Lits = (function (exports) {
       return ast;
   }
 
+  var typeNames = [
+      "never",
+      "nil",
+      "empty-string",
+      "non-empty-string",
+      "string",
+      "zero",
+      "non-zero-number",
+      "positive-number",
+      "negative-number",
+      "non-positive-number",
+      "non-negative-number",
+      "integer",
+      "non-integer",
+      "non-zero-integer",
+      "non-zero-non-integer",
+      "positive-integer",
+      "negative-integer",
+      "positive-non-integer",
+      "negative-non-integer",
+      "non-positive-integer",
+      "non-negative-integer",
+      "number",
+      "true",
+      "false",
+      "boolean",
+      "empty-array",
+      "non-empty-array",
+      "array",
+      "empty-object",
+      "non-empty-object",
+      "object",
+      "regexp",
+      "function",
+      "unknown",
+      "truthy",
+      "falsy",
+      "empty-collection",
+      "non-empty-collection",
+      "collection",
+      "empty-sequence",
+      "non-empty-sequence",
+      "sequence",
+  ];
+  function isTypeName(typeName) {
+      return typeNames.includes(typeName);
+  }
+
   var NO_MATCH = [0, undefined];
   // A name (function or variable) can contain a lot of different characters
   var nameRegExp = /[@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>+*/-]/;
@@ -7289,7 +7502,9 @@ var Lits = (function (exports) {
       if (isTypeName(value)) {
           return [length, { type: "typeName", value: value, debugInfo: debugInfo }];
       }
-      return NO_MATCH;
+      else {
+          throw new LitsError("Unrecognized typename ".concat(value, "."), debugInfo);
+      }
   };
   var tokenizeRegexpShorthand = function (input, position, debugInfo) {
       var _a;

@@ -94,8 +94,12 @@ function evaluateTypeName(node: TypeNameNode): DataType {
       return DataType.nonNegativeNumber
     case `integer`:
       return DataType.integer
+    case `non-integer`:
+      return DataType.nonInteger
     case `non-zero-integer`:
       return DataType.nonZeroInteger
+    case `non-zero-non-integer`:
+      return DataType.nonZeroNonInteger
     case `positive-integer`:
       return DataType.positiveInteger
     case `negative-integer`:

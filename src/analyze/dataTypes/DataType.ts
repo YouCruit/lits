@@ -58,30 +58,39 @@ const builtinTypesBitMasks = {
   nonEmptyString: typeToBitRecord.nonEmptyString,
   string: typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString,
 
-  zero: typeToBitRecord.zero,
-  nonZeroNumber:
-    typeToBitRecord.negativeNonInteger |
-    typeToBitRecord.negativeInteger |
-    typeToBitRecord.positiveNonInteger |
-    typeToBitRecord.positiveInteger,
-  positiveNumber: typeToBitRecord.positiveNonInteger | typeToBitRecord.positiveInteger,
-  negativeNumber: typeToBitRecord.negativeNonInteger | typeToBitRecord.negativeInteger,
-  nonPositiveNumber: typeToBitRecord.zero | typeToBitRecord.positiveNonInteger | typeToBitRecord.negativeInteger,
-  nonNegativeNumber: typeToBitRecord.zero | typeToBitRecord.negativeNonInteger | typeToBitRecord.positiveInteger,
-  integer: typeToBitRecord.zero | typeToBitRecord.positiveInteger | typeToBitRecord.negativeInteger,
-  nonZeroInteger: typeToBitRecord.negativeInteger | typeToBitRecord.positiveInteger,
-  positiveInteger: typeToBitRecord.positiveInteger,
-  negativeInteger: typeToBitRecord.negativeInteger,
-  positiveNonInteger: typeToBitRecord.positiveNonInteger,
-  negativeNonInteger: typeToBitRecord.negativeNonInteger,
-  nonPositiveInteger: typeToBitRecord.zero | typeToBitRecord.negativeInteger,
-  nonNegativeInteger: typeToBitRecord.zero | typeToBitRecord.positiveInteger,
+  // Numbers
   number:
     typeToBitRecord.zero |
     typeToBitRecord.positiveNonInteger |
     typeToBitRecord.positiveInteger |
     typeToBitRecord.negativeNonInteger |
     typeToBitRecord.negativeInteger,
+  zero: typeToBitRecord.zero,
+  nonZeroNumber:
+    typeToBitRecord.negativeNonInteger |
+    typeToBitRecord.negativeInteger |
+    typeToBitRecord.positiveNonInteger |
+    typeToBitRecord.positiveInteger,
+
+  positiveNumber: typeToBitRecord.positiveNonInteger | typeToBitRecord.positiveInteger,
+  nonPositiveNumber: typeToBitRecord.zero | typeToBitRecord.negativeNonInteger | typeToBitRecord.negativeInteger,
+
+  negativeNumber: typeToBitRecord.negativeNonInteger | typeToBitRecord.negativeInteger,
+  nonNegativeNumber: typeToBitRecord.zero | typeToBitRecord.positiveNonInteger | typeToBitRecord.positiveInteger,
+
+  integer: typeToBitRecord.zero | typeToBitRecord.positiveInteger | typeToBitRecord.negativeInteger,
+  nonInteger: typeToBitRecord.positiveNonInteger | typeToBitRecord.negativeNonInteger,
+
+  nonZeroInteger: typeToBitRecord.negativeInteger | typeToBitRecord.positiveInteger,
+  nonZeroNonInteger: typeToBitRecord.negativeNonInteger | typeToBitRecord.positiveNonInteger,
+  positiveInteger: typeToBitRecord.positiveInteger,
+  positiveNonInteger: typeToBitRecord.positiveNonInteger,
+
+  negativeInteger: typeToBitRecord.negativeInteger,
+  negativeNonInteger: typeToBitRecord.negativeNonInteger,
+
+  nonPositiveInteger: typeToBitRecord.zero | typeToBitRecord.negativeInteger,
+  nonNegativeInteger: typeToBitRecord.zero | typeToBitRecord.positiveInteger,
 
   true: typeToBitRecord.true,
   false: typeToBitRecord.false,
@@ -157,12 +166,14 @@ export class DataType {
   public static readonly zero = new DataType(builtinTypesBitMasks.zero)
   public static readonly number = new DataType(builtinTypesBitMasks.number)
   public static readonly integer = new DataType(builtinTypesBitMasks.integer)
+  public static readonly nonInteger = new DataType(builtinTypesBitMasks.nonInteger)
   public static readonly nonZeroNumber = new DataType(builtinTypesBitMasks.nonZeroNumber)
   public static readonly positiveNumber = new DataType(builtinTypesBitMasks.positiveNumber)
   public static readonly negativeNumber = new DataType(builtinTypesBitMasks.negativeNumber)
   public static readonly nonPositiveNumber = new DataType(builtinTypesBitMasks.nonPositiveNumber)
   public static readonly nonNegativeNumber = new DataType(builtinTypesBitMasks.nonNegativeNumber)
   public static readonly nonZeroInteger = new DataType(builtinTypesBitMasks.nonZeroInteger)
+  public static readonly nonZeroNonInteger = new DataType(builtinTypesBitMasks.nonZeroNonInteger)
   public static readonly positiveInteger = new DataType(builtinTypesBitMasks.positiveInteger)
   public static readonly negativeInteger = new DataType(builtinTypesBitMasks.negativeInteger)
   public static readonly positiveNonInteger = new DataType(builtinTypesBitMasks.positiveNonInteger)
@@ -322,7 +333,7 @@ export class DataType {
   }
 
   public static intersects(a: DataType, b: DataType): boolean {
-    return a.is(b) || b.is(a)
+    return a.and(b).bitmask !== 0
   }
 
   public static isUnionType(dataType: DataType): boolean {
@@ -384,6 +395,28 @@ export class DataType {
 
   public nilable(): DataType {
     return this.or(DataType.nil)
+  }
+
+  public isNever(): boolean {
+    return this.bitmask === 0
+  }
+
+  public negateNumber() {
+    let newBitmask = this.bitmask
+    if (this.bitmask & typeToBitRecord.negativeInteger && !(this.bitmask & typeToBitRecord.positiveInteger)) {
+      newBitmask = (newBitmask | typeToBitRecord.positiveInteger) & ~typeToBitRecord.negativeInteger
+    }
+    if (this.bitmask & typeToBitRecord.negativeNonInteger && !(this.bitmask & typeToBitRecord.positiveNonInteger)) {
+      newBitmask = (newBitmask | typeToBitRecord.positiveNonInteger) & ~typeToBitRecord.negativeNonInteger
+    }
+    if (this.bitmask & typeToBitRecord.positiveInteger && !(this.bitmask & typeToBitRecord.negativeInteger)) {
+      newBitmask = (newBitmask | typeToBitRecord.negativeInteger) & ~typeToBitRecord.positiveInteger
+    }
+    if (this.bitmask & typeToBitRecord.positiveNonInteger && !(this.bitmask & typeToBitRecord.negativeNonInteger)) {
+      newBitmask = (newBitmask | typeToBitRecord.negativeNonInteger) & ~typeToBitRecord.positiveNonInteger
+    }
+
+    return new DataType(newBitmask, this.fnReturnType)
   }
 
   public isFunction(): boolean {

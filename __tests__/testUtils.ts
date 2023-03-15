@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-import { TypeName } from '../src/analyze/dataTypes/DataType'
+import { TypeName } from '../src/analyze/dataTypes/litsTypeNames'
 import { UndefinedSymbolEntry } from '../src/analyze/undefinedSymbols/interface'
 import { Obj } from '../src/interface'
 import { DataType, Lits } from '../src/Lits/Lits'
@@ -92,11 +92,16 @@ export function getUndefinedSymbolNames(undefinedSymbols: Set<UndefinedSymbolEnt
   return new Set<string>(names)
 }
 
-export type TestTypeEvaluation = [Array<`::${TypeName}` | { expression: string }>, `::${TypeName}` | `ERROR`]
+export type TestTypeEvaluation = [
+  string,
+  Array<`::${TypeName}` | { expression: string }>,
+  `::${TypeName}` | { expression: string } | `ERROR`,
+]
 
-export function testTypeEvaluations(lits: Lits, functionName: string, evaluations: TestTypeEvaluation[]) {
+export function testTypeEvaluations(lits: Lits, evaluations: TestTypeEvaluation[]) {
   for (const evaluationData of evaluations) {
-    const [params, resultExpression] = evaluationData
+    const [functionName, params, third] = evaluationData
+    const resultExpression = typeof third === `string` ? third : third.expression
     const expression = `(${functionName} ${params.map(p => (typeof p === `string` ? p : p.expression)).join(` `)})`
     test(`${expression} ==> ${resultExpression}`, () => {
       if (resultExpression !== `ERROR`) {

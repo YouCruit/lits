@@ -74,6 +74,14 @@ function evaluateTypeName(node: TypeNameNode): DataType {
       return DataType.never
     case `nil`:
       return DataType.nil
+    case `nan`:
+      return DataType.nan
+    case `positive-infinity`:
+      return DataType.positiveInfinity
+    case `negative-infinity`:
+      return DataType.negativeInfinity
+    case `illegal-number`:
+      return DataType.illegalNumber
     case `empty-string`:
       return DataType.emptyString
     case `non-empty-string`:
@@ -98,8 +106,6 @@ function evaluateTypeName(node: TypeNameNode): DataType {
       return DataType.nonInteger
     case `non-zero-integer`:
       return DataType.nonZeroInteger
-    case `non-zero-non-integer`:
-      return DataType.nonZeroNonInteger
     case `positive-integer`:
       return DataType.positiveInteger
     case `negative-integer`:

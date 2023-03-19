@@ -1,40 +1,67 @@
 import { LitsError } from '../../errors'
 import { DebugInfo } from '../../tokenizer/interface'
 import { any, array, litsFunction, object, regularExpression } from '../../utils/assertion'
+import { TypeName } from './litsTypeNames'
 
-export const typeToBitRecord = {
+export type PrimitiveTypeName = TypeName &
+  (
+    | `nil`
+    | `empty-string`
+    | `zero`
+    | `false`
+    | `nan`
+    | `positive-infinity`
+    | `negative-infinity`
+    | `true`
+    | `non-empty-string`
+    | `regexp`
+    | `positive-integer`
+    | `negative-integer`
+    | `positive-non-integer`
+    | `negative-non-integer`
+    | `empty-array`
+    | `non-empty-array`
+    | `empty-object`
+    | `non-empty-object`
+    | `function`
+  )
+
+export const typeToBitRecord: Record<PrimitiveTypeName, number> = {
   // Group 1: Falsy types
   // 0000 0000 0000 0000 0000 1111
   nil: 1 << 0,
-  emptyString: 1 << 1,
+  'empty-string': 1 << 1,
   zero: 1 << 2,
   false: 1 << 3,
 
-  // Group 2: Simple truthy types
+  // Group 2: Illegal number
+  // 0000 0000 0000 0000 0000 1111
+  nan: 1 << 4,
+  'positive-infinity': 1 << 5,
+  'negative-infinity': 1 << 6,
+
+  // Group 3: Simple truthy types
   // 0000 0000 0000 0000 0111 0000
-  true: 1 << 4,
-  nonEmptyString: 1 << 5,
-  regexp: 1 << 6,
+  true: 1 << 8,
+  'non-empty-string': 1 << 9,
+  regexp: 1 << 10,
 
-  // Group 3: Truthy number types
+  // Group 4: Truthy number types
   // 0000 0000 0000 1111 0000 0000
-  positiveInteger: 1 << 8,
-  negativeInteger: 1 << 9,
-  positiveNonInteger: 1 << 10,
-  negativeNonInteger: 1 << 11,
+  'positive-integer': 1 << 12,
+  'negative-integer': 1 << 13,
+  'positive-non-integer': 1 << 14,
+  'negative-non-integer': 1 << 15,
 
-  // Group 4: Arrays types
-  // 0000 0000 0011 0000 0000 0000
-  emptyArray: 1 << 12,
-  nonEmptyArray: 1 << 13,
+  // Group 5: Container types
+  // 0000 0000 1111 0000 0000 0000
+  'empty-array': 1 << 16,
+  'non-empty-array': 1 << 17,
+  'empty-object': 1 << 18,
+  'non-empty-object': 1 << 19,
 
-  // Group 5: Object types
-  // 0000 0011 0000 0000 0000 0000
-  emptyObject: 1 << 16,
-  nonEmptyObject: 1 << 17,
-
-  // Group 6: Function type
-  // 0001 0000 0000 0000 0000 0000
+  // Group 6: Function
+  // 0000 0001 0000 0000 0000 0000
   function: 1 << 20,
 }
 
@@ -44,65 +71,76 @@ const allBitValues = Object.values(typeToBitRecord)
 const UNKNWON_BITS = allBitValues.reduce((result, bit) => result | bit, 0)
 
 // console.log(stringifyBitMask(UNKNWON_BITS))
-const FALSY_BITS = typeToBitRecord.nil | typeToBitRecord.zero | typeToBitRecord.emptyString | typeToBitRecord.false
+const FALSY_BITS =
+  typeToBitRecord.nil |
+  typeToBitRecord.zero |
+  typeToBitRecord[`empty-string`] |
+  typeToBitRecord.false |
+  typeToBitRecord.nan
 
 // All non falsy bits
 const TRUTHY_BITS = UNKNWON_BITS & ~FALSY_BITS
 
-const builtinTypesBitMasks = {
+const builtinTypesBitMasks: Record<TypeName, number> = {
   never: 0,
 
   nil: typeToBitRecord.nil,
 
-  emptyString: typeToBitRecord.emptyString,
-  nonEmptyString: typeToBitRecord.nonEmptyString,
-  string: typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString,
+  'illegal-number': typeToBitRecord.nan | typeToBitRecord[`positive-infinity`] | typeToBitRecord[`negative-infinity`],
+  nan: typeToBitRecord.nan,
+  'positive-infinity': typeToBitRecord[`positive-infinity`],
+  'negative-infinity': typeToBitRecord[`negative-infinity`],
+
+  'empty-string': typeToBitRecord[`empty-string`],
+  'non-empty-string': typeToBitRecord[`non-empty-string`],
+  string: typeToBitRecord[`empty-string`] | typeToBitRecord[`non-empty-string`],
 
   // Numbers
   number:
     typeToBitRecord.zero |
-    typeToBitRecord.positiveNonInteger |
-    typeToBitRecord.positiveInteger |
-    typeToBitRecord.negativeNonInteger |
-    typeToBitRecord.negativeInteger,
+    typeToBitRecord[`positive-non-integer`] |
+    typeToBitRecord[`positive-integer`] |
+    typeToBitRecord[`negative-non-integer`] |
+    typeToBitRecord[`negative-integer`],
   zero: typeToBitRecord.zero,
-  nonZeroNumber:
-    typeToBitRecord.negativeNonInteger |
-    typeToBitRecord.negativeInteger |
-    typeToBitRecord.positiveNonInteger |
-    typeToBitRecord.positiveInteger,
+  'non-zero-number':
+    typeToBitRecord[`negative-non-integer`] |
+    typeToBitRecord[`negative-integer`] |
+    typeToBitRecord[`positive-non-integer`] |
+    typeToBitRecord[`positive-integer`],
 
-  positiveNumber: typeToBitRecord.positiveNonInteger | typeToBitRecord.positiveInteger,
-  nonPositiveNumber: typeToBitRecord.zero | typeToBitRecord.negativeNonInteger | typeToBitRecord.negativeInteger,
+  'positive-number': typeToBitRecord[`positive-non-integer`] | typeToBitRecord[`positive-integer`],
+  'non-positive-number':
+    typeToBitRecord.zero | typeToBitRecord[`negative-non-integer`] | typeToBitRecord[`negative-integer`],
 
-  negativeNumber: typeToBitRecord.negativeNonInteger | typeToBitRecord.negativeInteger,
-  nonNegativeNumber: typeToBitRecord.zero | typeToBitRecord.positiveNonInteger | typeToBitRecord.positiveInteger,
+  'negative-number': typeToBitRecord[`negative-non-integer`] | typeToBitRecord[`negative-integer`],
+  'non-negative-number':
+    typeToBitRecord.zero | typeToBitRecord[`positive-non-integer`] | typeToBitRecord[`positive-integer`],
 
-  integer: typeToBitRecord.zero | typeToBitRecord.positiveInteger | typeToBitRecord.negativeInteger,
-  nonInteger: typeToBitRecord.positiveNonInteger | typeToBitRecord.negativeNonInteger,
+  integer: typeToBitRecord.zero | typeToBitRecord[`positive-integer`] | typeToBitRecord[`negative-integer`],
+  'non-integer': typeToBitRecord[`positive-non-integer`] | typeToBitRecord[`negative-non-integer`],
 
-  nonZeroInteger: typeToBitRecord.negativeInteger | typeToBitRecord.positiveInteger,
-  nonZeroNonInteger: typeToBitRecord.negativeNonInteger | typeToBitRecord.positiveNonInteger,
-  positiveInteger: typeToBitRecord.positiveInteger,
-  positiveNonInteger: typeToBitRecord.positiveNonInteger,
+  'non-zero-integer': typeToBitRecord[`negative-integer`] | typeToBitRecord[`positive-integer`],
+  'positive-integer': typeToBitRecord[`positive-integer`],
+  'positive-non-integer': typeToBitRecord[`positive-non-integer`],
 
-  negativeInteger: typeToBitRecord.negativeInteger,
-  negativeNonInteger: typeToBitRecord.negativeNonInteger,
+  'negative-integer': typeToBitRecord[`negative-integer`],
+  'negative-non-integer': typeToBitRecord[`negative-non-integer`],
 
-  nonPositiveInteger: typeToBitRecord.zero | typeToBitRecord.negativeInteger,
-  nonNegativeInteger: typeToBitRecord.zero | typeToBitRecord.positiveInteger,
+  'non-positive-integer': typeToBitRecord.zero | typeToBitRecord[`negative-integer`],
+  'non-negative-integer': typeToBitRecord.zero | typeToBitRecord[`positive-integer`],
 
   true: typeToBitRecord.true,
   false: typeToBitRecord.false,
   boolean: typeToBitRecord.true | typeToBitRecord.false,
 
-  emptyArray: typeToBitRecord.emptyArray,
-  nonEmptyArray: typeToBitRecord.nonEmptyArray,
-  array: typeToBitRecord.emptyArray | typeToBitRecord.nonEmptyArray,
+  'empty-array': typeToBitRecord[`empty-array`],
+  'non-empty-array': typeToBitRecord[`non-empty-array`],
+  array: typeToBitRecord[`empty-array`] | typeToBitRecord[`non-empty-array`],
 
-  emptyObject: typeToBitRecord.emptyObject,
-  nonEmptyObject: typeToBitRecord.nonEmptyObject,
-  object: typeToBitRecord.emptyObject | typeToBitRecord.nonEmptyObject,
+  'empty-object': typeToBitRecord[`empty-object`],
+  'non-empty-object': typeToBitRecord[`non-empty-object`],
+  object: typeToBitRecord[`empty-object`] | typeToBitRecord[`non-empty-object`],
 
   regexp: typeToBitRecord.regexp,
 
@@ -114,23 +152,25 @@ const builtinTypesBitMasks = {
 
   falsy: FALSY_BITS,
 
-  emptyCollection: typeToBitRecord.emptyString | typeToBitRecord.emptyArray | typeToBitRecord.emptyObject,
-  nonEmptyCollection: typeToBitRecord.nonEmptyString | typeToBitRecord.nonEmptyArray | typeToBitRecord.nonEmptyObject,
+  'empty-collection':
+    typeToBitRecord[`empty-string`] | typeToBitRecord[`empty-array`] | typeToBitRecord[`empty-object`],
+  'non-empty-collection':
+    typeToBitRecord[`non-empty-string`] | typeToBitRecord[`non-empty-array`] | typeToBitRecord[`non-empty-object`],
   collection:
-    typeToBitRecord.emptyString |
-    typeToBitRecord.nonEmptyString |
-    typeToBitRecord.emptyArray |
-    typeToBitRecord.nonEmptyArray |
-    typeToBitRecord.emptyObject |
-    typeToBitRecord.nonEmptyObject,
+    typeToBitRecord[`empty-string`] |
+    typeToBitRecord[`non-empty-string`] |
+    typeToBitRecord[`empty-array`] |
+    typeToBitRecord[`non-empty-array`] |
+    typeToBitRecord[`empty-object`] |
+    typeToBitRecord[`non-empty-object`],
 
-  emptySequence: typeToBitRecord.emptyString | typeToBitRecord.emptyArray,
-  nonEmptySequence: typeToBitRecord.nonEmptyString | typeToBitRecord.nonEmptyArray,
+  'empty-sequence': typeToBitRecord[`empty-string`] | typeToBitRecord[`empty-array`],
+  'non-empty-sequence': typeToBitRecord[`non-empty-string`] | typeToBitRecord[`non-empty-array`],
   sequence:
-    typeToBitRecord.emptyString |
-    typeToBitRecord.nonEmptyString |
-    typeToBitRecord.emptyArray |
-    typeToBitRecord.nonEmptyArray,
+    typeToBitRecord[`empty-string`] |
+    typeToBitRecord[`non-empty-string`] |
+    typeToBitRecord[`empty-array`] |
+    typeToBitRecord[`non-empty-array`],
 }
 
 function stringifyBitMask(bitMaks: number): string {
@@ -138,69 +178,80 @@ function stringifyBitMask(bitMaks: number): string {
 
   for (let index = 23; index >= 0; index -= 1) {
     const bitValue = 1 << index
-    const zeroOrOne = (bitMaks & bitValue) === builtinTypesBitMasks.never ? `0` : `1`
+    const zeroOrOne = bitMaks & bitValue ? `1` : `0`
     const space = index !== 23 && (index + 1) % 4 === 0 ? ` ` : ``
     mask += `${space}${zeroOrOne}`
   }
   return mask
 }
 
+type ConstructorOptions = {
+  arrayVariants?: DataType[] | DataType
+}
 export class DataType {
   public readonly bitmask: number
-  public readonly fnReturnType: DataType | undefined
+  public readonly fnReturnType?: DataType
+  // private readonly objectVariants?: Record<string, DataType> | DataType
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  private readonly arrayVariants?: DataType[] | DataType
 
-  private constructor(bitmask: number, fnReturnType?: DataType) {
+  private constructor(bitmask: number, { arrayVariants }: ConstructorOptions = {}) {
     this.bitmask = bitmask
-    this.fnReturnType = fnReturnType
-    Object.freeze(this.fnReturnType)
+    this.fnReturnType = undefined
+    this.arrayVariants = arrayVariants
   }
 
   public static readonly never = new DataType(builtinTypesBitMasks.never)
 
   public static readonly nil = new DataType(builtinTypesBitMasks.nil)
 
-  public static readonly emptyString = new DataType(builtinTypesBitMasks.emptyString)
-  public static readonly nonEmptyString = new DataType(builtinTypesBitMasks.nonEmptyString)
+  public static readonly illegalNumber = new DataType(builtinTypesBitMasks[`illegal-number`])
+  public static readonly nan = new DataType(builtinTypesBitMasks.nan)
+  public static readonly positiveInfinity = new DataType(builtinTypesBitMasks[`positive-infinity`])
+  public static readonly negativeInfinity = new DataType(builtinTypesBitMasks[`negative-infinity`])
+
+  public static readonly emptyString = new DataType(builtinTypesBitMasks[`empty-string`])
+  public static readonly nonEmptyString = new DataType(builtinTypesBitMasks[`non-empty-string`])
   public static readonly string = new DataType(builtinTypesBitMasks.string)
 
   public static readonly zero = new DataType(builtinTypesBitMasks.zero)
   public static readonly number = new DataType(builtinTypesBitMasks.number)
   public static readonly integer = new DataType(builtinTypesBitMasks.integer)
-  public static readonly nonInteger = new DataType(builtinTypesBitMasks.nonInteger)
-  public static readonly nonZeroNumber = new DataType(builtinTypesBitMasks.nonZeroNumber)
-  public static readonly positiveNumber = new DataType(builtinTypesBitMasks.positiveNumber)
-  public static readonly negativeNumber = new DataType(builtinTypesBitMasks.negativeNumber)
-  public static readonly nonPositiveNumber = new DataType(builtinTypesBitMasks.nonPositiveNumber)
-  public static readonly nonNegativeNumber = new DataType(builtinTypesBitMasks.nonNegativeNumber)
-  public static readonly nonZeroInteger = new DataType(builtinTypesBitMasks.nonZeroInteger)
-  public static readonly nonZeroNonInteger = new DataType(builtinTypesBitMasks.nonZeroNonInteger)
-  public static readonly positiveInteger = new DataType(builtinTypesBitMasks.positiveInteger)
-  public static readonly negativeInteger = new DataType(builtinTypesBitMasks.negativeInteger)
-  public static readonly positiveNonInteger = new DataType(builtinTypesBitMasks.positiveNonInteger)
-  public static readonly negativeNonInteger = new DataType(builtinTypesBitMasks.negativeNonInteger)
-  public static readonly nonPositiveInteger = new DataType(builtinTypesBitMasks.nonPositiveInteger)
-  public static readonly nonNegativeInteger = new DataType(builtinTypesBitMasks.nonNegativeInteger)
+  public static readonly nonInteger = new DataType(builtinTypesBitMasks[`non-integer`])
+  public static readonly nonZeroNumber = new DataType(builtinTypesBitMasks[`non-zero-number`])
+  public static readonly positiveNumber = new DataType(builtinTypesBitMasks[`positive-number`])
+  public static readonly negativeNumber = new DataType(builtinTypesBitMasks[`negative-number`])
+  public static readonly nonPositiveNumber = new DataType(builtinTypesBitMasks[`non-positive-number`])
+  public static readonly nonNegativeNumber = new DataType(builtinTypesBitMasks[`non-negative-number`])
+  public static readonly nonZeroInteger = new DataType(builtinTypesBitMasks[`non-zero-integer`])
+  public static readonly positiveInteger = new DataType(builtinTypesBitMasks[`positive-integer`])
+  public static readonly negativeInteger = new DataType(builtinTypesBitMasks[`negative-integer`])
+  public static readonly positiveNonInteger = new DataType(builtinTypesBitMasks[`positive-non-integer`])
+  public static readonly negativeNonInteger = new DataType(builtinTypesBitMasks[`negative-non-integer`])
+  public static readonly nonPositiveInteger = new DataType(builtinTypesBitMasks[`non-positive-integer`])
+  public static readonly nonNegativeInteger = new DataType(builtinTypesBitMasks[`non-negative-integer`])
 
   public static readonly true = new DataType(builtinTypesBitMasks.true)
   public static readonly false = new DataType(builtinTypesBitMasks.false)
   public static readonly boolean = new DataType(builtinTypesBitMasks.boolean)
 
-  public static readonly emptyArray = new DataType(builtinTypesBitMasks.emptyArray)
-  public static readonly nonEmptyArray = new DataType(builtinTypesBitMasks.nonEmptyArray)
+  public static readonly emptyArray = new DataType(builtinTypesBitMasks[`empty-array`])
+  public static readonly nonEmptyArray = new DataType(builtinTypesBitMasks[`non-empty-array`])
   public static readonly array = new DataType(builtinTypesBitMasks.array)
 
-  public static readonly emptyObject = new DataType(builtinTypesBitMasks.emptyObject)
-  public static readonly nonEmptyObject = new DataType(builtinTypesBitMasks.nonEmptyObject)
+  public static readonly emptyObject = new DataType(builtinTypesBitMasks[`empty-object`])
+  public static readonly nonEmptyObject = new DataType(builtinTypesBitMasks[`non-empty-object`])
   public static readonly object = new DataType(builtinTypesBitMasks.object)
 
   public static readonly regexp = new DataType(builtinTypesBitMasks.regexp)
 
-  public static readonly emptyCollection = new DataType(builtinTypesBitMasks.emptyCollection)
-  public static readonly nonEmptyCollection = new DataType(builtinTypesBitMasks.nonEmptyCollection)
-  public static readonly collection = new DataType(builtinTypesBitMasks.collection)
+  public static readonly emptyCollection = new DataType(builtinTypesBitMasks[`empty-collection`])
+  public static readonly nonEmptyCollection = new DataType(builtinTypesBitMasks[`non-empty-collection`])
+  public static readonly collection = new DataType(builtinTypesBitMasks[`collection`])
 
-  public static readonly emptySequence = new DataType(builtinTypesBitMasks.emptySequence)
-  public static readonly nonEmptySequence = new DataType(builtinTypesBitMasks.nonEmptySequence)
+  public static readonly emptySequence = new DataType(builtinTypesBitMasks[`empty-sequence`])
+  public static readonly nonEmptySequence = new DataType(builtinTypesBitMasks[`non-empty-sequence`])
   public static readonly sequence = new DataType(builtinTypesBitMasks.sequence)
 
   public static readonly truthy = new DataType(builtinTypesBitMasks.truthy)
@@ -221,8 +272,14 @@ export class DataType {
       return DataType.true
     } else if (input === false) {
       return DataType.false
+    } else if (Number.isNaN(input)) {
+      return DataType.nan
+    } else if (input === Number.POSITIVE_INFINITY) {
+      return DataType.positiveInfinity
+    } else if (input === Number.NEGATIVE_INFINITY) {
+      return DataType.negativeInfinity
     } else if (typeof input === `string`) {
-      return input ? DataType.nonEmptyString : DataType.emptyString
+      return input ? DataType.nonEmptyString : DataType[`emptyString`]
     } else if (typeof input === `number`) {
       if (input === 0) {
         return DataType.zero
@@ -247,13 +304,13 @@ export class DataType {
     const newTypeMask = types.reduce((result, type) => {
       return result | type.bitmask
     }, 0)
-    const functions = types.filter(type => type.isFunction())
-    if (functions.some(f => !f.fnReturnType)) {
-      return new DataType(newTypeMask)
-    }
-    const returnTypes = functions.map(type => type.fnReturnType) as DataType[]
-    const fnReturnType = returnTypes.length > 0 ? DataType.or(...returnTypes) : undefined
-    return new DataType(newTypeMask, fnReturnType)
+    // const functions = types.filter(type => type.isFunction())
+    // if (functions.some(f => !f.fnReturnType)) {
+    //   return new DataType(newTypeMask)
+    // }
+    // const returnTypes = functions.map(type => type.fnReturnType) as DataType[]
+    // const fnReturnType = returnTypes.length > 0 ? DataType.or(...returnTypes) : undefined
+    return new DataType(newTypeMask)
   }
 
   public static and(...types: DataType[]): DataType {
@@ -262,15 +319,15 @@ export class DataType {
     }, UNKNWON_BITS)
 
     // At least one of the types is a function
-    if (newTypeMask & builtinTypesBitMasks.function) {
-      const returnFunctions = types.filter(type => type.isFunction())
-      const returnFunction = DataType.and(...returnFunctions)
-      if (returnFunction.bitmask === builtinTypesBitMasks.never) {
-        return new DataType(newTypeMask & ~builtinTypesBitMasks.function)
-      } else {
-        return new DataType(newTypeMask, returnFunction)
-      }
-    }
+    // if (newTypeMask & builtinTypesBitMasks.function) {
+    //   const returnFunctions = types.filter(type => type.isFunction())
+    //   const returnFunction = DataType.and(...returnFunctions)
+    //   if (returnFunction.bitmask === builtinTypesBitMasks.never) {
+    //     return new DataType(newTypeMask & ~builtinTypesBitMasks.function)
+    //   } else {
+    //     return new DataType(newTypeMask, returnFunction)
+    //   }
+    // }
 
     return new DataType(newTypeMask)
   }
@@ -279,18 +336,18 @@ export class DataType {
     return rest.reduce((result, type) => {
       const newBitmask = result.bitmask & ~type.bitmask
       // Only remove function bit if functions are equal
-      if (result.isFunction() && type.isFunction()) {
-        const returnType: DataType = !type.fnReturnType
-          ? DataType.never
-          : !result.fnReturnType
-          ? DataType.unknown.exclude(type.fnReturnType)
-          : result.fnReturnType.exclude(type.fnReturnType)
-        if (returnType.bitmask === builtinTypesBitMasks.never) {
-          return new DataType(newBitmask)
-        } else {
-          return new DataType(newBitmask | builtinTypesBitMasks.function, returnType)
-        }
-      }
+      // if (result.isFunction() && type.isFunction()) {
+      //   const returnType: DataType = !type.fnReturnType
+      //     ? DataType.never
+      //     : !result.fnReturnType
+      //     ? DataType.unknown.exclude(type.fnReturnType)
+      //     : result.fnReturnType.exclude(type.fnReturnType)
+      //   if (returnType.bitmask === builtinTypesBitMasks.never) {
+      //     return new DataType(newBitmask)
+      //   } else {
+      //     return new DataType(newBitmask | builtinTypesBitMasks.function, returnType)
+      //   }
+      // }
       return new DataType(newBitmask)
     }, first)
   }
@@ -353,6 +410,9 @@ export class DataType {
   }
 
   public is(dataType: DataType): boolean {
+    if (dataType.isNever()) {
+      return this.isNever()
+    }
     return DataType.is(this, dataType)
   }
 
@@ -386,12 +446,12 @@ export class DataType {
     return DataType.isUnionType(this)
   }
 
-  public withReturnType(dataType: DataType): DataType {
-    if (!this.isFunction()) {
-      throw Error(`Only functions can have return types`)
-    }
-    return new DataType(this.bitmask, dataType)
-  }
+  // public withReturnType(dataType: DataType): DataType {
+  //   if (!this.isFunction()) {
+  //     throw Error(`Only functions can have return types`)
+  //   }
+  //   return new DataType(this.bitmask, dataType)
+  // }
 
   public nilable(): DataType {
     return this.or(DataType.nil)
@@ -403,20 +463,33 @@ export class DataType {
 
   public negateNumber() {
     let newBitmask = this.bitmask
-    if (this.bitmask & typeToBitRecord.negativeInteger && !(this.bitmask & typeToBitRecord.positiveInteger)) {
-      newBitmask = (newBitmask | typeToBitRecord.positiveInteger) & ~typeToBitRecord.negativeInteger
+    if (this.bitmask & typeToBitRecord[`positive-infinity`] && !(this.bitmask & typeToBitRecord[`negative-infinity`])) {
+      newBitmask = (newBitmask | typeToBitRecord[`negative-infinity`]) & ~typeToBitRecord[`positive-infinity`]
     }
-    if (this.bitmask & typeToBitRecord.negativeNonInteger && !(this.bitmask & typeToBitRecord.positiveNonInteger)) {
-      newBitmask = (newBitmask | typeToBitRecord.positiveNonInteger) & ~typeToBitRecord.negativeNonInteger
-    }
-    if (this.bitmask & typeToBitRecord.positiveInteger && !(this.bitmask & typeToBitRecord.negativeInteger)) {
-      newBitmask = (newBitmask | typeToBitRecord.negativeInteger) & ~typeToBitRecord.positiveInteger
-    }
-    if (this.bitmask & typeToBitRecord.positiveNonInteger && !(this.bitmask & typeToBitRecord.negativeNonInteger)) {
-      newBitmask = (newBitmask | typeToBitRecord.negativeNonInteger) & ~typeToBitRecord.positiveNonInteger
+    if (this.bitmask & typeToBitRecord[`negative-infinity`] && !(this.bitmask & typeToBitRecord[`positive-infinity`])) {
+      newBitmask = (newBitmask | typeToBitRecord[`positive-infinity`]) & ~typeToBitRecord[`negative-infinity`]
     }
 
-    return new DataType(newBitmask, this.fnReturnType)
+    if (this.bitmask & typeToBitRecord[`negative-integer`] && !(this.bitmask & typeToBitRecord[`positive-integer`])) {
+      newBitmask = (newBitmask | typeToBitRecord[`positive-integer`]) & ~typeToBitRecord[`negative-integer`]
+    }
+    if (
+      this.bitmask & typeToBitRecord[`negative-non-integer`] &&
+      !(this.bitmask & typeToBitRecord[`positive-non-integer`])
+    ) {
+      newBitmask = (newBitmask | typeToBitRecord[`positive-non-integer`]) & ~typeToBitRecord[`negative-non-integer`]
+    }
+    if (this.bitmask & typeToBitRecord[`positive-integer`] && !(this.bitmask & typeToBitRecord[`negative-integer`])) {
+      newBitmask = (newBitmask | typeToBitRecord[`negative-integer`]) & ~typeToBitRecord[`positive-integer`]
+    }
+    if (
+      this.bitmask & typeToBitRecord[`positive-non-integer`] &&
+      !(this.bitmask & typeToBitRecord[`negative-non-integer`])
+    ) {
+      newBitmask = (newBitmask | typeToBitRecord[`negative-non-integer`]) & ~typeToBitRecord[`positive-non-integer`]
+    }
+
+    return new DataType(newBitmask)
   }
 
   public isFunction(): boolean {
@@ -427,24 +500,82 @@ export class DataType {
     return this.bitmask === UNKNWON_BITS
   }
 
-  public toString(indent = 0): string {
-    const padding = ` `.repeat(indent)
-    const suffix = ` [Bitmask = ${stringifyBitMask(this.bitmask)}  (${this.bitmask})]`
-    if (this.isUnknown()) {
-      return `${padding}unknown${suffix}`
-    }
-    if (this.bitmask === 0) {
-      return `${padding}never${suffix}`
-    }
-    const types = Object.entries(typeToBitRecord).reduce((result: string[], entry) => {
-      const [name, bitValue] = entry
+  public toPrimitiveTypes(): DataType[] {
+    const result: DataType[] = []
+    Object.values(typeToBitRecord).forEach(bitValue => {
       if (this.bitmask & bitValue) {
-        result.push(name)
+        result.push(new DataType(bitValue))
       }
-      return result
-    }, [])
-    return `${padding}${types.join(` | `)}${suffix}${
-      this.fnReturnType ? ` =>\n${this.fnReturnType.toString(indent + 2)}` : ``
-    }`
+    })
+    return result
+  }
+
+  public toString({ showDetails } = { showDetails: true }): string {
+    const suffix = ` [Bitmask = ${stringifyBitMask(this.bitmask)}  (${this.bitmask})]`
+    const typeString = this.getTypeString()
+    return `${typeString}${showDetails ? suffix : ``}`
+  }
+
+  private getTypeString(): string {
+    if (this.isNever()) {
+      return `::never`
+    }
+    if (this.isUnknown()) {
+      return `::unknown`
+    }
+
+    const nan = !!(this.bitmask & typeToBitRecord.nan)
+    const positiveInfinity = !!(this.bitmask & typeToBitRecord[`positive-infinity`])
+    const negativeInfinity = !!(this.bitmask & typeToBitRecord[`negative-infinity`])
+    const nilable = !!(this.bitmask & typeToBitRecord.nil)
+    const bitmask =
+      this.bitmask &
+      ~(
+        typeToBitRecord.nil |
+        typeToBitRecord.nan |
+        typeToBitRecord[`positive-infinity`] |
+        typeToBitRecord[`negative-infinity`]
+      )
+
+    const typeStrings: string[] = []
+
+    for (const [name, bits] of Object.entries(builtinTypesBitMasks).filter(
+      ([_, value]) => value !== builtinTypesBitMasks.never,
+    )) {
+      if (bitmask === bits) {
+        typeStrings.push(`::${name}`)
+        break
+      }
+    }
+
+    if (typeStrings.length === 0) {
+      Object.entries(typeToBitRecord).forEach(([name, bitValue]) => {
+        if (bitmask & bitValue) {
+          typeStrings.push(`::${name}`)
+        }
+      })
+    }
+
+    if (nilable) {
+      typeStrings.push(`::nil`)
+    }
+
+    if (nan && positiveInfinity && negativeInfinity) {
+      typeStrings.push(`::illegal-number`)
+    } else {
+      if (nan) {
+        typeStrings.push(`::nan`)
+      }
+
+      if (positiveInfinity) {
+        typeStrings.push(`::positive-infinity`)
+      }
+
+      if (negativeInfinity) {
+        typeStrings.push(`::negative-infinity`)
+      }
+    }
+
+    return typeStrings.join(` | `)
   }
 }

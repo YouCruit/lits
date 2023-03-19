@@ -1,6 +1,10 @@
 const typeNames = [
   `never`,
   `nil`,
+  `illegal-number`,
+  `nan`,
+  `positive-infinity`,
+  `negative-infinity`,
   `empty-string`,
   `non-empty-string`,
   `string`,
@@ -13,7 +17,6 @@ const typeNames = [
   `integer`,
   `non-integer`,
   `non-zero-integer`,
-  `non-zero-non-integer`,
   `positive-integer`,
   `negative-integer`,
   `positive-non-integer`,

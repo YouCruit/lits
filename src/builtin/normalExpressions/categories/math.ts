@@ -1,4 +1,5 @@
 import { DataType } from '../../../analyze/dataTypes/DataType'
+import { Arr } from '../../../interface'
 import { NormalExpressionNode } from '../../../parser/interface'
 import { DebugInfo } from '../../../tokenizer/interface'
 import { assertNumberOfParams, asValue, dataType, number } from '../../../utils/assertion'
@@ -80,78 +81,6 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
     validate: () => undefined,
   },
 
-  '*': {
-    evaluate: (params, debugInfo): number | DataType => {
-      if (params.every(param => !(param instanceof DataType))) {
-        return params.reduce((result: number, param) => {
-          number.assert(param, debugInfo)
-          return result * param
-        }, 1)
-      } else {
-        const paramTypes = params.map(param => DataType.of(param))
-        if (paramTypes.length === 1) {
-          const firstParamType = asValue(paramTypes[0])
-          firstParamType.assertIs(DataType.number, debugInfo)
-          return firstParamType
-        }
-
-        return getTypeOfProduct(paramTypes, debugInfo)
-      }
-    },
-    validate: () => undefined,
-  },
-
-  '/': {
-    evaluate: (params, debugInfo): number | DataType => {
-      if (params.every(param => !(param instanceof DataType))) {
-        if (params.length === 0) {
-          return 1
-        }
-        const [first, ...rest] = params
-        number.assert(first, debugInfo)
-        if (rest.length === 0) {
-          number.assert(first, debugInfo)
-          return 1 / first
-        }
-        return rest.reduce((result: number, param) => {
-          number.assert(param, debugInfo)
-          return result / param
-        }, first)
-      } else {
-        const paramTypes = params.map(param => DataType.of(param))
-        const firstParamType = asValue(paramTypes[0])
-        if (paramTypes.length === 1) {
-          firstParamType.assertIs(DataType.nonZeroNumber, debugInfo)
-          const withoutZero = firstParamType.exclude(DataType.zero)
-          if (withoutZero.is(DataType.positiveInteger)) {
-            return DataType.positiveNonInteger
-          } else if (withoutZero.is(DataType.negativeInteger)) {
-            return DataType.negativeNonInteger
-          } else if (withoutZero.is(DataType.integer)) {
-            return DataType.positiveNonInteger.or(DataType.negativeNonInteger)
-          } else if (withoutZero.is(DataType.negativeNonInteger)) {
-            return DataType.negativeNumber
-          } else if (withoutZero.is(DataType.positiveNonInteger)) {
-            return DataType.positiveNumber
-          } else if (withoutZero.is(DataType.positiveNumber)) {
-            return DataType.positiveNumber
-          } else if (withoutZero.is(DataType.negativeNumber)) {
-            return DataType.negativeNumber
-          } else {
-            return DataType.nonZeroNumber
-          }
-        }
-        const restTypes = paramTypes.slice(1)
-        restTypes.forEach(t => t.assertIs(DataType.nonZeroNumber, debugInfo))
-        if (firstParamType.is(DataType.zero)) {
-          return DataType.zero
-        }
-        return getTypeOfProduct([firstParamType, ...restTypes], debugInfo)
-      }
-    },
-    validate: () => undefined,
-  },
-
   '-': {
     evaluate: (params, debugInfo): number | DataType => {
       if (params.every(param => !(param instanceof DataType))) {
@@ -175,6 +104,43 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         }
         const restTypes = paramTypes.slice(1).map(t => t.negateNumber())
         return getTypeOfSum([firstParamType, ...restTypes], debugInfo)
+      }
+    },
+    validate: () => undefined,
+  },
+
+  '*': {
+    evaluate: (params, debugInfo): number | DataType => {
+      if (params.every(param => !(param instanceof DataType))) {
+        return params.reduce((result: number, param) => {
+          number.assert(param, debugInfo)
+          return result * param
+        }, 1)
+      } else {
+        return getTypeOfProduct(params, debugInfo)
+      }
+    },
+    validate: () => undefined,
+  },
+
+  '/': {
+    evaluate: (params, debugInfo): number | DataType => {
+      if (params.every(param => !(param instanceof DataType))) {
+        if (params.length === 0) {
+          return 1
+        }
+        const [first, ...rest] = params
+        number.assert(first, debugInfo)
+        if (rest.length === 0) {
+          number.assert(first, debugInfo)
+          return 1 / first
+        }
+        return rest.reduce((result: number, param) => {
+          number.assert(param, debugInfo)
+          return result / param
+        }, first)
+      } else {
+        return getTypeOfDivision(params, debugInfo)
       }
     },
     validate: () => undefined,
@@ -217,19 +183,30 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return Math.sqrt(first)
       } else {
         const type = DataType.of(first)
-        type.assertIs(DataType.nonNegativeNumber, debugInfo)
+        type.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
         if (type.is(DataType.zero)) {
           return DataType.zero
         }
 
         const hasZero = type.intersects(DataType.zero)
-        const withoutZero = type.exclude(DataType.zero)
+        const hasNegativeNumber = type.intersects(DataType.negativeNumber)
+        const illegalTypes = type.and(DataType.illegalNumber)
+        const stripped = type.exclude(DataType.zero, DataType.negativeNumber, DataType.illegalNumber)
 
-        const returnType = withoutZero.is(DataType.positiveNonInteger)
+        const returnType = stripped.is(DataType.positiveNonInteger)
           ? DataType.positiveNonInteger
-          : DataType.positiveNumber
+          : stripped.is(DataType.positiveNumber)
+          ? DataType.positiveNumber
+          : DataType.never
 
-        return hasZero ? returnType.or(DataType.zero) : returnType
+        return DataType.or(
+          returnType,
+          hasZero ? DataType.zero : DataType.never,
+          hasNegativeNumber ? DataType.nan : DataType.never,
+          illegalTypes.intersects(DataType.nan) ? DataType.nan : DataType.never,
+          illegalTypes.intersects(DataType.positiveInfinity) ? DataType.positiveInfinity : DataType.never,
+          illegalTypes.intersects(DataType.negativeInfinity) ? DataType.nan : DataType.never,
+        )
       }
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -576,150 +553,281 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 }
 
 function getTypeOfSum(paramTypes: DataType[], debugInfo: DebugInfo | undefined) {
-  return paramTypes.reduce((a: DataType, b) => {
-    b.assertIs(DataType.number, debugInfo)
-    const param = b.and(DataType.number)
+  paramTypes.every(type => type.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo))
 
-    if (a.is(DataType.zero)) {
-      return param
-    }
-
-    const aIntegerType = a.is(DataType.integer) ? `integer` : a.is(DataType.nonInteger) ? `nonInteger` : `number`
-    const bIntegerType = b.is(DataType.integer) ? `integer` : b.is(DataType.nonInteger) ? `nonInteger` : `number`
-    const baseType =
-      aIntegerType === `number` || bIntegerType === `number`
-        ? DataType.number
-        : aIntegerType === `integer` && bIntegerType === `integer`
-        ? DataType.integer
-        : aIntegerType === `nonInteger` && bIntegerType === `nonInteger`
-        ? DataType.number
-        : DataType.nonInteger
-
-    if (a.is(DataType.negativeNumber)) {
-      if (param.is(DataType.nonPositiveNumber)) {
-        return DataType.and(baseType, DataType.negativeNumber)
-      } else {
-        return baseType
-      }
-    } else if (a.is(DataType.nonPositiveNumber)) {
-      if (param.is(DataType.negativeNumber)) {
-        return DataType.and(baseType, DataType.negativeNumber)
-      } else if (param.is(DataType.nonPositiveNumber)) {
-        return DataType.and(baseType, DataType.nonPositiveNumber)
-      } else {
-        return baseType
-      }
-    } else if (a.is(DataType.positiveNumber)) {
-      if (param.is(DataType.nonNegativeNumber)) {
-        return DataType.and(baseType, DataType.positiveNumber)
-      } else {
-        return baseType
-      }
-    } else if (a.is(DataType.nonNegativeNumber)) {
-      if (param.is(DataType.positiveNumber)) {
-        return DataType.and(baseType, DataType.positiveNumber)
-      } else if (param.is(DataType.nonNegativeNumber)) {
-        return DataType.and(baseType, DataType.nonNegativeNumber)
-      } else {
-        return baseType
-      }
-    } else {
-      return DataType.and(baseType, DataType.number)
-    }
-  }, DataType.zero)
+  return paramTypes.reduce((a: DataType, b) => getTypeOfBinarySum(a, b), DataType.zero)
 }
 
-function getTypeOfProduct(paramTypes: DataType[], debugInfo: DebugInfo | undefined) {
+function getTypeOfBinarySum(a: DataType, b: DataType): DataType {
+  const types: DataType[] = []
+
+  if (a.or(b).intersects(DataType.nan)) {
+    types.push(DataType.nan)
+  }
+
+  if (a.intersects(DataType.positiveInfinity)) {
+    if (b.intersects(DataType.positiveInfinity)) {
+      types.push(DataType.positiveInfinity)
+    }
+    if (b.intersects(DataType.negativeInfinity)) {
+      types.push(DataType.nan)
+    }
+    if (b.intersects(DataType.number)) {
+      types.push(DataType.positiveInfinity)
+    }
+  }
+  if (a.intersects(DataType.negativeInfinity)) {
+    if (b.intersects(DataType.positiveInfinity)) {
+      types.push(DataType.nan)
+    }
+    if (b.intersects(DataType.negativeInfinity)) {
+      types.push(DataType.negativeInfinity)
+    }
+    if (b.intersects(DataType.number)) {
+      types.push(DataType.negativeInfinity)
+    }
+  }
+  if (b.intersects(DataType.positiveInfinity)) {
+    if (a.intersects(DataType.number)) {
+      types.push(DataType.positiveInfinity)
+    }
+  }
+  if (b.intersects(DataType.negativeInfinity)) {
+    if (a.intersects(DataType.number)) {
+      types.push(DataType.negativeInfinity)
+    }
+  }
+
+  if (a.and(b).intersects(DataType.zero)) {
+    types.push(DataType.zero)
+  }
+
+  const aIntegerType = a.is(DataType.integer) ? `integer` : a.is(DataType.nonInteger) ? `nonInteger` : `number`
+  const bIntegerType = b.is(DataType.integer) ? `integer` : b.is(DataType.nonInteger) ? `nonInteger` : `number`
+  const baseType =
+    aIntegerType === `number` || bIntegerType === `number`
+      ? DataType.number
+      : aIntegerType === `integer` && bIntegerType === `integer`
+      ? DataType.integer
+      : aIntegerType === `nonInteger` && bIntegerType === `nonInteger`
+      ? DataType.number
+      : DataType.nonInteger
+
+  if (a.intersects(DataType.positiveNumber)) {
+    if (b.intersects(DataType.positiveNumber)) {
+      types.push(DataType.positiveNumber.and(baseType))
+    }
+    if (b.intersects(DataType.negativeNumber)) {
+      types.push(DataType.number.and(baseType))
+    }
+  }
+  if (a.intersects(DataType.negativeNumber)) {
+    if (b.intersects(DataType.negativeNumber)) {
+      types.push(DataType.negativeNumber.and(baseType))
+    }
+    if (b.intersects(DataType.positiveNumber)) {
+      types.push(DataType.number.and(baseType))
+    }
+  }
+  if (a.intersects(DataType.zero)) {
+    types.push(b)
+  }
+  if (b.intersects(DataType.zero)) {
+    types.push(a)
+  }
+
+  return DataType.or(...types)
+}
+
+function getTypeOfProduct(params: Arr, debugInfo: DebugInfo | undefined): DataType {
+  if (params.length === 0) {
+    return DataType.positiveInteger
+  }
+  const paramTypes = params.map(param => {
+    const type = DataType.of(param)
+    type.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
+    return type
+  })
+
+  if (paramTypes.length === 1) {
+    return asValue(paramTypes[0])
+  }
+
   const first = asValue(paramTypes[0])
-  return paramTypes.slice(1).reduce((a: DataType, b) => {
-    a.assertIs(DataType.number, debugInfo)
-    b.assertIs(DataType.number, debugInfo)
+  return paramTypes.slice(1).reduce((a: DataType, b) => getTypeOfBinaryProduct(a, b), first)
+}
 
-    if (a.is(DataType.zero) || b.is(DataType.zero)) {
-      return DataType.zero
+function getTypeOfBinaryProduct(a: DataType, b: DataType): DataType {
+  const types: DataType[] = []
+  if (a.or(b).intersects(DataType.nan)) {
+    types.push(DataType.nan)
+  }
+
+  if (a.intersects(DataType.positiveInfinity)) {
+    if (b.intersects(DataType.positiveInfinity) || b.intersects(DataType.positiveNumber)) {
+      types.push(DataType.positiveInfinity)
     }
-
-    const aIntegerType = a.is(DataType.integer) ? `integer` : a.is(DataType.nonInteger) ? `nonInteger` : `number`
-    const bIntegerType = b.is(DataType.integer) ? `integer` : b.is(DataType.nonInteger) ? `nonInteger` : `number`
-    const baseType =
-      aIntegerType === `number` || bIntegerType === `number`
-        ? DataType.number
-        : aIntegerType === `integer` && bIntegerType === `integer`
-        ? DataType.integer
-        : aIntegerType === `nonInteger` && bIntegerType === `nonInteger`
-        ? DataType.nonInteger
-        : DataType.number
-
-    const aSign = a.is(DataType.negativeNumber)
-      ? `<0`
-      : a.is(DataType.nonPositiveNumber)
-      ? `<=0`
-      : a.is(DataType.positiveNumber)
-      ? `>0`
-      : a.is(DataType.nonNegativeNumber)
-      ? `>=0`
-      : `?`
-
-    const bSign = b.is(DataType.negativeNumber)
-      ? `<0`
-      : b.is(DataType.nonPositiveNumber)
-      ? `<=0`
-      : b.is(DataType.positiveNumber)
-      ? `>0`
-      : b.is(DataType.nonNegativeNumber)
-      ? `>=0`
-      : `?`
-
-    switch (aSign) {
-      case `<0`:
-        switch (bSign) {
-          case `<0`:
-            return DataType.and(baseType, DataType.positiveNumber)
-          case `<=0`:
-            return DataType.and(baseType, DataType.nonNegativeNumber)
-          case `>0`:
-            return DataType.and(baseType, DataType.negativeNumber)
-          case `>=0`:
-            return DataType.and(baseType, DataType.nonPositiveNumber)
-        }
-        break
-      case `<=0`:
-        switch (bSign) {
-          case `<0`:
-            return DataType.and(baseType, DataType.nonNegativeNumber)
-          case `<=0`:
-            return DataType.and(baseType, DataType.nonNegativeNumber)
-          case `>0`:
-            return DataType.and(baseType, DataType.nonPositiveNumber)
-          case `>=0`:
-            return DataType.and(baseType, DataType.nonPositiveNumber)
-        }
-        break
-      case `>0`:
-        switch (bSign) {
-          case `<0`:
-            return DataType.and(baseType, DataType.negativeNumber)
-          case `<=0`:
-            return DataType.and(baseType, DataType.nonPositiveNumber)
-          case `>0`:
-            return DataType.and(baseType, DataType.positiveNumber)
-          case `>=0`:
-            return DataType.and(baseType, DataType.nonNegativeNumber)
-        }
-        break
-      case `>=0`:
-        switch (bSign) {
-          case `<0`:
-            return DataType.and(baseType, DataType.nonPositiveNumber)
-          case `<=0`:
-            return DataType.and(baseType, DataType.nonPositiveNumber)
-          case `>0`:
-            return DataType.and(baseType, DataType.nonNegativeNumber)
-          case `>=0`:
-            return DataType.and(baseType, DataType.nonNegativeNumber)
-        }
-        break
+    if (b.intersects(DataType.negativeInfinity) || b.intersects(DataType.negativeNumber)) {
+      types.push(DataType.negativeInfinity)
     }
-    return baseType
-  }, first)
+    if (b.intersects(DataType.zero)) {
+      types.push(DataType.nan)
+    }
+  }
+
+  if (a.intersects(DataType.negativeInfinity)) {
+    if (b.intersects(DataType.negativeInfinity) || b.intersects(DataType.negativeNumber)) {
+      types.push(DataType.positiveInfinity)
+    }
+    if (b.intersects(DataType.positiveInfinity) || b.intersects(DataType.positiveNumber)) {
+      types.push(DataType.negativeInfinity)
+    }
+    if (b.intersects(DataType.zero)) {
+      types.push(DataType.nan)
+    }
+  }
+
+  if (b.intersects(DataType.positiveInfinity)) {
+    if (a.intersects(DataType.zero)) {
+      types.push(DataType.nan)
+    }
+    if (a.intersects(DataType.positiveNumber)) {
+      types.push(DataType.positiveInfinity)
+    }
+    if (a.intersects(DataType.negativeNumber)) {
+      types.push(DataType.negativeInfinity)
+    }
+  }
+
+  if (b.intersects(DataType.negativeInfinity)) {
+    if (a.intersects(DataType.zero)) {
+      types.push(DataType.nan)
+    }
+    if (a.intersects(DataType.positiveNumber)) {
+      types.push(DataType.negativeInfinity)
+    }
+    if (a.intersects(DataType.negativeNumber)) {
+      types.push(DataType.positiveInfinity)
+    }
+  }
+
+  if (a.or(b).intersects(DataType.zero)) {
+    types.push(DataType.zero)
+  }
+
+  const aIntegerType = a.is(DataType.integer) ? `integer` : a.is(DataType.nonInteger) ? `nonInteger` : `number`
+  const bIntegerType = b.is(DataType.integer) ? `integer` : b.is(DataType.nonInteger) ? `nonInteger` : `number`
+  const baseType =
+    aIntegerType === `number` || bIntegerType === `number`
+      ? DataType.number
+      : aIntegerType === `integer` && bIntegerType === `integer`
+      ? DataType.integer
+      : aIntegerType === `nonInteger` && bIntegerType === `nonInteger`
+      ? DataType.nonInteger
+      : DataType.number
+
+  const aNeg = a.intersects(DataType.negativeNumber)
+  const aPos = a.intersects(DataType.positiveNumber)
+  const bNeg = b.intersects(DataType.negativeNumber)
+  const bPos = b.intersects(DataType.positiveNumber)
+
+  if ((aNeg && bNeg) || (aPos && bPos)) {
+    types.push(DataType.positiveNumber.and(baseType))
+  }
+
+  if ((aNeg && bPos) || (aPos && bNeg)) {
+    types.push(DataType.negativeNumber.and(baseType))
+  }
+
+  return DataType.or(...types)
+}
+
+function getTypeOfDivision(params: Arr, debugInfo: DebugInfo | undefined): DataType {
+  if (params.length === 0) {
+    return DataType.positiveInteger
+  }
+  const paramTypes = params.map(param => {
+    const type = DataType.of(param)
+    type.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
+    return type
+  })
+
+  if (paramTypes.length === 1) {
+    paramTypes.unshift(DataType.positiveInteger)
+  }
+
+  const first = asValue(paramTypes[0])
+  return paramTypes.slice(1).reduce((a: DataType, b) => getTypeOfBinaryDivision(a, b), first)
+}
+
+function getTypeOfBinaryDivision(a: DataType, b: DataType): DataType {
+  const types: DataType[] = []
+  if (a.or(b).intersects(DataType.nan)) {
+    types.push(DataType.nan)
+  }
+
+  if (a.intersects(DataType.positiveInfinity)) {
+    if (b.intersects(DataType.illegalNumber)) {
+      types.push(DataType.nan)
+    }
+    if (b.intersects(DataType.positiveNumber)) {
+      types.push(DataType.positiveInfinity)
+    }
+    if (b.intersects(DataType.negativeNumber)) {
+      types.push(DataType.negativeInfinity)
+    }
+  }
+
+  if (a.intersects(DataType.negativeInfinity)) {
+    if (b.intersects(DataType.illegalNumber)) {
+      types.push(DataType.nan)
+    }
+    if (b.intersects(DataType.positiveNumber)) {
+      types.push(DataType.negativeInfinity)
+    }
+    if (b.intersects(DataType.negativeNumber)) {
+      types.push(DataType.positiveInfinity)
+    }
+  }
+
+  if (b.intersects(DataType.positiveInfinity.or(DataType.negativeInfinity))) {
+    if (a.intersects(DataType.number)) {
+      types.push(DataType.zero)
+    }
+  }
+
+  if (a.intersects(DataType.zero)) {
+    if (b.intersects(DataType.zero)) {
+      types.push(DataType.nan)
+    }
+    if (b.intersects(DataType.nonZeroNumber)) {
+      types.push(DataType.zero)
+    }
+  }
+
+  if (b.intersects(DataType.zero)) {
+    if (a.intersects(DataType.positiveNumber)) {
+      types.push(DataType.positiveInfinity)
+    }
+    if (a.intersects(DataType.negativeNumber)) {
+      types.push(DataType.negativeInfinity)
+    }
+  }
+
+  const baseType = a.is(DataType.nonInteger) && b.is(DataType.integer) ? DataType.nonInteger : DataType.number
+
+  const aNeg = a.intersects(DataType.negativeNumber)
+  const aPos = a.intersects(DataType.positiveNumber)
+  const bNeg = b.intersects(DataType.negativeNumber)
+  const bPos = b.intersects(DataType.positiveNumber)
+
+  if ((aNeg && bNeg) || (aPos && bPos)) {
+    types.push(DataType.positiveNumber.and(baseType))
+  }
+
+  if ((aNeg && bPos) || (aPos && bNeg)) {
+    types.push(DataType.negativeNumber.and(baseType))
+  }
+
+  return DataType.or(...types)
 }

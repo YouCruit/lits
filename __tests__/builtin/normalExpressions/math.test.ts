@@ -2,6 +2,7 @@ import { Lits } from '../../../src'
 import { TestTypeEvaluation, testTypeEvaluations } from '../../testUtils'
 
 const lits = new Lits()
+
 describe(`math functions`, () => {
   // for (const lits of [new Lits(), new Lits({ debug: true })]) {
   describe(`inc`, () => {
@@ -97,6 +98,10 @@ describe(`math functions`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`+`, [], { expression: `0` }],
 
+        [`+`, [`::illegal-number`], `::illegal-number`],
+        [`+`, [`::nan`], `::nan`],
+        [`+`, [`::positive-infinity`], `::positive-infinity`],
+        [`+`, [`::negative-infinity`], `::negative-infinity`],
         [`+`, [`::zero`], `::zero`],
         [`+`, [`::number`], `::number`],
         [`+`, [`::integer`], `::integer`],
@@ -114,17 +119,43 @@ describe(`math functions`, () => {
         [`+`, [`::negative-non-integer`], `::negative-non-integer`],
         [`+`, [`::non-negative-integer`], `::non-negative-integer`],
 
+        [`+`, [`::illegal-number`, `::illegal-number`], `::illegal-number`],
+        [`+`, [`::illegal-number`, `::nan`], `::nan`],
+        [`+`, [`::illegal-number`, `::positive-infinity`], [`::positive-infinity`, `::nan`]],
+        [`+`, [`::illegal-number`, `::negative-infinity`], [`::negative-infinity`, `::nan`]],
+        [`+`, [`::illegal-number`, `::number`], `::illegal-number`],
+
+        [`+`, [`::nan`, `::illegal-number`], `::nan`],
+        [`+`, [`::nan`, `::nan`], `::nan`],
+        [`+`, [`::nan`, `::positive-infinity`], `::nan`],
+        [`+`, [`::nan`, `::negative-infinity`], `::nan`],
+        [`+`, [`::nan`, `::number`], `::nan`],
+
+        [`+`, [`::positive-infinity`, `::illegal-number`], [`::positive-infinity`, `::nan`]],
+        [`+`, [`::positive-infinity`, `::nan`], `::nan`],
+        [`+`, [`::positive-infinity`, `::positive-infinity`], `::positive-infinity`],
+        [`+`, [`::positive-infinity`, `::negative-infinity`], `::nan`],
+        [`+`, [`::positive-infinity`, `::number`], `::positive-infinity`],
+
+        [`+`, [`::negative-infinity`, `::illegal-number`], [`::negative-infinity`, `::nan`]],
+        [`+`, [`::negative-infinity`, `::nan`], `::nan`],
+        [`+`, [`::negative-infinity`, `::positive-infinity`], `::nan`],
+        [`+`, [`::negative-infinity`, `::negative-infinity`], `::negative-infinity`],
+        [`+`, [`::negative-infinity`, `::number`], `::negative-infinity`],
+
         [`+`, [`::zero`, `::zero`], `::zero`],
         [`+`, [`::zero`, `::integer`], `::integer`],
         [`+`, [`::zero`, `::positive-integer`], `::positive-integer`],
         [`+`, [`::zero`, `::positive-non-integer`], `::positive-non-integer`],
         [`+`, [`::zero`, `::positive-number`], `::positive-number`],
+        [`+`, [`::zero`, `::positive-infinity`], `::positive-infinity`],
 
         [`+`, [`::positive-number`, `::zero`], `::positive-number`],
         [`+`, [`::positive-number`, `::positive-integer`], `::positive-number`],
         [`+`, [`::positive-number`, `::positive-non-integer`], `::positive-number`],
         [`+`, [`::positive-number`, `::non-positive-integer`], `::number`],
         [`+`, [`::positive-number`, `::negative-number`], `::number`],
+        [`+`, [`::positive-number`, `::positive-infinity`], `::positive-infinity`],
 
         [`+`, [`::positive-integer`, `::zero`], `::positive-integer`],
         [`+`, [`::positive-integer`, `::positive-integer`], `::positive-integer`],
@@ -132,6 +163,7 @@ describe(`math functions`, () => {
         [`+`, [`::positive-integer`, `::non-negative-integer`], `::positive-integer`],
         [`+`, [`::positive-integer`, `::negative-number`], `::number`],
         [`+`, [`::positive-integer`, `::negative-integer`], `::integer`],
+        [`+`, [`::positive-integer`, `::negative-infinity`], `::negative-infinity`],
 
         [`+`, [`::positive-non-integer`, `::zero`], `::positive-non-integer`],
         [`+`, [`::positive-non-integer`, `::positive-integer`], `::positive-non-integer`],
@@ -139,6 +171,7 @@ describe(`math functions`, () => {
         [`+`, [`::positive-non-integer`, `::non-negative-integer`], `::positive-non-integer`],
         [`+`, [`::positive-non-integer`, `::negative-number`], `::number`],
         [`+`, [`::positive-non-integer`, `::negative-integer`], `::non-integer`],
+        [`+`, [`::positive-non-integer`, `::nan`], `::nan`],
 
         [`+`, [`::negative-integer`, `::zero`], `::negative-integer`],
         [`+`, [`::negative-integer`, `::positive-integer`], `::integer`],
@@ -146,6 +179,7 @@ describe(`math functions`, () => {
         [`+`, [`::negative-integer`, `::non-negative-integer`], `::integer`],
         [`+`, [`::negative-integer`, `::negative-number`], `::negative-number`],
         [`+`, [`::negative-integer`, `::negative-integer`], `::negative-integer`],
+        [`+`, [`::negative-integer`, `::illegal-number`], `::illegal-number`],
 
         [`+`, [`::negative-non-integer`, `::zero`], `::negative-non-integer`],
         [`+`, [`::negative-non-integer`, `::positive-integer`], `::non-integer`],
@@ -153,12 +187,14 @@ describe(`math functions`, () => {
         [`+`, [`::negative-non-integer`, `::non-negative-integer`], `::non-integer`],
         [`+`, [`::negative-non-integer`, `::negative-number`], `::negative-number`],
         [`+`, [`::negative-non-integer`, `::negative-integer`], `::negative-non-integer`],
+        [`+`, [`::negative-non-integer`, `::positive-infinity`], `::positive-infinity`],
 
         [`+`, [`::negative-number`, `::zero`], `::negative-number`],
         [`+`, [`::negative-number`, `::positive-integer`], `::number`],
         [`+`, [`::negative-number`, `::positive-non-integer`], `::number`],
         [`+`, [`::negative-number`, `::non-positive-integer`], `::negative-number`],
         [`+`, [`::negative-number`, `::negative-number`], `::negative-number`],
+        [`+`, [`::negative-number`, `::negative-infinity`], `::negative-infinity`],
 
         [`+`, [`::non-negative-integer`, `::zero`], `::non-negative-integer`],
         [`+`, [`::non-negative-integer`, `::positive-integer`], `::positive-integer`],
@@ -166,12 +202,14 @@ describe(`math functions`, () => {
         [`+`, [`::non-negative-integer`, `::non-negative-integer`], `::non-negative-integer`],
         [`+`, [`::non-negative-integer`, `::negative-number`], `::number`],
         [`+`, [`::non-negative-integer`, `::negative-integer`], `::integer`],
+        [`+`, [`::non-negative-integer`, `::nan`], `::nan`],
 
         [`+`, [`::non-positive-number`, `::zero`], `::non-positive-number`],
         [`+`, [`::non-positive-number`, `::positive-integer`], `::number`],
         [`+`, [`::non-positive-number`, `::positive-non-integer`], `::number`],
         [`+`, [`::non-positive-number`, `::non-positive-integer`], `::non-positive-number`],
         [`+`, [`::non-positive-number`, `::negative-number`], `::negative-number`],
+        [`+`, [`::non-positive-number`, `::illegal-number`], `::illegal-number`],
 
         [`+`, [`::non-positive-integer`, `::zero`], `::non-positive-integer`],
         [`+`, [`::non-positive-integer`, `::positive-integer`], `::integer`],
@@ -179,12 +217,14 @@ describe(`math functions`, () => {
         [`+`, [`::non-positive-integer`, `::non-negative-integer`], `::integer`],
         [`+`, [`::non-positive-integer`, `::negative-number`], `::negative-number`],
         [`+`, [`::non-positive-integer`, `::negative-integer`], `::negative-integer`],
+        [`+`, [`::non-positive-integer`, `::positive-infinity`], `::positive-infinity`],
 
         [`+`, [`::non-negative-number`, `::zero`], `::non-negative-number`],
         [`+`, [`::non-negative-number`, `::positive-integer`], `::positive-number`],
         [`+`, [`::non-negative-number`, `::positive-non-integer`], `::positive-number`],
         [`+`, [`::non-negative-number`, `::non-positive-integer`], `::number`],
         [`+`, [`::non-negative-number`, `::negative-number`], `::number`],
+        [`+`, [`::non-negative-number`, `::negative-infinity`], `::negative-infinity`],
 
         [`+`, [`::integer`, `::zero`], `::integer`],
         [`+`, [`::integer`, `::positive-integer`], `::integer`],
@@ -192,6 +232,7 @@ describe(`math functions`, () => {
         [`+`, [`::integer`, `::non-negative-integer`], `::integer`],
         [`+`, [`::integer`, `::negative-number`], `::number`],
         [`+`, [`::integer`, `::negative-integer`], `::integer`],
+        [`+`, [`::integer`, `::nan`], `::nan`],
 
         [`+`, [`::non-integer`, `::zero`], `::non-integer`],
         [`+`, [`::non-integer`, `::positive-integer`], `::non-integer`],
@@ -199,6 +240,7 @@ describe(`math functions`, () => {
         [`+`, [`::non-integer`, `::non-negative-integer`], `::non-integer`],
         [`+`, [`::non-integer`, `::negative-number`], `::number`],
         [`+`, [`::non-integer`, `::negative-integer`], `::non-integer`],
+        [`+`, [`::non-integer`, `::illegal-number`], `::illegal-number`],
 
         [`+`, [`::number`, `::zero`], `::number`],
         [`+`, [`::number`, `::positive-integer`], `::number`],
@@ -206,8 +248,9 @@ describe(`math functions`, () => {
         [`+`, [`::number`, `::non-negative-integer`], `::number`],
         [`+`, [`::number`, `::negative-number`], `::number`],
         [`+`, [`::number`, `::negative-integer`], `::number`],
+        [`+`, [`::number`, `::positive-number`], `::number`],
       ]
-      testTypeEvaluations(lits, typeEvaluations)
+      testTypeEvaluations(lits, typeEvaluations, `commutativeParams`)
     })
   })
 
@@ -321,11 +364,11 @@ describe(`math functions`, () => {
         [`*`, [`::integer`, `::negative-integer`], `::integer`],
 
         [`*`, [`::non-integer`, `::zero`], `::zero`],
-        [`*`, [`::non-integer`, `::positive-integer`], `::number`],
+        [`*`, [`::non-integer`, `::positive-integer`], `::non-zero-number`],
         [`*`, [`::non-integer`, `::positive-non-integer`], `::non-integer`],
         [`*`, [`::non-integer`, `::non-negative-integer`], `::number`],
-        [`*`, [`::non-integer`, `::negative-number`], `::number`],
-        [`*`, [`::non-integer`, `::negative-integer`], `::number`],
+        [`*`, [`::non-integer`, `::negative-number`], `::non-zero-number`],
+        [`*`, [`::non-integer`, `::negative-integer`], `::non-zero-number`],
 
         [`*`, [`::number`, `::zero`], `::zero`],
         [`*`, [`::number`, `::positive-integer`], `::number`],
@@ -334,7 +377,7 @@ describe(`math functions`, () => {
         [`*`, [`::number`, `::negative-number`], `::number`],
         [`*`, [`::number`, `::negative-integer`], `::number`],
       ]
-      testTypeEvaluations(lits, typeEvaluations)
+      testTypeEvaluations(lits, typeEvaluations, `commutativeParams`)
     })
   })
 
@@ -350,118 +393,142 @@ describe(`math functions`, () => {
     describe(`divide dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`/`, [], { expression: `1` }],
-
-        [`/`, [`::zero`], `ERROR`],
-        [`/`, [`::number`], `ERROR`],
-        [`/`, [`::integer`], `ERROR`],
+        [`/`, [`::zero`], `::positive-infinity`],
+        [`/`, [`::number`], [`::non-zero-number`, `::positive-infinity`]],
+        [`/`, [`::integer`], [`::non-zero-number`, `::positive-infinity`]],
         [`/`, [`::non-zero-number`], `::non-zero-number`],
-        [`/`, [`::non-zero-integer`], { expression: `(type-exclude ::non-zero-number ::integer)` }],
+        [`/`, [`::non-zero-integer`], `::non-zero-number`],
         [`/`, [`::non-integer`], `::non-zero-number`],
         [`/`, [`::positive-number`], `::positive-number`],
-        [`/`, [`::non-positive-number`], `ERROR`],
-        [`/`, [`::positive-integer`], `::positive-non-integer`],
+        [`/`, [`::non-positive-number`], [`::negative-number`, `::positive-infinity`]],
+        [`/`, [`::positive-integer`], `::positive-number`],
         [`/`, [`::positive-non-integer`], `::positive-number`],
-        [`/`, [`::non-positive-integer`], `ERROR`],
+        [`/`, [`::non-positive-integer`], [`::negative-number`, `::positive-infinity`]],
         [`/`, [`::negative-number`], `::negative-number`],
-        [`/`, [`::non-negative-number`], `ERROR`],
-        [`/`, [`::negative-integer`], `::negative-non-integer`],
+        [`/`, [`::non-negative-number`], [`::positive-number`, `::positive-infinity`]],
+        [`/`, [`::negative-integer`], `::negative-number`],
         [`/`, [`::negative-non-integer`], `::negative-number`],
-        [`/`, [`::non-negative-integer`], `ERROR`],
+        [`/`, [`::non-negative-integer`], [`::positive-number`, `::positive-infinity`]],
 
-        [`/`, [`::zero`, `::zero`], `ERROR`],
-        [`/`, [`::zero`, `::integer`], `ERROR`],
+        [`/`, [`::zero`, `::zero`], `::nan`],
+        [`/`, [`::zero`, `::integer`], [`::nan`, `::zero`]],
         [`/`, [`::zero`, `::positive-integer`], `::zero`],
         [`/`, [`::zero`, `::positive-non-integer`], `::zero`],
         [`/`, [`::zero`, `::positive-number`], `::zero`],
 
-        [`/`, [`::positive-number`, `::zero`], `ERROR`],
+        [`/`, [`::positive-number`, `::zero`], `::positive-infinity`],
         [`/`, [`::positive-number`, `::positive-integer`], `::positive-number`],
         [`/`, [`::positive-number`, `::positive-non-integer`], `::positive-number`],
-        [`/`, [`::positive-number`, `::non-positive-integer`], `ERROR`],
+        [`/`, [`::positive-number`, `::non-positive-integer`], [`::positive-infinity`, `::negative-number`]],
         [`/`, [`::positive-number`, `::negative-number`], `::negative-number`],
 
-        [`/`, [`::positive-integer`, `::zero`], `ERROR`],
-        [`/`, [`::positive-integer`, `::positive-integer`], `::positive-integer`],
+        [`/`, [`::positive-integer`, `::positive-infinity`], `::zero`],
+        [`/`, [`::positive-integer`, `::positive-integer`], `::positive-number`],
         [`/`, [`::positive-integer`, `::positive-non-integer`], `::positive-number`],
-        [`/`, [`::positive-integer`, `::non-negative-integer`], `ERROR`],
+        [`/`, [`::positive-integer`, `::non-negative-integer`], [`::positive-infinity`, `::positive-number`]],
         [`/`, [`::positive-integer`, `::negative-number`], `::negative-number`],
-        [`/`, [`::positive-integer`, `::negative-integer`], `::negative-integer`],
+        [`/`, [`::positive-integer`, `::negative-integer`], `::negative-number`],
 
-        [`/`, [`::positive-non-integer`, `::zero`], `ERROR`],
-        [`/`, [`::positive-non-integer`, `::positive-integer`], `::positive-number`],
-        [`/`, [`::positive-non-integer`, `::positive-non-integer`], `::positive-non-integer`],
-        [`/`, [`::positive-non-integer`, `::non-negative-integer`], `ERROR`],
+        [`/`, [`::positive-non-integer`, `::zero`], `::positive-infinity`],
+        [`/`, [`::positive-non-integer`, `::positive-integer`], `::positive-non-integer`],
+        [`/`, [`::positive-non-integer`, `::positive-non-integer`], [`::positive-number`]],
+        [`/`, [`::positive-non-integer`, `::non-negative-integer`], [`::positive-infinity`, `::positive-non-integer`]],
         [`/`, [`::positive-non-integer`, `::negative-number`], `::negative-number`],
-        [`/`, [`::positive-non-integer`, `::negative-integer`], `::negative-number`],
+        [`/`, [`::positive-non-integer`, `::negative-integer`], `::negative-non-integer`],
 
-        [`/`, [`::negative-integer`, `::zero`], `ERROR`],
-        [`/`, [`::negative-integer`, `::positive-integer`], `::negative-integer`],
+        [`/`, [`::negative-integer`, `::zero`], `::negative-infinity`],
+        [`/`, [`::negative-integer`, `::positive-integer`], `::negative-number`],
         [`/`, [`::negative-integer`, `::positive-non-integer`], `::negative-number`],
-        [`/`, [`::negative-integer`, `::non-negative-integer`], `ERROR`],
+        [`/`, [`::negative-integer`, `::non-negative-integer`], [`::negative-number`, `::negative-infinity`]],
         [`/`, [`::negative-integer`, `::negative-number`], `::positive-number`],
-        [`/`, [`::negative-integer`, `::negative-integer`], `::positive-integer`],
+        [`/`, [`::negative-integer`, `::negative-integer`], `::positive-number`],
 
-        [`/`, [`::negative-non-integer`, `::zero`], `ERROR`],
-        [`/`, [`::negative-non-integer`, `::positive-integer`], `::negative-number`],
-        [`/`, [`::negative-non-integer`, `::positive-non-integer`], `::negative-non-integer`],
-        [`/`, [`::negative-non-integer`, `::non-negative-integer`], `ERROR`],
+        [`/`, [`::negative-non-integer`, `::zero`], `::negative-infinity`],
+        [`/`, [`::negative-non-integer`, `::positive-integer`], `::negative-non-integer`],
+        [`/`, [`::negative-non-integer`, `::positive-non-integer`], `::negative-number`],
+        [`/`, [`::negative-non-integer`, `::non-negative-integer`], [`::negative-non-integer`, `::negative-infinity`]],
         [`/`, [`::negative-non-integer`, `::negative-number`], `::positive-number`],
-        [`/`, [`::negative-non-integer`, `::negative-integer`], `::positive-number`],
+        [`/`, [`::negative-non-integer`, `::negative-integer`], `::positive-non-integer`],
 
-        [`/`, [`::negative-number`, `::zero`], `ERROR`],
+        [`/`, [`::negative-number`, `::zero`], `::negative-infinity`],
         [`/`, [`::negative-number`, `::positive-integer`], `::negative-number`],
         [`/`, [`::negative-number`, `::positive-non-integer`], `::negative-number`],
-        [`/`, [`::negative-number`, `::non-positive-integer`], `ERROR`],
+        [`/`, [`::negative-number`, `::non-positive-integer`], [`::positive-number`, `::negative-infinity`]],
         [`/`, [`::negative-number`, `::negative-number`], `::positive-number`],
+        [
+          `/`,
+          [`::negative-integer`, `::positive-integer`, `::positive-integer`, `::negative-integer`],
+          `::positive-number`,
+        ],
 
-        [`/`, [`::non-negative-integer`, `::zero`], `ERROR`],
-        [`/`, [`::non-negative-integer`, `::positive-integer`], `::non-negative-integer`],
+        [`/`, [`::non-negative-integer`, `::zero`], [`::nan`, `::positive-infinity`]],
+        [`/`, [`::non-negative-integer`, `::positive-integer`], `::non-negative-number`],
         [`/`, [`::non-negative-integer`, `::positive-non-integer`], `::non-negative-number`],
-        [`/`, [`::non-negative-integer`, `::non-negative-integer`], `ERROR`],
+        [
+          `/`,
+          [`::non-negative-integer`, `::non-negative-integer`],
+          [`::nan`, `::positive-infinity`, `::non-negative-number`],
+        ],
         [`/`, [`::non-negative-integer`, `::negative-number`], `::non-positive-number`],
-        [`/`, [`::non-negative-integer`, `::negative-integer`], `::non-positive-integer`],
+        [`/`, [`::non-negative-integer`, `::negative-integer`], `::non-positive-number`],
 
-        [`/`, [`::non-positive-number`, `::zero`], `ERROR`],
+        [`/`, [`::non-positive-number`, `::zero`], [`::nan`, `::negative-infinity`]],
         [`/`, [`::non-positive-number`, `::positive-integer`], `::non-positive-number`],
         [`/`, [`::non-positive-number`, `::positive-non-integer`], `::non-positive-number`],
-        [`/`, [`::non-positive-number`, `::non-positive-integer`], `ERROR`],
+        [
+          `/`,
+          [`::non-positive-number`, `::non-positive-integer`],
+          [`::non-negative-number`, `::nan`, `::negative-infinity`],
+        ],
         [`/`, [`::non-positive-number`, `::negative-number`], `::non-negative-number`],
 
-        [`/`, [`::non-positive-integer`, `::zero`], `ERROR`],
-        [`/`, [`::non-positive-integer`, `::positive-integer`], `::non-positive-integer`],
+        [`/`, [`::non-positive-integer`, `::zero`], [`::nan`, `::negative-infinity`]],
+        [`/`, [`::non-positive-integer`, `::positive-integer`], `::non-positive-number`],
         [`/`, [`::non-positive-integer`, `::positive-non-integer`], `::non-positive-number`],
-        [`/`, [`::non-positive-integer`, `::non-negative-integer`], `ERROR`],
+        [
+          `/`,
+          [`::non-positive-integer`, `::non-negative-integer`],
+          [`::nan`, `::non-positive-number`, `::negative-infinity`],
+        ],
         [`/`, [`::non-positive-integer`, `::negative-number`], `::non-negative-number`],
-        [`/`, [`::non-positive-integer`, `::negative-integer`], `::non-negative-integer`],
+        [`/`, [`::non-positive-integer`, `::negative-integer`], `::non-negative-number`],
 
-        [`/`, [`::non-negative-number`, `::zero`], `ERROR`],
+        [`/`, [`::non-negative-number`, `::zero`], [`::nan`, `::positive-infinity`]],
         [`/`, [`::non-negative-number`, `::positive-integer`], `::non-negative-number`],
         [`/`, [`::non-negative-number`, `::positive-non-integer`], `::non-negative-number`],
-        [`/`, [`::non-negative-number`, `::non-positive-integer`], `ERROR`],
+        [
+          `/`,
+          [`::non-negative-number`, `::non-positive-integer`],
+          [`::nan`, `::non-positive-number`, `::positive-infinity`],
+        ],
         [`/`, [`::non-negative-number`, `::negative-number`], `::non-positive-number`],
 
-        [`/`, [`::integer`, `::zero`], `ERROR`],
-        [`/`, [`::integer`, `::positive-integer`], `::integer`],
+        [`/`, [`::integer`, `::zero`], `::illegal-number`],
+        [`/`, [`::integer`, `::positive-integer`], `::number`],
         [`/`, [`::integer`, `::positive-non-integer`], `::number`],
-        [`/`, [`::integer`, `::non-negative-integer`], `ERROR`],
+        [`/`, [`::integer`, `::non-negative-integer`], [`::illegal-number`, `::number`]],
         [`/`, [`::integer`, `::negative-number`], `::number`],
-        [`/`, [`::integer`, `::negative-integer`], `::integer`],
+        [`/`, [`::integer`, `::negative-integer`], `::number`],
 
-        [`/`, [`::non-integer`, `::zero`], `ERROR`],
-        [`/`, [`::non-integer`, `::positive-integer`], `::number`],
-        [`/`, [`::non-integer`, `::positive-non-integer`], `::non-integer`],
-        [`/`, [`::non-integer`, `::non-negative-integer`], `ERROR`],
-        [`/`, [`::non-integer`, `::negative-number`], `::number`],
-        [`/`, [`::non-integer`, `::negative-integer`], `::number`],
+        [`/`, [`::non-integer`, `::zero`], [`::positive-infinity`, `::negative-infinity`]],
+        [`/`, [`::non-integer`, `::positive-integer`], `::non-integer`],
+        [`/`, [`::non-integer`, `::positive-non-integer`], `::non-zero-number`],
+        [
+          `/`,
+          [`::non-integer`, `::non-negative-integer`],
+          [`::non-integer`, `::positive-infinity`, `::negative-infinity`],
+        ],
+        [`/`, [`::non-integer`, `::negative-number`], `::non-zero-number`],
+        [`/`, [`::non-integer`, `::negative-integer`], `::non-integer`],
 
-        [`/`, [`::number`, `::zero`], `ERROR`],
+        [`/`, [`::number`, `::zero`], `::illegal-number`],
         [`/`, [`::number`, `::positive-integer`], `::number`],
         [`/`, [`::number`, `::positive-non-integer`], `::number`],
-        [`/`, [`::number`, `::non-negative-integer`], `ERROR`],
+        [`/`, [`::number`, `::non-negative-integer`], [`::illegal-number`, `::number`]],
         [`/`, [`::number`, `::negative-number`], `::number`],
         [`/`, [`::number`, `::negative-integer`], `::number`],
       ]
-      testTypeEvaluations(lits, typeEvaluations)
+      testTypeEvaluations(lits, typeEvaluations, `commutativeRestParams`)
     })
   })
 
@@ -481,6 +548,11 @@ describe(`math functions`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`-`, [], { expression: `0` }],
 
+        [`-`, [`::illegal-number`], `::illegal-number`],
+        [`-`, [`::nan`], `::nan`],
+        [`-`, [`::positive-infinity`], `::negative-infinity`],
+        [`-`, [`::negative-infinity`], `::positive-infinity`],
+
         [`-`, [`::zero`], `::zero`],
         [`-`, [`::number`], `::number`],
         [`-`, [`::integer`], `::integer`],
@@ -497,6 +569,30 @@ describe(`math functions`, () => {
         [`-`, [`::negative-integer`], `::positive-integer`],
         [`-`, [`::negative-non-integer`], `::positive-non-integer`],
         [`-`, [`::non-negative-integer`], `::non-positive-integer`],
+
+        [`-`, [`::illegal-number`, `::illegal-number`], `::illegal-number`],
+        [`-`, [`::illegal-number`, `::nan`], `::nan`],
+        [`-`, [`::illegal-number`, `::positive-infinity`], [`::negative-infinity`, `::nan`]],
+        [`-`, [`::illegal-number`, `::negative-infinity`], [`::positive-infinity`, `::nan`]],
+        [`-`, [`::illegal-number`, `::number`], `::illegal-number`],
+
+        [`-`, [`::nan`, `::illegal-number`], `::nan`],
+        [`-`, [`::nan`, `::nan`], `::nan`],
+        [`-`, [`::nan`, `::positive-infinity`], `::nan`],
+        [`-`, [`::nan`, `::negative-infinity`], `::nan`],
+        [`-`, [`::nan`, `::number`], `::nan`],
+
+        [`-`, [`::positive-infinity`, `::illegal-number`], [`::positive-infinity`, `::nan`]],
+        [`-`, [`::positive-infinity`, `::nan`], `::nan`],
+        [`-`, [`::positive-infinity`, `::positive-infinity`], `::nan`],
+        [`-`, [`::positive-infinity`, `::negative-infinity`], `::positive-infinity`],
+        [`-`, [`::positive-infinity`, `::number`], `::positive-infinity`],
+
+        [`-`, [`::negative-infinity`, `::illegal-number`], [`::negative-infinity`, `::nan`]],
+        [`-`, [`::negative-infinity`, `::nan`], `::nan`],
+        [`-`, [`::negative-infinity`, `::positive-infinity`], `::negative-infinity`],
+        [`-`, [`::negative-infinity`, `::negative-infinity`], `::nan`],
+        [`-`, [`::negative-infinity`, `::number`], `::negative-infinity`],
 
         [`-`, [`::zero`, `::zero`], `::zero`],
         [`-`, [`::zero`, `::integer`], `::integer`],
@@ -592,7 +688,7 @@ describe(`math functions`, () => {
         [`-`, [`::number`, `::negative-number`], `::number`],
         [`-`, [`::number`, `::negative-integer`], `::number`],
       ]
-      testTypeEvaluations(lits, typeEvaluations)
+      testTypeEvaluations(lits, typeEvaluations, `commutativeRestParams`)
     })
   })
 
@@ -607,27 +703,29 @@ describe(`math functions`, () => {
     })
     describe(`sqrt dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
+        [`sqrt`, [`::illegal-number`], [`::positive-infinity`, `::nan`]],
+        [`sqrt`, [`::nan`], `::nan`],
+        [`sqrt`, [`::positive-infinity`], `::positive-infinity`],
+        [`sqrt`, [`::negative-infinity`], `::nan`],
         [`sqrt`, [`::zero`], `::zero`],
-        [`sqrt`, [`::number`], `ERROR`],
-        [`sqrt`, [`::integer`], `ERROR`],
-        [`sqrt`, [`::non-zero-number`], `ERROR`],
-        [`sqrt`, [`::non-zero-integer`], `ERROR`],
-        [`sqrt`, [`::non-integer`], `ERROR`],
+        [`sqrt`, [`::number`], [`::non-negative-number`, `::nan`]],
+        [`sqrt`, [`::integer`], [`::non-negative-number`, `::nan`]],
+        [`sqrt`, [`::non-zero-number`], [`::positive-number`, `::nan`]],
+        [`sqrt`, [`::non-zero-integer`], [`::positive-number`, `::nan`]],
+        [`sqrt`, [`::non-integer`], [`::positive-non-integer`, `::nan`]],
         [`sqrt`, [`::positive-number`], `::positive-number`],
-        [`sqrt`, [`::non-positive-number`], `ERROR`],
+        [`sqrt`, [`::non-positive-number`], [`::nan`, `::zero`]],
         [`sqrt`, [`::positive-integer`], `::positive-number`],
         [`sqrt`, [`::positive-non-integer`], `::positive-non-integer`],
-        [`sqrt`, [`::non-positive-integer`], `ERROR`],
-        [`sqrt`, [`::negative-number`], `ERROR`],
+        [`sqrt`, [`::non-positive-integer`], [`::nan`, `::zero`]],
+        [`sqrt`, [`::negative-number`], `::nan`],
         [`sqrt`, [`::non-negative-number`], `::non-negative-number`],
-        [`sqrt`, [`::negative-integer`], `ERROR`],
-        [`sqrt`, [`::negative-non-integer`], `ERROR`],
+        [`sqrt`, [`::negative-integer`], `::nan`],
+        [`sqrt`, [`::negative-non-integer`], `::nan`],
         [`sqrt`, [`::non-negative-integer`], `::non-negative-number`],
-        [
-          `sqrt`,
-          [{ expression: `(type-or ::zero ::positive-non-integer)` }],
-          { expression: `(type-or ::zero ::positive-non-integer)` },
-        ],
+
+        [`sqrt`, [[`::non-negative-number`, `::nan`]], [`::non-negative-number`, `::nan`]],
+        [`sqrt`, [[`::zero`, `::positive-non-integer`]], [`::zero`, `::positive-non-integer`]],
       ]
       testTypeEvaluations(lits, typeEvaluations)
     })

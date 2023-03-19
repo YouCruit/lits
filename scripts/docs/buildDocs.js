@@ -72,11 +72,12 @@ function getPlayground() {
     <div class="column shrink">Playground</span></div>
     <div class="column right">
       <span class="button" onclick="run()">Run [F2]</span>
-      <span class="button" onclick="undefinedSymbols()">Undefined symbols [F3]</span>
+      <span class="button" onclick="run()">Run (debug) [F3]</span>
       <span class="button" onclick="tokenize(false)">Tokenize [F4]</span>
       <span class="button" onclick="tokenize(true)">Tokenize (debug) [F5]</span>
       <span class="button" onclick="parse(false)">Parse [F6]</span>
       <span class="button" onclick="parse(true)">Parse (debug) [F7]</span>
+      <span class="button" onclick="undefinedSymbols()">Undefined symbols [F8]</span>
       <span class="button" onclick="resetPlayground()">Reset</span>
     </div>
   </div>
@@ -299,6 +300,9 @@ function stringifyValue(value) {
   }
   if (typeof value === 'object' && value instanceof Error) {
     return value.toString()
+  }
+  if (value !== null && typeof value === 'object' && value.constructor && value.constructor.name === 'DataType') {
+    return value.toString({ showDetails: false })
   }
   if (typeof value === 'object' && value instanceof RegExp) {
     return `${value}`

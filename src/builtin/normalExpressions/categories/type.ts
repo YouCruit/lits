@@ -15,14 +15,14 @@ export const typeNormalExpression: BuiltinNormalExpressions = {
       params.forEach(param => dataType.assert(param, debugInfo))
       return DataType.or(...(params as DataType[]))
     },
-    validate: () => undefined,
+    validate: node => assertNumberOfParams({ min: 1 }, node),
   },
   'type-and': {
     evaluate: (params, debugInfo): DataType => {
       params.forEach(param => dataType.assert(param, debugInfo))
       return DataType.and(...(params as DataType[]))
     },
-    validate: () => undefined,
+    validate: node => assertNumberOfParams({ min: 1 }, node),
   },
   'type-exclude': {
     evaluate: (params, debugInfo): DataType => {

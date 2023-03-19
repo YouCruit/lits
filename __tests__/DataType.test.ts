@@ -7,63 +7,73 @@ describe(`DataType`, () => {
     expect(DataType.true.bitmask).toBe(typeToBitRecord.true)
     expect(DataType.false.bitmask).toBe(typeToBitRecord.false)
     expect(DataType.boolean.bitmask).toBe(typeToBitRecord.true | typeToBitRecord.false)
-    expect(DataType.emptyString.bitmask).toBe(typeToBitRecord.emptyString)
-    expect(DataType.nonEmptyString.bitmask).toBe(typeToBitRecord.nonEmptyString)
-    expect(DataType.string.bitmask).toBe(typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString)
+    expect(DataType.emptyString.bitmask).toBe(typeToBitRecord[`empty-string`])
+    expect(DataType.nonEmptyString.bitmask).toBe(typeToBitRecord[`non-empty-string`])
+    expect(DataType.string.bitmask).toBe(typeToBitRecord[`empty-string`] | typeToBitRecord[`non-empty-string`])
     expect(DataType.zero.bitmask).toBe(typeToBitRecord.zero)
-    expect(DataType.positiveNumber.bitmask).toBe(typeToBitRecord.positiveInteger | typeToBitRecord.positiveNonInteger)
-    expect(DataType.negativeNumber.bitmask).toBe(typeToBitRecord.negativeInteger | typeToBitRecord.negativeNonInteger)
+    expect(DataType.positiveNumber.bitmask).toBe(
+      typeToBitRecord[`positive-integer`] | typeToBitRecord[`positive-non-integer`],
+    )
+    expect(DataType.negativeNumber.bitmask).toBe(
+      typeToBitRecord[`negative-integer`] | typeToBitRecord[`negative-non-integer`],
+    )
     expect(DataType.number.bitmask).toBe(
       typeToBitRecord.zero |
-        typeToBitRecord.positiveInteger |
-        typeToBitRecord.positiveNonInteger |
-        typeToBitRecord.negativeInteger |
-        typeToBitRecord.negativeNonInteger,
+        typeToBitRecord[`positive-integer`] |
+        typeToBitRecord[`positive-non-integer`] |
+        typeToBitRecord[`negative-integer`] |
+        typeToBitRecord[`negative-non-integer`],
     )
     expect(DataType.integer.bitmask).toBe(
-      typeToBitRecord.zero | typeToBitRecord.positiveInteger | typeToBitRecord.negativeInteger,
+      typeToBitRecord.zero | typeToBitRecord[`positive-integer`] | typeToBitRecord[`negative-integer`],
     )
-    expect(DataType.nonEmptyArray.bitmask).toBe(typeToBitRecord.nonEmptyArray)
-    expect(DataType.emptyArray.bitmask).toBe(typeToBitRecord.emptyArray)
-    expect(DataType.array.bitmask).toBe(typeToBitRecord.nonEmptyArray | typeToBitRecord.emptyArray)
-    expect(DataType.nonEmptyObject.bitmask).toBe(typeToBitRecord.nonEmptyObject)
-    expect(DataType.emptyObject.bitmask).toBe(typeToBitRecord.emptyObject)
-    expect(DataType.object.bitmask).toBe(typeToBitRecord.nonEmptyObject | typeToBitRecord.emptyObject)
+    expect(DataType.nonEmptyArray.bitmask).toBe(typeToBitRecord[`non-empty-array`])
+    expect(DataType.emptyArray.bitmask).toBe(typeToBitRecord[`empty-array`])
+    expect(DataType.array.bitmask).toBe(typeToBitRecord[`non-empty-array`] | typeToBitRecord[`empty-array`])
+    expect(DataType.nonEmptyObject.bitmask).toBe(typeToBitRecord[`non-empty-object`])
+    expect(DataType.emptyObject.bitmask).toBe(typeToBitRecord[`empty-object`])
+    expect(DataType.object.bitmask).toBe(typeToBitRecord[`non-empty-object`] | typeToBitRecord[`empty-object`])
     expect(DataType.regexp.bitmask).toBe(typeToBitRecord.regexp)
 
     expect(DataType.unknown.bitmask).toBe(Object.values(typeToBitRecord).reduce((result, value) => result | value, 0))
 
     expect(DataType.falsy.bitmask).toBe(
-      typeToBitRecord.nil | typeToBitRecord.emptyString | typeToBitRecord.zero | typeToBitRecord.false,
+      typeToBitRecord.nan |
+        typeToBitRecord.nil |
+        typeToBitRecord[`empty-string`] |
+        typeToBitRecord.zero |
+        typeToBitRecord.false,
     )
     expect(DataType.truthy.bitmask).toBe(
-      typeToBitRecord.nonEmptyString |
-        typeToBitRecord.positiveInteger |
-        typeToBitRecord.positiveNonInteger |
-        typeToBitRecord.negativeInteger |
-        typeToBitRecord.negativeNonInteger |
+      typeToBitRecord[`non-empty-string`] |
+        typeToBitRecord[`positive-integer`] |
+        typeToBitRecord[`positive-non-integer`] |
+        typeToBitRecord[`negative-integer`] |
+        typeToBitRecord[`negative-non-integer`] |
         typeToBitRecord.true |
-        typeToBitRecord.nonEmptyArray |
-        typeToBitRecord.emptyArray |
-        typeToBitRecord.nonEmptyObject |
-        typeToBitRecord.emptyObject |
+        typeToBitRecord[`non-empty-array`] |
+        typeToBitRecord[`empty-array`] |
+        typeToBitRecord[`non-empty-object`] |
+        typeToBitRecord[`empty-object`] |
         typeToBitRecord.function |
-        typeToBitRecord.regexp,
+        typeToBitRecord.regexp |
+        typeToBitRecord[`positive-infinity`] |
+        typeToBitRecord[`negative-infinity`],
     )
 
     expect(DataType.emptyCollection.bitmask).toBe(
-      typeToBitRecord.emptyArray | typeToBitRecord.emptyObject | typeToBitRecord.emptyString,
+      typeToBitRecord[`empty-array`] | typeToBitRecord[`empty-object`] | typeToBitRecord[`empty-string`],
     )
     expect(DataType.nonEmptyCollection.bitmask).toBe(
-      typeToBitRecord.nonEmptyArray | typeToBitRecord.nonEmptyObject | typeToBitRecord.nonEmptyString,
+      typeToBitRecord[`non-empty-array`] | typeToBitRecord[`non-empty-object`] | typeToBitRecord[`non-empty-string`],
     )
     expect(DataType.collection.bitmask).toBe(
-      typeToBitRecord.emptyArray |
-        typeToBitRecord.emptyObject |
-        typeToBitRecord.emptyString |
-        typeToBitRecord.nonEmptyArray |
-        typeToBitRecord.nonEmptyObject |
-        typeToBitRecord.nonEmptyString,
+      typeToBitRecord[`empty-array`] |
+        typeToBitRecord[`empty-object`] |
+        typeToBitRecord[`empty-string`] |
+        typeToBitRecord[`non-empty-array`] |
+        typeToBitRecord[`non-empty-object`] |
+        typeToBitRecord[`non-empty-string`],
     )
   })
   describe(`DataType.and`, () => {
@@ -86,11 +96,21 @@ describe(`DataType`, () => {
           DataType.object,
           DataType.regexp,
           DataType.function,
+          DataType.positiveInfinity,
+          DataType.negativeInfinity,
         ),
       )
 
       expect(DataType.truthy.exclude(DataType.string.or(DataType.number))).toEqual(
-        DataType.true.or(DataType.array).or(DataType.object).or(DataType.function).or(DataType.regexp),
+        DataType.or(
+          DataType.true,
+          DataType.array,
+          DataType.object,
+          DataType.function,
+          DataType.regexp,
+          DataType.positiveInfinity,
+          DataType.negativeInfinity,
+        ),
       )
 
       expect(DataType.unknown.exclude(DataType.truthy)).toEqual(DataType.falsy)
@@ -134,21 +154,21 @@ describe(`DataType`, () => {
         typeToBitRecord.true | typeToBitRecord.false | typeToBitRecord.nil,
       )
       expect(DataType.or(DataType.nil, DataType.string).bitmask).toBe(
-        typeToBitRecord.emptyString | typeToBitRecord.nonEmptyString | typeToBitRecord.nil,
+        typeToBitRecord[`empty-string`] | typeToBitRecord[`non-empty-string`] | typeToBitRecord.nil,
       )
       expect(DataType.or(DataType.nil, DataType.number).bitmask).toBe(
         typeToBitRecord.zero |
-          typeToBitRecord.positiveInteger |
-          typeToBitRecord.positiveNonInteger |
-          typeToBitRecord.negativeInteger |
-          typeToBitRecord.negativeNonInteger |
+          typeToBitRecord[`positive-integer`] |
+          typeToBitRecord[`positive-non-integer`] |
+          typeToBitRecord[`negative-integer`] |
+          typeToBitRecord[`negative-non-integer`] |
           typeToBitRecord.nil,
       )
       expect(DataType.or(DataType.nil, DataType.array).bitmask).toBe(
-        typeToBitRecord.nonEmptyArray | typeToBitRecord.emptyArray | typeToBitRecord.nil,
+        typeToBitRecord[`non-empty-array`] | typeToBitRecord[`empty-array`] | typeToBitRecord.nil,
       )
       expect(DataType.or(DataType.nil, DataType.object).bitmask).toBe(
-        typeToBitRecord.nonEmptyObject | typeToBitRecord.emptyObject | typeToBitRecord.nil,
+        typeToBitRecord[`non-empty-object`] | typeToBitRecord[`empty-object`] | typeToBitRecord.nil,
       )
       expect(DataType.or(DataType.nil, DataType.function).bitmask).toBe(typeToBitRecord.function | typeToBitRecord.nil)
       expect(DataType.or(DataType.nil, DataType.regexp).bitmask).toBe(typeToBitRecord.regexp | typeToBitRecord.nil)
@@ -163,6 +183,7 @@ describe(`DataType`, () => {
         DataType.object,
         DataType.regexp,
         DataType.function,
+        DataType.illegalNumber,
       )
       const unknown2 = DataType.or(
         DataType.nil,
@@ -177,6 +198,9 @@ describe(`DataType`, () => {
         DataType.object,
         DataType.regexp,
         DataType.function,
+        DataType.nan,
+        DataType.positiveInfinity,
+        DataType.negativeInfinity,
       )
       expect(unknown1.isUnknown()).toBe(true)
       expect(unknown1).toEqual(DataType.unknown)
@@ -325,13 +349,11 @@ describe(`DataType`, () => {
 
   describe(`DataType.toString`, () => {
     test(`samples`, () => {
-      expect(DataType.unknown.toString()).toBe(`unknown [Bitmask = 0001 0011 0011 1111 0111 1111  (1261439)]`)
-      expect(DataType.nil.toString()).toBe(`nil [Bitmask = 0000 0000 0000 0000 0000 0001  (1)]`)
-      expect(DataType.string.toString()).toBe(
-        `emptyString | nonEmptyString [Bitmask = 0000 0000 0000 0000 0010 0010  (34)]`,
-      )
+      expect(DataType.unknown.toString()).toBe(`::unknown [Bitmask = 0001 1111 1111 0111 0111 1111  (2094975)]`)
+      expect(DataType.nil.toString()).toBe(`::nil [Bitmask = 0000 0000 0000 0000 0000 0001  (1)]`)
+      expect(DataType.string.toString()).toBe(`::string [Bitmask = 0000 0000 0000 0010 0000 0010  (514)]`)
       expect(DataType.string.nilable().toString()).toBe(
-        `nil | emptyString | nonEmptyString [Bitmask = 0000 0000 0000 0000 0010 0011  (35)]`,
+        `::string | ::nil [Bitmask = 0000 0000 0000 0010 0000 0011  (515)]`,
       )
     })
   })

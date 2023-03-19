@@ -192,11 +192,11 @@ window.onload = function () {
   window.addEventListener('keydown', function (evt) {
     if (evt.key === 'F2') {
       evt.preventDefault()
-      run()
+      run(false)
     }
     if (evt.key === 'F3') {
       evt.preventDefault()
-      undefinedSymbols()
+      run(true)
     }
     if (evt.key === 'F4') {
       evt.preventDefault()
@@ -213,6 +213,10 @@ window.onload = function () {
     if (evt.key === 'F7') {
       evt.preventDefault()
       parse(true)
+    }
+    if (evt.key === 'F8') {
+      evt.preventDefault()
+      undefinedSymbols()
     }
   })
   document.getElementById('lits-textarea').addEventListener('keydown', keydownHandler)
@@ -286,7 +290,9 @@ window.addEventListener('popstate', () => {
   showPage(id, 'none')
 })
 
-function run() {
+function run(debug) {
+  console.log('debug', debug)
+  const lits = debug ? lits : litsNoDebug
   var code = document.getElementById('lits-textarea').value
   var paramsString = document.getElementById('params-textarea').value
   var output = document.getElementById('output-textarea')
@@ -304,7 +310,7 @@ function run() {
   console.log = function () {
     var args = Array.from(arguments)
     oldLog.apply(console, args)
-    var logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    var logRow = args.map(arg => stringifyValue(arg, debug)).join(' ')
     var oldContent = output.value
     var newContent = oldContent ? oldContent + '\n' + logRow : logRow
     output.value = newContent
@@ -331,7 +337,7 @@ function run() {
     console.warn = oldWarn
   }
   output.classList.remove('error')
-  var content = stringifyValue(result)
+  var content = stringifyValue(result, debug)
 
   var oldContent = output.value
   var newContent = oldContent ? oldContent + '\n' + content : content
@@ -350,7 +356,7 @@ function undefinedSymbols() {
   console.log = function () {
     var args = Array.from(arguments)
     oldLog.apply(console, args)
-    var logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    var logRow = args.map(arg => stringifyValue(arg, true)).join(' ')
     var oldContent = output.value
     var newContent = oldContent ? oldContent + '\n' + logRow : logRow
     output.value = newContent
@@ -379,7 +385,9 @@ function undefinedSymbols() {
 
   output.classList.remove('error')
   var content =
-    undefinedSymbols.length > 0 ? `Undefined symbols: ${stringifyValue([...undefinedSymbols])}` : `No undefined symbols`
+    undefinedSymbols.length > 0
+      ? `Undefined symbols: ${stringifyValue([...undefinedSymbols], true)}`
+      : `No undefined symbols`
 
   var oldContent = output.value
   var newContent = oldContent ? oldContent + '\n' + content : content
@@ -398,7 +406,7 @@ function parse(debug) {
   console.log = function () {
     var args = Array.from(arguments)
     oldLog.apply(console, args)
-    var logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    var logRow = args.map(arg => stringifyValue(arg, debug, debug)).join(' ')
     var oldContent = output.value
     var newContent = oldContent ? oldContent + '\n' + logRow : logRow
     output.value = newContent
@@ -450,7 +458,7 @@ function tokenize(debug) {
   console.log = function () {
     var args = Array.from(arguments)
     oldLog.apply(console, args)
-    var logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    var logRow = args.map(arg => stringifyValue(arg, debug)).join(' ')
     var oldContent = output.value
     var newContent = oldContent ? oldContent + '\n' + logRow : logRow
     output.value = newContent
@@ -527,7 +535,7 @@ function inactivateAll() {
   }
 }
 
-function stringifyValue(value) {
+function stringifyValue(value, debug) {
   if (Lits.isLitsFunction(value)) {
     if (value.builtin) {
       return `<builtin function ${value.builtin}>`
@@ -545,7 +553,16 @@ function stringifyValue(value) {
     return value.toString()
   }
   if (value !== null && typeof value === 'object' && value.constructor && value.constructor.name === 'DataType') {
-    return value.toString()
+    return value.toString({ showDetails: debug })
+  }
+  if (Number.isNaN(value)) {
+    return 'NaN'
+  }
+  if (value === Number.POSITIVE_INFINITY) {
+    return 'Infinity'
+  }
+  if (value === Number.NEGATIVE_INFINITY) {
+    return '-Infinity'
   }
   return JSON.stringify(value)
 }

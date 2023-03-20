@@ -12,25 +12,38 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         number.assert(first, debugInfo)
         return first + 1
       } else {
-        const firstParam = DataType.and(DataType.of(first), DataType.number)
-        const isInteger = firstParam.is(DataType.integer)
-        const isNonInteger = firstParam.is(DataType.nonInteger)
-        if (firstParam.intersects(DataType.negativeNumber)) {
-          const additionalType = isInteger
-            ? DataType.positiveInteger
-            : isNonInteger
-            ? DataType.positiveNonInteger
-            : DataType.positiveNumber
-          return DataType.or(firstParam, isNonInteger ? DataType.never : DataType.zero, additionalType)
+        const paramType = DataType.of(first)
+        paramType.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
+
+        const types: DataType[] = []
+
+        if (paramType.intersects(DataType.nan)) {
+          types.push(DataType.nan)
         }
-        if (firstParam.is(DataType.nonNegativeNumber)) {
-          return isInteger
-            ? DataType.positiveInteger
-            : isNonInteger
-            ? DataType.positiveNonInteger
-            : DataType.positiveNumber
+        if (paramType.intersects(DataType.positiveInfinity)) {
+          types.push(DataType.positiveInfinity)
         }
-        return firstParam
+        if (paramType.intersects(DataType.negativeInfinity)) {
+          types.push(DataType.negativeInfinity)
+        }
+
+        if (paramType.intersects(DataType.zero)) {
+          types.push(DataType.positiveInteger)
+        }
+        if (paramType.intersects(DataType.negativeInteger)) {
+          types.push(DataType.nonPositiveInteger)
+        }
+        if (paramType.intersects(DataType.negativeNonInteger)) {
+          types.push(DataType.nonInteger)
+        }
+        if (paramType.intersects(DataType.positiveInteger)) {
+          types.push(DataType.positiveInteger)
+        }
+        if (paramType.intersects(DataType.positiveNonInteger)) {
+          types.push(DataType.positiveNonInteger)
+        }
+
+        return DataType.or(...types)
       }
     },
     validate: node => assertNumberOfParams(1, node),
@@ -42,25 +55,38 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         number.assert(first, debugInfo)
         return first - 1
       } else {
-        const firstParam = DataType.and(DataType.of(first), DataType.number)
-        const isInteger = firstParam.is(DataType.integer)
-        const isNonInteger = firstParam.is(DataType.nonInteger)
-        if (firstParam.intersects(DataType.positiveNumber)) {
-          const additionalType = isInteger
-            ? DataType.negativeInteger
-            : isNonInteger
-            ? DataType.negativeNonInteger
-            : DataType.negativeNumber
-          return DataType.or(firstParam, isNonInteger ? DataType.never : DataType.zero, additionalType)
+        const paramType = DataType.of(first)
+        paramType.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
+
+        const types: DataType[] = []
+
+        if (paramType.intersects(DataType.nan)) {
+          types.push(DataType.nan)
         }
-        if (firstParam.is(DataType.nonPositiveNumber)) {
-          return isInteger
-            ? DataType.negativeInteger
-            : isNonInteger
-            ? DataType.negativeNonInteger
-            : DataType.negativeNumber
+        if (paramType.intersects(DataType.positiveInfinity)) {
+          types.push(DataType.positiveInfinity)
         }
-        return firstParam
+        if (paramType.intersects(DataType.negativeInfinity)) {
+          types.push(DataType.negativeInfinity)
+        }
+
+        if (paramType.intersects(DataType.zero)) {
+          types.push(DataType.negativeInteger)
+        }
+        if (paramType.intersects(DataType.positiveInteger)) {
+          types.push(DataType.nonNegativeInteger)
+        }
+        if (paramType.intersects(DataType.positiveNonInteger)) {
+          types.push(DataType.nonInteger)
+        }
+        if (paramType.intersects(DataType.negativeInteger)) {
+          types.push(DataType.negativeInteger)
+        }
+        if (paramType.intersects(DataType.negativeNonInteger)) {
+          types.push(DataType.negativeNonInteger)
+        }
+
+        return DataType.or(...types)
       }
     },
     validate: node => assertNumberOfParams(1, node),
@@ -147,31 +173,154 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   },
 
   quot: {
-    evaluate: ([dividend, divisor], debugInfo): number => {
-      number.assert(dividend, debugInfo)
-      number.assert(divisor, debugInfo)
-      const quotient = Math.trunc(dividend / divisor)
-      return quotient
+    evaluate: (params, debugInfo): number | DataType => {
+      if (params.every(dataType.isNot)) {
+        const [dividend, divisor] = params
+        number.assert(dividend, debugInfo)
+        number.assert(divisor, debugInfo)
+        const quotient = Math.trunc(dividend / divisor)
+        return quotient
+      } else {
+        const a = DataType.of(params[0])
+        const b = DataType.of(params[1])
+        a.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
+        b.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
+
+        const types: DataType[] = []
+        if (a.or(b).intersects(DataType.nan)) {
+          types.push(DataType.nan)
+        }
+        if (a.intersects(DataType.positiveInfinity)) {
+          if (a.intersects(DataType.nonNegativeNumber)) {
+            types.push(DataType.positiveInfinity)
+          }
+          if (a.intersects(DataType.negativeNumber)) {
+            types.push(DataType.negativeInfinity)
+          }
+          if (a.intersects(DataType.illegalNumber)) {
+            types.push(DataType.nan)
+          }
+        }
+        if (a.intersects(DataType.negativeInfinity)) {
+          if (a.intersects(DataType.nonNegativeNumber)) {
+            types.push(DataType.negativeInfinity)
+          }
+          if (a.intersects(DataType.negativeNumber)) {
+            types.push(DataType.positiveInfinity)
+          }
+          if (a.intersects(DataType.illegalNumber)) {
+            types.push(DataType.nan)
+          }
+        }
+
+        if (b.intersects(DataType.positiveInfinity.or(DataType.negativeInfinity))) {
+          if (a.intersects(DataType.number)) {
+            types.push(DataType.zero)
+          }
+        }
+
+        if (a.intersects(DataType.zero) && b.intersects(DataType.nonZeroNumber)) {
+          types.push(DataType.zero)
+        }
+        if (b.intersects(DataType.zero)) {
+          if (a.intersects(DataType.zero)) {
+            types.push(DataType.nan)
+          }
+          if (a.intersects(DataType.positiveNumber)) {
+            types.push(DataType.positiveInfinity)
+          }
+          if (a.intersects(DataType.negativeNumber)) {
+            types.push(DataType.negativeInfinity)
+          }
+        }
+
+        if (a.intersects(DataType.positiveNumber)) {
+          if (b.intersects(DataType.positiveNumber)) {
+            types.push(DataType.nonNegativeInteger)
+          }
+          if (b.intersects(DataType.negativeNumber)) {
+            types.push(DataType.nonPositiveInteger)
+          }
+        }
+        if (a.intersects(DataType.negativeNumber)) {
+          if (b.intersects(DataType.negativeNumber)) {
+            types.push(DataType.nonNegativeInteger)
+          }
+          if (b.intersects(DataType.positiveNumber)) {
+            types.push(DataType.nonPositiveInteger)
+          }
+        }
+
+        return DataType.or(...types)
+      }
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(2, node),
   },
 
   mod: {
-    evaluate: ([dividend, divisor], debugInfo): number => {
-      number.assert(dividend, debugInfo)
-      number.assert(divisor, debugInfo)
-      const quotient = Math.floor(dividend / divisor)
-      return dividend - divisor * quotient
+    evaluate: (params, debugInfo): number | DataType => {
+      if (params.every(dataType.isNot)) {
+        const [dividend, divisor] = params
+        number.assert(dividend, debugInfo)
+        number.assert(divisor, debugInfo)
+        const quotient = Math.floor(dividend / divisor)
+        return dividend - divisor * quotient
+      } else {
+        const a = DataType.of(params[0])
+        const b = DataType.of(params[1])
+        a.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
+        b.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
+
+        const types: DataType[] = []
+        if (a.or(b).intersects(DataType.illegalNumber)) {
+          types.push(DataType.nan)
+        }
+        if (b.intersects(DataType.zero)) {
+          types.push(DataType.nan)
+        }
+        if (b.intersects(DataType.negativeNumber) && a.intersects(DataType.number)) {
+          types.push(DataType.nonPositiveNumber)
+        }
+        if (b.intersects(DataType.positiveNumber) && a.intersects(DataType.number)) {
+          types.push(DataType.nonNegativeNumber)
+        }
+
+        return DataType.or(...types)
+      }
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(2, node),
   },
 
   rem: {
-    evaluate: ([dividend, divisor], debugInfo): number => {
-      number.assert(dividend, debugInfo)
-      number.assert(divisor, debugInfo)
-      const quotient = Math.trunc(dividend / divisor)
-      return dividend - divisor * quotient
+    evaluate: (params, debugInfo): number | DataType => {
+      if (params.every(dataType.isNot)) {
+        const [dividend, divisor] = params
+        number.assert(dividend, debugInfo)
+        number.assert(divisor, debugInfo)
+        const quotient = Math.trunc(dividend / divisor)
+        return dividend - divisor * quotient
+      } else {
+        const a = DataType.of(params[0])
+        const b = DataType.of(params[1])
+        a.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
+        b.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
+
+        const types: DataType[] = []
+        if (a.or(b).intersects(DataType.illegalNumber)) {
+          types.push(DataType.nan)
+        }
+        if (b.intersects(DataType.zero)) {
+          types.push(DataType.nan)
+        }
+        if (a.intersects(DataType.negativeNumber) && b.intersects(DataType.number)) {
+          types.push(DataType.nonPositiveNumber)
+        }
+        if (a.intersects(DataType.positiveNumber) && b.intersects(DataType.number)) {
+          types.push(DataType.nonNegativeNumber)
+        }
+
+        return DataType.or(...types)
+      }
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(2, node),
   },
@@ -640,9 +789,6 @@ function getTypeOfBinarySum(a: DataType, b: DataType): DataType {
 }
 
 function getTypeOfProduct(params: Arr, debugInfo: DebugInfo | undefined): DataType {
-  if (params.length === 0) {
-    return DataType.positiveInteger
-  }
   const paramTypes = params.map(param => {
     const type = DataType.of(param)
     type.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
@@ -743,9 +889,6 @@ function getTypeOfBinaryProduct(a: DataType, b: DataType): DataType {
 }
 
 function getTypeOfDivision(params: Arr, debugInfo: DebugInfo | undefined): DataType {
-  if (params.length === 0) {
-    return DataType.positiveInteger
-  }
   const paramTypes = params.map(param => {
     const type = DataType.of(param)
     type.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
@@ -770,6 +913,9 @@ function getTypeOfBinaryDivision(a: DataType, b: DataType): DataType {
     if (b.intersects(DataType.illegalNumber)) {
       types.push(DataType.nan)
     }
+    if (b.intersects(DataType.zero)) {
+      types.push(DataType.positiveInfinity)
+    }
     if (b.intersects(DataType.positiveNumber)) {
       types.push(DataType.positiveInfinity)
     }
@@ -781,6 +927,9 @@ function getTypeOfBinaryDivision(a: DataType, b: DataType): DataType {
   if (a.intersects(DataType.negativeInfinity)) {
     if (b.intersects(DataType.illegalNumber)) {
       types.push(DataType.nan)
+    }
+    if (b.intersects(DataType.zero)) {
+      types.push(DataType.negativeInfinity)
     }
     if (b.intersects(DataType.positiveNumber)) {
       types.push(DataType.negativeInfinity)

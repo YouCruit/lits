@@ -13,7 +13,6 @@ describe(`Evaluate data types`, () => {
     }
     const result = lits.run(`(+ 10.1 x)`, litsParams)
     dataType.assert(result)
-    console.log(result.toString())
   })
 })
 

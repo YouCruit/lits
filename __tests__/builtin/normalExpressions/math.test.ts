@@ -761,6 +761,9 @@ describe(`math functions`, () => {
     })
     describe(`cbrt dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
+        [`cbrt`, [`::positive-infinity`], `::positive-infinity`],
+        [`cbrt`, [`::negative-infinity`], `::negative-infinity`],
+        [`cbrt`, [`::nan`], `::nan`],
         [`cbrt`, [`::zero`], `::zero`],
         [`cbrt`, [`::number`], `::number`],
         [`cbrt`, [`::integer`], `::number`],

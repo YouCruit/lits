@@ -333,29 +333,29 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
       } else {
         const type = DataType.of(first)
         type.assertIs(DataType.number.or(DataType.illegalNumber), debugInfo)
-        if (type.is(DataType.zero)) {
-          return DataType.zero
+
+        const types: DataType[] = []
+        if (type.intersects(DataType.nan.or(DataType.negativeInfinity))) {
+          types.push(DataType.nan)
+        }
+        if (type.intersects(DataType.positiveInfinity)) {
+          types.push(DataType.positiveInfinity)
         }
 
-        const hasZero = type.intersects(DataType.zero)
-        const hasNegativeNumber = type.intersects(DataType.negativeNumber)
-        const illegalTypes = type.and(DataType.illegalNumber)
-        const stripped = type.exclude(DataType.zero, DataType.negativeNumber, DataType.illegalNumber)
+        if (type.intersects(DataType.zero)) {
+          types.push(DataType.zero)
+        }
+        if (type.intersects(DataType.negativeNumber)) {
+          types.push(DataType.nan)
+        }
+        if (type.intersects(DataType.positiveNonInteger)) {
+          types.push(DataType.positiveNonInteger)
+        }
+        if (type.intersects(DataType.positiveInteger)) {
+          types.push(DataType.positiveNumber)
+        }
 
-        const returnType = stripped.is(DataType.positiveNonInteger)
-          ? DataType.positiveNonInteger
-          : stripped.is(DataType.positiveNumber)
-          ? DataType.positiveNumber
-          : DataType.never
-
-        return DataType.or(
-          returnType,
-          hasZero ? DataType.zero : DataType.never,
-          hasNegativeNumber ? DataType.nan : DataType.never,
-          illegalTypes.intersects(DataType.nan) ? DataType.nan : DataType.never,
-          illegalTypes.intersects(DataType.positiveInfinity) ? DataType.positiveInfinity : DataType.never,
-          illegalTypes.intersects(DataType.negativeInfinity) ? DataType.nan : DataType.never,
-        )
+        return DataType.or(...types)
       }
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -368,26 +368,38 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return Math.cbrt(first)
       } else {
         const type = DataType.of(first)
-        if (type.is(DataType.zero)) {
-          return DataType.zero
+
+        const types: DataType[] = []
+
+        if (type.intersects(DataType.nan)) {
+          types.push(DataType.nan)
+        }
+        if (type.intersects(DataType.positiveInfinity)) {
+          types.push(DataType.positiveInfinity)
+        }
+        if (type.intersects(DataType.negativeInfinity)) {
+          types.push(DataType.negativeInfinity)
         }
 
-        const hasZero = type.intersects(DataType.zero)
-        const withoutZero = type.exclude(DataType.zero)
+        if (type.intersects(DataType.zero)) {
+          types.push(DataType.zero)
+        }
 
-        const returnType = withoutZero.is(DataType.positiveNonInteger)
-          ? DataType.positiveNonInteger
-          : withoutZero.is(DataType.positiveNumber)
-          ? DataType.positiveNumber
-          : withoutZero.is(DataType.negativeNonInteger)
-          ? DataType.negativeNonInteger
-          : withoutZero.is(DataType.negativeNumber)
-          ? DataType.negativeNumber
-          : withoutZero.is(DataType.nonInteger)
-          ? DataType.nonInteger
-          : DataType.nonZeroNumber
+        if (type.intersects(DataType.positiveNonInteger)) {
+          types.push(DataType.positiveNonInteger)
+        }
+        if (type.intersects(DataType.positiveInteger)) {
+          types.push(DataType.positiveNumber)
+        }
 
-        return hasZero ? returnType.or(DataType.zero) : returnType
+        if (type.intersects(DataType.negativeNonInteger)) {
+          types.push(DataType.negativeNonInteger)
+        }
+        if (type.intersects(DataType.negativeInteger)) {
+          types.push(DataType.negativeNumber)
+        }
+
+        return DataType.or(...types)
       }
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),

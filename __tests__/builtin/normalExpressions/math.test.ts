@@ -104,8 +104,6 @@ describe(`math functions`, () => {
     })
     describe(`plus dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`+`, [], { expression: `0` }],
-
         [`+`, [`::illegal-number`], `::illegal-number`],
         [`+`, [`::nan`], `::nan`],
         [`+`, [`::positive-infinity`], `::positive-infinity`],
@@ -433,8 +431,6 @@ describe(`math functions`, () => {
     })
     describe(`multiplication dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`*`, [], { expression: `1` }],
-
         [`*`, [`::zero`], `::zero`],
         [`*`, [`::number`], `::number`],
         [`*`, [`::integer`], `::integer`],
@@ -452,7 +448,7 @@ describe(`math functions`, () => {
         [`*`, [`::negative-non-integer`], `::negative-non-integer`],
         [`*`, [`::non-negative-integer`], `::non-negative-integer`],
 
-        [`*`, [`::illegal-number`, `::zero`], [`::zero`, `::nan`]],
+        [`*`, [`::illegal-number`, `::zero`], [`::nan`]],
         [`*`, [`::illegal-number`, `::non-zero-number`], [`::positive-infinity`, `::negative-infinity`, `::nan`]],
         [`*`, [`::illegal-number`, `::illegal-number`], [`::illegal-number`]],
 
@@ -804,6 +800,40 @@ describe(`math functions`, () => {
       expect(lits.run(`(pow 10 -2)`)).toBe(0.01)
       expect(lits.run(`(pow -2 -1)`)).toBe(-0.5)
       expect(lits.run(`(pow -2 -2)`)).toBe(0.25)
+    })
+    describe(`pow dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`pow`, [`::number`, `::nan`], `::nan`],
+        [`pow`, [`::nan`, `::number`], [`::nan`, `::positive-integer`]],
+        [`pow`, [`::nan`, `::nan`], `::nan`],
+
+        [`pow`, [`::illegal-number`, `::illegal-number`], [`::positive-infinity`, `::nan`, `::zero`]],
+
+        [`pow`, [`::positive-infinity`, `::positive-infinity`], `::positive-infinity`],
+        [`pow`, [`::positive-infinity`, `::negative-infinity`], `::zero`],
+        [`pow`, [`::positive-infinity`, `::number`], [`::non-negative-integer`, `::positive-infinity`]],
+        [`pow`, [`::positive-infinity`, `::negative-number`], [`::zero`]],
+
+        [`pow`, [`::negative-infinity`, `::positive-infinity`], `::positive-infinity`],
+        [`pow`, [`::negative-infinity`, `::negative-infinity`], `::zero`],
+        [
+          `pow`,
+          [`::negative-infinity`, `::number`],
+          [`::zero`, `::positive-integer`, `::positive-infinity`, `::negative-infinity`],
+        ],
+        [`pow`, [`::negative-infinity`, `::negative-number`], [`::zero`]],
+
+        [`pow`, [`::number`, `::number`], [`::number`, `::nan`, `::positive-infinity`]],
+        [`pow`, [`::number`, `::illegal-number`], [`::zero`, `::nan`, `::positive-infinity`]],
+
+        [`pow`, [`::non-integer`, `::number`], [`::non-zero-number`, `::nan`]],
+        [`pow`, [`::non-integer`, `::negative-number`], [`::non-zero-number`, `::nan`]],
+
+        [`pow`, [`::integer`, `::zero`], [`::positive-integer`]],
+        [`pow`, [`::integer`, `::positive-number`], [`::non-negative-number`, `::negative-integer`, `::nan`]],
+        [`pow`, [`::integer`, `::negative-number`], [`::non-zero-number`, `::nan`, `::positive-infinity`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
     })
   })
 

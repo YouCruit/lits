@@ -34,10 +34,18 @@ describe(`testUtils`, () => {
       `true`,
       `:Albert`,
       `#"^s*(.*)$"`,
+      `1`,
       `42`,
       `-1`,
-      `3.14`,
+      `-42`,
+      `0.5`,
+      `1.5`,
+      `(pi)`,
+      `(e)`,
       `-0.5`,
+      `-1.5`,
+      `(- (pi))`,
+      `(- (e))`,
       `[]`,
       `[1 2 3]`,
       `{}`,
@@ -70,6 +78,20 @@ describe(`testUtils`, () => {
   })
   test(`getSampleExpressions`, () => {
     const lits = new Lits()
-    expect(getSampleExpressions(lits, `+`, [`::number`])).toEqual([`(+ 0)`, `(+ 42)`, `(+ -1)`, `(+ 3.14)`, `(+ -0.5)`])
+    expect(getSampleExpressions(lits, `+`, [`::number`])).toEqual([
+      `(+ 0)`,
+      `(+ 1)`,
+      `(+ 42)`,
+      `(+ -1)`,
+      `(+ -42)`,
+      `(+ 0.5)`,
+      `(+ 1.5)`,
+      `(+ (pi))`,
+      `(+ (e))`,
+      `(+ -0.5)`,
+      `(+ -1.5)`,
+      `(+ (- (pi)))`,
+      `(+ (- (e)))`,
+    ])
   })
 })

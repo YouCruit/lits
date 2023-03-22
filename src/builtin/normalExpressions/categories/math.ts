@@ -406,10 +406,129 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   },
 
   pow: {
-    evaluate: ([first, second], debugInfo): number => {
-      number.assert(first, debugInfo)
-      number.assert(second, debugInfo)
-      return Math.pow(first, second)
+    evaluate: (params, debugInfo): number | DataType => {
+      if (params.every(dataType.isNot)) {
+        const [first, second] = params
+        number.assert(first, debugInfo)
+        number.assert(second, debugInfo)
+        return Math.pow(first, second)
+      } else {
+        const a = asValue(DataType.of(params[0]))
+        const b = asValue(DataType.of(params[1]))
+        const types: DataType[] = []
+        if (a.intersects(DataType.nan)) {
+          if (b.intersects(DataType.zero)) {
+            types.push(DataType.positiveInteger)
+          }
+          if (!b.exclude(DataType.zero).isNever()) {
+            types.push(DataType.nan)
+          }
+        }
+
+        if (b.intersects(DataType.nan)) {
+          types.push(DataType.nan)
+        }
+
+        if (a.intersects(DataType.positiveInfinity)) {
+          if (b.intersects(DataType.positiveInfinity.or(DataType.positiveNumber))) {
+            types.push(DataType.positiveInfinity)
+          }
+          if (b.intersects(DataType.negativeInfinity.or(DataType.negativeNumber))) {
+            types.push(DataType.zero)
+          }
+          if (b.intersects(DataType.zero)) {
+            types.push(DataType.positiveInteger)
+          }
+        }
+        if (a.intersects(DataType.negativeInfinity)) {
+          if (b.intersects(DataType.positiveInfinity.or(DataType.positiveNonInteger))) {
+            types.push(DataType.positiveInfinity)
+          }
+          if (b.intersects(DataType.positiveInteger)) {
+            types.push(DataType.positiveInfinity)
+            types.push(DataType.negativeInfinity)
+          }
+          if (b.intersects(DataType.negativeInfinity.or(DataType.negativeNumber))) {
+            types.push(DataType.zero)
+          }
+          if (b.intersects(DataType.zero)) {
+            types.push(DataType.positiveInteger)
+          }
+        }
+
+        if (b.intersects(DataType.positiveInfinity)) {
+          if (a.intersects(DataType.zero)) {
+            types.push(DataType.zero)
+          }
+          if (a.intersects(DataType.nonZeroInteger)) {
+            types.push(DataType.nan)
+            types.push(DataType.positiveInfinity)
+          }
+          if (a.intersects(DataType.nonInteger)) {
+            types.push(DataType.zero)
+            types.push(DataType.positiveInfinity)
+          }
+        }
+
+        if (a.intersects(DataType.zero)) {
+          if (b.intersects(DataType.zero)) {
+            types.push(DataType.positiveInteger)
+          }
+          if (b.intersects(DataType.positiveNumber)) {
+            types.push(DataType.zero)
+          }
+          if (b.intersects(DataType.negativeNumber)) {
+            types.push(DataType.positiveInfinity)
+          }
+        }
+
+        if (b.intersects(DataType.zero)) {
+          if (a.intersects(DataType.number)) {
+            types.push(DataType.positiveInteger)
+          }
+        }
+
+        if (a.intersects(DataType.positiveInteger)) {
+          if (b.intersects(DataType.positiveInteger)) {
+            types.push(DataType.positiveInteger)
+          }
+          if (b.intersects(DataType.positiveNonInteger)) {
+            types.push(DataType.positiveNumber)
+          }
+          if (b.intersects(DataType.negativeNumber)) {
+            types.push(DataType.positiveNumber)
+          }
+        }
+
+        if (a.intersects(DataType.positiveNonInteger)) {
+          if (b.intersects(DataType.number)) {
+            types.push(DataType.positiveNonInteger)
+          }
+        }
+
+        if (a.intersects(DataType.negativeInteger)) {
+          if (b.intersects(DataType.positiveInteger)) {
+            types.push(DataType.integer)
+          }
+          if (b.intersects(DataType.negativeInteger)) {
+            types.push(DataType.nonZeroNumber)
+          }
+          if (b.intersects(DataType.nonInteger)) {
+            types.push(DataType.nan)
+          }
+        }
+
+        if (a.intersects(DataType.negativeNonInteger)) {
+          if (b.intersects(DataType.integer)) {
+            types.push(DataType.nonZeroNumber)
+          }
+          if (b.intersects(DataType.nonInteger)) {
+            types.push(DataType.nan)
+          }
+        }
+
+        return DataType.or(...types)
+      }
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(2, node),
   },
@@ -869,8 +988,16 @@ function getTypeOfBinaryProduct(a: DataType, b: DataType): DataType {
     }
   }
 
-  if (a.or(b).intersects(DataType.zero)) {
-    types.push(DataType.zero)
+  if (a.intersects(DataType.zero)) {
+    if (b.intersects(DataType.number)) {
+      types.push(DataType.zero)
+    }
+  }
+
+  if (b.intersects(DataType.zero)) {
+    if (a.intersects(DataType.number)) {
+      types.push(DataType.zero)
+    }
   }
 
   const aIntegerType = a.is(DataType.integer) ? `integer` : a.is(DataType.nonInteger) ? `nonInteger` : `number`

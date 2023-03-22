@@ -140,6 +140,20 @@ export function testTypeEvaluations(
           expect(() => lits.run(expression)).toThrow()
         }
       }
+
+      const resultType = lits.run(`(type-of ${resultExpression})`) as DataType
+      const combinedSampeExpressionType = DataType.or(
+        ...sampleExpressions.map(e => lits.run(`(type-of ${e})`) as DataType),
+      )
+      if (!combinedSampeExpressionType.equals(resultType)) {
+        throw Error(
+          `Expected combined sample type (${combinedSampeExpressionType.toString({
+            showDetails: false,
+          })}) to equal result type (${resultType.toString({
+            showDetails: false,
+          })}) - ${JSON.stringify(sampleExpressions, null, 2)}`,
+        )
+      }
     })
   }
 }
@@ -294,54 +308,54 @@ export function combinations(litsTypeParams: string[]): string[][] {
   return result
 }
 
-const bitsToSambleValue = Object.entries(typeToBitRecord).reduce((result: Record<string, string>, entry) => {
+const bitsToSambleValue = Object.entries(typeToBitRecord).reduce((result: Record<string, string[]>, entry) => {
   result[entry[1]] = getSampleValueFromPrimitiveTypeName(entry[0] as PrimitiveTypeName)
   return result
 }, {})
 
-function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string {
+function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string[] {
   switch (name) {
     case `nil`:
-      return `nil`
+      return [`nil`]
     case `empty-string`:
-      return `""`
+      return [`""`]
     case `zero`:
-      return `0`
+      return [`0`]
     case `false`:
-      return `false`
+      return [`false`]
     case `nan`:
-      return `(nan)`
+      return [`(nan)`]
     case `positive-infinity`:
-      return `(positive-infinity)`
+      return [`(positive-infinity)`]
     case `negative-infinity`:
-      return `(negative-infinity)`
+      return [`(negative-infinity)`]
     case `true`:
-      return `true`
+      return [`true`]
     case `non-empty-string`:
-      return `:Albert`
+      return [`:Albert`]
     case `regexp`:
-      return `#"^s*(.*)$"`
+      return [`#"^s*(.*)$"`]
     case `positive-integer`:
-      return `42`
+      return [`1`, `42`]
     case `negative-integer`:
-      return `-1`
+      return [`-1`, `-42`]
     case `positive-non-integer`:
-      return `3.14`
+      return [`0.5`, `1.5`, `(pi)`, `(e)`]
     case `negative-non-integer`:
-      return `-0.5`
+      return [`-0.5`, `-1.5`, `(- (pi))`, `(- (e))`]
     case `empty-array`:
-      return `[]`
+      return [`[]`]
     case `non-empty-array`:
-      return `[1 2 3]`
+      return [`[1 2 3]`]
     case `empty-object`:
-      return `{}`
+      return [`{}`]
     case `non-empty-object`:
-      return `{ :foo :bar }`
+      return [`{ :foo :bar }`]
     case `function`:
-      return `#(+ %1 %2)`
+      return [`#(+ %1 %2)`]
   }
 }
 
 export function getSampleValuesForType(dataType: DataType): string[] {
-  return dataType.toPrimitiveTypes().map(type => asValue(bitsToSambleValue[type.bitmask]))
+  return dataType.toPrimitiveTypes().flatMap(type => asValue(bitsToSambleValue[type.bitmask]))
 }

@@ -1,6 +1,6 @@
-import { DataType } from '../../analyze/dataTypes/DataType'
+import { DataType, isDataType } from '../../analyze/dataTypes/DataType'
 import { Any } from '../../interface'
-import { assertNumberOfParams, astNode, dataType, token } from '../../utils/assertion'
+import { assertNumberOfParams, astNode, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
 export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
@@ -23,9 +23,9 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const [conditionNode, trueNode, falseNode] = node.params
     const conditionValue = evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)
-    if ((dataType.is(conditionNode) && conditionNode.is(DataType.truthy)) || !!conditionValue) {
+    if ((isDataType(conditionNode) && conditionNode.is(DataType.truthy)) || !!conditionValue) {
       return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack)
-    } else if ((dataType.is(conditionNode) && conditionNode.is(DataType.falsy)) || !conditionValue) {
+    } else if ((isDataType(conditionNode) && conditionNode.is(DataType.falsy)) || !conditionValue) {
       if (node.params.length === 3) {
         return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack)
       } else {

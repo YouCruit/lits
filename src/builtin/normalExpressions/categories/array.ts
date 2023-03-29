@@ -1,6 +1,6 @@
-import { DataType } from '../../../analyze/dataTypes/DataType'
+import { DataType, isNotDataType } from '../../../analyze/dataTypes/DataType'
 import { Arr } from '../../../interface'
-import { array, assertNumberOfParams, asValue, dataType, number } from '../../../utils/assertion'
+import { array, assertNumberOfParams, asValue, number } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
 import { evaluateMap } from './sequence'
 export const arrayNormalExpression: BuiltinNormalExpressions = {
@@ -70,7 +70,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
 
   repeat: {
     evaluate: (params, debugInfo): Arr | DataType => {
-      if (params.every(param => dataType.isNot(param))) {
+      if (params.every(isNotDataType)) {
         const [count, value] = params
         number.assert(count, debugInfo, { integer: true, nonNegative: true })
         const result: Arr = []

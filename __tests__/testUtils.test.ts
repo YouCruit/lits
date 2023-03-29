@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 
-import { DataType, Lits } from '../src/Lits/Lits'
-import { combinations, getParamCombinations, getSampleExpressions, getSampleValuesForType } from './testUtils'
+import { DataType } from '../src/Lits/Lits'
+import { combinations, getParamCombinations, getSampleValuesForType } from './testUtils'
 
 describe(`testUtils`, () => {
   test(`combinations`, () => {
@@ -23,45 +23,6 @@ describe(`testUtils`, () => {
   })
   test(`getSampleValuesForType`, () => {
     expect(getSampleValuesForType(DataType.array)).toEqual([`[]`, `[1 2 3]`])
-    expect(getSampleValuesForType(DataType.unknown)).toEqual([
-      `nil`,
-      `""`,
-      `0`,
-      `false`,
-      `(nan)`,
-      `(positive-infinity)`,
-      `(negative-infinity)`,
-      `true`,
-      `:Albert`,
-      `#"^s*(.*)$"`,
-      `1`,
-      `42`,
-      `43`,
-      `1125899906842624`,
-      `-1`,
-      `-42`,
-      `-43`,
-      `-1125899906842624`,
-      `(epsilon)`,
-      `0.000001`,
-      `0.5`,
-      `1.5`,
-      `(pi)`,
-      `(e)`,
-      `1125899906842623.9`,
-      `(- (epsilon))`,
-      `-0.000001`,
-      `-0.5`,
-      `-1.5`,
-      `(- (pi))`,
-      `(- (e))`,
-      `-1125899906842623.9`,
-      `[]`,
-      `[1 2 3]`,
-      `{}`,
-      `{ :foo :bar }`,
-      `#(+ %1 %2)`,
-    ])
   })
 
   test(`getParamCombinations`, () => {
@@ -84,34 +45,6 @@ describe(`testUtils`, () => {
       [`B`, `X`, `3`],
       [`A`, `Y`, `3`],
       [`B`, `Y`, `3`],
-    ])
-  })
-  test(`getSampleExpressions`, () => {
-    const lits = new Lits()
-    expect(getSampleExpressions(lits, `+`, [`::float`])).toEqual([
-      `(+ 0)`,
-      `(+ 1)`,
-      `(+ 42)`,
-      `(+ 43)`,
-      `(+ 1125899906842624)`,
-      `(+ -1)`,
-      `(+ -42)`,
-      `(+ -43)`,
-      `(+ -1125899906842624)`,
-      `(+ (epsilon))`,
-      `(+ 0.000001)`,
-      `(+ 0.5)`,
-      `(+ 1.5)`,
-      `(+ (pi))`,
-      `(+ (e))`,
-      `(+ 1125899906842623.9)`,
-      `(+ (- (epsilon)))`,
-      `(+ -0.000001)`,
-      `(+ -0.5)`,
-      `(+ -1.5)`,
-      `(+ (- (pi)))`,
-      `(+ (- (e)))`,
-      `(+ -1125899906842623.9)`,
     ])
   })
 })

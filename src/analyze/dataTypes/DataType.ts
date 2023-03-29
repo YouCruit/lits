@@ -4,6 +4,27 @@ import { MAX_NUMBER, MIN_NUMBER } from '../../utils'
 import { any, array, litsFunction, object, regularExpression } from '../../utils/assertion'
 import { TypeName } from './litsTypeNames'
 
+export function isDataType(value: unknown): value is DataType {
+  return value instanceof DataType
+}
+
+export function assertDataType(value: unknown, debugInfo: DebugInfo | undefined): asserts value is DataType {
+  if (!(value instanceof DataType)) {
+    throw new LitsError(`Expected instance of DataType, got ${value}`, debugInfo)
+  }
+}
+
+export function asDataType(value: unknown, debugInfo: DebugInfo | undefined): DataType {
+  if (!(value instanceof DataType)) {
+    throw new LitsError(`Expected instance of DataType, got ${value}`, debugInfo)
+  }
+  return value
+}
+
+export function isNotDataType(value: unknown): boolean {
+  return !(value instanceof DataType)
+}
+
 export type PrimitiveTypeName =
   | `nil`
   | `empty-string`

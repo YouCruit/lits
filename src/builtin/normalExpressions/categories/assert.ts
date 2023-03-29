@@ -2,13 +2,13 @@ import { AssertionError, LitsError } from '../../../errors'
 import { Any } from '../../../interface'
 import { compare, deepEqual } from '../../../utils'
 import { BuiltinNormalExpressions } from '../../interface'
-import { any, assertNumberOfParams, dataType, litsFunction, string } from '../../../utils/assertion'
-import { DataType } from '../../../analyze/dataTypes/DataType'
+import { any, assertNumberOfParams, litsFunction, string } from '../../../utils/assertion'
+import { DataType, isNotDataType } from '../../../analyze/dataTypes/DataType'
 
 export const assertNormalExpression: BuiltinNormalExpressions = {
   assert: {
     evaluate: (params, debugInfo): Any | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const value = params[0]
         const message = params.length === 2 ? params[1] : `${value}`
         string.assert(message, debugInfo)
@@ -26,7 +26,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert=': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -45,7 +45,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-not=': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -61,7 +61,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-equal': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -83,7 +83,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-not-equal': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -102,7 +102,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert>': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -118,7 +118,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert>=': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -134,7 +134,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert<': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -150,7 +150,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert<=': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -166,7 +166,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-true': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const first = params[0]
         let message = params[0]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -184,7 +184,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-false': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const first = params[0]
         let message = params[0]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -202,7 +202,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-truthy': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const first = params[0]
         let message = params[0]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -220,7 +220,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-falsy': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const first = params[0]
         let message = params[0]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -238,7 +238,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-nil': {
     evaluate: (params, debugInfo): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const first = params[0]
         let message = params[0]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -256,7 +256,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-throws': {
     evaluate: (params, debugInfo, contextStack, { executeFunction }): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const func = params[0]
         let message = params[1]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -276,7 +276,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-throws-error': {
     evaluate: (params, debugInfo, contextStack, { executeFunction }): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [func, throwMessage] = params
         let message = params[2]
         message = typeof message === `string` && message ? ` "${message}"` : ``
@@ -303,7 +303,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-not-throws': {
     evaluate: (params, debugInfo, contextStack, { executeFunction }): null | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const func = params[0]
         let message = params[0]
         message = typeof message === `string` && message ? ` "${message}"` : ``

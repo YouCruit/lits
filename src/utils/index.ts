@@ -171,5 +171,5 @@ export function cloneColl<T extends Coll>(value: T): T {
   return clone(value)
 }
 
-export const MAX_NUMBER = Math.pow(2, 50)
-export const MIN_NUMBER = -Math.pow(2, 50)
+export const MAX_NUMBER = Math.pow(2, 52)
+export const MIN_NUMBER = -Math.pow(2, 52)

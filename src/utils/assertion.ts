@@ -1,4 +1,3 @@
-import { DataType } from '../analyze/dataTypes/DataType'
 import { LitsError } from '../errors'
 import { Any, Arr, Coll, Obj, Seq } from '../interface'
 import {
@@ -124,8 +123,6 @@ export const expressionNode: Asserter<ExpressionNode> = new Asserter(`expression
     value.type === `String`
   )
 })
-
-export const dataType: Asserter<DataType> = new Asserter(`DataType`, value => value instanceof DataType)
 
 export function assertNumberOfParams(
   count: number | { min?: number; max?: number },

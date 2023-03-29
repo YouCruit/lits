@@ -1,12 +1,12 @@
 /* istanbul ignore file */
 
-import { PrimitiveTypeName, typeToBitRecord } from '../src/analyze/dataTypes/DataType'
+import { asDataType, PrimitiveTypeName, typeToBitRecord } from '../src/analyze/dataTypes/DataType'
 import { TypeName } from '../src/analyze/dataTypes/litsTypeNames'
 import { UndefinedSymbolEntry } from '../src/analyze/undefinedSymbols/interface'
 import { Obj } from '../src/interface'
 import { DataType, Lits } from '../src/Lits/Lits'
 import { MAX_NUMBER, MIN_NUMBER } from '../src/utils'
-import { asValue, dataType, regularExpression } from '../src/utils/assertion'
+import { asValue, regularExpression } from '../src/utils/assertion'
 
 interface Primitives extends Obj {
   string: string
@@ -238,7 +238,7 @@ function generateLitsExpressionsWithSampleValues(
 export function getSampleExpressions(lits: Lits, functionName: string, litsTypeParams: string[]): string[] {
   // Each param will be substituted with an array of sample values based on the type
   const litsTypeParamsVariants = litsTypeParams.map(param => {
-    const type = dataType.as(lits.run(`(type-of ${param})`))
+    const type = asDataType(lits.run(`(type-of ${param})`), undefined)
     return getSampleValuesForType(type)
   })
 
@@ -353,9 +353,9 @@ function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string[] 
     case `negative-integer`:
       return [`-1`, `-42`, `-43`, `${MIN_NUMBER}`]
     case `positive-non-integer`:
-      return [`(epsilon)`, `0.000001`, `0.5`, `1.5`, `(pi)`, `(e)`, `${MAX_NUMBER - 0.1}`]
+      return [`0.0000000001`, `0.5`, `1.5`, `(pi)`, `(e)`, `${MAX_NUMBER - 0.1}`]
     case `negative-non-integer`:
-      return [`(- (epsilon))`, `-0.000001`, `-0.5`, `-1.5`, `(- (pi))`, `(- (e))`, `${MIN_NUMBER + 0.1}`]
+      return [`-0.0000000001`, `-0.5`, `-1.5`, `(- (pi))`, `(- (e))`, `${MIN_NUMBER + 0.1}`]
     case `empty-array`:
       return [`[]`]
     case `non-empty-array`:

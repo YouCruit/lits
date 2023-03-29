@@ -1,6 +1,6 @@
-import { DataType } from '../../analyze/dataTypes/DataType'
+import { DataType, isDataType } from '../../analyze/dataTypes/DataType'
 import { Any } from '../../interface'
-import { asValue, dataType, token } from '../../utils/assertion'
+import { asValue, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
 export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
@@ -23,9 +23,9 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     for (const param of node.params) {
       value = evaluateAstNode(param, contextStack)
-      if ((dataType.is(value) && value.is(DataType.falsy)) || !value) {
+      if ((isDataType(value) && value.is(DataType.falsy)) || !value) {
         break
-      } else if (dataType.is(value)) {
+      } else if (isDataType(value)) {
         possibleValues.push(value)
       }
     }

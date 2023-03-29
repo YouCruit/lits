@@ -488,7 +488,6 @@ var Lits = (function (exports) {
           value.type === "Number" ||
           value.type === "String");
   });
-  var dataType = new Asserter("DataType", function (value) { return value instanceof DataType; });
   function assertNumberOfParams(count, node) {
       var _a, _b;
       var length = node.params.length;
@@ -691,9 +690,26 @@ var Lits = (function (exports) {
   function cloneColl(value) {
       return clone(value);
   }
-  var MAX_NUMBER = Math.pow(2, 50);
-  var MIN_NUMBER = -Math.pow(2, 50);
+  var MAX_NUMBER = Math.pow(2, 52);
+  var MIN_NUMBER = -Math.pow(2, 52);
 
+  function isDataType(value) {
+      return value instanceof DataType;
+  }
+  function assertDataType(value, debugInfo) {
+      if (!(value instanceof DataType)) {
+          throw new LitsError("Expected instance of DataType, got ".concat(value), debugInfo);
+      }
+  }
+  function asDataType(value, debugInfo) {
+      if (!(value instanceof DataType)) {
+          throw new LitsError("Expected instance of DataType, got ".concat(value), debugInfo);
+      }
+      return value;
+  }
+  function isNotDataType(value) {
+      return !(value instanceof DataType);
+  }
   var typeToBitRecord = {
       // Group 1: Falsy types
       // 0000 0000 0000 0000 0000 1111
@@ -1242,10 +1258,10 @@ var Lits = (function (exports) {
               for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var param = _d.value;
                   value = evaluateAstNode(param, contextStack);
-                  if ((dataType.is(value) && value.is(DataType.falsy)) || !value) {
+                  if ((isDataType(value) && value.is(DataType.falsy)) || !value) {
                       break;
                   }
-                  else if (dataType.is(value)) {
+                  else if (isDataType(value)) {
                       possibleValues.push(value);
                   }
               }
@@ -2257,10 +2273,10 @@ var Lits = (function (exports) {
           var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
           var _c = __read(node.params, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
           var conditionValue = evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack);
-          if ((dataType.is(conditionNode) && conditionNode.is(DataType.truthy)) || !!conditionValue) {
+          if ((isDataType(conditionNode) && conditionNode.is(DataType.truthy)) || !!conditionValue) {
               return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
           }
-          else if ((dataType.is(conditionNode) && conditionNode.is(DataType.falsy)) || !conditionValue) {
+          else if ((isDataType(conditionNode) && conditionNode.is(DataType.falsy)) || !conditionValue) {
               if (node.params.length === 3) {
                   return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
               }
@@ -2465,11 +2481,11 @@ var Lits = (function (exports) {
               for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var param = _d.value;
                   value = evaluateAstNode(param, contextStack);
-                  if ((dataType.is(value) && value.is(DataType.truthy)) || value) {
+                  if ((isDataType(value) && value.is(DataType.truthy)) || value) {
                       possibleValues.push(value);
                       break;
                   }
-                  else if (dataType.is(value) && value.intersects(DataType.truthy)) {
+                  else if (isDataType(value) && value.intersects(DataType.truthy)) {
                       possibleValues.push(value);
                   }
               }
@@ -3082,7 +3098,7 @@ var Lits = (function (exports) {
   var collectionNormalExpression = {
       get: {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), coll = _a[0], key = _a[1];
                   var defaultValue = toAny(params[2]);
                   stringOrNumber.assert(key, debugInfo);
@@ -3096,7 +3112,7 @@ var Lits = (function (exports) {
               else {
                   var collType = DataType.of(params[0]);
                   var keyType = DataType.of(params[1]);
-                  var defaultValueType = dataType.is(params[2])
+                  var defaultValueType = isDataType(params[2])
                       ? params[2]
                       : params[2] === undefined
                           ? DataType.nil
@@ -3118,7 +3134,7 @@ var Lits = (function (exports) {
           evaluate: function (params, debugInfo) {
               var e_1, _a;
               var _b;
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var coll = toAny(params[0]);
                   var keys = (_b = params[1]) !== null && _b !== void 0 ? _b : []; // nil behaves as empty array
                   var defaultValue = toAny(params[2]);
@@ -3166,7 +3182,7 @@ var Lits = (function (exports) {
       count: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), coll = _b[0];
-              if (dataType.isNot(coll)) {
+              if (isNotDataType(coll)) {
                   if (typeof coll === "string") {
                       return coll.length;
                   }
@@ -3190,7 +3206,7 @@ var Lits = (function (exports) {
       },
       'contains?': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), coll = _a[0], key = _a[1];
                   collection.assert(coll, debugInfo);
                   stringOrNumber.assert(key, debugInfo);
@@ -3212,10 +3228,10 @@ var Lits = (function (exports) {
       },
       'has?': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), coll = _a[0], value = _a[1];
                   collection.assert(coll, debugInfo);
-                  if ((array.is(coll) && coll.some(dataType.is)) || (object.is(coll) && Object.values(coll).some(dataType.is))) {
+                  if ((array.is(coll) && coll.some(isDataType)) || (object.is(coll) && Object.values(coll).some(isDataType))) {
                       return DataType.boolean;
                   }
                   if (array.is(coll)) {
@@ -4507,7 +4523,7 @@ var Lits = (function (exports) {
       },
       repeat: {
           evaluate: function (params, debugInfo) {
-              if (params.every(function (param) { return dataType.isNot(param); })) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), count = _a[0], value = _a[1];
                   number.assert(count, debugInfo, { integer: true, nonNegative: true });
                   var result = [];
@@ -4551,7 +4567,7 @@ var Lits = (function (exports) {
       inc: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              if (dataType.isNot(first)) {
+              if (isNotDataType(first)) {
                   number.assert(first, debugInfo);
                   return first + 1;
               }
@@ -4596,7 +4612,7 @@ var Lits = (function (exports) {
       dec: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              if (dataType.isNot(first)) {
+              if (isNotDataType(first)) {
                   number.assert(first, debugInfo);
                   return first - 1;
               }
@@ -4735,7 +4751,7 @@ var Lits = (function (exports) {
       },
       quot: {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
                   number.assert(dividend, debugInfo);
                   number.assert(divisor, debugInfo);
@@ -4794,17 +4810,21 @@ var Lits = (function (exports) {
                   if (a.intersects(DataType.positiveFloat)) {
                       if (b.intersects(DataType.positiveFloat)) {
                           types.push(DataType.nonNegativeInteger);
+                          types.push(DataType.positiveInfinity);
                       }
                       if (b.intersects(DataType.negativeFloat)) {
                           types.push(DataType.nonPositiveInteger);
+                          types.push(DataType.negativeInfinity);
                       }
                   }
                   if (a.intersects(DataType.negativeFloat)) {
                       if (b.intersects(DataType.negativeFloat)) {
                           types.push(DataType.nonNegativeInteger);
+                          types.push(DataType.positiveInfinity);
                       }
                       if (b.intersects(DataType.positiveFloat)) {
                           types.push(DataType.nonPositiveInteger);
+                          types.push(DataType.negativeInfinity);
                       }
                   }
                   return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
@@ -4814,7 +4834,7 @@ var Lits = (function (exports) {
       },
       mod: {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
                   number.assert(dividend, debugInfo);
                   number.assert(divisor, debugInfo);
@@ -4846,7 +4866,7 @@ var Lits = (function (exports) {
       },
       rem: {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
                   number.assert(dividend, debugInfo);
                   number.assert(divisor, debugInfo);
@@ -4879,7 +4899,7 @@ var Lits = (function (exports) {
       sqrt: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              if (dataType.isNot(first)) {
+              if (isNotDataType(first)) {
                   number.assert(first, debugInfo);
                   return Math.sqrt(first);
               }
@@ -4910,7 +4930,7 @@ var Lits = (function (exports) {
       cbrt: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              if (dataType.isNot(first)) {
+              if (isNotDataType(first)) {
                   number.assert(first, debugInfo);
                   return Math.cbrt(first);
               }
@@ -4943,7 +4963,7 @@ var Lits = (function (exports) {
       },
       pow: {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   number.assert(first, debugInfo);
                   number.assert(second, debugInfo);
@@ -5090,7 +5110,7 @@ var Lits = (function (exports) {
       round: {
           evaluate: function (params, debugInfo) {
               var _a;
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _b = __read(params, 2), value = _b[0], decimals = _b[1];
                   number.assert(value, debugInfo);
                   if (params.length === 1 || decimals === 0) {
@@ -5158,7 +5178,7 @@ var Lits = (function (exports) {
       trunc: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              if (dataType.isNot(first)) {
+              if (isNotDataType(first)) {
                   number.assert(first, debugInfo);
                   return Math.trunc(first);
               }
@@ -5202,7 +5222,7 @@ var Lits = (function (exports) {
       floor: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              if (dataType.isNot(first)) {
+              if (isNotDataType(first)) {
                   number.assert(first, debugInfo);
                   return Math.floor(first);
               }
@@ -5241,7 +5261,7 @@ var Lits = (function (exports) {
       ceil: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              if (dataType.isNot(first)) {
+              if (isNotDataType(first)) {
                   number.assert(first, debugInfo);
                   return Math.ceil(first);
               }
@@ -5286,7 +5306,7 @@ var Lits = (function (exports) {
       'rand-int!': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              if (dataType.isNot(first)) {
+              if (isNotDataType(first)) {
                   number.assert(first, debugInfo);
                   return Math.floor(Math.random() * Math.abs(first)) * Math.sign(first);
               }
@@ -5361,33 +5381,15 @@ var Lits = (function (exports) {
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
-      'max-safe-integer': {
-          evaluate: function () {
-              return Number.MAX_SAFE_INTEGER;
-          },
-          validate: function (node) { return assertNumberOfParams(0, node); },
-      },
-      'min-safe-integer': {
-          evaluate: function () {
-              return Number.MIN_SAFE_INTEGER;
-          },
-          validate: function (node) { return assertNumberOfParams(0, node); },
-      },
       'max-value': {
           evaluate: function () {
-              return Number.MAX_VALUE;
+              return MAX_NUMBER;
           },
           validate: function (node) { return assertNumberOfParams(0, node); },
       },
       'min-value': {
           evaluate: function () {
-              return Number.MIN_VALUE;
-          },
-          validate: function (node) { return assertNumberOfParams(0, node); },
-      },
-      epsilon: {
-          evaluate: function () {
-              return Number.EPSILON;
+              return MIN_NUMBER;
           },
           validate: function (node) { return assertNumberOfParams(0, node); },
       },
@@ -6041,7 +6043,7 @@ var Lits = (function (exports) {
   var assertNormalExpression = {
       assert: {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var value = params[0];
                   var message = params.length === 2 ? params[1] : "".concat(value);
                   string.assert(message, debugInfo);
@@ -6060,7 +6062,7 @@ var Lits = (function (exports) {
       },
       'assert=': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6080,7 +6082,7 @@ var Lits = (function (exports) {
       },
       'assert-not=': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6097,7 +6099,7 @@ var Lits = (function (exports) {
       },
       'assert-equal': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6117,7 +6119,7 @@ var Lits = (function (exports) {
       },
       'assert-not-equal': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6134,7 +6136,7 @@ var Lits = (function (exports) {
       },
       'assert>': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6151,7 +6153,7 @@ var Lits = (function (exports) {
       },
       'assert>=': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6168,7 +6170,7 @@ var Lits = (function (exports) {
       },
       'assert<': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6185,7 +6187,7 @@ var Lits = (function (exports) {
       },
       'assert<=': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6202,7 +6204,7 @@ var Lits = (function (exports) {
       },
       'assert-true': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var first = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6221,7 +6223,7 @@ var Lits = (function (exports) {
       },
       'assert-false': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var first = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6240,7 +6242,7 @@ var Lits = (function (exports) {
       },
       'assert-truthy': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var first = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6259,7 +6261,7 @@ var Lits = (function (exports) {
       },
       'assert-falsy': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var first = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6278,7 +6280,7 @@ var Lits = (function (exports) {
       },
       'assert-nil': {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var first = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6298,7 +6300,7 @@ var Lits = (function (exports) {
       'assert-throws': {
           evaluate: function (params, debugInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var func = params[0];
                   var message = params[1];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6320,7 +6322,7 @@ var Lits = (function (exports) {
       'assert-throws-error': {
           evaluate: function (params, debugInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _b = __read(params, 2), func = _b[0], throwMessage = _b[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6347,7 +6349,7 @@ var Lits = (function (exports) {
       'assert-not-throws': {
           evaluate: function (params, debugInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var func = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6371,7 +6373,7 @@ var Lits = (function (exports) {
   var objectNormalExpression = {
       object: {
           evaluate: function (params, debugInfo) {
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var result = {};
                   for (var i = 0; i < params.length; i += 2) {
                       var key = params[i];
@@ -6703,7 +6705,7 @@ var Lits = (function (exports) {
       regexp: {
           evaluate: function (params, debugInfo) {
               var _a;
-              if (params.every(dataType.isNot)) {
+              if (params.every(isNotDataType)) {
                   var _b = __read(params, 2), sourceArg = _b[0], flagsArg = _b[1];
                   string.assert(sourceArg, debugInfo);
                   var source = sourceArg || "(?:)";
@@ -7156,6 +7158,161 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
       },
   };
+
+  var typeNormalExpression = {
+      'type-of': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 1), value = _b[0];
+              any.assert(value, debugInfo);
+              return DataType.of(value);
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
+      },
+      'type-or': {
+          evaluate: function (params, debugInfo) {
+              params.forEach(function (param) { return assertDataType(param, debugInfo); });
+              return DataType.or.apply(DataType, __spreadArray([], __read(params), false));
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+      },
+      'type-and': {
+          evaluate: function (params, debugInfo) {
+              params.forEach(function (param) { return assertDataType(param, debugInfo); });
+              return DataType.and.apply(DataType, __spreadArray([], __read(params), false));
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+      },
+      'type-exclude': {
+          evaluate: function (params, debugInfo) {
+              params.forEach(function (param) { return assertDataType(param, debugInfo); });
+              var first = asDataType(params[0], debugInfo);
+              return DataType.exclude.apply(DataType, __spreadArray([first], __read(params.slice(1)), false));
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+      },
+      'type-is?': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], second = _b[1];
+              assertDataType(first, debugInfo);
+              assertDataType(second, debugInfo);
+              return DataType.is(first, second);
+          },
+          validate: function (node) { return assertNumberOfParams(2, node); },
+      },
+      'type-equals?': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], second = _b[1];
+              assertDataType(first, debugInfo);
+              assertDataType(second, debugInfo);
+              return DataType.equals(first, second);
+          },
+          validate: function (node) { return assertNumberOfParams(2, node); },
+      },
+      'type-intersects?': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 2), first = _b[0], second = _b[1];
+              assertDataType(first, debugInfo);
+              assertDataType(second, debugInfo);
+              return DataType.intersects(first, second);
+          },
+          validate: function (node) { return assertNumberOfParams(2, node); },
+      },
+  };
+
+  var normalExpressions = __assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign({}, bitwiseNormalExpression), collectionNormalExpression), arrayNormalExpression), sequenceNormalExpression), mathNormalExpression), miscNormalExpression), assertNormalExpression), objectNormalExpression), predicatesNormalExpression), regexpNormalExpression), stringNormalExpression), functionalNormalExpression), typeNormalExpression);
+
+  var commentSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var _b;
+          var parseToken = _a.parseToken;
+          var tkn = token.as(tokens[position], "EOF");
+          var node = {
+              type: "SpecialExpression",
+              name: "comment",
+              params: [],
+              token: tkn.debugInfo ? tkn : undefined,
+          };
+          while (!token.is(tkn, { type: "paren", value: ")" })) {
+              var bodyNode = void 0;
+              _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
+              node.params.push(bodyNode);
+              tkn = token.as(tokens[position], "EOF");
+          }
+          return [position + 1, node];
+      },
+      evaluate: function () { return null; },
+      validate: function () { return undefined; },
+      findUndefinedSymbols: function () { return new Set(); },
+  };
+
+  var declaredSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "declared?",
+              params: params,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [newPosition + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b;
+          var lookUp = _a.lookUp;
+          var _c = __read(node.params, 1), astNode = _c[0];
+          nameNode.assert(astNode, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          var lookUpResult = lookUp(astNode, contextStack);
+          return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
+      },
+      validate: function (node) { return assertNumberOfParams(1, node); },
+      findUndefinedSymbols: function (node, contextStack, _a) {
+          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
+          return findUndefinedSymbols(node.params, contextStack, builtin);
+      },
+  };
+
+  var specialExpressions = {
+      and: andSpecialExpression,
+      comment: commentSpecialExpression,
+      cond: condSpecialExpression,
+      def: defSpecialExpression,
+      defn: defnSpecialExpression,
+      defns: defnsSpecialExpression,
+      defs: defsSpecialExpression,
+      do: doSpecialExpression,
+      doseq: doseqSpecialExpression,
+      for: forSpecialExpression,
+      fn: fnSpecialExpression,
+      if: ifSpecialExpression,
+      'if-let': ifLetSpecialExpression,
+      'if-not': ifNotSpecialExpression,
+      let: letSpecialExpression,
+      loop: loopSpecialExpression,
+      or: orSpecialExpression,
+      recur: recurSpecialExpression,
+      throw: throwSpecialExpression,
+      'time!': timeSpecialExpression,
+      try: trySpecialExpression,
+      when: whenSpecialExpression,
+      'when-first': whenFirstSpecialExpression,
+      'when-let': whenLetSpecialExpression,
+      'when-not': whenNotSpecialExpression,
+      'declared?': declaredSpecialExpression,
+  };
+  Object.keys(specialExpressions).forEach(function (key) {
+      /* istanbul ignore next */
+      if (normalExpressions[key]) {
+          throw Error("Expression ".concat(key, " is defined as both a normal expression and a special expression"));
+      }
+  });
+  var builtin = {
+      normalExpressions: normalExpressions,
+      specialExpressions: specialExpressions,
+  };
+  var normalExpressionKeys = Object.keys(normalExpressions);
+  var specialExpressionKeys = Object.keys(specialExpressions);
 
   function lookUp(node, contextStack) {
       var e_1, _a, _b;
@@ -8662,161 +8819,6 @@ var Lits = (function (exports) {
       };
       return Lits;
   }());
-
-  var typeNormalExpression = {
-      'type-of': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 1), value = _b[0];
-              any.assert(value, debugInfo);
-              return DataType.of(value);
-          },
-          validate: function (node) { return assertNumberOfParams(1, node); },
-      },
-      'type-or': {
-          evaluate: function (params, debugInfo) {
-              params.forEach(function (param) { return dataType.assert(param, debugInfo); });
-              return DataType.or.apply(DataType, __spreadArray([], __read(params), false));
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
-      },
-      'type-and': {
-          evaluate: function (params, debugInfo) {
-              params.forEach(function (param) { return dataType.assert(param, debugInfo); });
-              return DataType.and.apply(DataType, __spreadArray([], __read(params), false));
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
-      },
-      'type-exclude': {
-          evaluate: function (params, debugInfo) {
-              params.forEach(function (param) { return dataType.assert(param, debugInfo); });
-              var first = dataType.as(params[0]);
-              return DataType.exclude.apply(DataType, __spreadArray([first], __read(params.slice(1)), false));
-          },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
-      },
-      'type-is?': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), first = _b[0], second = _b[1];
-              dataType.assert(first, debugInfo);
-              dataType.assert(second, debugInfo);
-              return DataType.is(first, second);
-          },
-          validate: function (node) { return assertNumberOfParams(2, node); },
-      },
-      'type-equals?': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), first = _b[0], second = _b[1];
-              dataType.assert(first, debugInfo);
-              dataType.assert(second, debugInfo);
-              return DataType.equals(first, second);
-          },
-          validate: function (node) { return assertNumberOfParams(2, node); },
-      },
-      'type-intersects?': {
-          evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 2), first = _b[0], second = _b[1];
-              dataType.assert(first, debugInfo);
-              dataType.assert(second, debugInfo);
-              return DataType.intersects(first, second);
-          },
-          validate: function (node) { return assertNumberOfParams(2, node); },
-      },
-  };
-
-  var normalExpressions = __assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign({}, bitwiseNormalExpression), collectionNormalExpression), arrayNormalExpression), sequenceNormalExpression), mathNormalExpression), miscNormalExpression), assertNormalExpression), objectNormalExpression), predicatesNormalExpression), regexpNormalExpression), stringNormalExpression), functionalNormalExpression), typeNormalExpression);
-
-  var commentSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var _b;
-          var parseToken = _a.parseToken;
-          var tkn = token.as(tokens[position], "EOF");
-          var node = {
-              type: "SpecialExpression",
-              name: "comment",
-              params: [],
-              token: tkn.debugInfo ? tkn : undefined,
-          };
-          while (!token.is(tkn, { type: "paren", value: ")" })) {
-              var bodyNode = void 0;
-              _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
-              node.params.push(bodyNode);
-              tkn = token.as(tokens[position], "EOF");
-          }
-          return [position + 1, node];
-      },
-      evaluate: function () { return null; },
-      validate: function () { return undefined; },
-      findUndefinedSymbols: function () { return new Set(); },
-  };
-
-  var declaredSpecialExpression = {
-      parse: function (tokens, position, _a) {
-          var parseTokens = _a.parseTokens;
-          var firstToken = token.as(tokens[position], "EOF");
-          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
-          var node = {
-              type: "SpecialExpression",
-              name: "declared?",
-              params: params,
-              token: firstToken.debugInfo ? firstToken : undefined,
-          };
-          return [newPosition + 1, node];
-      },
-      evaluate: function (node, contextStack, _a) {
-          var _b;
-          var lookUp = _a.lookUp;
-          var _c = __read(node.params, 1), astNode = _c[0];
-          nameNode.assert(astNode, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
-          var lookUpResult = lookUp(astNode, contextStack);
-          return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
-      },
-      validate: function (node) { return assertNumberOfParams(1, node); },
-      findUndefinedSymbols: function (node, contextStack, _a) {
-          var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
-          return findUndefinedSymbols(node.params, contextStack, builtin);
-      },
-  };
-
-  var specialExpressions = {
-      and: andSpecialExpression,
-      comment: commentSpecialExpression,
-      cond: condSpecialExpression,
-      def: defSpecialExpression,
-      defn: defnSpecialExpression,
-      defns: defnsSpecialExpression,
-      defs: defsSpecialExpression,
-      do: doSpecialExpression,
-      doseq: doseqSpecialExpression,
-      for: forSpecialExpression,
-      fn: fnSpecialExpression,
-      if: ifSpecialExpression,
-      'if-let': ifLetSpecialExpression,
-      'if-not': ifNotSpecialExpression,
-      let: letSpecialExpression,
-      loop: loopSpecialExpression,
-      or: orSpecialExpression,
-      recur: recurSpecialExpression,
-      throw: throwSpecialExpression,
-      'time!': timeSpecialExpression,
-      try: trySpecialExpression,
-      when: whenSpecialExpression,
-      'when-first': whenFirstSpecialExpression,
-      'when-let': whenLetSpecialExpression,
-      'when-not': whenNotSpecialExpression,
-      'declared?': declaredSpecialExpression,
-  };
-  Object.keys(specialExpressions).forEach(function (key) {
-      /* istanbul ignore next */
-      if (normalExpressions[key]) {
-          throw Error("Expression ".concat(key, " is defined as both a normal expression and a special expression"));
-      }
-  });
-  var builtin = {
-      normalExpressions: normalExpressions,
-      specialExpressions: specialExpressions,
-  };
-  var normalExpressionKeys = Object.keys(normalExpressions);
-  var specialExpressionKeys = Object.keys(specialExpressions);
 
   exports.Lits = Lits;
   exports.isLitsFunction = isLitsFunction;

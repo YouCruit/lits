@@ -1,14 +1,14 @@
-import { DataType } from '../../../analyze/dataTypes/DataType'
+import { DataType, isNotDataType } from '../../../analyze/dataTypes/DataType'
 import { NormalExpressionNode } from '../../../parser/interface'
 import { DebugInfo } from '../../../tokenizer/interface'
 import { MAX_NUMBER, MIN_NUMBER } from '../../../utils'
-import { assertNumberOfParams, asValue, dataType, number } from '../../../utils/assertion'
+import { assertNumberOfParams, asValue, number } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
 
 export const mathNormalExpression: BuiltinNormalExpressions = {
   inc: {
     evaluate: ([first], debugInfo): number | DataType => {
-      if (dataType.isNot(first)) {
+      if (isNotDataType(first)) {
         number.assert(first, debugInfo)
         return first + 1
       } else {
@@ -54,7 +54,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   dec: {
     evaluate: ([first], debugInfo): number | DataType => {
-      if (dataType.isNot(first)) {
+      if (isNotDataType(first)) {
         number.assert(first, debugInfo)
         return first - 1
       } else {
@@ -197,7 +197,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   quot: {
     evaluate: (params, debugInfo): number | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [dividend, divisor] = params
         number.assert(dividend, debugInfo)
         number.assert(divisor, debugInfo)
@@ -285,7 +285,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   mod: {
     evaluate: (params, debugInfo): number | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [dividend, divisor] = params
         number.assert(dividend, debugInfo)
         number.assert(divisor, debugInfo)
@@ -319,7 +319,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   rem: {
     evaluate: (params, debugInfo): number | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [dividend, divisor] = params
         number.assert(dividend, debugInfo)
         number.assert(divisor, debugInfo)
@@ -353,7 +353,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   sqrt: {
     evaluate: ([first], debugInfo): number | DataType => {
-      if (dataType.isNot(first)) {
+      if (isNotDataType(first)) {
         number.assert(first, debugInfo)
         return Math.sqrt(first)
       } else {
@@ -386,7 +386,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   cbrt: {
     evaluate: ([first], debugInfo): number | DataType => {
-      if (dataType.isNot(first)) {
+      if (isNotDataType(first)) {
         number.assert(first, debugInfo)
         return Math.cbrt(first)
       } else {
@@ -425,7 +425,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   pow: {
     evaluate: (params, debugInfo): number | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [first, second] = params
         number.assert(first, debugInfo)
         number.assert(second, debugInfo)
@@ -574,7 +574,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   round: {
     evaluate: (params, debugInfo): number | DataType => {
-      if (params.every(dataType.isNot)) {
+      if (params.every(isNotDataType)) {
         const [value, decimals] = params
         number.assert(value, debugInfo)
         if (params.length === 1 || decimals === 0) {
@@ -642,7 +642,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   trunc: {
     evaluate: ([first], debugInfo): number | DataType => {
-      if (dataType.isNot(first)) {
+      if (isNotDataType(first)) {
         number.assert(first, debugInfo)
         return Math.trunc(first)
       } else {
@@ -685,7 +685,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   floor: {
     evaluate: ([first], debugInfo): number | DataType => {
-      if (dataType.isNot(first)) {
+      if (isNotDataType(first)) {
         number.assert(first, debugInfo)
         return Math.floor(first)
       } else {
@@ -724,7 +724,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   ceil: {
     evaluate: ([first], debugInfo): number | DataType => {
-      if (dataType.isNot(first)) {
+      if (isNotDataType(first)) {
         number.assert(first, debugInfo)
         return Math.ceil(first)
       } else {
@@ -770,7 +770,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   'rand-int!': {
     evaluate: ([first], debugInfo): number | DataType => {
-      if (dataType.isNot(first)) {
+      if (isNotDataType(first)) {
         number.assert(first, debugInfo)
         return Math.floor(Math.random() * Math.abs(first)) * Math.sign(first)
       } else {
@@ -860,13 +860,6 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   'min-value': {
     evaluate: (): number => {
       return MIN_NUMBER
-    },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(0, node),
-  },
-
-  epsilon: {
-    evaluate: (): number => {
-      return Number.EPSILON
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(0, node),
   },

@@ -919,13 +919,6 @@ describe(`math functions`, () => {
     })
   })
 
-  describe(`epsilon`, () => {
-    test(`samples`, () => {
-      expect(lits.run(`(epsilon)`)).toBe(Number.EPSILON)
-      expect(() => lits.run(`(epsilon :1)`)).toThrow()
-    })
-  })
-
   describe(`nan`, () => {
     test(`samples`, () => {
       expect(lits.run(`(nan)`)).toBeNaN()

@@ -429,18 +429,6 @@ module.exports = {
     description: `Returns a number representing the smallest positive numeric value.`,
     examples: [`(min-value)`],
   },
-  epsilon: {
-    name: `epsilon`,
-    category: `Math`,
-    linkName: `epsilon`,
-    clojureDocs: null,
-    returns: {
-      type: `number`,
-    },
-    arguments: [],
-    description: `Returns a number representing the difference between 1 and the smallest floating point number greater than 1.`,
-    examples: [`(epsilon)`],
-  },
   nan: {
     name: `nan`,
     category: `Math`,

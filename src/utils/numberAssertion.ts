@@ -120,6 +120,9 @@ function getNumberTypeName(options: NumberOptions): string {
 }
 
 function is(value: unknown, options: NumberOptions = {}): value is number {
+  // if (Number.isNaN(value) || value === Number.POSITIVE_INFINITY || value === Number.NEGATIVE_INFINITY) {
+  //   return true
+  // }
   if (typeof value !== `number`) {
     return false
   }

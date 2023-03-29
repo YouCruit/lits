@@ -11,13 +11,13 @@ describe(`DataType`, () => {
     expect(DataType.nonEmptyString.bitmask).toBe(typeToBitRecord[`non-empty-string`])
     expect(DataType.string.bitmask).toBe(typeToBitRecord[`empty-string`] | typeToBitRecord[`non-empty-string`])
     expect(DataType.zero.bitmask).toBe(typeToBitRecord.zero)
-    expect(DataType.positiveNumber.bitmask).toBe(
+    expect(DataType.positiveFloat.bitmask).toBe(
       typeToBitRecord[`positive-integer`] | typeToBitRecord[`positive-non-integer`],
     )
-    expect(DataType.negativeNumber.bitmask).toBe(
+    expect(DataType.negativeFloat.bitmask).toBe(
       typeToBitRecord[`negative-integer`] | typeToBitRecord[`negative-non-integer`],
     )
-    expect(DataType.number.bitmask).toBe(
+    expect(DataType.float.bitmask).toBe(
       typeToBitRecord.zero |
         typeToBitRecord[`positive-integer`] |
         typeToBitRecord[`positive-non-integer`] |
@@ -79,8 +79,8 @@ describe(`DataType`, () => {
   describe(`DataType.and`, () => {
     test(`samples`, () => {
       expect(DataType.truthy.and(DataType.string)).toEqual(DataType.nonEmptyString)
-      expect(DataType.truthy.and(DataType.string.or(DataType.number))).toEqual(
-        DataType.nonEmptyString.or(DataType.positiveNumber).or(DataType.negativeNumber),
+      expect(DataType.truthy.and(DataType.string.or(DataType.float))).toEqual(
+        DataType.nonEmptyString.or(DataType.positiveFloat).or(DataType.negativeFloat),
       )
     })
   })
@@ -89,8 +89,8 @@ describe(`DataType`, () => {
     test(`samples`, () => {
       expect(DataType.truthy.exclude(DataType.string)).toEqual(
         DataType.or(
-          DataType.positiveNumber,
-          DataType.negativeNumber,
+          DataType.positiveFloat,
+          DataType.negativeFloat,
           DataType.true,
           DataType.array,
           DataType.object,
@@ -101,7 +101,7 @@ describe(`DataType`, () => {
         ),
       )
 
-      expect(DataType.truthy.exclude(DataType.string.or(DataType.number))).toEqual(
+      expect(DataType.truthy.exclude(DataType.string.or(DataType.float))).toEqual(
         DataType.or(
           DataType.true,
           DataType.array,
@@ -120,27 +120,24 @@ describe(`DataType`, () => {
 
   describe(`DataType.intersects`, () => {
     test(`samples`, () => {
-      expect(DataType.nonZeroInteger.intersects(DataType.negativeNumber)).toBe(true)
+      expect(DataType.nonZeroInteger.intersects(DataType.negativeFloat)).toBe(true)
     })
   })
 
   describe(`negateNumber`, () => {
     test(`samples`, () => {
       expect(DataType.zero.negateNumber()).toEqual(DataType.zero)
-      expect(DataType.number.negateNumber()).toEqual(DataType.number)
+      expect(DataType.float.negateNumber()).toEqual(DataType.float)
       expect(DataType.integer.negateNumber()).toEqual(DataType.integer)
-      expect(DataType.nonZeroNumber.negateNumber()).toEqual(DataType.nonZeroNumber)
+      expect(DataType.nonZeroFloat.negateNumber()).toEqual(DataType.nonZeroFloat)
       expect(DataType.nonZeroInteger.negateNumber()).toEqual(DataType.nonZeroInteger)
-      expect(DataType.nonInteger.negateNumber()).toEqual(DataType.nonInteger)
-      expect(DataType.positiveNumber.negateNumber().toString()).toEqual(DataType.negativeNumber.toString())
-      expect(DataType.nonPositiveNumber.negateNumber()).toEqual(DataType.nonNegativeNumber)
+      expect(DataType.positiveFloat.negateNumber().toString()).toEqual(DataType.negativeFloat.toString())
+      expect(DataType.nonPositiveFloat.negateNumber()).toEqual(DataType.nonNegativeFloat)
       expect(DataType.positiveInteger.negateNumber()).toEqual(DataType.negativeInteger)
-      expect(DataType.positiveNonInteger.negateNumber()).toEqual(DataType.negativeNonInteger)
       expect(DataType.nonPositiveInteger.negateNumber()).toEqual(DataType.nonNegativeInteger)
-      expect(DataType.negativeNumber.negateNumber()).toEqual(DataType.positiveNumber)
-      expect(DataType.nonNegativeNumber.negateNumber()).toEqual(DataType.nonPositiveNumber)
+      expect(DataType.negativeFloat.negateNumber()).toEqual(DataType.positiveFloat)
+      expect(DataType.nonNegativeFloat.negateNumber()).toEqual(DataType.nonPositiveFloat)
       expect(DataType.negativeInteger.negateNumber()).toEqual(DataType.positiveInteger)
-      expect(DataType.negativeNonInteger.negateNumber()).toEqual(DataType.positiveNonInteger)
       expect(DataType.nonNegativeInteger.negateNumber()).toEqual(DataType.nonPositiveInteger)
     })
   })
@@ -156,7 +153,7 @@ describe(`DataType`, () => {
       expect(DataType.or(DataType.nil, DataType.string).bitmask).toBe(
         typeToBitRecord[`empty-string`] | typeToBitRecord[`non-empty-string`] | typeToBitRecord.nil,
       )
-      expect(DataType.or(DataType.nil, DataType.number).bitmask).toBe(
+      expect(DataType.or(DataType.nil, DataType.float).bitmask).toBe(
         typeToBitRecord.zero |
           typeToBitRecord[`positive-integer`] |
           typeToBitRecord[`positive-non-integer`] |
@@ -178,7 +175,7 @@ describe(`DataType`, () => {
         DataType.nil,
         DataType.boolean,
         DataType.string,
-        DataType.number,
+        DataType.float,
         DataType.array,
         DataType.object,
         DataType.regexp,
@@ -192,8 +189,8 @@ describe(`DataType`, () => {
         DataType.emptyString,
         DataType.nonEmptyString,
         DataType.zero,
-        DataType.positiveNumber,
-        DataType.negativeNumber,
+        DataType.positiveFloat,
+        DataType.negativeFloat,
         DataType.array,
         DataType.object,
         DataType.regexp,
@@ -219,9 +216,9 @@ describe(`DataType`, () => {
       expect(DataType.nonEmptyString.is(DataType.falsy)).toBe(false)
       expect(DataType.string.is(DataType.falsy)).toBe(false)
       expect(DataType.zero.is(DataType.falsy)).toBe(true)
-      expect(DataType.positiveNumber.is(DataType.falsy)).toBe(false)
-      expect(DataType.negativeNumber.is(DataType.falsy)).toBe(false)
-      expect(DataType.number.is(DataType.falsy)).toBe(false)
+      expect(DataType.positiveFloat.is(DataType.falsy)).toBe(false)
+      expect(DataType.negativeFloat.is(DataType.falsy)).toBe(false)
+      expect(DataType.float.is(DataType.falsy)).toBe(false)
       expect(DataType.array.is(DataType.falsy)).toBe(false)
       expect(DataType.object.is(DataType.falsy)).toBe(false)
       expect(DataType.regexp.is(DataType.falsy)).toBe(false)
@@ -245,9 +242,9 @@ describe(`DataType`, () => {
       expect(DataType.nonEmptyString.is(DataType.truthy)).toBe(true)
       expect(DataType.string.is(DataType.truthy)).toBe(false)
       expect(DataType.zero.is(DataType.truthy)).toBe(false)
-      expect(DataType.positiveNumber.is(DataType.truthy)).toBe(true)
-      expect(DataType.negativeNumber.is(DataType.truthy)).toBe(true)
-      expect(DataType.number.is(DataType.truthy)).toBe(false)
+      expect(DataType.positiveFloat.is(DataType.truthy)).toBe(true)
+      expect(DataType.negativeFloat.is(DataType.truthy)).toBe(true)
+      expect(DataType.float.is(DataType.truthy)).toBe(false)
       expect(DataType.array.is(DataType.truthy)).toBe(true)
       expect(DataType.object.is(DataType.truthy)).toBe(true)
       expect(DataType.regexp.is(DataType.truthy)).toBe(true)
@@ -257,8 +254,8 @@ describe(`DataType`, () => {
         DataType.or(
           DataType.true,
           DataType.nonEmptyString,
-          DataType.positiveNumber,
-          DataType.negativeNumber,
+          DataType.positiveFloat,
+          DataType.negativeFloat,
           DataType.function,
           DataType.regexp,
           DataType.function,
@@ -271,8 +268,8 @@ describe(`DataType`, () => {
           DataType.string,
           DataType.true,
           DataType.nonEmptyString,
-          DataType.positiveNumber,
-          DataType.negativeNumber,
+          DataType.positiveFloat,
+          DataType.negativeFloat,
           DataType.function,
           DataType.regexp,
           DataType.function,
@@ -293,9 +290,9 @@ describe(`DataType`, () => {
       expect(DataType.nonEmptyString.is(DataType.unknown)).toBe(true)
       expect(DataType.string.is(DataType.unknown)).toBe(true)
       expect(DataType.zero.is(DataType.unknown)).toBe(true)
-      expect(DataType.positiveNumber.is(DataType.unknown)).toBe(true)
-      expect(DataType.negativeNumber.is(DataType.unknown)).toBe(true)
-      expect(DataType.number.is(DataType.unknown)).toBe(true)
+      expect(DataType.positiveFloat.is(DataType.unknown)).toBe(true)
+      expect(DataType.negativeFloat.is(DataType.unknown)).toBe(true)
+      expect(DataType.float.is(DataType.unknown)).toBe(true)
       expect(DataType.array.is(DataType.unknown)).toBe(true)
       expect(DataType.function.is(DataType.unknown)).toBe(true)
       expect(DataType.object.is(DataType.unknown)).toBe(true)
@@ -305,13 +302,10 @@ describe(`DataType`, () => {
       expect(DataType.falsy.is(DataType.unknown)).toBe(true)
       expect(DataType.truthy.is(DataType.unknown)).toBe(true)
 
-      expect(DataType.or(DataType.string, DataType.number, DataType.boolean).is(DataType.unknown)).toBe(true)
+      expect(DataType.or(DataType.string, DataType.float, DataType.boolean).is(DataType.unknown)).toBe(true)
     })
     test(`nil samples`, () => {
       expect(DataType.nil.is(DataType.or(DataType.array, DataType.true, DataType.nil))).toBe(true)
-    })
-    test(`more samples`, () => {
-      expect(DataType.positiveNonInteger.is(DataType.nonPositiveNumber)).toBe(false)
     })
   })
 
@@ -339,9 +333,9 @@ describe(`DataType`, () => {
       expect(DataType.nonEmptyString.isUnionType()).toBe(false)
       expect(DataType.string.isUnionType()).toBe(true)
       expect(DataType.zero.isUnionType()).toBe(false)
-      expect(DataType.positiveNumber.isUnionType()).toBe(true)
-      expect(DataType.negativeNumber.isUnionType()).toBe(true)
-      expect(DataType.number.isUnionType()).toBe(true)
+      expect(DataType.positiveFloat.isUnionType()).toBe(true)
+      expect(DataType.negativeFloat.isUnionType()).toBe(true)
+      expect(DataType.float.isUnionType()).toBe(true)
       expect(DataType.truthy.isUnionType()).toBe(true)
       expect(DataType.falsy.isUnionType()).toBe(true)
     })

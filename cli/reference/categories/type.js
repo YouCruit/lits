@@ -51,8 +51,8 @@ module.exports = {
     ],
     description: `Returns the disjuntion of the \`types\`.`,
     examples: [
-      `(type-or ::number ::positive-infinity ::negative-infinity ::nan)`,
-      `(type-or ::number ::true ::false)`,
+      `(type-or ::float ::positive-infinity ::negative-infinity ::nan)`,
+      `(type-or ::float ::true ::false)`,
       `(type-or ::positive-integer ::negative-integer ::zero)`,
     ],
   },
@@ -72,9 +72,9 @@ module.exports = {
     ],
     description: `Return the conjuction of the \`types\`.`,
     examples: [
-      `(type-and ::number ::integer)`,
-      `(type-and ::number ::string)`,
-      `(type-and ::non-positive-integer ::non-negative-number)`,
+      `(type-and ::float ::integer)`,
+      `(type-and ::float ::string)`,
+      `(type-and ::non-positive-integer ::non-negative-float)`,
     ],
   },
   'type-exclude': {
@@ -93,9 +93,9 @@ module.exports = {
     ],
     description: `Subtract types from the first parameter.`,
     examples: [
-      `(type-exclude ::number ::integer)`,
-      `(type-exclude ::number ::string)`,
-      `(type-exclude ::number ::non-negative-number)`,
+      `(type-exclude ::float ::integer)`,
+      `(type-exclude ::float ::string)`,
+      `(type-exclude ::float ::non-negative-float)`,
     ],
   },
   'type-is?': {
@@ -117,8 +117,8 @@ module.exports = {
     ],
     description: `Check if \`type1\` is of type \`type2\`.`,
     examples: [
-      `(type-is? ::number ::integer)`,
-      `(type-is? ::integer ::number)`,
+      `(type-is? ::float ::integer)`,
+      `(type-is? ::integer ::float)`,
       `(type-is? ::empty-string ::string)`,
       `(type-is? ::empty-string ::falsy)`,
       `(type-is? ::empty-string ::truthy)`,
@@ -143,8 +143,7 @@ module.exports = {
     ],
     description: `Check if \`type1\` is equal to \`type2\`.`,
     examples: [
-      `(type-equals? ::number (type-or ::integer ::non-integer))`,
-      `(type-equals? ::integer ::number)`,
+      `(type-equals? ::integer ::float)`,
       `(type-equals? ::empty-string ::string)`,
       `(type-equals? ::empty-string (type-and ::falsy ::boolean))`,
     ],
@@ -168,8 +167,8 @@ module.exports = {
     ],
     description: `Check if \`type1\` intersects \`type2\`.`,
     examples: [
-      `(type-intersects? ::number ::integer)`,
-      `(type-intersects? ::integer ::number)`,
+      `(type-intersects? ::float ::integer)`,
+      `(type-intersects? ::integer ::float)`,
       `(type-intersects? ::empty-string ::string)`,
       `(type-intersects? ::empty-string ::falsy)`,
       `(type-intersects? ::empty-string ::truthy)`,

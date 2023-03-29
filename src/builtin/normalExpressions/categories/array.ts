@@ -52,7 +52,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       } else {
         const paramTypes = params.map(param => {
           const type = DataType.of(param)
-          type.assertIs(DataType.number, debugInfo)
+          type.assertIs(DataType.float, debugInfo)
           return type
         })
         const fromType = asValue(paramTypes[0])

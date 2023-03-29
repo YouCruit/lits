@@ -164,7 +164,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
           : DataType.of(params[2])
 
         collType.assertIs(DataType.collection.nilable(), debugInfo)
-        keyType.assertIs(DataType.or(DataType.string, DataType.number, DataType.nil), debugInfo)
+        keyType.assertIs(DataType.or(DataType.string, DataType.float, DataType.nil), debugInfo)
 
         if (collType.is(DataType.nil)) {
           return defaultValueType

@@ -11,7 +11,7 @@ import {
 import { Ast } from '../parser/interface'
 import { builtin } from '../builtin'
 import { reservedNamesRecord } from '../reservedNames'
-import { toAny } from '../utils'
+import { MAX_NUMBER, MIN_NUMBER, toAny } from '../utils'
 import { EvaluateAstNode, ExecuteFunction } from './interface'
 import { Any, Arr, Obj } from '../interface'
 import { functionExecutors } from './functionExecutors'
@@ -36,7 +36,17 @@ export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   for (const node of ast.body) {
     result = evaluateAstNode(node, contextStack)
   }
-  return result
+  return typeof result === `number` ? toSafeNumber(result) : result
+}
+
+function toSafeNumber(value: number): number {
+  return value < MAX_NUMBER && value > MIN_NUMBER
+    ? value
+    : value < MIN_NUMBER
+    ? Number.NEGATIVE_INFINITY
+    : value > MAX_NUMBER
+    ? Number.POSITIVE_INFINITY
+    : value
 }
 
 export const evaluateAstNode: EvaluateAstNode = (node, contextStack) => {
@@ -61,7 +71,7 @@ export const evaluateAstNode: EvaluateAstNode = (node, contextStack) => {
 }
 
 function evaluateNumber(node: NumberNode): number {
-  return node.value
+  return toSafeNumber(node.value)
 }
 
 function evaluateString(node: StringNode): string {
@@ -76,50 +86,48 @@ function evaluateTypeName(node: TypeNameNode): DataType {
       return DataType.nil
     case `nan`:
       return DataType.nan
-    case `positive-infinity`:
-      return DataType.positiveInfinity
-    case `negative-infinity`:
-      return DataType.negativeInfinity
-    case `illegal-number`:
-      return DataType.illegalNumber
     case `empty-string`:
       return DataType.emptyString
     case `non-empty-string`:
       return DataType.nonEmptyString
     case `string`:
       return DataType.string
+    case `number`:
+      return DataType.number
+    case `float`:
+      return DataType.float
+    case `illegal-number`:
+      return DataType.illegalNumber
+    case `positive-infinity`:
+      return DataType.positiveInfinity
+    case `negative-infinity`:
+      return DataType.negativeInfinity
+    case `infinity`:
+      return DataType.infinity
     case `zero`:
       return DataType.zero
-    case `non-zero-number`:
-      return DataType.nonZeroNumber
-    case `positive-number`:
-      return DataType.positiveNumber
-    case `negative-number`:
-      return DataType.negativeNumber
-    case `non-positive-number`:
-      return DataType.nonPositiveNumber
-    case `non-negative-number`:
-      return DataType.nonNegativeNumber
+    case `non-zero-float`:
+      return DataType.nonZeroFloat
+    case `positive-float`:
+      return DataType.positiveFloat
+    case `negative-float`:
+      return DataType.negativeFloat
+    case `non-positive-float`:
+      return DataType.nonPositiveFloat
+    case `non-negative-float`:
+      return DataType.nonNegativeFloat
     case `integer`:
       return DataType.integer
-    case `non-integer`:
-      return DataType.nonInteger
     case `non-zero-integer`:
       return DataType.nonZeroInteger
     case `positive-integer`:
       return DataType.positiveInteger
     case `negative-integer`:
       return DataType.negativeInteger
-    case `positive-non-integer`:
-      return DataType.positiveNonInteger
-    case `negative-non-integer`:
-      return DataType.negativeNonInteger
     case `non-positive-integer`:
       return DataType.nonPositiveInteger
     case `non-negative-integer`:
       return DataType.nonNegativeInteger
-    case `number`:
-      return DataType.number
     case `true`:
       return DataType.true
     case `false`:

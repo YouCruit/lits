@@ -5,6 +5,7 @@ import { TypeName } from '../src/analyze/dataTypes/litsTypeNames'
 import { UndefinedSymbolEntry } from '../src/analyze/undefinedSymbols/interface'
 import { Obj } from '../src/interface'
 import { DataType, Lits } from '../src/Lits/Lits'
+import { MAX_NUMBER, MIN_NUMBER } from '../src/utils'
 import { asValue, dataType, regularExpression } from '../src/utils/assertion'
 
 interface Primitives extends Obj {
@@ -96,7 +97,7 @@ export function getUndefinedSymbolNames(undefinedSymbols: Set<UndefinedSymbolEnt
 export type TestTypeEvaluation = [
   string,
   Array<`::${TypeName}` | Array<`::${TypeName}`> | { expression: string }>,
-  `::${TypeName}` | Array<`::${TypeName}`> | { expression: string } | `ERROR`,
+  Array<`::${TypeName}`> | { expression: string } | `ERROR`,
 ]
 
 /**
@@ -130,29 +131,41 @@ export function testTypeEvaluations(
         }
       }
 
-      for (const expression of sampleExpressions) {
-        if (resultExpression !== `ERROR`) {
+      if (resultExpression !== `ERROR`) {
+        for (const expression of sampleExpressions) {
           const testString = `(type-is? (type-of ${expression}) (type-of ${resultExpression}))`
           if (!lits.run(testString)) {
             throw Error(`Expected ${testString} to be true`)
           }
-        } else {
-          expect(() => lits.run(expression)).toThrow()
+        }
+      } else {
+        let hasThrown = false
+        for (const expression of sampleExpressions) {
+          try {
+            lits.run(expression)
+          } catch (error) {
+            hasThrown = true
+          }
+        }
+        if (!hasThrown) {
+          throw Error(`Expected one of the sample expressions to throw`)
         }
       }
 
-      const resultType = lits.run(`(type-of ${resultExpression})`) as DataType
-      const combinedSampeExpressionType = DataType.or(
-        ...sampleExpressions.map(e => lits.run(`(type-of ${e})`) as DataType),
-      )
-      if (!combinedSampeExpressionType.equals(resultType)) {
-        throw Error(
-          `Expected combined sample type (${combinedSampeExpressionType.toString({
-            showDetails: false,
-          })}) to equal result type (${resultType.toString({
-            showDetails: false,
-          })}) - ${JSON.stringify(sampleExpressions, null, 2)}`,
+      if (resultExpression !== `ERROR`) {
+        const resultType = lits.run(`(type-of ${resultExpression})`) as DataType
+        const combinedSampeExpressionType = DataType.or(
+          ...sampleExpressions.map(e => lits.run(`(type-of ${e})`) as DataType),
         )
+        if (!combinedSampeExpressionType.equals(resultType)) {
+          throw Error(
+            `Expected combined sample type (${combinedSampeExpressionType.toString({
+              showDetails: false,
+            })}) to equal result type (${resultType.toString({
+              showDetails: false,
+            })}) - ${JSON.stringify(sampleExpressions, null, 2)}`,
+          )
+        }
       }
     })
   }
@@ -273,15 +286,15 @@ function getLitsExpression(functionName: string, params: string[]) {
  * Recursive function for calculating permutations
  *
  * @param litsTypeParams
- *  E.g. ["::boolean", "::string", "::number"]
+ *  E.g. ["::boolean", "::string", "::float"]
  * @returns
  *  E.g. [
- *        ["::boolean", "::string", "::number"],
- *        ["::boolean", "::number", "::string"],
- *        ["::string", "::boolean", "::number"],
- *        ["::string", "::number", "::boolean"],
- *        ["::number", "::boolean", "::string"],
- *        ["::number", "::string", "::boolean"]
+ *        ["::boolean", "::string", "::float"],
+ *        ["::boolean", "::float", "::string"],
+ *        ["::string", "::boolean", "::float"],
+ *        ["::string", "::float", "::boolean"],
+ *        ["::float", "::boolean", "::string"],
+ *        ["::float", "::string", "::boolean"]
  *      ]
  */
 export function combinations(litsTypeParams: string[]): string[][] {
@@ -308,7 +321,7 @@ export function combinations(litsTypeParams: string[]): string[][] {
   return result
 }
 
-const bitsToSambleValue = Object.entries(typeToBitRecord).reduce((result: Record<string, string[]>, entry) => {
+const bitsToSampleValue = Object.entries(typeToBitRecord).reduce((result: Record<string, string[]>, entry) => {
   result[entry[1]] = getSampleValueFromPrimitiveTypeName(entry[0] as PrimitiveTypeName)
   return result
 }, {})
@@ -336,13 +349,13 @@ function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string[] 
     case `regexp`:
       return [`#"^s*(.*)$"`]
     case `positive-integer`:
-      return [`1`, `42`]
+      return [`1`, `42`, `43`, `${MAX_NUMBER}`]
     case `negative-integer`:
-      return [`-1`, `-42`]
+      return [`-1`, `-42`, `-43`, `${MIN_NUMBER}`]
     case `positive-non-integer`:
-      return [`0.5`, `1.5`, `(pi)`, `(e)`]
+      return [`(epsilon)`, `0.000001`, `0.5`, `1.5`, `(pi)`, `(e)`, `${MAX_NUMBER - 0.1}`]
     case `negative-non-integer`:
-      return [`-0.5`, `-1.5`, `(- (pi))`, `(- (e))`]
+      return [`(- (epsilon))`, `-0.000001`, `-0.5`, `-1.5`, `(- (pi))`, `(- (e))`, `${MIN_NUMBER + 0.1}`]
     case `empty-array`:
       return [`[]`]
     case `non-empty-array`:
@@ -357,5 +370,5 @@ function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string[] 
 }
 
 export function getSampleValuesForType(dataType: DataType): string[] {
-  return dataType.toPrimitiveTypes().flatMap(type => asValue(bitsToSambleValue[type.bitmask]))
+  return dataType.toSingelBits().flatMap(bitmask => asValue(bitsToSampleValue[bitmask]))
 }

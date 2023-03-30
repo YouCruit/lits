@@ -10,7 +10,6 @@ import {
   SpecialExpressionNode,
 } from '../parser/interface'
 import { Token, DebugInfo } from '../tokenizer/interface'
-import { NormalExpressionNode } from '../parser/interface'
 import { Any, Arr } from '../interface'
 import { FindUndefinedSymbols, UndefinedSymbolEntry } from '../analyze/undefinedSymbols/interface'
 import { ContextStack } from '../ContextStack'
@@ -22,11 +21,11 @@ export type NormalExpressionEvaluator<T> = (
   contextStack: ContextStack,
   { executeFunction }: { executeFunction: ExecuteFunction },
 ) => T
-type ValidateNode = (node: NormalExpressionNode) => void
+type ValidateArity = (arity: number, debugInfo: DebugInfo | undefined) => void
 
 type BuiltinNormalExpression<T> = {
   evaluate: NormalExpressionEvaluator<T>
-  validate: ValidateNode
+  validateArity: ValidateArity
 }
 
 export type ParserHelpers = {
@@ -50,7 +49,7 @@ type EvaluateHelpers = {
 export type BuiltinSpecialExpression<T> = {
   parse: (tokens: Token[], position: number, parsers: ParserHelpers) => [number, SpecialExpressionNode]
   evaluate: (node: SpecialExpressionNode, contextStack: ContextStack, helpers: EvaluateHelpers) => T
-  validate: (node: SpecialExpressionNode) => void
+  validateArity: ValidateArity
   findUndefinedSymbols(
     node: SpecialExpressionNode,
     contextStack: ContextStack,

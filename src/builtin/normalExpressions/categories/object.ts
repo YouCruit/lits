@@ -28,7 +28,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
         return params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject
       }
     },
-    validate: node => assertEvenNumberOfParams(node),
+    validateArity: (arity, debugInfo) => assertEvenNumberOfParams(arity, `object`, debugInfo),
   },
 
   keys: {
@@ -36,7 +36,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
       object.assert(first, debugInfo)
       return Object.keys(first)
     },
-    validate: node => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `keys`, debugInfo),
   },
 
   vals: {
@@ -44,7 +44,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
       object.assert(first, debugInfo)
       return Object.values(first)
     },
-    validate: node => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `vals`, debugInfo),
   },
 
   entries: {
@@ -52,7 +52,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
       object.assert(first, debugInfo)
       return Object.entries(first)
     },
-    validate: node => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `entries`, debugInfo),
   },
 
   find: {
@@ -64,7 +64,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
       }
       return null
     },
-    validate: node => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `find`, debugInfo),
   },
 
   dissoc: {
@@ -75,7 +75,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
       delete newObj[key]
       return newObj
     },
-    validate: node => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `dissoc`, debugInfo),
   },
 
   merge: {
@@ -94,7 +94,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
         { ...first },
       )
     },
-    validate: node => assertNumberOfParams({ min: 0 }, node),
+    validateArity: () => undefined,
   },
 
   'merge-with': {
@@ -125,7 +125,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
         { ...first },
       )
     },
-    validate: node => assertNumberOfParams({ min: 1 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1 }, arity, `merge-with`, debugInfo),
   },
 
   zipmap: {
@@ -143,7 +143,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
       }
       return result
     },
-    validate: node => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `zipmap`, debugInfo),
   },
 
   'select-keys': {
@@ -158,6 +158,6 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
         return result
       }, {})
     },
-    validate: node => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `select-keys`, debugInfo),
   },
 }

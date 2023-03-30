@@ -149,6 +149,7 @@ export const functionExecutors: FunctionExecutors = {
   },
   builtin: (fn: BuiltinFunction, params, debugInfo, contextStack, { executeFunction }) => {
     const normalExpression = asValue(normalExpressions[fn.name], debugInfo)
+    normalExpression.validateArity(params.length, debugInfo)
     return normalExpression.evaluate(params, debugInfo, contextStack, { executeFunction })
   },
 }

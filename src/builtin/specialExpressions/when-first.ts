@@ -4,7 +4,7 @@ import { Context } from '../../ContextStack/interface'
 import { Any } from '../../interface'
 import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
 import { toAny } from '../../utils'
-import { assertNumberOfParams, asValue, sequence, token } from '../../utils/assertion'
+import { asValue, sequence, token } from '../../utils/assertion'
 import { valueToString } from '../../utils/helpers'
 import { BuiltinSpecialExpression } from '../interface'
 
@@ -59,7 +59,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
     return result
   },
-  validate: node => assertNumberOfParams({ min: 0 }, node),
+  validateArity: () => undefined,
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) => {
     const { binding } = node as WhenFirstNode
     const newContext: Context = { [binding.name]: { value: true } }

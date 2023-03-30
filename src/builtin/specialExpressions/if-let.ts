@@ -49,7 +49,7 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
     return null
   },
-  validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+  validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `if-let`, debugInfo),
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) => {
     const newContext: Context = { [(node as IfLetNode).binding.name]: { value: true } }
     const bindingResult = findUndefinedSymbols((node as IfLetNode).binding.value, contextStack, builtin)

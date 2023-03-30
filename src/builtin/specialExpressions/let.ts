@@ -42,7 +42,7 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
     return result
   },
-  validate: () => undefined,
+  validateArity: () => undefined,
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) => {
     const newContext = (node as LetNode).bindings
       .map(binding => binding.name)

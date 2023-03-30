@@ -132,7 +132,7 @@ const parseObjectLitteral: ParseObjectLitteral = (tokens, position) => {
     token: firstToken.debugInfo ? firstToken : undefined,
   }
 
-  assertEvenNumberOfParams(node)
+  assertEvenNumberOfParams(node.params.length, `object`, node.token?.debugInfo)
 
   return [position, node]
 }
@@ -291,7 +291,7 @@ const parseNormalExpression: ParseNormalExpression = (tokens, position) => {
   const builtinExpression = builtin.normalExpressions[node.name]
 
   if (builtinExpression) {
-    builtinExpression.validate(node)
+    builtinExpression.validateArity(node.params.length, node.token?.debugInfo)
   }
 
   return [position, node]
@@ -301,7 +301,7 @@ const parseSpecialExpression: ParseSpecialExpression = (tokens, position) => {
   const { value: expressionName, debugInfo } = token.as(tokens[position], `EOF`)
   position += 1
 
-  const { parse, validate } = asValue(builtin.specialExpressions[expressionName], debugInfo)
+  const { parse, validateArity } = asValue(builtin.specialExpressions[expressionName], debugInfo)
 
   const [positionAfterParse, node] = parse(tokens, position, {
     parseExpression,
@@ -312,7 +312,7 @@ const parseSpecialExpression: ParseSpecialExpression = (tokens, position) => {
     parseArgument,
   })
 
-  validate(node)
+  validateArity(node.params.length, node.token?.debugInfo)
 
   return [positionAfterParse, node]
 }

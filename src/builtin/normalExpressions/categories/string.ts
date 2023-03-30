@@ -1,6 +1,5 @@
 import { LitsError } from '../../../errors'
 import { Any, Arr } from '../../../interface'
-import { NormalExpressionNode } from '../../../parser/interface'
 import { DebugInfo } from '../../../tokenizer/interface'
 import { toNonNegativeInteger } from '../../../utils'
 import {
@@ -28,7 +27,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       number.assert(third, debugInfo, { gte: second })
       return (first as string).substring(second, third)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 2, max: 3 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `subs`, debugInfo),
   },
 
   'string-repeat': {
@@ -38,7 +37,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
 
       return str.repeat(count)
     },
-    validate: node => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `string-repeat`, debugInfo),
   },
 
   str: {
@@ -55,7 +54,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
         return result + paramStr
       }, ``)
     },
-    validate: () => undefined,
+    validateArity: () => undefined,
   },
 
   number: {
@@ -67,7 +66,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       }
       return number
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `number`, debugInfo),
   },
 
   'number-to-string': {
@@ -88,7 +87,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
         return Number(num).toString(base)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 1, max: 2 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `number-to-string`, debugInfo),
   },
 
   'from-char-code': {
@@ -101,7 +100,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
         throw new LitsError(error as Error, debugInfo)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `from-char-code`, debugInfo),
   },
 
   'to-char-code': {
@@ -109,7 +108,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       string.assert(str, debugInfo, { nonEmpty: true })
       return asValue(str.codePointAt(0), debugInfo)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `to-char-code`, debugInfo),
   },
 
   'lower-case': {
@@ -117,7 +116,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       string.assert(str, debugInfo)
       return str.toLowerCase()
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `lower-case`, debugInfo),
   },
 
   'upper-case': {
@@ -125,7 +124,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       string.assert(str, debugInfo)
       return str.toUpperCase()
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `upper-case`, debugInfo),
   },
 
   trim: {
@@ -133,7 +132,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       string.assert(str, debugInfo)
       return str.trim()
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `trim`, debugInfo),
   },
 
   'trim-left': {
@@ -141,7 +140,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       string.assert(str, debugInfo)
       return str.replace(/^\s+/, ``)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `trim-left`, debugInfo),
   },
 
   'trim-right': {
@@ -149,7 +148,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       string.assert(str, debugInfo)
       return str.replace(/\s+$/, ``)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `trim-right`, debugInfo),
   },
 
   join: {
@@ -159,7 +158,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       string.assert(delimiter, debugInfo)
       return stringList.join(delimiter)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `join`, debugInfo),
   },
 
   split: {
@@ -175,7 +174,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
           : new RegExp(stringOrRegExpValue.source, stringOrRegExpValue.flags)
       return str.split(delimiter, limit)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 2, max: 3 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `split`, debugInfo),
   },
 
   'pad-left': {
@@ -189,7 +188,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
 
       return str.padStart(length, padString)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 2, max: 3 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `pad-left`, debugInfo),
   },
 
   'pad-right': {
@@ -203,7 +202,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
 
       return str.padEnd(length, padString)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 2, max: 3 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `pad-right`, debugInfo),
   },
 
   template: {
@@ -234,7 +233,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
         }
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 1, max: 10 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 10 }, arity, `template`, debugInfo),
   },
 
   'encode-base64': {
@@ -246,7 +245,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
         }),
       )
     },
-    validate: node => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `encode-base64`, debugInfo),
   },
 
   'decode-base64': {
@@ -264,7 +263,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
         throw new LitsError(error as Error, debugInfo)
       }
     },
-    validate: node => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `decode-base64`, debugInfo),
   },
 
   'encode-uri-component': {
@@ -272,7 +271,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       string.assert(value, debugInfo)
       return encodeURIComponent(value)
     },
-    validate: node => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `encode-uri-component`, debugInfo),
   },
 
   'decode-uri-component': {
@@ -284,7 +283,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
         throw new LitsError(error as Error, debugInfo)
       }
     },
-    validate: node => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `decode-uri-component`, debugInfo),
   },
 }
 

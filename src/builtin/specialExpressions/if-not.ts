@@ -30,7 +30,7 @@ export const ifNotSpecialExpression: BuiltinSpecialExpression<Any> = {
       }
     }
   },
-  validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
+  validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `if-not`, debugInfo),
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
     findUndefinedSymbols(node.params, contextStack, builtin),
 }

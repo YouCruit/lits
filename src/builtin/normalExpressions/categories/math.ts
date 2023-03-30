@@ -1,5 +1,4 @@
 import { DataType, isNotDataType } from '../../../analyze/dataTypes/DataType'
-import { NormalExpressionNode } from '../../../parser/interface'
 import { MAX_NUMBER, MIN_NUMBER } from '../../../utils'
 import { assertNumberOfParams, asValue, number } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
@@ -53,7 +52,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: node => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `inc`, debugInfo),
   },
 
   dec: {
@@ -103,7 +102,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: node => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `dec`, debugInfo),
   },
 
   '+': {
@@ -120,7 +119,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return getTypeOfSum(paramTypes)
       }
     },
-    validate: () => undefined,
+    validateArity: () => undefined,
   },
 
   '-': {
@@ -153,7 +152,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return getTypeOfSum([firstParamType, ...restTypes])
       }
     },
-    validate: () => undefined,
+    validateArity: () => undefined,
   },
 
   '*': {
@@ -173,7 +172,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return getTypeOfProduct(paramTypes)
       }
     },
-    validate: () => undefined,
+    validateArity: () => undefined,
   },
 
   '/': {
@@ -209,7 +208,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return getTypeOfDivision(paramTypes)
       }
     },
-    validate: () => undefined,
+    validateArity: () => undefined,
   },
 
   quot: {
@@ -294,7 +293,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `quot`, debugInfo),
   },
 
   mod: {
@@ -351,7 +350,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `mod`, debugInfo),
   },
 
   rem: {
@@ -401,7 +400,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `rem`, debugInfo),
   },
 
   sqrt: {
@@ -440,7 +439,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `sqrt`, debugInfo),
   },
 
   cbrt: {
@@ -484,7 +483,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `cbrt`, debugInfo),
   },
 
   pow: {
@@ -663,7 +662,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `pow`, debugInfo),
   },
 
   round: {
@@ -753,7 +752,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 1, max: 2 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `round`, debugInfo),
   },
 
   trunc: {
@@ -804,7 +803,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `trunc`, debugInfo),
   },
 
   floor: {
@@ -850,7 +849,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `floor`, debugInfo),
   },
 
   ceil: {
@@ -896,14 +895,14 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `ceil`, debugInfo),
   },
 
   'rand!': {
     evaluate: (): number => {
       return Math.random()
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(0, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(0, arity, `rand!`, debugInfo),
   },
 
   'rand-int!': {
@@ -944,7 +943,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return DataType.or(...types)
       }
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `rand-int!`, debugInfo),
   },
 
   min: {
@@ -965,7 +964,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return Math.min(min, value)
       }, first)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 1 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1 }, arity, `min`, debugInfo),
   },
 
   max: {
@@ -986,7 +985,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return Math.max(min, value)
       }, first)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 1 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1 }, arity, `max`, debugInfo),
   },
 
   abs: {
@@ -997,7 +996,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.abs(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `abs`, debugInfo),
   },
 
   sign: {
@@ -1008,56 +1007,56 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.sign(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `sign`, debugInfo),
   },
 
   'max-value': {
     evaluate: (): number => {
       return MAX_NUMBER
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(0, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(0, arity, `max-value`, debugInfo),
   },
 
   'min-value': {
     evaluate: (): number => {
       return MIN_NUMBER
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(0, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(0, arity, `min-value`, debugInfo),
   },
 
   'positive-infinity': {
     evaluate: (): number => {
       return Number.POSITIVE_INFINITY
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(0, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(0, arity, `positive-infinity`, debugInfo),
   },
 
   'negative-infinity': {
     evaluate: (): number => {
       return Number.NEGATIVE_INFINITY
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(0, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(0, arity, `negative-infinity`, debugInfo),
   },
 
   nan: {
     evaluate: (): number => {
       return Number.NaN
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(0, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(0, arity, `nan`, debugInfo),
   },
 
   e: {
     evaluate: (): number => {
       return Math.E
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(0, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(0, arity, `e`, debugInfo),
   },
 
   pi: {
     evaluate: (): number => {
       return Math.PI
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(0, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(0, arity, `pi`, debugInfo),
   },
 
   exp: {
@@ -1068,7 +1067,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.exp(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `exp`, debugInfo),
   },
 
   log: {
@@ -1079,7 +1078,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.log(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `log`, debugInfo),
   },
 
   log2: {
@@ -1090,7 +1089,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.log2(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `log2`, debugInfo),
   },
 
   log10: {
@@ -1101,7 +1100,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.log10(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `log10`, debugInfo),
   },
 
   sin: {
@@ -1112,7 +1111,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.sin(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `sin`, debugInfo),
   },
 
   asin: {
@@ -1123,7 +1122,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.asin(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `asin`, debugInfo),
   },
 
   sinh: {
@@ -1134,7 +1133,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.sinh(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `sinh`, debugInfo),
   },
 
   asinh: {
@@ -1145,7 +1144,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.asinh(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `asinh`, debugInfo),
   },
 
   cos: {
@@ -1156,7 +1155,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.cos(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `cos`, debugInfo),
   },
 
   acos: {
@@ -1167,7 +1166,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.acos(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `acos`, debugInfo),
   },
 
   cosh: {
@@ -1178,7 +1177,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.cosh(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `cosh`, debugInfo),
   },
 
   acosh: {
@@ -1189,7 +1188,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.acosh(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `acosh`, debugInfo),
   },
 
   tan: {
@@ -1200,7 +1199,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.tan(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `tan`, debugInfo),
   },
 
   atan: {
@@ -1211,7 +1210,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.atan(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `atan`, debugInfo),
   },
 
   tanh: {
@@ -1222,7 +1221,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.tanh(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `tanh`, debugInfo),
   },
 
   atanh: {
@@ -1233,7 +1232,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
       return Math.atanh(value)
     },
-    validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `atanh`, debugInfo),
   },
 }
 

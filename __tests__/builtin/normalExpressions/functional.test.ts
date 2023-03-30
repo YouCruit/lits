@@ -43,7 +43,7 @@ describe(`functional functions`, () => {
       test(`samples`, () => {
         expect(lits.run(`((partial + 1) 2)`)).toBe(3)
         expect(lits.run(`((partial (partial + 1) 2) 2)`)).toBe(5)
-        expect(lits.run(`((partial mod 1))`)).toBeNaN() // TODO, we bypass validate() when evaluating partial functions. This should throw
+        expect(() => lits.run(`((partial mod 1))`)).toThrow()
         expect(() => lits.run(`((partial true))`)).toThrow()
       })
     })

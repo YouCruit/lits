@@ -22,6 +22,6 @@ export const commentSpecialExpression: BuiltinSpecialExpression<null> = {
     return [position + 1, node]
   },
   evaluate: () => null,
-  validate: () => undefined,
+  validateArity: () => undefined,
   findUndefinedSymbols: () => new Set(),
 }

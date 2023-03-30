@@ -68,7 +68,7 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
       return evaluateAstNode(catchExpression, contextStack.withContext(newContext))
     }
   },
-  validate: () => undefined,
+  validateArity: () => undefined,
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) => {
     const { tryExpression, catchExpression, error: errorNode } = node as TryNode
     const tryResult = findUndefinedSymbols(tryExpression, contextStack, builtin)

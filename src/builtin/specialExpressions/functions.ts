@@ -74,7 +74,7 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
     contextStack.globalContext[name as string] = { value: litsFunction }
     return null
   },
-  validate: () => undefined,
+  validateArity: () => undefined,
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) => {
     contextStack.globalContext[(node as DefnNode).functionName.value] = { value: true }
     const newContext: Context = { [(node as DefnNode).functionName.value]: { value: true } }
@@ -135,7 +135,7 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
     contextStack.globalContext[name as string] = { value: litsFunction }
     return null
   },
-  validate: () => undefined,
+  validateArity: () => undefined,
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
     addOverloadsUndefinedSymbols((node as DefnsNode).overloads, contextStack, findUndefinedSymbols, builtin),
 }
@@ -171,7 +171,7 @@ export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
 
     return litsFunction
   },
-  validate: () => undefined,
+  validateArity: () => undefined,
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
     addOverloadsUndefinedSymbols((node as FnNode).overloads, contextStack, findUndefinedSymbols, builtin),
 }

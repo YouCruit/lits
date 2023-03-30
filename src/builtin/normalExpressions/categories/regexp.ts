@@ -23,7 +23,7 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
         return DataType.regexp
       }
     },
-    validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `regexp`, debugInfo),
   },
   match: {
     evaluate: ([regexp, text], debugInfo): string[] | null => {
@@ -37,7 +37,7 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
       }
       return null
     },
-    validate: node => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `match`, debugInfo),
   },
   replace: {
     evaluate: ([str, regexp, value], debugInfo): string => {
@@ -48,6 +48,6 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
       const regExp = new RegExp(regexp.source, regexp.flags)
       return str.replace(regExp, value)
     },
-    validate: node => assertNumberOfParams(3, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(3, arity, `replace`, debugInfo),
   },
 }

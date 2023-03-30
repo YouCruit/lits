@@ -6,7 +6,7 @@ import { evaluateMap } from './sequence'
 export const arrayNormalExpression: BuiltinNormalExpressions = {
   array: {
     evaluate: (params): Arr => params,
-    validate: () => undefined,
+    validateArity: () => undefined,
   },
 
   range: {
@@ -65,7 +65,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
         return fromType.is(DataType.zero) && toType.is(DataType.zero) ? DataType.emptyArray : DataType.array
       }
     },
-    validate: node => assertNumberOfParams({ min: 1, max: 3 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 3 }, arity, `range`, debugInfo),
   },
 
   repeat: {
@@ -84,7 +84,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
         return countType.is(DataType.zero) ? DataType.emptyArray : DataType.nonEmptyArray
       }
     },
-    validate: node => assertNumberOfParams(2, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `repeat`, debugInfo),
   },
 
   flatten: {
@@ -94,7 +94,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       }
       return seq.flat(Number.POSITIVE_INFINITY)
     },
-    validate: node => assertNumberOfParams(1, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `flatten`, debugInfo),
   },
 
   mapcat: {
@@ -106,6 +106,6 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       array.assert(mapResult, debugInfo)
       return mapResult.flat(1)
     },
-    validate: node => assertNumberOfParams({ min: 2 }, node),
+    validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2 }, arity, `mapcat`, debugInfo),
   },
 }

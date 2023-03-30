@@ -30,7 +30,7 @@ export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     return value
   },
-  validate: node => assertNumberOfParams(2, node),
+  validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `def`, debugInfo),
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) => {
     const debugInfo = node.token?.debugInfo
     const subNode = astNode.as(node.params[1], debugInfo)

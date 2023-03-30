@@ -33,7 +33,7 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
     return result
   },
-  validate: () => undefined,
+  validateArity: () => undefined,
   findUndefinedSymbols: (node, contextStack, { findUndefinedSymbols, builtin }) =>
     findUndefinedSymbols(node.params, contextStack, builtin),
 }

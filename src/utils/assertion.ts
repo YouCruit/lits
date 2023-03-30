@@ -6,10 +6,8 @@ import {
   LitsFunction,
   NameNode,
   NodeType,
-  NormalExpressionNode,
   NormalExpressionNodeWithName,
   RegularExpression,
-  SpecialExpressionNode,
 } from '../parser/interface'
 import { DebugInfo } from '../tokenizer/interface'
 import { getDebugInfo, isAstNode, isLitsFunction, isRegularExpression, valueToString } from './helpers'
@@ -126,15 +124,15 @@ export const expressionNode: Asserter<ExpressionNode> = new Asserter(`expression
 
 export function assertNumberOfParams(
   count: number | { min?: number; max?: number },
-  node: NormalExpressionNode | SpecialExpressionNode,
+  arity: number,
+  name: string,
+  debugInfo: DebugInfo | undefined,
 ): void {
-  const length = node.params.length
-  const debugInfo = node.token?.debugInfo
   if (typeof count === `number`) {
-    if (length !== count) {
+    if (arity !== count) {
       throw new LitsError(
-        `Wrong number of arguments to "${node.name}", expected ${count}, got ${valueToString(length)}.`,
-        node.token?.debugInfo,
+        `Wrong number of arguments to "${name}", expected ${count}, got ${valueToString(arity)}.`,
+        debugInfo,
       )
     }
   } else {
@@ -143,28 +141,27 @@ export function assertNumberOfParams(
       throw new LitsError(`Min or max must be specified.`, debugInfo)
     }
 
-    if (typeof min === `number` && length < min) {
+    if (typeof min === `number` && arity < min) {
       throw new LitsError(
-        `Wrong number of arguments to "${node.name}", expected at least ${min}, got ${valueToString(length)}.`,
+        `Wrong number of arguments to "${name}", expected at least ${min}, got ${valueToString(arity)}.`,
         debugInfo,
       )
     }
 
-    if (typeof max === `number` && length > max) {
+    if (typeof max === `number` && arity > max) {
       throw new LitsError(
-        `Wrong number of arguments to "${node.name}", expected at most ${max}, got ${valueToString(length)}.`,
+        `Wrong number of arguments to "${name}", expected at most ${max}, got ${valueToString(arity)}.`,
         debugInfo,
       )
     }
   }
 }
 
-export function assertEvenNumberOfParams(node: NormalExpressionNode): void {
-  const length = node.params.length
-  if (length % 2 !== 0) {
+export function assertEvenNumberOfParams(arity: number, name: string, debugInfo: DebugInfo | undefined): void {
+  if (arity % 2 !== 0) {
     throw new LitsError(
-      `Wrong number of arguments, expected an even number, got ${valueToString(length)}.`,
-      node.token?.debugInfo,
+      `Wrong number of arguments to ${name}, expected an even number, got ${valueToString(arity)}.`,
+      debugInfo,
     )
   }
 }

@@ -13,19 +13,21 @@ describe(`math functions`, () => {
       expect(lits.run(`(inc 0)`)).toBe(1)
       expect(lits.run(`(inc -1)`)).toBe(0)
       expect(lits.run(`(inc -2.5)`)).toBe(-1.5)
+
+      expect(lits.run(`(inc :1)`)).toBeNaN()
+      expect(lits.run(`(inc false)`)).toBeNaN()
+      expect(lits.run(`(inc true)`)).toBeNaN()
+      expect(lits.run(`(inc nil)`)).toBeNaN()
+      expect(lits.run(`(inc boolean)`)).toBeNaN()
+      expect(lits.run(`(inc [])`)).toBeNaN()
+      expect(lits.run(`(inc (object))`)).toBeNaN()
+
       expect(() => lits.run(`(inc)`)).toThrow()
       expect(() => lits.run(`(inc 1 1)`)).toThrow()
-      expect(() => lits.run(`(inc :1)`)).toThrow()
-      expect(() => lits.run(`(inc false)`)).toThrow()
-      expect(() => lits.run(`(inc true)`)).toThrow()
-      expect(() => lits.run(`(inc nil)`)).toThrow()
-      expect(() => lits.run(`(inc boolean)`)).toThrow()
-      expect(() => lits.run(`(inc [])`)).toThrow()
-      expect(() => lits.run(`(inc (object))`)).toThrow()
     })
     describe(`inc dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`inc`, [`::unknown`], `ERROR`],
+        [`inc`, [`::unknown`], [`::illegal-number`, `::float`]],
 
         [`inc`, [`::nan`], [`::nan`]],
         [`inc`, [`::positive-infinity`], [`::positive-infinity`]],
@@ -56,19 +58,21 @@ describe(`math functions`, () => {
       expect(lits.run(`(dec 0)`)).toBe(-1)
       expect(lits.run(`(dec -1)`)).toBe(-2)
       expect(lits.run(`(dec -2.5)`)).toBe(-3.5)
+
+      expect(lits.run(`(dec :1)`)).toBeNaN()
+      expect(lits.run(`(dec false)`)).toBeNaN()
+      expect(lits.run(`(dec true)`)).toBeNaN()
+      expect(lits.run(`(dec nil)`)).toBeNaN()
+      expect(lits.run(`(dec boolean)`)).toBeNaN()
+      expect(lits.run(`(dec [])`)).toBeNaN()
+      expect(lits.run(`(dec (object))`)).toBeNaN()
+
       expect(() => lits.run(`(dec)`)).toThrow()
       expect(() => lits.run(`(dec 1 1)`)).toThrow()
-      expect(() => lits.run(`(dec :1)`)).toThrow()
-      expect(() => lits.run(`(dec false)`)).toThrow()
-      expect(() => lits.run(`(dec true)`)).toThrow()
-      expect(() => lits.run(`(dec nil)`)).toThrow()
-      expect(() => lits.run(`(dec boolean)`)).toThrow()
-      expect(() => lits.run(`(dec [])`)).toThrow()
-      expect(() => lits.run(`(dec (object))`)).toThrow()
     })
     describe(`dec dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`dec`, [`::unknown`], `ERROR`],
+        [`dec`, [`::unknown`], [`::float`, `::illegal-number`]],
 
         [`dec`, [`::nan`], [`::nan`]],
         [`dec`, [`::positive-infinity`], [`::positive-infinity`]],
@@ -99,12 +103,13 @@ describe(`math functions`, () => {
       expect(lits.run(`(+ 2 2)`)).toBe(4)
       expect(lits.run(`(+ -2 2)`)).toBe(0)
       expect(lits.run(`(+ 1 2 3 4)`)).toBe(10)
-      expect(() => lits.run(`(+ :1 2 3 4)`)).toThrow()
+      expect(lits.run(`(+ :1 2 3 4)`)).toBeNaN()
     })
     describe(`plus dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`+`, [`::unknown`, `::float`], `ERROR`],
-        [`+`, [`::float`, `::unknown`], `ERROR`],
+        [`+`, [`::unknown`, `::unknown`], [`::illegal-number`, `::float`]],
+        [`+`, [`::unknown`, `::float`], [`::illegal-number`, `::float`]],
+        [`+`, [`::float`, `::unknown`], [`::illegal-number`, `::float`]],
 
         [`+`, [`::illegal-number`], [`::illegal-number`]],
         [`+`, [`::nan`], [`::nan`]],
@@ -216,6 +221,7 @@ describe(`math functions`, () => {
         [`+`, [`::integer`, `::negative-integer`], [`::integer`, `::negative-infinity`]],
         [`+`, [`::integer`, `::nan`], [`::nan`]],
 
+        [`+`, [`::float`, `::float`], [`::float`, `::infinity`]],
         [`+`, [`::float`, `::zero`], [`::float`]],
         [`+`, [`::float`, `::positive-integer`], [`::float`, `::positive-infinity`]],
         [`+`, [`::float`, `::non-negative-integer`], [`::float`, `::positive-infinity`]],
@@ -234,17 +240,17 @@ describe(`math functions`, () => {
       expect(lits.run(`(- 2 2)`)).toBe(2 - 2)
       expect(lits.run(`(- -2 2)`)).toBe(-2 - 2)
       expect(lits.run(`(- 1 2 3 4)`)).toBe(1 - 2 - 3 - 4)
-      expect(() => lits.run(`(- :1 2 3 4)`)).toThrow()
+      expect(lits.run(`(- :1 2 3 4)`)).toBeNaN()
+      expect(lits.run(`(- 1 :2 3 4)`)).toBeNaN()
     })
     test(`strange bug on minus`, () => {
       expect(lits.run(`(def a 0) (def b 2) (- a b)`)).toBe(-2)
     })
     describe(`minus dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`-`, [`::unknown`, `::float`], `ERROR`],
-        [`-`, [`::float`, `::unknown`], `ERROR`],
-
-        [`-`, [], { expression: `0` }],
+        [`-`, [`::unknown`, `::unknown`], [`::illegal-number`, `::float`]],
+        [`-`, [`::unknown`, `::float`], [`::illegal-number`, `::float`]],
+        [`-`, [`::float`, `::unknown`], [`::illegal-number`, `::float`]],
 
         [`-`, [`::illegal-number`], [`::illegal-number`]],
         [`-`, [`::nan`], [`::nan`]],
@@ -364,12 +370,13 @@ describe(`math functions`, () => {
       expect(lits.run(`(* 2 2)`)).toBe(4)
       expect(lits.run(`(* -2 2)`)).toBe(-4)
       expect(lits.run(`(* 1 2 3 4)`)).toBe(24)
-      expect(() => lits.run(`(* :1 2 3 4)`)).toThrow()
+      expect(lits.run(`(* :1 2 3 4)`)).toBeNaN()
     })
     describe(`multiplication dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`*`, [`::unknown`, `::float`], `ERROR`],
-        [`*`, [`::float`, `::unknown`], `ERROR`],
+        [`*`, [`::unknown`, `::unknown`], [`::illegal-number`, `::float`]],
+        [`*`, [`::unknown`, `::float`], [`::illegal-number`, `::float`]],
+        [`*`, [`::float`, `::unknown`], [`::illegal-number`, `::float`]],
 
         [`*`, [`::illegal-number`], [`::illegal-number`]],
         [`*`, [`::zero`], [`::zero`]],
@@ -462,13 +469,16 @@ describe(`math functions`, () => {
       expect(lits.run(`(/ 2)`)).toBe(1 / 2)
       expect(lits.run(`(/ 2 2)`)).toBe(2 / 2)
       expect(lits.run(`(/ -2 2)`)).toBe(-2 / 2)
+      expect(lits.run(`(/ -2 (positive-infinity))`)).toBe(0)
       expect(lits.run(`(/ 1 2 3 4)`)).toBe(1 / 2 / 3 / 4)
-      expect(() => lits.run(`(/ :1 2 3 4)`)).toThrow()
+      expect(lits.run(`(/ :1 2 3 4)`)).toBeNaN()
+      expect(lits.run(`(/ 1 :foo 3 4)`)).toBeNaN()
     })
     describe(`division dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`/`, [`::unknown`, `::float`], `ERROR`],
-        [`/`, [`::float`, `::unknown`], `ERROR`],
+        [`/`, [`::unknown`, `::unknown`], [`::illegal-number`, `::float`]],
+        [`/`, [`::unknown`, `::float`], [`::illegal-number`, `::float`]],
+        [`/`, [`::float`, `::unknown`], [`::illegal-number`, `::float`]],
 
         [`/`, [`::zero`], [`::positive-infinity`]],
         [`/`, [`::positive-infinity`], [`::zero`]],
@@ -499,6 +509,7 @@ describe(`math functions`, () => {
 
         [`/`, [`::positive-float`, `::zero`], [`::positive-infinity`]],
         [`/`, [`::positive-float`, `::positive-integer`], [`::positive-float`]],
+        [`/`, [`::positive-float`, `::positive-infinity`], [`::zero`]],
         [`/`, [`::positive-float`, `::non-positive-integer`], [`::positive-infinity`, `::negative-float`]],
         [`/`, [`::positive-float`, `::negative-float`], [`::negative-float`, `::negative-infinity`]],
 
@@ -578,6 +589,7 @@ describe(`math functions`, () => {
     test(`samples`, () => {
       expect(() => lits.run(`(sqrt)`)).toThrow()
       expect(() => lits.run(`(sqrt 3 4)`)).toThrow()
+      expect(lits.run(`(sqrt :foo)`)).toBeNaN()
       expect(lits.run(`(sqrt -3)`)).toBeNaN()
       expect(lits.run(`(sqrt 0)`)).toBe(0)
       expect(lits.run(`(sqrt 1)`)).toBe(1)
@@ -585,7 +597,7 @@ describe(`math functions`, () => {
     })
     describe(`sqrt dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`sqrt`, [`::unknown`], `ERROR`],
+        [`sqrt`, [`::unknown`], [`::nan`, `::positive-infinity`, `::non-negative-float`]],
 
         [`sqrt`, [`::illegal-number`], [`::positive-infinity`, `::nan`]],
         [`sqrt`, [`::nan`], [`::nan`]],
@@ -615,6 +627,8 @@ describe(`math functions`, () => {
     test(`samples`, () => {
       expect(() => lits.run(`(cbrt)`)).toThrow()
       expect(() => lits.run(`(cbrt 3 4)`)).toThrow()
+      expect(lits.run(`(cbrt :foo)`)).toBeNaN()
+
       expect(lits.run(`(cbrt -8)`)).toBe(-2)
       expect(lits.run(`(cbrt 0)`)).toBe(0)
       expect(lits.run(`(cbrt 1)`)).toBe(1)
@@ -623,7 +637,7 @@ describe(`math functions`, () => {
     })
     describe(`cbrt dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`cbrt`, [`::unknown`], `ERROR`],
+        [`cbrt`, [`::unknown`], [`::illegal-number`, `::float`]],
 
         [`cbrt`, [`::positive-infinity`], [`::positive-infinity`]],
         [`cbrt`, [`::negative-infinity`], [`::negative-infinity`]],
@@ -651,6 +665,10 @@ describe(`math functions`, () => {
       expect(() => lits.run(`(pow)`)).toThrow()
       expect(() => lits.run(`(pow 3)`)).toThrow()
       expect(() => lits.run(`(pow 3 4 5)`)).toThrow()
+
+      expect(lits.run(`(pow :3 4)`)).toBeNaN()
+      expect(lits.run(`(pow 3 :4)`)).toBeNaN()
+
       expect(lits.run(`(pow 2 0)`)).toBe(1)
       expect(lits.run(`(pow 2 1)`)).toBe(2)
       expect(lits.run(`(pow 2 2)`)).toBe(4)
@@ -663,8 +681,9 @@ describe(`math functions`, () => {
     })
     describe(`pow dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`pow`, [`::unknown`, `::positive-integer`], `ERROR`],
-        [`pow`, [`::positive-integer`, `::unknown`], `ERROR`],
+        [`pow`, [`::unknown`, `::positive-integer`], [`::illegal-number`, `::float`]],
+        [`pow`, [`::positive-integer`, `::unknown`], [`::non-negative-float`, `::nan`, `::positive-infinity`]],
+        [`pow`, [`::unknown`, `::unknown`], [`::illegal-number`, `::float`]],
 
         [`pow`, [`::float`, `::nan`], [`::nan`]],
         [`pow`, [`::nan`, `::float`], [`::nan`, `::positive-integer`]],
@@ -677,7 +696,7 @@ describe(`math functions`, () => {
         [`pow`, [`::positive-infinity`, `::float`], [`::non-negative-integer`, `::positive-infinity`]],
         [`pow`, [`::positive-infinity`, `::negative-float`], [`::zero`]],
 
-        [`pow`, [`::negative-infinity`, `::positive-infinity`], [`::positive-infinity`]],
+        [`pow`, [`::negative-infinity`, `::positive-infinity`], [`::nan`]],
         [`pow`, [`::negative-infinity`, `::negative-infinity`], [`::zero`]],
         [
           `pow`,
@@ -687,11 +706,24 @@ describe(`math functions`, () => {
         [`pow`, [`::negative-infinity`, `::negative-float`], [`::zero`]],
 
         [`pow`, [`::float`, `::float`], [`::illegal-number`, `::float`]],
+        [`pow`, [`::float`, `::integer`], [`::positive-infinity`, `::negative-infinity`, `::float`]],
         [`pow`, [`::float`, `::illegal-number`], [`::non-negative-integer`, `::nan`, `::positive-infinity`]],
 
         [`pow`, [`::integer`, `::zero`], [`::positive-integer`]],
+        [`pow`, [`::integer`, `::integer`], [`::infinity`, `::float`]],
         [`pow`, [`::integer`, `::positive-float`], [`::illegal-number`, `::non-negative-float`, `::negative-integer`]],
         [`pow`, [`::integer`, `::negative-float`], [`::nan`, `::float`, `::positive-infinity`]],
+
+        [`pow`, [`::negative-integer`, `::positive-infinity`], [`::nan`]],
+        [`pow`, [`::positive-integer`, `::positive-infinity`], [`::positive-integer`, `::positive-infinity`]],
+        [`pow`, [`::negative-float`, `::positive-infinity`], [`::nan`, `::zero`]],
+        [`pow`, [`::positive-float`, `::positive-infinity`], [`::zero`, `::positive-integer`, `::positive-infinity`]],
+
+        [`pow`, [`::negative-integer`, `::negative-infinity`], [`::nan`, `::zero`]],
+        [`pow`, [`::positive-integer`, `::negative-infinity`], [`::non-negative-integer`]],
+        [`pow`, [`::positive-integer`, `::float`], [`::non-negative-float`, `::positive-infinity`]],
+        [`pow`, [`::negative-float`, `::negative-infinity`], [`::nan`, `::zero`]],
+        [`pow`, [`::positive-float`, `::negative-infinity`], [`::non-negative-integer`, `::positive-infinity`]],
       ]
       testTypeEvaluations(lits, typeEvaluations)
     })
@@ -701,6 +733,9 @@ describe(`math functions`, () => {
     test(`samples`, () => {
       expect(() => lits.run(`(round)`)).toThrow()
       expect(() => lits.run(`(round 3 4 5)`)).toThrow()
+      expect(lits.run(`(round :0)`)).toBeNaN()
+      expect(lits.run(`(round 1 :0)`)).toBeNaN()
+
       expect(lits.run(`(round 0)`)).toBe(0)
       expect(lits.run(`(round 1)`)).toBe(1)
       expect(lits.run(`(round 0.4)`)).toBe(0)
@@ -714,15 +749,15 @@ describe(`math functions`, () => {
     })
     describe(`round dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`round`, [`::unknown`], `ERROR`],
+        [`round`, [`::unknown`], [`::illegal-number`, `::integer`]],
 
         [`round`, [`::positive-infinity`], [`::positive-infinity`]],
         [`round`, [`::negative-infinity`], [`::negative-infinity`]],
         [`round`, [`::nan`], [`::nan`]],
-        [`round`, [`::positive-infinity`, `::positive-infinity`], `ERROR`],
-        [`round`, [`::negative-infinity`, `::negative-infinity`], `ERROR`],
-        [`round`, [`::nan`, `::nan`], `ERROR`],
-        [`round`, [`::illegal-number`, `::illegal-number`], `ERROR`],
+        [`round`, [`::positive-infinity`, `::positive-infinity`], [`::nan`]],
+        [`round`, [`::negative-infinity`, `::negative-infinity`], [`::nan`]],
+        [`round`, [`::nan`, `::nan`], [`::nan`]],
+        [`round`, [`::illegal-number`, `::illegal-number`], [`::nan`]],
 
         [`round`, [`::float`], [`::integer`]],
         [`round`, [`::positive-float`], [`::non-negative-integer`]],
@@ -731,7 +766,12 @@ describe(`math functions`, () => {
         [`round`, [`::negative-float`], [`::non-positive-integer`]],
         [`round`, [`::non-negative-float`], [`::non-negative-integer`]],
 
-        [`round`, [`::float`, `::float`], `ERROR`],
+        [`round`, [`::float`, `::float`], [`::nan`, `::float`]],
+        [`round`, [`::float`, `::integer`], [`::nan`, `::float`]],
+        [`round`, [`::float`, `::positive-integer`], [`::float`]],
+        [`round`, [`::float`, `::nan`], [`::nan`]],
+        [`round`, [`::float`, `::positive-infinity`], [`::nan`]],
+        [`round`, [`::float`, `::negative-infinity`], [`::nan`]],
         [`round`, [`::float`, `::non-negative-integer`], [`::float`]],
         [`round`, [`::positive-float`, `::positive-integer`], [`::non-negative-float`]],
         [`round`, [`::negative-float`, `::positive-integer`], [`::non-positive-float`]],
@@ -746,6 +786,8 @@ describe(`math functions`, () => {
     test(`samples`, () => {
       expect(() => lits.run(`(floor)`)).toThrow()
       expect(() => lits.run(`(floor 3 4)`)).toThrow()
+      expect(lits.run(`(floor :0)`)).toBeNaN()
+
       expect(lits.run(`(floor 0)`)).toBe(0)
       expect(lits.run(`(floor 1)`)).toBe(1)
       expect(lits.run(`(floor 0.4)`)).toBe(0)
@@ -757,7 +799,7 @@ describe(`math functions`, () => {
     })
     describe(`floor dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`floor`, [`::unknown`], `ERROR`],
+        [`floor`, [`::unknown`], [`::illegal-number`, `::integer`]],
         [`floor`, [`::positive-infinity`], [`::positive-infinity`]],
         [`floor`, [`::negative-infinity`], [`::negative-infinity`]],
         [`floor`, [`::nan`], [`::nan`]],
@@ -778,6 +820,7 @@ describe(`math functions`, () => {
     test(`samples`, () => {
       expect(() => lits.run(`(ceil)`)).toThrow()
       expect(() => lits.run(`(ceil 3 4)`)).toThrow()
+      expect(lits.run(`(ceil :0)`)).toBeNaN()
       expect(lits.run(`(ceil 0)`)).toBe(0)
       expect(lits.run(`(ceil 1)`)).toBe(1)
       expect(lits.run(`(ceil 0.4)`)).toBe(1)
@@ -789,7 +832,7 @@ describe(`math functions`, () => {
     })
     describe(`ceil dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`ceil`, [`::unknown`], `ERROR`],
+        [`ceil`, [`::unknown`], [`::illegal-number`, `::integer`]],
 
         [`ceil`, [`::positive-infinity`], [`::positive-infinity`]],
         [`ceil`, [`::negative-infinity`], [`::negative-infinity`]],
@@ -799,6 +842,7 @@ describe(`math functions`, () => {
         [`ceil`, [`::float`], [`::integer`]],
         [`ceil`, [`::positive-float`], [`::positive-integer`]],
         [`ceil`, [`::positive-integer`], [`::positive-integer`]],
+        [`ceil`, [`::negative-integer`], [`::negative-integer`]],
         [`ceil`, [`::non-positive-float`], [`::non-positive-integer`]],
         [`ceil`, [`::negative-float`], [`::non-positive-integer`]],
         [`ceil`, [`::non-negative-float`], [`::non-negative-integer`]],
@@ -814,12 +858,14 @@ describe(`math functions`, () => {
       expect(lits.run(`(trunc 0.999)`)).toBe(0)
       expect(lits.run(`(trunc -0.99)`)).toBe(-0)
       expect(lits.run(`(trunc -0.1)`)).toBe(-0)
+
+      expect(lits.run(`(trunc :foo)`)).toBeNaN()
       expect(() => lits.run(`(trunc)`)).toThrow()
       expect(() => lits.run(`(trunc 100 200)`)).toThrow()
     })
     describe(`trunc dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`trunc`, [`::unknown`], `ERROR`],
+        [`trunc`, [`::unknown`], [`::illegal-number`, `::integer`]],
 
         [`trunc`, [`::positive-infinity`], [`::positive-infinity`]],
         [`trunc`, [`::negative-infinity`], [`::negative-infinity`]],
@@ -829,6 +875,7 @@ describe(`math functions`, () => {
         [`trunc`, [`::float`], [`::integer`]],
         [`trunc`, [`::positive-float`], [`::non-negative-integer`]],
         [`trunc`, [`::positive-integer`], [`::positive-integer`]],
+        [`trunc`, [`::negative-integer`], [`::negative-integer`]],
         [`trunc`, [`::non-positive-float`], [`::non-positive-integer`]],
         [`trunc`, [`::negative-float`], [`::non-positive-integer`]],
         [`trunc`, [`::non-negative-float`], [`::non-negative-integer`]],
@@ -852,12 +899,15 @@ describe(`math functions`, () => {
       expect(lits.run(`(rand-int! 2)`)).toBeLessThan(2)
       expect(lits.run(`(rand-int! 20)`)).toBeLessThan(20)
       expect(lits.run(`(rand-int! 10.1)`)).toBeLessThan(10.1)
-      expect(() => lits.run(`(rand-int! :x)`)).toThrow()
+
+      expect(lits.run(`(rand-int! :x)`)).toBeNaN()
+
+      expect(() => lits.run(`(rand-int!)`)).toThrow()
       expect(() => lits.run(`(rand-int! 1 2)`)).toThrow()
     })
     describe(`rand-int! dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`rand-int!`, [`::unknown`], `ERROR`],
+        [`rand-int!`, [`::unknown`], [`::illegal-number`, `::integer`]],
 
         [`rand-int!`, [`::positive-infinity`], [`::positive-infinity`]],
         [`rand-int!`, [`::negative-infinity`], [`::negative-infinity`]],
@@ -881,9 +931,13 @@ describe(`math functions`, () => {
       expect(lits.run(`(min 1)`)).toBe(1)
       expect(lits.run(`(min 1 -2)`)).toBe(-2)
       expect(lits.run(`(min 3 1 2 )`)).toBe(1)
+
+      expect(lits.run(`(min :1)`)).toBeNaN()
+      expect(lits.run(`(min 1 :3)`)).toBeNaN()
+      expect(lits.run(`(min :1 3)`)).toBeNaN()
+      expect(lits.run(`(min :1 :3)`)).toBeNaN()
+
       expect(() => lits.run(`(min)`)).toThrow()
-      expect(() => lits.run(`(min :1)`)).toThrow()
-      expect(() => lits.run(`(min :1 :3)`)).toThrow()
     })
   })
 
@@ -892,9 +946,13 @@ describe(`math functions`, () => {
       expect(lits.run(`(max 1)`)).toBe(1)
       expect(lits.run(`(max 1 -2)`)).toBe(1)
       expect(lits.run(`(max 3 1 2 )`)).toBe(3)
+
+      expect(lits.run(`(max :1)`)).toBeNaN()
+      expect(lits.run(`(max :1 3)`)).toBeNaN()
+      expect(lits.run(`(max 1 :3)`)).toBeNaN()
+      expect(lits.run(`(max :1 :3)`)).toBeNaN()
+
       expect(() => lits.run(`(max)`)).toThrow()
-      expect(() => lits.run(`(max :1)`)).toThrow()
-      expect(() => lits.run(`(max :1 :3)`)).toThrow()
     })
   })
 
@@ -952,6 +1010,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(abs 2)`)).toBe(2)
       expect(lits.run(`(abs -2)`)).toBe(2)
       expect(lits.run(`(abs -0)`)).toBe(0)
+
+      expect(lits.run(`(abs :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(abs)`)).toThrow()
       expect(() => lits.run(`(abs 1 2)`)).toThrow()
     })
@@ -963,6 +1024,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(sign -2)`)).toBe(-1)
       expect(lits.run(`(sign -0)`)).toBe(-0)
       expect(lits.run(`(sign 0)`)).toBe(0)
+
+      expect(lits.run(`(sign :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(sign)`)).toThrow()
       expect(() => lits.run(`(sign 1 2)`)).toThrow()
     })
@@ -974,6 +1038,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(exp -2)`)).toBe(Math.exp(-2))
       expect(lits.run(`(exp -0)`)).toBe(Math.exp(-0))
       expect(lits.run(`(exp 0)`)).toBe(Math.exp(0))
+
+      expect(lits.run(`(exp :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(exp)`)).toThrow()
       expect(() => lits.run(`(exp 1 2)`)).toThrow()
     })
@@ -987,6 +1054,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(log -2)`)).toBeNaN()
       expect(lits.run(`(log 0)`)).toBe(Number.NEGATIVE_INFINITY)
       expect(lits.run(`(log -0)`)).toBe(Number.NEGATIVE_INFINITY)
+
+      expect(lits.run(`(log :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(log)`)).toThrow()
       expect(() => lits.run(`(log 1 2)`)).toThrow()
     })
@@ -1000,6 +1070,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(log2 -2)`)).toBeNaN()
       expect(lits.run(`(log2 0)`)).toBe(Number.NEGATIVE_INFINITY)
       expect(lits.run(`(log2 -0)`)).toBe(Number.NEGATIVE_INFINITY)
+
+      expect(lits.run(`(log2 :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(log2)`)).toThrow()
       expect(() => lits.run(`(log2 1 2)`)).toThrow()
     })
@@ -1013,6 +1086,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(log10 -2)`)).toBeNaN()
       expect(lits.run(`(log10 0)`)).toBe(Number.NEGATIVE_INFINITY)
       expect(lits.run(`(log10 -0)`)).toBe(Number.NEGATIVE_INFINITY)
+
+      expect(lits.run(`(log10 :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(log10)`)).toThrow()
       expect(() => lits.run(`(log10 1 2)`)).toThrow()
     })
@@ -1025,10 +1101,14 @@ describe(`math functions`, () => {
       expect(lits.run(`(sin -0.1)`)).toBe(Math.sin(-0.1))
       expect(lits.run(`(sin 1)`)).toBe(Math.sin(1))
       expect(lits.run(`(sin 100)`)).toBe(Math.sin(100))
+
+      expect(lits.run(`(sin :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(sin)`)).toThrow()
       expect(() => lits.run(`(sin 1 2)`)).toThrow()
     })
   })
+
   describe(`cos`, () => {
     test(`samples`, () => {
       expect(lits.run(`(cos 0)`)).toBe(Math.cos(0))
@@ -1036,10 +1116,14 @@ describe(`math functions`, () => {
       expect(lits.run(`(cos -0.1)`)).toBe(Math.cos(-0.1))
       expect(lits.run(`(cos 1)`)).toBe(Math.cos(1))
       expect(lits.run(`(cos 100)`)).toBe(Math.cos(100))
+
+      expect(lits.run(`(cos :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(cos)`)).toThrow()
       expect(() => lits.run(`(cos 1 2)`)).toThrow()
     })
   })
+
   describe(`tan`, () => {
     test(`samples`, () => {
       expect(lits.run(`(tan 0)`)).toBe(Math.tan(0))
@@ -1047,6 +1131,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(tan -0.1)`)).toBe(Math.tan(-0.1))
       expect(lits.run(`(tan 1)`)).toBe(Math.tan(1))
       expect(lits.run(`(tan 100)`)).toBe(Math.tan(100))
+
+      expect(lits.run(`(tan :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(tan)`)).toThrow()
       expect(() => lits.run(`(tan 1 2)`)).toThrow()
     })
@@ -1059,6 +1146,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(sinh -0.1)`)).toBe(Math.sinh(-0.1))
       expect(lits.run(`(sinh 1)`)).toBe(Math.sinh(1))
       expect(lits.run(`(sinh 100)`)).toBe(Number.POSITIVE_INFINITY)
+
+      expect(lits.run(`(sinh :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(sinh)`)).toThrow()
       expect(() => lits.run(`(sinh 1 2)`)).toThrow()
     })
@@ -1070,10 +1160,14 @@ describe(`math functions`, () => {
       expect(lits.run(`(cosh -0.1)`)).toBe(Math.cosh(-0.1))
       expect(lits.run(`(cosh 1)`)).toBe(Math.cosh(1))
       expect(lits.run(`(cosh 100)`)).toBe(Number.POSITIVE_INFINITY)
+
+      expect(lits.run(`(cosh :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(cosh)`)).toThrow()
       expect(() => lits.run(`(cosh 1 2)`)).toThrow()
     })
   })
+
   describe(`tanh`, () => {
     test(`samples`, () => {
       expect(lits.run(`(tanh 0)`)).toBe(Math.tanh(0))
@@ -1081,6 +1175,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(tanh -0.1)`)).toBe(Math.tanh(-0.1))
       expect(lits.run(`(tanh 1)`)).toBe(Math.tanh(1))
       expect(lits.run(`(tanh 100)`)).toBe(Math.tanh(100))
+
+      expect(lits.run(`(tanh :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(tanh)`)).toThrow()
       expect(() => lits.run(`(tanh 1 2)`)).toThrow()
     })
@@ -1093,10 +1190,14 @@ describe(`math functions`, () => {
       expect(lits.run(`(asin -0.1)`)).toBe(Math.asin(-0.1))
       expect(lits.run(`(asin 1)`)).toBe(Math.asin(1))
       expect(lits.run(`(asin 100)`)).toBeNaN()
+
+      expect(lits.run(`(asin :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(asin)`)).toThrow()
       expect(() => lits.run(`(asin 1 2)`)).toThrow()
     })
   })
+
   describe(`acos`, () => {
     test(`samples`, () => {
       expect(lits.run(`(acos 0)`)).toBe(Math.acos(0))
@@ -1104,6 +1205,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(acos -0.1)`)).toBe(Math.acos(-0.1))
       expect(lits.run(`(acos 1)`)).toBe(Math.acos(1))
       expect(lits.run(`(acos 100)`)).toBeNaN()
+
+      expect(lits.run(`(acos :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(acos)`)).toThrow()
       expect(() => lits.run(`(acos 1 2)`)).toThrow()
     })
@@ -1115,6 +1219,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(atan -0.1)`)).toBe(Math.atan(-0.1))
       expect(lits.run(`(atan 1)`)).toBe(Math.atan(1))
       expect(lits.run(`(atan 100)`)).toBe(Math.atan(100))
+
+      expect(lits.run(`(atan :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(atan)`)).toThrow()
       expect(() => lits.run(`(atan 1 2)`)).toThrow()
     })
@@ -1127,6 +1234,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(asinh -0.1)`)).toBe(Math.asinh(-0.1))
       expect(lits.run(`(asinh 1)`)).toBe(Math.asinh(1))
       expect(lits.run(`(asinh 100)`)).toBe(Math.asinh(100))
+
+      expect(lits.run(`(asinh :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(asinh)`)).toThrow()
       expect(() => lits.run(`(asinh 1 2)`)).toThrow()
     })
@@ -1138,6 +1248,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(acosh 0.1)`)).toBeNaN()
       expect(lits.run(`(acosh -0.1)`)).toBeNaN()
       expect(lits.run(`(acosh 0)`)).toBeNaN()
+
+      expect(lits.run(`(acosh :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(acosh)`)).toThrow()
       expect(() => lits.run(`(acosh 1 2)`)).toThrow()
     })
@@ -1149,6 +1262,9 @@ describe(`math functions`, () => {
       expect(lits.run(`(atanh -0.1)`)).toBe(Math.atanh(-0.1))
       expect(lits.run(`(atanh 1)`)).toBe(Number.POSITIVE_INFINITY)
       expect(lits.run(`(atanh 100)`)).toBeNaN()
+
+      expect(lits.run(`(atanh :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(atanh)`)).toThrow()
       expect(() => lits.run(`(atanh 1 2)`)).toThrow()
     })
@@ -1160,12 +1276,20 @@ describe(`math functions`, () => {
       expect(lits.run(`(quot -13.75 3.25)`)).toBe(-4)
       expect(lits.run(`(quot 13.75 -3.25)`)).toBe(-4)
       expect(lits.run(`(quot -13.75 -3.25)`)).toBe(4)
+
+      expect(lits.run(`(quot :foo -3.25)`)).toBeNaN()
+      expect(lits.run(`(quot -13.75 :foo)`)).toBeNaN()
+
       expect(() => lits.run(`(quot)`)).toThrow()
       expect(() => lits.run(`(quot 1)`)).toThrow()
       expect(() => lits.run(`(quot 1 2 3)`)).toThrow()
     })
+
     describe(`quot dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
+        [`quot`, [`::unknown`, `::unknown`], [`::integer`, `::illegal-number`]],
+        [`quot`, [`::unknown`, `::integer`], [`::integer`, `::illegal-number`]],
+        [`quot`, [`::integer`, `::unknown`], [`::integer`, `::illegal-number`]],
         [
           `quot`,
           [
@@ -1189,8 +1313,19 @@ describe(`math functions`, () => {
   describe(`mod.`, () => {
     test(`samples`, () => {
       expect(() => lits.run(`(mod)`)).toThrow()
+      expect(() => lits.run(`(mod 1)`)).toThrow()
       expect(() => lits.run(`(mod 3)`)).toThrow()
       expect(() => lits.run(`(mod 3 4 5)`)).toThrow()
+
+      expect(lits.run(`(mod (positive-infinity) 1)`)).toBeNaN()
+      expect(lits.run(`(mod (negative-infinity) 1)`)).toBeNaN()
+      expect(lits.run(`(mod (nan) 1)`)).toBeNaN()
+      expect(lits.run(`(mod 12.2 (positive-infinity))`)).toBe(12.2)
+      expect(lits.run(`(mod -12.1 (negative-infinity))`)).toBe(-12.1)
+      expect(lits.run(`(mod 12.2 1000)`)).toBe(12.2)
+      expect(lits.run(`(mod -12.1 -1000)`)).toBe(-12.1)
+      expect(lits.run(`(mod 12 (nan))`)).toBeNaN()
+
       expect(lits.run(`(mod 13.75 3.25)`)).toBe(0.75)
       expect(lits.run(`(mod -13.75 3.25)`)).toBe(2.5)
       expect(lits.run(`(mod 13.75 -3.25)`)).toBe(-2.5)
@@ -1204,8 +1339,12 @@ describe(`math functions`, () => {
       expect(lits.run(`(mod 4 0)`)).toBeNaN()
       expect(() => lits.run(`(mod 4 0 3)`)).toThrow()
     })
+
     describe(`mod dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
+        [`mod`, [`::unknown`, `::unknown`], [`::float`, `::nan`]],
+        [`mod`, [`::positive-infinity`, `::positive-integer`], [`::nan`]],
+
         [
           `mod`,
           [
@@ -1228,12 +1367,24 @@ describe(`math functions`, () => {
       expect(lits.run(`(rem -13.75 3.25)`)).toBe(-0.75)
       expect(lits.run(`(rem 13.75 -3.25)`)).toBe(0.75)
       expect(lits.run(`(rem -13.75 -3.25)`)).toBe(-0.75)
+
+      expect(lits.run(`(rem (positive-infinity) 1)`)).toBeNaN()
+      expect(lits.run(`(rem (negative-infinity) 1)`)).toBeNaN()
+      expect(lits.run(`(rem (nan) 1)`)).toBeNaN()
+      expect(lits.run(`(rem 12.2 (positive-infinity))`)).toBe(12.2)
+      expect(lits.run(`(rem -12.1 (negative-infinity))`)).toBe(-12.1)
+      expect(lits.run(`(rem 12.2 1000)`)).toBe(12.2)
+      expect(lits.run(`(rem -12.1 -1000)`)).toBe(-12.1)
+      expect(lits.run(`(rem 12 (nan))`)).toBeNaN()
+
       expect(() => lits.run(`(rem)`)).toThrow()
       expect(() => lits.run(`(rem 1)`)).toThrow()
       expect(() => lits.run(`(rem 1 2 3)`)).toThrow()
     })
     describe(`rem dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
+        [`rem`, [`::unknown`, `::unknown`], [`::float`, `::nan`]],
+        [`rem`, [`::positive-infinity`, `::positive-integer`], [`::nan`]],
         [
           `rem`,
           [

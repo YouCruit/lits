@@ -1036,6 +1036,9 @@ var Lits = (function (exports) {
       DataType.prototype.intersects = function (dataType) {
           return DataType.intersects(this, dataType);
       };
+      DataType.prototype.intersectsNonNumber = function () {
+          return !!(this.bitmask & ~builtinTypesBitMasks.number);
+      };
       DataType.prototype.assertIs = function (dataType, debugInfo) {
           if (!this.is(dataType)) {
               throw new LitsError("Expected to be of type ".concat(dataType.toString(), ", but was ").concat(this.toString()), debugInfo);
@@ -4565,16 +4568,20 @@ var Lits = (function (exports) {
 
   var mathNormalExpression = {
       inc: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotDataType(first)) {
-                  number.assert(first, debugInfo);
+                  if (!number.is(first)) {
+                      return Number.NaN;
+                  }
                   return first + 1;
               }
               else {
                   var paramType = DataType.of(first);
-                  paramType.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (paramType.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (paramType.intersects(DataType.nan)) {
                       types.push(DataType.nan);
                   }
@@ -4610,16 +4617,20 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       dec: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotDataType(first)) {
-                  number.assert(first, debugInfo);
+                  if (!number.is(first)) {
+                      return Number.NaN;
+                  }
                   return first - 1;
               }
               else {
                   var paramType = DataType.of(first);
-                  paramType.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (paramType.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (paramType.intersects(DataType.nan)) {
                       types.push(DataType.nan);
                   }
@@ -4655,55 +4666,61 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       '+': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params) {
               if (params.every(function (param) { return !(param instanceof DataType); })) {
                   return params.reduce(function (result, param) {
-                      number.assert(param, debugInfo);
+                      if (!number.is(param)) {
+                          return Number.NaN;
+                      }
                       return result + param;
                   }, 0);
               }
               else {
                   var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  paramTypes.forEach(function (t) { return t.assertIs(DataType.number, debugInfo); });
-                  return getTypeOfSum(paramTypes, debugInfo);
+                  return getTypeOfSum(paramTypes);
               }
           },
           validate: function () { return undefined; },
       },
       '-': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params) {
               if (params.every(function (param) { return !(param instanceof DataType); })) {
                   if (params.length === 0) {
                       return 0;
                   }
                   var _a = __read(params), first = _a[0], rest = _a.slice(1);
-                  number.assert(first, debugInfo);
+                  if (!number.is(first)) {
+                      return Number.NaN;
+                  }
                   if (rest.length === 0) {
                       return -first;
                   }
                   return rest.reduce(function (result, param) {
-                      number.assert(param, debugInfo);
+                      if (!number.is(param)) {
+                          return Number.NaN;
+                      }
                       return result - param;
                   }, first);
               }
               else {
                   var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  paramTypes.forEach(function (t) { return t.assertIs(DataType.number, debugInfo); });
                   var firstParamType = asValue(paramTypes[0]);
                   if (paramTypes.length === 1) {
                       return firstParamType.negateNumber();
                   }
                   var restTypes = paramTypes.slice(1).map(function (t) { return t.negateNumber(); });
-                  return getTypeOfSum(__spreadArray([firstParamType], __read(restTypes), false), debugInfo);
+                  return getTypeOfSum(__spreadArray([firstParamType], __read(restTypes), false));
               }
           },
           validate: function () { return undefined; },
       },
       '*': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params) {
               if (params.every(function (param) { return !(param instanceof DataType); })) {
                   return params.reduce(function (result, param) {
-                      number.assert(param, debugInfo);
+                      if (!number.is(param)) {
+                          return Number.NaN;
+                      }
                       if (result === 0 || param === 0) {
                           return 0;
                       }
@@ -4712,26 +4729,28 @@ var Lits = (function (exports) {
               }
               else {
                   var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  paramTypes.forEach(function (t) { return t.assertIs(DataType.number, debugInfo); });
                   return getTypeOfProduct(paramTypes);
               }
           },
           validate: function () { return undefined; },
       },
       '/': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params) {
               if (params.every(function (param) { return !(param instanceof DataType); })) {
                   if (params.length === 0) {
                       return 1;
                   }
                   var _a = __read(params), first = _a[0], rest = _a.slice(1);
-                  number.assert(first, debugInfo);
+                  if (!number.is(first)) {
+                      return Number.NaN;
+                  }
                   if (rest.length === 0) {
-                      number.assert(first, debugInfo);
                       return 1 / first;
                   }
                   return rest.reduce(function (result, param) {
-                      number.assert(param, debugInfo);
+                      if (!number.is(param)) {
+                          return Number.NaN;
+                      }
                       if (result === 0) {
                           return 0;
                       }
@@ -4743,50 +4762,41 @@ var Lits = (function (exports) {
               }
               else {
                   var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  paramTypes.forEach(function (t) { return t.assertIs(DataType.number, debugInfo); });
                   return getTypeOfDivision(paramTypes);
               }
           },
           validate: function () { return undefined; },
       },
       quot: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params) {
               if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
-                  number.assert(dividend, debugInfo);
-                  number.assert(divisor, debugInfo);
+                  if (!number.is(dividend)) {
+                      return Number.NaN;
+                  }
+                  if (!number.is(divisor)) {
+                      return Number.NaN;
+                  }
                   return Math.trunc(dividend / divisor);
               }
               else {
                   var a = DataType.of(params[0]);
                   var b = DataType.of(params[1]);
-                  a.assertIs(DataType.number, debugInfo);
-                  b.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (a.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
+                  if (b.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (a.or(b).intersects(DataType.nan)) {
                       types.push(DataType.nan);
                   }
-                  if (a.intersects(DataType.positiveInfinity)) {
-                      if (a.intersects(DataType.nonNegativeFloat)) {
-                          types.push(DataType.positiveInfinity);
-                      }
-                      if (a.intersects(DataType.negativeFloat)) {
-                          types.push(DataType.negativeInfinity);
-                      }
-                      if (a.intersects(DataType.illegalNumber)) {
-                          types.push(DataType.nan);
-                      }
+                  if (a.intersects(DataType.positiveInfinity) && b.exclude(DataType.nan).intersects(DataType.number)) {
+                      types.push(DataType.positiveInfinity);
                   }
-                  if (a.intersects(DataType.negativeInfinity)) {
-                      if (a.intersects(DataType.nonNegativeFloat)) {
-                          types.push(DataType.negativeInfinity);
-                      }
-                      if (a.intersects(DataType.negativeFloat)) {
-                          types.push(DataType.positiveInfinity);
-                      }
-                      if (a.intersects(DataType.illegalNumber)) {
-                          types.push(DataType.nan);
-                      }
+                  if (a.intersects(DataType.negativeInfinity) && b.exclude(DataType.nan).intersects(DataType.number)) {
+                      types.push(DataType.negativeInfinity);
                   }
                   if (b.intersects(DataType.positiveInfinity.or(DataType.negativeInfinity))) {
                       if (a.intersects(DataType.float)) {
@@ -4833,20 +4843,28 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       mod: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params) {
               if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
-                  number.assert(dividend, debugInfo);
-                  number.assert(divisor, debugInfo);
+                  if (!number.is(dividend)) {
+                      return Number.NaN;
+                  }
+                  if (!number.is(divisor)) {
+                      return Number.NaN;
+                  }
                   var quotient = Math.floor(dividend / divisor);
                   return dividend - divisor * quotient;
               }
               else {
                   var a = DataType.of(params[0]);
                   var b = DataType.of(params[1]);
-                  a.assertIs(DataType.number, debugInfo);
-                  b.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (a.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
+                  if (b.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (a.or(b).intersects(DataType.illegalNumber)) {
                       types.push(DataType.nan);
                   }
@@ -4865,20 +4883,28 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       rem: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params) {
               if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
-                  number.assert(dividend, debugInfo);
-                  number.assert(divisor, debugInfo);
+                  if (!number.is(dividend)) {
+                      return Number.NaN;
+                  }
+                  if (!number.is(divisor)) {
+                      return Number.NaN;
+                  }
                   var quotient = Math.trunc(dividend / divisor);
                   return dividend - divisor * quotient;
               }
               else {
                   var a = DataType.of(params[0]);
                   var b = DataType.of(params[1]);
-                  a.assertIs(DataType.number, debugInfo);
-                  b.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (a.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
+                  if (b.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (a.or(b).intersects(DataType.illegalNumber)) {
                       types.push(DataType.nan);
                   }
@@ -4897,16 +4923,20 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       sqrt: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotDataType(first)) {
-                  number.assert(first, debugInfo);
+                  if (!number.is(first)) {
+                      return Number.NaN;
+                  }
                   return Math.sqrt(first);
               }
               else {
                   var type = DataType.of(first);
-                  type.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (type.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (type.intersects(DataType.nan.or(DataType.negativeInfinity))) {
                       types.push(DataType.nan);
                   }
@@ -4928,16 +4958,20 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       cbrt: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotDataType(first)) {
-                  number.assert(first, debugInfo);
+                  if (!number.is(first)) {
+                      return Number.NaN;
+                  }
                   return Math.cbrt(first);
               }
               else {
                   var type = DataType.of(first);
-                  type.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (type.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (type.intersects(DataType.nan)) {
                       types.push(DataType.nan);
                   }
@@ -4962,22 +4996,33 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       pow: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params) {
               if (params.every(isNotDataType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
-                  number.assert(first, debugInfo);
-                  number.assert(second, debugInfo);
+                  if (!number.is(first)) {
+                      return Number.NaN;
+                  }
+                  if (!number.is(second)) {
+                      return Number.NaN;
+                  }
                   if (first === 1 && !Number.isNaN(second)) {
                       return 1;
+                  }
+                  if (first < 0 && first >= -1 && second === Number.NEGATIVE_INFINITY) {
+                      return Number.NaN;
+                  }
+                  if (first <= -1 && second === Number.POSITIVE_INFINITY) {
+                      return Number.NaN;
                   }
                   return Math.pow(first, second);
               }
               else {
                   var a = asValue(DataType.of(params[0]));
                   var b = asValue(DataType.of(params[1]));
-                  a.assertIs(DataType.number, debugInfo);
-                  b.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (a.or(b).intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (a.intersects(DataType.nan)) {
                       if (b.intersects(DataType.zero)) {
                           types.push(DataType.positiveInteger);
@@ -5002,7 +5047,7 @@ var Lits = (function (exports) {
                   }
                   if (a.intersects(DataType.negativeInfinity)) {
                       if (b.intersects(DataType.positiveInfinity)) {
-                          types.push(DataType.positiveInfinity);
+                          types.push(DataType.nan);
                       }
                       if (b.intersects(DataType.positiveFloat)) {
                           types.push(DataType.positiveInfinity);
@@ -5027,13 +5072,26 @@ var Lits = (function (exports) {
                           }
                       }
                       if (a.intersects(DataType.negativeFloat)) {
-                          types.push(DataType.positiveInfinity);
+                          types.push(DataType.nan);
                           if (!a.isInteger()) {
-                              types.push(DataType.nan);
-                          }
-                          else {
                               types.push(DataType.zero);
                           }
+                      }
+                  }
+                  if (b.intersects(DataType.negativeInfinity)) {
+                      if (a.intersects(DataType.zero)) {
+                          types.push(DataType.positiveInfinity);
+                      }
+                      if (a.intersects(DataType.positiveFloat)) {
+                          types.push(DataType.positiveInteger);
+                          types.push(DataType.zero);
+                          if (!a.isInteger()) {
+                              types.push(DataType.positiveInfinity);
+                          }
+                      }
+                      if (a.intersects(DataType.negativeFloat)) {
+                          types.push(DataType.nan);
+                          types.push(DataType.zero);
                       }
                   }
                   if (a.intersects(DataType.zero)) {
@@ -5090,7 +5148,7 @@ var Lits = (function (exports) {
                               types.push(DataType.positiveInteger);
                               types.push(DataType.negativeInteger);
                           }
-                          else if (b.intersects(DataType.negativeInteger)) {
+                          if (b.intersects(DataType.negativeInteger)) {
                               types.push(DataType.positiveFloat);
                               types.push(DataType.negativeFloat);
                           }
@@ -5108,15 +5166,22 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       round: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params) {
               var _a;
               if (params.every(isNotDataType)) {
                   var _b = __read(params, 2), value = _b[0], decimals = _b[1];
-                  number.assert(value, debugInfo);
+                  if (!number.is(value)) {
+                      return Number.NaN;
+                  }
                   if (params.length === 1 || decimals === 0) {
                       return Math.round(value);
                   }
-                  number.assert(decimals, debugInfo, { integer: true, nonNegative: true });
+                  if (!number.is(decimals)) {
+                      return Number.NaN;
+                  }
+                  if (!number.is(decimals, { integer: true, nonNegative: true })) {
+                      return Number.NaN;
+                  }
                   var factor = Math.pow(10, decimals);
                   if (factor === Number.POSITIVE_INFINITY) {
                       return value;
@@ -5126,9 +5191,13 @@ var Lits = (function (exports) {
               else {
                   var a = asValue(DataType.of(params[0]));
                   var b = asValue(DataType.of((_a = params[1]) !== null && _a !== void 0 ? _a : 0));
-                  a.assertIs(DataType.number, debugInfo);
-                  b.assertIs(DataType.nonNegativeInteger, debugInfo);
                   var types = [];
+                  if (a.or(b).intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
+                  if (!b.isInteger() || b.intersects(DataType.negativeFloat)) {
+                      types.push(DataType.nan);
+                  }
                   if (a.intersects(DataType.positiveInfinity) && !b.intersects(DataType.illegalNumber)) {
                       types.push(DataType.positiveInfinity);
                   }
@@ -5141,32 +5210,34 @@ var Lits = (function (exports) {
                   if (b.intersects(DataType.illegalNumber)) {
                       types.push(DataType.nan);
                   }
-                  if (a.intersects(DataType.zero)) {
-                      types.push(DataType.zero);
-                  }
-                  if (a.intersects(DataType.positiveFloat)) {
-                      if (a.isInteger()) {
-                          types.push(DataType.positiveInteger);
+                  if (b.intersects(DataType.nonNegativeInteger)) {
+                      if (a.intersects(DataType.zero)) {
+                          types.push(DataType.zero);
                       }
-                      else {
-                          if (b.intersects(DataType.zero)) {
-                              types.push(DataType.nonNegativeInteger);
+                      if (a.intersects(DataType.positiveFloat)) {
+                          if (a.isInteger()) {
+                              types.push(DataType.positiveInteger);
                           }
-                          if (b.intersects(DataType.nonZeroFloat)) {
-                              types.push(DataType.nonNegativeFloat);
+                          else {
+                              if (b.intersects(DataType.zero)) {
+                                  types.push(DataType.nonNegativeInteger);
+                              }
+                              if (b.intersects(DataType.nonZeroFloat)) {
+                                  types.push(DataType.nonNegativeFloat);
+                              }
                           }
                       }
-                  }
-                  if (a.intersects(DataType.negativeFloat)) {
-                      if (a.isInteger()) {
-                          types.push(DataType.negativeInteger);
-                      }
-                      else {
-                          if (b.intersects(DataType.zero)) {
-                              types.push(DataType.nonPositiveInteger);
+                      if (a.intersects(DataType.negativeFloat)) {
+                          if (a.isInteger()) {
+                              types.push(DataType.negativeInteger);
                           }
-                          if (b.intersects(DataType.nonZeroFloat)) {
-                              types.push(DataType.nonPositiveFloat);
+                          else {
+                              if (b.intersects(DataType.zero)) {
+                                  types.push(DataType.nonPositiveInteger);
+                              }
+                              if (b.intersects(DataType.nonZeroFloat)) {
+                                  types.push(DataType.nonPositiveFloat);
+                              }
                           }
                       }
                   }
@@ -5176,16 +5247,20 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       trunc: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotDataType(first)) {
-                  number.assert(first, debugInfo);
+                  if (!number.is(first)) {
+                      return Number.NaN;
+                  }
                   return Math.trunc(first);
               }
               else {
                   var a = DataType.of(first);
-                  a.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (a.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (a.intersects(DataType.positiveInfinity)) {
                       types.push(DataType.positiveInfinity);
                   }
@@ -5220,16 +5295,20 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       floor: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotDataType(first)) {
-                  number.assert(first, debugInfo);
+                  if (!number.is(first)) {
+                      return Number.NaN;
+                  }
                   return Math.floor(first);
               }
               else {
                   var a = DataType.of(first);
-                  a.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (a.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (a.intersects(DataType.positiveInfinity)) {
                       types.push(DataType.positiveInfinity);
                   }
@@ -5259,16 +5338,20 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       ceil: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotDataType(first)) {
-                  number.assert(first, debugInfo);
+                  if (!number.is(first)) {
+                      return Number.NaN;
+                  }
                   return Math.ceil(first);
               }
               else {
                   var a = DataType.of(first);
-                  a.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (a.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (a.intersects(DataType.positiveInfinity)) {
                       types.push(DataType.positiveInfinity);
                   }
@@ -5304,16 +5387,20 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(0, node); },
       },
       'rand-int!': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotDataType(first)) {
-                  number.assert(first, debugInfo);
+                  if (!number.is(first)) {
+                      return Number.NaN;
+                  }
                   return Math.floor(Math.random() * Math.abs(first)) * Math.sign(first);
               }
               else {
                   var a = DataType.of(first);
-                  a.assertIs(DataType.number, debugInfo);
                   var types = [];
+                  if (a.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
                   if (a.intersects(DataType.positiveInfinity)) {
                       types.push(DataType.positiveInfinity);
                   }
@@ -5338,45 +5425,57 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       min: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-              number.assert(first, debugInfo);
+              if (!number.is(first)) {
+                  return Number.NaN;
+              }
               if (rest.length === 0) {
                   return first;
               }
               return rest.reduce(function (min, value) {
-                  number.assert(value, debugInfo);
+                  if (!number.is(value)) {
+                      return Number.NaN;
+                  }
                   return Math.min(min, value);
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
       max: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-              number.assert(first, debugInfo);
+              if (!number.is(first)) {
+                  return Number.NaN;
+              }
               if (rest.length === 0) {
                   return first;
               }
               return rest.reduce(function (min, value) {
-                  number.assert(value, debugInfo);
+                  if (!number.is(value)) {
+                      return Number.NaN;
+                  }
                   return Math.max(min, value);
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
       abs: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.abs(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       sign: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.sign(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
@@ -5424,140 +5523,174 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(0, node); },
       },
       exp: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.exp(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       log: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.log(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       log2: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.log2(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       log10: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.log10(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       sin: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.sin(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       asin: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.asin(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       sinh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.sinh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       asinh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.asinh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       cos: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.cos(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       acos: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.acos(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       cosh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.cosh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       acosh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.acosh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       tan: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.tan(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       atan: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.atan(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       tanh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.tanh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       atanh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              number.assert(value, debugInfo);
+              if (!number.is(value)) {
+                  return Number.NaN;
+              }
               return Math.atanh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
   };
-  function getTypeOfSum(paramTypes, debugInfo) {
-      paramTypes.every(function (type) { return type.assertIs(DataType.number, debugInfo); });
+  function getTypeOfSum(paramTypes) {
       return paramTypes.reduce(function (a, b) { return getTypeOfBinarySum(a, b); }, DataType.zero);
   }
   function getTypeOfBinarySum(a, b) {
       var types = [];
+      if (a.or(b).intersectsNonNumber()) {
+          types.push(DataType.nan);
+      }
       if (a.or(b).intersects(DataType.nan)) {
           types.push(DataType.nan);
       }
@@ -5636,11 +5769,20 @@ var Lits = (function (exports) {
           return asValue(paramTypes[0]);
       }
       var first = asValue(paramTypes[0]);
-      return paramTypes.slice(1).reduce(function (a, b) { return getTypeOfBinaryProduct(a, b); }, first);
+      var nanType = first.intersectsNonNumber() ? DataType.nan : DataType.never;
+      var zeroType = first.intersects(DataType.zero) ? DataType.zero : DataType.never;
+      return paramTypes
+          .slice(1)
+          .reduce(function (a, b) { return getTypeOfBinaryProduct(a, b); }, first)
+          .or(nanType)
+          .or(zeroType);
   }
   function getTypeOfBinaryProduct(a, b) {
       var types = [];
-      if (a.or(b).intersects(DataType.zero)) {
+      if (b.intersectsNonNumber()) {
+          types.push(DataType.nan);
+      }
+      if (b.intersects(DataType.zero)) {
           types.push(DataType.zero);
       }
       if (a.intersects(DataType.nan) && b.intersects(DataType.number.exclude(DataType.zero))) {
@@ -5711,7 +5853,11 @@ var Lits = (function (exports) {
           paramTypes.unshift(DataType.positiveInteger);
       }
       var first = asValue(paramTypes[0]);
-      return paramTypes.slice(1).reduce(function (a, b) { return getTypeOfBinaryDivision(a, b); }, first);
+      var nanType = first.intersectsNonNumber() ? DataType.nan : DataType.never;
+      return paramTypes
+          .slice(1)
+          .reduce(function (a, b) { return getTypeOfBinaryDivision(a, b); }, first)
+          .or(nanType);
   }
   function getTypeOfBinaryDivision(a, b) {
       var types = [];
@@ -5720,6 +5866,9 @@ var Lits = (function (exports) {
       }
       if (b.intersects(DataType.infinity)) {
           types.push(DataType.zero);
+      }
+      if (b.intersectsNonNumber()) {
+          types.push(DataType.nan);
       }
       if (a.intersects(DataType.nan) && b.intersects(DataType.number.exclude(DataType.infinity))) {
           types.push(DataType.nan);

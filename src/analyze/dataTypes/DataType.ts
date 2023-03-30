@@ -460,6 +460,10 @@ export class DataType {
     return DataType.intersects(this, dataType)
   }
 
+  public intersectsNonNumber(): boolean {
+    return !!(this.bitmask & ~builtinTypesBitMasks.number)
+  }
+
   public assertIs(dataType: DataType, debugInfo: DebugInfo | undefined): void {
     if (!this.is(dataType)) {
       throw new LitsError(`Expected to be of type ${dataType.toString()}, but was ${this.toString()}`, debugInfo)

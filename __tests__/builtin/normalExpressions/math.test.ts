@@ -939,6 +939,22 @@ describe(`math functions`, () => {
 
       expect(() => lits.run(`(min)`)).toThrow()
     })
+    describe(`min dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`min`, [`::unknown`], [`::number`]],
+        [`min`, [`::negative-infinity`, `::nan`], [`::nan`]],
+        [`min`, [`::negative-infinity`, `::float`], [`::negative-infinity`]],
+        [`min`, [`::negative-infinity`, [`::nan`, `::float`]], [`::negative-infinity`, `::nan`]],
+        [`min`, [`::non-negative-float`, [`::negative-float`]], [`::negative-float`]],
+        [`min`, [[`::negative-infinity`, `::positive-infinity`], [`::float`]], [`::negative-infinity`, `::float`]],
+        [
+          `min`,
+          [[`::negative-infinity`, `::positive-infinity`], [`::non-positive-integer`]],
+          [`::negative-infinity`, `::non-positive-integer`],
+        ],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
+    })
   })
 
   describe(`max`, () => {
@@ -953,6 +969,26 @@ describe(`math functions`, () => {
       expect(lits.run(`(max :1 :3)`)).toBeNaN()
 
       expect(() => lits.run(`(max)`)).toThrow()
+    })
+    describe(`max dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`max`, [`::unknown`], [`::number`]],
+        [`max`, [`::negative-infinity`, `::nan`], [`::nan`]],
+        [`max`, [`::negative-infinity`, `::float`], [`::float`]],
+        [`max`, [`::positive-infinity`, `::float`], [`::positive-infinity`]],
+        [`max`, [`::negative-infinity`, [`::nan`, `::float`]], [`::float`, `::nan`]],
+        [`max`, [`::non-negative-float`, [`::negative-float`]], [`::non-negative-float`]],
+        [`max`, [`::non-positive-float`, [`::negative-float`]], [`::non-positive-float`]],
+        [`max`, [`::positive-float`, [`::negative-float`]], [`::positive-float`]],
+        [`max`, [`::positive-float`, [`::negative-float`]], [`::positive-float`]],
+        [`max`, [[`::negative-infinity`, `::positive-infinity`], [`::float`]], [`::positive-infinity`, `::float`]],
+        [
+          `max`,
+          [[`::negative-infinity`, `::positive-infinity`], [`::non-positive-integer`]],
+          [`::positive-infinity`, `::non-positive-integer`],
+        ],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
     })
   })
 

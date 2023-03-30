@@ -947,43 +947,126 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   },
 
   min: {
-    evaluate: ([first, ...rest]): number => {
-      if (!number.is(first)) {
-        return Number.NaN
-      }
-
-      if (rest.length === 0) {
-        return first
-      }
-
-      return rest.reduce((min: number, value) => {
-        if (!number.is(value)) {
+    evaluate: (params): number | DataType => {
+      if (params.every(isNotDataType)) {
+        const [first, ...rest] = params
+        if (!number.is(first)) {
           return Number.NaN
         }
 
-        return Math.min(min, value)
-      }, first)
+        if (rest.length === 0) {
+          return first
+        }
+
+        return rest.reduce((min: number, value) => {
+          if (!number.is(value)) {
+            return Number.NaN
+          }
+
+          return Math.min(min, value)
+        }, first)
+      } else {
+        const paramTypes = params.map(DataType.of)
+
+        const combinedType = DataType.or(...paramTypes)
+        const hasNonNumber = combinedType.intersectsNonNumber()
+        const hasNan = combinedType.intersects(DataType.nan)
+
+        const numberTypes = paramTypes.map(t => t.and(DataType.number))
+
+        // If an argument is nan (and nan only) or a non number
+        if (numberTypes.some(t => t.is(DataType.nan) || t.is(DataType.never))) {
+          return DataType.nan
+        }
+
+        type SmallestMax = -2 | -1 | 0 | 1 | 2
+        const smallestMax: SmallestMax = numberTypes.reduce((result: SmallestMax, t) => {
+          const max: SmallestMax = t.intersects(DataType.positiveInfinity)
+            ? 2
+            : t.intersects(DataType.positiveFloat)
+            ? 1
+            : t.intersects(DataType.zero)
+            ? 0
+            : t.intersects(DataType.negativeFloat)
+            ? -1
+            : -2
+          return Math.min(result, max) as SmallestMax
+        }, 2)
+
+        const exclude = DataType.or(
+          smallestMax < 2 ? DataType.positiveInfinity : DataType.never,
+          smallestMax < 1 ? DataType.positiveFloat : DataType.never,
+          smallestMax < 0 ? DataType.zero : DataType.never,
+          smallestMax < -1 ? DataType.negativeFloat : DataType.never,
+        )
+
+        const result = DataType.or(...numberTypes).exclude(exclude)
+
+        return hasNonNumber || hasNan ? result.or(DataType.nan) : result
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1 }, arity, `min`, debugInfo),
   },
 
   max: {
-    evaluate: ([first, ...rest]): number => {
-      if (!number.is(first)) {
-        return Number.NaN
-      }
+    evaluate: (params): number | DataType => {
+      if (params.every(isNotDataType)) {
+        const [first, ...rest] = params
 
-      if (rest.length === 0) {
-        return first
-      }
-
-      return rest.reduce((min: number, value) => {
-        if (!number.is(value)) {
+        if (!number.is(first)) {
           return Number.NaN
         }
 
-        return Math.max(min, value)
-      }, first)
+        if (rest.length === 0) {
+          return first
+        }
+
+        return rest.reduce((min: number, value) => {
+          if (!number.is(value)) {
+            return Number.NaN
+          }
+
+          return Math.max(min, value)
+        }, first)
+      } else {
+        const paramTypes = params.map(DataType.of)
+
+        const combinedType = DataType.or(...paramTypes)
+        const hasNonNumber = combinedType.intersectsNonNumber()
+        const hasNan = combinedType.intersects(DataType.nan)
+
+        const numberTypes = paramTypes.map(t => t.and(DataType.number))
+
+        // If an argument is nan (and nan only) or a non number
+        if (numberTypes.some(t => t.is(DataType.nan) || t.is(DataType.never))) {
+          return DataType.nan
+        }
+
+        type LargestMin = -2 | -1 | 0 | 1 | 2
+        const largestMin: LargestMin = numberTypes.reduce((result: LargestMin, t) => {
+          const min: LargestMin = t.intersects(DataType.negativeInfinity)
+            ? -2
+            : t.intersects(DataType.negativeFloat)
+            ? -1
+            : t.intersects(DataType.zero)
+            ? 0
+            : t.intersects(DataType.positiveFloat)
+            ? 1
+            : 2
+          return Math.max(result, min) as LargestMin
+        }, -2)
+
+        const exclude = DataType.or(
+          largestMin > -2 ? DataType.negativeInfinity : DataType.never,
+          largestMin > -1 ? DataType.negativeFloat : DataType.never,
+          largestMin > 0 ? DataType.zero : DataType.never,
+          largestMin > 1 ? DataType.positiveFloat : DataType.never,
+        )
+
+        const result = DataType.or(...numberTypes).exclude(exclude)
+
+        return hasNonNumber || hasNan ? result.or(DataType.nan) : result
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1 }, arity, `max`, debugInfo),
   },

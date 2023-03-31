@@ -29,9 +29,9 @@ describe(`math functions`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`inc`, [`::unknown`], [`::illegal-number`, `::float`]],
 
-        [`inc`, [`::nan`], [`::nan`]],
-        [`inc`, [`::positive-infinity`], [`::positive-infinity`]],
-        [`inc`, [`::negative-infinity`], [`::negative-infinity`]],
+        [`inc`, [`::nan`], { value: Number.NaN }],
+        [`inc`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`inc`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
 
         [`inc`, [`::zero`], [`::positive-integer`]],
         [`inc`, [`::float`], [`::float`, `::positive-infinity`]],
@@ -74,9 +74,9 @@ describe(`math functions`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`dec`, [`::unknown`], [`::float`, `::illegal-number`]],
 
-        [`dec`, [`::nan`], [`::nan`]],
-        [`dec`, [`::positive-infinity`], [`::positive-infinity`]],
-        [`dec`, [`::negative-infinity`], [`::negative-infinity`]],
+        [`dec`, [`::nan`], { value: Number.NaN }],
+        [`dec`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`dec`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
 
         [`dec`, [`::zero`], [`::negative-integer`]],
         [`dec`, [`::float`], [`::float`, `::negative-infinity`]],
@@ -112,10 +112,10 @@ describe(`math functions`, () => {
         [`+`, [`::float`, `::unknown`], [`::illegal-number`, `::float`]],
 
         [`+`, [`::illegal-number`], [`::illegal-number`]],
-        [`+`, [`::nan`], [`::nan`]],
-        [`+`, [`::positive-infinity`], [`::positive-infinity`]],
-        [`+`, [`::negative-infinity`], [`::negative-infinity`]],
-        [`+`, [`::zero`], [`::zero`]],
+        [`+`, [`::nan`], { value: Number.NaN }],
+        [`+`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`+`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`+`, [`::zero`], { value: 0 }],
         [`+`, [`::float`], [`::float`]],
         [`+`, [`::integer`], [`::integer`]],
         [`+`, [`::non-zero-float`], [`::non-zero-float`]],
@@ -130,41 +130,41 @@ describe(`math functions`, () => {
         [`+`, [`::non-negative-integer`], [`::non-negative-integer`]],
 
         [`+`, [`::illegal-number`, `::illegal-number`], [`::illegal-number`]],
-        [`+`, [`::illegal-number`, `::nan`], [`::nan`]],
+        [`+`, [`::illegal-number`, `::nan`], { value: Number.NaN }],
         [`+`, [`::illegal-number`, `::positive-infinity`], [`::positive-infinity`, `::nan`]],
         [`+`, [`::illegal-number`, `::negative-infinity`], [`::negative-infinity`, `::nan`]],
         [`+`, [`::illegal-number`, `::float`], [`::illegal-number`]],
 
-        [`+`, [`::nan`, `::illegal-number`], [`::nan`]],
-        [`+`, [`::nan`, `::nan`], [`::nan`]],
-        [`+`, [`::nan`, `::positive-infinity`], [`::nan`]],
-        [`+`, [`::nan`, `::negative-infinity`], [`::nan`]],
-        [`+`, [`::nan`, `::float`], [`::nan`]],
+        [`+`, [`::nan`, `::illegal-number`], { value: Number.NaN }],
+        [`+`, [`::nan`, `::nan`], { value: Number.NaN }],
+        [`+`, [`::nan`, `::positive-infinity`], { value: Number.NaN }],
+        [`+`, [`::nan`, `::negative-infinity`], { value: Number.NaN }],
+        [`+`, [`::nan`, `::float`], { value: Number.NaN }],
 
         [`+`, [`::positive-infinity`, `::illegal-number`], [`::positive-infinity`, `::nan`]],
-        [`+`, [`::positive-infinity`, `::nan`], [`::nan`]],
-        [`+`, [`::positive-infinity`, `::positive-infinity`], [`::positive-infinity`]],
-        [`+`, [`::positive-infinity`, `::negative-infinity`], [`::nan`]],
-        [`+`, [`::positive-infinity`, `::float`], [`::positive-infinity`]],
+        [`+`, [`::positive-infinity`, `::nan`], { value: Number.NaN }],
+        [`+`, [`::positive-infinity`, `::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`+`, [`::positive-infinity`, `::negative-infinity`], { value: Number.NaN }],
+        [`+`, [`::positive-infinity`, `::float`], { value: Number.POSITIVE_INFINITY }],
 
         [`+`, [`::negative-infinity`, `::illegal-number`], [`::negative-infinity`, `::nan`]],
-        [`+`, [`::negative-infinity`, `::nan`], [`::nan`]],
-        [`+`, [`::negative-infinity`, `::positive-infinity`], [`::nan`]],
-        [`+`, [`::negative-infinity`, `::negative-infinity`], [`::negative-infinity`]],
-        [`+`, [`::negative-infinity`, `::float`], [`::negative-infinity`]],
+        [`+`, [`::negative-infinity`, `::nan`], { value: Number.NaN }],
+        [`+`, [`::negative-infinity`, `::positive-infinity`], { value: Number.NaN }],
+        [`+`, [`::negative-infinity`, `::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`+`, [`::negative-infinity`, `::float`], { value: Number.NEGATIVE_INFINITY }],
 
-        [`+`, [`::zero`, `::zero`], [`::zero`]],
+        [`+`, [`::zero`, `::zero`], { value: 0 }],
         [`+`, [`::zero`, `::integer`], [`::integer`]],
         [`+`, [`::zero`, `::positive-integer`], [`::positive-integer`]],
         [`+`, [`::zero`, `::positive-float`], [`::positive-float`]],
-        [`+`, [`::zero`, `::positive-infinity`], [`::positive-infinity`]],
+        [`+`, [`::zero`, `::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
 
         [`+`, [`::positive-float`, `::zero`], [`::positive-float`]],
         [`+`, [`::positive-float`, `::positive-integer`], [`::positive-float`, `::positive-infinity`]],
         [`+`, [`::positive-float`, `::non-positive-integer`], [`::float`]],
         [`+`, [`::positive-float`, `::negative-float`], [`::float`]],
         [`+`, [`::positive-float`, `::positive-float`], [`::positive-float`, `::positive-infinity`]],
-        [`+`, [`::positive-float`, `::positive-infinity`], [`::positive-infinity`]],
+        [`+`, [`::positive-float`, `::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
 
         [`+`, [`::positive-integer`, `::zero`], [`::positive-integer`]],
         [`+`, [`::positive-integer`, `::positive-integer`], [`::positive-integer`, `::positive-infinity`]],
@@ -172,7 +172,7 @@ describe(`math functions`, () => {
         [`+`, [`::positive-integer`, `::negative-float`], [`::float`]],
         [`+`, [`::positive-integer`, `::negative-integer`], [`::integer`]],
         [`+`, [`::positive-integer`, `::positive-integer`], [`::positive-integer`, `::positive-infinity`]],
-        [`+`, [`::positive-integer`, `::negative-infinity`], [`::negative-infinity`]],
+        [`+`, [`::positive-integer`, `::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
 
         [`+`, [`::negative-integer`, `::zero`], [`::negative-integer`]],
         [`+`, [`::negative-integer`, `::positive-integer`], [`::integer`]],
@@ -185,14 +185,14 @@ describe(`math functions`, () => {
         [`+`, [`::negative-float`, `::positive-integer`], [`::float`]],
         [`+`, [`::negative-float`, `::non-positive-integer`], [`::negative-float`, `::negative-infinity`]],
         [`+`, [`::negative-float`, `::negative-float`], [`::negative-float`, `::negative-infinity`]],
-        [`+`, [`::negative-float`, `::negative-infinity`], [`::negative-infinity`]],
+        [`+`, [`::negative-float`, `::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
 
         [`+`, [`::non-negative-integer`, `::zero`], [`::non-negative-integer`]],
         [`+`, [`::non-negative-integer`, `::positive-integer`], [`::positive-integer`, `::positive-infinity`]],
         [`+`, [`::non-negative-integer`, `::non-negative-integer`], [`::non-negative-integer`, `::positive-infinity`]],
         [`+`, [`::non-negative-integer`, `::negative-float`], [`::float`]],
         [`+`, [`::non-negative-integer`, `::negative-integer`], [`::integer`]],
-        [`+`, [`::non-negative-integer`, `::nan`], [`::nan`]],
+        [`+`, [`::non-negative-integer`, `::nan`], { value: Number.NaN }],
 
         [`+`, [`::non-positive-float`, `::zero`], [`::non-positive-float`]],
         [`+`, [`::non-positive-float`, `::positive-integer`], [`::float`]],
@@ -205,13 +205,13 @@ describe(`math functions`, () => {
         [`+`, [`::non-positive-integer`, `::non-negative-integer`], [`::integer`]],
         [`+`, [`::non-positive-integer`, `::negative-float`], [`::negative-float`, `::negative-infinity`]],
         [`+`, [`::non-positive-integer`, `::negative-integer`], [`::negative-integer`, `::negative-infinity`]],
-        [`+`, [`::non-positive-integer`, `::positive-infinity`], [`::positive-infinity`]],
+        [`+`, [`::non-positive-integer`, `::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
 
         [`+`, [`::non-negative-float`, `::zero`], [`::non-negative-float`]],
         [`+`, [`::non-negative-float`, `::positive-integer`], [`::positive-float`, `::positive-infinity`]],
         [`+`, [`::non-negative-float`, `::non-positive-integer`], [`::float`]],
         [`+`, [`::non-negative-float`, `::negative-float`], [`::float`]],
-        [`+`, [`::non-negative-float`, `::negative-infinity`], [`::negative-infinity`]],
+        [`+`, [`::non-negative-float`, `::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
 
         [`+`, [`::integer`, `::zero`], [`::integer`]],
         [`+`, [`::integer`, `::integer`], [`::integer`, `::infinity`]],
@@ -219,7 +219,7 @@ describe(`math functions`, () => {
         [`+`, [`::integer`, `::non-negative-integer`], [`::integer`, `::positive-infinity`]],
         [`+`, [`::integer`, `::negative-float`], [`::float`, `::negative-infinity`]],
         [`+`, [`::integer`, `::negative-integer`], [`::integer`, `::negative-infinity`]],
-        [`+`, [`::integer`, `::nan`], [`::nan`]],
+        [`+`, [`::integer`, `::nan`], { value: Number.NaN }],
 
         [`+`, [`::float`, `::float`], [`::float`, `::infinity`]],
         [`+`, [`::float`, `::zero`], [`::float`]],
@@ -253,11 +253,11 @@ describe(`math functions`, () => {
         [`-`, [`::float`, `::unknown`], [`::illegal-number`, `::float`]],
 
         [`-`, [`::illegal-number`], [`::illegal-number`]],
-        [`-`, [`::nan`], [`::nan`]],
-        [`-`, [`::positive-infinity`], [`::negative-infinity`]],
-        [`-`, [`::negative-infinity`], [`::positive-infinity`]],
+        [`-`, [`::nan`], { value: Number.NaN }],
+        [`-`, [`::positive-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`-`, [`::negative-infinity`], { value: Number.POSITIVE_INFINITY }],
 
-        [`-`, [`::zero`], [`::zero`]],
+        [`-`, [`::zero`], { value: 0 }],
         [`-`, [`::float`], [`::float`]],
         [`-`, [`::integer`], [`::integer`]],
         [`-`, [`::non-zero-float`], [`::non-zero-float`]],
@@ -272,30 +272,30 @@ describe(`math functions`, () => {
         [`-`, [`::non-negative-integer`], [`::non-positive-integer`]],
 
         [`-`, [`::illegal-number`, `::illegal-number`], [`::illegal-number`]],
-        [`-`, [`::illegal-number`, `::nan`], [`::nan`]],
+        [`-`, [`::illegal-number`, `::nan`], { value: Number.NaN }],
         [`-`, [`::illegal-number`, `::positive-infinity`], [`::negative-infinity`, `::nan`]],
         [`-`, [`::illegal-number`, `::negative-infinity`], [`::positive-infinity`, `::nan`]],
         [`-`, [`::illegal-number`, `::float`], [`::illegal-number`]],
 
-        [`-`, [`::nan`, `::illegal-number`], [`::nan`]],
-        [`-`, [`::nan`, `::nan`], [`::nan`]],
-        [`-`, [`::nan`, `::positive-infinity`], [`::nan`]],
-        [`-`, [`::nan`, `::negative-infinity`], [`::nan`]],
-        [`-`, [`::nan`, `::float`], [`::nan`]],
+        [`-`, [`::nan`, `::illegal-number`], { value: Number.NaN }],
+        [`-`, [`::nan`, `::nan`], { value: Number.NaN }],
+        [`-`, [`::nan`, `::positive-infinity`], { value: Number.NaN }],
+        [`-`, [`::nan`, `::negative-infinity`], { value: Number.NaN }],
+        [`-`, [`::nan`, `::float`], { value: Number.NaN }],
 
         [`-`, [`::positive-infinity`, `::illegal-number`], [`::positive-infinity`, `::nan`]],
-        [`-`, [`::positive-infinity`, `::nan`], [`::nan`]],
-        [`-`, [`::positive-infinity`, `::positive-infinity`], [`::nan`]],
-        [`-`, [`::positive-infinity`, `::negative-infinity`], [`::positive-infinity`]],
-        [`-`, [`::positive-infinity`, `::float`], [`::positive-infinity`]],
+        [`-`, [`::positive-infinity`, `::nan`], { value: Number.NaN }],
+        [`-`, [`::positive-infinity`, `::positive-infinity`], { value: Number.NaN }],
+        [`-`, [`::positive-infinity`, `::negative-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`-`, [`::positive-infinity`, `::float`], { value: Number.POSITIVE_INFINITY }],
 
         [`-`, [`::negative-infinity`, `::illegal-number`], [`::negative-infinity`, `::nan`]],
-        [`-`, [`::negative-infinity`, `::nan`], [`::nan`]],
-        [`-`, [`::negative-infinity`, `::positive-infinity`], [`::negative-infinity`]],
-        [`-`, [`::negative-infinity`, `::negative-infinity`], [`::nan`]],
-        [`-`, [`::negative-infinity`, `::float`], [`::negative-infinity`]],
+        [`-`, [`::negative-infinity`, `::nan`], { value: Number.NaN }],
+        [`-`, [`::negative-infinity`, `::positive-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`-`, [`::negative-infinity`, `::negative-infinity`], { value: Number.NaN }],
+        [`-`, [`::negative-infinity`, `::float`], { value: Number.NEGATIVE_INFINITY }],
 
-        [`-`, [`::zero`, `::zero`], [`::zero`]],
+        [`-`, [`::zero`, `::zero`], { value: 0 }],
         [`-`, [`::zero`, `::integer`], [`::integer`]],
         [`-`, [`::zero`, `::positive-integer`], [`::negative-integer`]],
         [`-`, [`::zero`, `::positive-float`], [`::negative-float`]],
@@ -379,7 +379,7 @@ describe(`math functions`, () => {
         [`*`, [`::float`, `::unknown`], [`::illegal-number`, `::float`]],
 
         [`*`, [`::illegal-number`], [`::illegal-number`]],
-        [`*`, [`::zero`], [`::zero`]],
+        [`*`, [`::zero`], { value: 0 }],
         [`*`, [`::float`], [`::float`]],
         [`*`, [`::integer`], [`::integer`]],
         [`*`, [`::non-zero-float`], [`::non-zero-float`]],
@@ -393,67 +393,68 @@ describe(`math functions`, () => {
         [`*`, [`::negative-integer`], [`::negative-integer`]],
         [`*`, [`::non-negative-integer`], [`::non-negative-integer`]],
 
-        [`*`, [`::illegal-number`, `::zero`], [`::zero`]],
+        [`*`, [`::infinity`, `::zero`], { value: 0 }],
+        [`*`, [`::illegal-number`, `::zero`], { value: 0 }],
         [`*`, [`::illegal-number`, `::non-zero-float`], [`::positive-infinity`, `::negative-infinity`, `::nan`]],
         [`*`, [`::illegal-number`, `::illegal-number`], [`::illegal-number`]],
 
-        [`*`, [`::zero`, `::illegal-number`], [`::zero`]],
-        [`*`, [`::zero`, `::zero`], [`::zero`]],
-        [`*`, [`::zero`, `::integer`], [`::zero`]],
-        [`*`, [`::zero`, `::positive-integer`], [`::zero`]],
-        [`*`, [`::zero`, `::positive-float`], [`::zero`]],
+        [`*`, [`::zero`, `::illegal-number`], { value: 0 }],
+        [`*`, [`::zero`, `::zero`], { value: 0 }],
+        [`*`, [`::zero`, `::integer`], { value: 0 }],
+        [`*`, [`::zero`, `::positive-integer`], { value: 0 }],
+        [`*`, [`::zero`, `::positive-float`], { value: 0 }],
 
-        [`*`, [`::positive-float`, `::zero`], [`::zero`]],
+        [`*`, [`::positive-float`, `::zero`], { value: 0 }],
         [`*`, [`::positive-float`, `::positive-integer`], [`::positive-float`, `::positive-infinity`]],
         [`*`, [`::positive-float`, `::non-positive-integer`], [`::non-positive-float`, `::negative-infinity`]],
         [`*`, [`::positive-float`, `::negative-float`], [`::negative-float`, `::negative-infinity`]],
 
-        [`*`, [`::positive-integer`, `::zero`], [`::zero`]],
+        [`*`, [`::positive-integer`, `::zero`], { value: 0 }],
         [`*`, [`::positive-integer`, `::positive-integer`], [`::positive-integer`, `::positive-infinity`]],
         [`*`, [`::positive-integer`, `::non-negative-integer`], [`::non-negative-integer`, `::positive-infinity`]],
         [`*`, [`::positive-integer`, `::negative-float`], [`::negative-float`, `::negative-infinity`]],
         [`*`, [`::positive-integer`, `::negative-integer`], [`::negative-integer`, `::negative-infinity`]],
 
-        [`*`, [`::negative-integer`, `::zero`], [`::zero`]],
+        [`*`, [`::negative-integer`, `::zero`], { value: 0 }],
         [`*`, [`::negative-integer`, `::positive-integer`], [`::negative-integer`, `::negative-infinity`]],
         [`*`, [`::negative-integer`, `::non-negative-integer`], [`::non-positive-integer`, `::negative-infinity`]],
         [`*`, [`::negative-integer`, `::negative-float`], [`::positive-float`, `::positive-infinity`]],
         [`*`, [`::negative-integer`, `::negative-integer`], [`::positive-integer`, `::positive-infinity`]],
 
-        [`*`, [`::negative-float`, `::zero`], [`::zero`]],
+        [`*`, [`::negative-float`, `::zero`], { value: 0 }],
         [`*`, [`::negative-float`, `::positive-integer`], [`::negative-float`, `::negative-infinity`]],
         [`*`, [`::negative-float`, `::non-positive-integer`], [`::non-negative-float`, `::positive-infinity`]],
         [`*`, [`::negative-float`, `::negative-float`], [`::positive-float`, `::positive-infinity`]],
 
-        [`*`, [`::non-negative-integer`, `::zero`], [`::zero`]],
+        [`*`, [`::non-negative-integer`, `::zero`], { value: 0 }],
         [`*`, [`::non-negative-integer`, `::positive-integer`], [`::non-negative-integer`, `::positive-infinity`]],
         [`*`, [`::non-negative-integer`, `::non-negative-integer`], [`::non-negative-integer`, `::positive-infinity`]],
         [`*`, [`::non-negative-integer`, `::negative-float`], [`::non-positive-float`, `::negative-infinity`]],
         [`*`, [`::non-negative-integer`, `::negative-integer`], [`::non-positive-integer`, `::negative-infinity`]],
 
-        [`*`, [`::non-positive-float`, `::zero`], [`::zero`]],
+        [`*`, [`::non-positive-float`, `::zero`], { value: 0 }],
         [`*`, [`::non-positive-float`, `::positive-integer`], [`::non-positive-float`, `::negative-infinity`]],
         [`*`, [`::non-positive-float`, `::non-positive-integer`], [`::non-negative-float`, `::positive-infinity`]],
         [`*`, [`::non-positive-float`, `::negative-float`], [`::non-negative-float`, `::positive-infinity`]],
 
-        [`*`, [`::non-positive-integer`, `::zero`], [`::zero`]],
+        [`*`, [`::non-positive-integer`, `::zero`], { value: 0 }],
         [`*`, [`::non-positive-integer`, `::positive-integer`], [`::non-positive-integer`, `::negative-infinity`]],
         [`*`, [`::non-positive-integer`, `::non-negative-integer`], [`::non-positive-integer`, `::negative-infinity`]],
         [`*`, [`::non-positive-integer`, `::negative-float`], [`::non-negative-float`, `::positive-infinity`]],
         [`*`, [`::non-positive-integer`, `::negative-integer`], [`::non-negative-integer`, `::positive-infinity`]],
 
-        [`*`, [`::non-negative-float`, `::zero`], [`::zero`]],
+        [`*`, [`::non-negative-float`, `::zero`], { value: 0 }],
         [`*`, [`::non-negative-float`, `::positive-integer`], [`::non-negative-float`, `::positive-infinity`]],
         [`*`, [`::non-negative-float`, `::non-positive-integer`], [`::non-positive-float`, `::negative-infinity`]],
         [`*`, [`::non-negative-float`, `::negative-float`], [`::non-positive-float`, `::negative-infinity`]],
 
-        [`*`, [`::integer`, `::zero`], [`::zero`]],
+        [`*`, [`::integer`, `::zero`], { value: 0 }],
         [`*`, [`::integer`, `::positive-integer`], [`::integer`, `::infinity`]],
         [`*`, [`::integer`, `::non-negative-integer`], [`::integer`, `::infinity`]],
         [`*`, [`::integer`, `::negative-float`], [`::float`, `::infinity`]],
         [`*`, [`::integer`, `::negative-integer`], [`::integer`, `::infinity`]],
 
-        [`*`, [`::float`, `::zero`], [`::zero`]],
+        [`*`, [`::float`, `::zero`], { value: 0 }],
         [`*`, [`::float`, `::positive-integer`], [`::float`, `::infinity`]],
         [`*`, [`::float`, `::non-negative-integer`], [`::float`, `::infinity`]],
         [`*`, [`::float`, `::negative-float`], [`::float`, `::infinity`]],
@@ -480,9 +481,9 @@ describe(`math functions`, () => {
         [`/`, [`::unknown`, `::float`], [`::illegal-number`, `::float`]],
         [`/`, [`::float`, `::unknown`], [`::illegal-number`, `::float`]],
 
-        [`/`, [`::zero`], [`::positive-infinity`]],
-        [`/`, [`::positive-infinity`], [`::zero`]],
-        [`/`, [`::negative-infinity`], [`::zero`]],
+        [`/`, [`::zero`], { value: Number.POSITIVE_INFINITY }],
+        [`/`, [`::positive-infinity`], { value: 0 }],
+        [`/`, [`::negative-infinity`], { value: 0 }],
         [`/`, [`::float`], [`::non-zero-float`, `::infinity`]],
         [`/`, [`::integer`], [`::non-zero-float`, `::positive-infinity`]],
         [`/`, [`::non-zero-float`], [`::non-zero-float`, `::infinity`]],
@@ -498,34 +499,35 @@ describe(`math functions`, () => {
 
         [`/`, [`::illegal-number`, `::zero`], [`::illegal-number`]],
         [`/`, [`::illegal-number`, `::illegal-number`], [`::nan`, `::zero`]],
-        [`/`, [`::positive-infinity`, `::zero`], [`::positive-infinity`]],
-        [`/`, [`::negative-infinity`, `::zero`], [`::negative-infinity`]],
+        [`/`, [`::positive-infinity`, `::zero`], { value: Number.POSITIVE_INFINITY }],
+        [`/`, [`::negative-infinity`, `::zero`], { value: Number.NEGATIVE_INFINITY }],
         [`/`, [`::illegal-number`, `::non-zero-float`], [`::illegal-number`]],
 
-        [`/`, [`::zero`, `::zero`], [`::zero`]],
-        [`/`, [`::zero`, `::integer`], [`::zero`]],
-        [`/`, [`::zero`, `::positive-integer`], [`::zero`]],
-        [`/`, [`::zero`, `::positive-float`], [`::zero`]],
+        [`/`, [`::zero`, `::illegal-number`], { value: 0 }],
+        [`/`, [`::zero`, `::zero`], { value: 0 }],
+        [`/`, [`::zero`, `::integer`], { value: 0 }],
+        [`/`, [`::zero`, `::positive-integer`], { value: 0 }],
+        [`/`, [`::zero`, `::positive-float`], { value: 0 }],
 
-        [`/`, [`::positive-float`, `::zero`], [`::positive-infinity`]],
+        [`/`, [`::positive-float`, `::zero`], { value: Number.POSITIVE_INFINITY }],
         [`/`, [`::positive-float`, `::positive-integer`], [`::positive-float`]],
-        [`/`, [`::positive-float`, `::positive-infinity`], [`::zero`]],
+        [`/`, [`::positive-float`, `::positive-infinity`], { value: 0 }],
         [`/`, [`::positive-float`, `::non-positive-integer`], [`::positive-infinity`, `::negative-float`]],
         [`/`, [`::positive-float`, `::negative-float`], [`::negative-float`, `::negative-infinity`]],
 
-        [`/`, [`::positive-integer`, `::positive-infinity`], [`::zero`]],
+        [`/`, [`::positive-integer`, `::positive-infinity`], { value: 0 }],
         [`/`, [`::positive-integer`, `::positive-integer`], [`::positive-float`]],
         [`/`, [`::positive-integer`, `::non-negative-integer`], [`::positive-infinity`, `::positive-float`]],
         [`/`, [`::positive-integer`, `::negative-float`], [`::negative-float`, `::negative-infinity`]],
         [`/`, [`::positive-integer`, `::negative-integer`], [`::negative-float`]],
 
-        [`/`, [`::negative-integer`, `::zero`], [`::negative-infinity`]],
+        [`/`, [`::negative-integer`, `::zero`], { value: Number.NEGATIVE_INFINITY }],
         [`/`, [`::negative-integer`, `::positive-integer`], [`::negative-float`]],
         [`/`, [`::negative-integer`, `::non-negative-integer`], [`::negative-float`, `::negative-infinity`]],
         [`/`, [`::negative-integer`, `::negative-float`], [`::positive-float`, `::positive-infinity`]],
         [`/`, [`::negative-integer`, `::negative-integer`], [`::positive-float`]],
 
-        [`/`, [`::negative-float`, `::zero`], [`::negative-infinity`]],
+        [`/`, [`::negative-float`, `::zero`], { value: Number.NEGATIVE_INFINITY }],
         [`/`, [`::negative-float`, `::positive-integer`], [`::negative-float`]],
         [`/`, [`::negative-float`, `::non-positive-integer`], [`::positive-float`, `::negative-infinity`]],
         [`/`, [`::negative-float`, `::negative-float`], [`::positive-float`, `::positive-infinity`]],
@@ -600,10 +602,10 @@ describe(`math functions`, () => {
         [`sqrt`, [`::unknown`], [`::nan`, `::positive-infinity`, `::non-negative-float`]],
 
         [`sqrt`, [`::illegal-number`], [`::positive-infinity`, `::nan`]],
-        [`sqrt`, [`::nan`], [`::nan`]],
-        [`sqrt`, [`::positive-infinity`], [`::positive-infinity`]],
-        [`sqrt`, [`::negative-infinity`], [`::nan`]],
-        [`sqrt`, [`::zero`], [`::zero`]],
+        [`sqrt`, [`::nan`], { value: Number.NaN }],
+        [`sqrt`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`sqrt`, [`::negative-infinity`], { value: Number.NaN }],
+        [`sqrt`, [`::zero`], { value: 0 }],
         [`sqrt`, [`::float`], [`::non-negative-float`, `::nan`]],
         [`sqrt`, [`::integer`], [`::non-negative-float`, `::nan`]],
         [`sqrt`, [`::non-zero-float`], [`::positive-float`, `::nan`]],
@@ -612,9 +614,9 @@ describe(`math functions`, () => {
         [`sqrt`, [`::non-positive-float`], [`::nan`, `::zero`]],
         [`sqrt`, [`::positive-integer`], [`::positive-float`]],
         [`sqrt`, [`::non-positive-integer`], [`::nan`, `::zero`]],
-        [`sqrt`, [`::negative-float`], [`::nan`]],
+        [`sqrt`, [`::negative-float`], { value: Number.NaN }],
         [`sqrt`, [`::non-negative-float`], [`::non-negative-float`]],
-        [`sqrt`, [`::negative-integer`], [`::nan`]],
+        [`sqrt`, [`::negative-integer`], { value: Number.NaN }],
         [`sqrt`, [`::non-negative-integer`], [`::non-negative-float`]],
 
         [`sqrt`, [[`::non-negative-float`, `::nan`]], [`::non-negative-float`, `::nan`]],
@@ -639,10 +641,10 @@ describe(`math functions`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`cbrt`, [`::unknown`], [`::illegal-number`, `::float`]],
 
-        [`cbrt`, [`::positive-infinity`], [`::positive-infinity`]],
-        [`cbrt`, [`::negative-infinity`], [`::negative-infinity`]],
-        [`cbrt`, [`::nan`], [`::nan`]],
-        [`cbrt`, [`::zero`], [`::zero`]],
+        [`cbrt`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`cbrt`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`cbrt`, [`::nan`], { value: Number.NaN }],
+        [`cbrt`, [`::zero`], { value: 0 }],
         [`cbrt`, [`::float`], [`::float`]],
         [`cbrt`, [`::integer`], [`::float`]],
         [`cbrt`, [`::non-zero-float`], [`::non-zero-float`]],
@@ -685,25 +687,25 @@ describe(`math functions`, () => {
         [`pow`, [`::positive-integer`, `::unknown`], [`::non-negative-float`, `::nan`, `::positive-infinity`]],
         [`pow`, [`::unknown`, `::unknown`], [`::illegal-number`, `::float`]],
 
-        [`pow`, [`::float`, `::nan`], [`::nan`]],
+        [`pow`, [`::float`, `::nan`], { value: Number.NaN }],
         [`pow`, [`::nan`, `::float`], [`::nan`, `::positive-integer`]],
-        [`pow`, [`::nan`, `::nan`], [`::nan`]],
+        [`pow`, [`::nan`, `::nan`], { value: Number.NaN }],
 
         [`pow`, [`::illegal-number`, `::illegal-number`], [`::positive-infinity`, `::nan`, `::zero`]],
 
-        [`pow`, [`::positive-infinity`, `::positive-infinity`], [`::positive-infinity`]],
-        [`pow`, [`::positive-infinity`, `::negative-infinity`], [`::zero`]],
+        [`pow`, [`::positive-infinity`, `::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`pow`, [`::positive-infinity`, `::negative-infinity`], { value: 0 }],
         [`pow`, [`::positive-infinity`, `::float`], [`::non-negative-integer`, `::positive-infinity`]],
-        [`pow`, [`::positive-infinity`, `::negative-float`], [`::zero`]],
+        [`pow`, [`::positive-infinity`, `::negative-float`], { value: 0 }],
 
-        [`pow`, [`::negative-infinity`, `::positive-infinity`], [`::nan`]],
-        [`pow`, [`::negative-infinity`, `::negative-infinity`], [`::zero`]],
+        [`pow`, [`::negative-infinity`, `::positive-infinity`], { value: Number.NaN }],
+        [`pow`, [`::negative-infinity`, `::negative-infinity`], { value: 0 }],
         [
           `pow`,
           [`::negative-infinity`, `::float`],
           [`::zero`, `::positive-integer`, `::positive-infinity`, `::negative-infinity`],
         ],
-        [`pow`, [`::negative-infinity`, `::negative-float`], [`::zero`]],
+        [`pow`, [`::negative-infinity`, `::negative-float`], { value: 0 }],
 
         [`pow`, [`::float`, `::float`], [`::illegal-number`, `::float`]],
         [`pow`, [`::float`, `::integer`], [`::positive-infinity`, `::negative-infinity`, `::float`]],
@@ -714,7 +716,7 @@ describe(`math functions`, () => {
         [`pow`, [`::integer`, `::positive-float`], [`::illegal-number`, `::non-negative-float`, `::negative-integer`]],
         [`pow`, [`::integer`, `::negative-float`], [`::nan`, `::float`, `::positive-infinity`]],
 
-        [`pow`, [`::negative-integer`, `::positive-infinity`], [`::nan`]],
+        [`pow`, [`::negative-integer`, `::positive-infinity`], { value: Number.NaN }],
         [`pow`, [`::positive-integer`, `::positive-infinity`], [`::positive-integer`, `::positive-infinity`]],
         [`pow`, [`::negative-float`, `::positive-infinity`], [`::nan`, `::zero`]],
         [`pow`, [`::positive-float`, `::positive-infinity`], [`::zero`, `::positive-integer`, `::positive-infinity`]],
@@ -724,6 +726,12 @@ describe(`math functions`, () => {
         [`pow`, [`::positive-integer`, `::float`], [`::non-negative-float`, `::positive-infinity`]],
         [`pow`, [`::negative-float`, `::negative-infinity`], [`::nan`, `::zero`]],
         [`pow`, [`::positive-float`, `::negative-infinity`], [`::non-negative-integer`, `::positive-infinity`]],
+
+        [`pow`, [`::non-zero-number`, `::zero`], { value: 1 }],
+        [`pow`, [`::positive-float`, `::zero`], { value: 1 }],
+        [`pow`, [`::negative-float`, `::zero`], { value: 1 }],
+        [`pow`, [`::negative-infinity`, `::zero`], { value: 1 }],
+        [`pow`, [`::positive-infinity`, `::zero`], { value: 1 }],
       ]
       testTypeEvaluations(lits, typeEvaluations)
     })
@@ -751,13 +759,13 @@ describe(`math functions`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`round`, [`::unknown`], [`::illegal-number`, `::integer`]],
 
-        [`round`, [`::positive-infinity`], [`::positive-infinity`]],
-        [`round`, [`::negative-infinity`], [`::negative-infinity`]],
-        [`round`, [`::nan`], [`::nan`]],
-        [`round`, [`::positive-infinity`, `::positive-infinity`], [`::nan`]],
-        [`round`, [`::negative-infinity`, `::negative-infinity`], [`::nan`]],
-        [`round`, [`::nan`, `::nan`], [`::nan`]],
-        [`round`, [`::illegal-number`, `::illegal-number`], [`::nan`]],
+        [`round`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`round`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`round`, [`::nan`], { value: Number.NaN }],
+        [`round`, [`::positive-infinity`, `::positive-infinity`], { value: Number.NaN }],
+        [`round`, [`::negative-infinity`, `::negative-infinity`], { value: Number.NaN }],
+        [`round`, [`::nan`, `::nan`], { value: Number.NaN }],
+        [`round`, [`::illegal-number`, `::illegal-number`], { value: Number.NaN }],
 
         [`round`, [`::float`], [`::integer`]],
         [`round`, [`::positive-float`], [`::non-negative-integer`]],
@@ -769,9 +777,9 @@ describe(`math functions`, () => {
         [`round`, [`::float`, `::float`], [`::nan`, `::float`]],
         [`round`, [`::float`, `::integer`], [`::nan`, `::float`]],
         [`round`, [`::float`, `::positive-integer`], [`::float`]],
-        [`round`, [`::float`, `::nan`], [`::nan`]],
-        [`round`, [`::float`, `::positive-infinity`], [`::nan`]],
-        [`round`, [`::float`, `::negative-infinity`], [`::nan`]],
+        [`round`, [`::float`, `::nan`], { value: Number.NaN }],
+        [`round`, [`::float`, `::positive-infinity`], { value: Number.NaN }],
+        [`round`, [`::float`, `::negative-infinity`], { value: Number.NaN }],
         [`round`, [`::float`, `::non-negative-integer`], [`::float`]],
         [`round`, [`::positive-float`, `::positive-integer`], [`::non-negative-float`]],
         [`round`, [`::negative-float`, `::positive-integer`], [`::non-positive-float`]],
@@ -800,9 +808,9 @@ describe(`math functions`, () => {
     describe(`floor dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`floor`, [`::unknown`], [`::illegal-number`, `::integer`]],
-        [`floor`, [`::positive-infinity`], [`::positive-infinity`]],
-        [`floor`, [`::negative-infinity`], [`::negative-infinity`]],
-        [`floor`, [`::nan`], [`::nan`]],
+        [`floor`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`floor`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`floor`, [`::nan`], { value: Number.NaN }],
         [`floor`, [`::illegal-number`], [`::illegal-number`]],
 
         [`floor`, [`::float`], [`::integer`]],
@@ -834,9 +842,9 @@ describe(`math functions`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`ceil`, [`::unknown`], [`::illegal-number`, `::integer`]],
 
-        [`ceil`, [`::positive-infinity`], [`::positive-infinity`]],
-        [`ceil`, [`::negative-infinity`], [`::negative-infinity`]],
-        [`ceil`, [`::nan`], [`::nan`]],
+        [`ceil`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`ceil`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`ceil`, [`::nan`], { value: Number.NaN }],
         [`ceil`, [`::illegal-number`], [`::illegal-number`]],
 
         [`ceil`, [`::float`], [`::integer`]],
@@ -867,9 +875,9 @@ describe(`math functions`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`trunc`, [`::unknown`], [`::illegal-number`, `::integer`]],
 
-        [`trunc`, [`::positive-infinity`], [`::positive-infinity`]],
-        [`trunc`, [`::negative-infinity`], [`::negative-infinity`]],
-        [`trunc`, [`::nan`], [`::nan`]],
+        [`trunc`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`trunc`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`trunc`, [`::nan`], { value: Number.NaN }],
         [`trunc`, [`::illegal-number`], [`::illegal-number`]],
 
         [`trunc`, [`::float`], [`::integer`]],
@@ -909,9 +917,9 @@ describe(`math functions`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`rand-int!`, [`::unknown`], [`::illegal-number`, `::integer`]],
 
-        [`rand-int!`, [`::positive-infinity`], [`::positive-infinity`]],
-        [`rand-int!`, [`::negative-infinity`], [`::negative-infinity`]],
-        [`rand-int!`, [`::nan`], [`::nan`]],
+        [`rand-int!`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`rand-int!`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`rand-int!`, [`::nan`], { value: Number.NaN }],
         [`rand-int!`, [`::illegal-number`], [`::illegal-number`]],
 
         [`rand-int!`, [`::float`], [`::integer`]],
@@ -920,7 +928,7 @@ describe(`math functions`, () => {
         [`rand-int!`, [`::non-positive-float`], [`::non-positive-integer`]],
         [`rand-int!`, [`::negative-float`], [`::non-positive-integer`]],
         [`rand-int!`, [`::non-negative-float`], [`::non-negative-integer`]],
-        [`rand-int!`, [`::zero`], [`::zero`]],
+        [`rand-int!`, [`::zero`], { value: 0 }],
       ]
       testTypeEvaluations(lits, typeEvaluations)
     })
@@ -941,9 +949,9 @@ describe(`math functions`, () => {
     })
     describe(`min dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`min`, [`::unknown`], [`::number`]],
-        [`min`, [`::negative-infinity`, `::nan`], [`::nan`]],
-        [`min`, [`::negative-infinity`, `::float`], [`::negative-infinity`]],
+        [`min`, [`::unknown`], [`::number-or-nan`]],
+        [`min`, [`::negative-infinity`, `::nan`], { value: Number.NaN }],
+        [`min`, [`::negative-infinity`, `::float`], { value: Number.NEGATIVE_INFINITY }],
         [`min`, [`::negative-infinity`, [`::nan`, `::float`]], [`::negative-infinity`, `::nan`]],
         [`min`, [`::non-negative-float`, [`::negative-float`]], [`::negative-float`]],
         [`min`, [[`::negative-infinity`, `::positive-infinity`], [`::float`]], [`::negative-infinity`, `::float`]],
@@ -972,10 +980,10 @@ describe(`math functions`, () => {
     })
     describe(`max dataTypes`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
-        [`max`, [`::unknown`], [`::number`]],
-        [`max`, [`::negative-infinity`, `::nan`], [`::nan`]],
+        [`max`, [`::unknown`], [`::number-or-nan`]],
+        [`max`, [`::negative-infinity`, `::nan`], { value: Number.NaN }],
         [`max`, [`::negative-infinity`, `::float`], [`::float`]],
-        [`max`, [`::positive-infinity`, `::float`], [`::positive-infinity`]],
+        [`max`, [`::positive-infinity`, `::float`], { value: Number.POSITIVE_INFINITY }],
         [`max`, [`::negative-infinity`, [`::nan`, `::float`]], [`::float`, `::nan`]],
         [`max`, [`::non-negative-float`, [`::negative-float`]], [`::non-negative-float`]],
         [`max`, [`::non-positive-float`, [`::negative-float`]], [`::non-positive-float`]],
@@ -1052,6 +1060,19 @@ describe(`math functions`, () => {
       expect(() => lits.run(`(abs)`)).toThrow()
       expect(() => lits.run(`(abs 1 2)`)).toThrow()
     })
+    describe(`abs dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`abs`, [`::string`], { value: Number.NaN }],
+        [`abs`, [`::unknown`], [`::nan`, `::positive-infinity`, `::non-negative-float`]],
+        [`abs`, [`::number-or-nan`], [`::non-negative-number`, `::nan`]],
+        [`abs`, [`::float`], [`::non-negative-float`]],
+        [`abs`, [`::negative-float`], [`::positive-float`]],
+        [`abs`, [`::negative-number`], [`::positive-number`]],
+        [`abs`, [`::positive-number`], [`::positive-number`]],
+        [`abs`, [`::illegal-number`], [`::positive-infinity`, `::nan`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
+    })
   })
 
   describe(`sign`, () => {
@@ -1065,6 +1086,22 @@ describe(`math functions`, () => {
 
       expect(() => lits.run(`(sign)`)).toThrow()
       expect(() => lits.run(`(sign 1 2)`)).toThrow()
+    })
+    describe(`sign dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`sign`, [`::string`], { value: Number.NaN }],
+        [`sign`, [`::unknown`], [`::integer`, `::nan`]],
+        [`sign`, [`::number-or-nan`], [`::integer`, `::nan`]],
+        [`sign`, [`::number`], [`::integer`]],
+        [`sign`, [`::positive-number`], { value: 1 }],
+        [`sign`, [`::float`], [`::integer`]],
+        [`sign`, [`::positive-float`], { value: 1 }],
+        [`sign`, [`::non-positive-number`], [`::non-positive-integer`]],
+        [`sign`, [`::non-negative-number`], [`::non-negative-integer`]],
+        [`sign`, [`::negative-float`], { value: -1 }],
+        [`sign`, [`::zero`], { value: 0 }],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
     })
   })
 
@@ -1338,9 +1375,9 @@ describe(`math functions`, () => {
         [`quot`, [`::float`, `::positive-float`], [`::integer`, `::infinity`]],
         [`quot`, [`::float`, `::negative-float`], [`::integer`, `::infinity`]],
         [`quot`, [`::float`, `::zero`], [`::illegal-number`]],
-        [`quot`, [`::positive-float`, `::zero`], [`::positive-infinity`]],
-        [`quot`, [`::negative-float`, `::zero`], [`::negative-infinity`]],
-        [`quot`, [`::zero`, `::zero`], [`::nan`]],
+        [`quot`, [`::positive-float`, `::zero`], { value: Number.POSITIVE_INFINITY }],
+        [`quot`, [`::negative-float`, `::zero`], { value: Number.NEGATIVE_INFINITY }],
+        [`quot`, [`::zero`, `::zero`], { value: Number.NaN }],
       ]
       testTypeEvaluations(lits, typeEvaluations)
     })
@@ -1379,7 +1416,7 @@ describe(`math functions`, () => {
     describe(`mod dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`mod`, [`::unknown`, `::unknown`], [`::float`, `::nan`]],
-        [`mod`, [`::positive-infinity`, `::positive-integer`], [`::nan`]],
+        [`mod`, [`::positive-infinity`, `::positive-integer`], { value: Number.NaN }],
 
         [
           `mod`,
@@ -1420,7 +1457,7 @@ describe(`math functions`, () => {
     describe(`rem dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
         [`rem`, [`::unknown`, `::unknown`], [`::float`, `::nan`]],
-        [`rem`, [`::positive-infinity`, `::positive-integer`], [`::nan`]],
+        [`rem`, [`::positive-infinity`, `::positive-integer`], { value: Number.NaN }],
         [
           `rem`,
           [

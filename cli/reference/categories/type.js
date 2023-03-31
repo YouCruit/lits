@@ -35,6 +35,57 @@ module.exports = {
       `(type-of nil)`,
     ],
   },
+  'type-split': {
+    name: `type-split`,
+    category: `Type`,
+    linkName: `type-split`,
+    returns: {
+      type: `type[]`,
+    },
+    arguments: [
+      {
+        name: `type`,
+        type: `type`,
+      },
+    ],
+    description: `Splits a type into its primitive components.`,
+    examples: [
+      `(type-split ::zero)`,
+      `(type-split ::collection)`,
+      `(type-split ::infinity)`,
+      `(type-split ::float)`,
+      `(type-split ::string)`,
+      `(type-split ::unknown)`,
+    ],
+  },
+  'type-to-value': {
+    name: `type-to-value`,
+    category: `Type`,
+    linkName: `type-to-value`,
+    returns: {
+      type: `any`,
+    },
+    arguments: [
+      {
+        name: `value`,
+        type: `any`,
+      },
+    ],
+    description: `If \`value\` is not a type, \`value\` is returned. If \`value\` is a type then a value representing the value is returned, if no such value exists, \`value\` is returned.`,
+    examples: [
+      `(type-to-value 1)`,
+      `(type-to-value "A string")`,
+      `(type-to-value ::zero)`,
+      `(type-to-value ::nan)`,
+      `(type-to-value ::empty-string)`,
+      `(type-to-value ::nil)`,
+      `(type-to-value ::false)`,
+      `(type-to-value ::true)`,
+      `(type-to-value ::boolean)`,
+      `(type-to-value (type-exclude ::boolean ::false))`,
+      `(type-to-value ::string)`,
+    ],
+  },
   'type-or': {
     name: `type-or`,
     category: `Type`,

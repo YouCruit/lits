@@ -3,7 +3,7 @@
 import { asDataType, PrimitiveTypeName, typeToBitRecord } from '../src/analyze/dataTypes/DataType'
 import { TypeName } from '../src/analyze/dataTypes/litsTypeNames'
 import { UndefinedSymbolEntry } from '../src/analyze/undefinedSymbols/interface'
-import { Obj } from '../src/interface'
+import { Any, Obj } from '../src/interface'
 import { DataType, Lits } from '../src/Lits/Lits'
 import { MAX_NUMBER, MIN_NUMBER } from '../src/utils'
 import { asValue, regularExpression } from '../src/utils/assertion'
@@ -97,7 +97,7 @@ export function getUndefinedSymbolNames(undefinedSymbols: Set<UndefinedSymbolEnt
 export type TestTypeEvaluation = [
   string,
   Array<`::${TypeName}` | Array<`::${TypeName}`> | { expression: string }>,
-  Array<`::${TypeName}`> | { expression: string } | `ERROR`,
+  Array<`::${TypeName}`> | { value: Any } | `ERROR`,
 ]
 
 /**
@@ -114,31 +114,36 @@ export function testTypeEvaluations(
   for (const evaluationData of evaluations) {
     const [functionName, params, result] = evaluationData
     const resultExpression =
-      typeof result === `string` ? result : Array.isArray(result) ? `(type-or ${result.join(` `)})` : result.expression
+      typeof result === `string` ? result : Array.isArray(result) ? `(type-or ${result.join(` `)})` : null
+
+    const resultValue =
+      typeof result === `object` && result !== null && !Array.isArray(result) && result.value !== undefined
+        ? result.value
+        : undefined
 
     const expressions = generateLitsExpressions(functionName, params, paramOrder)
     const sampleExpressions = generateLitsExpressionsWithSampleValues(lits, functionName, params, paramOrder)
-    test(`${expressions[0]} ==> ${resultExpression}${
+    test(`${expressions[0]} ==> ${resultExpression ?? resultValue}${
       expressions.length > 1 ? `, ${expressions.length} permutations` : ``
     }`, () => {
       for (const expression of expressions) {
-        if (resultExpression !== `ERROR`) {
+        if (resultExpression === `ERROR`) {
+          expect(() => lits.run(expression)).toThrow()
+        } else if (resultValue !== undefined) {
+          const evaluatedValue = lits.run(expression)
+          if (typeof evaluatedValue === `number` && Number.isNaN(evaluatedValue)) {
+            expect(resultValue).toBeNaN()
+          } else {
+            expect(evaluatedValue).toEqual(resultValue)
+          }
+        } else if (resultExpression !== null) {
           const type = lits.run(expression) as DataType
           const expectedType = lits.run(resultExpression) as DataType
           expect(type.toString()).toBe(expectedType.toString())
-        } else {
-          expect(() => lits.run(expression)).toThrow()
         }
       }
 
-      if (resultExpression !== `ERROR`) {
-        for (const expression of sampleExpressions) {
-          const testString = `(type-is? (type-of ${expression}) (type-of ${resultExpression}))`
-          if (!lits.run(testString)) {
-            throw Error(`Expected ${testString} to be true`)
-          }
-        }
-      } else {
+      if (resultExpression === `ERROR`) {
         let hasThrown = false
         for (const expression of sampleExpressions) {
           try {
@@ -150,9 +155,29 @@ export function testTypeEvaluations(
         if (!hasThrown) {
           throw Error(`Expected one of the sample expressions to throw`)
         }
+      } else if (resultValue !== undefined) {
+        for (const expression of sampleExpressions) {
+          const evaluatedValue = lits.run(expression)
+          if (typeof evaluatedValue === `number` && Number.isNaN(evaluatedValue)) {
+            expect(resultValue).toBeNaN()
+          } else {
+            if (typeof evaluatedValue !== `object` || evaluatedValue === null) {
+              expect(evaluatedValue === resultValue).toBe(true)
+            } else {
+              expect(evaluatedValue).toEqual(resultValue)
+            }
+          }
+        }
+      } else {
+        for (const expression of sampleExpressions) {
+          const testString = `(type-is? (type-of ${expression}) (type-of ${resultExpression}))`
+          if (!lits.run(testString)) {
+            throw Error(`Expected ${testString} to be true`)
+          }
+        }
       }
 
-      if (resultExpression !== `ERROR`) {
+      if (resultExpression !== `ERROR` && resultValue === undefined) {
         const resultType = lits.run(`(type-of ${resultExpression})`) as DataType
         const combinedSampeExpressionType = DataType.or(
           ...sampleExpressions.map(e => lits.run(`(type-of ${e})`) as DataType),

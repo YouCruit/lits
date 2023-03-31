@@ -1,6 +1,11 @@
-import { DataType, typeToBitRecord } from '../src/analyze/dataTypes/DataType'
+import { DataType, builtinTypesBitMasks, orderedTypeNames, typeToBitRecord } from '../src/analyze/dataTypes/DataType'
 
 describe(`DataType`, () => {
+  test(`orderedTypeNames`, () => {
+    const set = new Set(orderedTypeNames)
+    expect(set.size + 1).toBe(Object.keys(builtinTypesBitMasks).length)
+    expect(orderedTypeNames.includes(`never`)).toBe(false)
+  })
   test(`standard types.`, () => {
     expect(DataType.nil.bitmask).toBe(typeToBitRecord.nil)
 

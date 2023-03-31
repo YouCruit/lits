@@ -115,7 +115,7 @@ window.onload = function () {
     ? Number(storedResizeDivider2XPercent)
     : DEFAULT_RESIZE_DIVIDER2_X_PERCENT
 
-  lits = new Lits.Lits({ debug: true })
+  litsDebug = new Lits.Lits({ debug: true })
   litsNoDebug = new Lits.Lits({ debug: false })
 
   document.getElementById('resize-playground').onmousedown = event => {
@@ -291,8 +291,7 @@ window.addEventListener('popstate', () => {
 })
 
 function run(debug) {
-  console.log('debug', debug)
-  const lits = debug ? lits : litsNoDebug
+  const lits = debug ? litsDebug : litsNoDebug
   var code = document.getElementById('lits-textarea').value
   var paramsString = document.getElementById('params-textarea').value
   var output = document.getElementById('output-textarea')
@@ -345,9 +344,36 @@ function run(debug) {
   output.scrollTop = output.scrollHeight
 
   output.value = newContent
+
+  var codeOutput = `Lits code:\n%c${blockifyString(code)}\n\n`
+  var resultOutput = `%cResult:\n%c${blockifyString(stringifyValue(result, debug))}\n\n`
+  var logOutput = `${codeOutput}${resultOutput}`
+  var colors = [`background: lightyellow; color: black;`, ``, `background: lightgreen; color: black;`]
+
+  console.log(logOutput, ...colors, result)
+}
+
+function blockifyString(str) {
+  const lines = str
+    .split('\n')
+    .map(l => l.trimRight())
+    .map(l => l.length)
+
+  const maxLength = Math.max(...lines)
+
+  var codeBlock = str
+    .trim()
+    .split('\n')
+    .map(l => l.trimRight())
+    .map(l => `  ${l}${' '.repeat(maxLength - l.length)}  `)
+    .join('\n')
+
+  return `${' '.repeat(maxLength + 4)}\n${codeBlock}\n${' '.repeat(maxLength + 4)}`
 }
 
 function undefinedSymbols() {
+  const lits = litsNoDebug
+
   var code = document.getElementById('lits-textarea').value
   var output = document.getElementById('output-textarea')
   output.value = ''
@@ -384,17 +410,22 @@ function undefinedSymbols() {
   }
 
   output.classList.remove('error')
-  var content =
-    undefinedSymbols.length > 0
-      ? `Undefined symbols: ${stringifyValue([...undefinedSymbols], true)}`
-      : `No undefined symbols`
+  var symbols = [...undefinedSymbols].map(s => s.symbol)
+  var result = symbols.length > 0 ? stringifyValue(symbols, true) : `No undefined symbols`
 
   var oldContent = output.value
-  var newContent = oldContent ? oldContent + '\n' + content : content
+  var newContent = oldContent ? oldContent + '\n' + result : result
   output.value = newContent
   output.scrollTop = output.scrollHeight
 
   output.value = newContent
+
+  var codeOutput = `Lits code:\n%c${blockifyString(code)}\n\n`
+  var resultOutput = `%cUndefined symbols:\n%c${blockifyString(result)}\n\n`
+  var logOutput = `${codeOutput}${resultOutput}`
+  var colors = [`background: lightyellow; color: black;`, ``, `background: pink; color: black;`]
+
+  console.log(logOutput, ...colors, undefinedSymbols)
 }
 
 function parse(debug) {
@@ -424,8 +455,8 @@ function parse(debug) {
   }
   try {
     if (debug) {
-      const tokens = lits.tokenize(code)
-      result = lits.parse(tokens)
+      const tokens = litsDebug.tokenize(code)
+      result = litsDebug.parse(tokens)
     } else {
       const tokens = litsNoDebug.tokenize(code, { debug: false })
       result = litsNoDebug.parse(tokens)
@@ -447,6 +478,13 @@ function parse(debug) {
   output.scrollTop = output.scrollHeight
 
   output.value = newContent
+
+  var codeOutput = `Lits code:\n%c${blockifyString(code)}\n\n`
+  var resultOutput = `%cParsed:\n%c${blockifyString(stringifyValue(result, debug))}\n\n`
+  var logOutput = `${codeOutput}${resultOutput}`
+  var colors = [`background: lightyellow; color: black;`, ``, `background: lightblue; color: black;`]
+
+  console.log(logOutput, ...colors, result)
 }
 
 function tokenize(debug) {
@@ -476,7 +514,7 @@ function tokenize(debug) {
   }
   try {
     if (debug) {
-      result = lits.tokenize(code)
+      result = litsDebug.tokenize(code)
     } else {
       result = litsNoDebug.tokenize(code, { debug: false })
     }
@@ -497,6 +535,13 @@ function tokenize(debug) {
   output.scrollTop = output.scrollHeight
 
   output.value = newContent
+
+  var codeOutput = `Lits code:\n%c${blockifyString(code)}\n\n`
+  var resultOutput = `%cTokenized:\n%c${blockifyString(stringifyValue(result, debug))}\n\n`
+  var logOutput = `${codeOutput}${resultOutput}`
+  var colors = [`background: lightyellow; color: black;`, ``, `background: orange; color: black;`]
+
+  console.log(logOutput, ...colors, result)
 }
 
 function showPage(id, historyEvent) {
@@ -535,6 +580,17 @@ function inactivateAll() {
   }
 }
 
+function isDataType(value) {
+  return value !== null && typeof value === 'object' && value.constructor && value.constructor.name === 'DataType'
+}
+
+function replacer(debug, _key, v) {
+  if (isDataType(v)) {
+    return v.toString({ showDetails: debug })
+  }
+  return v
+}
+
 function stringifyValue(value, debug) {
   if (Lits.isLitsFunction(value)) {
     if (value.builtin) {
@@ -552,7 +608,7 @@ function stringifyValue(value, debug) {
   if (typeof value === 'object' && value instanceof Error) {
     return value.toString()
   }
-  if (value !== null && typeof value === 'object' && value.constructor && value.constructor.name === 'DataType') {
+  if (isDataType(value)) {
     return value.toString({ showDetails: debug })
   }
   if (Number.isNaN(value)) {
@@ -564,7 +620,7 @@ function stringifyValue(value, debug) {
   if (value === Number.NEGATIVE_INFINITY) {
     return '-Infinity'
   }
-  return JSON.stringify(value)
+  return JSON.stringify(value, replacer.bind(null, debug), 2)
 }
 
 function addToPlayground(example) {
@@ -596,6 +652,4 @@ function setPlayground(exampleId) {
     document.getElementById('lits-textarea').value = example.code
     localStorage.setItem('lits-textarea', example.code)
   }
-
-  run()
 }

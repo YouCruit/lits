@@ -71,8 +71,8 @@ function getPlayground() {
   <div class="header row">
     <div class="column shrink">Playground</span></div>
     <div class="column right">
-      <span class="button" onclick="run()">Run [F2]</span>
-      <span class="button" onclick="run()">Run (debug) [F3]</span>
+      <span class="button" onclick="run(false)">Run [F2]</span>
+      <span class="button" onclick="run(true)">Run (debug) [F3]</span>
       <span class="button" onclick="tokenize(false)">Tokenize [F4]</span>
       <span class="button" onclick="tokenize(true)">Tokenize (debug) [F5]</span>
       <span class="button" onclick="parse(false)">Parse [F6]</span>
@@ -287,27 +287,48 @@ function copyFavicon() {
   fs.copyFileSync(path.join(__dirname, `favicon.ico`), path.join(DOC_DIR, `favicon.ico`))
 }
 
-function stringifyValue(value) {
+function stringifyValue(value, debug) {
   if (Lits.isLitsFunction(value)) {
     if (value.builtin) {
-      return `&lt;builtin function ${value.builtin}&gt;`
+      return `<builtin function ${value.builtin}>`
     } else {
-      return `&lt;function ${value.name || 'λ'}&gt;`
+      return `<function ${value.name || 'λ'}>`
     }
   }
   if (value === null) {
     return `null`
   }
-  if (typeof value === 'object' && value instanceof Error) {
-    return value.toString()
-  }
-  if (value !== null && typeof value === 'object' && value.constructor && value.constructor.name === 'DataType') {
-    return value.toString({ showDetails: false })
-  }
   if (typeof value === 'object' && value instanceof RegExp) {
     return `${value}`
   }
-  return JSON.stringify(value)
+  if (typeof value === 'object' && value instanceof Error) {
+    return value.toString()
+  }
+  if (isDataType(value)) {
+    return value.toString({ showDetails: debug })
+  }
+  if (Number.isNaN(value)) {
+    return 'NaN'
+  }
+  if (value === Number.POSITIVE_INFINITY) {
+    return 'Infinity'
+  }
+  if (value === Number.NEGATIVE_INFINITY) {
+    return '-Infinity'
+  }
+  const oneLiner = JSON.stringify(value, replacer.bind(null, debug))
+  return oneLiner.length <= 80 ? oneLiner : JSON.stringify(value, replacer.bind(null, debug), 2)
+}
+
+function isDataType(value) {
+  return value !== null && typeof value === 'object' && value.constructor && value.constructor.name === 'DataType'
+}
+
+function replacer(debug, _key, v) {
+  if (isDataType(v)) {
+    return v.toString({ showDetails: debug })
+  }
+  return v
 }
 
 function escape(str) {

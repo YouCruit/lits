@@ -1,4 +1,5 @@
-import { asDataType, assertDataType, DataType } from '../../../analyze/dataTypes/DataType'
+import { asDataType, assertDataType, DataType, isDataType } from '../../../analyze/dataTypes/DataType'
+import { Any } from '../../../interface'
 import { any, assertNumberOfParams } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
 
@@ -7,6 +8,24 @@ export const typeNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([value], debugInfo): DataType => {
       any.assert(value, debugInfo)
       return DataType.of(value)
+    },
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `type-of`, debugInfo),
+  },
+  'type-to-value': {
+    evaluate: ([value], debugInfo): Any => {
+      any.assert(value, debugInfo)
+      if (isDataType(value)) {
+        return DataType.valueOf(value)
+      } else {
+        return value
+      }
+    },
+    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `type-of`, debugInfo),
+  },
+  'type-split': {
+    evaluate: ([value], debugInfo): Any => {
+      assertDataType(value, debugInfo)
+      return DataType.split(value)
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `type-of`, debugInfo),
   },

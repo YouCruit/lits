@@ -20,9 +20,6 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(DataType.nan)
         }
 
-        if (paramType.intersects(DataType.nan)) {
-          types.push(DataType.nan)
-        }
         if (paramType.intersects(DataType.positiveInfinity)) {
           types.push(DataType.positiveInfinity)
         }
@@ -49,7 +46,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           }
         }
 
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `inc`, debugInfo),
@@ -71,9 +68,6 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(DataType.nan)
         }
 
-        if (paramType.intersects(DataType.nan)) {
-          types.push(DataType.nan)
-        }
         if (paramType.intersects(DataType.positiveInfinity)) {
           types.push(DataType.positiveInfinity)
         }
@@ -99,7 +93,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
             types.push(DataType.negativeFloat)
           }
         }
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `dec`, debugInfo),
@@ -116,7 +110,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         }, 0)
       } else {
         const paramTypes = params.map(param => DataType.of(param))
-        return getTypeOfSum(paramTypes)
+        return getTypeOfSum(paramTypes).valueOfNumber()
       }
     },
     validateArity: () => undefined,
@@ -146,10 +140,10 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
         const firstParamType = asValue(paramTypes[0])
         if (paramTypes.length === 1) {
-          return firstParamType.negateNumber()
+          return firstParamType.negateNumber().valueOfNumber()
         }
         const restTypes = paramTypes.slice(1).map(t => t.negateNumber())
-        return getTypeOfSum([firstParamType, ...restTypes])
+        return getTypeOfSum([firstParamType, ...restTypes]).valueOfNumber()
       }
     },
     validateArity: () => undefined,
@@ -169,7 +163,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         }, 1)
       } else {
         const paramTypes = params.map(param => DataType.of(param))
-        return getTypeOfProduct(paramTypes)
+        return getTypeOfProduct(paramTypes).valueOfNumber()
       }
     },
     validateArity: () => undefined,
@@ -205,7 +199,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
       } else {
         const paramTypes = params.map(param => DataType.of(param))
 
-        return getTypeOfDivision(paramTypes)
+        return getTypeOfDivision(paramTypes).valueOfNumber()
       }
     },
     validateArity: () => undefined,
@@ -290,7 +284,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           }
         }
 
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `quot`, debugInfo),
@@ -347,7 +341,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(DataType.nonNegativeFloat)
         }
 
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `mod`, debugInfo),
@@ -397,7 +391,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(DataType.nonNegativeFloat)
         }
 
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `rem`, debugInfo),
@@ -436,7 +430,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(DataType.positiveFloat)
         }
 
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `sqrt`, debugInfo),
@@ -480,7 +474,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(DataType.negativeFloat)
         }
 
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `cbrt`, debugInfo),
@@ -512,6 +506,8 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
         const types: DataType[] = []
 
+        let ones = 0
+
         if (a.or(b).intersectsNonNumber()) {
           types.push(DataType.nan)
         }
@@ -538,6 +534,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           }
           if (b.intersects(DataType.zero)) {
             types.push(DataType.positiveInteger)
+            ones += 1
           }
         }
         if (a.intersects(DataType.negativeInfinity)) {
@@ -553,6 +550,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           }
           if (b.intersects(DataType.zero)) {
             types.push(DataType.positiveInteger)
+            ones += 1
           }
         }
 
@@ -607,6 +605,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         if (b.intersects(DataType.zero)) {
           if (a.intersects(DataType.float)) {
             types.push(DataType.positiveInteger)
+            ones += 1
           }
         }
 
@@ -652,14 +651,19 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
               types.push(DataType.negativeFloat)
             }
           } else {
-            if (b.intersects(DataType.integer)) {
+            if (b.intersects(DataType.nonZeroInteger)) {
               types.push(DataType.positiveFloat)
               types.push(DataType.negativeFloat)
             }
           }
         }
 
-        return DataType.or(...types)
+        if (ones > 0 && types.every(t => t.equals(DataType.positiveInteger))) {
+          if (types.length === ones) {
+            return 1
+          }
+        }
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `pow`, debugInfo),
@@ -749,7 +753,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           }
         }
 
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `round`, debugInfo),
@@ -800,7 +804,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           }
         }
 
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `trunc`, debugInfo),
@@ -846,7 +850,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(DataType.negativeInteger)
         }
 
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `floor`, debugInfo),
@@ -892,7 +896,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           }
         }
 
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `ceil`, debugInfo),
@@ -940,7 +944,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         if (a.intersects(DataType.negativeFloat)) {
           types.push(DataType.nonPositiveInteger)
         }
-        return DataType.or(...types)
+        return DataType.or(...types).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `rand-int!`, debugInfo),
@@ -976,7 +980,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
         // If an argument is nan (and nan only) or a non number
         if (numberTypes.some(t => t.is(DataType.nan) || t.is(DataType.never))) {
-          return DataType.nan
+          return Number.NaN
         }
 
         type SmallestMax = -2 | -1 | 0 | 1 | 2
@@ -1002,7 +1006,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
         const result = DataType.or(...numberTypes).exclude(exclude)
 
-        return hasNonNumber || hasNan ? result.or(DataType.nan) : result
+        return (hasNonNumber || hasNan ? result.or(DataType.nan) : result).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1 }, arity, `min`, debugInfo),
@@ -1039,7 +1043,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
         // If an argument is nan (and nan only) or a non number
         if (numberTypes.some(t => t.is(DataType.nan) || t.is(DataType.never))) {
-          return DataType.nan
+          return Number.NaN
         }
 
         type LargestMin = -2 | -1 | 0 | 1 | 2
@@ -1065,30 +1069,76 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
         const result = DataType.or(...numberTypes).exclude(exclude)
 
-        return hasNonNumber || hasNan ? result.or(DataType.nan) : result
+        return (hasNonNumber || hasNan ? result.or(DataType.nan) : result).valueOfNumber()
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1 }, arity, `max`, debugInfo),
   },
 
   abs: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | DataType => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.abs(value)
+        return Math.abs(value)
+      } else {
+        const paramType = DataType.of(value)
+        const types: DataType[] = []
+
+        if (paramType.intersectsNonNumber()) {
+          types.push(DataType.nan)
+        }
+
+        const numberType = paramType.and(DataType.number)
+        const absType = numberType
+          .or(numberType.negateNumber())
+          .exclude(DataType.negativeFloat.or(DataType.negativeInfinity))
+
+        types.push(absType)
+
+        return DataType.or(...types).valueOfNumber()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `abs`, debugInfo),
   },
 
   sign: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | DataType => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.sign(value)
+        return Math.sign(value)
+      } else {
+        const paramType = DataType.of(value)
+        const types: DataType[] = []
+
+        if (paramType.intersectsNonNumber()) {
+          types.push(DataType.nan)
+        }
+
+        if (paramType.intersects(DataType.negativeNumber)) {
+          types.push(DataType.negativeInteger)
+        }
+        if (paramType.intersects(DataType.zero)) {
+          types.push(DataType.zero)
+        }
+        if (paramType.intersects(DataType.positiveNumber)) {
+          types.push(DataType.positiveInteger)
+        }
+
+        const resultType = DataType.or(...types)
+        if (resultType.equals(DataType.positiveInteger)) {
+          return 1
+        }
+        if (resultType.equals(DataType.negativeInteger)) {
+          return -1
+        }
+        return resultType.valueOfNumber()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `sign`, debugInfo),
   },
@@ -1144,11 +1194,40 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   exp: {
     evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.exp(value)
+        return Math.exp(value)
+      } else {
+        const paramType = DataType.of(value)
+        const types: DataType[] = []
+
+        if (paramType.intersectsNonNumber()) {
+          types.push(DataType.nan)
+        }
+
+        if (paramType.intersects(DataType.negativeNumber)) {
+          types.push(DataType.negativeInteger)
+        }
+        if (paramType.intersects(DataType.zero)) {
+          types.push(DataType.zero)
+        }
+        if (paramType.intersects(DataType.positiveNumber)) {
+          types.push(DataType.positiveInteger)
+        }
+
+        const resultType = DataType.or(...types)
+        if (resultType.equals(DataType.positiveInteger)) {
+          return 1
+        }
+        if (resultType.equals(DataType.negativeInteger)) {
+          return -1
+        }
+        return 1
+        // return resultType.valueOfNumber()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `exp`, debugInfo),
   },
@@ -1330,10 +1409,6 @@ function getTypeOfBinarySum(a: DataType, b: DataType): DataType {
     types.push(DataType.nan)
   }
 
-  if (a.or(b).intersects(DataType.nan)) {
-    types.push(DataType.nan)
-  }
-
   if (a.intersects(DataType.positiveInfinity)) {
     if (b.intersects(DataType.positiveInfinity)) {
       types.push(DataType.positiveInfinity)
@@ -1416,7 +1491,7 @@ function getTypeOfProduct(paramTypes: DataType[]): DataType {
   }
 
   const first = asValue(paramTypes[0])
-  const nanType = first.intersectsNonNumber() ? DataType.nan : DataType.never
+  const nanType = first.exclude(DataType.nan).intersectsNonNumber() ? DataType.nan : DataType.never
   const zeroType = first.intersects(DataType.zero) ? DataType.zero : DataType.never
 
   return paramTypes
@@ -1428,7 +1503,7 @@ function getTypeOfProduct(paramTypes: DataType[]): DataType {
 
 function getTypeOfBinaryProduct(a: DataType, b: DataType): DataType {
   const types: DataType[] = []
-  if (b.intersectsNonNumber()) {
+  if (b.exclude(DataType.nan).intersectsNonNumber()) {
     types.push(DataType.nan)
   }
   if (b.intersects(DataType.zero)) {
@@ -1516,7 +1591,7 @@ function getTypeOfDivision(paramTypes: DataType[]): DataType {
   }
 
   const first = asValue(paramTypes[0])
-  const nanType = first.intersectsNonNumber() ? DataType.nan : DataType.never
+  const nanType = first.exclude(DataType.nan).intersectsNonNumber() ? DataType.nan : DataType.never
 
   return paramTypes
     .slice(1)
@@ -1532,7 +1607,7 @@ function getTypeOfBinaryDivision(a: DataType, b: DataType): DataType {
   if (b.intersects(DataType.infinity)) {
     types.push(DataType.zero)
   }
-  if (b.intersectsNonNumber()) {
+  if (b.intersectsNonNumber() && a.intersects(DataType.nonZeroNumber)) {
     types.push(DataType.nan)
   }
 

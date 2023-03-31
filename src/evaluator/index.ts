@@ -92,8 +92,20 @@ function evaluateTypeName(node: TypeNameNode): DataType {
       return DataType.nonEmptyString
     case `string`:
       return DataType.string
+    case `number-or-nan`:
+      return DataType.numberOrNan
     case `number`:
       return DataType.number
+    case `positive-number`:
+      return DataType.positiveNumber
+    case `negative-number`:
+      return DataType.negativeNumber
+    case `non-zero-number`:
+      return DataType.nonZeroNumber
+    case `non-positive-number`:
+      return DataType.nonPositiveNumber
+    case `non-negative-number`:
+      return DataType.nonNegativeNumber
     case `float`:
       return DataType.float
     case `illegal-number`:

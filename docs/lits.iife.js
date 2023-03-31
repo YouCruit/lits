@@ -488,13 +488,10 @@ var Lits = (function (exports) {
           value.type === "Number" ||
           value.type === "String");
   });
-  function assertNumberOfParams(count, node) {
-      var _a, _b;
-      var length = node.params.length;
-      var debugInfo = (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo;
+  function assertNumberOfParams(count, arity, name, debugInfo) {
       if (typeof count === "number") {
-          if (length !== count) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.name, "\", expected ").concat(count, ", got ").concat(valueToString$1(length), "."), (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          if (arity !== count) {
+              throw new LitsError("Wrong number of arguments to \"".concat(name, "\", expected ").concat(count, ", got ").concat(valueToString$1(arity), "."), debugInfo);
           }
       }
       else {
@@ -502,19 +499,17 @@ var Lits = (function (exports) {
           if (min === undefined && max === undefined) {
               throw new LitsError("Min or max must be specified.", debugInfo);
           }
-          if (typeof min === "number" && length < min) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.name, "\", expected at least ").concat(min, ", got ").concat(valueToString$1(length), "."), debugInfo);
+          if (typeof min === "number" && arity < min) {
+              throw new LitsError("Wrong number of arguments to \"".concat(name, "\", expected at least ").concat(min, ", got ").concat(valueToString$1(arity), "."), debugInfo);
           }
-          if (typeof max === "number" && length > max) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.name, "\", expected at most ").concat(max, ", got ").concat(valueToString$1(length), "."), debugInfo);
+          if (typeof max === "number" && arity > max) {
+              throw new LitsError("Wrong number of arguments to \"".concat(name, "\", expected at most ").concat(max, ", got ").concat(valueToString$1(arity), "."), debugInfo);
           }
       }
   }
-  function assertEvenNumberOfParams(node) {
-      var _a;
-      var length = node.params.length;
-      if (length % 2 !== 0) {
-          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString$1(length), "."), (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
+  function assertEvenNumberOfParams(arity, name, debugInfo) {
+      if (arity % 2 !== 0) {
+          throw new LitsError("Wrong number of arguments to ".concat(name, ", expected an even number, got ").concat(valueToString$1(arity), "."), debugInfo);
       }
   }
   function asValue(value, debugInfo) {
@@ -754,6 +749,58 @@ var Lits = (function (exports) {
       typeToBitRecord.nan;
   // All non falsy bits
   var TRUTHY_BITS = UNKNWON_BITS & ~FALSY_BITS;
+  var orderedTypeNames = [
+      "unknown",
+      "number-or-nan",
+      "number",
+      "non-zero-number",
+      "float",
+      "non-zero-number",
+      "non-zero-float",
+      "non-positive-number",
+      "non-positive-float",
+      "non-negative-number",
+      "non-negative-float",
+      "positive-number",
+      "positive-float",
+      "negative-number",
+      "negative-float",
+      "integer",
+      "non-zero-integer",
+      "non-positive-integer",
+      "non-negative-integer",
+      "positive-integer",
+      "negative-integer",
+      "zero",
+      "illegal-number",
+      "infinity",
+      "positive-infinity",
+      "negative-infinity",
+      "nan",
+      "boolean",
+      "true",
+      "false",
+      "collection",
+      "empty-collection",
+      "non-empty-collection",
+      "sequence",
+      "empty-sequence",
+      "non-empty-sequence",
+      "array",
+      "empty-array",
+      "non-empty-array",
+      "object",
+      "empty-object",
+      "non-empty-object",
+      "string",
+      "non-empty-string",
+      "empty-string",
+      "regexp",
+      "function",
+      "nil",
+      "truthy",
+      "falsy",
+  ];
   var builtinTypesBitMasks = {
       never: 0,
       nil: typeToBitRecord.nil,
@@ -762,6 +809,13 @@ var Lits = (function (exports) {
       string: typeToBitRecord["empty-string"] | typeToBitRecord["non-empty-string"],
       // Numbers
       number: typeToBitRecord.zero |
+          typeToBitRecord["positive-non-integer"] |
+          typeToBitRecord["positive-integer"] |
+          typeToBitRecord["negative-non-integer"] |
+          typeToBitRecord["negative-integer"] |
+          typeToBitRecord["positive-infinity"] |
+          typeToBitRecord["negative-infinity"],
+      'number-or-nan': typeToBitRecord.zero |
           typeToBitRecord["positive-non-integer"] |
           typeToBitRecord["positive-integer"] |
           typeToBitRecord["negative-non-integer"] |
@@ -780,21 +834,38 @@ var Lits = (function (exports) {
       'negative-infinity': typeToBitRecord["negative-infinity"],
       infinity: typeToBitRecord["negative-infinity"] | typeToBitRecord["positive-infinity"],
       zero: typeToBitRecord.zero,
+      'non-zero-number': typeToBitRecord["negative-non-integer"] |
+          typeToBitRecord["negative-integer"] |
+          typeToBitRecord["positive-non-integer"] |
+          typeToBitRecord["positive-integer"] |
+          typeToBitRecord["positive-infinity"] |
+          typeToBitRecord["negative-infinity"],
       'non-zero-float': typeToBitRecord["negative-non-integer"] |
           typeToBitRecord["negative-integer"] |
           typeToBitRecord["positive-non-integer"] |
           typeToBitRecord["positive-integer"],
+      'positive-number': typeToBitRecord["positive-non-integer"] |
+          typeToBitRecord["positive-integer"] |
+          typeToBitRecord["positive-infinity"],
+      'negative-number': typeToBitRecord["negative-non-integer"] |
+          typeToBitRecord["negative-integer"] |
+          typeToBitRecord["negative-infinity"],
+      'non-positive-number': typeToBitRecord.zero |
+          typeToBitRecord["negative-non-integer"] |
+          typeToBitRecord["negative-integer"] |
+          typeToBitRecord["negative-infinity"],
+      'non-negative-number': typeToBitRecord.zero |
+          typeToBitRecord["positive-non-integer"] |
+          typeToBitRecord["positive-integer"] |
+          typeToBitRecord["positive-infinity"],
       'positive-float': typeToBitRecord["positive-non-integer"] | typeToBitRecord["positive-integer"],
       'non-positive-float': typeToBitRecord.zero | typeToBitRecord["negative-non-integer"] | typeToBitRecord["negative-integer"],
       'negative-float': typeToBitRecord["negative-non-integer"] | typeToBitRecord["negative-integer"],
       'non-negative-float': typeToBitRecord.zero | typeToBitRecord["positive-non-integer"] | typeToBitRecord["positive-integer"],
       integer: typeToBitRecord.zero | typeToBitRecord["positive-integer"] | typeToBitRecord["negative-integer"],
-      // 'non-integer': typeToBitRecord[`positive-non-integer`] | typeToBitRecord[`negative-non-integer`],
       'non-zero-integer': typeToBitRecord["negative-integer"] | typeToBitRecord["positive-integer"],
       'positive-integer': typeToBitRecord["positive-integer"],
-      // 'positive-non-integer': typeToBitRecord[`positive-non-integer`],
       'negative-integer': typeToBitRecord["negative-integer"],
-      // 'negative-non-integer': typeToBitRecord[`negative-non-integer`],
       'non-positive-integer': typeToBitRecord.zero | typeToBitRecord["negative-integer"],
       'non-negative-integer': typeToBitRecord.zero | typeToBitRecord["positive-integer"],
       true: typeToBitRecord.true,
@@ -1006,6 +1077,72 @@ var Lits = (function (exports) {
       DataType.isUnionType = function (dataType) {
           return !allBitValues.includes(dataType.bitmask);
       };
+      DataType.valueOf = function (dataType) {
+          if (dataType.equals(DataType.zero)) {
+              return 0;
+          }
+          if (dataType.equals(DataType.nan)) {
+              return Number.NaN;
+          }
+          if (dataType.equals(DataType.positiveInfinity)) {
+              return Number.POSITIVE_INFINITY;
+          }
+          if (dataType.equals(DataType.negativeInfinity)) {
+              return Number.NEGATIVE_INFINITY;
+          }
+          if (dataType.equals(DataType.emptyString)) {
+              return "";
+          }
+          if (dataType.equals(DataType.true)) {
+              return true;
+          }
+          if (dataType.equals(DataType.false)) {
+              return false;
+          }
+          if (dataType.equals(DataType.zero)) {
+              return 0;
+          }
+          if (dataType.equals(DataType.nil)) {
+              return null;
+          }
+          if (dataType.equals(DataType.emptyArray)) {
+              return [];
+          }
+          if (dataType.equals(DataType.emptyObject)) {
+              return {};
+          }
+          return dataType;
+      };
+      DataType.valueOfNumber = function (dataType) {
+          if (dataType.equals(DataType.zero)) {
+              return 0;
+          }
+          if (dataType.equals(DataType.nan)) {
+              return Number.NaN;
+          }
+          if (dataType.equals(DataType.positiveInfinity)) {
+              return Number.POSITIVE_INFINITY;
+          }
+          if (dataType.equals(DataType.negativeInfinity)) {
+              return Number.NEGATIVE_INFINITY;
+          }
+          if (dataType.equals(DataType.zero)) {
+              return 0;
+          }
+          return dataType;
+      };
+      DataType.toSingelBits = function (dataType) {
+          var result = [];
+          Object.values(typeToBitRecord).forEach(function (bitValue) {
+              if (dataType.bitmask & bitValue) {
+                  result.push(bitValue);
+              }
+          });
+          return result;
+      };
+      DataType.split = function (dataType) {
+          return DataType.toSingelBits(dataType).map(function (bits) { return new DataType(bits); });
+      };
       DataType.prototype.or = function () {
           var dataTypes = [];
           for (var _i = 0; _i < arguments.length; _i++) {
@@ -1111,14 +1248,16 @@ var Lits = (function (exports) {
               !(this.bitmask & (typeToBitRecord["positive-non-integer"] | typeToBitRecord["negative-non-integer"])));
       };
       DataType.prototype.toSingelBits = function () {
-          var _this = this;
-          var result = [];
-          Object.values(typeToBitRecord).forEach(function (bitValue) {
-              if (_this.bitmask & bitValue) {
-                  result.push(bitValue);
-              }
-          });
-          return result;
+          return DataType.toSingelBits(this);
+      };
+      DataType.prototype.split = function () {
+          return DataType.split(this);
+      };
+      DataType.prototype.valueOf = function () {
+          return DataType.valueOf(this);
+      };
+      DataType.prototype.valueOfNumber = function () {
+          return DataType.valueOfNumber(this);
       };
       DataType.prototype.toString = function (_a) {
           var _b = _a === void 0 ? { showDetails: true } : _a, showDetails = _b.showDetails;
@@ -1127,66 +1266,44 @@ var Lits = (function (exports) {
           return "".concat(typeString).concat(showDetails ? suffix : "");
       };
       DataType.prototype.getTypeString = function () {
-          var e_1, _a;
+          var e_1, _a, e_2, _b;
           if (this.isNever()) {
               return "::never";
           }
-          if (this.isUnknown()) {
-              return "::unknown";
-          }
-          var nan = !!(this.bitmask & typeToBitRecord.nan);
-          var positiveInfinity = !!(this.bitmask & typeToBitRecord["positive-infinity"]);
-          var negativeInfinity = !!(this.bitmask & typeToBitRecord["negative-infinity"]);
-          var nilable = !!(this.bitmask & typeToBitRecord.nil);
-          var bitmask = this.bitmask &
-              ~(typeToBitRecord.nil |
-                  typeToBitRecord.nan |
-                  typeToBitRecord["positive-infinity"] |
-                  typeToBitRecord["negative-infinity"]);
-          var typeStrings = [];
           try {
-              for (var _b = __values(Object.entries(builtinTypesBitMasks).filter(function (_a) {
-                  var _b = __read(_a, 2), _ = _b[0], value = _b[1];
-                  return value !== builtinTypesBitMasks.never;
-              })), _c = _b.next(); !_c.done; _c = _b.next()) {
-                  var _d = __read(_c.value, 2), name_1 = _d[0], bits = _d[1];
-                  if (bitmask === bits) {
-                      typeStrings.push("::".concat(name_1));
-                      break;
+              for (var orderedTypeNames_1 = __values(orderedTypeNames), orderedTypeNames_1_1 = orderedTypeNames_1.next(); !orderedTypeNames_1_1.done; orderedTypeNames_1_1 = orderedTypeNames_1.next()) {
+                  var typeName = orderedTypeNames_1_1.value;
+                  var bitmask = builtinTypesBitMasks[typeName];
+                  if (this.bitmask === bitmask) {
+                      return "::".concat(typeName);
                   }
               }
           }
           catch (e_1_1) { e_1 = { error: e_1_1 }; }
           finally {
               try {
-                  if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                  if (orderedTypeNames_1_1 && !orderedTypeNames_1_1.done && (_a = orderedTypeNames_1.return)) _a.call(orderedTypeNames_1);
               }
               finally { if (e_1) throw e_1.error; }
           }
-          if (typeStrings.length === 0) {
-              Object.entries(typeToBitRecord).forEach(function (_a) {
-                  var _b = __read(_a, 2), name = _b[0], bitValue = _b[1];
-                  if (bitmask & bitValue) {
-                      typeStrings.push("::".concat(name));
+          var typeStrings = [];
+          var bits = this.bitmask;
+          try {
+              for (var orderedTypeNames_2 = __values(orderedTypeNames), orderedTypeNames_2_1 = orderedTypeNames_2.next(); !orderedTypeNames_2_1.done; orderedTypeNames_2_1 = orderedTypeNames_2.next()) {
+                  var typeName = orderedTypeNames_2_1.value;
+                  var bitmask = builtinTypesBitMasks[typeName];
+                  if ((bits & bitmask) === bitmask) {
+                      typeStrings.push("::".concat(typeName));
+                      bits &= ~bitmask;
                   }
-              });
-          }
-          if (nilable) {
-              typeStrings.push("::nil");
-          }
-          if (nan && positiveInfinity && negativeInfinity) {
-              typeStrings.push("::illegal-number");
-          }
-          else {
-              if (nan) {
-                  typeStrings.push("::nan");
               }
-              if (positiveInfinity) {
-                  typeStrings.push("::positive-infinity");
+          }
+          catch (e_2_1) { e_2 = { error: e_2_1 }; }
+          finally {
+              try {
+                  if (orderedTypeNames_2_1 && !orderedTypeNames_2_1.done && (_b = orderedTypeNames_2.return)) _b.call(orderedTypeNames_2);
               }
-              if (negativeInfinity) {
-                  typeStrings.push("::negative-infinity");
-              }
+              finally { if (e_2) throw e_2.error; }
           }
           return typeStrings.join(" | ");
       };
@@ -1200,8 +1317,14 @@ var Lits = (function (exports) {
       DataType.emptyString = new DataType(builtinTypesBitMasks["empty-string"]);
       DataType.nonEmptyString = new DataType(builtinTypesBitMasks["non-empty-string"]);
       DataType.string = new DataType(builtinTypesBitMasks.string);
+      DataType.number = new DataType(builtinTypesBitMasks.number);
+      DataType.numberOrNan = new DataType(builtinTypesBitMasks["number-or-nan"]);
       DataType.zero = new DataType(builtinTypesBitMasks.zero);
-      DataType.number = new DataType(builtinTypesBitMasks["number"]);
+      DataType.nonZeroNumber = new DataType(builtinTypesBitMasks["non-zero-number"]);
+      DataType.positiveNumber = new DataType(builtinTypesBitMasks["positive-number"]);
+      DataType.negativeNumber = new DataType(builtinTypesBitMasks["negative-number"]);
+      DataType.nonPositiveNumber = new DataType(builtinTypesBitMasks["non-positive-number"]);
+      DataType.nonNegativeNumber = new DataType(builtinTypesBitMasks["non-negative-number"]);
       DataType.float = new DataType(builtinTypesBitMasks.float);
       DataType.integer = new DataType(builtinTypesBitMasks.integer);
       DataType.nonZeroFloat = new DataType(builtinTypesBitMasks["non-zero-float"]);
@@ -1286,7 +1409,7 @@ var Lits = (function (exports) {
               return DataType.or.apply(DataType, __spreadArray([], __read(possibleValues.map(DataType.of)), false));
           }
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
@@ -1347,7 +1470,7 @@ var Lits = (function (exports) {
           }
           return null;
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var astNodes = node.conditions.flatMap(function (condition) { return [condition.test, condition.form]; });
@@ -1453,7 +1576,7 @@ var Lits = (function (exports) {
           contextStack.globalContext[name] = { value: litsFunction };
           return null;
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
@@ -1507,7 +1630,7 @@ var Lits = (function (exports) {
           contextStack.globalContext[name] = { value: litsFunction };
           return null;
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return addOverloadsUndefinedSymbols(node.overloads, contextStack, findUndefinedSymbols, builtin);
@@ -1544,7 +1667,7 @@ var Lits = (function (exports) {
               _b);
           return litsFunction;
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return addOverloadsUndefinedSymbols(node.overloads, contextStack, findUndefinedSymbols, builtin);
@@ -1828,7 +1951,7 @@ var Lits = (function (exports) {
           contextStack.globalContext[name] = { value: value };
           return value;
       },
-      validate: function (node) { return assertNumberOfParams(2, node); },
+      validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "def", debugInfo); },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
@@ -1868,7 +1991,7 @@ var Lits = (function (exports) {
           contextStack.globalContext[name] = { value: value };
           return value;
       },
-      validate: function (node) { return assertNumberOfParams(2, node); },
+      validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "defs", debugInfo); },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
@@ -1917,7 +2040,7 @@ var Lits = (function (exports) {
           }
           return result;
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
@@ -2130,7 +2253,7 @@ var Lits = (function (exports) {
           return [position + 1, node];
       },
       evaluate: function (node, contextStack, helpers) { return evaluateLoop(true, node, contextStack, helpers.evaluateAstNode); },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return analyze(node, contextStack, findUndefinedSymbols, builtin);
@@ -2159,7 +2282,7 @@ var Lits = (function (exports) {
           evaluateLoop(false, node, contextStack, helpers.evaluateAstNode);
           return null;
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return analyze(node, contextStack, findUndefinedSymbols, builtin);
@@ -2205,7 +2328,7 @@ var Lits = (function (exports) {
           }
           return null;
       },
-      validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "if-let", debugInfo); },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
@@ -2248,7 +2371,7 @@ var Lits = (function (exports) {
               }
           }
       },
-      validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "if-not", debugInfo); },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
@@ -2293,7 +2416,7 @@ var Lits = (function (exports) {
               return DataType.or(DataType.of(trueBranchValue), DataType.of(falseBranchValue));
           }
       },
-      validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+      validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "if", debugInfo); },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
@@ -2354,7 +2477,7 @@ var Lits = (function (exports) {
           }
           return result;
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var newContext = node.bindings
@@ -2441,7 +2564,7 @@ var Lits = (function (exports) {
                   return state_1.value;
           }
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           var newContext = node.bindings
@@ -2510,7 +2633,7 @@ var Lits = (function (exports) {
               return DataType.or.apply(DataType, __spreadArray([], __read(possibleValues.map(DataType.of)), false));
           }
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
@@ -2537,7 +2660,7 @@ var Lits = (function (exports) {
           var params = node.params.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
           throw new RecurSignal(params);
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
@@ -2569,7 +2692,7 @@ var Lits = (function (exports) {
           });
           throw new UserDefinedError(message, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.messageNode, contextStack, builtin);
@@ -2601,7 +2724,7 @@ var Lits = (function (exports) {
           console.log("Elapsed time: ".concat(totalTime, " ms"));
           return result;
       },
-      validate: function (node) { return assertNumberOfParams(1, node); },
+      validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "time!", debugInfo); },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
@@ -2659,7 +2782,7 @@ var Lits = (function (exports) {
               return evaluateAstNode(catchExpression, contextStack.withContext(newContext));
           }
       },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
@@ -2726,7 +2849,7 @@ var Lits = (function (exports) {
           }
           return result;
       },
-      validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
@@ -2786,7 +2909,7 @@ var Lits = (function (exports) {
           }
           return result;
       },
-      validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var _b;
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
@@ -2836,7 +2959,7 @@ var Lits = (function (exports) {
           }
           return result;
       },
-      validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+      validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "when-not", debugInfo); },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
@@ -2881,7 +3004,7 @@ var Lits = (function (exports) {
           }
           return result;
       },
-      validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+      validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "when", debugInfo); },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
@@ -2896,7 +3019,7 @@ var Lits = (function (exports) {
               number.assert(count, debugInfo, { integer: true, nonNegative: true });
               return num << count;
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "bit-shift-left", debugInfo); },
       },
       'bit-shift-right': {
           evaluate: function (_a, debugInfo) {
@@ -2905,7 +3028,7 @@ var Lits = (function (exports) {
               number.assert(count, debugInfo, { integer: true, nonNegative: true });
               return num >> count;
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "bit-shift-right", debugInfo); },
       },
       'bit-not': {
           evaluate: function (_a, debugInfo) {
@@ -2913,7 +3036,7 @@ var Lits = (function (exports) {
               number.assert(num, debugInfo, { integer: true });
               return ~num;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "bit-not", debugInfo); },
       },
       'bit-and': {
           evaluate: function (_a, debugInfo) {
@@ -2924,7 +3047,7 @@ var Lits = (function (exports) {
                   return result & value;
               }, first);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2 }, arity, "bit-and", debugInfo); },
       },
       'bit-and-not': {
           evaluate: function (_a, debugInfo) {
@@ -2935,7 +3058,7 @@ var Lits = (function (exports) {
                   return result & ~value;
               }, first);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2 }, arity, "bit-and-not", debugInfo); },
       },
       'bit-or': {
           evaluate: function (_a, debugInfo) {
@@ -2946,7 +3069,7 @@ var Lits = (function (exports) {
                   return result | value;
               }, first);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2 }, arity, "bit-or", debugInfo); },
       },
       'bit-xor': {
           evaluate: function (_a, debugInfo) {
@@ -2957,7 +3080,7 @@ var Lits = (function (exports) {
                   return result ^ value;
               }, first);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2 }, arity, "bit-xor", debugInfo); },
       },
       'bit-flip': {
           evaluate: function (_a, debugInfo) {
@@ -2967,7 +3090,7 @@ var Lits = (function (exports) {
               var mask = 1 << index;
               return (num ^= mask);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "bit-flip", debugInfo); },
       },
       'bit-set': {
           evaluate: function (_a, debugInfo) {
@@ -2977,7 +3100,7 @@ var Lits = (function (exports) {
               var mask = 1 << index;
               return (num |= mask);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "bit-set", debugInfo); },
       },
       'bit-clear': {
           evaluate: function (_a, debugInfo) {
@@ -2987,7 +3110,7 @@ var Lits = (function (exports) {
               var mask = 1 << index;
               return (num &= ~mask);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "bit-clear", debugInfo); },
       },
       'bit-test': {
           evaluate: function (_a, debugInfo) {
@@ -2997,7 +3120,7 @@ var Lits = (function (exports) {
               var mask = 1 << index;
               return !!(num & mask);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "bit-test", debugInfo); },
       },
   };
 
@@ -3131,7 +3254,7 @@ var Lits = (function (exports) {
                   return DataType.unknown;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "get", debugInfo); },
       },
       'get-in': {
           evaluate: function (params, debugInfo) {
@@ -3180,7 +3303,7 @@ var Lits = (function (exports) {
                   return DataType.unknown;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "___", debugInfo); },
       },
       count: {
           evaluate: function (_a, debugInfo) {
@@ -3205,7 +3328,7 @@ var Lits = (function (exports) {
                           : DataType.nonNegativeInteger;
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "count", debugInfo); },
       },
       'contains?': {
           evaluate: function (params, debugInfo) {
@@ -3227,7 +3350,7 @@ var Lits = (function (exports) {
                   return collType.is(DataType.emptyCollection) ? DataType.false : DataType.boolean;
               }
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "contains?", debugInfo); },
       },
       'has?': {
           evaluate: function (params, debugInfo) {
@@ -3250,7 +3373,7 @@ var Lits = (function (exports) {
                   return collType.is(DataType.emptyCollection) ? DataType.false : DataType.boolean;
               }
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "has?", debugInfo); },
       },
       'has-some?': {
           evaluate: function (_a, debugInfo) {
@@ -3311,7 +3434,7 @@ var Lits = (function (exports) {
               }
               return false;
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "has-some?", debugInfo); },
       },
       'has-every?': {
           evaluate: function (_a, debugInfo) {
@@ -3372,7 +3495,7 @@ var Lits = (function (exports) {
               }
               return true;
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "has-every?", debugInfo); },
       },
       assoc: {
           evaluate: function (_a, debugInfo) {
@@ -3382,7 +3505,7 @@ var Lits = (function (exports) {
               any.assert(value, debugInfo);
               return assoc(coll, key, value, debugInfo);
           },
-          validate: function (node) { return assertNumberOfParams(3, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(3, arity, "assoc", debugInfo); },
       },
       'assoc-in': {
           evaluate: function (_a, debugInfo) {
@@ -3407,7 +3530,7 @@ var Lits = (function (exports) {
               }
               return coll;
           },
-          validate: function (node) { return assertNumberOfParams(3, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(3, arity, "assoc-in", debugInfo); },
       },
       update: {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3418,7 +3541,7 @@ var Lits = (function (exports) {
               litsFunction.assert(fn, debugInfo);
               return update(coll, key, fn, params, contextStack, executeFunction, debugInfo);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 3 }, arity, "update", debugInfo); },
       },
       'update-in': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3444,7 +3567,7 @@ var Lits = (function (exports) {
               }
               return coll;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 3 }, arity, "update-in", debugInfo); },
       },
       concat: {
           evaluate: function (params, debugInfo) {
@@ -3468,7 +3591,7 @@ var Lits = (function (exports) {
                   }, {});
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "concat", debugInfo); },
       },
       'not-empty': {
           evaluate: function (_a, debugInfo) {
@@ -3482,7 +3605,7 @@ var Lits = (function (exports) {
               }
               return Object.keys(coll).length > 0 ? coll : null;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "not-empty", debugInfo); },
       },
       'every?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3498,7 +3621,7 @@ var Lits = (function (exports) {
               }
               return Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "every?", debugInfo); },
       },
       'any?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3514,7 +3637,7 @@ var Lits = (function (exports) {
               }
               return Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "any?", debugInfo); },
       },
       'not-any?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3530,7 +3653,7 @@ var Lits = (function (exports) {
               }
               return !Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "not-any?", debugInfo); },
       },
       'not-every?': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3546,7 +3669,7 @@ var Lits = (function (exports) {
               }
               return !Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "not-every?", debugInfo); },
       },
   };
 
@@ -3622,7 +3745,7 @@ var Lits = (function (exports) {
               string.assert(elem, debugInfo, { char: true });
               return "".concat(elem).concat(seq);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "cons", debugInfo); },
       },
       nth: {
           evaluate: function (params, debugInfo) {
@@ -3635,7 +3758,7 @@ var Lits = (function (exports) {
               sequence.assert(seq, debugInfo);
               return i >= 0 && i < seq.length ? toAny(seq[i]) : defaultValue;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "nth", debugInfo); },
       },
       filter: {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3651,7 +3774,7 @@ var Lits = (function (exports) {
                   .filter(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); })
                   .join("");
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "filter", debugInfo); },
       },
       first: {
           evaluate: function (_a, debugInfo) {
@@ -3659,7 +3782,7 @@ var Lits = (function (exports) {
               sequence.assert(array, debugInfo);
               return toAny(array[0]);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "first", debugInfo); },
       },
       last: {
           evaluate: function (_a, debugInfo) {
@@ -3667,11 +3790,11 @@ var Lits = (function (exports) {
               sequence.assert(first, debugInfo);
               return toAny(first[first.length - 1]);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "last", debugInfo); },
       },
       map: {
           evaluate: evaluateMap,
-          validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2 }, arity, "map", debugInfo); },
       },
       pop: {
           evaluate: function (_a, debugInfo) {
@@ -3684,7 +3807,7 @@ var Lits = (function (exports) {
               copy.pop();
               return copy;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "pop", debugInfo); },
       },
       position: {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -3701,7 +3824,7 @@ var Lits = (function (exports) {
                   return index !== -1 ? index : null;
               }
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "position", debugInfo); },
       },
       'index-of': {
           evaluate: function (_a, debugInfo) {
@@ -3718,7 +3841,7 @@ var Lits = (function (exports) {
                   return index !== -1 ? index : null;
               }
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "index-of", debugInfo); },
       },
       push: {
           evaluate: function (_a, debugInfo) {
@@ -3732,7 +3855,7 @@ var Lits = (function (exports) {
                   return __spreadArray(__spreadArray([], __read(seq), false), __read(values), false);
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2 }, arity, "push", debugInfo); },
       },
       reductions: {
           evaluate: function (params, debugInfo, contextStack, _a) {
@@ -3799,7 +3922,7 @@ var Lits = (function (exports) {
                   }
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "reductions", debugInfo); },
       },
       reduce: {
           evaluate: function (params, debugInfo, contextStack, _a) {
@@ -3852,7 +3975,7 @@ var Lits = (function (exports) {
                   }
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "reduce", debugInfo); },
       },
       'reduce-right': {
           evaluate: function (params, debugInfo, contextStack, _a) {
@@ -3905,7 +4028,7 @@ var Lits = (function (exports) {
                   }
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "reduce-right", debugInfo); },
       },
       rest: {
           evaluate: function (_a, debugInfo) {
@@ -3919,7 +4042,7 @@ var Lits = (function (exports) {
               }
               return first.substr(1);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "rest", debugInfo); },
       },
       nthrest: {
           evaluate: function (_a, debugInfo) {
@@ -3932,7 +4055,7 @@ var Lits = (function (exports) {
               }
               return seq.substr(integerCount);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "nthrest", debugInfo); },
       },
       next: {
           evaluate: function (_a, debugInfo) {
@@ -3949,7 +4072,7 @@ var Lits = (function (exports) {
               }
               return first.substr(1);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "next", debugInfo); },
       },
       nthnext: {
           evaluate: function (_a, debugInfo) {
@@ -3965,7 +4088,7 @@ var Lits = (function (exports) {
               }
               return seq.substr(integerCount);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "nthnext", debugInfo); },
       },
       reverse: {
           evaluate: function (_a, debugInfo) {
@@ -3976,7 +4099,7 @@ var Lits = (function (exports) {
               }
               return first.split("").reverse().join("");
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "reverse", debugInfo); },
       },
       second: {
           evaluate: function (_a, debugInfo) {
@@ -3984,7 +4107,7 @@ var Lits = (function (exports) {
               sequence.assert(array, debugInfo);
               return toAny(array[1]);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "second", debugInfo); },
       },
       shift: {
           evaluate: function (_a, debugInfo) {
@@ -3997,7 +4120,7 @@ var Lits = (function (exports) {
               copy.shift();
               return copy;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "shift", debugInfo); },
       },
       slice: {
           evaluate: function (params, debugInfo) {
@@ -4013,7 +4136,7 @@ var Lits = (function (exports) {
               number.assert(to, debugInfo, { integer: true });
               return seq.slice(from, to);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 3 }, arity, "slice", debugInfo); },
       },
       some: {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -4030,7 +4153,7 @@ var Lits = (function (exports) {
               }
               return toAny(seq.find(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); }));
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "some", debugInfo); },
       },
       sort: {
           evaluate: function (params, debugInfo, contextStack, _a) {
@@ -4068,7 +4191,7 @@ var Lits = (function (exports) {
               }
               return result;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "sort", debugInfo); },
       },
       'sort-by': {
           evaluate: function (params, debugInfo, contextStack, _a) {
@@ -4118,7 +4241,7 @@ var Lits = (function (exports) {
               }
               return result;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "sort-by", debugInfo); },
       },
       take: {
           evaluate: function (_a, debugInfo) {
@@ -4128,7 +4251,7 @@ var Lits = (function (exports) {
               var num = Math.max(Math.ceil(n), 0);
               return input.slice(0, num);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "take", debugInfo); },
       },
       'take-last': {
           evaluate: function (_a, debugInfo) {
@@ -4139,7 +4262,7 @@ var Lits = (function (exports) {
               var from = array.length - num;
               return array.slice(from);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "take-last", debugInfo); },
       },
       'take-while': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -4169,7 +4292,7 @@ var Lits = (function (exports) {
               }
               return string.is(seq) ? result.join("") : result;
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "take-while", debugInfo); },
       },
       drop: {
           evaluate: function (_a, debugInfo) {
@@ -4179,7 +4302,7 @@ var Lits = (function (exports) {
               sequence.assert(input, debugInfo);
               return input.slice(num);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "drop", debugInfo); },
       },
       'drop-last': {
           evaluate: function (_a, debugInfo) {
@@ -4190,7 +4313,7 @@ var Lits = (function (exports) {
               var from = array.length - num;
               return array.slice(0, from);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "drop-last", debugInfo); },
       },
       'drop-while': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -4206,7 +4329,7 @@ var Lits = (function (exports) {
               var from = charArray.findIndex(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); });
               return charArray.slice(from).join("");
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "drop-while", debugInfo); },
       },
       unshift: {
           evaluate: function (_a, debugInfo) {
@@ -4220,7 +4343,7 @@ var Lits = (function (exports) {
               copy.unshift.apply(copy, __spreadArray([], __read(values), false));
               return copy;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2 }, arity, "unshift", debugInfo); },
       },
       'random-sample!': {
           evaluate: function (_a, debugInfo) {
@@ -4237,7 +4360,7 @@ var Lits = (function (exports) {
                   return seq.filter(function () { return Math.random() < prob; });
               }
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "random-sample!", debugInfo); },
       },
       'rand-nth!': {
           evaluate: function (_a, debugInfo) {
@@ -4252,7 +4375,7 @@ var Lits = (function (exports) {
               }
               return toAny(seq[index]);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "rand-nth!", debugInfo); },
       },
       'shuffle!': {
           evaluate: function (_a, debugInfo) {
@@ -4274,7 +4397,7 @@ var Lits = (function (exports) {
               }
               return string.is(input) ? array.join("") : array;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "shuffle!", debugInfo); },
       },
       distinct: {
           evaluate: function (_a, debugInfo) {
@@ -4285,7 +4408,7 @@ var Lits = (function (exports) {
               }
               return Array.from(new Set(input.split(""))).join("");
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "distinct", debugInfo); },
       },
       remove: {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -4301,7 +4424,7 @@ var Lits = (function (exports) {
                   .filter(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); })
                   .join("");
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "remove", debugInfo); },
       },
       'remove-at': {
           evaluate: function (_a, debugInfo) {
@@ -4319,7 +4442,7 @@ var Lits = (function (exports) {
               }
               return "".concat(input.substring(0, index)).concat(input.substring(index + 1));
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "remove-at", debugInfo); },
       },
       'split-at': {
           evaluate: function (_a, debugInfo) {
@@ -4329,7 +4452,7 @@ var Lits = (function (exports) {
               sequence.assert(seq, debugInfo);
               return [seq.slice(0, intPos), seq.slice(intPos)];
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "split-at", debugInfo); },
       },
       'split-with': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -4345,7 +4468,7 @@ var Lits = (function (exports) {
               }
               return [seq.slice(0, index), seq.slice(index)];
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "split-with", debugInfo); },
       },
       frequencies: {
           evaluate: function (_a, debugInfo) {
@@ -4363,7 +4486,7 @@ var Lits = (function (exports) {
                   return result;
               }, {});
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "frequencies", debugInfo); },
       },
       'group-by': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -4382,7 +4505,7 @@ var Lits = (function (exports) {
                   return result;
               }, {});
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "group-by", debugInfo); },
       },
       partition: {
           evaluate: function (params, debugInfo) {
@@ -4397,7 +4520,7 @@ var Lits = (function (exports) {
               var pad = len === 4 ? (params[2] === null ? [] : array.as(params[2], debugInfo)) : undefined;
               return partition(n, step, seq, pad, debugInfo);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 4 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 4 }, arity, "partition", debugInfo); },
       },
       'partition-all': {
           evaluate: function (params, debugInfo) {
@@ -4407,7 +4530,7 @@ var Lits = (function (exports) {
               var step = len >= 3 ? toNonNegativeInteger(number.as(params[1], debugInfo)) : n;
               return partition(n, step, seq, [], debugInfo);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "partition-all", debugInfo); },
       },
       'partition-by': {
           evaluate: function (_a, debugInfo, contextStack, _b) {
@@ -4428,7 +4551,7 @@ var Lits = (function (exports) {
               }, []);
               return isStringSeq ? result.map(function (elem) { return elem.join(""); }) : result;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "partition-by", debugInfo); },
       },
   };
   function partition(n, step, seq, pad, debugInfo) {
@@ -4463,7 +4586,7 @@ var Lits = (function (exports) {
   var arrayNormalExpression = {
       array: {
           evaluate: function (params) { return params; },
-          validate: function () { return undefined; },
+          validateArity: function () { return undefined; },
       },
       range: {
           evaluate: function (params, debugInfo) {
@@ -4522,7 +4645,7 @@ var Lits = (function (exports) {
                   return fromType.is(DataType.zero) && toType.is(DataType.zero) ? DataType.emptyArray : DataType.array;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 3 }, arity, "range", debugInfo); },
       },
       repeat: {
           evaluate: function (params, debugInfo) {
@@ -4541,7 +4664,7 @@ var Lits = (function (exports) {
                   return countType.is(DataType.zero) ? DataType.emptyArray : DataType.nonEmptyArray;
               }
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "repeat", debugInfo); },
       },
       flatten: {
           evaluate: function (_a) {
@@ -4551,7 +4674,7 @@ var Lits = (function (exports) {
               }
               return seq.flat(Number.POSITIVE_INFINITY);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "flatten", debugInfo); },
       },
       mapcat: {
           evaluate: function (params, debugInfo, contextStack, helpers) {
@@ -4562,7 +4685,7 @@ var Lits = (function (exports) {
               array.assert(mapResult, debugInfo);
               return mapResult.flat(1);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2 }, arity, "mapcat", debugInfo); },
       },
   };
 
@@ -4580,9 +4703,6 @@ var Lits = (function (exports) {
                   var paramType = DataType.of(first);
                   var types = [];
                   if (paramType.intersectsNonNumber()) {
-                      types.push(DataType.nan);
-                  }
-                  if (paramType.intersects(DataType.nan)) {
                       types.push(DataType.nan);
                   }
                   if (paramType.intersects(DataType.positiveInfinity)) {
@@ -4611,10 +4731,10 @@ var Lits = (function (exports) {
                           types.push(DataType.positiveFloat);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "inc", debugInfo); },
       },
       dec: {
           evaluate: function (_a) {
@@ -4629,9 +4749,6 @@ var Lits = (function (exports) {
                   var paramType = DataType.of(first);
                   var types = [];
                   if (paramType.intersectsNonNumber()) {
-                      types.push(DataType.nan);
-                  }
-                  if (paramType.intersects(DataType.nan)) {
                       types.push(DataType.nan);
                   }
                   if (paramType.intersects(DataType.positiveInfinity)) {
@@ -4660,10 +4777,10 @@ var Lits = (function (exports) {
                           types.push(DataType.negativeFloat);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "dec", debugInfo); },
       },
       '+': {
           evaluate: function (params) {
@@ -4677,10 +4794,10 @@ var Lits = (function (exports) {
               }
               else {
                   var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  return getTypeOfSum(paramTypes);
+                  return getTypeOfSum(paramTypes).valueOfNumber();
               }
           },
-          validate: function () { return undefined; },
+          validateArity: function () { return undefined; },
       },
       '-': {
           evaluate: function (params) {
@@ -4706,13 +4823,13 @@ var Lits = (function (exports) {
                   var paramTypes = params.map(function (param) { return DataType.of(param); });
                   var firstParamType = asValue(paramTypes[0]);
                   if (paramTypes.length === 1) {
-                      return firstParamType.negateNumber();
+                      return firstParamType.negateNumber().valueOfNumber();
                   }
                   var restTypes = paramTypes.slice(1).map(function (t) { return t.negateNumber(); });
-                  return getTypeOfSum(__spreadArray([firstParamType], __read(restTypes), false));
+                  return getTypeOfSum(__spreadArray([firstParamType], __read(restTypes), false)).valueOfNumber();
               }
           },
-          validate: function () { return undefined; },
+          validateArity: function () { return undefined; },
       },
       '*': {
           evaluate: function (params) {
@@ -4729,10 +4846,10 @@ var Lits = (function (exports) {
               }
               else {
                   var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  return getTypeOfProduct(paramTypes);
+                  return getTypeOfProduct(paramTypes).valueOfNumber();
               }
           },
-          validate: function () { return undefined; },
+          validateArity: function () { return undefined; },
       },
       '/': {
           evaluate: function (params) {
@@ -4762,10 +4879,10 @@ var Lits = (function (exports) {
               }
               else {
                   var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  return getTypeOfDivision(paramTypes);
+                  return getTypeOfDivision(paramTypes).valueOfNumber();
               }
           },
-          validate: function () { return undefined; },
+          validateArity: function () { return undefined; },
       },
       quot: {
           evaluate: function (params) {
@@ -4837,10 +4954,10 @@ var Lits = (function (exports) {
                           types.push(DataType.negativeInfinity);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "quot", debugInfo); },
       },
       mod: {
           evaluate: function (params) {
@@ -4853,6 +4970,9 @@ var Lits = (function (exports) {
                       return Number.NaN;
                   }
                   var quotient = Math.floor(dividend / divisor);
+                  if (quotient === 0) {
+                      return dividend;
+                  }
                   return dividend - divisor * quotient;
               }
               else {
@@ -4865,8 +4985,17 @@ var Lits = (function (exports) {
                   if (b.intersectsNonNumber()) {
                       types.push(DataType.nan);
                   }
-                  if (a.or(b).intersects(DataType.illegalNumber)) {
+                  if (a.intersects(DataType.illegalNumber)) {
                       types.push(DataType.nan);
+                  }
+                  if (b.intersects(DataType.nan)) {
+                      types.push(DataType.nan);
+                  }
+                  if (b.intersects(DataType.positiveInfinity) && a.intersects(DataType.float)) {
+                      types.push(DataType.zero);
+                  }
+                  if (b.intersects(DataType.negativeInfinity) && a.intersects(DataType.float)) {
+                      types.push(DataType.zero);
                   }
                   if (b.intersects(DataType.zero)) {
                       types.push(DataType.nan);
@@ -4877,10 +5006,10 @@ var Lits = (function (exports) {
                   if (b.intersects(DataType.positiveFloat) && a.intersects(DataType.float)) {
                       types.push(DataType.nonNegativeFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "mod", debugInfo); },
       },
       rem: {
           evaluate: function (params) {
@@ -4893,6 +5022,9 @@ var Lits = (function (exports) {
                       return Number.NaN;
                   }
                   var quotient = Math.trunc(dividend / divisor);
+                  if (quotient === 0) {
+                      return dividend;
+                  }
                   return dividend - divisor * quotient;
               }
               else {
@@ -4917,10 +5049,10 @@ var Lits = (function (exports) {
                   if (a.intersects(DataType.positiveFloat) && b.intersects(DataType.float)) {
                       types.push(DataType.nonNegativeFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "rem", debugInfo); },
       },
       sqrt: {
           evaluate: function (_a) {
@@ -4952,10 +5084,10 @@ var Lits = (function (exports) {
                   if (type.intersects(DataType.positiveFloat)) {
                       types.push(DataType.positiveFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "sqrt", debugInfo); },
       },
       cbrt: {
           evaluate: function (_a) {
@@ -4990,10 +5122,10 @@ var Lits = (function (exports) {
                   if (type.intersects(DataType.negativeFloat)) {
                       types.push(DataType.negativeFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "cbrt", debugInfo); },
       },
       pow: {
           evaluate: function (params) {
@@ -5020,6 +5152,7 @@ var Lits = (function (exports) {
                   var a = asValue(DataType.of(params[0]));
                   var b = asValue(DataType.of(params[1]));
                   var types = [];
+                  var ones = 0;
                   if (a.or(b).intersectsNonNumber()) {
                       types.push(DataType.nan);
                   }
@@ -5043,6 +5176,7 @@ var Lits = (function (exports) {
                       }
                       if (b.intersects(DataType.zero)) {
                           types.push(DataType.positiveInteger);
+                          ones += 1;
                       }
                   }
                   if (a.intersects(DataType.negativeInfinity)) {
@@ -5058,6 +5192,7 @@ var Lits = (function (exports) {
                       }
                       if (b.intersects(DataType.zero)) {
                           types.push(DataType.positiveInteger);
+                          ones += 1;
                       }
                   }
                   if (b.intersects(DataType.positiveInfinity)) {
@@ -5108,6 +5243,7 @@ var Lits = (function (exports) {
                   if (b.intersects(DataType.zero)) {
                       if (a.intersects(DataType.float)) {
                           types.push(DataType.positiveInteger);
+                          ones += 1;
                       }
                   }
                   if (a.intersects(DataType.positiveFloat)) {
@@ -5154,16 +5290,21 @@ var Lits = (function (exports) {
                           }
                       }
                       else {
-                          if (b.intersects(DataType.integer)) {
+                          if (b.intersects(DataType.nonZeroInteger)) {
                               types.push(DataType.positiveFloat);
                               types.push(DataType.negativeFloat);
                           }
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  if (ones > 0 && types.every(function (t) { return t.equals(DataType.positiveInteger); })) {
+                      if (types.length === ones) {
+                          return 1;
+                      }
+                  }
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "pow", debugInfo); },
       },
       round: {
           evaluate: function (params) {
@@ -5241,10 +5382,10 @@ var Lits = (function (exports) {
                           }
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "round", debugInfo); },
       },
       trunc: {
           evaluate: function (_a) {
@@ -5289,10 +5430,10 @@ var Lits = (function (exports) {
                           types.push(DataType.nonPositiveInteger);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "trunc", debugInfo); },
       },
       floor: {
           evaluate: function (_a) {
@@ -5332,10 +5473,10 @@ var Lits = (function (exports) {
                   if (a.intersects(DataType.negativeFloat)) {
                       types.push(DataType.negativeInteger);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "floor", debugInfo); },
       },
       ceil: {
           evaluate: function (_a) {
@@ -5375,16 +5516,16 @@ var Lits = (function (exports) {
                           types.push(DataType.nonPositiveInteger);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "ceil", debugInfo); },
       },
       'rand!': {
           evaluate: function () {
               return Math.random();
           },
-          validate: function (node) { return assertNumberOfParams(0, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "rand!", debugInfo); },
       },
       'rand-int!': {
           evaluate: function (_a) {
@@ -5419,118 +5560,242 @@ var Lits = (function (exports) {
                   if (a.intersects(DataType.negativeFloat)) {
                       types.push(DataType.nonPositiveInteger);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "rand-int!", debugInfo); },
       },
       min: {
-          evaluate: function (_a) {
-              var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-              if (!number.is(first)) {
-                  return Number.NaN;
-              }
-              if (rest.length === 0) {
-                  return first;
-              }
-              return rest.reduce(function (min, value) {
-                  if (!number.is(value)) {
+          evaluate: function (params) {
+              if (params.every(isNotDataType)) {
+                  var _a = __read(params), first = _a[0], rest = _a.slice(1);
+                  if (!number.is(first)) {
                       return Number.NaN;
                   }
-                  return Math.min(min, value);
-              }, first);
+                  if (rest.length === 0) {
+                      return first;
+                  }
+                  return rest.reduce(function (min, value) {
+                      if (!number.is(value)) {
+                          return Number.NaN;
+                      }
+                      return Math.min(min, value);
+                  }, first);
+              }
+              else {
+                  var paramTypes = params.map(DataType.of);
+                  var combinedType = DataType.or.apply(DataType, __spreadArray([], __read(paramTypes), false));
+                  var hasNonNumber = combinedType.intersectsNonNumber();
+                  var hasNan = combinedType.intersects(DataType.nan);
+                  var numberTypes = paramTypes.map(function (t) { return t.and(DataType.number); });
+                  // If an argument is nan (and nan only) or a non number
+                  if (numberTypes.some(function (t) { return t.is(DataType.nan) || t.is(DataType.never); })) {
+                      return Number.NaN;
+                  }
+                  var smallestMax = numberTypes.reduce(function (result, t) {
+                      var max = t.intersects(DataType.positiveInfinity)
+                          ? 2
+                          : t.intersects(DataType.positiveFloat)
+                              ? 1
+                              : t.intersects(DataType.zero)
+                                  ? 0
+                                  : t.intersects(DataType.negativeFloat)
+                                      ? -1
+                                      : -2;
+                      return Math.min(result, max);
+                  }, 2);
+                  var exclude = DataType.or(smallestMax < 2 ? DataType.positiveInfinity : DataType.never, smallestMax < 1 ? DataType.positiveFloat : DataType.never, smallestMax < 0 ? DataType.zero : DataType.never, smallestMax < -1 ? DataType.negativeFloat : DataType.never);
+                  var result = DataType.or.apply(DataType, __spreadArray([], __read(numberTypes), false)).exclude(exclude);
+                  return (hasNonNumber || hasNan ? result.or(DataType.nan) : result).valueOfNumber();
+              }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "min", debugInfo); },
       },
       max: {
-          evaluate: function (_a) {
-              var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-              if (!number.is(first)) {
-                  return Number.NaN;
-              }
-              if (rest.length === 0) {
-                  return first;
-              }
-              return rest.reduce(function (min, value) {
-                  if (!number.is(value)) {
+          evaluate: function (params) {
+              if (params.every(isNotDataType)) {
+                  var _a = __read(params), first = _a[0], rest = _a.slice(1);
+                  if (!number.is(first)) {
                       return Number.NaN;
                   }
-                  return Math.max(min, value);
-              }, first);
+                  if (rest.length === 0) {
+                      return first;
+                  }
+                  return rest.reduce(function (min, value) {
+                      if (!number.is(value)) {
+                          return Number.NaN;
+                      }
+                      return Math.max(min, value);
+                  }, first);
+              }
+              else {
+                  var paramTypes = params.map(DataType.of);
+                  var combinedType = DataType.or.apply(DataType, __spreadArray([], __read(paramTypes), false));
+                  var hasNonNumber = combinedType.intersectsNonNumber();
+                  var hasNan = combinedType.intersects(DataType.nan);
+                  var numberTypes = paramTypes.map(function (t) { return t.and(DataType.number); });
+                  // If an argument is nan (and nan only) or a non number
+                  if (numberTypes.some(function (t) { return t.is(DataType.nan) || t.is(DataType.never); })) {
+                      return Number.NaN;
+                  }
+                  var largestMin = numberTypes.reduce(function (result, t) {
+                      var min = t.intersects(DataType.negativeInfinity)
+                          ? -2
+                          : t.intersects(DataType.negativeFloat)
+                              ? -1
+                              : t.intersects(DataType.zero)
+                                  ? 0
+                                  : t.intersects(DataType.positiveFloat)
+                                      ? 1
+                                      : 2;
+                      return Math.max(result, min);
+                  }, -2);
+                  var exclude = DataType.or(largestMin > -2 ? DataType.negativeInfinity : DataType.never, largestMin > -1 ? DataType.negativeFloat : DataType.never, largestMin > 0 ? DataType.zero : DataType.never, largestMin > 1 ? DataType.positiveFloat : DataType.never);
+                  var result = DataType.or.apply(DataType, __spreadArray([], __read(numberTypes), false)).exclude(exclude);
+                  return (hasNonNumber || hasNan ? result.or(DataType.nan) : result).valueOfNumber();
+              }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "max", debugInfo); },
       },
       abs: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (!number.is(value)) {
-                  return Number.NaN;
+              if (isNotDataType(value)) {
+                  if (!number.is(value)) {
+                      return Number.NaN;
+                  }
+                  return Math.abs(value);
               }
-              return Math.abs(value);
+              else {
+                  var paramType = DataType.of(value);
+                  var types = [];
+                  if (paramType.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
+                  var numberType = paramType.and(DataType.number);
+                  var absType = numberType
+                      .or(numberType.negateNumber())
+                      .exclude(DataType.negativeFloat.or(DataType.negativeInfinity));
+                  types.push(absType);
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+              }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "abs", debugInfo); },
       },
       sign: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (!number.is(value)) {
-                  return Number.NaN;
+              if (isNotDataType(value)) {
+                  if (!number.is(value)) {
+                      return Number.NaN;
+                  }
+                  return Math.sign(value);
               }
-              return Math.sign(value);
+              else {
+                  var paramType = DataType.of(value);
+                  var types = [];
+                  if (paramType.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
+                  if (paramType.intersects(DataType.negativeNumber)) {
+                      types.push(DataType.negativeInteger);
+                  }
+                  if (paramType.intersects(DataType.zero)) {
+                      types.push(DataType.zero);
+                  }
+                  if (paramType.intersects(DataType.positiveNumber)) {
+                      types.push(DataType.positiveInteger);
+                  }
+                  var resultType = DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  if (resultType.equals(DataType.positiveInteger)) {
+                      return 1;
+                  }
+                  if (resultType.equals(DataType.negativeInteger)) {
+                      return -1;
+                  }
+                  return resultType.valueOfNumber();
+              }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "sign", debugInfo); },
       },
       'max-value': {
           evaluate: function () {
               return MAX_NUMBER;
           },
-          validate: function (node) { return assertNumberOfParams(0, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "max-value", debugInfo); },
       },
       'min-value': {
           evaluate: function () {
               return MIN_NUMBER;
           },
-          validate: function (node) { return assertNumberOfParams(0, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "min-value", debugInfo); },
       },
       'positive-infinity': {
           evaluate: function () {
               return Number.POSITIVE_INFINITY;
           },
-          validate: function (node) { return assertNumberOfParams(0, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "positive-infinity", debugInfo); },
       },
       'negative-infinity': {
           evaluate: function () {
               return Number.NEGATIVE_INFINITY;
           },
-          validate: function (node) { return assertNumberOfParams(0, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "negative-infinity", debugInfo); },
       },
       nan: {
           evaluate: function () {
               return Number.NaN;
           },
-          validate: function (node) { return assertNumberOfParams(0, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "nan", debugInfo); },
       },
       e: {
           evaluate: function () {
               return Math.E;
           },
-          validate: function (node) { return assertNumberOfParams(0, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "e", debugInfo); },
       },
       pi: {
           evaluate: function () {
               return Math.PI;
           },
-          validate: function (node) { return assertNumberOfParams(0, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "pi", debugInfo); },
       },
       exp: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (!number.is(value)) {
-                  return Number.NaN;
+              if (isNotDataType(value)) {
+                  if (!number.is(value)) {
+                      return Number.NaN;
+                  }
+                  return Math.exp(value);
               }
-              return Math.exp(value);
+              else {
+                  var paramType = DataType.of(value);
+                  var types = [];
+                  if (paramType.intersectsNonNumber()) {
+                      types.push(DataType.nan);
+                  }
+                  if (paramType.intersects(DataType.negativeNumber)) {
+                      types.push(DataType.negativeInteger);
+                  }
+                  if (paramType.intersects(DataType.zero)) {
+                      types.push(DataType.zero);
+                  }
+                  if (paramType.intersects(DataType.positiveNumber)) {
+                      types.push(DataType.positiveInteger);
+                  }
+                  var resultType = DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+                  if (resultType.equals(DataType.positiveInteger)) {
+                      return 1;
+                  }
+                  if (resultType.equals(DataType.negativeInteger)) {
+                      return -1;
+                  }
+                  return 1;
+                  // return resultType.valueOfNumber()
+              }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "exp", debugInfo); },
       },
       log: {
           evaluate: function (_a) {
@@ -5540,7 +5805,7 @@ var Lits = (function (exports) {
               }
               return Math.log(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "log", debugInfo); },
       },
       log2: {
           evaluate: function (_a) {
@@ -5550,7 +5815,7 @@ var Lits = (function (exports) {
               }
               return Math.log2(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "log2", debugInfo); },
       },
       log10: {
           evaluate: function (_a) {
@@ -5560,7 +5825,7 @@ var Lits = (function (exports) {
               }
               return Math.log10(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "log10", debugInfo); },
       },
       sin: {
           evaluate: function (_a) {
@@ -5570,7 +5835,7 @@ var Lits = (function (exports) {
               }
               return Math.sin(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "sin", debugInfo); },
       },
       asin: {
           evaluate: function (_a) {
@@ -5580,7 +5845,7 @@ var Lits = (function (exports) {
               }
               return Math.asin(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "asin", debugInfo); },
       },
       sinh: {
           evaluate: function (_a) {
@@ -5590,7 +5855,7 @@ var Lits = (function (exports) {
               }
               return Math.sinh(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "sinh", debugInfo); },
       },
       asinh: {
           evaluate: function (_a) {
@@ -5600,7 +5865,7 @@ var Lits = (function (exports) {
               }
               return Math.asinh(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "asinh", debugInfo); },
       },
       cos: {
           evaluate: function (_a) {
@@ -5610,7 +5875,7 @@ var Lits = (function (exports) {
               }
               return Math.cos(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "cos", debugInfo); },
       },
       acos: {
           evaluate: function (_a) {
@@ -5620,7 +5885,7 @@ var Lits = (function (exports) {
               }
               return Math.acos(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "acos", debugInfo); },
       },
       cosh: {
           evaluate: function (_a) {
@@ -5630,7 +5895,7 @@ var Lits = (function (exports) {
               }
               return Math.cosh(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "cosh", debugInfo); },
       },
       acosh: {
           evaluate: function (_a) {
@@ -5640,7 +5905,7 @@ var Lits = (function (exports) {
               }
               return Math.acosh(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "acosh", debugInfo); },
       },
       tan: {
           evaluate: function (_a) {
@@ -5650,7 +5915,7 @@ var Lits = (function (exports) {
               }
               return Math.tan(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "tan", debugInfo); },
       },
       atan: {
           evaluate: function (_a) {
@@ -5660,7 +5925,7 @@ var Lits = (function (exports) {
               }
               return Math.atan(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "atan", debugInfo); },
       },
       tanh: {
           evaluate: function (_a) {
@@ -5670,7 +5935,7 @@ var Lits = (function (exports) {
               }
               return Math.tanh(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "tanh", debugInfo); },
       },
       atanh: {
           evaluate: function (_a) {
@@ -5680,7 +5945,7 @@ var Lits = (function (exports) {
               }
               return Math.atanh(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "atanh", debugInfo); },
       },
   };
   function getTypeOfSum(paramTypes) {
@@ -5689,9 +5954,6 @@ var Lits = (function (exports) {
   function getTypeOfBinarySum(a, b) {
       var types = [];
       if (a.or(b).intersectsNonNumber()) {
-          types.push(DataType.nan);
-      }
-      if (a.or(b).intersects(DataType.nan)) {
           types.push(DataType.nan);
       }
       if (a.intersects(DataType.positiveInfinity)) {
@@ -5769,7 +6031,7 @@ var Lits = (function (exports) {
           return asValue(paramTypes[0]);
       }
       var first = asValue(paramTypes[0]);
-      var nanType = first.intersectsNonNumber() ? DataType.nan : DataType.never;
+      var nanType = first.exclude(DataType.nan).intersectsNonNumber() ? DataType.nan : DataType.never;
       var zeroType = first.intersects(DataType.zero) ? DataType.zero : DataType.never;
       return paramTypes
           .slice(1)
@@ -5779,7 +6041,7 @@ var Lits = (function (exports) {
   }
   function getTypeOfBinaryProduct(a, b) {
       var types = [];
-      if (b.intersectsNonNumber()) {
+      if (b.exclude(DataType.nan).intersectsNonNumber()) {
           types.push(DataType.nan);
       }
       if (b.intersects(DataType.zero)) {
@@ -5853,7 +6115,7 @@ var Lits = (function (exports) {
           paramTypes.unshift(DataType.positiveInteger);
       }
       var first = asValue(paramTypes[0]);
-      var nanType = first.intersectsNonNumber() ? DataType.nan : DataType.never;
+      var nanType = first.exclude(DataType.nan).intersectsNonNumber() ? DataType.nan : DataType.never;
       return paramTypes
           .slice(1)
           .reduce(function (a, b) { return getTypeOfBinaryDivision(a, b); }, first)
@@ -5867,7 +6129,7 @@ var Lits = (function (exports) {
       if (b.intersects(DataType.infinity)) {
           types.push(DataType.zero);
       }
-      if (b.intersectsNonNumber()) {
+      if (b.intersectsNonNumber() && a.intersects(DataType.nonZeroNumber)) {
           types.push(DataType.nan);
       }
       if (a.intersects(DataType.nan) && b.intersects(DataType.number.exclude(DataType.infinity))) {
@@ -5941,7 +6203,7 @@ var Lits = (function (exports) {
               }
               return true;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "not=", debugInfo); },
       },
       '=': {
           evaluate: function (_a) {
@@ -5964,14 +6226,14 @@ var Lits = (function (exports) {
               }
               return true;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "=", debugInfo); },
       },
       'equal?': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), a = _b[0], b = _b[1];
               return deepEqual(any.as(a, debugInfo), any.as(b, debugInfo), debugInfo);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "equal?", debugInfo); },
       },
       '>': {
           evaluate: function (_a) {
@@ -5996,7 +6258,7 @@ var Lits = (function (exports) {
               }
               return true;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, ">", debugInfo); },
       },
       '<': {
           evaluate: function (_a) {
@@ -6021,7 +6283,7 @@ var Lits = (function (exports) {
               }
               return true;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "<", debugInfo); },
       },
       '>=': {
           evaluate: function (_a) {
@@ -6046,7 +6308,7 @@ var Lits = (function (exports) {
               }
               return true;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, ">=", debugInfo); },
       },
       '<=': {
           evaluate: function (_a) {
@@ -6071,20 +6333,20 @@ var Lits = (function (exports) {
               }
               return true;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "<=", debugInfo); },
       },
       not: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               return !first;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "not", debugInfo); },
       },
       'inst-ms!': {
           evaluate: function () {
               return Date.now();
           },
-          validate: function (node) { return assertNumberOfParams(0, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "inst-ms!", debugInfo); },
       },
       'inst-ms->iso-date-time': {
           evaluate: function (_a, debugInfo) {
@@ -6092,7 +6354,7 @@ var Lits = (function (exports) {
               number.assert(ms, debugInfo);
               return new Date(ms).toISOString();
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "inst-ms->iso-date-time", debugInfo); },
       },
       'iso-date-time->inst-ms': {
           evaluate: function (_a, debugInfo) {
@@ -6102,7 +6364,7 @@ var Lits = (function (exports) {
               number.assert(ms, debugInfo, { finite: true });
               return ms;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "iso-date-time->inst-ms", debugInfo); },
       },
       'write!': {
           evaluate: function (params, debugInfo) {
@@ -6113,7 +6375,7 @@ var Lits = (function (exports) {
               }
               return null;
           },
-          validate: function () { return undefined; },
+          validateArity: function () { return undefined; },
       },
       'debug!': {
           evaluate: function (params, debugInfo, contextStack) {
@@ -6126,21 +6388,21 @@ var Lits = (function (exports) {
               console.warn("*** LITS DEBUG ***\n".concat(JSON.stringify(params[0], null, 2), "\n"));
               return any.as(params[0], debugInfo);
           },
-          validate: function (node) { return assertNumberOfParams({ max: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ max: 1 }, arity, "debug!", debugInfo); },
       },
       boolean: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
               return !!value;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "boolean", debugInfo); },
       },
       compare: {
           evaluate: function (_a) {
               var _b = __read(_a, 2), a = _b[0], b = _b[1];
               return compare(a, b);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "compare", debugInfo); },
       },
       'uuid!': {
           evaluate: function () {
@@ -6150,13 +6412,13 @@ var Lits = (function (exports) {
                   return newValue.toString(16);
               });
           },
-          validate: function (node) { return assertNumberOfParams(0, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "uuid!", debugInfo); },
       },
       'lits-version!': {
           evaluate: function () {
               return version;
           },
-          validate: function (node) { return assertNumberOfParams(0, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "lits-version!", debugInfo); },
       },
   };
   function contextStackToString(contextStack) {
@@ -6207,7 +6469,7 @@ var Lits = (function (exports) {
                   return valueType;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert", debugInfo); },
       },
       'assert=': {
           evaluate: function (params, debugInfo) {
@@ -6227,7 +6489,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert=", debugInfo); },
       },
       'assert-not=': {
           evaluate: function (params, debugInfo) {
@@ -6244,7 +6506,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert-not=", debugInfo); },
       },
       'assert-equal': {
           evaluate: function (params, debugInfo) {
@@ -6264,7 +6526,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert-equal", debugInfo); },
       },
       'assert-not-equal': {
           evaluate: function (params, debugInfo) {
@@ -6281,7 +6543,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert-not-equal", debugInfo); },
       },
       'assert>': {
           evaluate: function (params, debugInfo) {
@@ -6298,7 +6560,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert>", debugInfo); },
       },
       'assert>=': {
           evaluate: function (params, debugInfo) {
@@ -6315,7 +6577,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert>=", debugInfo); },
       },
       'assert<': {
           evaluate: function (params, debugInfo) {
@@ -6332,7 +6594,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert<", debugInfo); },
       },
       'assert<=': {
           evaluate: function (params, debugInfo) {
@@ -6349,7 +6611,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert<=", debugInfo); },
       },
       'assert-true': {
           evaluate: function (params, debugInfo) {
@@ -6368,7 +6630,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-true", debugInfo); },
       },
       'assert-false': {
           evaluate: function (params, debugInfo) {
@@ -6387,7 +6649,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-false", debugInfo); },
       },
       'assert-truthy': {
           evaluate: function (params, debugInfo) {
@@ -6406,7 +6668,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-truthy", debugInfo); },
       },
       'assert-falsy': {
           evaluate: function (params, debugInfo) {
@@ -6425,7 +6687,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-falsy", debugInfo); },
       },
       'assert-nil': {
           evaluate: function (params, debugInfo) {
@@ -6444,7 +6706,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-nil", debugInfo); },
       },
       'assert-throws': {
           evaluate: function (params, debugInfo, contextStack, _a) {
@@ -6466,7 +6728,7 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-throws", debugInfo); },
       },
       'assert-throws-error': {
           evaluate: function (params, debugInfo, contextStack, _a) {
@@ -6493,7 +6755,9 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) {
+              return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert-throws-error", debugInfo);
+          },
       },
       'assert-not-throws': {
           evaluate: function (params, debugInfo, contextStack, _a) {
@@ -6515,7 +6779,9 @@ var Lits = (function (exports) {
                   return DataType.nil;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) {
+              return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-not-throws", debugInfo);
+          },
       },
   };
 
@@ -6536,7 +6802,7 @@ var Lits = (function (exports) {
                   return params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject;
               }
           },
-          validate: function (node) { return assertEvenNumberOfParams(node); },
+          validateArity: function (arity, debugInfo) { return assertEvenNumberOfParams(arity, "object", debugInfo); },
       },
       keys: {
           evaluate: function (_a, debugInfo) {
@@ -6544,7 +6810,7 @@ var Lits = (function (exports) {
               object.assert(first, debugInfo);
               return Object.keys(first);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "keys", debugInfo); },
       },
       vals: {
           evaluate: function (_a, debugInfo) {
@@ -6552,7 +6818,7 @@ var Lits = (function (exports) {
               object.assert(first, debugInfo);
               return Object.values(first);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "vals", debugInfo); },
       },
       entries: {
           evaluate: function (_a, debugInfo) {
@@ -6560,7 +6826,7 @@ var Lits = (function (exports) {
               object.assert(first, debugInfo);
               return Object.entries(first);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "entries", debugInfo); },
       },
       find: {
           evaluate: function (_a, debugInfo) {
@@ -6572,7 +6838,7 @@ var Lits = (function (exports) {
               }
               return null;
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "find", debugInfo); },
       },
       dissoc: {
           evaluate: function (_a, debugInfo) {
@@ -6583,7 +6849,7 @@ var Lits = (function (exports) {
               delete newObj[key];
               return newObj;
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "dissoc", debugInfo); },
       },
       merge: {
           evaluate: function (params, debugInfo) {
@@ -6597,7 +6863,7 @@ var Lits = (function (exports) {
                   return __assign(__assign({}, result), obj);
               }, __assign({}, first));
           },
-          validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
+          validateArity: function () { return undefined; },
       },
       'merge-with': {
           evaluate: function (params, debugInfo, contextStack, _a) {
@@ -6623,7 +6889,7 @@ var Lits = (function (exports) {
                   return result;
               }, __assign({}, first));
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "merge-with", debugInfo); },
       },
       zipmap: {
           evaluate: function (_a, debugInfo) {
@@ -6638,7 +6904,7 @@ var Lits = (function (exports) {
               }
               return result;
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "zipmap", debugInfo); },
       },
       'select-keys': {
           evaluate: function (_a, debugInfo) {
@@ -6652,7 +6918,7 @@ var Lits = (function (exports) {
                   return result;
               }, {});
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "select-keys", debugInfo); },
       },
   };
 
@@ -6662,42 +6928,42 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), first = _b[0];
               return litsFunction.is(first);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "function?", debugInfo); },
       },
       'string?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               return typeof first === "string";
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "string?", debugInfo); },
       },
       'number?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               return typeof first === "number";
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "number?", debugInfo); },
       },
       'integer?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               return typeof first === "number" && number.is(first, { integer: true });
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "integer?", debugInfo); },
       },
       'boolean?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               return typeof first === "boolean";
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "boolean?", debugInfo); },
       },
       'nil?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               return first === null || first === undefined;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "nil?", debugInfo); },
       },
       'zero?': {
           evaluate: function (_a, debugInfo) {
@@ -6705,7 +6971,7 @@ var Lits = (function (exports) {
               number.assert(first, debugInfo, { finite: true });
               return first === 0;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "zero?", debugInfo); },
       },
       'pos?': {
           evaluate: function (_a, debugInfo) {
@@ -6713,7 +6979,7 @@ var Lits = (function (exports) {
               number.assert(first, debugInfo, { finite: true });
               return first > 0;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "pos?", debugInfo); },
       },
       'neg?': {
           evaluate: function (_a, debugInfo) {
@@ -6721,7 +6987,7 @@ var Lits = (function (exports) {
               number.assert(first, debugInfo, { finite: true });
               return first < 0;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "neg?", debugInfo); },
       },
       'even?': {
           evaluate: function (_a, debugInfo) {
@@ -6729,7 +6995,7 @@ var Lits = (function (exports) {
               number.assert(first, debugInfo, { finite: true });
               return first % 2 === 0;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "even?", debugInfo); },
       },
       'odd?': {
           evaluate: function (_a, debugInfo) {
@@ -6737,42 +7003,42 @@ var Lits = (function (exports) {
               number.assert(first, debugInfo, { finite: true });
               return number.is(first, { integer: true }) && first % 2 !== 0;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "odd?", debugInfo); },
       },
       'array?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               return array.is(first);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "array?", debugInfo); },
       },
       'coll?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               return collection.is(first);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "coll?", debugInfo); },
       },
       'seq?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               return sequence.is(first);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "seq?", debugInfo); },
       },
       'object?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
               return object.is(first);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "object?", debugInfo); },
       },
       'regexp?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
               return isRegularExpression(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "regexp?", debugInfo); },
       },
       'finite?': {
           evaluate: function (_a, debugInfo) {
@@ -6780,7 +7046,7 @@ var Lits = (function (exports) {
               number.assert(value, debugInfo);
               return Number.isFinite(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "finite?", debugInfo); },
       },
       'nan?': {
           evaluate: function (_a, debugInfo) {
@@ -6788,7 +7054,7 @@ var Lits = (function (exports) {
               number.assert(value, debugInfo);
               return Number.isNaN(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "nan?", debugInfo); },
       },
       'positive-infinity?': {
           evaluate: function (_a, debugInfo) {
@@ -6796,7 +7062,7 @@ var Lits = (function (exports) {
               number.assert(value, debugInfo);
               return value === Number.POSITIVE_INFINITY;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "positive-infinity?", debugInfo); },
       },
       'negative-infinity?': {
           evaluate: function (_a, debugInfo) {
@@ -6804,21 +7070,21 @@ var Lits = (function (exports) {
               number.assert(value, debugInfo);
               return value === Number.NEGATIVE_INFINITY;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "negative-infinity?", debugInfo); },
       },
       'true?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
               return value === true;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "true?", debugInfo); },
       },
       'false?': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
               return value === false;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "false?", debugInfo); },
       },
       'empty?': {
           evaluate: function (_a, debugInfo) {
@@ -6832,7 +7098,7 @@ var Lits = (function (exports) {
               }
               return Object.keys(coll).length === 0;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "empty?", debugInfo); },
       },
       'not-empty?': {
           evaluate: function (_a, debugInfo) {
@@ -6846,7 +7112,7 @@ var Lits = (function (exports) {
               }
               return Object.keys(coll).length > 0;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "not-empty?", debugInfo); },
       },
   };
 
@@ -6870,7 +7136,7 @@ var Lits = (function (exports) {
                   return DataType.regexp;
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "regexp", debugInfo); },
       },
       match: {
           evaluate: function (_a, debugInfo) {
@@ -6884,7 +7150,7 @@ var Lits = (function (exports) {
               }
               return null;
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "match", debugInfo); },
       },
       replace: {
           evaluate: function (_a, debugInfo) {
@@ -6895,7 +7161,7 @@ var Lits = (function (exports) {
               var regExp = new RegExp(regexp.source, regexp.flags);
               return str.replace(regExp, value);
           },
-          validate: function (node) { return assertNumberOfParams(3, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(3, arity, "replace", debugInfo); },
       },
   };
 
@@ -6911,7 +7177,7 @@ var Lits = (function (exports) {
               number.assert(third, debugInfo, { gte: second });
               return first.substring(second, third);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "subs", debugInfo); },
       },
       'string-repeat': {
           evaluate: function (_a, debugInfo) {
@@ -6920,7 +7186,7 @@ var Lits = (function (exports) {
               number.assert(count, debugInfo, { integer: true, nonNegative: true });
               return str.repeat(count);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "string-repeat", debugInfo); },
       },
       str: {
           evaluate: function (params) {
@@ -6935,7 +7201,7 @@ var Lits = (function (exports) {
                   return result + paramStr;
               }, "");
           },
-          validate: function () { return undefined; },
+          validateArity: function () { return undefined; },
       },
       number: {
           evaluate: function (_a, debugInfo) {
@@ -6947,7 +7213,7 @@ var Lits = (function (exports) {
               }
               return number;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "number", debugInfo); },
       },
       'number-to-string': {
           evaluate: function (params, debugInfo) {
@@ -6968,7 +7234,7 @@ var Lits = (function (exports) {
                   return Number(num).toString(base);
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "number-to-string", debugInfo); },
       },
       'from-char-code': {
           evaluate: function (_a, debugInfo) {
@@ -6982,7 +7248,7 @@ var Lits = (function (exports) {
                   throw new LitsError(error, debugInfo);
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "from-char-code", debugInfo); },
       },
       'to-char-code': {
           evaluate: function (_a, debugInfo) {
@@ -6990,7 +7256,7 @@ var Lits = (function (exports) {
               string.assert(str, debugInfo, { nonEmpty: true });
               return asValue(str.codePointAt(0), debugInfo);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "to-char-code", debugInfo); },
       },
       'lower-case': {
           evaluate: function (_a, debugInfo) {
@@ -6998,7 +7264,7 @@ var Lits = (function (exports) {
               string.assert(str, debugInfo);
               return str.toLowerCase();
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "lower-case", debugInfo); },
       },
       'upper-case': {
           evaluate: function (_a, debugInfo) {
@@ -7006,7 +7272,7 @@ var Lits = (function (exports) {
               string.assert(str, debugInfo);
               return str.toUpperCase();
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "upper-case", debugInfo); },
       },
       trim: {
           evaluate: function (_a, debugInfo) {
@@ -7014,7 +7280,7 @@ var Lits = (function (exports) {
               string.assert(str, debugInfo);
               return str.trim();
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "trim", debugInfo); },
       },
       'trim-left': {
           evaluate: function (_a, debugInfo) {
@@ -7022,7 +7288,7 @@ var Lits = (function (exports) {
               string.assert(str, debugInfo);
               return str.replace(/^\s+/, "");
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "trim-left", debugInfo); },
       },
       'trim-right': {
           evaluate: function (_a, debugInfo) {
@@ -7030,7 +7296,7 @@ var Lits = (function (exports) {
               string.assert(str, debugInfo);
               return str.replace(/\s+$/, "");
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "trim-right", debugInfo); },
       },
       join: {
           evaluate: function (_a, debugInfo) {
@@ -7040,7 +7306,7 @@ var Lits = (function (exports) {
               string.assert(delimiter, debugInfo);
               return stringList.join(delimiter);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "join", debugInfo); },
       },
       split: {
           evaluate: function (_a, debugInfo) {
@@ -7055,7 +7321,7 @@ var Lits = (function (exports) {
                   : new RegExp(stringOrRegExpValue.source, stringOrRegExpValue.flags);
               return str.split(delimiter, limit);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "split", debugInfo); },
       },
       'pad-left': {
           evaluate: function (_a, debugInfo) {
@@ -7067,7 +7333,7 @@ var Lits = (function (exports) {
               }
               return str.padStart(length, padString);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "pad-left", debugInfo); },
       },
       'pad-right': {
           evaluate: function (_a, debugInfo) {
@@ -7079,7 +7345,7 @@ var Lits = (function (exports) {
               }
               return str.padEnd(length, padString);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "pad-right", debugInfo); },
       },
       template: {
           evaluate: function (_a, debugInfo) {
@@ -7110,7 +7376,7 @@ var Lits = (function (exports) {
                   }
               }
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1, max: 10 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 10 }, arity, "template", debugInfo); },
       },
       'encode-base64': {
           evaluate: function (_a, debugInfo) {
@@ -7120,7 +7386,7 @@ var Lits = (function (exports) {
                   return String.fromCharCode(parseInt(p1, 16));
               }));
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "encode-base64", debugInfo); },
       },
       'decode-base64': {
           evaluate: function (_a, debugInfo) {
@@ -7137,7 +7403,7 @@ var Lits = (function (exports) {
                   throw new LitsError(error, debugInfo);
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "decode-base64", debugInfo); },
       },
       'encode-uri-component': {
           evaluate: function (_a, debugInfo) {
@@ -7145,7 +7411,7 @@ var Lits = (function (exports) {
               string.assert(value, debugInfo);
               return encodeURIComponent(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "encode-uri-component", debugInfo); },
       },
       'decode-uri-component': {
           evaluate: function (_a, debugInfo) {
@@ -7158,7 +7424,7 @@ var Lits = (function (exports) {
                   throw new LitsError(error, debugInfo);
               }
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "decode-uri-component", debugInfo); },
       },
   };
   var doubleDollarRegexp = /\$\$/g;
@@ -7189,14 +7455,14 @@ var Lits = (function (exports) {
               var applyArray = __spreadArray(__spreadArray([], __read(params.slice(0, -1)), false), __read(last), false);
               return executeFunction(func, applyArray, contextStack, debugInfo);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2 }, arity, "apply", debugInfo); },
       },
       identity: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
               return toAny(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "identity", debugInfo); },
       },
       partial: {
           evaluate: function (_a, debugInfo) {
@@ -7210,7 +7476,7 @@ var Lits = (function (exports) {
                   _b.params = params,
                   _b;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "partial", debugInfo); },
       },
       comp: {
           evaluate: function (fns, debugInfo) {
@@ -7228,7 +7494,7 @@ var Lits = (function (exports) {
                   _a.fns = fns,
                   _a;
           },
-          validate: function () { return undefined; },
+          validateArity: function () { return undefined; },
       },
       constantly: {
           evaluate: function (_a, debugInfo) {
@@ -7241,7 +7507,7 @@ var Lits = (function (exports) {
                   _b.value = toAny(value),
                   _b;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "constantly", debugInfo); },
       },
       juxt: {
           evaluate: function (fns, debugInfo) {
@@ -7253,7 +7519,7 @@ var Lits = (function (exports) {
                   _a.fns = fns,
                   _a;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "juxt", debugInfo); },
       },
       complement: {
           evaluate: function (_a, debugInfo) {
@@ -7266,7 +7532,7 @@ var Lits = (function (exports) {
                   _b.fn = toAny(fn),
                   _b;
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "complement", debugInfo); },
       },
       'every-pred': {
           evaluate: function (fns, debugInfo) {
@@ -7278,7 +7544,7 @@ var Lits = (function (exports) {
                   _a.fns = fns,
                   _a;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "every-pred", debugInfo); },
       },
       'some-pred': {
           evaluate: function (fns, debugInfo) {
@@ -7290,7 +7556,7 @@ var Lits = (function (exports) {
                   _a.fns = fns,
                   _a;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "some-pred", debugInfo); },
       },
       fnil: {
           evaluate: function (_a, debugInfo) {
@@ -7304,7 +7570,7 @@ var Lits = (function (exports) {
                   _b.params = params,
                   _b;
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2 }, arity, "fnil", debugInfo); },
       },
   };
 
@@ -7315,21 +7581,42 @@ var Lits = (function (exports) {
               any.assert(value, debugInfo);
               return DataType.of(value);
           },
-          validate: function (node) { return assertNumberOfParams(1, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "type-of", debugInfo); },
+      },
+      'type-to-value': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 1), value = _b[0];
+              any.assert(value, debugInfo);
+              if (isDataType(value)) {
+                  return DataType.valueOf(value);
+              }
+              else {
+                  return value;
+              }
+          },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "type-of", debugInfo); },
+      },
+      'type-split': {
+          evaluate: function (_a, debugInfo) {
+              var _b = __read(_a, 1), value = _b[0];
+              assertDataType(value, debugInfo);
+              return DataType.split(value);
+          },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "type-of", debugInfo); },
       },
       'type-or': {
           evaluate: function (params, debugInfo) {
               params.forEach(function (param) { return assertDataType(param, debugInfo); });
               return DataType.or.apply(DataType, __spreadArray([], __read(params), false));
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "type-or", debugInfo); },
       },
       'type-and': {
           evaluate: function (params, debugInfo) {
               params.forEach(function (param) { return assertDataType(param, debugInfo); });
               return DataType.and.apply(DataType, __spreadArray([], __read(params), false));
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "type-and", debugInfo); },
       },
       'type-exclude': {
           evaluate: function (params, debugInfo) {
@@ -7337,7 +7624,7 @@ var Lits = (function (exports) {
               var first = asDataType(params[0], debugInfo);
               return DataType.exclude.apply(DataType, __spreadArray([first], __read(params.slice(1)), false));
           },
-          validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "type-exclude", debugInfo); },
       },
       'type-is?': {
           evaluate: function (_a, debugInfo) {
@@ -7346,7 +7633,7 @@ var Lits = (function (exports) {
               assertDataType(second, debugInfo);
               return DataType.is(first, second);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "type-is?", debugInfo); },
       },
       'type-equals?': {
           evaluate: function (_a, debugInfo) {
@@ -7355,7 +7642,7 @@ var Lits = (function (exports) {
               assertDataType(second, debugInfo);
               return DataType.equals(first, second);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "type-equals?", debugInfo); },
       },
       'type-intersects?': {
           evaluate: function (_a, debugInfo) {
@@ -7364,7 +7651,7 @@ var Lits = (function (exports) {
               assertDataType(second, debugInfo);
               return DataType.intersects(first, second);
           },
-          validate: function (node) { return assertNumberOfParams(2, node); },
+          validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "type-intersects?", debugInfo); },
       },
   };
 
@@ -7390,7 +7677,7 @@ var Lits = (function (exports) {
           return [position + 1, node];
       },
       evaluate: function () { return null; },
-      validate: function () { return undefined; },
+      validateArity: function () { return undefined; },
       findUndefinedSymbols: function () { return new Set(); },
   };
 
@@ -7415,7 +7702,7 @@ var Lits = (function (exports) {
           var lookUpResult = lookUp(astNode, contextStack);
           return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
       },
-      validate: function (node) { return assertNumberOfParams(1, node); },
+      validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "declared?", debugInfo); },
       findUndefinedSymbols: function (node, contextStack, _a) {
           var findUndefinedSymbols = _a.findUndefinedSymbols, builtin = _a.builtin;
           return findUndefinedSymbols(node.params, contextStack, builtin);
@@ -7807,6 +8094,7 @@ var Lits = (function (exports) {
       builtin: function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
           var normalExpression = asValue(normalExpressions[fn.name], debugInfo);
+          normalExpression.validateArity(params.length, debugInfo);
           return normalExpression.evaluate(params, debugInfo, contextStack, { executeFunction: executeFunction });
       },
   };
@@ -7879,8 +8167,20 @@ var Lits = (function (exports) {
               return DataType.nonEmptyString;
           case "string":
               return DataType.string;
+          case "number-or-nan":
+              return DataType.numberOrNan;
           case "number":
               return DataType.number;
+          case "positive-number":
+              return DataType.positiveNumber;
+          case "negative-number":
+              return DataType.negativeNumber;
+          case "non-zero-number":
+              return DataType.nonZeroNumber;
+          case "non-positive-number":
+              return DataType.nonPositiveNumber;
+          case "non-negative-number":
+              return DataType.nonNegativeNumber;
           case "float":
               return DataType.float;
           case "illegal-number":
@@ -8138,6 +8438,7 @@ var Lits = (function (exports) {
   };
   var parseObjectLitteral = function (tokens, position) {
       var _a;
+      var _b;
       var firstToken = token.as(tokens[position], "EOF");
       position = position + 1;
       var tkn = token.as(tokens[position], "EOF");
@@ -8155,7 +8456,7 @@ var Lits = (function (exports) {
           params: params,
           token: firstToken.debugInfo ? firstToken : undefined,
       };
-      assertEvenNumberOfParams(node);
+      assertEvenNumberOfParams(node.params.length, "object", (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
       return [position, node];
   };
   var parseRegexpShorthand = function (tokens, position) {
@@ -8268,8 +8569,8 @@ var Lits = (function (exports) {
   };
   var parseNormalExpression = function (tokens, position) {
       var _a;
-      var _b;
-      var _c = __read(parseToken(tokens, position), 2), newPosition = _c[0], fnNode = _c[1];
+      var _b, _c;
+      var _d = __read(parseToken(tokens, position), 2), newPosition = _d[0], fnNode = _d[1];
       var params;
       _a = __read(parseTokens(tokens, newPosition), 2), position = _a[0], params = _a[1];
       position += 1;
@@ -8291,23 +8592,24 @@ var Lits = (function (exports) {
       };
       var builtinExpression = builtin.normalExpressions[node.name];
       if (builtinExpression) {
-          builtinExpression.validate(node);
+          builtinExpression.validateArity(node.params.length, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
       }
       return [position, node];
   };
   var parseSpecialExpression = function (tokens, position) {
-      var _a = token.as(tokens[position], "EOF"), expressionName = _a.value, debugInfo = _a.debugInfo;
+      var _a;
+      var _b = token.as(tokens[position], "EOF"), expressionName = _b.value, debugInfo = _b.debugInfo;
       position += 1;
-      var _b = asValue(builtin.specialExpressions[expressionName], debugInfo), parse = _b.parse, validate = _b.validate;
-      var _c = __read(parse(tokens, position, {
+      var _c = asValue(builtin.specialExpressions[expressionName], debugInfo), parse = _c.parse, validateArity = _c.validateArity;
+      var _d = __read(parse(tokens, position, {
           parseExpression: parseExpression,
           parseTokens: parseTokens,
           parseToken: parseToken,
           parseBinding: parseBinding,
           parseBindings: parseBindings,
           parseArgument: parseArgument,
-      }), 2), positionAfterParse = _c[0], node = _c[1];
-      validate(node);
+      }), 2), positionAfterParse = _d[0], node = _d[1];
+      validateArity(node.params.length, (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
       return [positionAfterParse, node];
   };
   var parseToken = function (tokens, position) {
@@ -8380,11 +8682,17 @@ var Lits = (function (exports) {
       "string",
       "zero",
       "number",
+      "number-or-nan",
       "float",
       "illegal-number",
-      "non-zero-float",
       "positive-float",
       "negative-float",
+      "positive-number",
+      "negative-number",
+      "non-zero-number",
+      "non-positive-number",
+      "non-negative-number",
+      "non-zero-float",
       "non-positive-float",
       "non-negative-float",
       "integer",

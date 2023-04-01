@@ -1,29 +1,29 @@
-import { LitsError } from '../../errors'
-import { Any } from '../../interface'
-import { DebugInfo } from '../../tokenizer/interface'
-import { MAX_NUMBER, MIN_NUMBER } from '../../utils'
-import { any, array, litsFunction, object, regularExpression } from '../../utils/assertion'
+import { LitsError } from '../errors'
+import { Any } from '../interface'
+import { DebugInfo } from '../tokenizer/interface'
+import { MAX_NUMBER, MIN_NUMBER } from '../utils'
+import { any, array, litsFunction, object, regularExpression } from '../utils/assertion'
 import { TypeName } from './litsTypeNames'
 
-export function isDataType(value: unknown): value is DataType {
-  return value instanceof DataType
+export function isDataType(value: unknown): value is Type {
+  return value instanceof Type
 }
 
-export function assertDataType(value: unknown, debugInfo: DebugInfo | undefined): asserts value is DataType {
-  if (!(value instanceof DataType)) {
-    throw new LitsError(`Expected instance of DataType, got ${value}`, debugInfo)
+export function assertDataType(value: unknown, debugInfo: DebugInfo | undefined): asserts value is Type {
+  if (!(value instanceof Type)) {
+    throw new LitsError(`Expected instance of Type, got ${value}`, debugInfo)
   }
 }
 
-export function asDataType(value: unknown, debugInfo: DebugInfo | undefined): DataType {
-  if (!(value instanceof DataType)) {
-    throw new LitsError(`Expected instance of DataType, got ${value}`, debugInfo)
+export function asDataType(value: unknown, debugInfo: DebugInfo | undefined): Type {
+  if (!(value instanceof Type)) {
+    throw new LitsError(`Expected instance of Type, got ${value}`, debugInfo)
   }
   return value
 }
 
 export function isNotDataType(value: unknown): boolean {
-  return !(value instanceof DataType)
+  return !(value instanceof Type)
 }
 
 export type PrimitiveTypeName =
@@ -309,15 +309,15 @@ function stringifyBitMask(bitMaks: number): string {
 }
 
 type ConstructorOptions = {
-  arrayVariants?: DataType[] | DataType
+  arrayVariants?: Type[] | Type
 }
-export class DataType {
+export class Type {
   public readonly bitmask: number
-  public readonly fnReturnType?: DataType
-  // private readonly objectVariants?: Record<string, DataType> | DataType
+  public readonly fnReturnType?: Type
+  // private readonly objectVariants?: Record<string, Type> | Type
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  private readonly arrayVariants?: DataType[] | DataType
+  private readonly arrayVariants?: Type[] | Type
 
   private constructor(bitmask: number, { arrayVariants }: ConstructorOptions = {}) {
     if (bitmask & typeToBitRecord[`positive-non-integer`]) {
@@ -331,129 +331,129 @@ export class DataType {
     this.arrayVariants = arrayVariants
   }
 
-  public static readonly never = new DataType(builtinTypesBitMasks.never)
+  public static readonly never = new Type(builtinTypesBitMasks.never)
 
-  public static readonly nil = new DataType(builtinTypesBitMasks.nil)
+  public static readonly nil = new Type(builtinTypesBitMasks.nil)
 
-  public static readonly illegalNumber = new DataType(builtinTypesBitMasks[`illegal-number`])
-  public static readonly nan = new DataType(builtinTypesBitMasks.nan)
-  public static readonly positiveInfinity = new DataType(builtinTypesBitMasks[`positive-infinity`])
-  public static readonly negativeInfinity = new DataType(builtinTypesBitMasks[`negative-infinity`])
-  public static readonly infinity = new DataType(builtinTypesBitMasks[`infinity`])
+  public static readonly illegalNumber = new Type(builtinTypesBitMasks[`illegal-number`])
+  public static readonly nan = new Type(builtinTypesBitMasks.nan)
+  public static readonly positiveInfinity = new Type(builtinTypesBitMasks[`positive-infinity`])
+  public static readonly negativeInfinity = new Type(builtinTypesBitMasks[`negative-infinity`])
+  public static readonly infinity = new Type(builtinTypesBitMasks[`infinity`])
 
-  public static readonly emptyString = new DataType(builtinTypesBitMasks[`empty-string`])
-  public static readonly nonEmptyString = new DataType(builtinTypesBitMasks[`non-empty-string`])
-  public static readonly string = new DataType(builtinTypesBitMasks.string)
+  public static readonly emptyString = new Type(builtinTypesBitMasks[`empty-string`])
+  public static readonly nonEmptyString = new Type(builtinTypesBitMasks[`non-empty-string`])
+  public static readonly string = new Type(builtinTypesBitMasks.string)
 
-  public static readonly number = new DataType(builtinTypesBitMasks.number)
-  public static readonly numberOrNan = new DataType(builtinTypesBitMasks[`number-or-nan`])
-  public static readonly zero = new DataType(builtinTypesBitMasks.zero)
-  public static readonly nonZeroNumber = new DataType(builtinTypesBitMasks[`non-zero-number`])
-  public static readonly positiveNumber = new DataType(builtinTypesBitMasks[`positive-number`])
-  public static readonly negativeNumber = new DataType(builtinTypesBitMasks[`negative-number`])
-  public static readonly nonPositiveNumber = new DataType(builtinTypesBitMasks[`non-positive-number`])
-  public static readonly nonNegativeNumber = new DataType(builtinTypesBitMasks[`non-negative-number`])
-  public static readonly float = new DataType(builtinTypesBitMasks.float)
-  public static readonly integer = new DataType(builtinTypesBitMasks.integer)
-  public static readonly nonZeroFloat = new DataType(builtinTypesBitMasks[`non-zero-float`])
-  public static readonly positiveFloat = new DataType(builtinTypesBitMasks[`positive-float`])
-  public static readonly negativeFloat = new DataType(builtinTypesBitMasks[`negative-float`])
-  public static readonly nonPositiveFloat = new DataType(builtinTypesBitMasks[`non-positive-float`])
-  public static readonly nonNegativeFloat = new DataType(builtinTypesBitMasks[`non-negative-float`])
-  public static readonly nonZeroInteger = new DataType(builtinTypesBitMasks[`non-zero-integer`])
-  public static readonly positiveInteger = new DataType(builtinTypesBitMasks[`positive-integer`])
-  public static readonly negativeInteger = new DataType(builtinTypesBitMasks[`negative-integer`])
-  public static readonly nonPositiveInteger = new DataType(builtinTypesBitMasks[`non-positive-integer`])
-  public static readonly nonNegativeInteger = new DataType(builtinTypesBitMasks[`non-negative-integer`])
+  public static readonly number = new Type(builtinTypesBitMasks.number)
+  public static readonly numberOrNan = new Type(builtinTypesBitMasks[`number-or-nan`])
+  public static readonly zero = new Type(builtinTypesBitMasks.zero)
+  public static readonly nonZeroNumber = new Type(builtinTypesBitMasks[`non-zero-number`])
+  public static readonly positiveNumber = new Type(builtinTypesBitMasks[`positive-number`])
+  public static readonly negativeNumber = new Type(builtinTypesBitMasks[`negative-number`])
+  public static readonly nonPositiveNumber = new Type(builtinTypesBitMasks[`non-positive-number`])
+  public static readonly nonNegativeNumber = new Type(builtinTypesBitMasks[`non-negative-number`])
+  public static readonly float = new Type(builtinTypesBitMasks.float)
+  public static readonly integer = new Type(builtinTypesBitMasks.integer)
+  public static readonly nonZeroFloat = new Type(builtinTypesBitMasks[`non-zero-float`])
+  public static readonly positiveFloat = new Type(builtinTypesBitMasks[`positive-float`])
+  public static readonly negativeFloat = new Type(builtinTypesBitMasks[`negative-float`])
+  public static readonly nonPositiveFloat = new Type(builtinTypesBitMasks[`non-positive-float`])
+  public static readonly nonNegativeFloat = new Type(builtinTypesBitMasks[`non-negative-float`])
+  public static readonly nonZeroInteger = new Type(builtinTypesBitMasks[`non-zero-integer`])
+  public static readonly positiveInteger = new Type(builtinTypesBitMasks[`positive-integer`])
+  public static readonly negativeInteger = new Type(builtinTypesBitMasks[`negative-integer`])
+  public static readonly nonPositiveInteger = new Type(builtinTypesBitMasks[`non-positive-integer`])
+  public static readonly nonNegativeInteger = new Type(builtinTypesBitMasks[`non-negative-integer`])
 
-  public static readonly true = new DataType(builtinTypesBitMasks.true)
-  public static readonly false = new DataType(builtinTypesBitMasks.false)
-  public static readonly boolean = new DataType(builtinTypesBitMasks.boolean)
+  public static readonly true = new Type(builtinTypesBitMasks.true)
+  public static readonly false = new Type(builtinTypesBitMasks.false)
+  public static readonly boolean = new Type(builtinTypesBitMasks.boolean)
 
-  public static readonly emptyArray = new DataType(builtinTypesBitMasks[`empty-array`])
-  public static readonly nonEmptyArray = new DataType(builtinTypesBitMasks[`non-empty-array`])
-  public static readonly array = new DataType(builtinTypesBitMasks.array)
+  public static readonly emptyArray = new Type(builtinTypesBitMasks[`empty-array`])
+  public static readonly nonEmptyArray = new Type(builtinTypesBitMasks[`non-empty-array`])
+  public static readonly array = new Type(builtinTypesBitMasks.array)
 
-  public static readonly emptyObject = new DataType(builtinTypesBitMasks[`empty-object`])
-  public static readonly nonEmptyObject = new DataType(builtinTypesBitMasks[`non-empty-object`])
-  public static readonly object = new DataType(builtinTypesBitMasks.object)
+  public static readonly emptyObject = new Type(builtinTypesBitMasks[`empty-object`])
+  public static readonly nonEmptyObject = new Type(builtinTypesBitMasks[`non-empty-object`])
+  public static readonly object = new Type(builtinTypesBitMasks.object)
 
-  public static readonly regexp = new DataType(builtinTypesBitMasks.regexp)
+  public static readonly regexp = new Type(builtinTypesBitMasks.regexp)
 
-  public static readonly emptyCollection = new DataType(builtinTypesBitMasks[`empty-collection`])
-  public static readonly nonEmptyCollection = new DataType(builtinTypesBitMasks[`non-empty-collection`])
-  public static readonly collection = new DataType(builtinTypesBitMasks[`collection`])
+  public static readonly emptyCollection = new Type(builtinTypesBitMasks[`empty-collection`])
+  public static readonly nonEmptyCollection = new Type(builtinTypesBitMasks[`non-empty-collection`])
+  public static readonly collection = new Type(builtinTypesBitMasks[`collection`])
 
-  public static readonly emptySequence = new DataType(builtinTypesBitMasks[`empty-sequence`])
-  public static readonly nonEmptySequence = new DataType(builtinTypesBitMasks[`non-empty-sequence`])
-  public static readonly sequence = new DataType(builtinTypesBitMasks.sequence)
+  public static readonly emptySequence = new Type(builtinTypesBitMasks[`empty-sequence`])
+  public static readonly nonEmptySequence = new Type(builtinTypesBitMasks[`non-empty-sequence`])
+  public static readonly sequence = new Type(builtinTypesBitMasks.sequence)
 
-  public static readonly truthy = new DataType(builtinTypesBitMasks.truthy)
-  public static readonly falsy = new DataType(builtinTypesBitMasks.falsy)
+  public static readonly truthy = new Type(builtinTypesBitMasks.truthy)
+  public static readonly falsy = new Type(builtinTypesBitMasks.falsy)
 
-  public static readonly unknown = new DataType(builtinTypesBitMasks.unknown)
+  public static readonly unknown = new Type(builtinTypesBitMasks.unknown)
 
-  public static readonly function = new DataType(builtinTypesBitMasks.function)
+  public static readonly function = new Type(builtinTypesBitMasks.function)
 
-  public static of(input: unknown): DataType {
+  public static of(input: unknown): Type {
     any.assert(input)
-    if (input instanceof DataType) {
+    if (input instanceof Type) {
       return input
     }
     if (input === null) {
-      return DataType.nil
+      return Type.nil
     } else if (input === true) {
-      return DataType.true
+      return Type.true
     } else if (input === false) {
-      return DataType.false
+      return Type.false
     } else if (Number.isNaN(input)) {
-      return DataType.nan
+      return Type.nan
     } else if (input === Number.POSITIVE_INFINITY) {
-      return DataType.positiveInfinity
+      return Type.positiveInfinity
     } else if (input === Number.NEGATIVE_INFINITY) {
-      return DataType.negativeInfinity
+      return Type.negativeInfinity
     } else if (typeof input === `string`) {
-      return input ? DataType.nonEmptyString : DataType[`emptyString`]
+      return input ? Type.nonEmptyString : Type[`emptyString`]
     } else if (typeof input === `number`) {
       return input === 0
-        ? DataType.zero
+        ? Type.zero
         : input > MAX_NUMBER
-        ? DataType.positiveInfinity
+        ? Type.positiveInfinity
         : input < MIN_NUMBER
-        ? DataType.negativeInfinity
+        ? Type.negativeInfinity
         : Number.isInteger(input)
         ? input > 0
-          ? DataType.positiveInteger
-          : DataType.negativeInteger
+          ? Type.positiveInteger
+          : Type.negativeInteger
         : input > 0
-        ? DataType.positiveFloat
-        : DataType.negativeFloat
+        ? Type.positiveFloat
+        : Type.negativeFloat
     } else if (array.is(input)) {
-      return input.length === 0 ? DataType.emptyArray : DataType.nonEmptyArray
+      return input.length === 0 ? Type.emptyArray : Type.nonEmptyArray
     } else if (object.is(input)) {
-      return Object.keys(input).length === 0 ? DataType.emptyObject : DataType.nonEmptyObject
+      return Object.keys(input).length === 0 ? Type.emptyObject : Type.nonEmptyObject
     } else if (regularExpression.is(input)) {
-      return DataType.regexp
+      return Type.regexp
     } else if (litsFunction.is(input)) {
-      return DataType.function
+      return Type.function
     }
     throw Error(`Unexpected error, could not figure out type of ${input}`)
   }
 
-  public static or(...types: DataType[]): DataType {
+  public static or(...types: Type[]): Type {
     const newTypeMask = types.reduce((result, type) => {
       return result | type.bitmask
     }, 0)
     // const functions = types.filter(type => type.isFunction())
     // if (functions.some(f => !f.fnReturnType)) {
-    //   return new DataType(newTypeMask)
+    //   return new Type(newTypeMask)
     // }
-    // const returnTypes = functions.map(type => type.fnReturnType) as DataType[]
-    // const fnReturnType = returnTypes.length > 0 ? DataType.or(...returnTypes) : undefined
-    return new DataType(newTypeMask)
+    // const returnTypes = functions.map(type => type.fnReturnType) as Type[]
+    // const fnReturnType = returnTypes.length > 0 ? Type.or(...returnTypes) : undefined
+    return new Type(newTypeMask)
   }
 
-  public static and(...types: DataType[]): DataType {
+  public static and(...types: Type[]): Type {
     const newTypeMask = types.reduce((result, type) => {
       return result & type.bitmask
     }, UNKNWON_BITS)
@@ -461,38 +461,38 @@ export class DataType {
     // At least one of the types is a function
     // if (newTypeMask & builtinTypesBitMasks.function) {
     //   const returnFunctions = types.filter(type => type.isFunction())
-    //   const returnFunction = DataType.and(...returnFunctions)
+    //   const returnFunction = Type.and(...returnFunctions)
     //   if (returnFunction.bitmask === builtinTypesBitMasks.never) {
-    //     return new DataType(newTypeMask & ~builtinTypesBitMasks.function)
+    //     return new Type(newTypeMask & ~builtinTypesBitMasks.function)
     //   } else {
-    //     return new DataType(newTypeMask, returnFunction)
+    //     return new Type(newTypeMask, returnFunction)
     //   }
     // }
 
-    return new DataType(newTypeMask)
+    return new Type(newTypeMask)
   }
 
-  public static exclude(first: DataType, ...rest: DataType[]): DataType {
+  public static exclude(first: Type, ...rest: Type[]): Type {
     return rest.reduce((result, type) => {
       const newBitmask = result.bitmask & ~type.bitmask
       // Only remove function bit if functions are equal
       // if (result.isFunction() && type.isFunction()) {
-      //   const returnType: DataType = !type.fnReturnType
-      //     ? DataType.never
+      //   const returnType: Type = !type.fnReturnType
+      //     ? Type.never
       //     : !result.fnReturnType
-      //     ? DataType.unknown.exclude(type.fnReturnType)
+      //     ? Type.unknown.exclude(type.fnReturnType)
       //     : result.fnReturnType.exclude(type.fnReturnType)
       //   if (returnType.bitmask === builtinTypesBitMasks.never) {
-      //     return new DataType(newBitmask)
+      //     return new Type(newBitmask)
       //   } else {
-      //     return new DataType(newBitmask | builtinTypesBitMasks.function, returnType)
+      //     return new Type(newBitmask | builtinTypesBitMasks.function, returnType)
       //   }
       // }
-      return new DataType(newBitmask)
+      return new Type(newBitmask)
     }, first)
   }
 
-  public static is(a: DataType, b: DataType): boolean {
+  public static is(a: Type, b: Type): boolean {
     const { bitmask: bitmaskA, fnReturnType: fnReturnTypeA } = a
     const { bitmask: bitmaskB, fnReturnType: fnReturnTypeB } = b
 
@@ -514,7 +514,7 @@ export class DataType {
     return true
   }
 
-  public static equals(type1: DataType, type2: DataType, ...rest: DataType[]): boolean {
+  public static equals(type1: Type, type2: Type, ...rest: Type[]): boolean {
     return [type2, ...rest].every(t => {
       if (type1.bitmask !== t.bitmask) {
         return false
@@ -529,73 +529,73 @@ export class DataType {
     })
   }
 
-  public static intersects(a: DataType, b: DataType): boolean {
+  public static intersects(a: Type, b: Type): boolean {
     return a.and(b).bitmask !== 0
   }
 
-  public static isUnionType(dataType: DataType): boolean {
+  public static isUnionType(dataType: Type): boolean {
     return !allBitValues.includes(dataType.bitmask)
   }
 
   public static toValue(dataType: Any): Any {
     if (isDataType(dataType)) {
-      if (dataType.equals(DataType.zero)) {
+      if (dataType.equals(Type.zero)) {
         return 0
       }
-      if (dataType.equals(DataType.nan)) {
+      if (dataType.equals(Type.nan)) {
         return Number.NaN
       }
-      if (dataType.equals(DataType.positiveInfinity)) {
+      if (dataType.equals(Type.positiveInfinity)) {
         return Number.POSITIVE_INFINITY
       }
-      if (dataType.equals(DataType.negativeInfinity)) {
+      if (dataType.equals(Type.negativeInfinity)) {
         return Number.NEGATIVE_INFINITY
       }
-      if (dataType.equals(DataType.emptyString)) {
+      if (dataType.equals(Type.emptyString)) {
         return ``
       }
-      if (dataType.equals(DataType.true)) {
+      if (dataType.equals(Type.true)) {
         return true
       }
-      if (dataType.equals(DataType.false)) {
+      if (dataType.equals(Type.false)) {
         return false
       }
-      if (dataType.equals(DataType.zero)) {
+      if (dataType.equals(Type.zero)) {
         return 0
       }
-      if (dataType.equals(DataType.nil)) {
+      if (dataType.equals(Type.nil)) {
         return null
       }
-      if (dataType.equals(DataType.emptyArray)) {
+      if (dataType.equals(Type.emptyArray)) {
         return []
       }
-      if (dataType.equals(DataType.emptyObject)) {
+      if (dataType.equals(Type.emptyObject)) {
         return {}
       }
     }
     return dataType
   }
 
-  public static toNumberValue(dataType: DataType): DataType | number {
-    if (dataType.equals(DataType.zero)) {
+  public static toNumberValue(dataType: Type): Type | number {
+    if (dataType.equals(Type.zero)) {
       return 0
     }
-    if (dataType.equals(DataType.nan)) {
+    if (dataType.equals(Type.nan)) {
       return Number.NaN
     }
-    if (dataType.equals(DataType.positiveInfinity)) {
+    if (dataType.equals(Type.positiveInfinity)) {
       return Number.POSITIVE_INFINITY
     }
-    if (dataType.equals(DataType.negativeInfinity)) {
+    if (dataType.equals(Type.negativeInfinity)) {
       return Number.NEGATIVE_INFINITY
     }
-    if (dataType.equals(DataType.zero)) {
+    if (dataType.equals(Type.zero)) {
       return 0
     }
     return dataType
   }
 
-  public static toSingelBits(dataType: DataType): number[] {
+  public static toSingelBits(dataType: Type): number[] {
     const result: number[] = []
     Object.values(typeToBitRecord).forEach(bitValue => {
       if (dataType.bitmask & bitValue) {
@@ -605,72 +605,72 @@ export class DataType {
     return result
   }
 
-  public static split(dataType: DataType): DataType[] {
-    return DataType.toSingelBits(dataType).map(bits => new DataType(bits))
+  public static split(dataType: Type): Type[] {
+    return Type.toSingelBits(dataType).map(bits => new Type(bits))
   }
 
-  public or(...dataTypes: DataType[]): DataType {
-    return DataType.or(this, ...dataTypes)
+  public or(...dataTypes: Type[]): Type {
+    return Type.or(this, ...dataTypes)
   }
 
-  public and(...dataTypes: DataType[]): DataType {
-    return DataType.and(this, ...dataTypes)
+  public and(...dataTypes: Type[]): Type {
+    return Type.and(this, ...dataTypes)
   }
 
-  public exclude(...dataTypes: DataType[]): DataType {
-    return DataType.exclude(this, ...dataTypes)
+  public exclude(...dataTypes: Type[]): Type {
+    return Type.exclude(this, ...dataTypes)
   }
 
-  public is(dataType: DataType): boolean {
+  public is(dataType: Type): boolean {
     if (dataType.isNever()) {
       return this.isNever()
     }
-    return DataType.is(this, dataType)
+    return Type.is(this, dataType)
   }
 
-  public intersects(dataType: DataType): boolean {
-    return DataType.intersects(this, dataType)
+  public intersects(dataType: Type): boolean {
+    return Type.intersects(this, dataType)
   }
 
   public intersectsNonNumber(): boolean {
     return !!(this.bitmask & ~builtinTypesBitMasks.number)
   }
 
-  public assertIs(dataType: DataType, debugInfo: DebugInfo | undefined): void {
+  public assertIs(dataType: Type, debugInfo: DebugInfo | undefined): void {
     if (!this.is(dataType)) {
       throw new LitsError(`Expected to be of type ${dataType.toString()}, but was ${this.toString()}`, debugInfo)
     }
   }
 
-  public assertEquals(dataType: DataType, debugInfo: DebugInfo | undefined): void {
+  public assertEquals(dataType: Type, debugInfo: DebugInfo | undefined): void {
     if (!this.equals(dataType)) {
       throw new LitsError(`Expected to be ${dataType.toString()}, but was ${this.toString()}`, debugInfo)
     }
   }
 
-  public assertIntersects(dataType: DataType, debugInfo: DebugInfo | undefined): void {
+  public assertIntersects(dataType: Type, debugInfo: DebugInfo | undefined): void {
     if (!this.intersects(dataType)) {
       throw new LitsError(`Expected to intersect ${dataType.toString()}, but was ${this.toString()}`, debugInfo)
     }
   }
 
-  public equals(type: DataType, ...rest: DataType[]): boolean {
-    return DataType.equals(this, type, ...rest)
+  public equals(type: Type, ...rest: Type[]): boolean {
+    return Type.equals(this, type, ...rest)
   }
 
   public isUnionType(): boolean {
-    return DataType.isUnionType(this)
+    return Type.isUnionType(this)
   }
 
-  // public withReturnType(dataType: DataType): DataType {
+  // public withReturnType(dataType: Type): Type {
   //   if (!this.isFunction()) {
   //     throw Error(`Only functions can have return types`)
   //   }
-  //   return new DataType(this.bitmask, dataType)
+  //   return new Type(this.bitmask, dataType)
   // }
 
-  public nilable(): DataType {
-    return this.or(DataType.nil)
+  public nilable(): Type {
+    return this.or(Type.nil)
   }
 
   public isNever(): boolean {
@@ -705,7 +705,7 @@ export class DataType {
       newBitmask = (newBitmask | typeToBitRecord[`negative-non-integer`]) & ~typeToBitRecord[`positive-non-integer`]
     }
 
-    return new DataType(newBitmask)
+    return new Type(newBitmask)
   }
 
   public isFunction(): boolean {
@@ -718,25 +718,25 @@ export class DataType {
 
   public isInteger(): boolean {
     return (
-      this.intersects(DataType.float) &&
+      this.intersects(Type.float) &&
       !(this.bitmask & (typeToBitRecord[`positive-non-integer`] | typeToBitRecord[`negative-non-integer`]))
     )
   }
 
   public toSingelBits(): number[] {
-    return DataType.toSingelBits(this)
+    return Type.toSingelBits(this)
   }
 
-  public split(): DataType[] {
-    return DataType.split(this)
+  public split(): Type[] {
+    return Type.split(this)
   }
 
   public toValue(): Any {
-    return DataType.toValue(this)
+    return Type.toValue(this)
   }
 
-  public toNumberValue(): DataType | number {
-    return DataType.toNumberValue(this)
+  public toNumberValue(): Type | number {
+    return Type.toNumberValue(this)
   }
 
   public toString({ showDetails } = { showDetails: true }): string {

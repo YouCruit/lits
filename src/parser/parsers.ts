@@ -26,7 +26,7 @@ import { FnNode } from '../builtin/specialExpressions/functions'
 import { FunctionArguments } from '../builtin/utils'
 import { assertEvenNumberOfParams, assertValue, asValue, expressionNode, nameNode, token } from '../utils/assertion'
 import { valueToString } from '../utils/helpers'
-import { TypeName } from '../analyze/dataTypes/litsTypeNames'
+import { TypeName } from '../types/litsTypeNames'
 
 type ParseNumber = (tokens: Token[], position: number) => [number, NumberNode]
 export const parseNumber: ParseNumber = (tokens: Token[], position: number) => {

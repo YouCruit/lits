@@ -91,7 +91,7 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
   //   assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
   //   const type = getFunctionOverloadeDataType(node as DefnNode, contextStack, dataType)
   //   contextStack.globalContext[name] = { value: type }
-  //   return DataType.nil
+  //   return Type.nil
   // },
 }
 
@@ -216,16 +216,16 @@ function evaluateFunctionOverloades(
 //   node: DefnNode | FnNode,
 //   contextStack: ContextStack,
 //   dataType: GetDataType,
-// ): DataType {
+// ): Type {
 //   const types = node.overloads.map(functionOverload => {
 //     const functionContext: Context = {}
 //     for (const binding of functionOverload.arguments.bindings) {
 //       const bindingType = dataType(binding.value, contextStack)
 //       functionContext[binding.name] = { value: bindingType }
 //     }
-//     return DataType.function.withReturnType(dataType(functionOverload.body, contextStack.withContext(functionContext)))
+//     return Type.function.withReturnType(dataType(functionOverload.body, contextStack.withContext(functionContext)))
 //   })
-//   return DataType.or(...types)
+//   return Type.or(...types)
 // }
 
 function addOverloadsUndefinedSymbols(

@@ -1,13 +1,13 @@
-import { asDataType, assertDataType, DataType, isDataType } from '../../../analyze/dataTypes/DataType'
+import { asDataType, assertDataType, Type, isDataType } from '../../../types/Type'
 import { Any } from '../../../interface'
 import { any, assertNumberOfParams } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
 
 export const typeNormalExpression: BuiltinNormalExpressions = {
   'type-of': {
-    evaluate: ([value], debugInfo): DataType => {
+    evaluate: ([value], debugInfo): Type => {
       any.assert(value, debugInfo)
-      return DataType.of(value)
+      return Type.of(value)
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `type-of`, debugInfo),
   },
@@ -15,7 +15,7 @@ export const typeNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([value], debugInfo): Any => {
       any.assert(value, debugInfo)
       if (isDataType(value)) {
-        return DataType.toValue(value)
+        return Type.toValue(value)
       } else {
         return value
       }
@@ -25,29 +25,29 @@ export const typeNormalExpression: BuiltinNormalExpressions = {
   'type-split': {
     evaluate: ([value], debugInfo): Any => {
       assertDataType(value, debugInfo)
-      return DataType.split(value)
+      return Type.split(value)
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `type-of`, debugInfo),
   },
   'type-or': {
-    evaluate: (params, debugInfo): DataType => {
+    evaluate: (params, debugInfo): Type => {
       params.forEach(param => assertDataType(param, debugInfo))
-      return DataType.or(...(params as DataType[]))
+      return Type.or(...(params as Type[]))
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1 }, arity, `type-or`, debugInfo),
   },
   'type-and': {
-    evaluate: (params, debugInfo): DataType => {
+    evaluate: (params, debugInfo): Type => {
       params.forEach(param => assertDataType(param, debugInfo))
-      return DataType.and(...(params as DataType[]))
+      return Type.and(...(params as Type[]))
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1 }, arity, `type-and`, debugInfo),
   },
   'type-exclude': {
-    evaluate: (params, debugInfo): DataType => {
+    evaluate: (params, debugInfo): Type => {
       params.forEach(param => assertDataType(param, debugInfo))
       const first = asDataType(params[0], debugInfo)
-      return DataType.exclude(first, ...(params.slice(1) as DataType[]))
+      return Type.exclude(first, ...(params.slice(1) as Type[]))
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1 }, arity, `type-exclude`, debugInfo),
   },
@@ -55,7 +55,7 @@ export const typeNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([first, second], debugInfo): boolean => {
       assertDataType(first, debugInfo)
       assertDataType(second, debugInfo)
-      return DataType.is(first, second)
+      return Type.is(first, second)
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `type-is?`, debugInfo),
   },
@@ -63,7 +63,7 @@ export const typeNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([first, second], debugInfo): boolean => {
       assertDataType(first, debugInfo)
       assertDataType(second, debugInfo)
-      return DataType.equals(first, second)
+      return Type.equals(first, second)
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `type-equals?`, debugInfo),
   },
@@ -71,7 +71,7 @@ export const typeNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([first, second], debugInfo): boolean => {
       assertDataType(first, debugInfo)
       assertDataType(second, debugInfo)
-      return DataType.intersects(first, second)
+      return Type.intersects(first, second)
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `type-intersects?`, debugInfo),
   },

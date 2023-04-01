@@ -1,4 +1,4 @@
-import { DataType, isDataType } from '../../analyze/dataTypes/DataType'
+import { Type, isDataType } from '../../types/Type'
 import { Any } from '../../interface'
 import { assertNumberOfParams, astNode, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
@@ -23,9 +23,9 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const [conditionNode, trueNode, falseNode] = node.params
     const conditionValue = evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)
-    if ((isDataType(conditionNode) && conditionNode.is(DataType.truthy)) || !!conditionValue) {
+    if ((isDataType(conditionNode) && conditionNode.is(Type.truthy)) || !!conditionValue) {
       return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack)
-    } else if ((isDataType(conditionNode) && conditionNode.is(DataType.falsy)) || !conditionValue) {
+    } else if ((isDataType(conditionNode) && conditionNode.is(Type.falsy)) || !conditionValue) {
       if (node.params.length === 3) {
         return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack)
       } else {
@@ -34,7 +34,7 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
     } else {
       const trueBranchValue = evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack)
       const falseBranchValue = evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack)
-      return DataType.or(DataType.of(trueBranchValue), DataType.of(falseBranchValue))
+      return Type.or(Type.of(trueBranchValue), Type.of(falseBranchValue))
     }
   },
 

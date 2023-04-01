@@ -19,7 +19,7 @@ export type LitsRuntimeInfo = {
   debug: boolean
 }
 
-export { DataType } from '../analyze/dataTypes/DataType'
+export { Type } from '../types/Type'
 
 type LitsConfig = {
   initialCache?: Record<string, Ast>

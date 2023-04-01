@@ -3,11 +3,11 @@ import { Any } from '../../../interface'
 import { compare, deepEqual } from '../../../utils'
 import { BuiltinNormalExpressions } from '../../interface'
 import { any, assertNumberOfParams, litsFunction, string } from '../../../utils/assertion'
-import { DataType, isNotDataType } from '../../../analyze/dataTypes/DataType'
+import { Type, isNotDataType } from '../../../types/Type'
 
 export const assertNormalExpression: BuiltinNormalExpressions = {
   assert: {
-    evaluate: (params, debugInfo): Any | DataType => {
+    evaluate: (params, debugInfo): Any | Type => {
       if (params.every(isNotDataType)) {
         const value = params[0]
         const message = params.length === 2 ? params[1] : `${value}`
@@ -17,15 +17,15 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return any.as(value, debugInfo)
       } else {
-        const valueType = DataType.of(params[0])
-        valueType.assertIs(DataType.truthy, debugInfo)
+        const valueType = Type.of(params[0])
+        valueType.assertIs(Type.truthy, debugInfo)
         return valueType
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `assert`, debugInfo),
   },
   'assert=': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
@@ -35,16 +35,16 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        const aType = DataType.of(params[0])
-        const bType = DataType.of(params[1])
+        const aType = Type.of(params[0])
+        const bType = Type.of(params[1])
         aType.assertIntersects(bType, debugInfo)
-        return DataType.nil
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `assert=`, debugInfo),
   },
   'assert-not=': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
@@ -54,13 +54,13 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        return DataType.nil
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `assert-not=`, debugInfo),
   },
   'assert-equal': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
@@ -73,16 +73,16 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        const aType = DataType.of(params[0])
-        const bType = DataType.of(params[1])
+        const aType = Type.of(params[0])
+        const bType = Type.of(params[1])
         aType.assertIntersects(bType, debugInfo)
-        return DataType.nil
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `assert-equal`, debugInfo),
   },
   'assert-not-equal': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
@@ -95,13 +95,13 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        return DataType.nil
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `assert-not-equal`, debugInfo),
   },
   'assert>': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
@@ -111,13 +111,13 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        return DataType.nil
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `assert>`, debugInfo),
   },
   'assert>=': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
@@ -127,13 +127,13 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        return DataType.nil
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `assert>=`, debugInfo),
   },
   'assert<': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
@@ -143,13 +143,13 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        return DataType.nil
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `assert<`, debugInfo),
   },
   'assert<=': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const [first, second] = params
         let message = params[2]
@@ -159,13 +159,13 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        return DataType.nil
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `assert<=`, debugInfo),
   },
   'assert-true': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const first = params[0]
         let message = params[0]
@@ -175,15 +175,15 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        const type = DataType.of(params[0])
-        type.assertIntersects(DataType.false, debugInfo)
-        return DataType.nil
+        const type = Type.of(params[0])
+        type.assertIntersects(Type.false, debugInfo)
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `assert-true`, debugInfo),
   },
   'assert-false': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const first = params[0]
         let message = params[0]
@@ -193,15 +193,15 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        const type = DataType.of(params[0])
-        type.assertIntersects(DataType.false, debugInfo)
-        return DataType.nil
+        const type = Type.of(params[0])
+        type.assertIntersects(Type.false, debugInfo)
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `assert-false`, debugInfo),
   },
   'assert-truthy': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const first = params[0]
         let message = params[0]
@@ -211,15 +211,15 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        const type = DataType.of(params[0])
-        type.assertIntersects(DataType.truthy, debugInfo)
-        return DataType.nil
+        const type = Type.of(params[0])
+        type.assertIntersects(Type.truthy, debugInfo)
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `assert-truthy`, debugInfo),
   },
   'assert-falsy': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const first = params[0]
         let message = params[0]
@@ -229,15 +229,15 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        const type = DataType.of(params[0])
-        type.assertIntersects(DataType.falsy, debugInfo)
-        return DataType.nil
+        const type = Type.of(params[0])
+        type.assertIntersects(Type.falsy, debugInfo)
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `assert-falsy`, debugInfo),
   },
   'assert-nil': {
-    evaluate: (params, debugInfo): null | DataType => {
+    evaluate: (params, debugInfo): null | Type => {
       if (params.every(isNotDataType)) {
         const first = params[0]
         let message = params[0]
@@ -247,15 +247,15 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        const type = DataType.of(params[0])
-        type.assertIntersects(DataType.nil, debugInfo)
-        return DataType.nil
+        const type = Type.of(params[0])
+        type.assertIntersects(Type.nil, debugInfo)
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `assert-nil`, debugInfo),
   },
   'assert-throws': {
-    evaluate: (params, debugInfo, contextStack, { executeFunction }): null | DataType => {
+    evaluate: (params, debugInfo, contextStack, { executeFunction }): null | Type => {
       if (params.every(isNotDataType)) {
         const func = params[0]
         let message = params[1]
@@ -269,13 +269,13 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
 
         throw new AssertionError(`Expected function to throw.${message}`, debugInfo)
       } else {
-        return DataType.nil
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `assert-throws`, debugInfo),
   },
   'assert-throws-error': {
-    evaluate: (params, debugInfo, contextStack, { executeFunction }): null | DataType => {
+    evaluate: (params, debugInfo, contextStack, { executeFunction }): null | Type => {
       if (params.every(isNotDataType)) {
         const [func, throwMessage] = params
         let message = params[2]
@@ -296,14 +296,14 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         throw new AssertionError(`Expected function to throw "${throwMessage}".${message}`, debugInfo)
       } else {
-        return DataType.nil
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) =>
       assertNumberOfParams({ min: 2, max: 3 }, arity, `assert-throws-error`, debugInfo),
   },
   'assert-not-throws': {
-    evaluate: (params, debugInfo, contextStack, { executeFunction }): null | DataType => {
+    evaluate: (params, debugInfo, contextStack, { executeFunction }): null | Type => {
       if (params.every(isNotDataType)) {
         const func = params[0]
         let message = params[0]
@@ -316,7 +316,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
         }
         return null
       } else {
-        return DataType.nil
+        return Type.nil
       }
     },
     validateArity: (arity, debugInfo) =>

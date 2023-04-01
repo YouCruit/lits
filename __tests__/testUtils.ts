@@ -1,10 +1,10 @@
 /* istanbul ignore file */
 
-import { asDataType, PrimitiveTypeName, typeToBitRecord } from '../src/analyze/dataTypes/DataType'
-import { TypeName } from '../src/analyze/dataTypes/litsTypeNames'
+import { asDataType, PrimitiveTypeName, typeToBitRecord } from '../src/types/Type'
+import { TypeName } from '../src/types/litsTypeNames'
 import { UndefinedSymbolEntry } from '../src/analyze/undefinedSymbols/interface'
 import { Any, Obj } from '../src/interface'
-import { DataType, Lits } from '../src/Lits/Lits'
+import { Type, Lits } from '../src/Lits/Lits'
 import { MAX_NUMBER, MIN_NUMBER } from '../src/utils'
 import { asValue, regularExpression } from '../src/utils/assertion'
 
@@ -153,8 +153,8 @@ export function testTypeEvaluations(
             expect(evaluatedValue).toEqual(resultValue)
           }
         } else if (resultExpression !== null) {
-          const type = lits.run(expression) as DataType
-          const expectedType = lits.run(resultExpression) as DataType
+          const type = lits.run(expression) as Type
+          const expectedType = lits.run(resultExpression) as Type
           expect(type.toString()).toBe(expectedType.toString())
         }
       }
@@ -183,10 +183,8 @@ export function testTypeEvaluations(
 
       const hasExpressionParam = params.some(isExpressionObj)
       if (!hasExpressionParam && resultExpression !== `ERROR` && resultValue === undefined) {
-        const resultType = lits.run(`(type-of ${resultExpression})`) as DataType
-        const combinedSampeExpressionType = DataType.or(
-          ...sampleExpressions.map(e => lits.run(`(type-of ${e})`) as DataType),
-        )
+        const resultType = lits.run(`(type-of ${resultExpression})`) as Type
+        const combinedSampeExpressionType = Type.or(...sampleExpressions.map(e => lits.run(`(type-of ${e})`) as Type))
         if (!combinedSampeExpressionType.equals(resultType)) {
           throw Error(
             `Expected combined sample type (${combinedSampeExpressionType.toString({
@@ -399,6 +397,6 @@ function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string[] 
   }
 }
 
-export function getSampleValuesForType(dataType: DataType): string[] {
+export function getSampleValuesForType(dataType: Type): string[] {
   return dataType.toSingelBits().flatMap(bitmask => asValue(bitsToSampleValue[bitmask]))
 }

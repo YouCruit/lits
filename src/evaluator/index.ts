@@ -29,7 +29,7 @@ import {
 import { valueToString } from '../utils/helpers'
 import { ContextStack } from '../ContextStack'
 import { lookUp } from '../lookup'
-import { DataType } from '../analyze/dataTypes/DataType'
+import { Type } from '../types/Type'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null
@@ -78,108 +78,108 @@ function evaluateString(node: StringNode): string {
   return node.value
 }
 
-function evaluateTypeName(node: TypeNameNode): DataType {
+function evaluateTypeName(node: TypeNameNode): Type {
   switch (node.value) {
     case `never`:
-      return DataType.never
+      return Type.never
     case `nil`:
-      return DataType.nil
+      return Type.nil
     case `nan`:
-      return DataType.nan
+      return Type.nan
     case `empty-string`:
-      return DataType.emptyString
+      return Type.emptyString
     case `non-empty-string`:
-      return DataType.nonEmptyString
+      return Type.nonEmptyString
     case `string`:
-      return DataType.string
+      return Type.string
     case `number-or-nan`:
-      return DataType.numberOrNan
+      return Type.numberOrNan
     case `number`:
-      return DataType.number
+      return Type.number
     case `positive-number`:
-      return DataType.positiveNumber
+      return Type.positiveNumber
     case `negative-number`:
-      return DataType.negativeNumber
+      return Type.negativeNumber
     case `non-zero-number`:
-      return DataType.nonZeroNumber
+      return Type.nonZeroNumber
     case `non-positive-number`:
-      return DataType.nonPositiveNumber
+      return Type.nonPositiveNumber
     case `non-negative-number`:
-      return DataType.nonNegativeNumber
+      return Type.nonNegativeNumber
     case `float`:
-      return DataType.float
+      return Type.float
     case `illegal-number`:
-      return DataType.illegalNumber
+      return Type.illegalNumber
     case `positive-infinity`:
-      return DataType.positiveInfinity
+      return Type.positiveInfinity
     case `negative-infinity`:
-      return DataType.negativeInfinity
+      return Type.negativeInfinity
     case `infinity`:
-      return DataType.infinity
+      return Type.infinity
     case `zero`:
-      return DataType.zero
+      return Type.zero
     case `non-zero-float`:
-      return DataType.nonZeroFloat
+      return Type.nonZeroFloat
     case `positive-float`:
-      return DataType.positiveFloat
+      return Type.positiveFloat
     case `negative-float`:
-      return DataType.negativeFloat
+      return Type.negativeFloat
     case `non-positive-float`:
-      return DataType.nonPositiveFloat
+      return Type.nonPositiveFloat
     case `non-negative-float`:
-      return DataType.nonNegativeFloat
+      return Type.nonNegativeFloat
     case `integer`:
-      return DataType.integer
+      return Type.integer
     case `non-zero-integer`:
-      return DataType.nonZeroInteger
+      return Type.nonZeroInteger
     case `positive-integer`:
-      return DataType.positiveInteger
+      return Type.positiveInteger
     case `negative-integer`:
-      return DataType.negativeInteger
+      return Type.negativeInteger
     case `non-positive-integer`:
-      return DataType.nonPositiveInteger
+      return Type.nonPositiveInteger
     case `non-negative-integer`:
-      return DataType.nonNegativeInteger
+      return Type.nonNegativeInteger
     case `true`:
-      return DataType.true
+      return Type.true
     case `false`:
-      return DataType.false
+      return Type.false
     case `boolean`:
-      return DataType.boolean
+      return Type.boolean
     case `empty-array`:
-      return DataType.emptyArray
+      return Type.emptyArray
     case `non-empty-array`:
-      return DataType.nonEmptyArray
+      return Type.nonEmptyArray
     case `array`:
-      return DataType.array
+      return Type.array
     case `empty-object`:
-      return DataType.emptyObject
+      return Type.emptyObject
     case `non-empty-object`:
-      return DataType.nonEmptyObject
+      return Type.nonEmptyObject
     case `object`:
-      return DataType.object
+      return Type.object
     case `regexp`:
-      return DataType.regexp
+      return Type.regexp
     case `function`:
-      return DataType.function
+      return Type.function
     case `unknown`:
-      return DataType.unknown
+      return Type.unknown
     case `truthy`:
-      return DataType.truthy
+      return Type.truthy
     case `falsy`:
-      return DataType.falsy
+      return Type.falsy
     case `empty-collection`:
-      return DataType.emptyCollection
+      return Type.emptyCollection
     case `non-empty-collection`:
-      return DataType.nonEmptyCollection
+      return Type.nonEmptyCollection
     case `collection`:
-      return DataType.collection
+      return Type.collection
     case `empty-sequence`:
-      return DataType.emptySequence
+      return Type.emptySequence
     case `non-empty-sequence`:
-      return DataType.nonEmptySequence
+      return Type.nonEmptySequence
     case `sequence`:
-      return DataType.sequence
+      return Type.sequence
   }
 }
 

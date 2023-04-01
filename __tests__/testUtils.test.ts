@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-import { DataType } from '../src/Lits/Lits'
+import { Type } from '../src/Lits/Lits'
 import { combinations, getParamCombinations, getSampleValuesForType } from './testUtils'
 
 describe(`testUtils`, () => {
@@ -22,7 +22,7 @@ describe(`testUtils`, () => {
     expect(combinations([`X`, `Y`, `Z`, `foo`]).length).toBe(24)
   })
   test(`getSampleValuesForType`, () => {
-    expect(getSampleValuesForType(DataType.array)).toEqual([`[]`, `[1 2 3]`])
+    expect(getSampleValuesForType(Type.array)).toEqual([`[]`, `[1 2 3]`])
   })
 
   test(`getParamCombinations`, () => {

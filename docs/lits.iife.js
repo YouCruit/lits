@@ -689,21 +689,21 @@ var Lits = (function (exports) {
   var MIN_NUMBER = -Math.pow(2, 52);
 
   function isDataType(value) {
-      return value instanceof DataType;
+      return value instanceof Type;
   }
   function assertDataType(value, debugInfo) {
-      if (!(value instanceof DataType)) {
-          throw new LitsError("Expected instance of DataType, got ".concat(value), debugInfo);
+      if (!(value instanceof Type)) {
+          throw new LitsError("Expected instance of Type, got ".concat(value), debugInfo);
       }
   }
   function asDataType(value, debugInfo) {
-      if (!(value instanceof DataType)) {
-          throw new LitsError("Expected instance of DataType, got ".concat(value), debugInfo);
+      if (!(value instanceof Type)) {
+          throw new LitsError("Expected instance of Type, got ".concat(value), debugInfo);
       }
       return value;
   }
   function isNotDataType(value) {
-      return !(value instanceof DataType);
+      return !(value instanceof Type);
   }
   var typeToBitRecord = {
       // Group 1: Falsy types
@@ -907,8 +907,8 @@ var Lits = (function (exports) {
       }
       return mask;
   }
-  var DataType = /** @class */ (function () {
-      function DataType(bitmask, _a) {
+  var Type = /** @class */ (function () {
+      function Type(bitmask, _a) {
           var _b = _a === void 0 ? {} : _a, arrayVariants = _b.arrayVariants;
           if (bitmask & typeToBitRecord["positive-non-integer"]) {
               bitmask |= typeToBitRecord["positive-integer"];
@@ -920,62 +920,62 @@ var Lits = (function (exports) {
           this.fnReturnType = undefined;
           this.arrayVariants = arrayVariants;
       }
-      DataType.of = function (input) {
+      Type.of = function (input) {
           any.assert(input);
-          if (input instanceof DataType) {
+          if (input instanceof Type) {
               return input;
           }
           if (input === null) {
-              return DataType.nil;
+              return Type.nil;
           }
           else if (input === true) {
-              return DataType.true;
+              return Type.true;
           }
           else if (input === false) {
-              return DataType.false;
+              return Type.false;
           }
           else if (Number.isNaN(input)) {
-              return DataType.nan;
+              return Type.nan;
           }
           else if (input === Number.POSITIVE_INFINITY) {
-              return DataType.positiveInfinity;
+              return Type.positiveInfinity;
           }
           else if (input === Number.NEGATIVE_INFINITY) {
-              return DataType.negativeInfinity;
+              return Type.negativeInfinity;
           }
           else if (typeof input === "string") {
-              return input ? DataType.nonEmptyString : DataType["emptyString"];
+              return input ? Type.nonEmptyString : Type["emptyString"];
           }
           else if (typeof input === "number") {
               return input === 0
-                  ? DataType.zero
+                  ? Type.zero
                   : input > MAX_NUMBER
-                      ? DataType.positiveInfinity
+                      ? Type.positiveInfinity
                       : input < MIN_NUMBER
-                          ? DataType.negativeInfinity
+                          ? Type.negativeInfinity
                           : Number.isInteger(input)
                               ? input > 0
-                                  ? DataType.positiveInteger
-                                  : DataType.negativeInteger
+                                  ? Type.positiveInteger
+                                  : Type.negativeInteger
                               : input > 0
-                                  ? DataType.positiveFloat
-                                  : DataType.negativeFloat;
+                                  ? Type.positiveFloat
+                                  : Type.negativeFloat;
           }
           else if (array.is(input)) {
-              return input.length === 0 ? DataType.emptyArray : DataType.nonEmptyArray;
+              return input.length === 0 ? Type.emptyArray : Type.nonEmptyArray;
           }
           else if (object.is(input)) {
-              return Object.keys(input).length === 0 ? DataType.emptyObject : DataType.nonEmptyObject;
+              return Object.keys(input).length === 0 ? Type.emptyObject : Type.nonEmptyObject;
           }
           else if (regularExpression.is(input)) {
-              return DataType.regexp;
+              return Type.regexp;
           }
           else if (litsFunction.is(input)) {
-              return DataType.function;
+              return Type.function;
           }
           throw Error("Unexpected error, could not figure out type of ".concat(input));
       };
-      DataType.or = function () {
+      Type.or = function () {
           var types = [];
           for (var _i = 0; _i < arguments.length; _i++) {
               types[_i] = arguments[_i];
@@ -985,13 +985,13 @@ var Lits = (function (exports) {
           }, 0);
           // const functions = types.filter(type => type.isFunction())
           // if (functions.some(f => !f.fnReturnType)) {
-          //   return new DataType(newTypeMask)
+          //   return new Type(newTypeMask)
           // }
-          // const returnTypes = functions.map(type => type.fnReturnType) as DataType[]
-          // const fnReturnType = returnTypes.length > 0 ? DataType.or(...returnTypes) : undefined
-          return new DataType(newTypeMask);
+          // const returnTypes = functions.map(type => type.fnReturnType) as Type[]
+          // const fnReturnType = returnTypes.length > 0 ? Type.or(...returnTypes) : undefined
+          return new Type(newTypeMask);
       };
-      DataType.and = function () {
+      Type.and = function () {
           var types = [];
           for (var _i = 0; _i < arguments.length; _i++) {
               types[_i] = arguments[_i];
@@ -1002,16 +1002,16 @@ var Lits = (function (exports) {
           // At least one of the types is a function
           // if (newTypeMask & builtinTypesBitMasks.function) {
           //   const returnFunctions = types.filter(type => type.isFunction())
-          //   const returnFunction = DataType.and(...returnFunctions)
+          //   const returnFunction = Type.and(...returnFunctions)
           //   if (returnFunction.bitmask === builtinTypesBitMasks.never) {
-          //     return new DataType(newTypeMask & ~builtinTypesBitMasks.function)
+          //     return new Type(newTypeMask & ~builtinTypesBitMasks.function)
           //   } else {
-          //     return new DataType(newTypeMask, returnFunction)
+          //     return new Type(newTypeMask, returnFunction)
           //   }
           // }
-          return new DataType(newTypeMask);
+          return new Type(newTypeMask);
       };
-      DataType.exclude = function (first) {
+      Type.exclude = function (first) {
           var rest = [];
           for (var _i = 1; _i < arguments.length; _i++) {
               rest[_i - 1] = arguments[_i];
@@ -1020,21 +1020,21 @@ var Lits = (function (exports) {
               var newBitmask = result.bitmask & ~type.bitmask;
               // Only remove function bit if functions are equal
               // if (result.isFunction() && type.isFunction()) {
-              //   const returnType: DataType = !type.fnReturnType
-              //     ? DataType.never
+              //   const returnType: Type = !type.fnReturnType
+              //     ? Type.never
               //     : !result.fnReturnType
-              //     ? DataType.unknown.exclude(type.fnReturnType)
+              //     ? Type.unknown.exclude(type.fnReturnType)
               //     : result.fnReturnType.exclude(type.fnReturnType)
               //   if (returnType.bitmask === builtinTypesBitMasks.never) {
-              //     return new DataType(newBitmask)
+              //     return new Type(newBitmask)
               //   } else {
-              //     return new DataType(newBitmask | builtinTypesBitMasks.function, returnType)
+              //     return new Type(newBitmask | builtinTypesBitMasks.function, returnType)
               //   }
               // }
-              return new DataType(newBitmask);
+              return new Type(newBitmask);
           }, first);
       };
-      DataType.is = function (a, b) {
+      Type.is = function (a, b) {
           var bitmaskA = a.bitmask, fnReturnTypeA = a.fnReturnType;
           var bitmaskB = b.bitmask, fnReturnTypeB = b.fnReturnType;
           // some bits must be the same AND no bits in a can appear in b
@@ -1053,7 +1053,7 @@ var Lits = (function (exports) {
           }
           return true;
       };
-      DataType.equals = function (type1, type2) {
+      Type.equals = function (type1, type2) {
           var rest = [];
           for (var _i = 2; _i < arguments.length; _i++) {
               rest[_i - 2] = arguments[_i];
@@ -1071,69 +1071,69 @@ var Lits = (function (exports) {
               return false;
           });
       };
-      DataType.intersects = function (a, b) {
+      Type.intersects = function (a, b) {
           return a.and(b).bitmask !== 0;
       };
-      DataType.isUnionType = function (dataType) {
+      Type.isUnionType = function (dataType) {
           return !allBitValues.includes(dataType.bitmask);
       };
-      DataType.toValue = function (dataType) {
+      Type.toValue = function (dataType) {
           if (isDataType(dataType)) {
-              if (dataType.equals(DataType.zero)) {
+              if (dataType.equals(Type.zero)) {
                   return 0;
               }
-              if (dataType.equals(DataType.nan)) {
+              if (dataType.equals(Type.nan)) {
                   return Number.NaN;
               }
-              if (dataType.equals(DataType.positiveInfinity)) {
+              if (dataType.equals(Type.positiveInfinity)) {
                   return Number.POSITIVE_INFINITY;
               }
-              if (dataType.equals(DataType.negativeInfinity)) {
+              if (dataType.equals(Type.negativeInfinity)) {
                   return Number.NEGATIVE_INFINITY;
               }
-              if (dataType.equals(DataType.emptyString)) {
+              if (dataType.equals(Type.emptyString)) {
                   return "";
               }
-              if (dataType.equals(DataType.true)) {
+              if (dataType.equals(Type.true)) {
                   return true;
               }
-              if (dataType.equals(DataType.false)) {
+              if (dataType.equals(Type.false)) {
                   return false;
               }
-              if (dataType.equals(DataType.zero)) {
+              if (dataType.equals(Type.zero)) {
                   return 0;
               }
-              if (dataType.equals(DataType.nil)) {
+              if (dataType.equals(Type.nil)) {
                   return null;
               }
-              if (dataType.equals(DataType.emptyArray)) {
+              if (dataType.equals(Type.emptyArray)) {
                   return [];
               }
-              if (dataType.equals(DataType.emptyObject)) {
+              if (dataType.equals(Type.emptyObject)) {
                   return {};
               }
           }
           return dataType;
       };
-      DataType.toNumberValue = function (dataType) {
-          if (dataType.equals(DataType.zero)) {
+      Type.toNumberValue = function (dataType) {
+          if (dataType.equals(Type.zero)) {
               return 0;
           }
-          if (dataType.equals(DataType.nan)) {
+          if (dataType.equals(Type.nan)) {
               return Number.NaN;
           }
-          if (dataType.equals(DataType.positiveInfinity)) {
+          if (dataType.equals(Type.positiveInfinity)) {
               return Number.POSITIVE_INFINITY;
           }
-          if (dataType.equals(DataType.negativeInfinity)) {
+          if (dataType.equals(Type.negativeInfinity)) {
               return Number.NEGATIVE_INFINITY;
           }
-          if (dataType.equals(DataType.zero)) {
+          if (dataType.equals(Type.zero)) {
               return 0;
           }
           return dataType;
       };
-      DataType.toSingelBits = function (dataType) {
+      Type.toSingelBits = function (dataType) {
           var result = [];
           Object.values(typeToBitRecord).forEach(function (bitValue) {
               if (dataType.bitmask & bitValue) {
@@ -1142,80 +1142,80 @@ var Lits = (function (exports) {
           });
           return result;
       };
-      DataType.split = function (dataType) {
-          return DataType.toSingelBits(dataType).map(function (bits) { return new DataType(bits); });
+      Type.split = function (dataType) {
+          return Type.toSingelBits(dataType).map(function (bits) { return new Type(bits); });
       };
-      DataType.prototype.or = function () {
+      Type.prototype.or = function () {
           var dataTypes = [];
           for (var _i = 0; _i < arguments.length; _i++) {
               dataTypes[_i] = arguments[_i];
           }
-          return DataType.or.apply(DataType, __spreadArray([this], __read(dataTypes), false));
+          return Type.or.apply(Type, __spreadArray([this], __read(dataTypes), false));
       };
-      DataType.prototype.and = function () {
+      Type.prototype.and = function () {
           var dataTypes = [];
           for (var _i = 0; _i < arguments.length; _i++) {
               dataTypes[_i] = arguments[_i];
           }
-          return DataType.and.apply(DataType, __spreadArray([this], __read(dataTypes), false));
+          return Type.and.apply(Type, __spreadArray([this], __read(dataTypes), false));
       };
-      DataType.prototype.exclude = function () {
+      Type.prototype.exclude = function () {
           var dataTypes = [];
           for (var _i = 0; _i < arguments.length; _i++) {
               dataTypes[_i] = arguments[_i];
           }
-          return DataType.exclude.apply(DataType, __spreadArray([this], __read(dataTypes), false));
+          return Type.exclude.apply(Type, __spreadArray([this], __read(dataTypes), false));
       };
-      DataType.prototype.is = function (dataType) {
+      Type.prototype.is = function (dataType) {
           if (dataType.isNever()) {
               return this.isNever();
           }
-          return DataType.is(this, dataType);
+          return Type.is(this, dataType);
       };
-      DataType.prototype.intersects = function (dataType) {
-          return DataType.intersects(this, dataType);
+      Type.prototype.intersects = function (dataType) {
+          return Type.intersects(this, dataType);
       };
-      DataType.prototype.intersectsNonNumber = function () {
+      Type.prototype.intersectsNonNumber = function () {
           return !!(this.bitmask & ~builtinTypesBitMasks.number);
       };
-      DataType.prototype.assertIs = function (dataType, debugInfo) {
+      Type.prototype.assertIs = function (dataType, debugInfo) {
           if (!this.is(dataType)) {
               throw new LitsError("Expected to be of type ".concat(dataType.toString(), ", but was ").concat(this.toString()), debugInfo);
           }
       };
-      DataType.prototype.assertEquals = function (dataType, debugInfo) {
+      Type.prototype.assertEquals = function (dataType, debugInfo) {
           if (!this.equals(dataType)) {
               throw new LitsError("Expected to be ".concat(dataType.toString(), ", but was ").concat(this.toString()), debugInfo);
           }
       };
-      DataType.prototype.assertIntersects = function (dataType, debugInfo) {
+      Type.prototype.assertIntersects = function (dataType, debugInfo) {
           if (!this.intersects(dataType)) {
               throw new LitsError("Expected to intersect ".concat(dataType.toString(), ", but was ").concat(this.toString()), debugInfo);
           }
       };
-      DataType.prototype.equals = function (type) {
+      Type.prototype.equals = function (type) {
           var rest = [];
           for (var _i = 1; _i < arguments.length; _i++) {
               rest[_i - 1] = arguments[_i];
           }
-          return DataType.equals.apply(DataType, __spreadArray([this, type], __read(rest), false));
+          return Type.equals.apply(Type, __spreadArray([this, type], __read(rest), false));
       };
-      DataType.prototype.isUnionType = function () {
-          return DataType.isUnionType(this);
+      Type.prototype.isUnionType = function () {
+          return Type.isUnionType(this);
       };
-      // public withReturnType(dataType: DataType): DataType {
+      // public withReturnType(dataType: Type): Type {
       //   if (!this.isFunction()) {
       //     throw Error(`Only functions can have return types`)
       //   }
-      //   return new DataType(this.bitmask, dataType)
+      //   return new Type(this.bitmask, dataType)
       // }
-      DataType.prototype.nilable = function () {
-          return this.or(DataType.nil);
+      Type.prototype.nilable = function () {
+          return this.or(Type.nil);
       };
-      DataType.prototype.isNever = function () {
+      Type.prototype.isNever = function () {
           return this.bitmask === 0;
       };
-      DataType.prototype.negateNumber = function () {
+      Type.prototype.negateNumber = function () {
           var newBitmask = this.bitmask;
           if (this.bitmask & typeToBitRecord["positive-infinity"] && !(this.bitmask & typeToBitRecord["negative-infinity"])) {
               newBitmask = (newBitmask | typeToBitRecord["negative-infinity"]) & ~typeToBitRecord["positive-infinity"];
@@ -1237,37 +1237,37 @@ var Lits = (function (exports) {
               !(this.bitmask & typeToBitRecord["negative-non-integer"])) {
               newBitmask = (newBitmask | typeToBitRecord["negative-non-integer"]) & ~typeToBitRecord["positive-non-integer"];
           }
-          return new DataType(newBitmask);
+          return new Type(newBitmask);
       };
-      DataType.prototype.isFunction = function () {
+      Type.prototype.isFunction = function () {
           return !!(this.bitmask & builtinTypesBitMasks.function);
       };
-      DataType.prototype.isUnknown = function () {
+      Type.prototype.isUnknown = function () {
           return this.bitmask === UNKNWON_BITS;
       };
-      DataType.prototype.isInteger = function () {
-          return (this.intersects(DataType.float) &&
+      Type.prototype.isInteger = function () {
+          return (this.intersects(Type.float) &&
               !(this.bitmask & (typeToBitRecord["positive-non-integer"] | typeToBitRecord["negative-non-integer"])));
       };
-      DataType.prototype.toSingelBits = function () {
-          return DataType.toSingelBits(this);
+      Type.prototype.toSingelBits = function () {
+          return Type.toSingelBits(this);
       };
-      DataType.prototype.split = function () {
-          return DataType.split(this);
+      Type.prototype.split = function () {
+          return Type.split(this);
       };
-      DataType.prototype.toValue = function () {
-          return DataType.toValue(this);
+      Type.prototype.toValue = function () {
+          return Type.toValue(this);
       };
-      DataType.prototype.toNumberValue = function () {
-          return DataType.toNumberValue(this);
+      Type.prototype.toNumberValue = function () {
+          return Type.toNumberValue(this);
       };
-      DataType.prototype.toString = function (_a) {
+      Type.prototype.toString = function (_a) {
           var _b = _a === void 0 ? { showDetails: true } : _a, showDetails = _b.showDetails;
           var suffix = " [Bitmask = ".concat(stringifyBitMask(this.bitmask), "  (").concat(this.bitmask, ")]");
           var typeString = this.getTypeString();
           return "".concat(typeString).concat(showDetails ? suffix : "");
       };
-      DataType.prototype.getTypeString = function () {
+      Type.prototype.getTypeString = function () {
           var e_1, _a, e_2, _b;
           if (this.isNever()) {
               return "::never";
@@ -1309,57 +1309,57 @@ var Lits = (function (exports) {
           }
           return typeStrings.join(" | ");
       };
-      DataType.never = new DataType(builtinTypesBitMasks.never);
-      DataType.nil = new DataType(builtinTypesBitMasks.nil);
-      DataType.illegalNumber = new DataType(builtinTypesBitMasks["illegal-number"]);
-      DataType.nan = new DataType(builtinTypesBitMasks.nan);
-      DataType.positiveInfinity = new DataType(builtinTypesBitMasks["positive-infinity"]);
-      DataType.negativeInfinity = new DataType(builtinTypesBitMasks["negative-infinity"]);
-      DataType.infinity = new DataType(builtinTypesBitMasks["infinity"]);
-      DataType.emptyString = new DataType(builtinTypesBitMasks["empty-string"]);
-      DataType.nonEmptyString = new DataType(builtinTypesBitMasks["non-empty-string"]);
-      DataType.string = new DataType(builtinTypesBitMasks.string);
-      DataType.number = new DataType(builtinTypesBitMasks.number);
-      DataType.numberOrNan = new DataType(builtinTypesBitMasks["number-or-nan"]);
-      DataType.zero = new DataType(builtinTypesBitMasks.zero);
-      DataType.nonZeroNumber = new DataType(builtinTypesBitMasks["non-zero-number"]);
-      DataType.positiveNumber = new DataType(builtinTypesBitMasks["positive-number"]);
-      DataType.negativeNumber = new DataType(builtinTypesBitMasks["negative-number"]);
-      DataType.nonPositiveNumber = new DataType(builtinTypesBitMasks["non-positive-number"]);
-      DataType.nonNegativeNumber = new DataType(builtinTypesBitMasks["non-negative-number"]);
-      DataType.float = new DataType(builtinTypesBitMasks.float);
-      DataType.integer = new DataType(builtinTypesBitMasks.integer);
-      DataType.nonZeroFloat = new DataType(builtinTypesBitMasks["non-zero-float"]);
-      DataType.positiveFloat = new DataType(builtinTypesBitMasks["positive-float"]);
-      DataType.negativeFloat = new DataType(builtinTypesBitMasks["negative-float"]);
-      DataType.nonPositiveFloat = new DataType(builtinTypesBitMasks["non-positive-float"]);
-      DataType.nonNegativeFloat = new DataType(builtinTypesBitMasks["non-negative-float"]);
-      DataType.nonZeroInteger = new DataType(builtinTypesBitMasks["non-zero-integer"]);
-      DataType.positiveInteger = new DataType(builtinTypesBitMasks["positive-integer"]);
-      DataType.negativeInteger = new DataType(builtinTypesBitMasks["negative-integer"]);
-      DataType.nonPositiveInteger = new DataType(builtinTypesBitMasks["non-positive-integer"]);
-      DataType.nonNegativeInteger = new DataType(builtinTypesBitMasks["non-negative-integer"]);
-      DataType.true = new DataType(builtinTypesBitMasks.true);
-      DataType.false = new DataType(builtinTypesBitMasks.false);
-      DataType.boolean = new DataType(builtinTypesBitMasks.boolean);
-      DataType.emptyArray = new DataType(builtinTypesBitMasks["empty-array"]);
-      DataType.nonEmptyArray = new DataType(builtinTypesBitMasks["non-empty-array"]);
-      DataType.array = new DataType(builtinTypesBitMasks.array);
-      DataType.emptyObject = new DataType(builtinTypesBitMasks["empty-object"]);
-      DataType.nonEmptyObject = new DataType(builtinTypesBitMasks["non-empty-object"]);
-      DataType.object = new DataType(builtinTypesBitMasks.object);
-      DataType.regexp = new DataType(builtinTypesBitMasks.regexp);
-      DataType.emptyCollection = new DataType(builtinTypesBitMasks["empty-collection"]);
-      DataType.nonEmptyCollection = new DataType(builtinTypesBitMasks["non-empty-collection"]);
-      DataType.collection = new DataType(builtinTypesBitMasks["collection"]);
-      DataType.emptySequence = new DataType(builtinTypesBitMasks["empty-sequence"]);
-      DataType.nonEmptySequence = new DataType(builtinTypesBitMasks["non-empty-sequence"]);
-      DataType.sequence = new DataType(builtinTypesBitMasks.sequence);
-      DataType.truthy = new DataType(builtinTypesBitMasks.truthy);
-      DataType.falsy = new DataType(builtinTypesBitMasks.falsy);
-      DataType.unknown = new DataType(builtinTypesBitMasks.unknown);
-      DataType.function = new DataType(builtinTypesBitMasks.function);
-      return DataType;
+      Type.never = new Type(builtinTypesBitMasks.never);
+      Type.nil = new Type(builtinTypesBitMasks.nil);
+      Type.illegalNumber = new Type(builtinTypesBitMasks["illegal-number"]);
+      Type.nan = new Type(builtinTypesBitMasks.nan);
+      Type.positiveInfinity = new Type(builtinTypesBitMasks["positive-infinity"]);
+      Type.negativeInfinity = new Type(builtinTypesBitMasks["negative-infinity"]);
+      Type.infinity = new Type(builtinTypesBitMasks["infinity"]);
+      Type.emptyString = new Type(builtinTypesBitMasks["empty-string"]);
+      Type.nonEmptyString = new Type(builtinTypesBitMasks["non-empty-string"]);
+      Type.string = new Type(builtinTypesBitMasks.string);
+      Type.number = new Type(builtinTypesBitMasks.number);
+      Type.numberOrNan = new Type(builtinTypesBitMasks["number-or-nan"]);
+      Type.zero = new Type(builtinTypesBitMasks.zero);
+      Type.nonZeroNumber = new Type(builtinTypesBitMasks["non-zero-number"]);
+      Type.positiveNumber = new Type(builtinTypesBitMasks["positive-number"]);
+      Type.negativeNumber = new Type(builtinTypesBitMasks["negative-number"]);
+      Type.nonPositiveNumber = new Type(builtinTypesBitMasks["non-positive-number"]);
+      Type.nonNegativeNumber = new Type(builtinTypesBitMasks["non-negative-number"]);
+      Type.float = new Type(builtinTypesBitMasks.float);
+      Type.integer = new Type(builtinTypesBitMasks.integer);
+      Type.nonZeroFloat = new Type(builtinTypesBitMasks["non-zero-float"]);
+      Type.positiveFloat = new Type(builtinTypesBitMasks["positive-float"]);
+      Type.negativeFloat = new Type(builtinTypesBitMasks["negative-float"]);
+      Type.nonPositiveFloat = new Type(builtinTypesBitMasks["non-positive-float"]);
+      Type.nonNegativeFloat = new Type(builtinTypesBitMasks["non-negative-float"]);
+      Type.nonZeroInteger = new Type(builtinTypesBitMasks["non-zero-integer"]);
+      Type.positiveInteger = new Type(builtinTypesBitMasks["positive-integer"]);
+      Type.negativeInteger = new Type(builtinTypesBitMasks["negative-integer"]);
+      Type.nonPositiveInteger = new Type(builtinTypesBitMasks["non-positive-integer"]);
+      Type.nonNegativeInteger = new Type(builtinTypesBitMasks["non-negative-integer"]);
+      Type.true = new Type(builtinTypesBitMasks.true);
+      Type.false = new Type(builtinTypesBitMasks.false);
+      Type.boolean = new Type(builtinTypesBitMasks.boolean);
+      Type.emptyArray = new Type(builtinTypesBitMasks["empty-array"]);
+      Type.nonEmptyArray = new Type(builtinTypesBitMasks["non-empty-array"]);
+      Type.array = new Type(builtinTypesBitMasks.array);
+      Type.emptyObject = new Type(builtinTypesBitMasks["empty-object"]);
+      Type.nonEmptyObject = new Type(builtinTypesBitMasks["non-empty-object"]);
+      Type.object = new Type(builtinTypesBitMasks.object);
+      Type.regexp = new Type(builtinTypesBitMasks.regexp);
+      Type.emptyCollection = new Type(builtinTypesBitMasks["empty-collection"]);
+      Type.nonEmptyCollection = new Type(builtinTypesBitMasks["non-empty-collection"]);
+      Type.collection = new Type(builtinTypesBitMasks["collection"]);
+      Type.emptySequence = new Type(builtinTypesBitMasks["empty-sequence"]);
+      Type.nonEmptySequence = new Type(builtinTypesBitMasks["non-empty-sequence"]);
+      Type.sequence = new Type(builtinTypesBitMasks.sequence);
+      Type.truthy = new Type(builtinTypesBitMasks.truthy);
+      Type.falsy = new Type(builtinTypesBitMasks.falsy);
+      Type.unknown = new Type(builtinTypesBitMasks.unknown);
+      Type.function = new Type(builtinTypesBitMasks.function);
+      return Type;
   }());
 
   var andSpecialExpression = {
@@ -1386,7 +1386,7 @@ var Lits = (function (exports) {
               for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var param = _d.value;
                   value = evaluateAstNode(param, contextStack);
-                  if ((isDataType(value) && value.is(DataType.falsy)) || !value) {
+                  if ((isDataType(value) && value.is(Type.falsy)) || !value) {
                       break;
                   }
                   else if (isDataType(value)) {
@@ -1408,7 +1408,7 @@ var Lits = (function (exports) {
               return asValue(possibleValues[0]);
           }
           else {
-              return DataType.or.apply(DataType, __spreadArray([], __read(possibleValues.map(DataType.of)), false));
+              return Type.or.apply(Type, __spreadArray([], __read(possibleValues.map(Type.of)), false));
           }
       },
       validateArity: function () { return undefined; },
@@ -1591,7 +1591,7 @@ var Lits = (function (exports) {
       //   assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
       //   const type = getFunctionOverloadeDataType(node as DefnNode, contextStack, dataType)
       //   contextStack.globalContext[name] = { value: type }
-      //   return DataType.nil
+      //   return Type.nil
       // },
   };
   var defnsSpecialExpression = {
@@ -1729,16 +1729,16 @@ var Lits = (function (exports) {
   //   node: DefnNode | FnNode,
   //   contextStack: ContextStack,
   //   dataType: GetDataType,
-  // ): DataType {
+  // ): Type {
   //   const types = node.overloads.map(functionOverload => {
   //     const functionContext: Context = {}
   //     for (const binding of functionOverload.arguments.bindings) {
   //       const bindingType = dataType(binding.value, contextStack)
   //       functionContext[binding.name] = { value: bindingType }
   //     }
-  //     return DataType.function.withReturnType(dataType(functionOverload.body, contextStack.withContext(functionContext)))
+  //     return Type.function.withReturnType(dataType(functionOverload.body, contextStack.withContext(functionContext)))
   //   })
-  //   return DataType.or(...types)
+  //   return Type.or(...types)
   // }
   function addOverloadsUndefinedSymbols(overloads, contextStack, findUndefinedSymbols, builtin, functionNameContext) {
       var e_3, _a;
@@ -2401,10 +2401,10 @@ var Lits = (function (exports) {
           var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
           var _c = __read(node.params, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
           var conditionValue = evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack);
-          if ((isDataType(conditionNode) && conditionNode.is(DataType.truthy)) || !!conditionValue) {
+          if ((isDataType(conditionNode) && conditionNode.is(Type.truthy)) || !!conditionValue) {
               return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
           }
-          else if ((isDataType(conditionNode) && conditionNode.is(DataType.falsy)) || !conditionValue) {
+          else if ((isDataType(conditionNode) && conditionNode.is(Type.falsy)) || !conditionValue) {
               if (node.params.length === 3) {
                   return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
               }
@@ -2415,7 +2415,7 @@ var Lits = (function (exports) {
           else {
               var trueBranchValue = evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
               var falseBranchValue = evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
-              return DataType.or(DataType.of(trueBranchValue), DataType.of(falseBranchValue));
+              return Type.or(Type.of(trueBranchValue), Type.of(falseBranchValue));
           }
       },
       validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "if", debugInfo); },
@@ -2609,11 +2609,11 @@ var Lits = (function (exports) {
               for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var param = _d.value;
                   value = evaluateAstNode(param, contextStack);
-                  if ((isDataType(value) && value.is(DataType.truthy)) || value) {
+                  if ((isDataType(value) && value.is(Type.truthy)) || value) {
                       possibleValues.push(value);
                       break;
                   }
-                  else if (isDataType(value) && value.intersects(DataType.truthy)) {
+                  else if (isDataType(value) && value.intersects(Type.truthy)) {
                       possibleValues.push(value);
                   }
               }
@@ -2632,7 +2632,7 @@ var Lits = (function (exports) {
               return asValue(possibleValues[0]);
           }
           else {
-              return DataType.or.apply(DataType, __spreadArray([], __read(possibleValues.map(DataType.of)), false));
+              return Type.or.apply(Type, __spreadArray([], __read(possibleValues.map(Type.of)), false));
           }
       },
       validateArity: function () { return undefined; },
@@ -3238,22 +3238,22 @@ var Lits = (function (exports) {
                   return result === undefined ? defaultValue : result;
               }
               else {
-                  var collType = DataType.of(params[0]);
-                  var keyType = DataType.of(params[1]);
+                  var collType = Type.of(params[0]);
+                  var keyType = Type.of(params[1]);
                   var defaultValueType = isDataType(params[2])
                       ? params[2]
                       : params[2] === undefined
-                          ? DataType.nil
-                          : DataType.of(params[2]);
-                  collType.assertIs(DataType.collection.nilable(), debugInfo);
-                  keyType.assertIs(DataType.or(DataType.string, DataType.float, DataType.nil), debugInfo);
-                  if (collType.is(DataType.nil)) {
+                          ? Type.nil
+                          : Type.of(params[2]);
+                  collType.assertIs(Type.collection.nilable(), debugInfo);
+                  keyType.assertIs(Type.or(Type.string, Type.float, Type.nil), debugInfo);
+                  if (collType.is(Type.nil)) {
                       return defaultValueType;
                   }
-                  if (collType.is(DataType.string)) {
-                      return DataType.or(DataType.string.nilable(), defaultValueType);
+                  if (collType.is(Type.string)) {
+                      return Type.or(Type.string.nilable(), defaultValueType);
                   }
-                  return DataType.unknown;
+                  return Type.unknown;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "get", debugInfo); },
@@ -3295,14 +3295,14 @@ var Lits = (function (exports) {
                   return coll;
               }
               else {
-                  var collType = DataType.of(params[0]);
-                  var keysType = DataType.of(params[1]);
-                  collType.assertIs(DataType.collection.nilable(), debugInfo);
-                  keysType.assertIs(DataType.array.nilable(), debugInfo);
-                  if (keysType.is(DataType.nil)) {
+                  var collType = Type.of(params[0]);
+                  var keysType = Type.of(params[1]);
+                  collType.assertIs(Type.collection.nilable(), debugInfo);
+                  keysType.assertIs(Type.array.nilable(), debugInfo);
+                  if (keysType.is(Type.nil)) {
                       return collType;
                   }
-                  return DataType.unknown;
+                  return Type.unknown;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "___", debugInfo); },
@@ -3321,13 +3321,13 @@ var Lits = (function (exports) {
                   return Object.keys(coll).length;
               }
               else {
-                  var collType = DataType.of(coll);
-                  collType.assertIs(DataType.collection, debugInfo);
-                  return collType.is(DataType.emptyCollection)
-                      ? DataType.zero
-                      : collType.is(DataType.nonEmptyCollection)
-                          ? DataType.positiveInteger
-                          : DataType.nonNegativeInteger;
+                  var collType = Type.of(coll);
+                  collType.assertIs(Type.collection, debugInfo);
+                  return collType.is(Type.emptyCollection)
+                      ? Type.zero
+                      : collType.is(Type.nonEmptyCollection)
+                          ? Type.positiveInteger
+                          : Type.nonNegativeInteger;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "count", debugInfo); },
@@ -3348,8 +3348,8 @@ var Lits = (function (exports) {
                   return !!Object.getOwnPropertyDescriptor(coll, key);
               }
               else {
-                  var collType = DataType.of(params[0]);
-                  return collType.is(DataType.emptyCollection) ? DataType.false : DataType.boolean;
+                  var collType = Type.of(params[0]);
+                  return collType.is(Type.emptyCollection) ? Type.false : Type.boolean;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "contains?", debugInfo); },
@@ -3360,7 +3360,7 @@ var Lits = (function (exports) {
                   var _a = __read(params, 2), coll = _a[0], value = _a[1];
                   collection.assert(coll, debugInfo);
                   if ((array.is(coll) && coll.some(isDataType)) || (object.is(coll) && Object.values(coll).some(isDataType))) {
-                      return DataType.boolean;
+                      return Type.boolean;
                   }
                   if (array.is(coll)) {
                       return coll.includes(value);
@@ -3371,8 +3371,8 @@ var Lits = (function (exports) {
                   return Object.values(coll).includes(value);
               }
               else {
-                  var collType = DataType.of(params[0]);
-                  return collType.is(DataType.emptyCollection) ? DataType.false : DataType.boolean;
+                  var collType = Type.of(params[0]);
+                  return collType.is(Type.emptyCollection) ? Type.false : Type.boolean;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "has?", debugInfo); },
@@ -4592,7 +4592,7 @@ var Lits = (function (exports) {
       },
       range: {
           evaluate: function (params, debugInfo) {
-              if (params.every(function (param) { return !(param instanceof DataType); })) {
+              if (params.every(function (param) { return !(param instanceof Type); })) {
                   var _a = __read(params, 3), first = _a[0], second = _a[1], third = _a[2];
                   var from = void 0;
                   var to = void 0;
@@ -4633,18 +4633,18 @@ var Lits = (function (exports) {
               }
               else {
                   var paramTypes = params.map(function (param) {
-                      var type = DataType.of(param);
-                      type.assertIs(DataType.float, debugInfo);
+                      var type = Type.of(param);
+                      type.assertIs(Type.float, debugInfo);
                       return type;
                   });
                   var fromType = asValue(paramTypes[0]);
                   if (paramTypes.length === 1) {
                       // Here we always know if it is emptyArray or nonEmptyArray
-                      return fromType.is(DataType.zero) ? DataType.emptyArray : DataType.nonEmptyArray;
+                      return fromType.is(Type.zero) ? Type.emptyArray : Type.nonEmptyArray;
                   }
                   var toType = asValue(paramTypes[1]);
                   // If both from and to are zero -> emptyArray, otherwise we don't know -> array
-                  return fromType.is(DataType.zero) && toType.is(DataType.zero) ? DataType.emptyArray : DataType.array;
+                  return fromType.is(Type.zero) && toType.is(Type.zero) ? Type.emptyArray : Type.array;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 3 }, arity, "range", debugInfo); },
@@ -4661,9 +4661,9 @@ var Lits = (function (exports) {
                   return result;
               }
               else {
-                  var countType = DataType.of(params[0]);
-                  countType.assertIs(DataType.nonNegativeInteger, debugInfo);
-                  return countType.is(DataType.zero) ? DataType.emptyArray : DataType.nonEmptyArray;
+                  var countType = Type.of(params[0]);
+                  countType.assertIs(Type.nonNegativeInteger, debugInfo);
+                  return countType.is(Type.zero) ? Type.emptyArray : Type.nonEmptyArray;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "repeat", debugInfo); },
@@ -4702,41 +4702,41 @@ var Lits = (function (exports) {
                   return first + 1;
               }
               else {
-                  var paramType = DataType.of(first);
-                  if (paramType.equals(DataType.zero)) {
+                  var paramType = Type.of(first);
+                  if (paramType.equals(Type.zero)) {
                       return 1;
                   }
                   var types = [];
                   if (paramType.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (paramType.intersects(DataType.positiveInfinity)) {
-                      types.push(DataType.positiveInfinity);
+                  if (paramType.intersects(Type.positiveInfinity)) {
+                      types.push(Type.positiveInfinity);
                   }
-                  if (paramType.intersects(DataType.negativeInfinity)) {
-                      types.push(DataType.negativeInfinity);
+                  if (paramType.intersects(Type.negativeInfinity)) {
+                      types.push(Type.negativeInfinity);
                   }
-                  if (paramType.intersects(DataType.zero)) {
-                      types.push(DataType.positiveInteger);
+                  if (paramType.intersects(Type.zero)) {
+                      types.push(Type.positiveInteger);
                   }
-                  if (paramType.intersects(DataType.negativeFloat)) {
+                  if (paramType.intersects(Type.negativeFloat)) {
                       if (paramType.isInteger()) {
-                          types.push(DataType.nonPositiveInteger);
+                          types.push(Type.nonPositiveInteger);
                       }
                       else {
-                          types.push(DataType.float);
+                          types.push(Type.float);
                       }
                   }
-                  if (paramType.intersects(DataType.positiveFloat)) {
-                      types.push(DataType.positiveInfinity);
+                  if (paramType.intersects(Type.positiveFloat)) {
+                      types.push(Type.positiveInfinity);
                       if (paramType.isInteger()) {
-                          types.push(DataType.positiveInteger);
+                          types.push(Type.positiveInteger);
                       }
                       else {
-                          types.push(DataType.positiveFloat);
+                          types.push(Type.positiveFloat);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "inc", debugInfo); },
@@ -4751,48 +4751,48 @@ var Lits = (function (exports) {
                   return first - 1;
               }
               else {
-                  var paramType = DataType.of(first);
-                  if (paramType.equals(DataType.zero)) {
+                  var paramType = Type.of(first);
+                  if (paramType.equals(Type.zero)) {
                       return -1;
                   }
                   var types = [];
                   if (paramType.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (paramType.intersects(DataType.positiveInfinity)) {
-                      types.push(DataType.positiveInfinity);
+                  if (paramType.intersects(Type.positiveInfinity)) {
+                      types.push(Type.positiveInfinity);
                   }
-                  if (paramType.intersects(DataType.negativeInfinity)) {
-                      types.push(DataType.negativeInfinity);
+                  if (paramType.intersects(Type.negativeInfinity)) {
+                      types.push(Type.negativeInfinity);
                   }
-                  if (paramType.intersects(DataType.zero)) {
-                      types.push(DataType.negativeInteger);
+                  if (paramType.intersects(Type.zero)) {
+                      types.push(Type.negativeInteger);
                   }
-                  if (paramType.intersects(DataType.positiveFloat)) {
+                  if (paramType.intersects(Type.positiveFloat)) {
                       if (paramType.isInteger()) {
-                          types.push(DataType.nonNegativeInteger);
+                          types.push(Type.nonNegativeInteger);
                       }
                       else {
-                          types.push(DataType.float);
+                          types.push(Type.float);
                       }
                   }
-                  if (paramType.intersects(DataType.negativeFloat)) {
-                      types.push(DataType.negativeInfinity);
+                  if (paramType.intersects(Type.negativeFloat)) {
+                      types.push(Type.negativeInfinity);
                       if (paramType.isInteger()) {
-                          types.push(DataType.negativeInteger);
+                          types.push(Type.negativeInteger);
                       }
                       else {
-                          types.push(DataType.negativeFloat);
+                          types.push(Type.negativeFloat);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "dec", debugInfo); },
       },
       '+': {
           evaluate: function (params) {
-              if (params.every(function (param) { return !(param instanceof DataType); })) {
+              if (params.every(function (param) { return !(param instanceof Type); })) {
                   return params.reduce(function (result, param) {
                       if (!number.is(param)) {
                           return Number.NaN;
@@ -4808,7 +4808,7 @@ var Lits = (function (exports) {
       },
       '-': {
           evaluate: function (params) {
-              if (params.every(function (param) { return !(param instanceof DataType); })) {
+              if (params.every(function (param) { return !(param instanceof Type); })) {
                   if (params.length === 0) {
                       return 0;
                   }
@@ -4839,7 +4839,7 @@ var Lits = (function (exports) {
       },
       '*': {
           evaluate: function (params) {
-              if (params.every(function (param) { return !(param instanceof DataType); })) {
+              if (params.every(function (param) { return !(param instanceof Type); })) {
                   return params.reduce(function (result, param) {
                       if (!number.is(param)) {
                           return Number.NaN;
@@ -4851,7 +4851,7 @@ var Lits = (function (exports) {
                   }, 1);
               }
               else {
-                  var paramTypes = params.map(function (param) { return DataType.of(param); });
+                  var paramTypes = params.map(function (param) { return Type.of(param); });
                   return getTypeOfProduct(paramTypes).toNumberValue();
               }
           },
@@ -4859,7 +4859,7 @@ var Lits = (function (exports) {
       },
       '/': {
           evaluate: function (params) {
-              if (params.every(function (param) { return !(param instanceof DataType); })) {
+              if (params.every(function (param) { return !(param instanceof Type); })) {
                   if (params.length === 0) {
                       return 1;
                   }
@@ -4884,7 +4884,7 @@ var Lits = (function (exports) {
                   }, first);
               }
               else {
-                  var paramTypes = params.map(function (param) { return DataType.of(param); });
+                  var paramTypes = params.map(function (param) { return Type.of(param); });
                   return getTypeOfDivision(paramTypes).toNumberValue();
               }
           },
@@ -4903,64 +4903,64 @@ var Lits = (function (exports) {
                   return Math.trunc(dividend / divisor);
               }
               else {
-                  var a = DataType.of(params[0]);
-                  var b = DataType.of(params[1]);
+                  var a = Type.of(params[0]);
+                  var b = Type.of(params[1]);
                   var types = [];
                   if (a.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
                   if (b.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (a.or(b).intersects(DataType.nan)) {
-                      types.push(DataType.nan);
+                  if (a.or(b).intersects(Type.nan)) {
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.positiveInfinity) && b.exclude(DataType.nan).intersects(DataType.number)) {
-                      types.push(DataType.positiveInfinity);
+                  if (a.intersects(Type.positiveInfinity) && b.exclude(Type.nan).intersects(Type.number)) {
+                      types.push(Type.positiveInfinity);
                   }
-                  if (a.intersects(DataType.negativeInfinity) && b.exclude(DataType.nan).intersects(DataType.number)) {
-                      types.push(DataType.negativeInfinity);
+                  if (a.intersects(Type.negativeInfinity) && b.exclude(Type.nan).intersects(Type.number)) {
+                      types.push(Type.negativeInfinity);
                   }
-                  if (b.intersects(DataType.positiveInfinity.or(DataType.negativeInfinity))) {
-                      if (a.intersects(DataType.float)) {
-                          types.push(DataType.zero);
+                  if (b.intersects(Type.positiveInfinity.or(Type.negativeInfinity))) {
+                      if (a.intersects(Type.float)) {
+                          types.push(Type.zero);
                       }
                   }
-                  if (a.intersects(DataType.zero) && b.intersects(DataType.nonZeroFloat)) {
-                      types.push(DataType.zero);
+                  if (a.intersects(Type.zero) && b.intersects(Type.nonZeroFloat)) {
+                      types.push(Type.zero);
                   }
-                  if (b.intersects(DataType.zero)) {
-                      if (a.intersects(DataType.zero)) {
-                          types.push(DataType.nan);
+                  if (b.intersects(Type.zero)) {
+                      if (a.intersects(Type.zero)) {
+                          types.push(Type.nan);
                       }
-                      if (a.intersects(DataType.positiveFloat)) {
-                          types.push(DataType.positiveInfinity);
+                      if (a.intersects(Type.positiveFloat)) {
+                          types.push(Type.positiveInfinity);
                       }
-                      if (a.intersects(DataType.negativeFloat)) {
-                          types.push(DataType.negativeInfinity);
-                      }
-                  }
-                  if (a.intersects(DataType.positiveFloat)) {
-                      if (b.intersects(DataType.positiveFloat)) {
-                          types.push(DataType.nonNegativeInteger);
-                          types.push(DataType.positiveInfinity);
-                      }
-                      if (b.intersects(DataType.negativeFloat)) {
-                          types.push(DataType.nonPositiveInteger);
-                          types.push(DataType.negativeInfinity);
+                      if (a.intersects(Type.negativeFloat)) {
+                          types.push(Type.negativeInfinity);
                       }
                   }
-                  if (a.intersects(DataType.negativeFloat)) {
-                      if (b.intersects(DataType.negativeFloat)) {
-                          types.push(DataType.nonNegativeInteger);
-                          types.push(DataType.positiveInfinity);
+                  if (a.intersects(Type.positiveFloat)) {
+                      if (b.intersects(Type.positiveFloat)) {
+                          types.push(Type.nonNegativeInteger);
+                          types.push(Type.positiveInfinity);
                       }
-                      if (b.intersects(DataType.positiveFloat)) {
-                          types.push(DataType.nonPositiveInteger);
-                          types.push(DataType.negativeInfinity);
+                      if (b.intersects(Type.negativeFloat)) {
+                          types.push(Type.nonPositiveInteger);
+                          types.push(Type.negativeInfinity);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  if (a.intersects(Type.negativeFloat)) {
+                      if (b.intersects(Type.negativeFloat)) {
+                          types.push(Type.nonNegativeInteger);
+                          types.push(Type.positiveInfinity);
+                      }
+                      if (b.intersects(Type.positiveFloat)) {
+                          types.push(Type.nonPositiveInteger);
+                          types.push(Type.negativeInfinity);
+                      }
+                  }
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "quot", debugInfo); },
@@ -4982,37 +4982,37 @@ var Lits = (function (exports) {
                   return dividend - divisor * quotient;
               }
               else {
-                  var a = DataType.of(params[0]);
-                  var b = DataType.of(params[1]);
+                  var a = Type.of(params[0]);
+                  var b = Type.of(params[1]);
                   var types = [];
                   if (a.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
                   if (b.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.illegalNumber)) {
-                      types.push(DataType.nan);
+                  if (a.intersects(Type.illegalNumber)) {
+                      types.push(Type.nan);
                   }
-                  if (b.intersects(DataType.nan)) {
-                      types.push(DataType.nan);
+                  if (b.intersects(Type.nan)) {
+                      types.push(Type.nan);
                   }
-                  if (b.intersects(DataType.positiveInfinity) && a.intersects(DataType.float)) {
-                      types.push(DataType.zero);
+                  if (b.intersects(Type.positiveInfinity) && a.intersects(Type.float)) {
+                      types.push(Type.zero);
                   }
-                  if (b.intersects(DataType.negativeInfinity) && a.intersects(DataType.float)) {
-                      types.push(DataType.zero);
+                  if (b.intersects(Type.negativeInfinity) && a.intersects(Type.float)) {
+                      types.push(Type.zero);
                   }
-                  if (b.intersects(DataType.zero)) {
-                      types.push(DataType.nan);
+                  if (b.intersects(Type.zero)) {
+                      types.push(Type.nan);
                   }
-                  if (b.intersects(DataType.negativeFloat) && a.intersects(DataType.float)) {
-                      types.push(DataType.nonPositiveFloat);
+                  if (b.intersects(Type.negativeFloat) && a.intersects(Type.float)) {
+                      types.push(Type.nonPositiveFloat);
                   }
-                  if (b.intersects(DataType.positiveFloat) && a.intersects(DataType.float)) {
-                      types.push(DataType.nonNegativeFloat);
+                  if (b.intersects(Type.positiveFloat) && a.intersects(Type.float)) {
+                      types.push(Type.nonNegativeFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "mod", debugInfo); },
@@ -5034,28 +5034,28 @@ var Lits = (function (exports) {
                   return dividend - divisor * quotient;
               }
               else {
-                  var a = DataType.of(params[0]);
-                  var b = DataType.of(params[1]);
+                  var a = Type.of(params[0]);
+                  var b = Type.of(params[1]);
                   var types = [];
                   if (a.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
                   if (b.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (a.or(b).intersects(DataType.illegalNumber)) {
-                      types.push(DataType.nan);
+                  if (a.or(b).intersects(Type.illegalNumber)) {
+                      types.push(Type.nan);
                   }
-                  if (b.intersects(DataType.zero)) {
-                      types.push(DataType.nan);
+                  if (b.intersects(Type.zero)) {
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.negativeFloat) && b.intersects(DataType.float)) {
-                      types.push(DataType.nonPositiveFloat);
+                  if (a.intersects(Type.negativeFloat) && b.intersects(Type.float)) {
+                      types.push(Type.nonPositiveFloat);
                   }
-                  if (a.intersects(DataType.positiveFloat) && b.intersects(DataType.float)) {
-                      types.push(DataType.nonNegativeFloat);
+                  if (a.intersects(Type.positiveFloat) && b.intersects(Type.float)) {
+                      types.push(Type.nonNegativeFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "rem", debugInfo); },
@@ -5070,27 +5070,27 @@ var Lits = (function (exports) {
                   return Math.sqrt(first);
               }
               else {
-                  var type = DataType.of(first);
+                  var type = Type.of(first);
                   var types = [];
                   if (type.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (type.intersects(DataType.nan.or(DataType.negativeInfinity))) {
-                      types.push(DataType.nan);
+                  if (type.intersects(Type.nan.or(Type.negativeInfinity))) {
+                      types.push(Type.nan);
                   }
-                  if (type.intersects(DataType.positiveInfinity)) {
-                      types.push(DataType.positiveInfinity);
+                  if (type.intersects(Type.positiveInfinity)) {
+                      types.push(Type.positiveInfinity);
                   }
-                  if (type.intersects(DataType.zero)) {
-                      types.push(DataType.zero);
+                  if (type.intersects(Type.zero)) {
+                      types.push(Type.zero);
                   }
-                  if (type.intersects(DataType.negativeFloat)) {
-                      types.push(DataType.nan);
+                  if (type.intersects(Type.negativeFloat)) {
+                      types.push(Type.nan);
                   }
-                  if (type.intersects(DataType.positiveFloat)) {
-                      types.push(DataType.positiveFloat);
+                  if (type.intersects(Type.positiveFloat)) {
+                      types.push(Type.positiveFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "sqrt", debugInfo); },
@@ -5105,30 +5105,30 @@ var Lits = (function (exports) {
                   return Math.cbrt(first);
               }
               else {
-                  var type = DataType.of(first);
+                  var type = Type.of(first);
                   var types = [];
                   if (type.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (type.intersects(DataType.nan)) {
-                      types.push(DataType.nan);
+                  if (type.intersects(Type.nan)) {
+                      types.push(Type.nan);
                   }
-                  if (type.intersects(DataType.positiveInfinity)) {
-                      types.push(DataType.positiveInfinity);
+                  if (type.intersects(Type.positiveInfinity)) {
+                      types.push(Type.positiveInfinity);
                   }
-                  if (type.intersects(DataType.negativeInfinity)) {
-                      types.push(DataType.negativeInfinity);
+                  if (type.intersects(Type.negativeInfinity)) {
+                      types.push(Type.negativeInfinity);
                   }
-                  if (type.intersects(DataType.zero)) {
-                      types.push(DataType.zero);
+                  if (type.intersects(Type.zero)) {
+                      types.push(Type.zero);
                   }
-                  if (type.intersects(DataType.positiveFloat)) {
-                      types.push(DataType.positiveFloat);
+                  if (type.intersects(Type.positiveFloat)) {
+                      types.push(Type.positiveFloat);
                   }
-                  if (type.intersects(DataType.negativeFloat)) {
-                      types.push(DataType.negativeFloat);
+                  if (type.intersects(Type.negativeFloat)) {
+                      types.push(Type.negativeFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "cbrt", debugInfo); },
@@ -5155,159 +5155,159 @@ var Lits = (function (exports) {
                   return Math.pow(first, second);
               }
               else {
-                  var a = asValue(DataType.of(params[0]));
-                  var b = asValue(DataType.of(params[1]));
+                  var a = asValue(Type.of(params[0]));
+                  var b = asValue(Type.of(params[1]));
                   var types = [];
                   var ones = 0;
                   if (a.or(b).intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.nan)) {
-                      if (b.intersects(DataType.zero)) {
-                          types.push(DataType.positiveInteger);
+                  if (a.intersects(Type.nan)) {
+                      if (b.intersects(Type.zero)) {
+                          types.push(Type.positiveInteger);
                       }
-                      if (!b.exclude(DataType.zero).isNever()) {
-                          types.push(DataType.nan);
+                      if (!b.exclude(Type.zero).isNever()) {
+                          types.push(Type.nan);
                       }
                   }
-                  if (b.intersects(DataType.nan)) {
-                      types.push(DataType.nan);
+                  if (b.intersects(Type.nan)) {
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.positiveInfinity)) {
-                      if (b.intersects(DataType.positiveInfinity.or(DataType.positiveFloat))) {
-                          types.push(DataType.positiveInfinity);
+                  if (a.intersects(Type.positiveInfinity)) {
+                      if (b.intersects(Type.positiveInfinity.or(Type.positiveFloat))) {
+                          types.push(Type.positiveInfinity);
                       }
-                      if (b.intersects(DataType.negativeInfinity.or(DataType.negativeFloat))) {
-                          types.push(DataType.zero);
+                      if (b.intersects(Type.negativeInfinity.or(Type.negativeFloat))) {
+                          types.push(Type.zero);
                       }
-                      if (b.intersects(DataType.zero)) {
-                          types.push(DataType.positiveInteger);
+                      if (b.intersects(Type.zero)) {
+                          types.push(Type.positiveInteger);
                           ones += 1;
                       }
                   }
-                  if (a.intersects(DataType.negativeInfinity)) {
-                      if (b.intersects(DataType.positiveInfinity)) {
-                          types.push(DataType.nan);
+                  if (a.intersects(Type.negativeInfinity)) {
+                      if (b.intersects(Type.positiveInfinity)) {
+                          types.push(Type.nan);
                       }
-                      if (b.intersects(DataType.positiveFloat)) {
-                          types.push(DataType.positiveInfinity);
-                          types.push(DataType.negativeInfinity);
+                      if (b.intersects(Type.positiveFloat)) {
+                          types.push(Type.positiveInfinity);
+                          types.push(Type.negativeInfinity);
                       }
-                      if (b.intersects(DataType.negativeInfinity.or(DataType.negativeFloat))) {
-                          types.push(DataType.zero);
+                      if (b.intersects(Type.negativeInfinity.or(Type.negativeFloat))) {
+                          types.push(Type.zero);
                       }
-                      if (b.intersects(DataType.zero)) {
-                          types.push(DataType.positiveInteger);
+                      if (b.intersects(Type.zero)) {
+                          types.push(Type.positiveInteger);
                           ones += 1;
                       }
                   }
-                  if (b.intersects(DataType.positiveInfinity)) {
-                      if (a.intersects(DataType.zero)) {
-                          types.push(DataType.zero);
+                  if (b.intersects(Type.positiveInfinity)) {
+                      if (a.intersects(Type.zero)) {
+                          types.push(Type.zero);
                       }
-                      if (a.intersects(DataType.positiveFloat)) {
-                          types.push(DataType.positiveInfinity);
-                          types.push(DataType.positiveInteger);
+                      if (a.intersects(Type.positiveFloat)) {
+                          types.push(Type.positiveInfinity);
+                          types.push(Type.positiveInteger);
                           if (!a.isInteger()) {
-                              types.push(DataType.zero);
+                              types.push(Type.zero);
                           }
                       }
-                      if (a.intersects(DataType.negativeFloat)) {
-                          types.push(DataType.nan);
+                      if (a.intersects(Type.negativeFloat)) {
+                          types.push(Type.nan);
                           if (!a.isInteger()) {
-                              types.push(DataType.zero);
+                              types.push(Type.zero);
                           }
                       }
                   }
-                  if (b.intersects(DataType.negativeInfinity)) {
-                      if (a.intersects(DataType.zero)) {
-                          types.push(DataType.positiveInfinity);
+                  if (b.intersects(Type.negativeInfinity)) {
+                      if (a.intersects(Type.zero)) {
+                          types.push(Type.positiveInfinity);
                       }
-                      if (a.intersects(DataType.positiveFloat)) {
-                          types.push(DataType.positiveInteger);
-                          types.push(DataType.zero);
+                      if (a.intersects(Type.positiveFloat)) {
+                          types.push(Type.positiveInteger);
+                          types.push(Type.zero);
                           if (!a.isInteger()) {
-                              types.push(DataType.positiveInfinity);
+                              types.push(Type.positiveInfinity);
                           }
                       }
-                      if (a.intersects(DataType.negativeFloat)) {
-                          types.push(DataType.nan);
-                          types.push(DataType.zero);
+                      if (a.intersects(Type.negativeFloat)) {
+                          types.push(Type.nan);
+                          types.push(Type.zero);
                       }
                   }
-                  if (a.intersects(DataType.zero)) {
-                      if (b.intersects(DataType.zero)) {
-                          types.push(DataType.positiveInteger);
+                  if (a.intersects(Type.zero)) {
+                      if (b.intersects(Type.zero)) {
+                          types.push(Type.positiveInteger);
                       }
-                      if (b.intersects(DataType.positiveFloat)) {
-                          types.push(DataType.zero);
+                      if (b.intersects(Type.positiveFloat)) {
+                          types.push(Type.zero);
                       }
-                      if (b.intersects(DataType.negativeFloat)) {
-                          types.push(DataType.positiveInfinity);
+                      if (b.intersects(Type.negativeFloat)) {
+                          types.push(Type.positiveInfinity);
                       }
                   }
-                  if (b.intersects(DataType.zero)) {
-                      if (a.intersects(DataType.float)) {
-                          types.push(DataType.positiveInteger);
+                  if (b.intersects(Type.zero)) {
+                      if (a.intersects(Type.float)) {
+                          types.push(Type.positiveInteger);
                           ones += 1;
                       }
                   }
-                  if (a.intersects(DataType.positiveFloat)) {
-                      if (b.intersects(DataType.positiveFloat)) {
-                          types.push(DataType.positiveInfinity);
+                  if (a.intersects(Type.positiveFloat)) {
+                      if (b.intersects(Type.positiveFloat)) {
+                          types.push(Type.positiveInfinity);
                       }
                       if (a.isInteger()) {
-                          if (b.intersects(DataType.positiveFloat)) {
+                          if (b.intersects(Type.positiveFloat)) {
                               if (b.isInteger()) {
-                                  types.push(DataType.positiveInteger);
+                                  types.push(Type.positiveInteger);
                               }
                               else {
-                                  types.push(DataType.positiveFloat);
+                                  types.push(Type.positiveFloat);
                               }
                           }
-                          if (b.intersects(DataType.negativeFloat)) {
-                              types.push(DataType.nonNegativeFloat);
+                          if (b.intersects(Type.negativeFloat)) {
+                              types.push(Type.nonNegativeFloat);
                           }
                       }
                       else {
-                          if (b.intersects(DataType.positiveFloat)) {
-                              types.push(DataType.positiveFloat);
+                          if (b.intersects(Type.positiveFloat)) {
+                              types.push(Type.positiveFloat);
                           }
-                          if (b.intersects(DataType.negativeFloat)) {
-                              types.push(DataType.nonNegativeFloat);
+                          if (b.intersects(Type.negativeFloat)) {
+                              types.push(Type.nonNegativeFloat);
                           }
                       }
                   }
-                  if (a.intersects(DataType.negativeFloat)) {
-                      if (b.intersects(DataType.positiveInteger)) {
-                          types.push(DataType.infinity);
+                  if (a.intersects(Type.negativeFloat)) {
+                      if (b.intersects(Type.positiveInteger)) {
+                          types.push(Type.infinity);
                       }
-                      if (b.intersects(DataType.float) && !b.isInteger()) {
-                          types.push(DataType.nan);
+                      if (b.intersects(Type.float) && !b.isInteger()) {
+                          types.push(Type.nan);
                       }
                       if (a.isInteger()) {
-                          if (b.intersects(DataType.positiveInteger)) {
-                              types.push(DataType.positiveInteger);
-                              types.push(DataType.negativeInteger);
+                          if (b.intersects(Type.positiveInteger)) {
+                              types.push(Type.positiveInteger);
+                              types.push(Type.negativeInteger);
                           }
-                          if (b.intersects(DataType.negativeInteger)) {
-                              types.push(DataType.positiveFloat);
-                              types.push(DataType.negativeFloat);
+                          if (b.intersects(Type.negativeInteger)) {
+                              types.push(Type.positiveFloat);
+                              types.push(Type.negativeFloat);
                           }
                       }
                       else {
-                          if (b.intersects(DataType.nonZeroInteger)) {
-                              types.push(DataType.positiveFloat);
-                              types.push(DataType.negativeFloat);
+                          if (b.intersects(Type.nonZeroInteger)) {
+                              types.push(Type.positiveFloat);
+                              types.push(Type.negativeFloat);
                           }
                       }
                   }
-                  if (ones > 0 && types.every(function (t) { return t.equals(DataType.positiveInteger); })) {
+                  if (ones > 0 && types.every(function (t) { return t.equals(Type.positiveInteger); })) {
                       if (types.length === ones) {
                           return 1;
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "pow", debugInfo); },
@@ -5336,59 +5336,59 @@ var Lits = (function (exports) {
                   return Math.round(value * factor) / factor;
               }
               else {
-                  var a = asValue(DataType.of(params[0]));
-                  var b = asValue(DataType.of((_a = params[1]) !== null && _a !== void 0 ? _a : 0));
+                  var a = asValue(Type.of(params[0]));
+                  var b = asValue(Type.of((_a = params[1]) !== null && _a !== void 0 ? _a : 0));
                   var types = [];
                   if (a.or(b).intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (!b.isInteger() || b.intersects(DataType.negativeFloat)) {
-                      types.push(DataType.nan);
+                  if (!b.isInteger() || b.intersects(Type.negativeFloat)) {
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.positiveInfinity) && !b.intersects(DataType.illegalNumber)) {
-                      types.push(DataType.positiveInfinity);
+                  if (a.intersects(Type.positiveInfinity) && !b.intersects(Type.illegalNumber)) {
+                      types.push(Type.positiveInfinity);
                   }
-                  if (a.intersects(DataType.negativeInfinity) && !b.intersects(DataType.illegalNumber)) {
-                      types.push(DataType.negativeInfinity);
+                  if (a.intersects(Type.negativeInfinity) && !b.intersects(Type.illegalNumber)) {
+                      types.push(Type.negativeInfinity);
                   }
-                  if (a.intersects(DataType.nan)) {
-                      types.push(DataType.nan);
+                  if (a.intersects(Type.nan)) {
+                      types.push(Type.nan);
                   }
-                  if (b.intersects(DataType.illegalNumber)) {
-                      types.push(DataType.nan);
+                  if (b.intersects(Type.illegalNumber)) {
+                      types.push(Type.nan);
                   }
-                  if (b.intersects(DataType.nonNegativeInteger)) {
-                      if (a.intersects(DataType.zero)) {
-                          types.push(DataType.zero);
+                  if (b.intersects(Type.nonNegativeInteger)) {
+                      if (a.intersects(Type.zero)) {
+                          types.push(Type.zero);
                       }
-                      if (a.intersects(DataType.positiveFloat)) {
+                      if (a.intersects(Type.positiveFloat)) {
                           if (a.isInteger()) {
-                              types.push(DataType.positiveInteger);
+                              types.push(Type.positiveInteger);
                           }
                           else {
-                              if (b.intersects(DataType.zero)) {
-                                  types.push(DataType.nonNegativeInteger);
+                              if (b.intersects(Type.zero)) {
+                                  types.push(Type.nonNegativeInteger);
                               }
-                              if (b.intersects(DataType.nonZeroFloat)) {
-                                  types.push(DataType.nonNegativeFloat);
+                              if (b.intersects(Type.nonZeroFloat)) {
+                                  types.push(Type.nonNegativeFloat);
                               }
                           }
                       }
-                      if (a.intersects(DataType.negativeFloat)) {
+                      if (a.intersects(Type.negativeFloat)) {
                           if (a.isInteger()) {
-                              types.push(DataType.negativeInteger);
+                              types.push(Type.negativeInteger);
                           }
                           else {
-                              if (b.intersects(DataType.zero)) {
-                                  types.push(DataType.nonPositiveInteger);
+                              if (b.intersects(Type.zero)) {
+                                  types.push(Type.nonPositiveInteger);
                               }
-                              if (b.intersects(DataType.nonZeroFloat)) {
-                                  types.push(DataType.nonPositiveFloat);
+                              if (b.intersects(Type.nonZeroFloat)) {
+                                  types.push(Type.nonPositiveFloat);
                               }
                           }
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "round", debugInfo); },
@@ -5403,40 +5403,40 @@ var Lits = (function (exports) {
                   return Math.trunc(first);
               }
               else {
-                  var a = DataType.of(first);
+                  var a = Type.of(first);
                   var types = [];
                   if (a.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.positiveInfinity)) {
-                      types.push(DataType.positiveInfinity);
+                  if (a.intersects(Type.positiveInfinity)) {
+                      types.push(Type.positiveInfinity);
                   }
-                  if (a.intersects(DataType.negativeInfinity)) {
-                      types.push(DataType.negativeInfinity);
+                  if (a.intersects(Type.negativeInfinity)) {
+                      types.push(Type.negativeInfinity);
                   }
-                  if (a.intersects(DataType.nan)) {
-                      types.push(DataType.nan);
+                  if (a.intersects(Type.nan)) {
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.zero)) {
-                      types.push(DataType.zero);
+                  if (a.intersects(Type.zero)) {
+                      types.push(Type.zero);
                   }
-                  if (a.intersects(DataType.positiveFloat)) {
+                  if (a.intersects(Type.positiveFloat)) {
                       if (a.isInteger()) {
-                          types.push(DataType.positiveInteger);
+                          types.push(Type.positiveInteger);
                       }
                       else {
-                          types.push(DataType.nonNegativeInteger);
+                          types.push(Type.nonNegativeInteger);
                       }
                   }
-                  if (a.intersects(DataType.negativeFloat)) {
+                  if (a.intersects(Type.negativeFloat)) {
                       if (a.isInteger()) {
-                          types.push(DataType.negativeInteger);
+                          types.push(Type.negativeInteger);
                       }
                       else {
-                          types.push(DataType.nonPositiveInteger);
+                          types.push(Type.nonPositiveInteger);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "trunc", debugInfo); },
@@ -5451,35 +5451,35 @@ var Lits = (function (exports) {
                   return Math.floor(first);
               }
               else {
-                  var a = DataType.of(first);
+                  var a = Type.of(first);
                   var types = [];
                   if (a.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.positiveInfinity)) {
-                      types.push(DataType.positiveInfinity);
+                  if (a.intersects(Type.positiveInfinity)) {
+                      types.push(Type.positiveInfinity);
                   }
-                  if (a.intersects(DataType.negativeInfinity)) {
-                      types.push(DataType.negativeInfinity);
+                  if (a.intersects(Type.negativeInfinity)) {
+                      types.push(Type.negativeInfinity);
                   }
-                  if (a.intersects(DataType.nan)) {
-                      types.push(DataType.nan);
+                  if (a.intersects(Type.nan)) {
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.zero)) {
-                      types.push(DataType.zero);
+                  if (a.intersects(Type.zero)) {
+                      types.push(Type.zero);
                   }
-                  if (a.intersects(DataType.positiveFloat)) {
+                  if (a.intersects(Type.positiveFloat)) {
                       if (a.isInteger()) {
-                          types.push(DataType.positiveInteger);
+                          types.push(Type.positiveInteger);
                       }
                       else {
-                          types.push(DataType.nonNegativeInteger);
+                          types.push(Type.nonNegativeInteger);
                       }
                   }
-                  if (a.intersects(DataType.negativeFloat)) {
-                      types.push(DataType.negativeInteger);
+                  if (a.intersects(Type.negativeFloat)) {
+                      types.push(Type.negativeInteger);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "floor", debugInfo); },
@@ -5494,35 +5494,35 @@ var Lits = (function (exports) {
                   return Math.ceil(first);
               }
               else {
-                  var a = DataType.of(first);
+                  var a = Type.of(first);
                   var types = [];
                   if (a.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.positiveInfinity)) {
-                      types.push(DataType.positiveInfinity);
+                  if (a.intersects(Type.positiveInfinity)) {
+                      types.push(Type.positiveInfinity);
                   }
-                  if (a.intersects(DataType.negativeInfinity)) {
-                      types.push(DataType.negativeInfinity);
+                  if (a.intersects(Type.negativeInfinity)) {
+                      types.push(Type.negativeInfinity);
                   }
-                  if (a.intersects(DataType.nan)) {
-                      types.push(DataType.nan);
+                  if (a.intersects(Type.nan)) {
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.zero)) {
-                      types.push(DataType.zero);
+                  if (a.intersects(Type.zero)) {
+                      types.push(Type.zero);
                   }
-                  if (a.intersects(DataType.positiveFloat)) {
-                      types.push(DataType.positiveInteger);
+                  if (a.intersects(Type.positiveFloat)) {
+                      types.push(Type.positiveInteger);
                   }
-                  if (a.intersects(DataType.negativeFloat)) {
+                  if (a.intersects(Type.negativeFloat)) {
                       if (a.isInteger()) {
-                          types.push(DataType.negativeInteger);
+                          types.push(Type.negativeInteger);
                       }
                       else {
-                          types.push(DataType.nonPositiveInteger);
+                          types.push(Type.nonPositiveInteger);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "ceil", debugInfo); },
@@ -5543,30 +5543,30 @@ var Lits = (function (exports) {
                   return Math.floor(Math.random() * Math.abs(first)) * Math.sign(first);
               }
               else {
-                  var a = DataType.of(first);
+                  var a = Type.of(first);
                   var types = [];
                   if (a.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.positiveInfinity)) {
-                      types.push(DataType.positiveInfinity);
+                  if (a.intersects(Type.positiveInfinity)) {
+                      types.push(Type.positiveInfinity);
                   }
-                  if (a.intersects(DataType.negativeInfinity)) {
-                      types.push(DataType.negativeInfinity);
+                  if (a.intersects(Type.negativeInfinity)) {
+                      types.push(Type.negativeInfinity);
                   }
-                  if (a.intersects(DataType.nan)) {
-                      types.push(DataType.nan);
+                  if (a.intersects(Type.nan)) {
+                      types.push(Type.nan);
                   }
-                  if (a.intersects(DataType.zero)) {
-                      types.push(DataType.zero);
+                  if (a.intersects(Type.zero)) {
+                      types.push(Type.zero);
                   }
-                  if (a.intersects(DataType.positiveFloat)) {
-                      types.push(DataType.nonNegativeInteger);
+                  if (a.intersects(Type.positiveFloat)) {
+                      types.push(Type.nonNegativeInteger);
                   }
-                  if (a.intersects(DataType.negativeFloat)) {
-                      types.push(DataType.nonPositiveInteger);
+                  if (a.intersects(Type.negativeFloat)) {
+                      types.push(Type.nonPositiveInteger);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "rand-int!", debugInfo); },
@@ -5589,30 +5589,30 @@ var Lits = (function (exports) {
                   }, first);
               }
               else {
-                  var paramTypes = params.map(DataType.of);
-                  var combinedType = DataType.or.apply(DataType, __spreadArray([], __read(paramTypes), false));
+                  var paramTypes = params.map(Type.of);
+                  var combinedType = Type.or.apply(Type, __spreadArray([], __read(paramTypes), false));
                   var hasNonNumber = combinedType.intersectsNonNumber();
-                  var hasNan = combinedType.intersects(DataType.nan);
-                  var numberTypes = paramTypes.map(function (t) { return t.and(DataType.number); });
+                  var hasNan = combinedType.intersects(Type.nan);
+                  var numberTypes = paramTypes.map(function (t) { return t.and(Type.number); });
                   // If an argument is nan (and nan only) or a non number
-                  if (numberTypes.some(function (t) { return t.is(DataType.nan) || t.is(DataType.never); })) {
+                  if (numberTypes.some(function (t) { return t.is(Type.nan) || t.is(Type.never); })) {
                       return Number.NaN;
                   }
                   var smallestMax = numberTypes.reduce(function (result, t) {
-                      var max = t.intersects(DataType.positiveInfinity)
+                      var max = t.intersects(Type.positiveInfinity)
                           ? 2
-                          : t.intersects(DataType.positiveFloat)
+                          : t.intersects(Type.positiveFloat)
                               ? 1
-                              : t.intersects(DataType.zero)
+                              : t.intersects(Type.zero)
                                   ? 0
-                                  : t.intersects(DataType.negativeFloat)
+                                  : t.intersects(Type.negativeFloat)
                                       ? -1
                                       : -2;
                       return Math.min(result, max);
                   }, 2);
-                  var exclude = DataType.or(smallestMax < 2 ? DataType.positiveInfinity : DataType.never, smallestMax < 1 ? DataType.positiveFloat : DataType.never, smallestMax < 0 ? DataType.zero : DataType.never, smallestMax < -1 ? DataType.negativeFloat : DataType.never);
-                  var result = DataType.or.apply(DataType, __spreadArray([], __read(numberTypes), false)).exclude(exclude);
-                  return (hasNonNumber || hasNan ? result.or(DataType.nan) : result).toNumberValue();
+                  var exclude = Type.or(smallestMax < 2 ? Type.positiveInfinity : Type.never, smallestMax < 1 ? Type.positiveFloat : Type.never, smallestMax < 0 ? Type.zero : Type.never, smallestMax < -1 ? Type.negativeFloat : Type.never);
+                  var result = Type.or.apply(Type, __spreadArray([], __read(numberTypes), false)).exclude(exclude);
+                  return (hasNonNumber || hasNan ? result.or(Type.nan) : result).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "min", debugInfo); },
@@ -5635,30 +5635,30 @@ var Lits = (function (exports) {
                   }, first);
               }
               else {
-                  var paramTypes = params.map(DataType.of);
-                  var combinedType = DataType.or.apply(DataType, __spreadArray([], __read(paramTypes), false));
+                  var paramTypes = params.map(Type.of);
+                  var combinedType = Type.or.apply(Type, __spreadArray([], __read(paramTypes), false));
                   var hasNonNumber = combinedType.intersectsNonNumber();
-                  var hasNan = combinedType.intersects(DataType.nan);
-                  var numberTypes = paramTypes.map(function (t) { return t.and(DataType.number); });
+                  var hasNan = combinedType.intersects(Type.nan);
+                  var numberTypes = paramTypes.map(function (t) { return t.and(Type.number); });
                   // If an argument is nan (and nan only) or a non number
-                  if (numberTypes.some(function (t) { return t.is(DataType.nan) || t.is(DataType.never); })) {
+                  if (numberTypes.some(function (t) { return t.is(Type.nan) || t.is(Type.never); })) {
                       return Number.NaN;
                   }
                   var largestMin = numberTypes.reduce(function (result, t) {
-                      var min = t.intersects(DataType.negativeInfinity)
+                      var min = t.intersects(Type.negativeInfinity)
                           ? -2
-                          : t.intersects(DataType.negativeFloat)
+                          : t.intersects(Type.negativeFloat)
                               ? -1
-                              : t.intersects(DataType.zero)
+                              : t.intersects(Type.zero)
                                   ? 0
-                                  : t.intersects(DataType.positiveFloat)
+                                  : t.intersects(Type.positiveFloat)
                                       ? 1
                                       : 2;
                       return Math.max(result, min);
                   }, -2);
-                  var exclude = DataType.or(largestMin > -2 ? DataType.negativeInfinity : DataType.never, largestMin > -1 ? DataType.negativeFloat : DataType.never, largestMin > 0 ? DataType.zero : DataType.never, largestMin > 1 ? DataType.positiveFloat : DataType.never);
-                  var result = DataType.or.apply(DataType, __spreadArray([], __read(numberTypes), false)).exclude(exclude);
-                  return (hasNonNumber || hasNan ? result.or(DataType.nan) : result).toNumberValue();
+                  var exclude = Type.or(largestMin > -2 ? Type.negativeInfinity : Type.never, largestMin > -1 ? Type.negativeFloat : Type.never, largestMin > 0 ? Type.zero : Type.never, largestMin > 1 ? Type.positiveFloat : Type.never);
+                  var result = Type.or.apply(Type, __spreadArray([], __read(numberTypes), false)).exclude(exclude);
+                  return (hasNonNumber || hasNan ? result.or(Type.nan) : result).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "max", debugInfo); },
@@ -5673,17 +5673,15 @@ var Lits = (function (exports) {
                   return Math.abs(value);
               }
               else {
-                  var paramType = DataType.of(value);
+                  var paramType = Type.of(value);
                   var types = [];
                   if (paramType.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  var numberType = paramType.and(DataType.number);
-                  var absType = numberType
-                      .or(numberType.negateNumber())
-                      .exclude(DataType.negativeFloat.or(DataType.negativeInfinity));
+                  var numberType = paramType.and(Type.number);
+                  var absType = numberType.or(numberType.negateNumber()).exclude(Type.negativeFloat.or(Type.negativeInfinity));
                   types.push(absType);
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "abs", debugInfo); },
@@ -5698,25 +5696,25 @@ var Lits = (function (exports) {
                   return Math.sign(value);
               }
               else {
-                  var paramType = DataType.of(value);
+                  var paramType = Type.of(value);
                   var types = [];
                   if (paramType.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (paramType.intersects(DataType.negativeNumber)) {
-                      types.push(DataType.negativeInteger);
+                  if (paramType.intersects(Type.negativeNumber)) {
+                      types.push(Type.negativeInteger);
                   }
-                  if (paramType.intersects(DataType.zero)) {
-                      types.push(DataType.zero);
+                  if (paramType.intersects(Type.zero)) {
+                      types.push(Type.zero);
                   }
-                  if (paramType.intersects(DataType.positiveNumber)) {
-                      types.push(DataType.positiveInteger);
+                  if (paramType.intersects(Type.positiveNumber)) {
+                      types.push(Type.positiveInteger);
                   }
-                  var resultType = DataType.or.apply(DataType, __spreadArray([], __read(types), false));
-                  if (resultType.equals(DataType.positiveInteger)) {
+                  var resultType = Type.or.apply(Type, __spreadArray([], __read(types), false));
+                  if (resultType.equals(Type.positiveInteger)) {
                       return 1;
                   }
-                  if (resultType.equals(DataType.negativeInteger)) {
+                  if (resultType.equals(Type.negativeInteger)) {
                       return -1;
                   }
                   return resultType.toNumberValue();
@@ -5776,30 +5774,30 @@ var Lits = (function (exports) {
                   return Math.exp(value);
               }
               else {
-                  var paramType = DataType.of(value);
-                  if (paramType.equals(DataType.zero)) {
+                  var paramType = Type.of(value);
+                  if (paramType.equals(Type.zero)) {
                       return 1;
                   }
                   var types = [];
                   if (paramType.intersectsNonNumber()) {
-                      types.push(DataType.nan);
+                      types.push(Type.nan);
                   }
-                  if (paramType.intersects(DataType.negativeInfinity)) {
-                      types.push(DataType.zero);
+                  if (paramType.intersects(Type.negativeInfinity)) {
+                      types.push(Type.zero);
                   }
-                  if (paramType.intersects(DataType.positiveInfinity)) {
-                      types.push(DataType.positiveInfinity);
+                  if (paramType.intersects(Type.positiveInfinity)) {
+                      types.push(Type.positiveInfinity);
                   }
-                  if (paramType.intersects(DataType.negativeFloat)) {
-                      types.push(DataType.nonNegativeFloat);
+                  if (paramType.intersects(Type.negativeFloat)) {
+                      types.push(Type.nonNegativeFloat);
                   }
-                  if (paramType.intersects(DataType.zero)) {
-                      types.push(DataType.positiveInteger);
+                  if (paramType.intersects(Type.zero)) {
+                      types.push(Type.positiveInteger);
                   }
-                  if (paramType.intersects(DataType.positiveFloat)) {
-                      types.push(DataType.positiveNumber);
+                  if (paramType.intersects(Type.positiveFloat)) {
+                      types.push(Type.positiveNumber);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
+                  return Type.or.apply(Type, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "exp", debugInfo); },
@@ -5963,94 +5961,94 @@ var Lits = (function (exports) {
   function getTypeOfBinarySum(a, b) {
       any.assert(a);
       any.assert(b);
-      var aVal = DataType.toValue(a);
-      var bVal = DataType.toValue(b);
+      var aVal = Type.toValue(a);
+      var bVal = Type.toValue(b);
       if (number.is(aVal) && number.is(bVal)) {
           return aVal + bVal;
       }
-      var aType = DataType.of(a);
-      var bType = DataType.of(b);
+      var aType = Type.of(a);
+      var bType = Type.of(b);
       var types = [];
       if (aType.or(bType).intersectsNonNumber()) {
-          types.push(DataType.nan);
+          types.push(Type.nan);
       }
-      if (aType.intersects(DataType.positiveInfinity)) {
-          if (bType.intersects(DataType.positiveInfinity)) {
-              types.push(DataType.positiveInfinity);
+      if (aType.intersects(Type.positiveInfinity)) {
+          if (bType.intersects(Type.positiveInfinity)) {
+              types.push(Type.positiveInfinity);
           }
-          if (bType.intersects(DataType.negativeInfinity)) {
-              types.push(DataType.nan);
+          if (bType.intersects(Type.negativeInfinity)) {
+              types.push(Type.nan);
           }
-          if (bType.intersects(DataType.float)) {
-              types.push(DataType.positiveInfinity);
-          }
-      }
-      if (aType.intersects(DataType.negativeInfinity)) {
-          if (bType.intersects(DataType.positiveInfinity)) {
-              types.push(DataType.nan);
-          }
-          if (bType.intersects(DataType.negativeInfinity)) {
-              types.push(DataType.negativeInfinity);
-          }
-          if (bType.intersects(DataType.float)) {
-              types.push(DataType.negativeInfinity);
+          if (bType.intersects(Type.float)) {
+              types.push(Type.positiveInfinity);
           }
       }
-      if (bType.intersects(DataType.positiveInfinity)) {
-          if (aType.intersects(DataType.float)) {
-              types.push(DataType.positiveInfinity);
+      if (aType.intersects(Type.negativeInfinity)) {
+          if (bType.intersects(Type.positiveInfinity)) {
+              types.push(Type.nan);
+          }
+          if (bType.intersects(Type.negativeInfinity)) {
+              types.push(Type.negativeInfinity);
+          }
+          if (bType.intersects(Type.float)) {
+              types.push(Type.negativeInfinity);
           }
       }
-      if (bType.intersects(DataType.negativeInfinity)) {
-          if (aType.intersects(DataType.float)) {
-              types.push(DataType.negativeInfinity);
+      if (bType.intersects(Type.positiveInfinity)) {
+          if (aType.intersects(Type.float)) {
+              types.push(Type.positiveInfinity);
           }
       }
-      var baseType = aType.isInteger() && bType.isInteger() ? DataType.integer : DataType.float;
-      if (aType.intersects(DataType.positiveFloat)) {
-          if (bType.intersects(DataType.zero)) {
-              types.push(DataType.positiveFloat.and(baseType));
-          }
-          if (bType.intersects(DataType.positiveFloat)) {
-              types.push(DataType.positiveFloat.and(baseType));
-              types.push(DataType.positiveInfinity);
-          }
-          if (bType.intersects(DataType.negativeFloat)) {
-              types.push(DataType.float.and(baseType));
+      if (bType.intersects(Type.negativeInfinity)) {
+          if (aType.intersects(Type.float)) {
+              types.push(Type.negativeInfinity);
           }
       }
-      if (aType.intersects(DataType.negativeFloat)) {
-          if (bType.intersects(DataType.zero)) {
-              types.push(DataType.negativeFloat.and(baseType));
+      var baseType = aType.isInteger() && bType.isInteger() ? Type.integer : Type.float;
+      if (aType.intersects(Type.positiveFloat)) {
+          if (bType.intersects(Type.zero)) {
+              types.push(Type.positiveFloat.and(baseType));
           }
-          if (bType.intersects(DataType.positiveFloat)) {
-              types.push(DataType.float.and(baseType));
+          if (bType.intersects(Type.positiveFloat)) {
+              types.push(Type.positiveFloat.and(baseType));
+              types.push(Type.positiveInfinity);
           }
-          if (bType.intersects(DataType.negativeFloat)) {
-              types.push(DataType.negativeFloat.and(baseType));
-              types.push(DataType.negativeInfinity);
-          }
-      }
-      if (aType.intersects(DataType.zero)) {
-          if (bType.intersects(DataType.zero)) {
-              types.push(DataType.zero);
-          }
-          if (bType.intersects(DataType.positiveFloat)) {
-              types.push(DataType.positiveFloat.and(baseType));
-          }
-          if (bType.intersects(DataType.negativeFloat)) {
-              types.push(DataType.negativeFloat.and(baseType));
+          if (bType.intersects(Type.negativeFloat)) {
+              types.push(Type.float.and(baseType));
           }
       }
-      return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+      if (aType.intersects(Type.negativeFloat)) {
+          if (bType.intersects(Type.zero)) {
+              types.push(Type.negativeFloat.and(baseType));
+          }
+          if (bType.intersects(Type.positiveFloat)) {
+              types.push(Type.float.and(baseType));
+          }
+          if (bType.intersects(Type.negativeFloat)) {
+              types.push(Type.negativeFloat.and(baseType));
+              types.push(Type.negativeInfinity);
+          }
+      }
+      if (aType.intersects(Type.zero)) {
+          if (bType.intersects(Type.zero)) {
+              types.push(Type.zero);
+          }
+          if (bType.intersects(Type.positiveFloat)) {
+              types.push(Type.positiveFloat.and(baseType));
+          }
+          if (bType.intersects(Type.negativeFloat)) {
+              types.push(Type.negativeFloat.and(baseType));
+          }
+      }
+      return Type.or.apply(Type, __spreadArray([], __read(types), false));
   }
   function getTypeOfProduct(paramTypes) {
       if (paramTypes.length === 1) {
           return asValue(paramTypes[0]);
       }
       var first = asValue(paramTypes[0]);
-      var nanType = first.exclude(DataType.nan).intersectsNonNumber() ? DataType.nan : DataType.never;
-      var zeroType = first.intersects(DataType.zero) ? DataType.zero : DataType.never;
+      var nanType = first.exclude(Type.nan).intersectsNonNumber() ? Type.nan : Type.never;
+      var zeroType = first.intersects(Type.zero) ? Type.zero : Type.never;
       return paramTypes
           .slice(1)
           .reduce(function (a, b) { return getTypeOfBinaryProduct(a, b); }, first)
@@ -6059,81 +6057,81 @@ var Lits = (function (exports) {
   }
   function getTypeOfBinaryProduct(a, b) {
       var types = [];
-      if (b.exclude(DataType.nan).intersectsNonNumber()) {
-          types.push(DataType.nan);
+      if (b.exclude(Type.nan).intersectsNonNumber()) {
+          types.push(Type.nan);
       }
-      if (b.intersects(DataType.zero)) {
-          types.push(DataType.zero);
+      if (b.intersects(Type.zero)) {
+          types.push(Type.zero);
       }
-      if (a.intersects(DataType.nan) && b.intersects(DataType.number.exclude(DataType.zero))) {
-          types.push(DataType.nan);
+      if (a.intersects(Type.nan) && b.intersects(Type.number.exclude(Type.zero))) {
+          types.push(Type.nan);
       }
-      if (b.intersects(DataType.nan) && a.intersects(DataType.number.exclude(DataType.zero))) {
-          types.push(DataType.nan);
+      if (b.intersects(Type.nan) && a.intersects(Type.number.exclude(Type.zero))) {
+          types.push(Type.nan);
       }
-      if (a.intersects(DataType.positiveInfinity)) {
-          if (b.intersects(DataType.positiveInfinity) || b.intersects(DataType.positiveFloat)) {
-              types.push(DataType.positiveInfinity);
+      if (a.intersects(Type.positiveInfinity)) {
+          if (b.intersects(Type.positiveInfinity) || b.intersects(Type.positiveFloat)) {
+              types.push(Type.positiveInfinity);
           }
-          if (b.intersects(DataType.negativeInfinity) || b.intersects(DataType.negativeFloat)) {
-              types.push(DataType.negativeInfinity);
-          }
-      }
-      if (a.intersects(DataType.negativeInfinity)) {
-          if (b.intersects(DataType.negativeInfinity) || b.intersects(DataType.negativeFloat)) {
-              types.push(DataType.positiveInfinity);
-          }
-          if (b.intersects(DataType.positiveInfinity) || b.intersects(DataType.positiveFloat)) {
-              types.push(DataType.negativeInfinity);
+          if (b.intersects(Type.negativeInfinity) || b.intersects(Type.negativeFloat)) {
+              types.push(Type.negativeInfinity);
           }
       }
-      if (b.intersects(DataType.positiveInfinity)) {
-          if (a.intersects(DataType.positiveFloat)) {
-              types.push(DataType.positiveInfinity);
+      if (a.intersects(Type.negativeInfinity)) {
+          if (b.intersects(Type.negativeInfinity) || b.intersects(Type.negativeFloat)) {
+              types.push(Type.positiveInfinity);
           }
-          if (a.intersects(DataType.negativeFloat)) {
-              types.push(DataType.negativeInfinity);
-          }
-      }
-      if (b.intersects(DataType.negativeInfinity)) {
-          if (a.intersects(DataType.positiveFloat)) {
-              types.push(DataType.negativeInfinity);
-          }
-          if (a.intersects(DataType.negativeFloat)) {
-              types.push(DataType.positiveInfinity);
+          if (b.intersects(Type.positiveInfinity) || b.intersects(Type.positiveFloat)) {
+              types.push(Type.negativeInfinity);
           }
       }
-      if (a.intersects(DataType.zero)) {
-          if (b.intersects(DataType.float)) {
-              types.push(DataType.zero);
+      if (b.intersects(Type.positiveInfinity)) {
+          if (a.intersects(Type.positiveFloat)) {
+              types.push(Type.positiveInfinity);
+          }
+          if (a.intersects(Type.negativeFloat)) {
+              types.push(Type.negativeInfinity);
           }
       }
-      if (b.intersects(DataType.zero)) {
-          if (a.intersects(DataType.float)) {
-              types.push(DataType.zero);
+      if (b.intersects(Type.negativeInfinity)) {
+          if (a.intersects(Type.positiveFloat)) {
+              types.push(Type.negativeInfinity);
+          }
+          if (a.intersects(Type.negativeFloat)) {
+              types.push(Type.positiveInfinity);
           }
       }
-      var baseType = a.isInteger() && b.isInteger() ? DataType.integer : DataType.float;
-      var aNeg = a.intersects(DataType.negativeFloat);
-      var aPos = a.intersects(DataType.positiveFloat);
-      var bNeg = b.intersects(DataType.negativeFloat);
-      var bPos = b.intersects(DataType.positiveFloat);
+      if (a.intersects(Type.zero)) {
+          if (b.intersects(Type.float)) {
+              types.push(Type.zero);
+          }
+      }
+      if (b.intersects(Type.zero)) {
+          if (a.intersects(Type.float)) {
+              types.push(Type.zero);
+          }
+      }
+      var baseType = a.isInteger() && b.isInteger() ? Type.integer : Type.float;
+      var aNeg = a.intersects(Type.negativeFloat);
+      var aPos = a.intersects(Type.positiveFloat);
+      var bNeg = b.intersects(Type.negativeFloat);
+      var bPos = b.intersects(Type.positiveFloat);
       if ((aNeg && bNeg) || (aPos && bPos)) {
-          types.push(DataType.positiveFloat.and(baseType));
-          types.push(DataType.positiveInfinity);
+          types.push(Type.positiveFloat.and(baseType));
+          types.push(Type.positiveInfinity);
       }
       if ((aNeg && bPos) || (aPos && bNeg)) {
-          types.push(DataType.negativeFloat.and(baseType));
-          types.push(DataType.negativeInfinity);
+          types.push(Type.negativeFloat.and(baseType));
+          types.push(Type.negativeInfinity);
       }
-      return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+      return Type.or.apply(Type, __spreadArray([], __read(types), false));
   }
   function getTypeOfDivision(paramTypes) {
       if (paramTypes.length === 1) {
-          paramTypes.unshift(DataType.positiveInteger);
+          paramTypes.unshift(Type.positiveInteger);
       }
       var first = asValue(paramTypes[0]);
-      var nanType = first.exclude(DataType.nan).intersectsNonNumber() ? DataType.nan : DataType.never;
+      var nanType = first.exclude(Type.nan).intersectsNonNumber() ? Type.nan : Type.never;
       return paramTypes
           .slice(1)
           .reduce(function (a, b) { return getTypeOfBinaryDivision(a, b); }, first)
@@ -6141,68 +6139,68 @@ var Lits = (function (exports) {
   }
   function getTypeOfBinaryDivision(a, b) {
       var types = [];
-      if (a.intersects(DataType.zero)) {
-          types.push(DataType.zero);
+      if (a.intersects(Type.zero)) {
+          types.push(Type.zero);
       }
-      if (b.intersects(DataType.infinity)) {
-          types.push(DataType.zero);
+      if (b.intersects(Type.infinity)) {
+          types.push(Type.zero);
       }
-      if (b.intersectsNonNumber() && a.intersects(DataType.nonZeroNumber)) {
-          types.push(DataType.nan);
+      if (b.intersectsNonNumber() && a.intersects(Type.nonZeroNumber)) {
+          types.push(Type.nan);
       }
-      if (a.intersects(DataType.nan) && b.intersects(DataType.number.exclude(DataType.infinity))) {
-          types.push(DataType.nan);
+      if (a.intersects(Type.nan) && b.intersects(Type.number.exclude(Type.infinity))) {
+          types.push(Type.nan);
       }
-      if (b.intersects(DataType.nan) && a.intersects(DataType.number.exclude(DataType.zero))) {
-          types.push(DataType.nan);
+      if (b.intersects(Type.nan) && a.intersects(Type.number.exclude(Type.zero))) {
+          types.push(Type.nan);
       }
-      if (a.intersects(DataType.positiveInfinity)) {
-          if (b.intersects(DataType.zero)) {
-              types.push(DataType.positiveInfinity);
+      if (a.intersects(Type.positiveInfinity)) {
+          if (b.intersects(Type.zero)) {
+              types.push(Type.positiveInfinity);
           }
-          if (b.intersects(DataType.positiveFloat)) {
-              types.push(DataType.positiveInfinity);
+          if (b.intersects(Type.positiveFloat)) {
+              types.push(Type.positiveInfinity);
           }
-          if (b.intersects(DataType.negativeFloat)) {
-              types.push(DataType.negativeInfinity);
-          }
-      }
-      if (a.intersects(DataType.negativeInfinity)) {
-          if (b.intersects(DataType.zero)) {
-              types.push(DataType.negativeInfinity);
-          }
-          if (b.intersects(DataType.positiveFloat)) {
-              types.push(DataType.negativeInfinity);
-          }
-          if (b.intersects(DataType.negativeFloat)) {
-              types.push(DataType.positiveInfinity);
+          if (b.intersects(Type.negativeFloat)) {
+              types.push(Type.negativeInfinity);
           }
       }
-      if (b.intersects(DataType.zero)) {
-          if (a.intersects(DataType.positiveFloat)) {
-              types.push(DataType.positiveInfinity);
+      if (a.intersects(Type.negativeInfinity)) {
+          if (b.intersects(Type.zero)) {
+              types.push(Type.negativeInfinity);
           }
-          if (a.intersects(DataType.negativeFloat)) {
-              types.push(DataType.negativeInfinity);
+          if (b.intersects(Type.positiveFloat)) {
+              types.push(Type.negativeInfinity);
+          }
+          if (b.intersects(Type.negativeFloat)) {
+              types.push(Type.positiveInfinity);
           }
       }
-      var aNeg = a.intersects(DataType.negativeFloat);
-      var aPos = a.intersects(DataType.positiveFloat);
-      var bNeg = b.intersects(DataType.negativeFloat);
-      var bPos = b.intersects(DataType.positiveFloat);
+      if (b.intersects(Type.zero)) {
+          if (a.intersects(Type.positiveFloat)) {
+              types.push(Type.positiveInfinity);
+          }
+          if (a.intersects(Type.negativeFloat)) {
+              types.push(Type.negativeInfinity);
+          }
+      }
+      var aNeg = a.intersects(Type.negativeFloat);
+      var aPos = a.intersects(Type.positiveFloat);
+      var bNeg = b.intersects(Type.negativeFloat);
+      var bPos = b.intersects(Type.positiveFloat);
       if ((aNeg && bNeg) || (aPos && bPos)) {
-          types.push(DataType.positiveFloat);
+          types.push(Type.positiveFloat);
           if (!b.isInteger()) {
-              types.push(DataType.positiveInfinity);
+              types.push(Type.positiveInfinity);
           }
       }
       if ((aNeg && bPos) || (aPos && bNeg)) {
-          types.push(DataType.negativeFloat);
+          types.push(Type.negativeFloat);
           if (!b.isInteger()) {
-              types.push(DataType.negativeInfinity);
+              types.push(Type.negativeInfinity);
           }
       }
-      return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+      return Type.or.apply(Type, __spreadArray([], __read(types), false));
   }
   function negate(value) {
       return isDataType(value) ? value.negateNumber().toNumberValue() : number.is(value) ? -value : Number.NaN;
@@ -6485,8 +6483,8 @@ var Lits = (function (exports) {
                   return any.as(value, debugInfo);
               }
               else {
-                  var valueType = DataType.of(params[0]);
-                  valueType.assertIs(DataType.truthy, debugInfo);
+                  var valueType = Type.of(params[0]);
+                  valueType.assertIs(Type.truthy, debugInfo);
                   return valueType;
               }
           },
@@ -6504,10 +6502,10 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  var aType = DataType.of(params[0]);
-                  var bType = DataType.of(params[1]);
+                  var aType = Type.of(params[0]);
+                  var bType = Type.of(params[1]);
                   aType.assertIntersects(bType, debugInfo);
-                  return DataType.nil;
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert=", debugInfo); },
@@ -6524,7 +6522,7 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  return DataType.nil;
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert-not=", debugInfo); },
@@ -6541,10 +6539,10 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  var aType = DataType.of(params[0]);
-                  var bType = DataType.of(params[1]);
+                  var aType = Type.of(params[0]);
+                  var bType = Type.of(params[1]);
                   aType.assertIntersects(bType, debugInfo);
-                  return DataType.nil;
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert-equal", debugInfo); },
@@ -6561,7 +6559,7 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  return DataType.nil;
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert-not-equal", debugInfo); },
@@ -6578,7 +6576,7 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  return DataType.nil;
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert>", debugInfo); },
@@ -6595,7 +6593,7 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  return DataType.nil;
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert>=", debugInfo); },
@@ -6612,7 +6610,7 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  return DataType.nil;
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert<", debugInfo); },
@@ -6629,7 +6627,7 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  return DataType.nil;
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 2, max: 3 }, arity, "assert<=", debugInfo); },
@@ -6646,9 +6644,9 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  var type = DataType.of(params[0]);
-                  type.assertIntersects(DataType.false, debugInfo);
-                  return DataType.nil;
+                  var type = Type.of(params[0]);
+                  type.assertIntersects(Type.false, debugInfo);
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-true", debugInfo); },
@@ -6665,9 +6663,9 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  var type = DataType.of(params[0]);
-                  type.assertIntersects(DataType.false, debugInfo);
-                  return DataType.nil;
+                  var type = Type.of(params[0]);
+                  type.assertIntersects(Type.false, debugInfo);
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-false", debugInfo); },
@@ -6684,9 +6682,9 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  var type = DataType.of(params[0]);
-                  type.assertIntersects(DataType.truthy, debugInfo);
-                  return DataType.nil;
+                  var type = Type.of(params[0]);
+                  type.assertIntersects(Type.truthy, debugInfo);
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-truthy", debugInfo); },
@@ -6703,9 +6701,9 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  var type = DataType.of(params[0]);
-                  type.assertIntersects(DataType.falsy, debugInfo);
-                  return DataType.nil;
+                  var type = Type.of(params[0]);
+                  type.assertIntersects(Type.falsy, debugInfo);
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-falsy", debugInfo); },
@@ -6722,9 +6720,9 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  var type = DataType.of(params[0]);
-                  type.assertIntersects(DataType.nil, debugInfo);
-                  return DataType.nil;
+                  var type = Type.of(params[0]);
+                  type.assertIntersects(Type.nil, debugInfo);
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-nil", debugInfo); },
@@ -6746,7 +6744,7 @@ var Lits = (function (exports) {
                   throw new AssertionError("Expected function to throw.".concat(message), debugInfo);
               }
               else {
-                  return DataType.nil;
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "assert-throws", debugInfo); },
@@ -6773,7 +6771,7 @@ var Lits = (function (exports) {
                   throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\".").concat(message), debugInfo);
               }
               else {
-                  return DataType.nil;
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) {
@@ -6797,7 +6795,7 @@ var Lits = (function (exports) {
                   return null;
               }
               else {
-                  return DataType.nil;
+                  return Type.nil;
               }
           },
           validateArity: function (arity, debugInfo) {
@@ -6820,7 +6818,7 @@ var Lits = (function (exports) {
                   return result;
               }
               else {
-                  return params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject;
+                  return params.length > 0 ? Type.nonEmptyObject : Type.emptyObject;
               }
           },
           validateArity: function (arity, debugInfo) { return assertEvenNumberOfParams(arity, "object", debugInfo); },
@@ -7154,7 +7152,7 @@ var Lits = (function (exports) {
                       _a;
               }
               else {
-                  return DataType.regexp;
+                  return Type.regexp;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "regexp", debugInfo); },
@@ -7600,7 +7598,7 @@ var Lits = (function (exports) {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), value = _b[0];
               any.assert(value, debugInfo);
-              return DataType.of(value);
+              return Type.of(value);
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "type-of", debugInfo); },
       },
@@ -7609,7 +7607,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               any.assert(value, debugInfo);
               if (isDataType(value)) {
-                  return DataType.toValue(value);
+                  return Type.toValue(value);
               }
               else {
                   return value;
@@ -7621,21 +7619,21 @@ var Lits = (function (exports) {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), value = _b[0];
               assertDataType(value, debugInfo);
-              return DataType.split(value);
+              return Type.split(value);
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "type-of", debugInfo); },
       },
       'type-or': {
           evaluate: function (params, debugInfo) {
               params.forEach(function (param) { return assertDataType(param, debugInfo); });
-              return DataType.or.apply(DataType, __spreadArray([], __read(params), false));
+              return Type.or.apply(Type, __spreadArray([], __read(params), false));
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "type-or", debugInfo); },
       },
       'type-and': {
           evaluate: function (params, debugInfo) {
               params.forEach(function (param) { return assertDataType(param, debugInfo); });
-              return DataType.and.apply(DataType, __spreadArray([], __read(params), false));
+              return Type.and.apply(Type, __spreadArray([], __read(params), false));
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "type-and", debugInfo); },
       },
@@ -7643,7 +7641,7 @@ var Lits = (function (exports) {
           evaluate: function (params, debugInfo) {
               params.forEach(function (param) { return assertDataType(param, debugInfo); });
               var first = asDataType(params[0], debugInfo);
-              return DataType.exclude.apply(DataType, __spreadArray([first], __read(params.slice(1)), false));
+              return Type.exclude.apply(Type, __spreadArray([first], __read(params.slice(1)), false));
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "type-exclude", debugInfo); },
       },
@@ -7652,7 +7650,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 2), first = _b[0], second = _b[1];
               assertDataType(first, debugInfo);
               assertDataType(second, debugInfo);
-              return DataType.is(first, second);
+              return Type.is(first, second);
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "type-is?", debugInfo); },
       },
@@ -7661,7 +7659,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 2), first = _b[0], second = _b[1];
               assertDataType(first, debugInfo);
               assertDataType(second, debugInfo);
-              return DataType.equals(first, second);
+              return Type.equals(first, second);
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "type-equals?", debugInfo); },
       },
@@ -7670,7 +7668,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 2), first = _b[0], second = _b[1];
               assertDataType(first, debugInfo);
               assertDataType(second, debugInfo);
-              return DataType.intersects(first, second);
+              return Type.intersects(first, second);
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "type-intersects?", debugInfo); },
       },
@@ -8177,105 +8175,105 @@ var Lits = (function (exports) {
   function evaluateTypeName(node) {
       switch (node.value) {
           case "never":
-              return DataType.never;
+              return Type.never;
           case "nil":
-              return DataType.nil;
+              return Type.nil;
           case "nan":
-              return DataType.nan;
+              return Type.nan;
           case "empty-string":
-              return DataType.emptyString;
+              return Type.emptyString;
           case "non-empty-string":
-              return DataType.nonEmptyString;
+              return Type.nonEmptyString;
           case "string":
-              return DataType.string;
+              return Type.string;
           case "number-or-nan":
-              return DataType.numberOrNan;
+              return Type.numberOrNan;
           case "number":
-              return DataType.number;
+              return Type.number;
           case "positive-number":
-              return DataType.positiveNumber;
+              return Type.positiveNumber;
           case "negative-number":
-              return DataType.negativeNumber;
+              return Type.negativeNumber;
           case "non-zero-number":
-              return DataType.nonZeroNumber;
+              return Type.nonZeroNumber;
           case "non-positive-number":
-              return DataType.nonPositiveNumber;
+              return Type.nonPositiveNumber;
           case "non-negative-number":
-              return DataType.nonNegativeNumber;
+              return Type.nonNegativeNumber;
           case "float":
-              return DataType.float;
+              return Type.float;
           case "illegal-number":
-              return DataType.illegalNumber;
+              return Type.illegalNumber;
           case "positive-infinity":
-              return DataType.positiveInfinity;
+              return Type.positiveInfinity;
           case "negative-infinity":
-              return DataType.negativeInfinity;
+              return Type.negativeInfinity;
           case "infinity":
-              return DataType.infinity;
+              return Type.infinity;
           case "zero":
-              return DataType.zero;
+              return Type.zero;
           case "non-zero-float":
-              return DataType.nonZeroFloat;
+              return Type.nonZeroFloat;
           case "positive-float":
-              return DataType.positiveFloat;
+              return Type.positiveFloat;
           case "negative-float":
-              return DataType.negativeFloat;
+              return Type.negativeFloat;
           case "non-positive-float":
-              return DataType.nonPositiveFloat;
+              return Type.nonPositiveFloat;
           case "non-negative-float":
-              return DataType.nonNegativeFloat;
+              return Type.nonNegativeFloat;
           case "integer":
-              return DataType.integer;
+              return Type.integer;
           case "non-zero-integer":
-              return DataType.nonZeroInteger;
+              return Type.nonZeroInteger;
           case "positive-integer":
-              return DataType.positiveInteger;
+              return Type.positiveInteger;
           case "negative-integer":
-              return DataType.negativeInteger;
+              return Type.negativeInteger;
           case "non-positive-integer":
-              return DataType.nonPositiveInteger;
+              return Type.nonPositiveInteger;
           case "non-negative-integer":
-              return DataType.nonNegativeInteger;
+              return Type.nonNegativeInteger;
           case "true":
-              return DataType.true;
+              return Type.true;
           case "false":
-              return DataType.false;
+              return Type.false;
           case "boolean":
-              return DataType.boolean;
+              return Type.boolean;
           case "empty-array":
-              return DataType.emptyArray;
+              return Type.emptyArray;
           case "non-empty-array":
-              return DataType.nonEmptyArray;
+              return Type.nonEmptyArray;
           case "array":
-              return DataType.array;
+              return Type.array;
           case "empty-object":
-              return DataType.emptyObject;
+              return Type.emptyObject;
           case "non-empty-object":
-              return DataType.nonEmptyObject;
+              return Type.nonEmptyObject;
           case "object":
-              return DataType.object;
+              return Type.object;
           case "regexp":
-              return DataType.regexp;
+              return Type.regexp;
           case "function":
-              return DataType.function;
+              return Type.function;
           case "unknown":
-              return DataType.unknown;
+              return Type.unknown;
           case "truthy":
-              return DataType.truthy;
+              return Type.truthy;
           case "falsy":
-              return DataType.falsy;
+              return Type.falsy;
           case "empty-collection":
-              return DataType.emptyCollection;
+              return Type.emptyCollection;
           case "non-empty-collection":
-              return DataType.nonEmptyCollection;
+              return Type.nonEmptyCollection;
           case "collection":
-              return DataType.collection;
+              return Type.collection;
           case "empty-sequence":
-              return DataType.emptySequence;
+              return Type.emptySequence;
           case "non-empty-sequence":
-              return DataType.nonEmptySequence;
+              return Type.nonEmptySequence;
           case "sequence":
-              return DataType.sequence;
+              return Type.sequence;
       }
   }
   function evaluateReservedName(node) {

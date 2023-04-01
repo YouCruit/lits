@@ -1,11 +1,11 @@
-import { DataType, isNotDataType } from '../../../analyze/dataTypes/DataType'
+import { Type, isNotDataType } from '../../../types/Type'
 import { REGEXP_SYMBOL, RegularExpression } from '../../../parser/interface'
 import { assertNumberOfParams, regularExpression, string } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
 
 export const regexpNormalExpression: BuiltinNormalExpressions = {
   regexp: {
-    evaluate: (params, debugInfo): RegularExpression | DataType => {
+    evaluate: (params, debugInfo): RegularExpression | Type => {
       if (params.every(isNotDataType)) {
         const [sourceArg, flagsArg] = params
 
@@ -20,7 +20,7 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
           flags,
         }
       } else {
-        return DataType.regexp
+        return Type.regexp
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 2 }, arity, `regexp`, debugInfo),

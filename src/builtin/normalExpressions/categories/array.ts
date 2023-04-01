@@ -1,4 +1,4 @@
-import { DataType, isNotDataType } from '../../../analyze/dataTypes/DataType'
+import { Type, isNotDataType } from '../../../types/Type'
 import { Arr } from '../../../interface'
 import { array, assertNumberOfParams, asValue, number } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
@@ -10,8 +10,8 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
   },
 
   range: {
-    evaluate: (params, debugInfo): Arr | DataType => {
-      if (params.every(param => !(param instanceof DataType))) {
+    evaluate: (params, debugInfo): Arr | Type => {
+      if (params.every(param => !(param instanceof Type))) {
         const [first, second, third] = params
         let from: number
         let to: number
@@ -51,25 +51,25 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
         return result
       } else {
         const paramTypes = params.map(param => {
-          const type = DataType.of(param)
-          type.assertIs(DataType.float, debugInfo)
+          const type = Type.of(param)
+          type.assertIs(Type.float, debugInfo)
           return type
         })
         const fromType = asValue(paramTypes[0])
         if (paramTypes.length === 1) {
           // Here we always know if it is emptyArray or nonEmptyArray
-          return fromType.is(DataType.zero) ? DataType.emptyArray : DataType.nonEmptyArray
+          return fromType.is(Type.zero) ? Type.emptyArray : Type.nonEmptyArray
         }
         const toType = asValue(paramTypes[1])
         // If both from and to are zero -> emptyArray, otherwise we don't know -> array
-        return fromType.is(DataType.zero) && toType.is(DataType.zero) ? DataType.emptyArray : DataType.array
+        return fromType.is(Type.zero) && toType.is(Type.zero) ? Type.emptyArray : Type.array
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 1, max: 3 }, arity, `range`, debugInfo),
   },
 
   repeat: {
-    evaluate: (params, debugInfo): Arr | DataType => {
+    evaluate: (params, debugInfo): Arr | Type => {
       if (params.every(isNotDataType)) {
         const [count, value] = params
         number.assert(count, debugInfo, { integer: true, nonNegative: true })
@@ -79,9 +79,9 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
         }
         return result
       } else {
-        const countType = DataType.of(params[0])
-        countType.assertIs(DataType.nonNegativeInteger, debugInfo)
-        return countType.is(DataType.zero) ? DataType.emptyArray : DataType.nonEmptyArray
+        const countType = Type.of(params[0])
+        countType.assertIs(Type.nonNegativeInteger, debugInfo)
+        return countType.is(Type.zero) ? Type.emptyArray : Type.nonEmptyArray
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `repeat`, debugInfo),

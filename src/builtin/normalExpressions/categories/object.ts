@@ -1,4 +1,4 @@
-import { DataType, isNotDataType } from '../../../analyze/dataTypes/DataType'
+import { Type, isNotDataType } from '../../../types/Type'
 import { Any, Arr, Obj } from '../../../interface'
 import { collHasKey, toAny } from '../../../utils'
 import {
@@ -14,7 +14,7 @@ import { BuiltinNormalExpressions } from '../../interface'
 
 export const objectNormalExpression: BuiltinNormalExpressions = {
   object: {
-    evaluate: (params, debugInfo): Obj | DataType => {
+    evaluate: (params, debugInfo): Obj | Type => {
       if (params.every(isNotDataType)) {
         const result: Obj = {}
         for (let i = 0; i < params.length; i += 2) {
@@ -25,7 +25,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
         }
         return result
       } else {
-        return params.length > 0 ? DataType.nonEmptyObject : DataType.emptyObject
+        return params.length > 0 ? Type.nonEmptyObject : Type.emptyObject
       }
     },
     validateArity: (arity, debugInfo) => assertEvenNumberOfParams(arity, `object`, debugInfo),

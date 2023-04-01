@@ -1,5 +1,5 @@
 import { LitsFunction } from '../../..'
-import { DataType, isDataType, isNotDataType } from '../../../analyze/dataTypes/DataType'
+import { Type, isDataType, isNotDataType } from '../../../types/Type'
 import { ContextStack } from '../../../ContextStack'
 import { ExecuteFunction } from '../../../evaluator/interface'
 import { Any, Arr, Coll, Obj } from '../../../interface'
@@ -154,26 +154,26 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         const result = get(coll, key)
         return result === undefined ? defaultValue : result
       } else {
-        const collType = DataType.of(params[0])
-        const keyType = DataType.of(params[1])
+        const collType = Type.of(params[0])
+        const keyType = Type.of(params[1])
         const defaultValueType = isDataType(params[2])
           ? params[2]
           : params[2] === undefined
-          ? DataType.nil
-          : DataType.of(params[2])
+          ? Type.nil
+          : Type.of(params[2])
 
-        collType.assertIs(DataType.collection.nilable(), debugInfo)
-        keyType.assertIs(DataType.or(DataType.string, DataType.float, DataType.nil), debugInfo)
+        collType.assertIs(Type.collection.nilable(), debugInfo)
+        keyType.assertIs(Type.or(Type.string, Type.float, Type.nil), debugInfo)
 
-        if (collType.is(DataType.nil)) {
+        if (collType.is(Type.nil)) {
           return defaultValueType
         }
 
-        if (collType.is(DataType.string)) {
-          return DataType.or(DataType.string.nilable(), defaultValueType)
+        if (collType.is(Type.string)) {
+          return Type.or(Type.string.nilable(), defaultValueType)
         }
 
-        return DataType.unknown
+        return Type.unknown
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `get`, debugInfo),
@@ -200,22 +200,22 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         }
         return coll
       } else {
-        const collType = DataType.of(params[0])
-        const keysType = DataType.of(params[1])
-        collType.assertIs(DataType.collection.nilable(), debugInfo)
-        keysType.assertIs(DataType.array.nilable(), debugInfo)
+        const collType = Type.of(params[0])
+        const keysType = Type.of(params[1])
+        collType.assertIs(Type.collection.nilable(), debugInfo)
+        keysType.assertIs(Type.array.nilable(), debugInfo)
 
-        if (keysType.is(DataType.nil)) {
+        if (keysType.is(Type.nil)) {
           return collType
         }
 
-        return DataType.unknown
+        return Type.unknown
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams({ min: 2, max: 3 }, arity, `___`, debugInfo),
   },
   count: {
-    evaluate: ([coll], debugInfo): number | DataType => {
+    evaluate: ([coll], debugInfo): number | Type => {
       if (isNotDataType(coll)) {
         if (typeof coll === `string`) {
           return coll.length
@@ -226,19 +226,19 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         }
         return Object.keys(coll).length
       } else {
-        const collType = DataType.of(coll)
-        collType.assertIs(DataType.collection, debugInfo)
-        return collType.is(DataType.emptyCollection)
-          ? DataType.zero
-          : collType.is(DataType.nonEmptyCollection)
-          ? DataType.positiveInteger
-          : DataType.nonNegativeInteger
+        const collType = Type.of(coll)
+        collType.assertIs(Type.collection, debugInfo)
+        return collType.is(Type.emptyCollection)
+          ? Type.zero
+          : collType.is(Type.nonEmptyCollection)
+          ? Type.positiveInteger
+          : Type.nonNegativeInteger
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `count`, debugInfo),
   },
   'contains?': {
-    evaluate: (params, debugInfo): boolean | DataType => {
+    evaluate: (params, debugInfo): boolean | Type => {
       if (params.every(isNotDataType)) {
         const [coll, key] = params
         collection.assert(coll, debugInfo)
@@ -252,20 +252,20 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         }
         return !!Object.getOwnPropertyDescriptor(coll, key)
       } else {
-        const collType = DataType.of(params[0])
-        return collType.is(DataType.emptyCollection) ? DataType.false : DataType.boolean
+        const collType = Type.of(params[0])
+        return collType.is(Type.emptyCollection) ? Type.false : Type.boolean
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `contains?`, debugInfo),
   },
   'has?': {
-    evaluate: (params, debugInfo): boolean | DataType => {
+    evaluate: (params, debugInfo): boolean | Type => {
       if (params.every(isNotDataType)) {
         const [coll, value] = params
         collection.assert(coll, debugInfo)
 
         if ((array.is(coll) && coll.some(isDataType)) || (object.is(coll) && Object.values(coll).some(isDataType))) {
-          return DataType.boolean
+          return Type.boolean
         }
 
         if (array.is(coll)) {
@@ -276,8 +276,8 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         }
         return Object.values(coll).includes(value)
       } else {
-        const collType = DataType.of(params[0])
-        return collType.is(DataType.emptyCollection) ? DataType.false : DataType.boolean
+        const collType = Type.of(params[0])
+        return collType.is(Type.emptyCollection) ? Type.false : Type.boolean
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `has?`, debugInfo),

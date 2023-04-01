@@ -1,5 +1,5 @@
 import { Lits } from '../../../src'
-import { DataType } from '../../../src/Lits/Lits'
+import { Type } from '../../../src/Lits/Lits'
 
 describe(`type functions`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
@@ -7,50 +7,44 @@ describe(`type functions`, () => {
       test(`samples`, () => {
         expect(() => lits.run(`(type-of)`)).toThrow()
         expect(() => lits.run(`(type-of 1 2)`)).toThrow()
-        expect(lits.run(`(type-of 1)`)).toEqual(DataType.positiveInteger)
-        expect(lits.run(`(type-of 1.1)`)).toEqual(DataType.positiveFloat)
-        expect(lits.run(`(type-of 0)`)).toEqual(DataType.zero)
-        expect(lits.run(`(type-of -1)`)).toEqual(DataType.negativeInteger)
-        expect(lits.run(`(type-of -1.1)`)).toEqual(DataType.negativeFloat)
+        expect(lits.run(`(type-of 1)`)).toEqual(Type.positiveInteger)
+        expect(lits.run(`(type-of 1.1)`)).toEqual(Type.positiveFloat)
+        expect(lits.run(`(type-of 0)`)).toEqual(Type.zero)
+        expect(lits.run(`(type-of -1)`)).toEqual(Type.negativeInteger)
+        expect(lits.run(`(type-of -1.1)`)).toEqual(Type.negativeFloat)
       })
     })
     describe(`type-or`, () => {
       test(`samples`, () => {
         expect(() => lits.run(`(type-or)`)).toThrow()
-        expect(lits.run(`(type-or ::integer)`)).toEqual(DataType.integer)
-        expect(lits.run(`(type-or ::integer ::float)`)).toEqual(DataType.float)
-        expect(lits.run(`(type-or ::empty-array ::non-empty-array, ::object)`)).toEqual(
-          DataType.array.or(DataType.object),
-        )
+        expect(lits.run(`(type-or ::integer)`)).toEqual(Type.integer)
+        expect(lits.run(`(type-or ::integer ::float)`)).toEqual(Type.float)
+        expect(lits.run(`(type-or ::empty-array ::non-empty-array, ::object)`)).toEqual(Type.array.or(Type.object))
       })
     })
     describe(`type-and`, () => {
       test(`samples`, () => {
         expect(() => lits.run(`(type-and)`)).toThrow()
-        expect(lits.run(`(type-and ::integer)`)).toEqual(DataType.integer)
-        expect(lits.run(`(type-and ::integer ::float)`)).toEqual(DataType.integer)
-        expect(lits.run(`(type-and ::integer ::float ::string)`)).toEqual(DataType.never)
-        expect(lits.run(`(type-and ::falsy (type-or ::boolean ::float))`)).toEqual(DataType.false.or(DataType.zero))
+        expect(lits.run(`(type-and ::integer)`)).toEqual(Type.integer)
+        expect(lits.run(`(type-and ::integer ::float)`)).toEqual(Type.integer)
+        expect(lits.run(`(type-and ::integer ::float ::string)`)).toEqual(Type.never)
+        expect(lits.run(`(type-and ::falsy (type-or ::boolean ::float))`)).toEqual(Type.false.or(Type.zero))
       })
     })
     describe(`type-exclude`, () => {
       test(`samples`, () => {
         expect(() => lits.run(`(type-exclude)`)).toThrow()
-        expect(lits.run(`(type-exclude ::falsy)`)).toEqual(DataType.falsy)
-        expect(lits.run(`(type-exclude ::falsy (type-or ::boolean ::float ::string))`)).toEqual(
-          DataType.nan.or(DataType.nil),
-        )
-        expect(lits.run(`(type-exclude ::falsy ::boolean ::float ::string)`)).toEqual(DataType.nan.or(DataType.nil))
+        expect(lits.run(`(type-exclude ::falsy)`)).toEqual(Type.falsy)
+        expect(lits.run(`(type-exclude ::falsy (type-or ::boolean ::float ::string))`)).toEqual(Type.nan.or(Type.nil))
+        expect(lits.run(`(type-exclude ::falsy ::boolean ::float ::string)`)).toEqual(Type.nan.or(Type.nil))
       })
     })
     describe(`type-exclude`, () => {
       test(`samples`, () => {
         expect(() => lits.run(`(type-exclude)`)).toThrow()
-        expect(lits.run(`(type-exclude ::falsy)`)).toEqual(DataType.falsy)
-        expect(lits.run(`(type-exclude ::falsy (type-or ::boolean ::float ::string))`)).toEqual(
-          DataType.nan.or(DataType.nil),
-        )
-        expect(lits.run(`(type-exclude ::falsy ::boolean ::float ::string)`)).toEqual(DataType.nan.or(DataType.nil))
+        expect(lits.run(`(type-exclude ::falsy)`)).toEqual(Type.falsy)
+        expect(lits.run(`(type-exclude ::falsy (type-or ::boolean ::float ::string))`)).toEqual(Type.nan.or(Type.nil))
+        expect(lits.run(`(type-exclude ::falsy ::boolean ::float ::string)`)).toEqual(Type.nan.or(Type.nil))
       })
     })
     describe(`type-is?`, () => {

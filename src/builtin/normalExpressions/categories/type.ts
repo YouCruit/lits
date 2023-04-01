@@ -15,7 +15,7 @@ export const typeNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([value], debugInfo): Any => {
       any.assert(value, debugInfo)
       if (isDataType(value)) {
-        return DataType.valueOf(value)
+        return DataType.toValue(value)
       } else {
         return value
       }

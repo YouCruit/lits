@@ -33,7 +33,7 @@ describe(`math functions`, () => {
         [`inc`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
         [`inc`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
 
-        [`inc`, [`::zero`], [`::positive-integer`]],
+        [`inc`, [`::zero`], { value: 1 }],
         [`inc`, [`::float`], [`::float`, `::positive-infinity`]],
         [`inc`, [`::integer`], [`::integer`, `::positive-infinity`]],
         [`inc`, [`::non-zero-float`], [`::float`, `::positive-infinity`]],
@@ -78,7 +78,7 @@ describe(`math functions`, () => {
         [`dec`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
         [`dec`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
 
-        [`dec`, [`::zero`], [`::negative-integer`]],
+        [`dec`, [`::zero`], { value: -1 }],
         [`dec`, [`::float`], [`::float`, `::negative-infinity`]],
         [`dec`, [`::integer`], [`::integer`, `::negative-infinity`]],
         [`dec`, [`::non-zero-float`], [`::float`, `::negative-infinity`]],
@@ -107,6 +107,13 @@ describe(`math functions`, () => {
     })
     describe(`plus dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
+        [`+`, [`::zero`, { expression: `5` }], { value: 5 }],
+
+        [`+`, [{ expression: `3` }, `::negative-integer`, { expression: `5` }], [`::integer`]],
+        [`+`, [`::positive-infinity`, { expression: `5` }], { value: Number.POSITIVE_INFINITY }],
+        [`+`, [`::negative-infinity`, { expression: `5` }], { value: Number.NEGATIVE_INFINITY }],
+        [`+`, [`::negative-integer`, { expression: `5` }], [`::integer`]],
+
         [`+`, [`::unknown`, `::unknown`], [`::illegal-number`, `::float`]],
         [`+`, [`::unknown`, `::float`], [`::illegal-number`, `::float`]],
         [`+`, [`::float`, `::unknown`], [`::illegal-number`, `::float`]],
@@ -248,6 +255,18 @@ describe(`math functions`, () => {
     })
     describe(`minus dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
+        [`-`, [`::zero`, { expression: `5` }], { value: -5 }],
+        [`-`, [`::zero`, { expression: `"5"` }], { value: Number.NaN }],
+
+        [
+          `-`,
+          [{ expression: `3` }, `::positive-integer`, { expression: `5` }],
+          [`::negative-integer`, `::negative-infinity`],
+        ],
+        [`-`, [`::positive-infinity`, { expression: `5` }], { value: Number.POSITIVE_INFINITY }],
+        [`-`, [`::negative-infinity`, { expression: `5` }], { value: Number.NEGATIVE_INFINITY }],
+        [`-`, [`::negative-integer`, { expression: `5` }], [`::negative-integer`, `::negative-infinity`]],
+
         [`-`, [`::unknown`, `::unknown`], [`::illegal-number`, `::float`]],
         [`-`, [`::unknown`, `::float`], [`::illegal-number`, `::float`]],
         [`-`, [`::float`, `::unknown`], [`::illegal-number`, `::float`]],
@@ -374,6 +393,12 @@ describe(`math functions`, () => {
     })
     describe(`multiplication dataTypes.`, () => {
       const typeEvaluations: TestTypeEvaluation[] = [
+        [
+          `*`,
+          [{ expression: `3` }, `::negative-integer`, { expression: `5` }],
+          [`::negative-integer`, `::negative-infinity`],
+        ],
+
         [`*`, [`::unknown`, `::unknown`], [`::illegal-number`, `::float`]],
         [`*`, [`::unknown`, `::float`], [`::illegal-number`, `::float`]],
         [`*`, [`::float`, `::unknown`], [`::illegal-number`, `::float`]],
@@ -1116,6 +1141,24 @@ describe(`math functions`, () => {
 
       expect(() => lits.run(`(exp)`)).toThrow()
       expect(() => lits.run(`(exp 1 2)`)).toThrow()
+    })
+    describe(`exp dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`exp`, [`::string`], { value: Number.NaN }],
+        [`exp`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`exp`, [`::negative-infinity`], { value: 0 }],
+        [`exp`, [`::zero`], { value: 1 }],
+        [`exp`, [`::unknown`], [`::non-negative-number`, `::nan`]],
+        [`exp`, [`::number-or-nan`], [`::non-negative-number`, `::nan`]],
+        [`exp`, [`::number`], [`::non-negative-number`]],
+        [`exp`, [`::positive-number`], [`::positive-number`]],
+        [`exp`, [`::float`], [`::non-negative-number`]],
+        [`exp`, [`::positive-float`], [`::positive-number`]],
+        [`exp`, [`::non-positive-number`], [`::non-negative-float`]],
+        [`exp`, [`::non-negative-number`], [`::positive-number`]],
+        [`exp`, [`::negative-float`], [`::non-negative-float`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
     })
   })
 

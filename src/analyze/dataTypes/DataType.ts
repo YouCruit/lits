@@ -514,16 +514,16 @@ export class DataType {
     return true
   }
 
-  public static equals(type: DataType, ...types: DataType[]): boolean {
-    return types.every(t => {
-      if (type.bitmask !== t.bitmask) {
+  public static equals(type1: DataType, type2: DataType, ...rest: DataType[]): boolean {
+    return [type2, ...rest].every(t => {
+      if (type1.bitmask !== t.bitmask) {
         return false
       }
-      if (!type.fnReturnType && !t.fnReturnType) {
+      if (!type1.fnReturnType && !t.fnReturnType) {
         return true
       }
-      if (type.fnReturnType && t.fnReturnType) {
-        return type.fnReturnType.equals(t.fnReturnType)
+      if (type1.fnReturnType && t.fnReturnType) {
+        return type1.fnReturnType.equals(t.fnReturnType)
       }
       return false
     })
@@ -537,44 +537,46 @@ export class DataType {
     return !allBitValues.includes(dataType.bitmask)
   }
 
-  public static valueOf(dataType: DataType): Any {
-    if (dataType.equals(DataType.zero)) {
-      return 0
-    }
-    if (dataType.equals(DataType.nan)) {
-      return Number.NaN
-    }
-    if (dataType.equals(DataType.positiveInfinity)) {
-      return Number.POSITIVE_INFINITY
-    }
-    if (dataType.equals(DataType.negativeInfinity)) {
-      return Number.NEGATIVE_INFINITY
-    }
-    if (dataType.equals(DataType.emptyString)) {
-      return ``
-    }
-    if (dataType.equals(DataType.true)) {
-      return true
-    }
-    if (dataType.equals(DataType.false)) {
-      return false
-    }
-    if (dataType.equals(DataType.zero)) {
-      return 0
-    }
-    if (dataType.equals(DataType.nil)) {
-      return null
-    }
-    if (dataType.equals(DataType.emptyArray)) {
-      return []
-    }
-    if (dataType.equals(DataType.emptyObject)) {
-      return {}
+  public static toValue(dataType: Any): Any {
+    if (isDataType(dataType)) {
+      if (dataType.equals(DataType.zero)) {
+        return 0
+      }
+      if (dataType.equals(DataType.nan)) {
+        return Number.NaN
+      }
+      if (dataType.equals(DataType.positiveInfinity)) {
+        return Number.POSITIVE_INFINITY
+      }
+      if (dataType.equals(DataType.negativeInfinity)) {
+        return Number.NEGATIVE_INFINITY
+      }
+      if (dataType.equals(DataType.emptyString)) {
+        return ``
+      }
+      if (dataType.equals(DataType.true)) {
+        return true
+      }
+      if (dataType.equals(DataType.false)) {
+        return false
+      }
+      if (dataType.equals(DataType.zero)) {
+        return 0
+      }
+      if (dataType.equals(DataType.nil)) {
+        return null
+      }
+      if (dataType.equals(DataType.emptyArray)) {
+        return []
+      }
+      if (dataType.equals(DataType.emptyObject)) {
+        return {}
+      }
     }
     return dataType
   }
 
-  public static valueOfNumber(dataType: DataType): DataType | number {
+  public static toNumberValue(dataType: DataType): DataType | number {
     if (dataType.equals(DataType.zero)) {
       return 0
     }
@@ -652,8 +654,8 @@ export class DataType {
     }
   }
 
-  public equals(...types: DataType[]): boolean {
-    return DataType.equals(this, ...types)
+  public equals(type: DataType, ...rest: DataType[]): boolean {
+    return DataType.equals(this, type, ...rest)
   }
 
   public isUnionType(): boolean {
@@ -729,12 +731,12 @@ export class DataType {
     return DataType.split(this)
   }
 
-  public valueOf(): Any {
-    return DataType.valueOf(this)
+  public toValue(): Any {
+    return DataType.toValue(this)
   }
 
-  public valueOfNumber(): DataType | number {
-    return DataType.valueOfNumber(this)
+  public toNumberValue(): DataType | number {
+    return DataType.toNumberValue(this)
   }
 
   public toString({ showDetails } = { showDetails: true }): string {

@@ -1053,20 +1053,20 @@ var Lits = (function (exports) {
           }
           return true;
       };
-      DataType.equals = function (type) {
-          var types = [];
-          for (var _i = 1; _i < arguments.length; _i++) {
-              types[_i - 1] = arguments[_i];
+      DataType.equals = function (type1, type2) {
+          var rest = [];
+          for (var _i = 2; _i < arguments.length; _i++) {
+              rest[_i - 2] = arguments[_i];
           }
-          return types.every(function (t) {
-              if (type.bitmask !== t.bitmask) {
+          return __spreadArray([type2], __read(rest), false).every(function (t) {
+              if (type1.bitmask !== t.bitmask) {
                   return false;
               }
-              if (!type.fnReturnType && !t.fnReturnType) {
+              if (!type1.fnReturnType && !t.fnReturnType) {
                   return true;
               }
-              if (type.fnReturnType && t.fnReturnType) {
-                  return type.fnReturnType.equals(t.fnReturnType);
+              if (type1.fnReturnType && t.fnReturnType) {
+                  return type1.fnReturnType.equals(t.fnReturnType);
               }
               return false;
           });
@@ -1077,43 +1077,45 @@ var Lits = (function (exports) {
       DataType.isUnionType = function (dataType) {
           return !allBitValues.includes(dataType.bitmask);
       };
-      DataType.valueOf = function (dataType) {
-          if (dataType.equals(DataType.zero)) {
-              return 0;
-          }
-          if (dataType.equals(DataType.nan)) {
-              return Number.NaN;
-          }
-          if (dataType.equals(DataType.positiveInfinity)) {
-              return Number.POSITIVE_INFINITY;
-          }
-          if (dataType.equals(DataType.negativeInfinity)) {
-              return Number.NEGATIVE_INFINITY;
-          }
-          if (dataType.equals(DataType.emptyString)) {
-              return "";
-          }
-          if (dataType.equals(DataType.true)) {
-              return true;
-          }
-          if (dataType.equals(DataType.false)) {
-              return false;
-          }
-          if (dataType.equals(DataType.zero)) {
-              return 0;
-          }
-          if (dataType.equals(DataType.nil)) {
-              return null;
-          }
-          if (dataType.equals(DataType.emptyArray)) {
-              return [];
-          }
-          if (dataType.equals(DataType.emptyObject)) {
-              return {};
+      DataType.toValue = function (dataType) {
+          if (isDataType(dataType)) {
+              if (dataType.equals(DataType.zero)) {
+                  return 0;
+              }
+              if (dataType.equals(DataType.nan)) {
+                  return Number.NaN;
+              }
+              if (dataType.equals(DataType.positiveInfinity)) {
+                  return Number.POSITIVE_INFINITY;
+              }
+              if (dataType.equals(DataType.negativeInfinity)) {
+                  return Number.NEGATIVE_INFINITY;
+              }
+              if (dataType.equals(DataType.emptyString)) {
+                  return "";
+              }
+              if (dataType.equals(DataType.true)) {
+                  return true;
+              }
+              if (dataType.equals(DataType.false)) {
+                  return false;
+              }
+              if (dataType.equals(DataType.zero)) {
+                  return 0;
+              }
+              if (dataType.equals(DataType.nil)) {
+                  return null;
+              }
+              if (dataType.equals(DataType.emptyArray)) {
+                  return [];
+              }
+              if (dataType.equals(DataType.emptyObject)) {
+                  return {};
+              }
           }
           return dataType;
       };
-      DataType.valueOfNumber = function (dataType) {
+      DataType.toNumberValue = function (dataType) {
           if (dataType.equals(DataType.zero)) {
               return 0;
           }
@@ -1191,12 +1193,12 @@ var Lits = (function (exports) {
               throw new LitsError("Expected to intersect ".concat(dataType.toString(), ", but was ").concat(this.toString()), debugInfo);
           }
       };
-      DataType.prototype.equals = function () {
-          var types = [];
-          for (var _i = 0; _i < arguments.length; _i++) {
-              types[_i] = arguments[_i];
+      DataType.prototype.equals = function (type) {
+          var rest = [];
+          for (var _i = 1; _i < arguments.length; _i++) {
+              rest[_i - 1] = arguments[_i];
           }
-          return DataType.equals.apply(DataType, __spreadArray([this], __read(types), false));
+          return DataType.equals.apply(DataType, __spreadArray([this, type], __read(rest), false));
       };
       DataType.prototype.isUnionType = function () {
           return DataType.isUnionType(this);
@@ -1253,11 +1255,11 @@ var Lits = (function (exports) {
       DataType.prototype.split = function () {
           return DataType.split(this);
       };
-      DataType.prototype.valueOf = function () {
-          return DataType.valueOf(this);
+      DataType.prototype.toValue = function () {
+          return DataType.toValue(this);
       };
-      DataType.prototype.valueOfNumber = function () {
-          return DataType.valueOfNumber(this);
+      DataType.prototype.toNumberValue = function () {
+          return DataType.toNumberValue(this);
       };
       DataType.prototype.toString = function (_a) {
           var _b = _a === void 0 ? { showDetails: true } : _a, showDetails = _b.showDetails;
@@ -4701,6 +4703,9 @@ var Lits = (function (exports) {
               }
               else {
                   var paramType = DataType.of(first);
+                  if (paramType.equals(DataType.zero)) {
+                      return 1;
+                  }
                   var types = [];
                   if (paramType.intersectsNonNumber()) {
                       types.push(DataType.nan);
@@ -4731,7 +4736,7 @@ var Lits = (function (exports) {
                           types.push(DataType.positiveFloat);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "inc", debugInfo); },
@@ -4747,6 +4752,9 @@ var Lits = (function (exports) {
               }
               else {
                   var paramType = DataType.of(first);
+                  if (paramType.equals(DataType.zero)) {
+                      return -1;
+                  }
                   var types = [];
                   if (paramType.intersectsNonNumber()) {
                       types.push(DataType.nan);
@@ -4777,7 +4785,7 @@ var Lits = (function (exports) {
                           types.push(DataType.negativeFloat);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "dec", debugInfo); },
@@ -4793,8 +4801,7 @@ var Lits = (function (exports) {
                   }, 0);
               }
               else {
-                  var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  return getTypeOfSum(paramTypes).valueOfNumber();
+                  return getTypeOfSum(params);
               }
           },
           validateArity: function () { return undefined; },
@@ -4820,13 +4827,12 @@ var Lits = (function (exports) {
                   }, first);
               }
               else {
-                  var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  var firstParamType = asValue(paramTypes[0]);
-                  if (paramTypes.length === 1) {
-                      return firstParamType.negateNumber().valueOfNumber();
+                  var firstParam = asValue(params[0]);
+                  if (params.length === 1) {
+                      return negate(firstParam);
                   }
-                  var restTypes = paramTypes.slice(1).map(function (t) { return t.negateNumber(); });
-                  return getTypeOfSum(__spreadArray([firstParamType], __read(restTypes), false)).valueOfNumber();
+                  var rest = params.slice(1).map(negate);
+                  return getTypeOfSum(__spreadArray([firstParam], __read(rest), false));
               }
           },
           validateArity: function () { return undefined; },
@@ -4846,7 +4852,7 @@ var Lits = (function (exports) {
               }
               else {
                   var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  return getTypeOfProduct(paramTypes).valueOfNumber();
+                  return getTypeOfProduct(paramTypes).toNumberValue();
               }
           },
           validateArity: function () { return undefined; },
@@ -4879,7 +4885,7 @@ var Lits = (function (exports) {
               }
               else {
                   var paramTypes = params.map(function (param) { return DataType.of(param); });
-                  return getTypeOfDivision(paramTypes).valueOfNumber();
+                  return getTypeOfDivision(paramTypes).toNumberValue();
               }
           },
           validateArity: function () { return undefined; },
@@ -4954,7 +4960,7 @@ var Lits = (function (exports) {
                           types.push(DataType.negativeInfinity);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "quot", debugInfo); },
@@ -5006,7 +5012,7 @@ var Lits = (function (exports) {
                   if (b.intersects(DataType.positiveFloat) && a.intersects(DataType.float)) {
                       types.push(DataType.nonNegativeFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "mod", debugInfo); },
@@ -5049,7 +5055,7 @@ var Lits = (function (exports) {
                   if (a.intersects(DataType.positiveFloat) && b.intersects(DataType.float)) {
                       types.push(DataType.nonNegativeFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "rem", debugInfo); },
@@ -5084,7 +5090,7 @@ var Lits = (function (exports) {
                   if (type.intersects(DataType.positiveFloat)) {
                       types.push(DataType.positiveFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "sqrt", debugInfo); },
@@ -5122,7 +5128,7 @@ var Lits = (function (exports) {
                   if (type.intersects(DataType.negativeFloat)) {
                       types.push(DataType.negativeFloat);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "cbrt", debugInfo); },
@@ -5301,7 +5307,7 @@ var Lits = (function (exports) {
                           return 1;
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "pow", debugInfo); },
@@ -5382,7 +5388,7 @@ var Lits = (function (exports) {
                           }
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1, max: 2 }, arity, "round", debugInfo); },
@@ -5430,7 +5436,7 @@ var Lits = (function (exports) {
                           types.push(DataType.nonPositiveInteger);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "trunc", debugInfo); },
@@ -5473,7 +5479,7 @@ var Lits = (function (exports) {
                   if (a.intersects(DataType.negativeFloat)) {
                       types.push(DataType.negativeInteger);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "floor", debugInfo); },
@@ -5516,7 +5522,7 @@ var Lits = (function (exports) {
                           types.push(DataType.nonPositiveInteger);
                       }
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "ceil", debugInfo); },
@@ -5560,7 +5566,7 @@ var Lits = (function (exports) {
                   if (a.intersects(DataType.negativeFloat)) {
                       types.push(DataType.nonPositiveInteger);
                   }
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "rand-int!", debugInfo); },
@@ -5606,7 +5612,7 @@ var Lits = (function (exports) {
                   }, 2);
                   var exclude = DataType.or(smallestMax < 2 ? DataType.positiveInfinity : DataType.never, smallestMax < 1 ? DataType.positiveFloat : DataType.never, smallestMax < 0 ? DataType.zero : DataType.never, smallestMax < -1 ? DataType.negativeFloat : DataType.never);
                   var result = DataType.or.apply(DataType, __spreadArray([], __read(numberTypes), false)).exclude(exclude);
-                  return (hasNonNumber || hasNan ? result.or(DataType.nan) : result).valueOfNumber();
+                  return (hasNonNumber || hasNan ? result.or(DataType.nan) : result).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "min", debugInfo); },
@@ -5652,7 +5658,7 @@ var Lits = (function (exports) {
                   }, -2);
                   var exclude = DataType.or(largestMin > -2 ? DataType.negativeInfinity : DataType.never, largestMin > -1 ? DataType.negativeFloat : DataType.never, largestMin > 0 ? DataType.zero : DataType.never, largestMin > 1 ? DataType.positiveFloat : DataType.never);
                   var result = DataType.or.apply(DataType, __spreadArray([], __read(numberTypes), false)).exclude(exclude);
-                  return (hasNonNumber || hasNan ? result.or(DataType.nan) : result).valueOfNumber();
+                  return (hasNonNumber || hasNan ? result.or(DataType.nan) : result).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "max", debugInfo); },
@@ -5677,7 +5683,7 @@ var Lits = (function (exports) {
                       .or(numberType.negateNumber())
                       .exclude(DataType.negativeFloat.or(DataType.negativeInfinity));
                   types.push(absType);
-                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).valueOfNumber();
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "abs", debugInfo); },
@@ -5713,7 +5719,7 @@ var Lits = (function (exports) {
                   if (resultType.equals(DataType.negativeInteger)) {
                       return -1;
                   }
-                  return resultType.valueOfNumber();
+                  return resultType.toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "sign", debugInfo); },
@@ -5771,28 +5777,29 @@ var Lits = (function (exports) {
               }
               else {
                   var paramType = DataType.of(value);
+                  if (paramType.equals(DataType.zero)) {
+                      return 1;
+                  }
                   var types = [];
                   if (paramType.intersectsNonNumber()) {
                       types.push(DataType.nan);
                   }
-                  if (paramType.intersects(DataType.negativeNumber)) {
-                      types.push(DataType.negativeInteger);
-                  }
-                  if (paramType.intersects(DataType.zero)) {
+                  if (paramType.intersects(DataType.negativeInfinity)) {
                       types.push(DataType.zero);
                   }
-                  if (paramType.intersects(DataType.positiveNumber)) {
+                  if (paramType.intersects(DataType.positiveInfinity)) {
+                      types.push(DataType.positiveInfinity);
+                  }
+                  if (paramType.intersects(DataType.negativeFloat)) {
+                      types.push(DataType.nonNegativeFloat);
+                  }
+                  if (paramType.intersects(DataType.zero)) {
                       types.push(DataType.positiveInteger);
                   }
-                  var resultType = DataType.or.apply(DataType, __spreadArray([], __read(types), false));
-                  if (resultType.equals(DataType.positiveInteger)) {
-                      return 1;
+                  if (paramType.intersects(DataType.positiveFloat)) {
+                      types.push(DataType.positiveNumber);
                   }
-                  if (resultType.equals(DataType.negativeInteger)) {
-                      return -1;
-                  }
-                  return 1;
-                  // return resultType.valueOfNumber()
+                  return DataType.or.apply(DataType, __spreadArray([], __read(types), false)).toNumberValue();
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "exp", debugInfo); },
@@ -5949,78 +5956,89 @@ var Lits = (function (exports) {
       },
   };
   function getTypeOfSum(paramTypes) {
-      return paramTypes.reduce(function (a, b) { return getTypeOfBinarySum(a, b); }, DataType.zero);
+      paramTypes.sort(function (a, b) { return (isDataType(a) ? 1 : isDataType(b) ? -1 : 0); });
+      var sum = paramTypes.reduce(function (a, b) { return getTypeOfBinarySum(a, b); }, 0);
+      return typeof sum === "number" ? sum : sum.toNumberValue();
   }
   function getTypeOfBinarySum(a, b) {
+      any.assert(a);
+      any.assert(b);
+      var aVal = DataType.toValue(a);
+      var bVal = DataType.toValue(b);
+      if (number.is(aVal) && number.is(bVal)) {
+          return aVal + bVal;
+      }
+      var aType = DataType.of(a);
+      var bType = DataType.of(b);
       var types = [];
-      if (a.or(b).intersectsNonNumber()) {
+      if (aType.or(bType).intersectsNonNumber()) {
           types.push(DataType.nan);
       }
-      if (a.intersects(DataType.positiveInfinity)) {
-          if (b.intersects(DataType.positiveInfinity)) {
+      if (aType.intersects(DataType.positiveInfinity)) {
+          if (bType.intersects(DataType.positiveInfinity)) {
               types.push(DataType.positiveInfinity);
           }
-          if (b.intersects(DataType.negativeInfinity)) {
+          if (bType.intersects(DataType.negativeInfinity)) {
               types.push(DataType.nan);
           }
-          if (b.intersects(DataType.float)) {
+          if (bType.intersects(DataType.float)) {
               types.push(DataType.positiveInfinity);
           }
       }
-      if (a.intersects(DataType.negativeInfinity)) {
-          if (b.intersects(DataType.positiveInfinity)) {
+      if (aType.intersects(DataType.negativeInfinity)) {
+          if (bType.intersects(DataType.positiveInfinity)) {
               types.push(DataType.nan);
           }
-          if (b.intersects(DataType.negativeInfinity)) {
+          if (bType.intersects(DataType.negativeInfinity)) {
               types.push(DataType.negativeInfinity);
           }
-          if (b.intersects(DataType.float)) {
+          if (bType.intersects(DataType.float)) {
               types.push(DataType.negativeInfinity);
           }
       }
-      if (b.intersects(DataType.positiveInfinity)) {
-          if (a.intersects(DataType.float)) {
+      if (bType.intersects(DataType.positiveInfinity)) {
+          if (aType.intersects(DataType.float)) {
               types.push(DataType.positiveInfinity);
           }
       }
-      if (b.intersects(DataType.negativeInfinity)) {
-          if (a.intersects(DataType.float)) {
+      if (bType.intersects(DataType.negativeInfinity)) {
+          if (aType.intersects(DataType.float)) {
               types.push(DataType.negativeInfinity);
           }
       }
-      var baseType = a.isInteger() && b.isInteger() ? DataType.integer : DataType.float;
-      if (a.intersects(DataType.positiveFloat)) {
-          if (b.intersects(DataType.zero)) {
+      var baseType = aType.isInteger() && bType.isInteger() ? DataType.integer : DataType.float;
+      if (aType.intersects(DataType.positiveFloat)) {
+          if (bType.intersects(DataType.zero)) {
               types.push(DataType.positiveFloat.and(baseType));
           }
-          if (b.intersects(DataType.positiveFloat)) {
+          if (bType.intersects(DataType.positiveFloat)) {
               types.push(DataType.positiveFloat.and(baseType));
               types.push(DataType.positiveInfinity);
           }
-          if (b.intersects(DataType.negativeFloat)) {
+          if (bType.intersects(DataType.negativeFloat)) {
               types.push(DataType.float.and(baseType));
           }
       }
-      if (a.intersects(DataType.negativeFloat)) {
-          if (b.intersects(DataType.zero)) {
+      if (aType.intersects(DataType.negativeFloat)) {
+          if (bType.intersects(DataType.zero)) {
               types.push(DataType.negativeFloat.and(baseType));
           }
-          if (b.intersects(DataType.positiveFloat)) {
+          if (bType.intersects(DataType.positiveFloat)) {
               types.push(DataType.float.and(baseType));
           }
-          if (b.intersects(DataType.negativeFloat)) {
+          if (bType.intersects(DataType.negativeFloat)) {
               types.push(DataType.negativeFloat.and(baseType));
               types.push(DataType.negativeInfinity);
           }
       }
-      if (a.intersects(DataType.zero)) {
-          if (b.intersects(DataType.zero)) {
+      if (aType.intersects(DataType.zero)) {
+          if (bType.intersects(DataType.zero)) {
               types.push(DataType.zero);
           }
-          if (b.intersects(DataType.positiveFloat)) {
+          if (bType.intersects(DataType.positiveFloat)) {
               types.push(DataType.positiveFloat.and(baseType));
           }
-          if (b.intersects(DataType.negativeFloat)) {
+          if (bType.intersects(DataType.negativeFloat)) {
               types.push(DataType.negativeFloat.and(baseType));
           }
       }
@@ -6185,6 +6203,9 @@ var Lits = (function (exports) {
           }
       }
       return DataType.or.apply(DataType, __spreadArray([], __read(types), false));
+  }
+  function negate(value) {
+      return isDataType(value) ? value.negateNumber().toNumberValue() : number.is(value) ? -value : Number.NaN;
   }
 
   var version = "1.0.55-alpha.0";
@@ -7588,7 +7609,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               any.assert(value, debugInfo);
               if (isDataType(value)) {
-                  return DataType.valueOf(value);
+                  return DataType.toValue(value);
               }
               else {
                   return value;

@@ -94,11 +94,32 @@ export function getUndefinedSymbolNames(undefinedSymbols: Set<UndefinedSymbolEnt
   return new Set<string>(names)
 }
 
-export type TestTypeEvaluation = [
-  string,
-  Array<`::${TypeName}` | Array<`::${TypeName}`> | { expression: string }>,
-  Array<`::${TypeName}`> | { value: Any } | `ERROR`,
-]
+type ValueObj = { value: Any }
+function isValueObj(obj: unknown): obj is ValueObj {
+  if (typeof obj !== `object` || obj === null || Array.isArray(obj)) {
+    return false
+  }
+  return (obj as ValueObj).value !== undefined
+}
+
+type ExpressionObj = { expression: string }
+function isExpressionObj(obj: unknown): obj is ExpressionObj {
+  if (typeof obj !== `object` || obj === null || Array.isArray(obj)) {
+    return false
+  }
+  return (obj as ExpressionObj).expression !== undefined
+}
+
+type TypeLitteral = `::${TypeName}`
+type FunctionName = string
+type Params = Array<TypeLitteral | TypeLitteral[] | ExpressionObj>
+type Result = TypeLitteral[] | ValueObj
+
+export type TestTypeEvaluation = [FunctionName, Params, Result]
+
+function fromParamsToStringArray(params: Params): string[] {
+  return params.map(p => (typeof p === `string` ? p : Array.isArray(p) ? `(type-or ${p.join(` `)})` : p.expression))
+}
 
 /**
  * @param paramOrder
@@ -116,10 +137,7 @@ export function testTypeEvaluations(
     const resultExpression =
       typeof result === `string` ? result : Array.isArray(result) ? `(type-or ${result.join(` `)})` : null
 
-    const resultValue =
-      typeof result === `object` && result !== null && !Array.isArray(result) && result.value !== undefined
-        ? result.value
-        : undefined
+    const resultValue = isValueObj(result) ? result.value : undefined
 
     const expressions = generateLitsExpressions(functionName, params, paramOrder)
     const sampleExpressions = generateLitsExpressionsWithSampleValues(lits, functionName, params, paramOrder)
@@ -127,9 +145,7 @@ export function testTypeEvaluations(
       expressions.length > 1 ? `, ${expressions.length} permutations` : ``
     }`, () => {
       for (const expression of expressions) {
-        if (resultExpression === `ERROR`) {
-          expect(() => lits.run(expression)).toThrow()
-        } else if (resultValue !== undefined) {
+        if (resultValue !== undefined) {
           const evaluatedValue = lits.run(expression)
           if (typeof evaluatedValue === `number` && Number.isNaN(evaluatedValue)) {
             expect(resultValue).toBeNaN()
@@ -143,19 +159,7 @@ export function testTypeEvaluations(
         }
       }
 
-      if (resultExpression === `ERROR`) {
-        let hasThrown = false
-        for (const expression of sampleExpressions) {
-          try {
-            lits.run(expression)
-          } catch (error) {
-            hasThrown = true
-          }
-        }
-        if (!hasThrown) {
-          throw Error(`Expected one of the sample expressions to throw`)
-        }
-      } else if (resultValue !== undefined) {
+      if (resultValue !== undefined) {
         for (const expression of sampleExpressions) {
           const evaluatedValue = lits.run(expression)
           if (typeof evaluatedValue === `number` && Number.isNaN(evaluatedValue)) {
@@ -177,7 +181,8 @@ export function testTypeEvaluations(
         }
       }
 
-      if (resultExpression !== `ERROR` && resultValue === undefined) {
+      const hasExpressionParam = params.some(isExpressionObj)
+      if (!hasExpressionParam && resultExpression !== `ERROR` && resultValue === undefined) {
         const resultType = lits.run(`(type-of ${resultExpression})`) as DataType
         const combinedSampeExpressionType = DataType.or(
           ...sampleExpressions.map(e => lits.run(`(type-of ${e})`) as DataType),
@@ -197,13 +202,11 @@ export function testTypeEvaluations(
 }
 
 function generateLitsExpressions(
-  functionName: string,
-  params: Array<`::${TypeName}` | Array<`::${TypeName}`> | { expression: string }>,
+  functionName: FunctionName,
+  params: Params,
   paramOrder?: `commutativeParams` | `commutativeRestParams`,
 ): string[] {
-  const litsTypeParams = params.map(p =>
-    typeof p === `string` ? p : Array.isArray(p) ? `(type-or ${p.join(` `)})` : p.expression,
-  )
+  const litsTypeParams = fromParamsToStringArray(params)
   switch (paramOrder) {
     // All combinations of the ordering of the params will be tested
     case `commutativeParams`:
@@ -229,12 +232,10 @@ function generateLitsExpressions(
 function generateLitsExpressionsWithSampleValues(
   lits: Lits,
   functionName: string,
-  params: Array<`::${TypeName}` | Array<`::${TypeName}`> | { expression: string }>,
+  params: Params,
   paramOrder?: `commutativeParams` | `commutativeRestParams`,
 ): string[] {
-  const litsTypeParams = params.map(p =>
-    typeof p === `string` ? p : Array.isArray(p) ? `(type-or ${p.join(` `)})` : p.expression,
-  )
+  const litsTypeParams = fromParamsToStringArray(params)
   switch (paramOrder) {
     // All combinations of the ordering of the params will be tested
     case `commutativeParams`:
@@ -263,8 +264,12 @@ function generateLitsExpressionsWithSampleValues(
 export function getSampleExpressions(lits: Lits, functionName: string, litsTypeParams: string[]): string[] {
   // Each param will be substituted with an array of sample values based on the type
   const litsTypeParamsVariants = litsTypeParams.map(param => {
-    const type = asDataType(lits.run(`(type-of ${param})`), undefined)
-    return getSampleValuesForType(type)
+    if (param.startsWith(`::`)) {
+      const type = asDataType(lits.run(`(type-of ${param})`), undefined)
+      return getSampleValuesForType(type)
+    } else {
+      return [param]
+    }
   })
 
   const sampleParamsCombinations = getParamCombinations(litsTypeParamsVariants)

@@ -43,9 +43,9 @@ function toSafeNumber(value: number): number {
   return value < MAX_NUMBER && value > MIN_NUMBER
     ? value
     : value < MIN_NUMBER
-    ? Number.NEGATIVE_INFINITY
+    ? -Infinity
     : value > MAX_NUMBER
-    ? Number.POSITIVE_INFINITY
+    ? Infinity
     : value
 }
 

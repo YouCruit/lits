@@ -408,9 +408,9 @@ export class Type {
       return Type.false
     } else if (Number.isNaN(input)) {
       return Type.nan
-    } else if (input === Number.POSITIVE_INFINITY) {
+    } else if (input === Infinity) {
       return Type.positiveInfinity
-    } else if (input === Number.NEGATIVE_INFINITY) {
+    } else if (input === -Infinity) {
       return Type.negativeInfinity
     } else if (typeof input === `string`) {
       return input ? Type.nonEmptyString : Type[`emptyString`]
@@ -546,10 +546,10 @@ export class Type {
         return Number.NaN
       }
       if (dataType.equals(Type.positiveInfinity)) {
-        return Number.POSITIVE_INFINITY
+        return Infinity
       }
       if (dataType.equals(Type.negativeInfinity)) {
-        return Number.NEGATIVE_INFINITY
+        return -Infinity
       }
       if (dataType.equals(Type.emptyString)) {
         return ``
@@ -584,10 +584,10 @@ export class Type {
       return Number.NaN
     }
     if (dataType.equals(Type.positiveInfinity)) {
-      return Number.POSITIVE_INFINITY
+      return Infinity
     }
     if (dataType.equals(Type.negativeInfinity)) {
-      return Number.NEGATIVE_INFINITY
+      return -Infinity
     }
     if (dataType.equals(Type.zero)) {
       return 0

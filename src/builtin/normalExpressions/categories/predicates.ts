@@ -129,22 +129,6 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `nan?`, debugInfo),
   },
 
-  'positive-infinity?': {
-    evaluate: ([value], debugInfo): boolean => {
-      number.assert(value, debugInfo)
-      return value === Number.POSITIVE_INFINITY
-    },
-    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `positive-infinity?`, debugInfo),
-  },
-
-  'negative-infinity?': {
-    evaluate: ([value], debugInfo): boolean => {
-      number.assert(value, debugInfo)
-      return value === Number.NEGATIVE_INFINITY
-    },
-    validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `negative-infinity?`, debugInfo),
-  },
-
   'true?': {
     evaluate: ([value]): boolean => {
       return value === true

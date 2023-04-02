@@ -367,9 +367,9 @@ function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string[] 
     case `nan`:
       return [`(nan)`]
     case `positive-infinity`:
-      return [`(positive-infinity)`]
+      return [`(infinity)`]
     case `negative-infinity`:
-      return [`(negative-infinity)`]
+      return [`(- (infinity))`]
     case `true`:
       return [`true`]
     case `non-empty-string`:

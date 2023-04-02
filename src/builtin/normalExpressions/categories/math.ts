@@ -197,7 +197,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           if (result === 0) {
             return 0
           }
-          if (param === Number.POSITIVE_INFINITY || param === Number.NEGATIVE_INFINITY) {
+          if (param === Infinity || param === -Infinity) {
             return 0
           }
           return result / param
@@ -499,10 +499,10 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         if (first === 1 && !Number.isNaN(second)) {
           return 1
         }
-        if (first < 0 && first >= -1 && second === Number.NEGATIVE_INFINITY) {
+        if (first < 0 && first >= -1 && second === -Infinity) {
           return Number.NaN
         }
-        if (first <= -1 && second === Number.POSITIVE_INFINITY) {
+        if (first <= -1 && second === Infinity) {
           return Number.NaN
         }
         return Math.pow(first, second)
@@ -696,7 +696,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           return Number.NaN
         }
         const factor = Math.pow(10, decimals)
-        if (factor === Number.POSITIVE_INFINITY) {
+        if (factor === Infinity) {
           return value
         }
         return Math.round(value * factor) / factor
@@ -1161,18 +1161,11 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
     validateArity: (arity, debugInfo) => assertNumberOfParams(0, arity, `min-value`, debugInfo),
   },
 
-  'positive-infinity': {
+  infinity: {
     evaluate: (): number => {
-      return Number.POSITIVE_INFINITY
+      return Infinity
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(0, arity, `positive-infinity`, debugInfo),
-  },
-
-  'negative-infinity': {
-    evaluate: (): number => {
-      return Number.NEGATIVE_INFINITY
-    },
-    validateArity: (arity, debugInfo) => assertNumberOfParams(0, arity, `negative-infinity`, debugInfo),
   },
 
   nan: {

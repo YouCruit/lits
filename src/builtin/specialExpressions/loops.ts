@@ -154,7 +154,7 @@ function evaluateLoop(
             break
           case `&while`:
             if (!evaluateAstNode(astNode.as(whileNode, debugInfo), newContextStack)) {
-              bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY
+              bindingIndices[bindingIndex] = Infinity
               skip = true
               break bindingsLoop
             }

@@ -92,7 +92,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
       if (!array.is(seq)) {
         return []
       }
-      return seq.flat(Number.POSITIVE_INFINITY)
+      return seq.flat(Infinity)
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `flatten`, debugInfo),
   },

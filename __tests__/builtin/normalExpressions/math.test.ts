@@ -1162,7 +1162,7 @@ describe(`math functions`, () => {
     })
   })
 
-  describe(`log`, () => {
+  describe(`log.`, () => {
     test(`samples`, () => {
       expect(lits.run(`(log 0.1)`)).toBe(Math.log(0.1))
       expect(lits.run(`(log 1)`)).toBe(Math.log(1))
@@ -1176,9 +1176,27 @@ describe(`math functions`, () => {
       expect(() => lits.run(`(log)`)).toThrow()
       expect(() => lits.run(`(log 1 2)`)).toThrow()
     })
+    describe(`log dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`log`, [`::string`], { value: Number.NaN }],
+        [`log`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`log`, [`::negative-infinity`], { value: Number.NaN }],
+        [`log`, [`::zero`], { value: Number.NEGATIVE_INFINITY }],
+        [`log`, [`::unknown`], [`::number-or-nan`]],
+        [`log`, [`::number-or-nan`], [`::number-or-nan`]],
+        [`log`, [`::number`], [`::number-or-nan`]],
+        [`log`, [`::positive-number`], [`::float`, `::positive-infinity`]],
+        [`log`, [`::float`], [`::float`, `::negative-infinity`, `::nan`]],
+        [`log`, [`::positive-float`], [`::float`]],
+        [`log`, [`::non-positive-number`], [`::negative-infinity`, `::nan`]],
+        [`log`, [`::non-negative-number`], [`::number`]],
+        [`log`, [`::negative-float`], { value: Number.NaN }],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
+    })
   })
 
-  describe(`log2`, () => {
+  describe(`log2.`, () => {
     test(`samples`, () => {
       expect(lits.run(`(log2 0.1)`)).toBe(Math.log2(0.1))
       expect(lits.run(`(log2 1)`)).toBe(Math.log2(1))
@@ -1191,6 +1209,24 @@ describe(`math functions`, () => {
 
       expect(() => lits.run(`(log2)`)).toThrow()
       expect(() => lits.run(`(log2 1 2)`)).toThrow()
+    })
+    describe(`log2 dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`log2`, [`::string`], { value: Number.NaN }],
+        [`log2`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`log2`, [`::negative-infinity`], { value: Number.NaN }],
+        [`log2`, [`::zero`], { value: Number.NEGATIVE_INFINITY }],
+        [`log2`, [`::unknown`], [`::number-or-nan`]],
+        [`log2`, [`::number-or-nan`], [`::number-or-nan`]],
+        [`log2`, [`::number`], [`::number-or-nan`]],
+        [`log2`, [`::positive-number`], [`::float`, `::positive-infinity`]],
+        [`log2`, [`::float`], [`::float`, `::negative-infinity`, `::nan`]],
+        [`log2`, [`::positive-float`], [`::float`]],
+        [`log2`, [`::non-positive-number`], [`::negative-infinity`, `::nan`]],
+        [`log2`, [`::non-negative-number`], [`::number`]],
+        [`log2`, [`::negative-float`], { value: Number.NaN }],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
     })
   })
 
@@ -1208,6 +1244,24 @@ describe(`math functions`, () => {
       expect(() => lits.run(`(log10)`)).toThrow()
       expect(() => lits.run(`(log10 1 2)`)).toThrow()
     })
+    describe(`log10 dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`log10`, [`::string`], { value: Number.NaN }],
+        [`log10`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`log10`, [`::negative-infinity`], { value: Number.NaN }],
+        [`log10`, [`::zero`], { value: Number.NEGATIVE_INFINITY }],
+        [`log10`, [`::unknown`], [`::number-or-nan`]],
+        [`log10`, [`::number-or-nan`], [`::number-or-nan`]],
+        [`log10`, [`::number`], [`::number-or-nan`]],
+        [`log10`, [`::positive-number`], [`::float`, `::positive-infinity`]],
+        [`log10`, [`::float`], [`::float`, `::negative-infinity`, `::nan`]],
+        [`log10`, [`::positive-float`], [`::float`]],
+        [`log10`, [`::non-positive-number`], [`::negative-infinity`, `::nan`]],
+        [`log10`, [`::non-negative-number`], [`::number`]],
+        [`log10`, [`::negative-float`], { value: Number.NaN }],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
+    })
   })
 
   describe(`sin`, () => {
@@ -1222,6 +1276,24 @@ describe(`math functions`, () => {
 
       expect(() => lits.run(`(sin)`)).toThrow()
       expect(() => lits.run(`(sin 1 2)`)).toThrow()
+    })
+    describe(`sin dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`sin`, [`::string`], { value: Number.NaN }],
+        [`sin`, [`::positive-infinity`], { value: Number.NaN }],
+        [`sin`, [`::negative-infinity`], { value: Number.NaN }],
+        [`sin`, [`::zero`], { value: 0 }],
+        [`sin`, [`::unknown`], [`::float`, `::nan`]],
+        [`sin`, [`::number-or-nan`], [`::float`, `::nan`]],
+        [`sin`, [`::number`], [`::float`, `::nan`]],
+        [`sin`, [`::positive-number`], [`::non-zero-float`, `::nan`]],
+        [`sin`, [`::float`], [`::float`]],
+        [`sin`, [`::positive-float`], [`::non-zero-float`]],
+        [`sin`, [`::non-positive-number`], [`::float`, `::nan`]],
+        [`sin`, [`::non-negative-number`], [`::float`, `::nan`]],
+        [`sin`, [`::negative-float`], [`::non-zero-float`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
     })
   })
 
@@ -1238,6 +1310,24 @@ describe(`math functions`, () => {
       expect(() => lits.run(`(cos)`)).toThrow()
       expect(() => lits.run(`(cos 1 2)`)).toThrow()
     })
+    describe(`cos dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`cos`, [`::string`], { value: Number.NaN }],
+        [`cos`, [`::positive-infinity`], { value: Number.NaN }],
+        [`cos`, [`::negative-infinity`], { value: Number.NaN }],
+        [`cos`, [`::zero`], { value: 1 }],
+        [`cos`, [`::unknown`], [`::non-zero-float`, `::nan`]],
+        [`cos`, [`::number-or-nan`], [`::non-zero-float`, `::nan`]],
+        [`cos`, [`::number`], [`::non-zero-float`, `::nan`]],
+        [`cos`, [`::positive-number`], [`::non-zero-float`, `::nan`]],
+        [`cos`, [`::float`], [`::non-zero-float`]],
+        [`cos`, [`::positive-float`], [`::non-zero-float`]],
+        [`cos`, [`::non-positive-number`], [`::non-zero-float`, `::nan`]],
+        [`cos`, [`::non-negative-number`], [`::non-zero-float`, `::nan`]],
+        [`cos`, [`::negative-float`], [`::non-zero-float`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
+    })
   })
 
   describe(`tan`, () => {
@@ -1252,6 +1342,24 @@ describe(`math functions`, () => {
 
       expect(() => lits.run(`(tan)`)).toThrow()
       expect(() => lits.run(`(tan 1 2)`)).toThrow()
+    })
+    describe(`tan dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`tan`, [`::string`], { value: Number.NaN }],
+        [`tan`, [`::positive-infinity`], { value: Number.NaN }],
+        [`tan`, [`::negative-infinity`], { value: Number.NaN }],
+        [`tan`, [`::zero`], { value: 0 }],
+        [`tan`, [`::unknown`], [`::float`, `::nan`]],
+        [`tan`, [`::number-or-nan`], [`::float`, `::nan`]],
+        [`tan`, [`::number`], [`::float`, `::nan`]],
+        [`tan`, [`::positive-number`], [`::non-zero-float`, `::nan`]],
+        [`tan`, [`::float`], [`::float`]],
+        [`tan`, [`::positive-float`], [`::non-zero-float`]],
+        [`tan`, [`::non-positive-number`], [`::float`, `::nan`]],
+        [`tan`, [`::non-negative-number`], [`::float`, `::nan`]],
+        [`tan`, [`::negative-float`], [`::non-zero-float`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
     })
   })
 
@@ -1268,6 +1376,24 @@ describe(`math functions`, () => {
       expect(() => lits.run(`(sinh)`)).toThrow()
       expect(() => lits.run(`(sinh 1 2)`)).toThrow()
     })
+    describe(`sinh dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`sinh`, [`::string`], { value: Number.NaN }],
+        [`sinh`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`sinh`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`sinh`, [`::zero`], { value: 0 }],
+        [`sinh`, [`::unknown`], [`::number-or-nan`]],
+        [`sinh`, [`::number-or-nan`], [`::number-or-nan`]],
+        [`sinh`, [`::number`], [`::number`]],
+        [`sinh`, [`::positive-number`], [`::positive-number`]],
+        [`sinh`, [`::float`], [`::number`]],
+        [`sinh`, [`::positive-float`], [`::positive-number`]],
+        [`sinh`, [`::non-positive-number`], [`::non-positive-number`]],
+        [`sinh`, [`::non-negative-number`], [`::non-negative-number`]],
+        [`sinh`, [`::negative-float`], [`::negative-number`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
+    })
   })
   describe(`cosh`, () => {
     test(`samples`, () => {
@@ -1281,6 +1407,24 @@ describe(`math functions`, () => {
 
       expect(() => lits.run(`(cosh)`)).toThrow()
       expect(() => lits.run(`(cosh 1 2)`)).toThrow()
+    })
+    describe(`cosh dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`cosh`, [`::string`], { value: Number.NaN }],
+        [`cosh`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`cosh`, [`::negative-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`cosh`, [`::zero`], { value: 1 }],
+        [`cosh`, [`::unknown`], [`::positive-number`, `::nan`]],
+        [`cosh`, [`::number-or-nan`], [`::positive-number`, `::nan`]],
+        [`cosh`, [`::number`], [`::positive-number`]],
+        [`cosh`, [`::positive-number`], [`::positive-number`]],
+        [`cosh`, [`::float`], [`::positive-number`]],
+        [`cosh`, [`::positive-float`], [`::positive-number`]],
+        [`cosh`, [`::non-positive-number`], [`::positive-number`]],
+        [`cosh`, [`::non-negative-number`], [`::positive-number`]],
+        [`cosh`, [`::negative-float`], [`::positive-number`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
     })
   })
 
@@ -1297,6 +1441,24 @@ describe(`math functions`, () => {
       expect(() => lits.run(`(tanh)`)).toThrow()
       expect(() => lits.run(`(tanh 1 2)`)).toThrow()
     })
+    describe(`tanh dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`tanh`, [`::string`], { value: Number.NaN }],
+        [`tanh`, [`::positive-infinity`], { value: 1 }],
+        [`tanh`, [`::negative-infinity`], { value: -1 }],
+        [`tanh`, [`::zero`], { value: 0 }],
+        [`tanh`, [`::unknown`], [`::float`, `::nan`]],
+        [`tanh`, [`::number-or-nan`], [`::float`, `::nan`]],
+        [`tanh`, [`::number`], [`::float`]],
+        [`tanh`, [`::positive-number`], [`::positive-float`]],
+        [`tanh`, [`::float`], [`::float`]],
+        [`tanh`, [`::positive-float`], [`::positive-float`]],
+        [`tanh`, [`::non-positive-number`], [`::non-positive-float`]],
+        [`tanh`, [`::non-negative-number`], [`::non-negative-float`]],
+        [`tanh`, [`::negative-float`], [`::negative-float`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
+    })
   })
 
   describe(`asin`, () => {
@@ -1311,6 +1473,24 @@ describe(`math functions`, () => {
 
       expect(() => lits.run(`(asin)`)).toThrow()
       expect(() => lits.run(`(asin 1 2)`)).toThrow()
+    })
+    describe(`asin dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`asin`, [`::string`], { value: Number.NaN }],
+        [`asin`, [`::positive-infinity`], { value: Number.NaN }],
+        [`asin`, [`::negative-infinity`], { value: Number.NaN }],
+        [`asin`, [`::zero`], { value: 0 }],
+        [`asin`, [`::unknown`], [`::float`, `::nan`]],
+        [`asin`, [`::number-or-nan`], [`::float`, `::nan`]],
+        [`asin`, [`::number`], [`::float`, `::nan`]],
+        [`asin`, [`::positive-number`], [`::positive-float`, `::nan`]],
+        [`asin`, [`::float`], [`::float`, `::nan`]],
+        [`asin`, [`::positive-float`], [`::positive-float`, `::nan`]],
+        [`asin`, [`::non-positive-number`], [`::non-positive-float`, `::nan`]],
+        [`asin`, [`::non-negative-number`], [`::non-negative-float`, `::nan`]],
+        [`asin`, [`::negative-float`], [`::negative-float`, `::nan`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
     })
   })
 
@@ -1327,6 +1507,24 @@ describe(`math functions`, () => {
       expect(() => lits.run(`(acos)`)).toThrow()
       expect(() => lits.run(`(acos 1 2)`)).toThrow()
     })
+    describe(`acos dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`acos`, [`::string`], { value: Number.NaN }],
+        [`acos`, [`::positive-infinity`], { value: Number.NaN }],
+        [`acos`, [`::negative-infinity`], { value: Number.NaN }],
+        [`acos`, [`::zero`], [`::positive-float`]],
+        [`acos`, [`::unknown`], [`::non-negative-float`, `::nan`]],
+        [`acos`, [`::number-or-nan`], [`::non-negative-float`, `::nan`]],
+        [`acos`, [`::number`], [`::non-negative-float`, `::nan`]],
+        [`acos`, [`::positive-number`], [`::non-negative-float`, `::nan`]],
+        [`acos`, [`::float`], [`::non-negative-float`, `::nan`]],
+        [`acos`, [`::positive-float`], [`::non-negative-float`, `::nan`]],
+        [`acos`, [`::non-positive-number`], [`::positive-float`, `::nan`]],
+        [`acos`, [`::non-negative-number`], [`::non-negative-float`, `::nan`]],
+        [`acos`, [`::negative-float`], [`::positive-float`, `::nan`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
+    })
   })
   describe(`atan`, () => {
     test(`samples`, () => {
@@ -1340,6 +1538,24 @@ describe(`math functions`, () => {
 
       expect(() => lits.run(`(atan)`)).toThrow()
       expect(() => lits.run(`(atan 1 2)`)).toThrow()
+    })
+    describe(`atan dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`atan`, [`::string`], { value: Number.NaN }],
+        [`atan`, [`::positive-infinity`], { value: Math.PI / 2 }],
+        [`atan`, [`::negative-infinity`], { value: -Math.PI / 2 }],
+        [`atan`, [`::zero`], { value: 0 }],
+        [`atan`, [`::unknown`], [`::float`, `::nan`]],
+        [`atan`, [`::number-or-nan`], [`::float`, `::nan`]],
+        [`atan`, [`::number`], [`::float`]],
+        [`atan`, [`::positive-number`], [`::positive-float`]],
+        [`atan`, [`::float`], [`::float`]],
+        [`atan`, [`::positive-float`], [`::positive-float`]],
+        [`atan`, [`::non-positive-number`], [`::non-positive-float`]],
+        [`atan`, [`::non-negative-number`], [`::non-negative-float`]],
+        [`atan`, [`::negative-float`], [`::negative-float`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
     })
   })
 
@@ -1356,6 +1572,27 @@ describe(`math functions`, () => {
       expect(() => lits.run(`(asinh)`)).toThrow()
       expect(() => lits.run(`(asinh 1 2)`)).toThrow()
     })
+    describe(`asinh dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`asinh`, [`::string`], { value: Number.NaN }],
+        [`asinh`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`asinh`, [`::negative-infinity`], { value: Number.NEGATIVE_INFINITY }],
+        [`asinh`, [`::zero`], { value: 0 }],
+        [`asinh`, [`::unknown`], [`::number-or-nan`]],
+        [`asinh`, [`::number-or-nan`], [`::number-or-nan`]],
+        [`asinh`, [`::number`], [`::number`]],
+        [`asinh`, [`::positive-number`], [`::positive-number`]],
+        [`asinh`, [`::positive-integer`], [`::positive-float`]],
+        [`asinh`, [`::negative-number`], [`::negative-number`]],
+        [`asinh`, [`::negative-integer`], [`::negative-float`]],
+        [`asinh`, [`::float`], [`::float`]],
+        [`asinh`, [`::positive-float`], [`::positive-float`]],
+        [`asinh`, [`::non-positive-number`], [`::non-positive-number`]],
+        [`asinh`, [`::non-negative-number`], [`::non-negative-number`]],
+        [`asinh`, [`::negative-float`], [`::negative-float`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
+    })
   })
   describe(`acosh`, () => {
     test(`samples`, () => {
@@ -1370,6 +1607,27 @@ describe(`math functions`, () => {
       expect(() => lits.run(`(acosh)`)).toThrow()
       expect(() => lits.run(`(acosh 1 2)`)).toThrow()
     })
+    describe(`acosh dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`acosh`, [`::string`], { value: Number.NaN }],
+        [`acosh`, [`::positive-infinity`], { value: Number.POSITIVE_INFINITY }],
+        [`acosh`, [`::negative-infinity`], { value: Number.NaN }],
+        [`acosh`, [`::zero`], { value: Number.NaN }],
+        [`acosh`, [`::unknown`], [`::non-negative-number`, `::nan`]],
+        [`acosh`, [`::number-or-nan`], [`::non-negative-number`, `::nan`]],
+        [`acosh`, [`::number`], [`::non-negative-number`, `::nan`]],
+        [`acosh`, [`::positive-number`], [`::non-negative-number`, `::nan`]],
+        [`acosh`, [`::positive-integer`], [`::non-negative-float`]],
+        [`acosh`, [`::negative-number`], { value: Number.NaN }],
+        [`acosh`, [`::negative-integer`], { value: Number.NaN }],
+        [`acosh`, [`::float`], [`::non-negative-float`, `::nan`]],
+        [`acosh`, [`::positive-float`], [`::non-negative-float`, `::nan`]],
+        [`acosh`, [`::non-positive-number`], { value: Number.NaN }],
+        [`acosh`, [`::non-negative-number`], [`::non-negative-number`, `::nan`]],
+        [`acosh`, [`::negative-float`], { value: Number.NaN }],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
+    })
   })
   describe(`atanh`, () => {
     test(`samples`, () => {
@@ -1383,6 +1641,27 @@ describe(`math functions`, () => {
 
       expect(() => lits.run(`(atanh)`)).toThrow()
       expect(() => lits.run(`(atanh 1 2)`)).toThrow()
+    })
+    describe(`atanh dataTypes`, () => {
+      const typeEvaluations: TestTypeEvaluation[] = [
+        [`atanh`, [`::string`], { value: Number.NaN }],
+        [`atanh`, [`::positive-infinity`], { value: Number.NaN }],
+        [`atanh`, [`::negative-infinity`], { value: Number.NaN }],
+        [`atanh`, [`::zero`], { value: 0 }],
+        [`atanh`, [`::unknown`], [`::number-or-nan`]],
+        [`atanh`, [`::number-or-nan`], [`::number-or-nan`]],
+        [`atanh`, [`::number`], [`::number-or-nan`]],
+        [`atanh`, [`::positive-number`], [`::positive-number`, `::nan`]],
+        [`atanh`, [`::positive-integer`], [`::positive-infinity`, `::nan`]],
+        [`atanh`, [`::negative-number`], [`::negative-number`, `::nan`]],
+        [`atanh`, [`::negative-integer`], [`::negative-infinity`, `::nan`]],
+        [`atanh`, [`::float`], [`::number-or-nan`]],
+        [`atanh`, [`::positive-float`], [`::positive-number`, `::nan`]],
+        [`atanh`, [`::non-positive-number`], [`::non-positive-number`, `::nan`]],
+        [`atanh`, [`::non-negative-number`], [`::non-negative-number`, `::nan`]],
+        [`atanh`, [`::negative-float`], [`::negative-number`, `::nan`]],
+      ]
+      testTypeEvaluations(lits, typeEvaluations)
     })
   })
 

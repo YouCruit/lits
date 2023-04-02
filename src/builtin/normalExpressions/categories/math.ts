@@ -1240,166 +1240,497 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   },
 
   log: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.log(value)
+        return Math.log(value)
+      } else {
+        return evaluateLogType(Type.of(value))
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `log`, debugInfo),
   },
 
   log2: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.log2(value)
+        return Math.log2(value)
+      } else {
+        return evaluateLogType(Type.of(value))
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `log2`, debugInfo),
   },
 
   log10: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.log10(value)
+        return Math.log10(value)
+      } else {
+        return evaluateLogType(Type.of(value))
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `log10`, debugInfo),
   },
 
   sin: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.sin(value)
+        return Math.sin(value)
+      } else {
+        const type = Type.of(value)
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+        if (type.intersects(Type.zero)) {
+          types.push(Type.zero)
+        }
+        if (type.intersects(Type.nonZeroFloat)) {
+          types.push(Type.nonZeroFloat) // Math.PI only close to real pi, hence never 0
+        }
+        if (type.intersects(Type.infinity)) {
+          types.push(Type.nan)
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `sin`, debugInfo),
   },
 
   asin: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.asin(value)
+        return Math.asin(value)
+      } else {
+        const type = Type.of(value)
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+        if (type.intersects(Type.zero)) {
+          types.push(Type.zero)
+        }
+        if (type.intersects(Type.nonZeroNumber)) {
+          types.push(Type.nan)
+        }
+
+        if (type.intersects(Type.positiveFloat)) {
+          types.push(Type.positiveFloat)
+        }
+        if (type.intersects(Type.negativeFloat)) {
+          types.push(Type.negativeFloat)
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `asin`, debugInfo),
   },
 
   sinh: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.sinh(value)
+        return Math.sinh(value)
+      } else {
+        const type = Type.of(value)
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+        if (type.intersects(Type.zero)) {
+          types.push(Type.zero)
+        }
+        if (type.intersects(Type.positiveNumber)) {
+          types.push(Type.positiveInfinity)
+        }
+        if (type.intersects(Type.positiveFloat)) {
+          types.push(Type.positiveFloat)
+        }
+        if (type.intersects(Type.negativeNumber)) {
+          types.push(Type.negativeInfinity)
+        }
+        if (type.intersects(Type.negativeFloat)) {
+          types.push(Type.negativeFloat)
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `sinh`, debugInfo),
   },
 
   asinh: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.asinh(value)
+        return Math.asinh(value)
+      } else {
+        const type = Type.of(value)
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+
+        if (type.intersects(Type.positiveInfinity)) {
+          types.push(Type.positiveInfinity)
+        }
+        if (type.intersects(Type.negativeInfinity)) {
+          types.push(Type.negativeInfinity)
+        }
+
+        if (type.intersects(Type.zero)) {
+          types.push(Type.zero)
+        }
+
+        if (type.intersects(Type.positiveFloat)) {
+          types.push(Type.positiveFloat)
+        }
+        if (type.intersects(Type.negativeFloat)) {
+          types.push(Type.negativeFloat)
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `asinh`, debugInfo),
   },
 
   cos: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.cos(value)
+        return Math.cos(value)
+      } else {
+        const type = Type.of(value)
+
+        if (type.equals(Type.zero)) {
+          return 1
+        }
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+        if (type.intersects(Type.float)) {
+          types.push(Type.nonZeroFloat) // Math.PI only close to real pi, hence never 0
+        }
+        if (type.intersects(Type.infinity)) {
+          types.push(Type.nan)
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `cos`, debugInfo),
   },
 
   acos: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.acos(value)
+        return Math.acos(value)
+      } else {
+        const type = Type.of(value)
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+        if (type.intersects(Type.zero)) {
+          types.push(Type.positiveFloat)
+        }
+        if (type.intersects(Type.nonZeroNumber)) {
+          types.push(Type.nan)
+        }
+
+        if (type.intersects(Type.positiveFloat)) {
+          types.push(Type.nonNegativeFloat)
+        }
+        if (type.intersects(Type.negativeFloat)) {
+          types.push(Type.positiveFloat)
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `acos`, debugInfo),
   },
 
   cosh: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.cosh(value)
+        return Math.cosh(value)
+      } else {
+        const type = Type.of(value)
+
+        if (type.equals(Type.zero)) {
+          return 1
+        }
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+        if (type.intersects(Type.zero)) {
+          types.push(Type.positiveInteger)
+        }
+        if (type.intersects(Type.nonZeroNumber)) {
+          types.push(Type.positiveInfinity)
+        }
+        if (type.intersects(Type.nonZeroFloat)) {
+          types.push(Type.positiveFloat)
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `cosh`, debugInfo),
   },
 
   acosh: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.acosh(value)
+        return Math.acosh(value)
+      } else {
+        const type = Type.of(value)
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+
+        if (type.intersects(Type.positiveInfinity)) {
+          types.push(Type.positiveInfinity)
+        }
+        if (type.intersects(Type.negativeInfinity)) {
+          types.push(Type.nan)
+        }
+
+        if (type.intersects(Type.zero)) {
+          types.push(Type.nan)
+        }
+
+        if (type.intersects(Type.positiveFloat)) {
+          types.push(Type.nonNegativeFloat)
+          if (!type.isInteger()) {
+            types.push(Type.nan)
+          }
+        }
+        if (type.intersects(Type.negativeFloat)) {
+          types.push(Type.nan)
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `acosh`, debugInfo),
   },
 
   tan: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.tan(value)
+        return Math.tan(value)
+      } else {
+        const type = Type.of(value)
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+        if (type.intersects(Type.zero)) {
+          types.push(Type.zero)
+        }
+        if (type.intersects(Type.nonZeroFloat)) {
+          types.push(Type.nonZeroFloat) // Math.PI only close to real pi, hence never 0
+        }
+        if (type.intersects(Type.infinity)) {
+          types.push(Type.nan)
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `tan`, debugInfo),
   },
 
   atan: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.atan(value)
+        return Math.atan(value)
+      } else {
+        const type = Type.of(value)
+
+        if (type.equals(Type.positiveInfinity)) {
+          return Math.PI / 2
+        }
+
+        if (type.equals(Type.negativeInfinity)) {
+          return -Math.PI / 2
+        }
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+
+        if (type.intersects(Type.zero)) {
+          types.push(Type.zero)
+        }
+
+        if (type.intersects(Type.positiveNumber)) {
+          types.push(Type.positiveFloat)
+        }
+        if (type.intersects(Type.negativeNumber)) {
+          types.push(Type.negativeFloat)
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `atan`, debugInfo),
   },
 
   tanh: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.tanh(value)
+        return Math.tanh(value)
+      } else {
+        const type = Type.of(value)
+
+        if (type.equals(Type.positiveInfinity)) {
+          return 1
+        }
+        if (type.equals(Type.negativeInfinity)) {
+          return -1
+        }
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+        if (type.intersects(Type.zero)) {
+          types.push(Type.zero)
+        }
+        if (type.intersects(Type.positiveInfinity)) {
+          types.push(Type.positiveInteger)
+        }
+        if (type.intersects(Type.positiveFloat)) {
+          types.push(Type.positiveFloat)
+        }
+        if (type.intersects(Type.negativeInfinity)) {
+          types.push(Type.negativeInteger)
+        }
+        if (type.intersects(Type.negativeFloat)) {
+          types.push(Type.negativeFloat)
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `tanh`, debugInfo),
   },
 
   atanh: {
-    evaluate: ([value]): number => {
-      if (!number.is(value)) {
-        return Number.NaN
-      }
+    evaluate: ([value]): number | Type => {
+      if (isNotDataType(value)) {
+        if (!number.is(value)) {
+          return Number.NaN
+        }
 
-      return Math.atanh(value)
+        return Math.atanh(value)
+      } else {
+        const type = Type.of(value)
+
+        const types: Type[] = []
+        if (type.intersectsNonNumber()) {
+          types.push(Type.nan)
+        }
+
+        if (type.intersects(Type.positiveInfinity)) {
+          types.push(Type.nan)
+        }
+        if (type.intersects(Type.negativeInfinity)) {
+          types.push(Type.nan)
+        }
+
+        if (type.intersects(Type.zero)) {
+          types.push(Type.zero)
+        }
+        if (type.intersects(Type.positiveFloat)) {
+          types.push(Type.nan)
+          types.push(Type.positiveInfinity)
+          if (!type.isInteger()) {
+            types.push(Type.positiveFloat)
+          }
+        }
+        if (type.intersects(Type.negativeFloat)) {
+          types.push(Type.nan)
+          types.push(Type.negativeInfinity)
+          if (!type.isInteger()) {
+            types.push(Type.negativeFloat)
+          }
+        }
+
+        return Type.or(...types).toNumberValue()
+      }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(1, arity, `atanh`, debugInfo),
   },
@@ -1697,4 +2028,28 @@ function getTypeOfBinaryDivision(a: Type, b: Type): Type {
 
 function negate(value: unknown): number | Type {
   return isDataType(value) ? value.negateNumber().toNumberValue() : number.is(value) ? -value : Number.NaN
+}
+
+function evaluateLogType(paramType: Type): number | Type {
+  const types: Type[] = []
+
+  if (paramType.intersectsNonNumber()) {
+    types.push(Type.nan)
+  }
+
+  if (paramType.intersects(Type.negativeNumber)) {
+    types.push(Type.nan)
+  }
+
+  if (paramType.intersects(Type.zero)) {
+    types.push(Type.negativeInfinity)
+  }
+  if (paramType.intersects(Type.positiveFloat)) {
+    types.push(Type.float)
+  }
+  if (paramType.intersects(Type.positiveInfinity)) {
+    types.push(Type.positiveInfinity)
+  }
+
+  return Type.or(...types).toNumberValue()
 }

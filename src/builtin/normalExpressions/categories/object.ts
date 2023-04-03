@@ -1,4 +1,4 @@
-import { Type, isNotDataType } from '../../../types/Type'
+import { Type, isNotType } from '../../../types/Type'
 import { Any, Arr, Obj } from '../../../interface'
 import { collHasKey, toAny } from '../../../utils'
 import {
@@ -15,7 +15,7 @@ import { BuiltinNormalExpressions } from '../../interface'
 export const objectNormalExpression: BuiltinNormalExpressions = {
   object: {
     evaluate: (params, debugInfo): Obj | Type => {
-      if (params.every(isNotDataType)) {
+      if (params.every(isNotType)) {
         const result: Obj = {}
         for (let i = 0; i < params.length; i += 2) {
           const key = params[i]

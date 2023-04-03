@@ -5,24 +5,24 @@ import { MAX_NUMBER, MIN_NUMBER } from '../utils'
 import { any, array, litsFunction, object, regularExpression } from '../utils/assertion'
 import { TypeName } from './litsTypeNames'
 
-export function isDataType(value: unknown): value is Type {
+export function isType(value: unknown): value is Type {
   return value instanceof Type
 }
 
-export function assertDataType(value: unknown, debugInfo: DebugInfo | undefined): asserts value is Type {
+export function assertType(value: unknown, debugInfo: DebugInfo | undefined): asserts value is Type {
   if (!(value instanceof Type)) {
     throw new LitsError(`Expected instance of Type, got ${value}`, debugInfo)
   }
 }
 
-export function asDataType(value: unknown, debugInfo: DebugInfo | undefined): Type {
+export function asType(value: unknown, debugInfo: DebugInfo | undefined): Type {
   if (!(value instanceof Type)) {
     throw new LitsError(`Expected instance of Type, got ${value}`, debugInfo)
   }
   return value
 }
 
-export function isNotDataType(value: unknown): boolean {
+export function isNotType(value: unknown): boolean {
   return !(value instanceof Type)
 }
 
@@ -538,12 +538,12 @@ export class Type {
   }
 
   public static toValue(dataType: Any): Any {
-    if (isDataType(dataType)) {
+    if (isType(dataType)) {
       if (dataType.equals(Type.zero)) {
         return 0
       }
       if (dataType.equals(Type.nan)) {
-        return Number.NaN
+        return NaN
       }
       if (dataType.equals(Type.positiveInfinity)) {
         return Infinity
@@ -581,7 +581,7 @@ export class Type {
       return 0
     }
     if (dataType.equals(Type.nan)) {
-      return Number.NaN
+      return NaN
     }
     if (dataType.equals(Type.positiveInfinity)) {
       return Infinity

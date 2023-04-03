@@ -40,13 +40,11 @@ export function evaluate(ast: Ast, contextStack: ContextStack): Any {
 }
 
 function toSafeNumber(value: number): number {
-  return value < MAX_NUMBER && value > MIN_NUMBER
-    ? value
-    : value < MIN_NUMBER
-    ? -Infinity
-    : value > MAX_NUMBER
-    ? Infinity
-    : value
+  if (value <= MAX_NUMBER && value >= MIN_NUMBER) {
+    return value === 0 ? 0 : value
+  }
+
+  return Math.sign(value) * Infinity
 }
 
 export const evaluateAstNode: EvaluateAstNode = (node, contextStack) => {

@@ -1,5 +1,5 @@
 import { LitsFunction } from '../../..'
-import { Type, isDataType, isNotDataType } from '../../../types/Type'
+import { Type, isType, isNotType } from '../../../types/Type'
 import { ContextStack } from '../../../ContextStack'
 import { ExecuteFunction } from '../../../evaluator/interface'
 import { Any, Arr, Coll, Obj } from '../../../interface'
@@ -143,7 +143,7 @@ function assoc(coll: Coll, key: string | number, value: Any, debugInfo?: DebugIn
 export const collectionNormalExpression: BuiltinNormalExpressions = {
   get: {
     evaluate: (params, debugInfo) => {
-      if (params.every(isNotDataType)) {
+      if (params.every(isNotType)) {
         const [coll, key] = params
         const defaultValue = toAny(params[2])
         stringOrNumber.assert(key, debugInfo)
@@ -156,11 +156,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       } else {
         const collType = Type.of(params[0])
         const keyType = Type.of(params[1])
-        const defaultValueType = isDataType(params[2])
-          ? params[2]
-          : params[2] === undefined
-          ? Type.nil
-          : Type.of(params[2])
+        const defaultValueType = isType(params[2]) ? params[2] : params[2] === undefined ? Type.nil : Type.of(params[2])
 
         collType.assertIs(Type.collection.nilable(), debugInfo)
         keyType.assertIs(Type.or(Type.string, Type.float, Type.nil), debugInfo)
@@ -180,7 +176,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   },
   'get-in': {
     evaluate: (params, debugInfo): Any => {
-      if (params.every(isNotDataType)) {
+      if (params.every(isNotType)) {
         let coll = toAny(params[0])
         const keys = params[1] ?? [] // nil behaves as empty array
         const defaultValue = toAny(params[2])
@@ -216,7 +212,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   },
   count: {
     evaluate: ([coll], debugInfo): number | Type => {
-      if (isNotDataType(coll)) {
+      if (isNotType(coll)) {
         if (typeof coll === `string`) {
           return coll.length
         }
@@ -239,7 +235,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   },
   'contains?': {
     evaluate: (params, debugInfo): boolean | Type => {
-      if (params.every(isNotDataType)) {
+      if (params.every(isNotType)) {
         const [coll, key] = params
         collection.assert(coll, debugInfo)
         stringOrNumber.assert(key, debugInfo)
@@ -260,11 +256,11 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   },
   'has?': {
     evaluate: (params, debugInfo): boolean | Type => {
-      if (params.every(isNotDataType)) {
+      if (params.every(isNotType)) {
         const [coll, value] = params
         collection.assert(coll, debugInfo)
 
-        if ((array.is(coll) && coll.some(isDataType)) || (object.is(coll) && Object.values(coll).some(isDataType))) {
+        if ((array.is(coll) && coll.some(isType)) || (object.is(coll) && Object.values(coll).some(isType))) {
           return Type.boolean
         }
 

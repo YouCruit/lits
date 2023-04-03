@@ -1,4 +1,4 @@
-import { Type, isNotDataType } from '../../../types/Type'
+import { Type, isNotType } from '../../../types/Type'
 import { REGEXP_SYMBOL, RegularExpression } from '../../../parser/interface'
 import { assertNumberOfParams, regularExpression, string } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
@@ -6,7 +6,7 @@ import { BuiltinNormalExpressions } from '../../interface'
 export const regexpNormalExpression: BuiltinNormalExpressions = {
   regexp: {
     evaluate: (params, debugInfo): RegularExpression | Type => {
-      if (params.every(isNotDataType)) {
+      if (params.every(isNotType)) {
         const [sourceArg, flagsArg] = params
 
         string.assert(sourceArg, debugInfo)

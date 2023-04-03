@@ -1673,8 +1673,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [1,4,6,8] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> "Albert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [1,3,4,5,8,9] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> "Albr" </span> </span></pre>
   </div>
 </div>
 
@@ -1697,8 +1697,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 4 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-nth! ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rand-nth! "Albert") <span class="gray">=> "l" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 10 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-nth! ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rand-nth! "Albert") <span class="gray">=> "b" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-nth! [])')"> <span class="icon-button">▶</span> (rand-nth! []) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -1722,8 +1722,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [4,7,5,10,2,9,1,6,3,8] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> "MreltjAb roi" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [10,4,8,7,3,9,5,1,2,6] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> "obMtliAje rr" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2])')"> <span class="icon-button">▶</span> (shuffle! [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1])')"> <span class="icon-button">▶</span> (shuffle! [1]) <span class="gray">=> [1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [])')"> <span class="icon-button">▶</span> (shuffle! []) <span class="gray">=> [] </span> </span></pre>
@@ -2575,48 +2575,25 @@
 </div>
 
 
-<div id="positive-infinity" class="content function">
+<div id="infinity" class="content function">
 
   <div class="function-header row">
-    <div class="column">positive-infinity</div>
+    <div class="column">infinity</div>
     
   </div>
 
   
-  <p>Returns a number representing positive positive-infinity.</p>
+  <p>Returns a number representing positive infinity.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>positive-infinity => number</pre>
+    <pre>infinity => number</pre>
   </div>
 
   <label>No arguments</label>
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(positive-infinity)')"> <span class="icon-button">▶</span> (positive-infinity) <span class="gray">=> Infinity </span> </span></pre>
-  </div>
-</div>
-
-
-<div id="negative-infinity" class="content function">
-
-  <div class="function-header row">
-    <div class="column">negative-infinity</div>
-    
-  </div>
-
-  
-  <p>Returns a number representing negative infinity.</p>
-  <label>Syntax</label>
-  <div class="indent">
-    <pre>negative-infinity => number</pre>
-  </div>
-
-  <label>No arguments</label>
-
-  <label>Examples</label>
-  <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(negative-infinity)')"> <span class="icon-button">▶</span> (negative-infinity) <span class="gray">=> -Infinity </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(infinity)')"> <span class="icon-button">▶</span> (infinity) <span class="gray">=> Infinity </span> </span></pre>
   </div>
 </div>
 
@@ -2829,7 +2806,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand!)')"> <span class="icon-button">▶</span> (rand!) <span class="gray">=> 0.19407659277370848 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand!)')"> <span class="icon-button">▶</span> (rand!) <span class="gray">=> 0.3914780575859744 </span> </span></pre>
   </div>
 </div>
 
@@ -2853,9 +2830,9 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(rand-int! 1)')"> <span class="icon-button">▶</span> (rand-int! 1) <span class="gray">=> 0 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 9 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 120 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! -123)')"> <span class="icon-button">▶</span> (rand-int! -123) <span class="gray">=> -81 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 6 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 100 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! -123)')"> <span class="icon-button">▶</span> (rand-int! -123) <span class="gray">=> -64 </span> </span></pre>
   </div>
 </div>
 
@@ -2880,7 +2857,7 @@
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(sin 0)')"> <span class="icon-button">▶</span> (sin 0) <span class="gray">=> 0 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(sin 1)')"> <span class="icon-button">▶</span> (sin 1) <span class="gray">=> 0.8414709848078965 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(sin (pi))')"> <span class="icon-button">▶</span> (sin (pi)) <span class="gray">=> 1.2246467991473532e-16 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(sin (pi))')"> <span class="icon-button">▶</span> (sin (pi)) <span class="gray">=> 0 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(sin -0.5)')"> <span class="icon-button">▶</span> (sin -0.5) <span class="gray">=> -0.479425538604203 </span> </span></pre>
   </div>
 </div>
@@ -2932,7 +2909,7 @@
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(tan 0)')"> <span class="icon-button">▶</span> (tan 0) <span class="gray">=> 0 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(tan 1)')"> <span class="icon-button">▶</span> (tan 1) <span class="gray">=> 1.5574077246549023 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(tan (pi))')"> <span class="icon-button">▶</span> (tan (pi)) <span class="gray">=> -1.2246467991473532e-16 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(tan (pi))')"> <span class="icon-button">▶</span> (tan (pi)) <span class="gray">=> 0 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(tan -0.5)')"> <span class="icon-button">▶</span> (tan -0.5) <span class="gray">=> -0.5463024898437905 </span> </span></pre>
   </div>
 </div>
@@ -3667,7 +3644,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1680370727654 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1680468087471 </span> </span></pre>
   </div>
 </div>
 
@@ -3842,7 +3819,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "ca7813cd-edd0-4d98-91e1-a78065d394a5" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "3e411d3f-badc-44f2-8007-af9e9d027cf3" </span> </span></pre>
   </div>
 </div>
 
@@ -4619,58 +4596,6 @@
 <pre><span class="example" onclick="addToPlayground('(nan? (/ 1 0))')"> <span class="icon-button">▶</span> (nan? (/ 1 0)) <span class="gray">=> false </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nan? (/ -1 0))')"> <span class="icon-button">▶</span> (nan? (/ -1 0)) <span class="gray">=> false </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nan? (sqrt -1))')"> <span class="icon-button">▶</span> (nan? (sqrt -1)) <span class="gray">=> true </span> </span></pre>
-  </div>
-</div>
-
-
-<div id="negative-infinity_question" class="content function">
-
-  <div class="function-header row">
-    <div class="column">negative-infinity?</div>
-    
-  </div>
-
-  
-  <p>Returns <span class="pre">true</span> if <span class="pre">number</span> equals negative infinity, otherwise <span class="pre">false</span>.</p>
-  <label>Syntax</label>
-  <div class="indent">
-    <pre>negative-infinity? number => boolean</pre>
-  </div>
-
-  <label>Arguments</label><div class="indent"><pre>number: number</pre></div>
-
-  <label>Examples</label>
-  <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(negative-infinity? 1.0)')"> <span class="icon-button">▶</span> (negative-infinity? 1.0) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(negative-infinity? (/ 1 0))')"> <span class="icon-button">▶</span> (negative-infinity? (/ 1 0)) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(negative-infinity? (/ -1 0))')"> <span class="icon-button">▶</span> (negative-infinity? (/ -1 0)) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(negative-infinity? (sqrt -1))')"> <span class="icon-button">▶</span> (negative-infinity? (sqrt -1)) <span class="gray">=> false </span> </span></pre>
-  </div>
-</div>
-
-
-<div id="positive-infinity_question" class="content function">
-
-  <div class="function-header row">
-    <div class="column">positive-infinity?</div>
-    
-  </div>
-
-  
-  <p>Returns <span class="pre">true</span> if <span class="pre">number</span> equals positive infinity, otherwise <span class="pre">false</span>.</p>
-  <label>Syntax</label>
-  <div class="indent">
-    <pre>positive-infinity? number => boolean</pre>
-  </div>
-
-  <label>Arguments</label><div class="indent"><pre>number: number</pre></div>
-
-  <label>Examples</label>
-  <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(positive-infinity? 1.0)')"> <span class="icon-button">▶</span> (positive-infinity? 1.0) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(positive-infinity? (/ 1 0))')"> <span class="icon-button">▶</span> (positive-infinity? (/ 1 0)) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(positive-infinity? (/ -1 0))')"> <span class="icon-button">▶</span> (positive-infinity? (/ -1 0)) <span class="gray">=> false </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(positive-infinity? (sqrt -1))')"> <span class="icon-button">▶</span> (positive-infinity? (sqrt -1)) <span class="gray">=> false </span> </span></pre>
   </div>
 </div>
 
@@ -7039,25 +6964,25 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(type-of -1.1)')"> <span class="icon-button">▶</span> (type-of -1.1) <span class="gray">=> {"bitmask":40960} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of -1)')"> <span class="icon-button">▶</span> (type-of -1) <span class="gray">=> {"bitmask":8192} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of 0)')"> <span class="icon-button">▶</span> (type-of 0) <span class="gray">=> {"bitmask":4} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of 1)')"> <span class="icon-button">▶</span> (type-of 1) <span class="gray">=> {"bitmask":4096} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of 1.1)')"> <span class="icon-button">▶</span> (type-of 1.1) <span class="gray">=> {"bitmask":20480} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of true)')"> <span class="icon-button">▶</span> (type-of true) <span class="gray">=> {"bitmask":256} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of false)')"> <span class="icon-button">▶</span> (type-of false) <span class="gray">=> {"bitmask":8} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of (/ 0 0))')"> <span class="icon-button">▶</span> (type-of (/ 0 0)) <span class="gray">=> {"bitmask":4} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of (/ 1 0))')"> <span class="icon-button">▶</span> (type-of (/ 1 0)) <span class="gray">=> {"bitmask":32} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of (/ -1 0))')"> <span class="icon-button">▶</span> (type-of (/ -1 0)) <span class="gray">=> {"bitmask":64} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (type-of "") <span class="gray">=> {"bitmask":2} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of :Foo)')"> <span class="icon-button">▶</span> (type-of :Foo) <span class="gray">=> {"bitmask":512} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of [])')"> <span class="icon-button">▶</span> (type-of []) <span class="gray">=> {"bitmask":65536} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of [1 2 3])')"> <span class="icon-button">▶</span> (type-of [1 2 3]) <span class="gray">=> {"bitmask":131072} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of {})')"> <span class="icon-button">▶</span> (type-of {}) <span class="gray">=> {"bitmask":262144} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of { :foo :bar })')"> <span class="icon-button">▶</span> (type-of { :foo :bar }) <span class="gray">=> {"bitmask":524288} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of #___double_quote___^foo___double_quote___)')"> <span class="icon-button">▶</span> (type-of #"^foo") <span class="gray">=> {"bitmask":1024} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of #(identity %1))')"> <span class="icon-button">▶</span> (type-of #(identity %1)) <span class="gray">=> {"bitmask":1048576} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-of nil)')"> <span class="icon-button">▶</span> (type-of nil) <span class="gray">=> {"bitmask":1} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(type-of -1.1)')"> <span class="icon-button">▶</span> (type-of -1.1) <span class="gray">=> ::negative-float </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of -1)')"> <span class="icon-button">▶</span> (type-of -1) <span class="gray">=> ::negative-integer </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of 0)')"> <span class="icon-button">▶</span> (type-of 0) <span class="gray">=> ::zero </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of 1)')"> <span class="icon-button">▶</span> (type-of 1) <span class="gray">=> ::positive-integer </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of 1.1)')"> <span class="icon-button">▶</span> (type-of 1.1) <span class="gray">=> ::positive-float </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of true)')"> <span class="icon-button">▶</span> (type-of true) <span class="gray">=> ::true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of false)')"> <span class="icon-button">▶</span> (type-of false) <span class="gray">=> ::false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of (/ 0 0))')"> <span class="icon-button">▶</span> (type-of (/ 0 0)) <span class="gray">=> ::zero </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of (/ 1 0))')"> <span class="icon-button">▶</span> (type-of (/ 1 0)) <span class="gray">=> ::positive-infinity </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of (/ -1 0))')"> <span class="icon-button">▶</span> (type-of (/ -1 0)) <span class="gray">=> ::negative-infinity </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (type-of "") <span class="gray">=> ::empty-string </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of :Foo)')"> <span class="icon-button">▶</span> (type-of :Foo) <span class="gray">=> ::non-empty-string </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of [])')"> <span class="icon-button">▶</span> (type-of []) <span class="gray">=> ::empty-array </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of [1 2 3])')"> <span class="icon-button">▶</span> (type-of [1 2 3]) <span class="gray">=> ::non-empty-array </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of {})')"> <span class="icon-button">▶</span> (type-of {}) <span class="gray">=> ::empty-object </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of { :foo :bar })')"> <span class="icon-button">▶</span> (type-of { :foo :bar }) <span class="gray">=> ::non-empty-object </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of #___double_quote___^foo___double_quote___)')"> <span class="icon-button">▶</span> (type-of #"^foo") <span class="gray">=> ::regexp </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of #(identity %1))')"> <span class="icon-button">▶</span> (type-of #(identity %1)) <span class="gray">=> ::function </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-of nil)')"> <span class="icon-button">▶</span> (type-of nil) <span class="gray">=> ::nil </span> </span></pre>
   </div>
 </div>
 
@@ -7080,104 +7005,44 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(type-split ::zero)')"> <span class="icon-button">▶</span> (type-split ::zero) <span class="gray">=> [{"bitmask":4}] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(type-split ::zero)')"> <span class="icon-button">▶</span> (type-split ::zero) <span class="gray">=> ["::zero"] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(type-split ::collection)')"> <span class="icon-button">▶</span> (type-split ::collection) <span class="gray">=> [
-  {
-    "bitmask": 2
-  },
-  {
-    "bitmask": 512
-  },
-  {
-    "bitmask": 65536
-  },
-  {
-    "bitmask": 131072
-  },
-  {
-    "bitmask": 262144
-  },
-  {
-    "bitmask": 524288
-  }
+  "::empty-string",
+  "::non-empty-string",
+  "::empty-array",
+  "::non-empty-array",
+  "::empty-object",
+  "::non-empty-object"
 ] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-split ::infinity)')"> <span class="icon-button">▶</span> (type-split ::infinity) <span class="gray">=> [{"bitmask":32},{"bitmask":64}] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-split ::infinity)')"> <span class="icon-button">▶</span> (type-split ::infinity) <span class="gray">=> ["::positive-infinity","::negative-infinity"] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(type-split ::float)')"> <span class="icon-button">▶</span> (type-split ::float) <span class="gray">=> [
-  {
-    "bitmask": 4
-  },
-  {
-    "bitmask": 4096
-  },
-  {
-    "bitmask": 8192
-  },
-  {
-    "bitmask": 20480
-  },
-  {
-    "bitmask": 40960
-  }
+  "::zero",
+  "::positive-integer",
+  "::negative-integer",
+  "::positive-float",
+  "::negative-float"
 ] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-split ::string)')"> <span class="icon-button">▶</span> (type-split ::string) <span class="gray">=> [{"bitmask":2},{"bitmask":512}] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-split ::string)')"> <span class="icon-button">▶</span> (type-split ::string) <span class="gray">=> ["::empty-string","::non-empty-string"] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(type-split ::unknown)')"> <span class="icon-button">▶</span> (type-split ::unknown) <span class="gray">=> [
-  {
-    "bitmask": 1
-  },
-  {
-    "bitmask": 2
-  },
-  {
-    "bitmask": 4
-  },
-  {
-    "bitmask": 8
-  },
-  {
-    "bitmask": 16
-  },
-  {
-    "bitmask": 32
-  },
-  {
-    "bitmask": 64
-  },
-  {
-    "bitmask": 256
-  },
-  {
-    "bitmask": 512
-  },
-  {
-    "bitmask": 1024
-  },
-  {
-    "bitmask": 4096
-  },
-  {
-    "bitmask": 8192
-  },
-  {
-    "bitmask": 20480
-  },
-  {
-    "bitmask": 40960
-  },
-  {
-    "bitmask": 65536
-  },
-  {
-    "bitmask": 131072
-  },
-  {
-    "bitmask": 262144
-  },
-  {
-    "bitmask": 524288
-  },
-  {
-    "bitmask": 1048576
-  }
+  "::nil",
+  "::empty-string",
+  "::zero",
+  "::false",
+  "::nan",
+  "::positive-infinity",
+  "::negative-infinity",
+  "::true",
+  "::non-empty-string",
+  "::regexp",
+  "::positive-integer",
+  "::negative-integer",
+  "::positive-float",
+  "::negative-float",
+  "::empty-array",
+  "::non-empty-array",
+  "::empty-object",
+  "::non-empty-object",
+  "::function"
 ] </span> </span></pre>
   </div>
 </div>
@@ -7209,9 +7074,9 @@ to deep equal
 <pre><span class="example" onclick="addToPlayground('(type-to-value ::nil)')"> <span class="icon-button">▶</span> (type-to-value ::nil) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(type-to-value ::false)')"> <span class="icon-button">▶</span> (type-to-value ::false) <span class="gray">=> false </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(type-to-value ::true)')"> <span class="icon-button">▶</span> (type-to-value ::true) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-to-value ::boolean)')"> <span class="icon-button">▶</span> (type-to-value ::boolean) <span class="gray">=> {"bitmask":264} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-to-value ::boolean)')"> <span class="icon-button">▶</span> (type-to-value ::boolean) <span class="gray">=> ::boolean </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(type-to-value (type-exclude ::boolean ::false))')"> <span class="icon-button">▶</span> (type-to-value (type-exclude ::boolean ::false)) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-to-value ::string)')"> <span class="icon-button">▶</span> (type-to-value ::string) <span class="gray">=> {"bitmask":514} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-to-value ::string)')"> <span class="icon-button">▶</span> (type-to-value ::string) <span class="gray">=> ::string </span> </span></pre>
   </div>
 </div>
 
@@ -7234,9 +7099,9 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(type-or ::float ::positive-infinity ::negative-infinity ::nan)')"> <span class="icon-button">▶</span> (type-or ::float ::positive-infinity ::negative-infinity ::nan) <span class="gray">=> {"bitmask":61556} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-or ::float ::true ::false)')"> <span class="icon-button">▶</span> (type-or ::float ::true ::false) <span class="gray">=> {"bitmask":61708} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-or ::positive-integer ::negative-integer ::zero)')"> <span class="icon-button">▶</span> (type-or ::positive-integer ::negative-integer ::zero) <span class="gray">=> {"bitmask":12292} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(type-or ::float ::positive-infinity ::negative-infinity ::nan)')"> <span class="icon-button">▶</span> (type-or ::float ::positive-infinity ::negative-infinity ::nan) <span class="gray">=> ::number-or-nan </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-or ::float ::true ::false)')"> <span class="icon-button">▶</span> (type-or ::float ::true ::false) <span class="gray">=> ::float | ::boolean </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-or ::positive-integer ::negative-integer ::zero)')"> <span class="icon-button">▶</span> (type-or ::positive-integer ::negative-integer ::zero) <span class="gray">=> ::integer </span> </span></pre>
   </div>
 </div>
 
@@ -7259,9 +7124,9 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(type-and ::float ::integer)')"> <span class="icon-button">▶</span> (type-and ::float ::integer) <span class="gray">=> {"bitmask":12292} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-and ::float ::string)')"> <span class="icon-button">▶</span> (type-and ::float ::string) <span class="gray">=> {"bitmask":0} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-and ::non-positive-integer ::non-negative-float)')"> <span class="icon-button">▶</span> (type-and ::non-positive-integer ::non-negative-float) <span class="gray">=> {"bitmask":4} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(type-and ::float ::integer)')"> <span class="icon-button">▶</span> (type-and ::float ::integer) <span class="gray">=> ::integer </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-and ::float ::string)')"> <span class="icon-button">▶</span> (type-and ::float ::string) <span class="gray">=> ::never </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-and ::non-positive-integer ::non-negative-float)')"> <span class="icon-button">▶</span> (type-and ::non-positive-integer ::non-negative-float) <span class="gray">=> ::zero </span> </span></pre>
   </div>
 </div>
 
@@ -7284,9 +7149,9 @@ to deep equal
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(type-exclude ::float ::integer)')"> <span class="icon-button">▶</span> (type-exclude ::float ::integer) <span class="gray">=> {"bitmask":61440} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-exclude ::float ::string)')"> <span class="icon-button">▶</span> (type-exclude ::float ::string) <span class="gray">=> {"bitmask":61444} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(type-exclude ::float ::non-negative-float)')"> <span class="icon-button">▶</span> (type-exclude ::float ::non-negative-float) <span class="gray">=> {"bitmask":40960} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(type-exclude ::float ::integer)')"> <span class="icon-button">▶</span> (type-exclude ::float ::integer) <span class="gray">=> ::non-zero-float </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-exclude ::float ::string)')"> <span class="icon-button">▶</span> (type-exclude ::float ::string) <span class="gray">=> ::float </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(type-exclude ::float ::non-negative-float)')"> <span class="icon-button">▶</span> (type-exclude ::float ::non-negative-float) <span class="gray">=> ::negative-float </span> </span></pre>
   </div>
 </div>
 
@@ -7423,14 +7288,12 @@ to deep equal
 <li id="integer_question_link" onclick="showPage('integer_question')">integer?</li>
 <li id="nan_question_link" onclick="showPage('nan_question')">nan?</li>
 <li id="neg_question_link" onclick="showPage('neg_question')">neg?</li>
-<li id="negative-infinity_question_link" onclick="showPage('negative-infinity_question')">negative-infinity?</li>
 <li id="nil_question_link" onclick="showPage('nil_question')">nil?</li>
 <li id="not-empty_question_link" onclick="showPage('not-empty_question')">not-empty?</li>
 <li id="number_question_link" onclick="showPage('number_question')">number?</li>
 <li id="object_question_link" onclick="showPage('object_question')">object?</li>
 <li id="odd_question_link" onclick="showPage('odd_question')">odd?</li>
 <li id="pos_question_link" onclick="showPage('pos_question')">pos?</li>
-<li id="positive-infinity_question_link" onclick="showPage('positive-infinity_question')">positive-infinity?</li>
 <li id="regexp_question_link" onclick="showPage('regexp_question')">regexp?</li>
 <li id="seq_question_link" onclick="showPage('seq_question')">seq?</li>
 <li id="string_question_link" onclick="showPage('string_question')">string?</li>
@@ -7577,6 +7440,7 @@ to deep equal
 <li id="exp_link" onclick="showPage('exp')">exp</li>
 <li id="floor_link" onclick="showPage('floor')">floor</li>
 <li id="inc_link" onclick="showPage('inc')">inc</li>
+<li id="infinity_link" onclick="showPage('infinity')">infinity</li>
 <li id="log_link" onclick="showPage('log')">log</li>
 <li id="log10_link" onclick="showPage('log10')">log10</li>
 <li id="log2_link" onclick="showPage('log2')">log2</li>
@@ -7586,9 +7450,7 @@ to deep equal
 <li id="min-value_link" onclick="showPage('min-value')">min-value</li>
 <li id="mod_link" onclick="showPage('mod')">mod</li>
 <li id="nan_link" onclick="showPage('nan')">nan</li>
-<li id="negative-infinity_link" onclick="showPage('negative-infinity')">negative-infinity</li>
 <li id="pi_link" onclick="showPage('pi')">pi</li>
-<li id="positive-infinity_link" onclick="showPage('positive-infinity')">positive-infinity</li>
 <li id="pow_link" onclick="showPage('pow')">pow</li>
 <li id="quot_link" onclick="showPage('quot')">quot</li>
 <li id="rand_exclamation_link" onclick="showPage('rand_exclamation')">rand!</li>

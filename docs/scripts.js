@@ -580,12 +580,12 @@ function inactivateAll() {
   }
 }
 
-function isDataType(value) {
-  return value !== null && typeof value === 'object' && value.constructor && value.constructor.name === 'DataType'
+function isType(value) {
+  return value !== null && typeof value === 'object' && value.constructor && value.constructor.name === 'Type'
 }
 
 function replacer(debug, _key, v) {
-  if (isDataType(v)) {
+  if (isType(v)) {
     return v.toString({ showDetails: debug })
   }
   return v
@@ -608,7 +608,7 @@ function stringifyValue(value, debug) {
   if (typeof value === 'object' && value instanceof Error) {
     return value.toString()
   }
-  if (isDataType(value)) {
+  if (isType(value)) {
     return value.toString({ showDetails: debug })
   }
   if (Number.isNaN(value)) {

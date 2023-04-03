@@ -31,7 +31,12 @@ describe(`parse numbers`, () => {
             sample.length,
             { type: `number`, value: sample, debugInfo: { line: 0, column: 0, code: `` } },
           ])
-          expect(lits.run(sample)).toEqual(Number(sample))
+          const result = lits.run(sample)
+          if (result === 0) {
+            expect(result).toBe(0)
+          } else {
+            expect(result).toEqual(Number(sample))
+          }
         })
       })
     })

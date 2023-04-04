@@ -15,7 +15,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
       } else {
         const paramType = Type.of(first)
 
-        if (paramType.equals(Type.zero)) {
+        if (paramType.is(Type.zero)) {
           return 1
         }
 
@@ -67,7 +67,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
       } else {
         const paramType = Type.of(first)
 
-        if (paramType.equals(Type.zero)) {
+        if (paramType.is(Type.zero)) {
           return -1
         }
 
@@ -169,7 +169,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         }, 1)
       } else {
         const paramTypes = params.map(param => Type.of(param))
-        return getTypeOfProduct(paramTypes).toNumberValue()
+        return getTypeOfProduct(paramTypes)
       }
     },
     validateArity: () => undefined,
@@ -193,12 +193,6 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return rest.reduce((result: number, param) => {
           if (!number.is(param)) {
             return NaN
-          }
-          if (result === 0) {
-            return 0
-          }
-          if (param === Infinity || param === -Infinity) {
-            return 0
           }
           return result / param
         }, first)
@@ -468,8 +462,12 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(Type.negativeInfinity)
         }
 
-        if (type.intersects(Type.zero)) {
-          types.push(Type.zero)
+        if (type.intersects(Type.positiveZero)) {
+          types.push(Type.positiveZero)
+        }
+
+        if (type.intersects(Type.negativeZero)) {
+          types.push(Type.negativeZero)
         }
 
         if (type.intersects(Type.positiveFloat)) {
@@ -1200,7 +1198,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
       } else {
         const paramType = Type.of(value)
 
-        if (paramType.equals(Type.zero)) {
+        if (paramType.is(Type.zero)) {
           return 1
         }
 
@@ -1431,7 +1429,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
       } else {
         const type = Type.of(value)
 
-        if (type.equals(Type.zero)) {
+        if (type.is(Type.zero)) {
           return 1
         }
 
@@ -1498,7 +1496,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
       } else {
         const type = Type.of(value)
 
-        if (type.equals(Type.zero)) {
+        if (type.is(Type.zero)) {
           return 1
         }
 
@@ -1731,8 +1729,17 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
 function getTypeOfSum(paramTypes: Arr): Type | number {
   paramTypes.sort((a, b) => (isType(a) ? 1 : isType(b) ? -1 : 0))
-  const sum = paramTypes.reduce((a: Type | number, b) => getTypeOfBinarySum(a, b), 0)
-  return typeof sum === `number` ? sum : sum.toNumberValue()
+  const first = paramTypes[0]
+  any.assert(first)
+  if (paramTypes.length === 0) {
+    return 0
+  }
+  if (paramTypes.length === 1) {
+    return isType(first) ? first.toNumberValue() : typeof first === `number` ? first : NaN
+  }
+  const rest = paramTypes.slice(1)
+  const sum = rest.reduce((a: unknown | number, b) => getTypeOfBinarySum(a, b), first)
+  return isType(sum) ? sum.toNumberValue() : typeof sum === `number` ? sum : NaN
 }
 
 function getTypeOfBinarySum(a: unknown, b: unknown): Type | number {
@@ -1748,6 +1755,14 @@ function getTypeOfBinarySum(a: unknown, b: unknown): Type | number {
 
   const aType = Type.of(a)
   const bType = Type.of(b)
+
+  if (aType.is(Type.zero) && number.is(bVal) && bVal !== 0) {
+    return bVal
+  }
+
+  if (number.is(aVal) && aVal !== 0 && bType.is(Type.zero)) {
+    return aVal
+  }
 
   const types: Type[] = []
 
@@ -1818,7 +1833,18 @@ function getTypeOfBinarySum(a: unknown, b: unknown): Type | number {
 
   if (aType.intersects(Type.zero)) {
     if (bType.intersects(Type.zero)) {
-      types.push(Type.zero)
+      if (aType.intersects(Type.positiveZero) && bType.intersects(Type.positiveZero)) {
+        types.push(Type.positiveZero)
+      }
+      if (aType.intersects(Type.positiveZero) && bType.intersects(Type.negativeZero)) {
+        types.push(Type.positiveZero)
+      }
+      if (aType.intersects(Type.negativeZero) && bType.intersects(Type.positiveZero)) {
+        types.push(Type.positiveZero)
+      }
+      if (aType.intersects(Type.negativeZero) && bType.intersects(Type.negativeZero)) {
+        types.push(Type.negativeZero)
+      }
     }
     if (bType.intersects(Type.positiveFloat)) {
       types.push(Type.positiveFloat.and(baseType))
@@ -1831,29 +1857,25 @@ function getTypeOfBinarySum(a: unknown, b: unknown): Type | number {
   return Type.or(...types)
 }
 
-function getTypeOfProduct(paramTypes: Type[]): Type {
-  if (paramTypes.length === 1) {
-    return asValue(paramTypes[0])
-  }
-
+function getTypeOfProduct(paramTypes: Type[]): Type | number {
   const first = asValue(paramTypes[0])
-  const nanType = first.exclude(Type.nan).intersectsNonNumber() ? Type.nan : Type.never
-  const zeroType = first.intersects(Type.zero) ? Type.zero : Type.never
+  if (paramTypes.length === 0) {
+    return 1
+  }
+  if (paramTypes.length === 1) {
+    return isType(first) ? first.toNumberValue() : first
+  }
 
   return paramTypes
     .slice(1)
     .reduce((a: Type, b) => getTypeOfBinaryProduct(a, b), first)
-    .or(nanType)
-    .or(zeroType)
+    .toNumberValue()
 }
 
 function getTypeOfBinaryProduct(a: Type, b: Type): Type {
   const types: Type[] = []
   if (b.exclude(Type.nan).intersectsNonNumber()) {
     types.push(Type.nan)
-  }
-  if (b.intersects(Type.zero)) {
-    types.push(Type.zero)
   }
 
   if (a.intersects(Type.nan) && b.intersects(Type.number.exclude(Type.zero))) {
@@ -1899,15 +1921,39 @@ function getTypeOfBinaryProduct(a: Type, b: Type): Type {
     }
   }
 
-  if (a.intersects(Type.zero)) {
-    if (b.intersects(Type.float)) {
-      types.push(Type.zero)
+  if (a.intersects(Type.positiveZero)) {
+    if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveNumber) || b.intersects(Type.nan)) {
+      types.push(Type.positiveZero)
+    }
+    if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeNumber)) {
+      types.push(Type.negativeZero)
     }
   }
 
-  if (b.intersects(Type.zero)) {
-    if (a.intersects(Type.float)) {
-      types.push(Type.zero)
+  if (a.intersects(Type.negativeZero)) {
+    if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveNumber) || b.intersects(Type.nan)) {
+      types.push(Type.negativeZero)
+    }
+    if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeNumber)) {
+      types.push(Type.positiveZero)
+    }
+  }
+
+  if (b.intersects(Type.positiveZero)) {
+    if (a.intersects(Type.positiveNumber) || a.intersects(Type.nan)) {
+      types.push(Type.positiveZero)
+    }
+    if (a.intersects(Type.negativeNumber)) {
+      types.push(Type.negativeZero)
+    }
+  }
+
+  if (b.intersects(Type.negativeZero)) {
+    if (a.intersects(Type.positiveNumber) || a.intersects(Type.nan)) {
+      types.push(Type.negativeZero)
+    }
+    if (a.intersects(Type.negativeNumber)) {
+      types.push(Type.positiveZero)
     }
   }
 
@@ -1947,53 +1993,82 @@ function getTypeOfDivision(paramTypes: Type[]): Type {
 
 function getTypeOfBinaryDivision(a: Type, b: Type): Type {
   const types: Type[] = []
-  if (a.intersects(Type.zero)) {
-    types.push(Type.zero)
-  }
-  if (b.intersects(Type.infinity)) {
-    types.push(Type.zero)
-  }
-  if (b.intersectsNonNumber() && a.intersects(Type.nonZeroNumber)) {
+
+  if (a.intersectsNonNumber() || b.intersectsNonNumber()) {
     types.push(Type.nan)
   }
 
-  if (a.intersects(Type.nan) && b.intersects(Type.number.exclude(Type.infinity))) {
-    types.push(Type.nan)
-  }
-  if (b.intersects(Type.nan) && a.intersects(Type.number.exclude(Type.zero))) {
+  if (a.intersects(Type.zero) && b.intersects(Type.zero)) {
     types.push(Type.nan)
   }
 
-  if (a.intersects(Type.positiveInfinity)) {
-    if (b.intersects(Type.zero)) {
-      types.push(Type.positiveInfinity)
+  if (a.intersects(Type.positiveZero)) {
+    if (b.intersects(Type.positiveNumber)) {
+      types.push(Type.positiveZero)
     }
-    if (b.intersects(Type.positiveFloat)) {
-      types.push(Type.positiveInfinity)
+    if (b.intersects(Type.negativeNumber)) {
+      types.push(Type.negativeZero)
     }
-    if (b.intersects(Type.negativeFloat)) {
-      types.push(Type.negativeInfinity)
+  }
+  if (a.intersects(Type.negativeZero)) {
+    if (b.intersects(Type.positiveNumber)) {
+      types.push(Type.negativeZero)
+    }
+    if (b.intersects(Type.negativeNumber)) {
+      types.push(Type.positiveZero)
     }
   }
 
-  if (a.intersects(Type.negativeInfinity)) {
-    if (b.intersects(Type.zero)) {
-      types.push(Type.negativeInfinity)
-    }
-    if (b.intersects(Type.positiveFloat)) {
-      types.push(Type.negativeInfinity)
-    }
-    if (b.intersects(Type.negativeFloat)) {
-      types.push(Type.positiveInfinity)
-    }
-  }
-
-  if (b.intersects(Type.zero)) {
+  if (b.intersects(Type.positiveZero)) {
     if (a.intersects(Type.positiveFloat)) {
       types.push(Type.positiveInfinity)
     }
     if (a.intersects(Type.negativeFloat)) {
       types.push(Type.negativeInfinity)
+    }
+  }
+
+  if (b.intersects(Type.negativeZero)) {
+    if (a.intersects(Type.positiveFloat)) {
+      types.push(Type.negativeInfinity)
+    }
+    if (a.intersects(Type.negativeFloat)) {
+      types.push(Type.positiveInfinity)
+    }
+  }
+
+  if (a.intersects(Type.positiveInfinity)) {
+    if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveFloat)) {
+      types.push(Type.positiveInfinity)
+    }
+    if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeFloat)) {
+      types.push(Type.negativeInfinity)
+    }
+  }
+
+  if (a.intersects(Type.negativeInfinity)) {
+    if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveFloat)) {
+      types.push(Type.negativeInfinity)
+    }
+    if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeFloat)) {
+      types.push(Type.positiveInfinity)
+    }
+  }
+
+  if (b.intersects(Type.positiveInfinity)) {
+    if (a.intersects(Type.positiveNumber) || a.intersects(Type.positiveZero)) {
+      types.push(Type.positiveZero)
+    }
+    if (a.intersects(Type.negativeNumber) || a.intersects(Type.positiveZero)) {
+      types.push(Type.negativeZero)
+    }
+  }
+  if (b.intersects(Type.negativeInfinity)) {
+    if (a.intersects(Type.positiveNumber) || a.intersects(Type.positiveZero)) {
+      types.push(Type.negativeZero)
+    }
+    if (a.intersects(Type.negativeNumber) || a.intersects(Type.positiveZero)) {
+      types.push(Type.positiveZero)
     }
   }
 

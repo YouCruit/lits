@@ -29,7 +29,8 @@ export function isNotType(value: unknown): boolean {
 export type PrimitiveTypeName =
   | `nil`
   | `empty-string`
-  | `zero`
+  | `positive-zero`
+  | `negative-zero`
   | `false`
   | `nan`
   | `positive-infinity`
@@ -48,42 +49,30 @@ export type PrimitiveTypeName =
   | `function`
 
 export const typeToBitRecord: Record<PrimitiveTypeName, number> = {
-  // Group 1: Falsy types
-  // 0000 0000 0000 0000 0000 1111
   nil: 1 << 0,
-  'empty-string': 1 << 1,
-  zero: 1 << 2,
+  nan: 1 << 1,
+  true: 1 << 2,
   false: 1 << 3,
 
-  // Group 2: Illegal number
-  // 0000 0000 0000 0000 0000 1111
-  nan: 1 << 4,
-  'positive-infinity': 1 << 5,
-  'negative-infinity': 1 << 6,
+  'positive-zero': 1 << 4,
+  'negative-zero': 1 << 5,
+  'positive-integer': 1 << 6,
+  'negative-integer': 1 << 7,
 
-  // Group 3: Simple truthy types
-  // 0000 0000 0000 0000 0111 0000
-  true: 1 << 8,
-  'non-empty-string': 1 << 9,
-  regexp: 1 << 10,
+  'positive-non-integer': 1 << 8,
+  'negative-non-integer': 1 << 9,
+  'positive-infinity': 1 << 10,
+  'negative-infinity': 1 << 11,
 
-  // Group 4: Truthy number types
-  // 0000 0000 0000 1111 0000 0000
-  'positive-integer': 1 << 12,
-  'negative-integer': 1 << 13,
-  'positive-non-integer': 1 << 14,
-  'negative-non-integer': 1 << 15,
+  'empty-string': 1 << 12,
+  'non-empty-string': 1 << 13,
+  'empty-array': 1 << 14,
+  'non-empty-array': 1 << 15,
 
-  // Group 5: Container types
-  // 0000 0000 1111 0000 0000 0000
-  'empty-array': 1 << 16,
-  'non-empty-array': 1 << 17,
-  'empty-object': 1 << 18,
-  'non-empty-object': 1 << 19,
-
-  // Group 6: Function
-  // 0000 0001 0000 0000 0000 0000
-  function: 1 << 20,
+  'empty-object': 1 << 16,
+  'non-empty-object': 1 << 17,
+  regexp: 1 << 18,
+  function: 1 << 19,
 }
 
 const allBitValues = Object.values(typeToBitRecord)
@@ -94,7 +83,8 @@ const UNKNWON_BITS = allBitValues.reduce((result, bit) => result | bit, 0)
 // console.log(stringifyBitMask(UNKNWON_BITS))
 const FALSY_BITS =
   typeToBitRecord.nil |
-  typeToBitRecord.zero |
+  typeToBitRecord[`positive-zero`] |
+  typeToBitRecord[`negative-zero`] |
   typeToBitRecord[`empty-string`] |
   typeToBitRecord.false |
   typeToBitRecord.nan
@@ -104,7 +94,6 @@ const TRUTHY_BITS = UNKNWON_BITS & ~FALSY_BITS
 
 export const orderedTypeNames: TypeName[] = [
   `unknown`,
-  `number-or-nan`,
   `number`,
   `non-zero-number`,
   `float`,
@@ -125,6 +114,8 @@ export const orderedTypeNames: TypeName[] = [
   `positive-integer`,
   `negative-integer`,
   `zero`,
+  `positive-zero`,
+  `negative-zero`,
   `illegal-number`,
   `infinity`,
   `positive-infinity`,
@@ -166,7 +157,8 @@ export const builtinTypesBitMasks: Record<TypeName, number> = {
 
   // Numbers
   number:
-    typeToBitRecord.zero |
+    typeToBitRecord[`positive-zero`] |
+    typeToBitRecord[`negative-zero`] |
     typeToBitRecord[`positive-non-integer`] |
     typeToBitRecord[`positive-integer`] |
     typeToBitRecord[`negative-non-integer`] |
@@ -174,18 +166,9 @@ export const builtinTypesBitMasks: Record<TypeName, number> = {
     typeToBitRecord[`positive-infinity`] |
     typeToBitRecord[`negative-infinity`],
 
-  'number-or-nan':
-    typeToBitRecord.zero |
-    typeToBitRecord[`positive-non-integer`] |
-    typeToBitRecord[`positive-integer`] |
-    typeToBitRecord[`negative-non-integer`] |
-    typeToBitRecord[`negative-integer`] |
-    typeToBitRecord[`positive-infinity`] |
-    typeToBitRecord[`negative-infinity`] |
-    typeToBitRecord[`nan`],
-
   float:
-    typeToBitRecord.zero |
+    typeToBitRecord[`positive-zero`] |
+    typeToBitRecord[`negative-zero`] |
     typeToBitRecord[`positive-non-integer`] |
     typeToBitRecord[`positive-integer`] |
     typeToBitRecord[`negative-non-integer`] |
@@ -198,7 +181,9 @@ export const builtinTypesBitMasks: Record<TypeName, number> = {
 
   infinity: typeToBitRecord[`negative-infinity`] | typeToBitRecord[`positive-infinity`],
 
-  zero: typeToBitRecord.zero,
+  'positive-zero': typeToBitRecord[`positive-zero`],
+  'negative-zero': typeToBitRecord[`negative-zero`],
+  zero: typeToBitRecord[`positive-zero`] | typeToBitRecord[`negative-zero`],
 
   'non-zero-number':
     typeToBitRecord[`negative-non-integer`] |
@@ -225,33 +210,47 @@ export const builtinTypesBitMasks: Record<TypeName, number> = {
     typeToBitRecord[`negative-infinity`],
 
   'non-positive-number':
-    typeToBitRecord.zero |
+    typeToBitRecord[`positive-zero`] |
+    typeToBitRecord[`negative-zero`] |
     typeToBitRecord[`negative-non-integer`] |
     typeToBitRecord[`negative-integer`] |
     typeToBitRecord[`negative-infinity`],
 
   'non-negative-number':
-    typeToBitRecord.zero |
+    typeToBitRecord[`positive-zero`] |
+    typeToBitRecord[`negative-zero`] |
     typeToBitRecord[`positive-non-integer`] |
     typeToBitRecord[`positive-integer`] |
     typeToBitRecord[`positive-infinity`],
 
   'positive-float': typeToBitRecord[`positive-non-integer`] | typeToBitRecord[`positive-integer`],
   'non-positive-float':
-    typeToBitRecord.zero | typeToBitRecord[`negative-non-integer`] | typeToBitRecord[`negative-integer`],
+    typeToBitRecord[`positive-zero`] |
+    typeToBitRecord[`negative-zero`] |
+    typeToBitRecord[`negative-non-integer`] |
+    typeToBitRecord[`negative-integer`],
 
   'negative-float': typeToBitRecord[`negative-non-integer`] | typeToBitRecord[`negative-integer`],
   'non-negative-float':
-    typeToBitRecord.zero | typeToBitRecord[`positive-non-integer`] | typeToBitRecord[`positive-integer`],
+    typeToBitRecord[`positive-zero`] |
+    typeToBitRecord[`negative-zero`] |
+    typeToBitRecord[`positive-non-integer`] |
+    typeToBitRecord[`positive-integer`],
 
-  integer: typeToBitRecord.zero | typeToBitRecord[`positive-integer`] | typeToBitRecord[`negative-integer`],
+  integer:
+    typeToBitRecord[`positive-zero`] |
+    typeToBitRecord[`negative-zero`] |
+    typeToBitRecord[`positive-integer`] |
+    typeToBitRecord[`negative-integer`],
 
   'non-zero-integer': typeToBitRecord[`negative-integer`] | typeToBitRecord[`positive-integer`],
   'positive-integer': typeToBitRecord[`positive-integer`],
   'negative-integer': typeToBitRecord[`negative-integer`],
 
-  'non-positive-integer': typeToBitRecord.zero | typeToBitRecord[`negative-integer`],
-  'non-negative-integer': typeToBitRecord.zero | typeToBitRecord[`positive-integer`],
+  'non-positive-integer':
+    typeToBitRecord[`positive-zero`] | typeToBitRecord[`negative-zero`] | typeToBitRecord[`negative-integer`],
+  'non-negative-integer':
+    typeToBitRecord[`positive-zero`] | typeToBitRecord[`negative-zero`] | typeToBitRecord[`positive-integer`],
 
   true: typeToBitRecord.true,
   false: typeToBitRecord.false,
@@ -299,10 +298,10 @@ export const builtinTypesBitMasks: Record<TypeName, number> = {
 function stringifyBitMask(bitMaks: number): string {
   let mask = ``
 
-  for (let index = 23; index >= 0; index -= 1) {
+  for (let index = 19; index >= 0; index -= 1) {
     const bitValue = 1 << index
     const zeroOrOne = bitMaks & bitValue ? `1` : `0`
-    const space = index !== 23 && (index + 1) % 4 === 0 ? ` ` : ``
+    const space = index !== 19 && (index + 1) % 4 === 0 ? ` ` : ``
     mask += `${space}${zeroOrOne}`
   }
   return mask
@@ -346,7 +345,8 @@ export class Type {
   public static readonly string = new Type(builtinTypesBitMasks.string)
 
   public static readonly number = new Type(builtinTypesBitMasks.number)
-  public static readonly numberOrNan = new Type(builtinTypesBitMasks[`number-or-nan`])
+  public static readonly positiveZero = new Type(builtinTypesBitMasks[`positive-zero`])
+  public static readonly negativeZero = new Type(builtinTypesBitMasks[`negative-zero`])
   public static readonly zero = new Type(builtinTypesBitMasks.zero)
   public static readonly nonZeroNumber = new Type(builtinTypesBitMasks[`non-zero-number`])
   public static readonly positiveNumber = new Type(builtinTypesBitMasks[`positive-number`])
@@ -416,7 +416,9 @@ export class Type {
       return input ? Type.nonEmptyString : Type[`emptyString`]
     } else if (typeof input === `number`) {
       return input === 0
-        ? Type.zero
+        ? Object.is(input, -0)
+          ? Type.negativeZero
+          : Type.positiveZero
         : input > MAX_NUMBER
         ? Type.positiveInfinity
         : input < MIN_NUMBER
@@ -539,8 +541,11 @@ export class Type {
 
   public static toValue(dataType: Any): Any {
     if (isType(dataType)) {
-      if (dataType.equals(Type.zero)) {
+      if (dataType.equals(Type.positiveZero)) {
         return 0
+      }
+      if (dataType.equals(Type.negativeZero)) {
+        return -0
       }
       if (dataType.equals(Type.nan)) {
         return NaN
@@ -560,9 +565,6 @@ export class Type {
       if (dataType.equals(Type.false)) {
         return false
       }
-      if (dataType.equals(Type.zero)) {
-        return 0
-      }
       if (dataType.equals(Type.nil)) {
         return null
       }
@@ -577,8 +579,11 @@ export class Type {
   }
 
   public static toNumberValue(dataType: Type): Type | number {
-    if (dataType.equals(Type.zero)) {
+    if (dataType.equals(Type.positiveZero)) {
       return 0
+    }
+    if (dataType.equals(Type.negativeZero)) {
+      return -0
     }
     if (dataType.equals(Type.nan)) {
       return NaN
@@ -588,9 +593,6 @@ export class Type {
     }
     if (dataType.equals(Type.negativeInfinity)) {
       return -Infinity
-    }
-    if (dataType.equals(Type.zero)) {
-      return 0
     }
     return dataType
   }
@@ -703,6 +705,13 @@ export class Type {
       !(this.bitmask & typeToBitRecord[`negative-non-integer`])
     ) {
       newBitmask = (newBitmask | typeToBitRecord[`negative-non-integer`]) & ~typeToBitRecord[`positive-non-integer`]
+    }
+
+    if (this.bitmask & typeToBitRecord[`positive-zero`] && !(this.bitmask & typeToBitRecord[`negative-zero`])) {
+      newBitmask = (newBitmask | typeToBitRecord[`negative-zero`]) & ~typeToBitRecord[`positive-zero`]
+    }
+    if (this.bitmask & typeToBitRecord[`negative-zero`] && !(this.bitmask & typeToBitRecord[`positive-zero`])) {
+      newBitmask = (newBitmask | typeToBitRecord[`positive-zero`]) & ~typeToBitRecord[`negative-zero`]
     }
 
     return new Type(newBitmask)

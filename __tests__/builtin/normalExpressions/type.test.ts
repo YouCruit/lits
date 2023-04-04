@@ -9,7 +9,7 @@ describe(`type functions`, () => {
         expect(() => lits.run(`(type-of 1 2)`)).toThrow()
         expect(lits.run(`(type-of 1)`)).toEqual(Type.positiveInteger)
         expect(lits.run(`(type-of 1.1)`)).toEqual(Type.positiveFloat)
-        expect(lits.run(`(type-of 0)`)).toEqual(Type.zero)
+        expect(lits.run(`(type-of 0)`)).toEqual(Type.positiveZero)
         expect(lits.run(`(type-of -1)`)).toEqual(Type.negativeInteger)
         expect(lits.run(`(type-of -1.1)`)).toEqual(Type.negativeFloat)
       })

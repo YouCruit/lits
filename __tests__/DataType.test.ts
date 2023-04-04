@@ -15,7 +15,7 @@ describe(`Type`, () => {
     expect(Type.emptyString.bitmask).toBe(typeToBitRecord[`empty-string`])
     expect(Type.nonEmptyString.bitmask).toBe(typeToBitRecord[`non-empty-string`])
     expect(Type.string.bitmask).toBe(typeToBitRecord[`empty-string`] | typeToBitRecord[`non-empty-string`])
-    expect(Type.zero.bitmask).toBe(typeToBitRecord.zero)
+    expect(Type.zero.bitmask).toBe(typeToBitRecord[`positive-zero`] | typeToBitRecord[`negative-zero`])
     expect(Type.positiveFloat.bitmask).toBe(
       typeToBitRecord[`positive-integer`] | typeToBitRecord[`positive-non-integer`],
     )
@@ -23,14 +23,18 @@ describe(`Type`, () => {
       typeToBitRecord[`negative-integer`] | typeToBitRecord[`negative-non-integer`],
     )
     expect(Type.float.bitmask).toBe(
-      typeToBitRecord.zero |
+      typeToBitRecord[`positive-zero`] |
+        typeToBitRecord[`negative-zero`] |
         typeToBitRecord[`positive-integer`] |
         typeToBitRecord[`positive-non-integer`] |
         typeToBitRecord[`negative-integer`] |
         typeToBitRecord[`negative-non-integer`],
     )
     expect(Type.integer.bitmask).toBe(
-      typeToBitRecord.zero | typeToBitRecord[`positive-integer`] | typeToBitRecord[`negative-integer`],
+      typeToBitRecord[`positive-zero`] |
+        typeToBitRecord[`negative-zero`] |
+        typeToBitRecord[`positive-integer`] |
+        typeToBitRecord[`negative-integer`],
     )
     expect(Type.nonEmptyArray.bitmask).toBe(typeToBitRecord[`non-empty-array`])
     expect(Type.emptyArray.bitmask).toBe(typeToBitRecord[`empty-array`])
@@ -46,7 +50,8 @@ describe(`Type`, () => {
       typeToBitRecord.nan |
         typeToBitRecord.nil |
         typeToBitRecord[`empty-string`] |
-        typeToBitRecord.zero |
+        typeToBitRecord[`positive-zero`] |
+        typeToBitRecord[`negative-zero`] |
         typeToBitRecord.false,
     )
     expect(Type.truthy.bitmask).toBe(
@@ -159,7 +164,8 @@ describe(`Type`, () => {
         typeToBitRecord[`empty-string`] | typeToBitRecord[`non-empty-string`] | typeToBitRecord.nil,
       )
       expect(Type.or(Type.nil, Type.float).bitmask).toBe(
-        typeToBitRecord.zero |
+        typeToBitRecord[`positive-zero`] |
+          typeToBitRecord[`negative-zero`] |
           typeToBitRecord[`positive-integer`] |
           typeToBitRecord[`positive-non-integer`] |
           typeToBitRecord[`negative-integer`] |
@@ -331,7 +337,9 @@ describe(`Type`, () => {
       expect(Type.emptyString.isUnionType()).toBe(false)
       expect(Type.nonEmptyString.isUnionType()).toBe(false)
       expect(Type.string.isUnionType()).toBe(true)
-      expect(Type.zero.isUnionType()).toBe(false)
+      expect(Type.zero.isUnionType()).toBe(true)
+      expect(Type.positiveZero.isUnionType()).toBe(false)
+      expect(Type.negativeZero.isUnionType()).toBe(false)
       expect(Type.positiveFloat.isUnionType()).toBe(true)
       expect(Type.negativeFloat.isUnionType()).toBe(true)
       expect(Type.float.isUnionType()).toBe(true)
@@ -342,10 +350,10 @@ describe(`Type`, () => {
 
   describe(`Type.toString`, () => {
     test(`samples`, () => {
-      expect(Type.unknown.toString()).toBe(`::unknown [Bitmask = 0001 1111 1111 0111 0111 1111  (2094975)]`)
-      expect(Type.nil.toString()).toBe(`::nil [Bitmask = 0000 0000 0000 0000 0000 0001  (1)]`)
-      expect(Type.string.toString()).toBe(`::string [Bitmask = 0000 0000 0000 0010 0000 0010  (514)]`)
-      expect(Type.string.nilable().toString()).toBe(`::string | ::nil [Bitmask = 0000 0000 0000 0010 0000 0011  (515)]`)
+      expect(Type.unknown.toString()).toBe(`::unknown [Bitmask = 1111 1111 1111 1111 1111  (1048575)]`)
+      expect(Type.nil.toString()).toBe(`::nil [Bitmask = 0000 0000 0000 0000 0001  (1)]`)
+      expect(Type.string.toString()).toBe(`::string [Bitmask = 0000 0011 0000 0000 0000  (12288)]`)
+      expect(Type.string.nilable().toString()).toBe(`::string | ::nil [Bitmask = 0000 0011 0000 0000 0001  (12289)]`)
     })
   })
 })

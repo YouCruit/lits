@@ -41,7 +41,7 @@ export function evaluate(ast: Ast, contextStack: ContextStack): Any {
 
 function toSafeNumber(value: number): number {
   if (value <= MAX_NUMBER && value >= MIN_NUMBER) {
-    return value === 0 ? 0 : value
+    return value
   }
 
   return Math.sign(value) * Infinity
@@ -90,8 +90,6 @@ function evaluateTypeName(node: TypeNameNode): Type {
       return Type.nonEmptyString
     case `string`:
       return Type.string
-    case `number-or-nan`:
-      return Type.numberOrNan
     case `number`:
       return Type.number
     case `positive-number`:
@@ -114,6 +112,10 @@ function evaluateTypeName(node: TypeNameNode): Type {
       return Type.negativeInfinity
     case `infinity`:
       return Type.infinity
+    case `positive-zero`:
+      return Type.positiveZero
+    case `negative-zero`:
+      return Type.negativeZero
     case `zero`:
       return Type.zero
     case `non-zero-float`:

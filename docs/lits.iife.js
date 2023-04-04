@@ -703,44 +703,34 @@ var Lits = (function (exports) {
       return !(value instanceof Type);
   }
   var typeToBitRecord = {
-      // Group 1: Falsy types
-      // 0000 0000 0000 0000 0000 1111
       nil: 1 << 0,
-      'empty-string': 1 << 1,
-      zero: 1 << 2,
+      nan: 1 << 1,
+      true: 1 << 2,
       false: 1 << 3,
-      // Group 2: Illegal number
-      // 0000 0000 0000 0000 0000 1111
-      nan: 1 << 4,
-      'positive-infinity': 1 << 5,
-      'negative-infinity': 1 << 6,
-      // Group 3: Simple truthy types
-      // 0000 0000 0000 0000 0111 0000
-      true: 1 << 8,
-      'non-empty-string': 1 << 9,
-      regexp: 1 << 10,
-      // Group 4: Truthy number types
-      // 0000 0000 0000 1111 0000 0000
-      'positive-integer': 1 << 12,
-      'negative-integer': 1 << 13,
-      'positive-non-integer': 1 << 14,
-      'negative-non-integer': 1 << 15,
-      // Group 5: Container types
-      // 0000 0000 1111 0000 0000 0000
-      'empty-array': 1 << 16,
-      'non-empty-array': 1 << 17,
-      'empty-object': 1 << 18,
-      'non-empty-object': 1 << 19,
-      // Group 6: Function
-      // 0000 0001 0000 0000 0000 0000
-      function: 1 << 20,
+      'positive-zero': 1 << 4,
+      'negative-zero': 1 << 5,
+      'positive-integer': 1 << 6,
+      'negative-integer': 1 << 7,
+      'positive-non-integer': 1 << 8,
+      'negative-non-integer': 1 << 9,
+      'positive-infinity': 1 << 10,
+      'negative-infinity': 1 << 11,
+      'empty-string': 1 << 12,
+      'non-empty-string': 1 << 13,
+      'empty-array': 1 << 14,
+      'non-empty-array': 1 << 15,
+      'empty-object': 1 << 16,
+      'non-empty-object': 1 << 17,
+      regexp: 1 << 18,
+      function: 1 << 19,
   };
   var allBitValues = Object.values(typeToBitRecord);
   // All bits set to 1
   var UNKNWON_BITS = allBitValues.reduce(function (result, bit) { return result | bit; }, 0);
   // console.log(stringifyBitMask(UNKNWON_BITS))
   var FALSY_BITS = typeToBitRecord.nil |
-      typeToBitRecord.zero |
+      typeToBitRecord["positive-zero"] |
+      typeToBitRecord["negative-zero"] |
       typeToBitRecord["empty-string"] |
       typeToBitRecord.false |
       typeToBitRecord.nan;
@@ -748,7 +738,6 @@ var Lits = (function (exports) {
   var TRUTHY_BITS = UNKNWON_BITS & ~FALSY_BITS;
   var orderedTypeNames = [
       "unknown",
-      "number-or-nan",
       "number",
       "non-zero-number",
       "float",
@@ -769,6 +758,8 @@ var Lits = (function (exports) {
       "positive-integer",
       "negative-integer",
       "zero",
+      "positive-zero",
+      "negative-zero",
       "illegal-number",
       "infinity",
       "positive-infinity",
@@ -805,22 +796,16 @@ var Lits = (function (exports) {
       'non-empty-string': typeToBitRecord["non-empty-string"],
       string: typeToBitRecord["empty-string"] | typeToBitRecord["non-empty-string"],
       // Numbers
-      number: typeToBitRecord.zero |
+      number: typeToBitRecord["positive-zero"] |
+          typeToBitRecord["negative-zero"] |
           typeToBitRecord["positive-non-integer"] |
           typeToBitRecord["positive-integer"] |
           typeToBitRecord["negative-non-integer"] |
           typeToBitRecord["negative-integer"] |
           typeToBitRecord["positive-infinity"] |
           typeToBitRecord["negative-infinity"],
-      'number-or-nan': typeToBitRecord.zero |
-          typeToBitRecord["positive-non-integer"] |
-          typeToBitRecord["positive-integer"] |
-          typeToBitRecord["negative-non-integer"] |
-          typeToBitRecord["negative-integer"] |
-          typeToBitRecord["positive-infinity"] |
-          typeToBitRecord["negative-infinity"] |
-          typeToBitRecord["nan"],
-      float: typeToBitRecord.zero |
+      float: typeToBitRecord["positive-zero"] |
+          typeToBitRecord["negative-zero"] |
           typeToBitRecord["positive-non-integer"] |
           typeToBitRecord["positive-integer"] |
           typeToBitRecord["negative-non-integer"] |
@@ -830,7 +815,9 @@ var Lits = (function (exports) {
       'positive-infinity': typeToBitRecord["positive-infinity"],
       'negative-infinity': typeToBitRecord["negative-infinity"],
       infinity: typeToBitRecord["negative-infinity"] | typeToBitRecord["positive-infinity"],
-      zero: typeToBitRecord.zero,
+      'positive-zero': typeToBitRecord["positive-zero"],
+      'negative-zero': typeToBitRecord["negative-zero"],
+      zero: typeToBitRecord["positive-zero"] | typeToBitRecord["negative-zero"],
       'non-zero-number': typeToBitRecord["negative-non-integer"] |
           typeToBitRecord["negative-integer"] |
           typeToBitRecord["positive-non-integer"] |
@@ -847,24 +834,35 @@ var Lits = (function (exports) {
       'negative-number': typeToBitRecord["negative-non-integer"] |
           typeToBitRecord["negative-integer"] |
           typeToBitRecord["negative-infinity"],
-      'non-positive-number': typeToBitRecord.zero |
+      'non-positive-number': typeToBitRecord["positive-zero"] |
+          typeToBitRecord["negative-zero"] |
           typeToBitRecord["negative-non-integer"] |
           typeToBitRecord["negative-integer"] |
           typeToBitRecord["negative-infinity"],
-      'non-negative-number': typeToBitRecord.zero |
+      'non-negative-number': typeToBitRecord["positive-zero"] |
+          typeToBitRecord["negative-zero"] |
           typeToBitRecord["positive-non-integer"] |
           typeToBitRecord["positive-integer"] |
           typeToBitRecord["positive-infinity"],
       'positive-float': typeToBitRecord["positive-non-integer"] | typeToBitRecord["positive-integer"],
-      'non-positive-float': typeToBitRecord.zero | typeToBitRecord["negative-non-integer"] | typeToBitRecord["negative-integer"],
+      'non-positive-float': typeToBitRecord["positive-zero"] |
+          typeToBitRecord["negative-zero"] |
+          typeToBitRecord["negative-non-integer"] |
+          typeToBitRecord["negative-integer"],
       'negative-float': typeToBitRecord["negative-non-integer"] | typeToBitRecord["negative-integer"],
-      'non-negative-float': typeToBitRecord.zero | typeToBitRecord["positive-non-integer"] | typeToBitRecord["positive-integer"],
-      integer: typeToBitRecord.zero | typeToBitRecord["positive-integer"] | typeToBitRecord["negative-integer"],
+      'non-negative-float': typeToBitRecord["positive-zero"] |
+          typeToBitRecord["negative-zero"] |
+          typeToBitRecord["positive-non-integer"] |
+          typeToBitRecord["positive-integer"],
+      integer: typeToBitRecord["positive-zero"] |
+          typeToBitRecord["negative-zero"] |
+          typeToBitRecord["positive-integer"] |
+          typeToBitRecord["negative-integer"],
       'non-zero-integer': typeToBitRecord["negative-integer"] | typeToBitRecord["positive-integer"],
       'positive-integer': typeToBitRecord["positive-integer"],
       'negative-integer': typeToBitRecord["negative-integer"],
-      'non-positive-integer': typeToBitRecord.zero | typeToBitRecord["negative-integer"],
-      'non-negative-integer': typeToBitRecord.zero | typeToBitRecord["positive-integer"],
+      'non-positive-integer': typeToBitRecord["positive-zero"] | typeToBitRecord["negative-zero"] | typeToBitRecord["negative-integer"],
+      'non-negative-integer': typeToBitRecord["positive-zero"] | typeToBitRecord["negative-zero"] | typeToBitRecord["positive-integer"],
       true: typeToBitRecord.true,
       false: typeToBitRecord.false,
       boolean: typeToBitRecord.true | typeToBitRecord.false,
@@ -896,10 +894,10 @@ var Lits = (function (exports) {
   };
   function stringifyBitMask(bitMaks) {
       var mask = "";
-      for (var index = 23; index >= 0; index -= 1) {
+      for (var index = 19; index >= 0; index -= 1) {
           var bitValue = 1 << index;
           var zeroOrOne = bitMaks & bitValue ? "1" : "0";
-          var space = index !== 23 && (index + 1) % 4 === 0 ? " " : "";
+          var space = index !== 19 && (index + 1) % 4 === 0 ? " " : "";
           mask += "".concat(space).concat(zeroOrOne);
       }
       return mask;
@@ -945,7 +943,9 @@ var Lits = (function (exports) {
           }
           else if (typeof input === "number") {
               return input === 0
-                  ? Type.zero
+                  ? Object.is(input, -0)
+                      ? Type.negativeZero
+                      : Type.positiveZero
                   : input > MAX_NUMBER
                       ? Type.positiveInfinity
                       : input < MIN_NUMBER
@@ -1076,11 +1076,14 @@ var Lits = (function (exports) {
       };
       Type.toValue = function (dataType) {
           if (isType(dataType)) {
-              if (dataType.equals(Type.zero)) {
+              if (dataType.equals(Type.positiveZero)) {
                   return 0;
               }
+              if (dataType.equals(Type.negativeZero)) {
+                  return -0;
+              }
               if (dataType.equals(Type.nan)) {
-                  return Number.NaN;
+                  return NaN;
               }
               if (dataType.equals(Type.positiveInfinity)) {
                   return Infinity;
@@ -1097,9 +1100,6 @@ var Lits = (function (exports) {
               if (dataType.equals(Type.false)) {
                   return false;
               }
-              if (dataType.equals(Type.zero)) {
-                  return 0;
-              }
               if (dataType.equals(Type.nil)) {
                   return null;
               }
@@ -1113,20 +1113,20 @@ var Lits = (function (exports) {
           return dataType;
       };
       Type.toNumberValue = function (dataType) {
-          if (dataType.equals(Type.zero)) {
+          if (dataType.equals(Type.positiveZero)) {
               return 0;
           }
+          if (dataType.equals(Type.negativeZero)) {
+              return -0;
+          }
           if (dataType.equals(Type.nan)) {
-              return Number.NaN;
+              return NaN;
           }
           if (dataType.equals(Type.positiveInfinity)) {
               return Infinity;
           }
           if (dataType.equals(Type.negativeInfinity)) {
               return -Infinity;
-          }
-          if (dataType.equals(Type.zero)) {
-              return 0;
           }
           return dataType;
       };
@@ -1234,6 +1234,12 @@ var Lits = (function (exports) {
               !(this.bitmask & typeToBitRecord["negative-non-integer"])) {
               newBitmask = (newBitmask | typeToBitRecord["negative-non-integer"]) & ~typeToBitRecord["positive-non-integer"];
           }
+          if (this.bitmask & typeToBitRecord["positive-zero"] && !(this.bitmask & typeToBitRecord["negative-zero"])) {
+              newBitmask = (newBitmask | typeToBitRecord["negative-zero"]) & ~typeToBitRecord["positive-zero"];
+          }
+          if (this.bitmask & typeToBitRecord["negative-zero"] && !(this.bitmask & typeToBitRecord["positive-zero"])) {
+              newBitmask = (newBitmask | typeToBitRecord["positive-zero"]) & ~typeToBitRecord["negative-zero"];
+          }
           return new Type(newBitmask);
       };
       Type.prototype.isFunction = function () {
@@ -1317,7 +1323,8 @@ var Lits = (function (exports) {
       Type.nonEmptyString = new Type(builtinTypesBitMasks["non-empty-string"]);
       Type.string = new Type(builtinTypesBitMasks.string);
       Type.number = new Type(builtinTypesBitMasks.number);
-      Type.numberOrNan = new Type(builtinTypesBitMasks["number-or-nan"]);
+      Type.positiveZero = new Type(builtinTypesBitMasks["positive-zero"]);
+      Type.negativeZero = new Type(builtinTypesBitMasks["negative-zero"]);
       Type.zero = new Type(builtinTypesBitMasks.zero);
       Type.nonZeroNumber = new Type(builtinTypesBitMasks["non-zero-number"]);
       Type.positiveNumber = new Type(builtinTypesBitMasks["positive-number"]);
@@ -4690,13 +4697,13 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotType(first)) {
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return first + 1;
               }
               else {
                   var paramType = Type.of(first);
-                  if (paramType.equals(Type.zero)) {
+                  if (paramType.is(Type.zero)) {
                       return 1;
                   }
                   var types = [];
@@ -4739,13 +4746,13 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotType(first)) {
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return first - 1;
               }
               else {
                   var paramType = Type.of(first);
-                  if (paramType.equals(Type.zero)) {
+                  if (paramType.is(Type.zero)) {
                       return -1;
                   }
                   var types = [];
@@ -4788,7 +4795,7 @@ var Lits = (function (exports) {
               if (params.every(function (param) { return !(param instanceof Type); })) {
                   return params.reduce(function (result, param) {
                       if (!number.is(param)) {
-                          return Number.NaN;
+                          return NaN;
                       }
                       return result + param;
                   }, 0);
@@ -4807,14 +4814,14 @@ var Lits = (function (exports) {
                   }
                   var _a = __read(params), first = _a[0], rest = _a.slice(1);
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (rest.length === 0) {
                       return -first;
                   }
                   return rest.reduce(function (result, param) {
                       if (!number.is(param)) {
-                          return Number.NaN;
+                          return NaN;
                       }
                       return result - param;
                   }, first);
@@ -4835,7 +4842,7 @@ var Lits = (function (exports) {
               if (params.every(function (param) { return !(param instanceof Type); })) {
                   return params.reduce(function (result, param) {
                       if (!number.is(param)) {
-                          return Number.NaN;
+                          return NaN;
                       }
                       if (result === 0 || param === 0) {
                           return 0;
@@ -4845,7 +4852,7 @@ var Lits = (function (exports) {
               }
               else {
                   var paramTypes = params.map(function (param) { return Type.of(param); });
-                  return getTypeOfProduct(paramTypes).toNumberValue();
+                  return getTypeOfProduct(paramTypes);
               }
           },
           validateArity: function () { return undefined; },
@@ -4858,14 +4865,14 @@ var Lits = (function (exports) {
                   }
                   var _a = __read(params), first = _a[0], rest = _a.slice(1);
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (rest.length === 0) {
                       return 1 / first;
                   }
                   return rest.reduce(function (result, param) {
                       if (!number.is(param)) {
-                          return Number.NaN;
+                          return NaN;
                       }
                       if (result === 0) {
                           return 0;
@@ -4888,10 +4895,10 @@ var Lits = (function (exports) {
               if (params.every(isNotType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
                   if (!number.is(dividend)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (!number.is(divisor)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.trunc(dividend / divisor);
               }
@@ -4963,10 +4970,10 @@ var Lits = (function (exports) {
               if (params.every(isNotType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
                   if (!number.is(dividend)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (!number.is(divisor)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   var quotient = Math.floor(dividend / divisor);
                   if (quotient === 0) {
@@ -5015,10 +5022,10 @@ var Lits = (function (exports) {
               if (params.every(isNotType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
                   if (!number.is(dividend)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (!number.is(divisor)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   var quotient = Math.trunc(dividend / divisor);
                   if (quotient === 0) {
@@ -5058,7 +5065,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotType(first)) {
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.sqrt(first);
               }
@@ -5093,7 +5100,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotType(first)) {
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.cbrt(first);
               }
@@ -5112,8 +5119,11 @@ var Lits = (function (exports) {
                   if (type.intersects(Type.negativeInfinity)) {
                       types.push(Type.negativeInfinity);
                   }
-                  if (type.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                  if (type.intersects(Type.positiveZero)) {
+                      types.push(Type.positiveZero);
+                  }
+                  if (type.intersects(Type.negativeZero)) {
+                      types.push(Type.negativeZero);
                   }
                   if (type.intersects(Type.positiveFloat)) {
                       types.push(Type.positiveFloat);
@@ -5131,19 +5141,19 @@ var Lits = (function (exports) {
               if (params.every(isNotType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (!number.is(second)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (first === 1 && !Number.isNaN(second)) {
                       return 1;
                   }
                   if (first < 0 && first >= -1 && second === -Infinity) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (first <= -1 && second === Infinity) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.pow(first, second);
               }
@@ -5311,16 +5321,16 @@ var Lits = (function (exports) {
               if (params.every(isNotType)) {
                   var _b = __read(params, 2), value = _b[0], decimals = _b[1];
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (params.length === 1 || decimals === 0) {
                       return Math.round(value);
                   }
                   if (!number.is(decimals)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (!number.is(decimals, { integer: true, nonNegative: true })) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   var factor = Math.pow(10, decimals);
                   if (factor === Infinity) {
@@ -5391,7 +5401,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotType(first)) {
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.trunc(first);
               }
@@ -5439,7 +5449,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotType(first)) {
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.floor(first);
               }
@@ -5482,7 +5492,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotType(first)) {
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.ceil(first);
               }
@@ -5531,7 +5541,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), first = _b[0];
               if (isNotType(first)) {
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.floor(Math.random() * Math.abs(first)) * Math.sign(first);
               }
@@ -5569,14 +5579,14 @@ var Lits = (function (exports) {
               if (params.every(isNotType)) {
                   var _a = __read(params), first = _a[0], rest = _a.slice(1);
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (rest.length === 0) {
                       return first;
                   }
                   return rest.reduce(function (min, value) {
                       if (!number.is(value)) {
-                          return Number.NaN;
+                          return NaN;
                       }
                       return Math.min(min, value);
                   }, first);
@@ -5589,7 +5599,7 @@ var Lits = (function (exports) {
                   var numberTypes = paramTypes.map(function (t) { return t.and(Type.number); });
                   // If an argument is nan (and nan only) or a non number
                   if (numberTypes.some(function (t) { return t.is(Type.nan) || t.is(Type.never); })) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   var smallestMax = numberTypes.reduce(function (result, t) {
                       var max = t.intersects(Type.positiveInfinity)
@@ -5615,14 +5625,14 @@ var Lits = (function (exports) {
               if (params.every(isNotType)) {
                   var _a = __read(params), first = _a[0], rest = _a.slice(1);
                   if (!number.is(first)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   if (rest.length === 0) {
                       return first;
                   }
                   return rest.reduce(function (min, value) {
                       if (!number.is(value)) {
-                          return Number.NaN;
+                          return NaN;
                       }
                       return Math.max(min, value);
                   }, first);
@@ -5635,7 +5645,7 @@ var Lits = (function (exports) {
                   var numberTypes = paramTypes.map(function (t) { return t.and(Type.number); });
                   // If an argument is nan (and nan only) or a non number
                   if (numberTypes.some(function (t) { return t.is(Type.nan) || t.is(Type.never); })) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   var largestMin = numberTypes.reduce(function (result, t) {
                       var min = t.intersects(Type.negativeInfinity)
@@ -5661,7 +5671,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.abs(value);
               }
@@ -5684,7 +5694,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.sign(value);
               }
@@ -5735,7 +5745,7 @@ var Lits = (function (exports) {
       },
       nan: {
           evaluate: function () {
-              return Number.NaN;
+              return NaN;
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(0, arity, "nan", debugInfo); },
       },
@@ -5756,13 +5766,13 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.exp(value);
               }
               else {
                   var paramType = Type.of(value);
-                  if (paramType.equals(Type.zero)) {
+                  if (paramType.is(Type.zero)) {
                       return 1;
                   }
                   var types = [];
@@ -5794,7 +5804,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.log(value);
               }
@@ -5809,7 +5819,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.log2(value);
               }
@@ -5824,7 +5834,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.log10(value);
               }
@@ -5839,7 +5849,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.sin(value);
               }
@@ -5868,7 +5878,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.asin(value);
               }
@@ -5900,7 +5910,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.sinh(value);
               }
@@ -5935,7 +5945,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.asinh(value);
               }
@@ -5970,13 +5980,13 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.cos(value);
               }
               else {
                   var type = Type.of(value);
-                  if (type.equals(Type.zero)) {
+                  if (type.is(Type.zero)) {
                       return 1;
                   }
                   var types = [];
@@ -5999,7 +6009,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.acos(value);
               }
@@ -6031,13 +6041,13 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.cosh(value);
               }
               else {
                   var type = Type.of(value);
-                  if (type.equals(Type.zero)) {
+                  if (type.is(Type.zero)) {
                       return 1;
                   }
                   var types = [];
@@ -6063,7 +6073,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.acosh(value);
               }
@@ -6101,7 +6111,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.tan(value);
               }
@@ -6130,7 +6140,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.atan(value);
               }
@@ -6165,7 +6175,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.tanh(value);
               }
@@ -6206,7 +6216,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 1), value = _b[0];
               if (isNotType(value)) {
                   if (!number.is(value)) {
-                      return Number.NaN;
+                      return NaN;
                   }
                   return Math.atanh(value);
               }
@@ -6247,8 +6257,17 @@ var Lits = (function (exports) {
   };
   function getTypeOfSum(paramTypes) {
       paramTypes.sort(function (a, b) { return (isType(a) ? 1 : isType(b) ? -1 : 0); });
-      var sum = paramTypes.reduce(function (a, b) { return getTypeOfBinarySum(a, b); }, 0);
-      return typeof sum === "number" ? sum : sum.toNumberValue();
+      var first = paramTypes[0];
+      any.assert(first);
+      if (paramTypes.length === 0) {
+          return 0;
+      }
+      if (paramTypes.length === 1) {
+          return isType(first) ? first.toNumberValue() : typeof first === "number" ? first : NaN;
+      }
+      var rest = paramTypes.slice(1);
+      var sum = rest.reduce(function (a, b) { return getTypeOfBinarySum(a, b); }, first);
+      return isType(sum) ? sum.toNumberValue() : typeof sum === "number" ? sum : NaN;
   }
   function getTypeOfBinarySum(a, b) {
       any.assert(a);
@@ -6260,6 +6279,12 @@ var Lits = (function (exports) {
       }
       var aType = Type.of(a);
       var bType = Type.of(b);
+      if (aType.is(Type.zero) && number.is(bVal) && bVal !== 0) {
+          return bVal;
+      }
+      if (number.is(aVal) && aVal !== 0 && bType.is(Type.zero)) {
+          return aVal;
+      }
       var types = [];
       if (aType.or(bType).intersectsNonNumber()) {
           types.push(Type.nan);
@@ -6323,7 +6348,18 @@ var Lits = (function (exports) {
       }
       if (aType.intersects(Type.zero)) {
           if (bType.intersects(Type.zero)) {
-              types.push(Type.zero);
+              if (aType.intersects(Type.positiveZero) && bType.intersects(Type.positiveZero)) {
+                  types.push(Type.positiveZero);
+              }
+              if (aType.intersects(Type.positiveZero) && bType.intersects(Type.negativeZero)) {
+                  types.push(Type.positiveZero);
+              }
+              if (aType.intersects(Type.negativeZero) && bType.intersects(Type.positiveZero)) {
+                  types.push(Type.positiveZero);
+              }
+              if (aType.intersects(Type.negativeZero) && bType.intersects(Type.negativeZero)) {
+                  types.push(Type.negativeZero);
+              }
           }
           if (bType.intersects(Type.positiveFloat)) {
               types.push(Type.positiveFloat.and(baseType));
@@ -6335,25 +6371,22 @@ var Lits = (function (exports) {
       return Type.or.apply(Type, __spreadArray([], __read(types), false));
   }
   function getTypeOfProduct(paramTypes) {
-      if (paramTypes.length === 1) {
-          return asValue(paramTypes[0]);
-      }
       var first = asValue(paramTypes[0]);
-      var nanType = first.exclude(Type.nan).intersectsNonNumber() ? Type.nan : Type.never;
-      var zeroType = first.intersects(Type.zero) ? Type.zero : Type.never;
+      if (paramTypes.length === 0) {
+          return 1;
+      }
+      if (paramTypes.length === 1) {
+          return isType(first) ? first.toNumberValue() : first;
+      }
       return paramTypes
           .slice(1)
           .reduce(function (a, b) { return getTypeOfBinaryProduct(a, b); }, first)
-          .or(nanType)
-          .or(zeroType);
+          .toNumberValue();
   }
   function getTypeOfBinaryProduct(a, b) {
       var types = [];
       if (b.exclude(Type.nan).intersectsNonNumber()) {
           types.push(Type.nan);
-      }
-      if (b.intersects(Type.zero)) {
-          types.push(Type.zero);
       }
       if (a.intersects(Type.nan) && b.intersects(Type.number.exclude(Type.zero))) {
           types.push(Type.nan);
@@ -6393,14 +6426,36 @@ var Lits = (function (exports) {
               types.push(Type.positiveInfinity);
           }
       }
-      if (a.intersects(Type.zero)) {
-          if (b.intersects(Type.float)) {
-              types.push(Type.zero);
+      if (a.intersects(Type.positiveZero)) {
+          if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveNumber) || b.intersects(Type.nan)) {
+              types.push(Type.positiveZero);
+          }
+          if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeNumber)) {
+              types.push(Type.negativeZero);
           }
       }
-      if (b.intersects(Type.zero)) {
-          if (a.intersects(Type.float)) {
-              types.push(Type.zero);
+      if (a.intersects(Type.negativeZero)) {
+          if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveNumber) || b.intersects(Type.nan)) {
+              types.push(Type.negativeZero);
+          }
+          if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeNumber)) {
+              types.push(Type.positiveZero);
+          }
+      }
+      if (b.intersects(Type.positiveZero)) {
+          if (a.intersects(Type.positiveNumber) || a.intersects(Type.nan)) {
+              types.push(Type.positiveZero);
+          }
+          if (a.intersects(Type.negativeNumber)) {
+              types.push(Type.negativeZero);
+          }
+      }
+      if (b.intersects(Type.negativeZero)) {
+          if (a.intersects(Type.positiveNumber) || a.intersects(Type.nan)) {
+              types.push(Type.negativeZero);
+          }
+          if (a.intersects(Type.negativeNumber)) {
+              types.push(Type.positiveZero);
           }
       }
       var baseType = a.isInteger() && b.isInteger() ? Type.integer : Type.float;
@@ -6431,11 +6486,33 @@ var Lits = (function (exports) {
   }
   function getTypeOfBinaryDivision(a, b) {
       var types = [];
-      if (a.intersects(Type.zero)) {
-          types.push(Type.zero);
+      if (a.intersects(Type.positiveZero)) {
+          types.push(Type.positiveZero);
       }
-      if (b.intersects(Type.infinity)) {
-          types.push(Type.zero);
+      if (a.intersects(Type.negativeZero)) {
+          types.push(Type.negativeZero);
+      }
+      if (b.intersects(Type.positiveZero)) {
+          if (a.intersects(Type.positiveFloat)) {
+              types.push(Type.positiveInfinity);
+          }
+          if (a.intersects(Type.negativeFloat)) {
+              types.push(Type.negativeInfinity);
+          }
+      }
+      if (b.intersects(Type.negativeZero)) {
+          if (a.intersects(Type.positiveFloat)) {
+              types.push(Type.negativeInfinity);
+          }
+          if (a.intersects(Type.negativeFloat)) {
+              types.push(Type.positiveInfinity);
+          }
+      }
+      if (b.intersects(Type.positiveInfinity)) {
+          types.push(Type.positiveZero);
+      }
+      if (b.intersects(Type.negativeInfinity)) {
+          types.push(Type.negativeZero);
       }
       if (b.intersectsNonNumber() && a.intersects(Type.nonZeroNumber)) {
           types.push(Type.nan);
@@ -6468,14 +6545,6 @@ var Lits = (function (exports) {
               types.push(Type.positiveInfinity);
           }
       }
-      if (b.intersects(Type.zero)) {
-          if (a.intersects(Type.positiveFloat)) {
-              types.push(Type.positiveInfinity);
-          }
-          if (a.intersects(Type.negativeFloat)) {
-              types.push(Type.negativeInfinity);
-          }
-      }
       var aNeg = a.intersects(Type.negativeFloat);
       var aPos = a.intersects(Type.positiveFloat);
       var bNeg = b.intersects(Type.negativeFloat);
@@ -6495,7 +6564,7 @@ var Lits = (function (exports) {
       return Type.or.apply(Type, __spreadArray([], __read(types), false));
   }
   function negate(value) {
-      return isType(value) ? value.negateNumber().toNumberValue() : number.is(value) ? -value : Number.NaN;
+      return isType(value) ? value.negateNumber().toNumberValue() : number.is(value) ? -value : NaN;
   }
   function evaluateLogType(paramType) {
       var types = [];
@@ -8433,7 +8502,7 @@ var Lits = (function (exports) {
   }
   function toSafeNumber(value) {
       if (value <= MAX_NUMBER && value >= MIN_NUMBER) {
-          return Math.abs(value) < Number.EPSILON ? 0 : value;
+          return value;
       }
       return Math.sign(value) * Infinity;
   }
@@ -8478,8 +8547,6 @@ var Lits = (function (exports) {
               return Type.nonEmptyString;
           case "string":
               return Type.string;
-          case "number-or-nan":
-              return Type.numberOrNan;
           case "number":
               return Type.number;
           case "positive-number":
@@ -8502,6 +8569,10 @@ var Lits = (function (exports) {
               return Type.negativeInfinity;
           case "infinity":
               return Type.infinity;
+          case "positive-zero":
+              return Type.positiveZero;
+          case "negative-zero":
+              return Type.negativeZero;
           case "zero":
               return Type.zero;
           case "non-zero-float":
@@ -8991,9 +9062,10 @@ var Lits = (function (exports) {
       "empty-string",
       "non-empty-string",
       "string",
+      "positive-zero",
+      "negative-zero",
       "zero",
       "number",
-      "number-or-nan",
       "float",
       "illegal-number",
       "positive-float",

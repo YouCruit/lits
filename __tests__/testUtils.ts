@@ -141,13 +141,14 @@ export function testTypeEvaluations(
 
     const expressions = generateLitsExpressions(functionName, params, paramOrder)
     const sampleExpressions = generateLitsExpressionsWithSampleValues(lits, functionName, params, paramOrder)
-    test(`${expressions[0]} ==> ${resultExpression ?? resultValue}${
+
+    test(`${expressions[0]} ==> ${resultExpression ?? (Object.is(resultValue, -0) ? `-0` : resultValue)}${
       expressions.length > 1 ? `, ${expressions.length} permutations` : ``
     }`, () => {
       for (const expression of expressions) {
         if (resultValue !== undefined) {
           const evaluatedValue = lits.run(expression)
-          if (typeof evaluatedValue === `number` && Number.isNaN(evaluatedValue)) {
+          if (Number.isNaN(evaluatedValue)) {
             expect(resultValue).toBeNaN()
           } else {
             expect(evaluatedValue).toEqual(resultValue)
@@ -162,11 +163,13 @@ export function testTypeEvaluations(
       if (resultValue !== undefined) {
         for (const expression of sampleExpressions) {
           const evaluatedValue = lits.run(expression)
-          if (typeof evaluatedValue === `number` && Number.isNaN(evaluatedValue)) {
+          if (Number.isNaN(evaluatedValue)) {
             expect(resultValue).toBeNaN()
           } else {
             if (typeof evaluatedValue !== `object` || evaluatedValue === null) {
-              expect(evaluatedValue === resultValue).toBe(true)
+              if (evaluatedValue !== resultValue) {
+                throw Error(`Expected evaluatedValue ${evaluatedValue} to equal ${resultValue}`)
+              }
             } else {
               expect(evaluatedValue).toEqual(resultValue)
             }
@@ -184,7 +187,12 @@ export function testTypeEvaluations(
       const hasExpressionParam = params.some(isExpressionObj)
       if (!hasExpressionParam && resultExpression !== `ERROR` && resultValue === undefined) {
         const resultType = lits.run(`(type-of ${resultExpression})`) as Type
-        const combinedSampeExpressionType = Type.or(...sampleExpressions.map(e => lits.run(`(type-of ${e})`) as Type))
+        let combinedSampeExpressionType = Type.or(...sampleExpressions.map(e => lits.run(`(type-of ${e})`) as Type))
+
+        // handle -0 and 0 TODO
+        if (combinedSampeExpressionType.intersects(Type.zero)) {
+          combinedSampeExpressionType = combinedSampeExpressionType.or(Type.zero)
+        }
         if (!combinedSampeExpressionType.equals(resultType)) {
           throw Error(
             `Expected combined sample type (${combinedSampeExpressionType.toString({
@@ -360,8 +368,10 @@ function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string[] 
       return [`nil`]
     case `empty-string`:
       return [`""`]
-    case `zero`:
+    case `positive-zero`:
       return [`0`]
+    case `negative-zero`:
+      return [`-0`]
     case `false`:
       return [`false`]
     case `nan`:

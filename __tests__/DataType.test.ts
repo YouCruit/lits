@@ -191,7 +191,8 @@ describe(`Type`, () => {
         Type.object,
         Type.regexp,
         Type.function,
-        Type.illegalNumber,
+        Type.infinity,
+        Type.nan,
       )
       const unknown2 = Type.or(
         Type.nil,

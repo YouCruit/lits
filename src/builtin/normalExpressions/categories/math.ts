@@ -318,7 +318,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(Type.nan)
         }
 
-        if (a.intersects(Type.illegalNumber)) {
+        if (a.intersects(Type.nan) || a.intersects(Type.infinity)) {
           types.push(Type.nan)
         }
         if (b.intersects(Type.nan)) {
@@ -378,7 +378,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(Type.nan)
         }
 
-        if (a.or(b).intersects(Type.illegalNumber)) {
+        if (a.or(b).intersects(Type.nan.or(Type.infinity))) {
           types.push(Type.nan)
         }
         if (b.intersects(Type.zero)) {
@@ -711,17 +711,17 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         if (!b.isInteger() || b.intersects(Type.negativeFloat)) {
           types.push(Type.nan)
         }
-        if (a.intersects(Type.positiveInfinity) && !b.intersects(Type.illegalNumber)) {
+        if (a.intersects(Type.positiveInfinity) && !b.intersects(Type.nan.or(Type.infinity))) {
           types.push(Type.positiveInfinity)
         }
-        if (a.intersects(Type.negativeInfinity) && !b.intersects(Type.illegalNumber)) {
+        if (a.intersects(Type.negativeInfinity) && !b.intersects(Type.nan.or(Type.infinity))) {
           types.push(Type.negativeInfinity)
         }
         if (a.intersects(Type.nan)) {
           types.push(Type.nan)
         }
 
-        if (b.intersects(Type.illegalNumber)) {
+        if (b.intersects(Type.nan.or(Type.infinity))) {
           types.push(Type.nan)
         }
 

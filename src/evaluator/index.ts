@@ -104,8 +104,6 @@ function evaluateTypeName(node: TypeNameNode): Type {
       return Type.nonNegativeNumber
     case `float`:
       return Type.float
-    case `illegal-number`:
-      return Type.illegalNumber
     case `positive-infinity`:
       return Type.positiveInfinity
     case `negative-infinity`:

@@ -116,7 +116,6 @@ export const orderedTypeNames: TypeName[] = [
   `zero`,
   `positive-zero`,
   `negative-zero`,
-  `illegal-number`,
   `infinity`,
   `positive-infinity`,
   `negative-infinity`,
@@ -173,7 +172,6 @@ export const builtinTypesBitMasks: Record<TypeName, number> = {
     typeToBitRecord[`positive-integer`] |
     typeToBitRecord[`negative-non-integer`] |
     typeToBitRecord[`negative-integer`],
-  'illegal-number': typeToBitRecord.nan | typeToBitRecord[`positive-infinity`] | typeToBitRecord[`negative-infinity`],
 
   nan: typeToBitRecord.nan,
   'positive-infinity': typeToBitRecord[`positive-infinity`],
@@ -334,7 +332,6 @@ export class Type {
 
   public static readonly nil = new Type(builtinTypesBitMasks.nil)
 
-  public static readonly illegalNumber = new Type(builtinTypesBitMasks[`illegal-number`])
   public static readonly nan = new Type(builtinTypesBitMasks.nan)
   public static readonly positiveInfinity = new Type(builtinTypesBitMasks[`positive-infinity`])
   public static readonly negativeInfinity = new Type(builtinTypesBitMasks[`negative-infinity`])

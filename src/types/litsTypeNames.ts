@@ -13,7 +13,6 @@ const typeNames = [
   `zero`,
   `number`,
   `float`,
-  `illegal-number`,
   `positive-float`,
   `negative-float`,
   `positive-number`,

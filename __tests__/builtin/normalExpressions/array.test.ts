@@ -34,11 +34,6 @@ describe(`array functions`, () => {
         expect((lits.run(`[nil]`) as Arr)[0]).toEqual(null)
         expect(lits.run(`[0 :1 nil true false [[]] (object)]`)).toEqual([0, `1`, null, true, false, [[]], {}])
       })
-
-      test(`dataType`, () => {
-        // expect(lits.getDataType(`[]`)).toEqual(Type.emptyArray)
-        // expect(lits.getDataType(`[0 1 2]`)).toEqual(Type.nonEmptyArray)
-      })
     })
 
     describe(`range`, () => {
@@ -58,17 +53,6 @@ describe(`array functions`, () => {
         expect(() => lits.run(`(range false 1 2)`)).toThrow()
         expect(() => lits.run(`(range 0 2 "y")`)).toThrow()
         expect(() => lits.run(`(range (object) "x" "y")`)).toThrow()
-      })
-      test(`dataType`, () => {
-        // expect(lits.getDataType(`(range 0)`)).toEqual(Type.emptyArray)
-        // expect(lits.getDataType(`(range 5)`)).toEqual(Type.nonEmptyArray)
-        // expect(lits.getDataType(`(range -5)`)).toEqual(Type.nonEmptyArray)
-        // expect(lits.getDataType(`(range 5 1)`)).toEqual(Type.array)
-        // expect(lits.getDataType(`(range 1 5)`)).toEqual(Type.array)
-        // expect(lits.getDataType(`(range 5 1 -2)`)).toEqual(Type.array)
-        // expect(lits.getDataType(`(range 0 0.5 0.125)`)).toEqual(Type.array)
-        // expect(lits.getDataType(`(range 0 0)`)).toEqual(Type.emptyArray)
-        // expect(lits.getDataType(`(range 0 0 0.1)`)).toEqual(Type.emptyArray)
       })
     })
 

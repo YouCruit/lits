@@ -80,7 +80,6 @@ const allBitValues = Object.values(typeToBitRecord)
 // All bits set to 1
 const UNKNWON_BITS = allBitValues.reduce((result, bit) => result | bit, 0)
 
-// console.log(stringifyBitMask(UNKNWON_BITS))
 const FALSY_BITS =
   typeToBitRecord.nil |
   typeToBitRecord[`positive-zero`] |
@@ -305,18 +304,10 @@ function stringifyBitMask(bitMaks: number): string {
   return mask
 }
 
-type ConstructorOptions = {
-  arrayVariants?: Type[] | Type
-}
 export class Type {
   public readonly bitmask: number
-  public readonly fnReturnType?: Type
-  // private readonly objectVariants?: Record<string, Type> | Type
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  private readonly arrayVariants?: Type[] | Type
 
-  private constructor(bitmask: number, { arrayVariants }: ConstructorOptions = {}) {
+  private constructor(bitmask: number) {
     if (bitmask & typeToBitRecord[`positive-non-integer`]) {
       bitmask |= typeToBitRecord[`positive-integer`]
     }
@@ -324,8 +315,6 @@ export class Type {
       bitmask |= typeToBitRecord[`negative-integer`]
     }
     this.bitmask = bitmask
-    this.fnReturnType = undefined
-    this.arrayVariants = arrayVariants
   }
 
   public static readonly never = new Type(builtinTypesBitMasks.never)
@@ -443,12 +432,6 @@ export class Type {
     const newTypeMask = types.reduce((result, type) => {
       return result | type.bitmask
     }, 0)
-    // const functions = types.filter(type => type.isFunction())
-    // if (functions.some(f => !f.fnReturnType)) {
-    //   return new Type(newTypeMask)
-    // }
-    // const returnTypes = functions.map(type => type.fnReturnType) as Type[]
-    // const fnReturnType = returnTypes.length > 0 ? Type.or(...returnTypes) : undefined
     return new Type(newTypeMask)
   }
 
@@ -457,74 +440,27 @@ export class Type {
       return result & type.bitmask
     }, UNKNWON_BITS)
 
-    // At least one of the types is a function
-    // if (newTypeMask & builtinTypesBitMasks.function) {
-    //   const returnFunctions = types.filter(type => type.isFunction())
-    //   const returnFunction = Type.and(...returnFunctions)
-    //   if (returnFunction.bitmask === builtinTypesBitMasks.never) {
-    //     return new Type(newTypeMask & ~builtinTypesBitMasks.function)
-    //   } else {
-    //     return new Type(newTypeMask, returnFunction)
-    //   }
-    // }
-
     return new Type(newTypeMask)
   }
 
   public static exclude(first: Type, ...rest: Type[]): Type {
     return rest.reduce((result, type) => {
       const newBitmask = result.bitmask & ~type.bitmask
-      // Only remove function bit if functions are equal
-      // if (result.isFunction() && type.isFunction()) {
-      //   const returnType: Type = !type.fnReturnType
-      //     ? Type.never
-      //     : !result.fnReturnType
-      //     ? Type.unknown.exclude(type.fnReturnType)
-      //     : result.fnReturnType.exclude(type.fnReturnType)
-      //   if (returnType.bitmask === builtinTypesBitMasks.never) {
-      //     return new Type(newBitmask)
-      //   } else {
-      //     return new Type(newBitmask | builtinTypesBitMasks.function, returnType)
-      //   }
-      // }
       return new Type(newBitmask)
     }, first)
   }
 
   public static is(a: Type, b: Type): boolean {
-    const { bitmask: bitmaskA, fnReturnType: fnReturnTypeA } = a
-    const { bitmask: bitmaskB, fnReturnType: fnReturnTypeB } = b
+    const { bitmask: bitmaskA } = a
+    const { bitmask: bitmaskB } = b
 
     // some bits must be the same AND no bits in a can appear in b
-    const success = bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB)
-
-    if (!success) {
-      return false
-    }
-    if (a.isFunction()) {
-      if (!fnReturnTypeB) {
-        return true
-      }
-      if (!fnReturnTypeA) {
-        return false
-      }
-      return fnReturnTypeA.is(fnReturnTypeB)
-    }
-    return true
+    return !!(bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB))
   }
 
   public static equals(type1: Type, type2: Type, ...rest: Type[]): boolean {
     return [type2, ...rest].every(t => {
-      if (type1.bitmask !== t.bitmask) {
-        return false
-      }
-      if (!type1.fnReturnType && !t.fnReturnType) {
-        return true
-      }
-      if (type1.fnReturnType && t.fnReturnType) {
-        return type1.fnReturnType.equals(t.fnReturnType)
-      }
-      return false
+      return type1.bitmask === t.bitmask
     })
   }
 
@@ -661,13 +597,6 @@ export class Type {
     return Type.isUnionType(this)
   }
 
-  // public withReturnType(dataType: Type): Type {
-  //   if (!this.isFunction()) {
-  //     throw Error(`Only functions can have return types`)
-  //   }
-  //   return new Type(this.bitmask, dataType)
-  // }
-
   public nilable(): Type {
     return this.or(Type.nil)
   }
@@ -776,67 +705,4 @@ export class Type {
 
     return typeStrings.join(` | `)
   }
-
-  // private getTypeString(): string {
-  //   if (this.isNever()) {
-  //     return `::never`
-  //   }
-  //   if (this.isUnknown()) {
-  //     return `::unknown`
-  //   }
-
-  //   const nan = !!(this.bitmask & typeToBitRecord.nan)
-  //   const positiveInfinity = !!(this.bitmask & typeToBitRecord[`positive-infinity`])
-  //   const negativeInfinity = !!(this.bitmask & typeToBitRecord[`negative-infinity`])
-  //   const nilable = !!(this.bitmask & typeToBitRecord.nil)
-  //   const bitmask =
-  //     this.bitmask &
-  //     ~(
-  //       typeToBitRecord.nil |
-  //       typeToBitRecord.nan |
-  //       typeToBitRecord[`positive-infinity`] |
-  //       typeToBitRecord[`negative-infinity`]
-  //     )
-
-  //   const typeStrings: string[] = []
-
-  //   for (const [name, bits] of Object.entries(builtinTypesBitMasks).filter(
-  //     ([_, value]) => value !== builtinTypesBitMasks.never,
-  //   )) {
-  //     if (bitmask === bits) {
-  //       typeStrings.push(`::${name}`)
-  //       break
-  //     }
-  //   }
-
-  //   if (typeStrings.length === 0) {
-  //     Object.entries(typeToBitRecord).forEach(([name, bitValue]) => {
-  //       if (bitmask & bitValue) {
-  //         typeStrings.push(`::${name}`)
-  //       }
-  //     })
-  //   }
-
-  //   if (nilable) {
-  //     typeStrings.push(`::nil`)
-  //   }
-
-  //   if (nan && positiveInfinity && negativeInfinity) {
-  //     typeStrings.push(`::illegal-number`)
-  //   } else {
-  //     if (nan) {
-  //       typeStrings.push(`::nan`)
-  //     }
-
-  //     if (positiveInfinity) {
-  //       typeStrings.push(`::positive-infinity`)
-  //     }
-
-  //     if (negativeInfinity) {
-  //       typeStrings.push(`::negative-infinity`)
-  //     }
-  //   }
-
-  //   return typeStrings.join(` | `)
-  // }
 }

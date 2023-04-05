@@ -727,7 +727,6 @@ var Lits = (function (exports) {
   var allBitValues = Object.values(typeToBitRecord);
   // All bits set to 1
   var UNKNWON_BITS = allBitValues.reduce(function (result, bit) { return result | bit; }, 0);
-  // console.log(stringifyBitMask(UNKNWON_BITS))
   var FALSY_BITS = typeToBitRecord.nil |
       typeToBitRecord["positive-zero"] |
       typeToBitRecord["negative-zero"] |
@@ -901,8 +900,7 @@ var Lits = (function (exports) {
       return mask;
   }
   var Type = /** @class */ (function () {
-      function Type(bitmask, _a) {
-          var _b = _a === void 0 ? {} : _a, arrayVariants = _b.arrayVariants;
+      function Type(bitmask) {
           if (bitmask & typeToBitRecord["positive-non-integer"]) {
               bitmask |= typeToBitRecord["positive-integer"];
           }
@@ -910,8 +908,6 @@ var Lits = (function (exports) {
               bitmask |= typeToBitRecord["negative-integer"];
           }
           this.bitmask = bitmask;
-          this.fnReturnType = undefined;
-          this.arrayVariants = arrayVariants;
       }
       Type.of = function (input) {
           any.assert(input);
@@ -978,12 +974,6 @@ var Lits = (function (exports) {
           var newTypeMask = types.reduce(function (result, type) {
               return result | type.bitmask;
           }, 0);
-          // const functions = types.filter(type => type.isFunction())
-          // if (functions.some(f => !f.fnReturnType)) {
-          //   return new Type(newTypeMask)
-          // }
-          // const returnTypes = functions.map(type => type.fnReturnType) as Type[]
-          // const fnReturnType = returnTypes.length > 0 ? Type.or(...returnTypes) : undefined
           return new Type(newTypeMask);
       };
       Type.and = function () {
@@ -994,16 +984,6 @@ var Lits = (function (exports) {
           var newTypeMask = types.reduce(function (result, type) {
               return result & type.bitmask;
           }, UNKNWON_BITS);
-          // At least one of the types is a function
-          // if (newTypeMask & builtinTypesBitMasks.function) {
-          //   const returnFunctions = types.filter(type => type.isFunction())
-          //   const returnFunction = Type.and(...returnFunctions)
-          //   if (returnFunction.bitmask === builtinTypesBitMasks.never) {
-          //     return new Type(newTypeMask & ~builtinTypesBitMasks.function)
-          //   } else {
-          //     return new Type(newTypeMask, returnFunction)
-          //   }
-          // }
           return new Type(newTypeMask);
       };
       Type.exclude = function (first) {
@@ -1013,40 +993,14 @@ var Lits = (function (exports) {
           }
           return rest.reduce(function (result, type) {
               var newBitmask = result.bitmask & ~type.bitmask;
-              // Only remove function bit if functions are equal
-              // if (result.isFunction() && type.isFunction()) {
-              //   const returnType: Type = !type.fnReturnType
-              //     ? Type.never
-              //     : !result.fnReturnType
-              //     ? Type.unknown.exclude(type.fnReturnType)
-              //     : result.fnReturnType.exclude(type.fnReturnType)
-              //   if (returnType.bitmask === builtinTypesBitMasks.never) {
-              //     return new Type(newBitmask)
-              //   } else {
-              //     return new Type(newBitmask | builtinTypesBitMasks.function, returnType)
-              //   }
-              // }
               return new Type(newBitmask);
           }, first);
       };
       Type.is = function (a, b) {
-          var bitmaskA = a.bitmask, fnReturnTypeA = a.fnReturnType;
-          var bitmaskB = b.bitmask, fnReturnTypeB = b.fnReturnType;
+          var bitmaskA = a.bitmask;
+          var bitmaskB = b.bitmask;
           // some bits must be the same AND no bits in a can appear in b
-          var success = bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB);
-          if (!success) {
-              return false;
-          }
-          if (a.isFunction()) {
-              if (!fnReturnTypeB) {
-                  return true;
-              }
-              if (!fnReturnTypeA) {
-                  return false;
-              }
-              return fnReturnTypeA.is(fnReturnTypeB);
-          }
-          return true;
+          return !!(bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB));
       };
       Type.equals = function (type1, type2) {
           var rest = [];
@@ -1054,16 +1008,7 @@ var Lits = (function (exports) {
               rest[_i - 2] = arguments[_i];
           }
           return __spreadArray([type2], __read(rest), false).every(function (t) {
-              if (type1.bitmask !== t.bitmask) {
-                  return false;
-              }
-              if (!type1.fnReturnType && !t.fnReturnType) {
-                  return true;
-              }
-              if (type1.fnReturnType && t.fnReturnType) {
-                  return type1.fnReturnType.equals(t.fnReturnType);
-              }
-              return false;
+              return type1.bitmask === t.bitmask;
           });
       };
       Type.intersects = function (a, b) {
@@ -1198,12 +1143,6 @@ var Lits = (function (exports) {
       Type.prototype.isUnionType = function () {
           return Type.isUnionType(this);
       };
-      // public withReturnType(dataType: Type): Type {
-      //   if (!this.isFunction()) {
-      //     throw Error(`Only functions can have return types`)
-      //   }
-      //   return new Type(this.bitmask, dataType)
-      // }
       Type.prototype.nilable = function () {
           return this.or(Type.nil);
       };
@@ -1587,13 +1526,6 @@ var Lits = (function (exports) {
           var newContext = (_b = {}, _b[node.functionName.value] = { value: true }, _b);
           return addOverloadsUndefinedSymbols(node.overloads, contextStack, findUndefinedSymbols, builtin, newContext);
       },
-      // getDataType: (node, contextStack, { getDataType: dataType, builtin }) => {
-      //   const name = ((node as DefnNode).functionName as NameNode).value
-      //   assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
-      //   const type = getFunctionOverloadeDataType(node as DefnNode, contextStack, dataType)
-      //   contextStack.globalContext[name] = { value: type }
-      //   return Type.nil
-      // },
   };
   var defnsSpecialExpression = {
       parse: function (tokens, position, parsers) {
@@ -1726,21 +1658,6 @@ var Lits = (function (exports) {
       }
       return evaluatedFunctionOverloades;
   }
-  // function getFunctionOverloadeDataType(
-  //   node: DefnNode | FnNode,
-  //   contextStack: ContextStack,
-  //   dataType: GetDataType,
-  // ): Type {
-  //   const types = node.overloads.map(functionOverload => {
-  //     const functionContext: Context = {}
-  //     for (const binding of functionOverload.arguments.bindings) {
-  //       const bindingType = dataType(binding.value, contextStack)
-  //       functionContext[binding.name] = { value: bindingType }
-  //     }
-  //     return Type.function.withReturnType(dataType(functionOverload.body, contextStack.withContext(functionContext)))
-  //   })
-  //   return Type.or(...types)
-  // }
   function addOverloadsUndefinedSymbols(overloads, contextStack, findUndefinedSymbols, builtin, functionNameContext) {
       var e_3, _a;
       var result = new Set();
@@ -4788,7 +4705,7 @@ var Lits = (function (exports) {
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "dec", debugInfo); },
       },
       '+': {
-          evaluate: function (params) {
+          evaluate: function (params, debugInfo) {
               if (params.every(function (param) { return !(param instanceof Type); })) {
                   return params.reduce(function (result, param) {
                       if (!number.is(param)) {
@@ -4798,13 +4715,13 @@ var Lits = (function (exports) {
                   }, 0);
               }
               else {
-                  return getTypeOfSum(params);
+                  return getTypeOfSum(params, debugInfo);
               }
           },
           validateArity: function () { return undefined; },
       },
       '-': {
-          evaluate: function (params) {
+          evaluate: function (params, debugInfo) {
               if (params.every(function (param) { return !(param instanceof Type); })) {
                   if (params.length === 0) {
                       return 0;
@@ -4829,7 +4746,7 @@ var Lits = (function (exports) {
                       return negate(firstParam);
                   }
                   var rest = params.slice(1).map(negate);
-                  return getTypeOfSum(__spreadArray([firstParam], __read(rest), false));
+                  return getTypeOfSum(__spreadArray([firstParam], __read(rest), false), debugInfo);
               }
           },
           validateArity: function () { return undefined; },
@@ -4914,10 +4831,13 @@ var Lits = (function (exports) {
                           types.push(Type.zero);
                       }
                   }
-                  if (a.intersects(Type.zero) && b.intersects(Type.nonZeroFloat)) {
-                      types.push(Type.zero);
+                  if (a.intersects(Type.positiveZero) && b.intersects(Type.nonZeroFloat)) {
+                      types.push(Type.positiveZero);
                   }
-                  if (b.intersects(Type.zero)) {
+                  if (a.intersects(Type.negativeZero) && b.intersects(Type.nonZeroFloat)) {
+                      types.push(Type.negativeZero);
+                  }
+                  if (b.intersects(Type.positiveZero)) {
                       if (a.intersects(Type.zero)) {
                           types.push(Type.nan);
                       }
@@ -4926,6 +4846,17 @@ var Lits = (function (exports) {
                       }
                       if (a.intersects(Type.negativeFloat)) {
                           types.push(Type.negativeInfinity);
+                      }
+                  }
+                  if (b.intersects(Type.negativeZero)) {
+                      if (a.intersects(Type.zero)) {
+                          types.push(Type.nan);
+                      }
+                      if (a.intersects(Type.positiveFloat)) {
+                          types.push(Type.negativeInfinity);
+                      }
+                      if (a.intersects(Type.negativeFloat)) {
+                          types.push(Type.positiveInfinity);
                       }
                   }
                   if (a.intersects(Type.positiveFloat)) {
@@ -5571,7 +5502,7 @@ var Lits = (function (exports) {
                       types.push(Type.nan);
                   }
                   if (a.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                      types.push(Type.positiveZero);
                   }
                   if (a.intersects(Type.positiveFloat)) {
                       types.push(Type.nonNegativeInteger);
@@ -5717,8 +5648,11 @@ var Lits = (function (exports) {
                   if (paramType.intersects(Type.negativeNumber)) {
                       types.push(Type.negativeInteger);
                   }
-                  if (paramType.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                  if (paramType.intersects(Type.positiveZero)) {
+                      types.push(Type.positiveZero);
+                  }
+                  if (paramType.intersects(Type.negativeZero)) {
+                      types.push(Type.negativeZero);
                   }
                   if (paramType.intersects(Type.positiveNumber)) {
                       types.push(Type.positiveInteger);
@@ -5790,7 +5724,7 @@ var Lits = (function (exports) {
                       types.push(Type.nan);
                   }
                   if (paramType.intersects(Type.negativeInfinity)) {
-                      types.push(Type.zero);
+                      types.push(Type.positiveZero);
                   }
                   if (paramType.intersects(Type.positiveInfinity)) {
                       types.push(Type.positiveInfinity);
@@ -5869,8 +5803,11 @@ var Lits = (function (exports) {
                   if (type.intersectsNonNumber()) {
                       types.push(Type.nan);
                   }
-                  if (type.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                  if (type.intersects(Type.positiveZero)) {
+                      types.push(Type.positiveZero);
+                  }
+                  if (type.intersects(Type.negativeZero)) {
+                      types.push(Type.negativeZero);
                   }
                   if (type.intersects(Type.nonZeroFloat)) {
                       types.push(Type.nonZeroFloat); // Math.PI only close to real pi, hence never 0
@@ -5898,8 +5835,11 @@ var Lits = (function (exports) {
                   if (type.intersectsNonNumber()) {
                       types.push(Type.nan);
                   }
-                  if (type.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                  if (type.intersects(Type.positiveZero)) {
+                      types.push(Type.positiveZero);
+                  }
+                  if (type.intersects(Type.negativeZero)) {
+                      types.push(Type.negativeZero);
                   }
                   if (type.intersects(Type.nonZeroNumber)) {
                       types.push(Type.nan);
@@ -5930,8 +5870,11 @@ var Lits = (function (exports) {
                   if (type.intersectsNonNumber()) {
                       types.push(Type.nan);
                   }
-                  if (type.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                  if (type.intersects(Type.positiveZero)) {
+                      types.push(Type.positiveZero);
+                  }
+                  if (type.intersects(Type.negativeZero)) {
+                      types.push(Type.negativeZero);
                   }
                   if (type.intersects(Type.positiveNumber)) {
                       types.push(Type.positiveInfinity);
@@ -5971,8 +5914,11 @@ var Lits = (function (exports) {
                   if (type.intersects(Type.negativeInfinity)) {
                       types.push(Type.negativeInfinity);
                   }
-                  if (type.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                  if (type.intersects(Type.positiveZero)) {
+                      types.push(Type.positiveZero);
+                  }
+                  if (type.intersects(Type.negativeZero)) {
+                      types.push(Type.negativeZero);
                   }
                   if (type.intersects(Type.positiveFloat)) {
                       types.push(Type.positiveFloat);
@@ -6131,8 +6077,11 @@ var Lits = (function (exports) {
                   if (type.intersectsNonNumber()) {
                       types.push(Type.nan);
                   }
-                  if (type.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                  if (type.intersects(Type.positiveZero)) {
+                      types.push(Type.positiveZero);
+                  }
+                  if (type.intersects(Type.negativeZero)) {
+                      types.push(Type.negativeZero);
                   }
                   if (type.intersects(Type.nonZeroFloat)) {
                       types.push(Type.nonZeroFloat); // Math.PI only close to real pi, hence never 0
@@ -6166,8 +6115,11 @@ var Lits = (function (exports) {
                   if (type.intersectsNonNumber()) {
                       types.push(Type.nan);
                   }
-                  if (type.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                  if (type.intersects(Type.positiveZero)) {
+                      types.push(Type.positiveZero);
+                  }
+                  if (type.intersects(Type.negativeZero)) {
+                      types.push(Type.negativeZero);
                   }
                   if (type.intersects(Type.positiveNumber)) {
                       types.push(Type.positiveFloat);
@@ -6201,8 +6153,11 @@ var Lits = (function (exports) {
                   if (type.intersectsNonNumber()) {
                       types.push(Type.nan);
                   }
-                  if (type.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                  if (type.intersects(Type.positiveZero)) {
+                      types.push(Type.positiveZero);
+                  }
+                  if (type.intersects(Type.negativeZero)) {
+                      types.push(Type.negativeZero);
                   }
                   if (type.intersects(Type.positiveInfinity)) {
                       types.push(Type.positiveInteger);
@@ -6242,8 +6197,11 @@ var Lits = (function (exports) {
                   if (type.intersects(Type.negativeInfinity)) {
                       types.push(Type.nan);
                   }
-                  if (type.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                  if (type.intersects(Type.positiveZero)) {
+                      types.push(Type.positiveZero);
+                  }
+                  if (type.intersects(Type.negativeZero)) {
+                      types.push(Type.negativeZero);
                   }
                   if (type.intersects(Type.positiveFloat)) {
                       types.push(Type.nan);
@@ -6265,19 +6223,21 @@ var Lits = (function (exports) {
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "atanh", debugInfo); },
       },
   };
-  function getTypeOfSum(paramTypes) {
+  function getTypeOfSum(paramTypes, debugInfo) {
       paramTypes.sort(function (a, b) { return (isType(a) ? 1 : isType(b) ? -1 : 0); });
       var first = paramTypes[0];
       any.assert(first);
-      if (paramTypes.length === 0) {
-          return 0;
-      }
       if (paramTypes.length === 1) {
-          return isType(first) ? first.toNumberValue() : typeof first === "number" ? first : NaN;
+          assertType(first, debugInfo);
+          return first.toNumberValue();
       }
       var rest = paramTypes.slice(1);
       var sum = rest.reduce(function (a, b) { return getTypeOfBinarySum(a, b); }, first);
-      return isType(sum) ? sum.toNumberValue() : typeof sum === "number" ? sum : NaN;
+      if (isType(sum)) {
+          return sum.toNumberValue();
+      }
+      number.assert(sum, debugInfo);
+      return sum;
   }
   function getTypeOfBinarySum(a, b) {
       any.assert(a);
@@ -6382,11 +6342,8 @@ var Lits = (function (exports) {
   }
   function getTypeOfProduct(paramTypes) {
       var first = asValue(paramTypes[0]);
-      if (paramTypes.length === 0) {
-          return 1;
-      }
       if (paramTypes.length === 1) {
-          return isType(first) ? first.toNumberValue() : first;
+          return first.toNumberValue();
       }
       return paramTypes
           .slice(1)
@@ -6395,7 +6352,7 @@ var Lits = (function (exports) {
   }
   function getTypeOfBinaryProduct(a, b) {
       var types = [];
-      if (b.or(b).intersectsNonNumber()) {
+      if (a.or(b).intersectsNonNumber()) {
           types.push(Type.nan);
       }
       if (a.intersects(Type.infinity) && b.intersects(Type.zero)) {
@@ -6440,7 +6397,7 @@ var Lits = (function (exports) {
           if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveFloat)) {
               types.push(Type.positiveZero);
           }
-          if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeNumber)) {
+          if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeFloat)) {
               types.push(Type.negativeZero);
           }
       }
@@ -6448,7 +6405,7 @@ var Lits = (function (exports) {
           if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveFloat)) {
               types.push(Type.negativeZero);
           }
-          if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeNumber)) {
+          if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeFloat)) {
               types.push(Type.positiveZero);
           }
       }

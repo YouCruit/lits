@@ -760,7 +760,6 @@ var Lits = (function (exports) {
       "zero",
       "positive-zero",
       "negative-zero",
-      "illegal-number",
       "infinity",
       "positive-infinity",
       "negative-infinity",
@@ -810,7 +809,6 @@ var Lits = (function (exports) {
           typeToBitRecord["positive-integer"] |
           typeToBitRecord["negative-non-integer"] |
           typeToBitRecord["negative-integer"],
-      'illegal-number': typeToBitRecord.nan | typeToBitRecord["positive-infinity"] | typeToBitRecord["negative-infinity"],
       nan: typeToBitRecord.nan,
       'positive-infinity': typeToBitRecord["positive-infinity"],
       'negative-infinity': typeToBitRecord["negative-infinity"],
@@ -1314,7 +1312,6 @@ var Lits = (function (exports) {
       };
       Type.never = new Type(builtinTypesBitMasks.never);
       Type.nil = new Type(builtinTypesBitMasks.nil);
-      Type.illegalNumber = new Type(builtinTypesBitMasks["illegal-number"]);
       Type.nan = new Type(builtinTypesBitMasks.nan);
       Type.positiveInfinity = new Type(builtinTypesBitMasks["positive-infinity"]);
       Type.negativeInfinity = new Type(builtinTypesBitMasks["negative-infinity"]);
@@ -4844,9 +4841,6 @@ var Lits = (function (exports) {
                       if (!number.is(param)) {
                           return NaN;
                       }
-                      if (result === 0 || param === 0) {
-                          return 0;
-                      }
                       return result * param;
                   }, 1);
               }
@@ -4873,12 +4867,6 @@ var Lits = (function (exports) {
                   return rest.reduce(function (result, param) {
                       if (!number.is(param)) {
                           return NaN;
-                      }
-                      if (result === 0) {
-                          return 0;
-                      }
-                      if (param === Infinity || param === -Infinity) {
-                          return 0;
                       }
                       return result / param;
                   }, first);
@@ -4991,7 +4979,7 @@ var Lits = (function (exports) {
                   if (b.intersectsNonNumber()) {
                       types.push(Type.nan);
                   }
-                  if (a.intersects(Type.illegalNumber)) {
+                  if (a.intersects(Type.nan) || a.intersects(Type.infinity)) {
                       types.push(Type.nan);
                   }
                   if (b.intersects(Type.nan)) {
@@ -5043,7 +5031,7 @@ var Lits = (function (exports) {
                   if (b.intersectsNonNumber()) {
                       types.push(Type.nan);
                   }
-                  if (a.or(b).intersects(Type.illegalNumber)) {
+                  if (a.or(b).intersects(Type.nan.or(Type.infinity))) {
                       types.push(Type.nan);
                   }
                   if (b.intersects(Type.zero)) {
@@ -5067,7 +5055,8 @@ var Lits = (function (exports) {
                   if (!number.is(first)) {
                       return NaN;
                   }
-                  return Math.sqrt(first);
+                  // Handle Math.sqrt(-0) ==> -0, which I think is wrong.
+                  return first === 0 ? 0 : Math.sqrt(first);
               }
               else {
                   var type = Type.of(first);
@@ -5082,7 +5071,7 @@ var Lits = (function (exports) {
                       types.push(Type.positiveInfinity);
                   }
                   if (type.intersects(Type.zero)) {
-                      types.push(Type.zero);
+                      types.push(Type.positiveZero);
                   }
                   if (type.intersects(Type.negativeFloat)) {
                       types.push(Type.nan);
@@ -5181,7 +5170,7 @@ var Lits = (function (exports) {
                           types.push(Type.positiveInfinity);
                       }
                       if (b.intersects(Type.negativeInfinity.or(Type.negativeFloat))) {
-                          types.push(Type.zero);
+                          types.push(Type.positiveZero);
                       }
                       if (b.intersects(Type.zero)) {
                           types.push(Type.positiveInteger);
@@ -5197,7 +5186,10 @@ var Lits = (function (exports) {
                           types.push(Type.negativeInfinity);
                       }
                       if (b.intersects(Type.negativeInfinity.or(Type.negativeFloat))) {
-                          types.push(Type.zero);
+                          types.push(Type.positiveZero);
+                      }
+                      if (b.intersects(Type.negativeInteger)) {
+                          types.push(Type.negativeZero);
                       }
                       if (b.intersects(Type.zero)) {
                           types.push(Type.positiveInteger);
@@ -5238,15 +5230,30 @@ var Lits = (function (exports) {
                           types.push(Type.zero);
                       }
                   }
-                  if (a.intersects(Type.zero)) {
+                  if (a.intersects(Type.positiveZero)) {
                       if (b.intersects(Type.zero)) {
                           types.push(Type.positiveInteger);
+                          ones += 1;
                       }
                       if (b.intersects(Type.positiveFloat)) {
-                          types.push(Type.zero);
+                          types.push(Type.positiveZero);
                       }
                       if (b.intersects(Type.negativeFloat)) {
                           types.push(Type.positiveInfinity);
+                      }
+                  }
+                  if (a.intersects(Type.negativeZero)) {
+                      if (b.intersects(Type.zero)) {
+                          types.push(Type.positiveInteger);
+                          ones += 1;
+                      }
+                      if (b.intersects(Type.positiveFloat)) {
+                          types.push(Type.positiveZero);
+                          types.push(Type.negativeZero);
+                      }
+                      if (b.intersects(Type.negativeFloat)) {
+                          types.push(Type.positiveInfinity);
+                          types.push(Type.negativeInfinity);
                       }
                   }
                   if (b.intersects(Type.zero)) {
@@ -5269,7 +5276,8 @@ var Lits = (function (exports) {
                               }
                           }
                           if (b.intersects(Type.negativeFloat)) {
-                              types.push(Type.nonNegativeFloat);
+                              types.push(Type.positiveFloat);
+                              types.push(Type.positiveZero);
                           }
                       }
                       else {
@@ -5277,7 +5285,8 @@ var Lits = (function (exports) {
                               types.push(Type.positiveFloat);
                           }
                           if (b.intersects(Type.negativeFloat)) {
-                              types.push(Type.nonNegativeFloat);
+                              types.push(Type.positiveFloat);
+                              types.push(Type.positiveZero);
                           }
                       }
                   }
@@ -5296,6 +5305,7 @@ var Lits = (function (exports) {
                           if (b.intersects(Type.negativeInteger)) {
                               types.push(Type.positiveFloat);
                               types.push(Type.negativeFloat);
+                              types.push(Type.zero);
                           }
                       }
                       else {
@@ -5348,16 +5358,16 @@ var Lits = (function (exports) {
                   if (!b.isInteger() || b.intersects(Type.negativeFloat)) {
                       types.push(Type.nan);
                   }
-                  if (a.intersects(Type.positiveInfinity) && !b.intersects(Type.illegalNumber)) {
+                  if (a.intersects(Type.positiveInfinity) && !b.intersects(Type.nan.or(Type.infinity))) {
                       types.push(Type.positiveInfinity);
                   }
-                  if (a.intersects(Type.negativeInfinity) && !b.intersects(Type.illegalNumber)) {
+                  if (a.intersects(Type.negativeInfinity) && !b.intersects(Type.nan.or(Type.infinity))) {
                       types.push(Type.negativeInfinity);
                   }
                   if (a.intersects(Type.nan)) {
                       types.push(Type.nan);
                   }
-                  if (b.intersects(Type.illegalNumber)) {
+                  if (b.intersects(Type.nan.or(Type.infinity))) {
                       types.push(Type.nan);
                   }
                   if (b.intersects(Type.nonNegativeInteger)) {
@@ -6385,13 +6395,13 @@ var Lits = (function (exports) {
   }
   function getTypeOfBinaryProduct(a, b) {
       var types = [];
-      if (b.exclude(Type.nan).intersectsNonNumber()) {
+      if (b.or(b).intersectsNonNumber()) {
           types.push(Type.nan);
       }
-      if (a.intersects(Type.nan) && b.intersects(Type.number.exclude(Type.zero))) {
+      if (a.intersects(Type.infinity) && b.intersects(Type.zero)) {
           types.push(Type.nan);
       }
-      if (b.intersects(Type.nan) && a.intersects(Type.number.exclude(Type.zero))) {
+      if (b.intersects(Type.infinity) && a.intersects(Type.zero)) {
           types.push(Type.nan);
       }
       if (a.intersects(Type.positiveInfinity)) {
@@ -6427,7 +6437,7 @@ var Lits = (function (exports) {
           }
       }
       if (a.intersects(Type.positiveZero)) {
-          if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveNumber) || b.intersects(Type.nan)) {
+          if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveFloat)) {
               types.push(Type.positiveZero);
           }
           if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeNumber)) {
@@ -6435,7 +6445,7 @@ var Lits = (function (exports) {
           }
       }
       if (a.intersects(Type.negativeZero)) {
-          if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveNumber) || b.intersects(Type.nan)) {
+          if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveFloat)) {
               types.push(Type.negativeZero);
           }
           if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeNumber)) {
@@ -6443,18 +6453,18 @@ var Lits = (function (exports) {
           }
       }
       if (b.intersects(Type.positiveZero)) {
-          if (a.intersects(Type.positiveNumber) || a.intersects(Type.nan)) {
+          if (a.intersects(Type.positiveFloat)) {
               types.push(Type.positiveZero);
           }
-          if (a.intersects(Type.negativeNumber)) {
+          if (a.intersects(Type.negativeFloat)) {
               types.push(Type.negativeZero);
           }
       }
       if (b.intersects(Type.negativeZero)) {
-          if (a.intersects(Type.positiveNumber) || a.intersects(Type.nan)) {
+          if (a.intersects(Type.positiveFloat)) {
               types.push(Type.negativeZero);
           }
-          if (a.intersects(Type.negativeNumber)) {
+          if (a.intersects(Type.negativeFloat)) {
               types.push(Type.positiveZero);
           }
       }
@@ -6486,11 +6496,27 @@ var Lits = (function (exports) {
   }
   function getTypeOfBinaryDivision(a, b) {
       var types = [];
+      if (a.intersectsNonNumber() || b.intersectsNonNumber()) {
+          types.push(Type.nan);
+      }
+      if (a.intersects(Type.zero) && b.intersects(Type.zero)) {
+          types.push(Type.nan);
+      }
       if (a.intersects(Type.positiveZero)) {
-          types.push(Type.positiveZero);
+          if (b.intersects(Type.positiveNumber)) {
+              types.push(Type.positiveZero);
+          }
+          if (b.intersects(Type.negativeNumber)) {
+              types.push(Type.negativeZero);
+          }
       }
       if (a.intersects(Type.negativeZero)) {
-          types.push(Type.negativeZero);
+          if (b.intersects(Type.positiveNumber)) {
+              types.push(Type.negativeZero);
+          }
+          if (b.intersects(Type.negativeNumber)) {
+              types.push(Type.positiveZero);
+          }
       }
       if (b.intersects(Type.positiveZero)) {
           if (a.intersects(Type.positiveFloat)) {
@@ -6508,41 +6534,36 @@ var Lits = (function (exports) {
               types.push(Type.positiveInfinity);
           }
       }
-      if (b.intersects(Type.positiveInfinity)) {
-          types.push(Type.positiveZero);
-      }
-      if (b.intersects(Type.negativeInfinity)) {
-          types.push(Type.negativeZero);
-      }
-      if (b.intersectsNonNumber() && a.intersects(Type.nonZeroNumber)) {
-          types.push(Type.nan);
-      }
-      if (a.intersects(Type.nan) && b.intersects(Type.number.exclude(Type.infinity))) {
-          types.push(Type.nan);
-      }
-      if (b.intersects(Type.nan) && a.intersects(Type.number.exclude(Type.zero))) {
-          types.push(Type.nan);
-      }
       if (a.intersects(Type.positiveInfinity)) {
-          if (b.intersects(Type.zero)) {
+          if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveFloat)) {
               types.push(Type.positiveInfinity);
           }
-          if (b.intersects(Type.positiveFloat)) {
-              types.push(Type.positiveInfinity);
-          }
-          if (b.intersects(Type.negativeFloat)) {
+          if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeFloat)) {
               types.push(Type.negativeInfinity);
           }
       }
       if (a.intersects(Type.negativeInfinity)) {
-          if (b.intersects(Type.zero)) {
+          if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveFloat)) {
               types.push(Type.negativeInfinity);
           }
-          if (b.intersects(Type.positiveFloat)) {
-              types.push(Type.negativeInfinity);
-          }
-          if (b.intersects(Type.negativeFloat)) {
+          if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeFloat)) {
               types.push(Type.positiveInfinity);
+          }
+      }
+      if (b.intersects(Type.positiveInfinity)) {
+          if (a.intersects(Type.positiveNumber) || a.intersects(Type.positiveZero)) {
+              types.push(Type.positiveZero);
+          }
+          if (a.intersects(Type.negativeNumber) || a.intersects(Type.positiveZero)) {
+              types.push(Type.negativeZero);
+          }
+      }
+      if (b.intersects(Type.negativeInfinity)) {
+          if (a.intersects(Type.positiveNumber) || a.intersects(Type.positiveZero)) {
+              types.push(Type.negativeZero);
+          }
+          if (a.intersects(Type.negativeNumber) || a.intersects(Type.positiveZero)) {
+              types.push(Type.positiveZero);
           }
       }
       var aNeg = a.intersects(Type.negativeFloat);
@@ -8561,8 +8582,6 @@ var Lits = (function (exports) {
               return Type.nonNegativeNumber;
           case "float":
               return Type.float;
-          case "illegal-number":
-              return Type.illegalNumber;
           case "positive-infinity":
               return Type.positiveInfinity;
           case "negative-infinity":
@@ -9067,7 +9086,6 @@ var Lits = (function (exports) {
       "zero",
       "number",
       "float",
-      "illegal-number",
       "positive-float",
       "negative-float",
       "positive-number",

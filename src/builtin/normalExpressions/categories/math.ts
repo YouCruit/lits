@@ -1,8 +1,9 @@
-import { Type, isType, isNotType } from '../../../types/Type'
+import { Type, isType, isNotType, assertType } from '../../../types/Type'
 import { Arr } from '../../../interface'
 import { MAX_NUMBER, MIN_NUMBER } from '../../../utils'
 import { any, assertNumberOfParams, asValue, number } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
+import { DebugInfo } from '../../../tokenizer/interface'
 
 export const mathNormalExpression: BuiltinNormalExpressions = {
   inc: {
@@ -109,7 +110,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   },
 
   '+': {
-    evaluate: (params): number | Type => {
+    evaluate: (params, debugInfo): number | Type => {
       if (params.every(param => !(param instanceof Type))) {
         return params.reduce((result: number, param) => {
           if (!number.is(param)) {
@@ -118,14 +119,14 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           return result + param
         }, 0)
       } else {
-        return getTypeOfSum(params)
+        return getTypeOfSum(params, debugInfo)
       }
     },
     validateArity: () => undefined,
   },
 
   '-': {
-    evaluate: (params): number | Type => {
+    evaluate: (params, debugInfo): number | Type => {
       if (params.every(param => !(param instanceof Type))) {
         if (params.length === 0) {
           return 0
@@ -149,7 +150,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           return negate(firstParam)
         }
         const rest = params.slice(1).map(negate)
-        return getTypeOfSum([firstParam, ...rest])
+        return getTypeOfSum([firstParam, ...rest], debugInfo)
       }
     },
     validateArity: () => undefined,
@@ -161,9 +162,6 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return params.reduce((result: number, param) => {
           if (!number.is(param)) {
             return NaN
-          }
-          if (result === 0 || param === 0) {
-            return 0
           }
           return result * param
         }, 1)
@@ -247,11 +245,14 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           }
         }
 
-        if (a.intersects(Type.zero) && b.intersects(Type.nonZeroFloat)) {
-          types.push(Type.zero)
+        if (a.intersects(Type.positiveZero) && b.intersects(Type.nonZeroFloat)) {
+          types.push(Type.positiveZero)
+        }
+        if (a.intersects(Type.negativeZero) && b.intersects(Type.nonZeroFloat)) {
+          types.push(Type.negativeZero)
         }
 
-        if (b.intersects(Type.zero)) {
+        if (b.intersects(Type.positiveZero)) {
           if (a.intersects(Type.zero)) {
             types.push(Type.nan)
           }
@@ -260,6 +261,18 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           }
           if (a.intersects(Type.negativeFloat)) {
             types.push(Type.negativeInfinity)
+          }
+        }
+
+        if (b.intersects(Type.negativeZero)) {
+          if (a.intersects(Type.zero)) {
+            types.push(Type.nan)
+          }
+          if (a.intersects(Type.positiveFloat)) {
+            types.push(Type.negativeInfinity)
+          }
+          if (a.intersects(Type.negativeFloat)) {
+            types.push(Type.positiveInfinity)
           }
         }
 
@@ -403,7 +416,8 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         if (!number.is(first)) {
           return NaN
         }
-        return Math.sqrt(first)
+        // Handle Math.sqrt(-0) ==> -0, which I think is wrong.
+        return first === 0 ? 0 : Math.sqrt(first)
       } else {
         const type = Type.of(first)
 
@@ -421,7 +435,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         }
 
         if (type.intersects(Type.zero)) {
-          types.push(Type.zero)
+          types.push(Type.positiveZero)
         }
         if (type.intersects(Type.negativeFloat)) {
           types.push(Type.nan)
@@ -534,7 +548,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
             types.push(Type.positiveInfinity)
           }
           if (b.intersects(Type.negativeInfinity.or(Type.negativeFloat))) {
-            types.push(Type.zero)
+            types.push(Type.positiveZero)
           }
           if (b.intersects(Type.zero)) {
             types.push(Type.positiveInteger)
@@ -550,7 +564,10 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
             types.push(Type.negativeInfinity)
           }
           if (b.intersects(Type.negativeInfinity.or(Type.negativeFloat))) {
-            types.push(Type.zero)
+            types.push(Type.positiveZero)
+          }
+          if (b.intersects(Type.negativeInteger)) {
+            types.push(Type.negativeZero)
           }
           if (b.intersects(Type.zero)) {
             types.push(Type.positiveInteger)
@@ -594,15 +611,30 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           }
         }
 
-        if (a.intersects(Type.zero)) {
+        if (a.intersects(Type.positiveZero)) {
           if (b.intersects(Type.zero)) {
             types.push(Type.positiveInteger)
+            ones += 1
           }
           if (b.intersects(Type.positiveFloat)) {
-            types.push(Type.zero)
+            types.push(Type.positiveZero)
           }
           if (b.intersects(Type.negativeFloat)) {
             types.push(Type.positiveInfinity)
+          }
+        }
+        if (a.intersects(Type.negativeZero)) {
+          if (b.intersects(Type.zero)) {
+            types.push(Type.positiveInteger)
+            ones += 1
+          }
+          if (b.intersects(Type.positiveFloat)) {
+            types.push(Type.positiveZero)
+            types.push(Type.negativeZero)
+          }
+          if (b.intersects(Type.negativeFloat)) {
+            types.push(Type.positiveInfinity)
+            types.push(Type.negativeInfinity)
           }
         }
 
@@ -626,14 +658,16 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
               }
             }
             if (b.intersects(Type.negativeFloat)) {
-              types.push(Type.nonNegativeFloat)
+              types.push(Type.positiveFloat)
+              types.push(Type.positiveZero)
             }
           } else {
             if (b.intersects(Type.positiveFloat)) {
               types.push(Type.positiveFloat)
             }
             if (b.intersects(Type.negativeFloat)) {
-              types.push(Type.nonNegativeFloat)
+              types.push(Type.positiveFloat)
+              types.push(Type.positiveZero)
             }
           }
         }
@@ -653,6 +687,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
             if (b.intersects(Type.negativeInteger)) {
               types.push(Type.positiveFloat)
               types.push(Type.negativeFloat)
+              types.push(Type.zero)
             }
           } else {
             if (b.intersects(Type.nonZeroInteger)) {
@@ -940,7 +975,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         }
 
         if (a.intersects(Type.zero)) {
-          types.push(Type.zero)
+          types.push(Type.positiveZero)
         }
         if (a.intersects(Type.positiveFloat)) {
           types.push(Type.nonNegativeInteger)
@@ -1125,8 +1160,11 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         if (paramType.intersects(Type.negativeNumber)) {
           types.push(Type.negativeInteger)
         }
-        if (paramType.intersects(Type.zero)) {
-          types.push(Type.zero)
+        if (paramType.intersects(Type.positiveZero)) {
+          types.push(Type.positiveZero)
+        }
+        if (paramType.intersects(Type.negativeZero)) {
+          types.push(Type.negativeZero)
         }
         if (paramType.intersects(Type.positiveNumber)) {
           types.push(Type.positiveInteger)
@@ -1209,7 +1247,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         }
 
         if (paramType.intersects(Type.negativeInfinity)) {
-          types.push(Type.zero)
+          types.push(Type.positiveZero)
         }
         if (paramType.intersects(Type.positiveInfinity)) {
           types.push(Type.positiveInfinity)
@@ -1290,8 +1328,11 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         if (type.intersectsNonNumber()) {
           types.push(Type.nan)
         }
-        if (type.intersects(Type.zero)) {
-          types.push(Type.zero)
+        if (type.intersects(Type.positiveZero)) {
+          types.push(Type.positiveZero)
+        }
+        if (type.intersects(Type.negativeZero)) {
+          types.push(Type.negativeZero)
         }
         if (type.intersects(Type.nonZeroFloat)) {
           types.push(Type.nonZeroFloat) // Math.PI only close to real pi, hence never 0
@@ -1321,8 +1362,11 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         if (type.intersectsNonNumber()) {
           types.push(Type.nan)
         }
-        if (type.intersects(Type.zero)) {
-          types.push(Type.zero)
+        if (type.intersects(Type.positiveZero)) {
+          types.push(Type.positiveZero)
+        }
+        if (type.intersects(Type.negativeZero)) {
+          types.push(Type.negativeZero)
         }
         if (type.intersects(Type.nonZeroNumber)) {
           types.push(Type.nan)
@@ -1356,8 +1400,11 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         if (type.intersectsNonNumber()) {
           types.push(Type.nan)
         }
-        if (type.intersects(Type.zero)) {
-          types.push(Type.zero)
+        if (type.intersects(Type.positiveZero)) {
+          types.push(Type.positiveZero)
+        }
+        if (type.intersects(Type.negativeZero)) {
+          types.push(Type.negativeZero)
         }
         if (type.intersects(Type.positiveNumber)) {
           types.push(Type.positiveInfinity)
@@ -1401,8 +1448,11 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(Type.negativeInfinity)
         }
 
-        if (type.intersects(Type.zero)) {
-          types.push(Type.zero)
+        if (type.intersects(Type.positiveZero)) {
+          types.push(Type.positiveZero)
+        }
+        if (type.intersects(Type.negativeZero)) {
+          types.push(Type.negativeZero)
         }
 
         if (type.intersects(Type.positiveFloat)) {
@@ -1578,8 +1628,11 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         if (type.intersectsNonNumber()) {
           types.push(Type.nan)
         }
-        if (type.intersects(Type.zero)) {
-          types.push(Type.zero)
+        if (type.intersects(Type.positiveZero)) {
+          types.push(Type.positiveZero)
+        }
+        if (type.intersects(Type.negativeZero)) {
+          types.push(Type.negativeZero)
         }
         if (type.intersects(Type.nonZeroFloat)) {
           types.push(Type.nonZeroFloat) // Math.PI only close to real pi, hence never 0
@@ -1618,8 +1671,11 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(Type.nan)
         }
 
-        if (type.intersects(Type.zero)) {
-          types.push(Type.zero)
+        if (type.intersects(Type.positiveZero)) {
+          types.push(Type.positiveZero)
+        }
+        if (type.intersects(Type.negativeZero)) {
+          types.push(Type.negativeZero)
         }
 
         if (type.intersects(Type.positiveNumber)) {
@@ -1657,8 +1713,11 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         if (type.intersectsNonNumber()) {
           types.push(Type.nan)
         }
-        if (type.intersects(Type.zero)) {
-          types.push(Type.zero)
+        if (type.intersects(Type.positiveZero)) {
+          types.push(Type.positiveZero)
+        }
+        if (type.intersects(Type.negativeZero)) {
+          types.push(Type.negativeZero)
         }
         if (type.intersects(Type.positiveInfinity)) {
           types.push(Type.positiveInteger)
@@ -1702,9 +1761,13 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
           types.push(Type.nan)
         }
 
-        if (type.intersects(Type.zero)) {
-          types.push(Type.zero)
+        if (type.intersects(Type.positiveZero)) {
+          types.push(Type.positiveZero)
         }
+        if (type.intersects(Type.negativeZero)) {
+          types.push(Type.negativeZero)
+        }
+
         if (type.intersects(Type.positiveFloat)) {
           types.push(Type.nan)
           types.push(Type.positiveInfinity)
@@ -1727,19 +1790,22 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   },
 }
 
-function getTypeOfSum(paramTypes: Arr): Type | number {
+function getTypeOfSum(paramTypes: Arr, debugInfo: DebugInfo | undefined): Type | number {
   paramTypes.sort((a, b) => (isType(a) ? 1 : isType(b) ? -1 : 0))
   const first = paramTypes[0]
   any.assert(first)
-  if (paramTypes.length === 0) {
-    return 0
-  }
   if (paramTypes.length === 1) {
-    return isType(first) ? first.toNumberValue() : typeof first === `number` ? first : NaN
+    assertType(first, debugInfo)
+    return first.toNumberValue()
   }
   const rest = paramTypes.slice(1)
   const sum = rest.reduce((a: unknown | number, b) => getTypeOfBinarySum(a, b), first)
-  return isType(sum) ? sum.toNumberValue() : typeof sum === `number` ? sum : NaN
+
+  if (isType(sum)) {
+    return sum.toNumberValue()
+  }
+  number.assert(sum, debugInfo)
+  return sum
 }
 
 function getTypeOfBinarySum(a: unknown, b: unknown): Type | number {
@@ -1859,11 +1925,8 @@ function getTypeOfBinarySum(a: unknown, b: unknown): Type | number {
 
 function getTypeOfProduct(paramTypes: Type[]): Type | number {
   const first = asValue(paramTypes[0])
-  if (paramTypes.length === 0) {
-    return 1
-  }
   if (paramTypes.length === 1) {
-    return isType(first) ? first.toNumberValue() : first
+    return first.toNumberValue()
   }
 
   return paramTypes
@@ -1874,14 +1937,14 @@ function getTypeOfProduct(paramTypes: Type[]): Type | number {
 
 function getTypeOfBinaryProduct(a: Type, b: Type): Type {
   const types: Type[] = []
-  if (b.exclude(Type.nan).intersectsNonNumber()) {
+  if (a.or(b).intersectsNonNumber()) {
     types.push(Type.nan)
   }
 
-  if (a.intersects(Type.nan) && b.intersects(Type.number.exclude(Type.zero))) {
+  if (a.intersects(Type.infinity) && b.intersects(Type.zero)) {
     types.push(Type.nan)
   }
-  if (b.intersects(Type.nan) && a.intersects(Type.number.exclude(Type.zero))) {
+  if (b.intersects(Type.infinity) && a.intersects(Type.zero)) {
     types.push(Type.nan)
   }
 
@@ -1922,37 +1985,37 @@ function getTypeOfBinaryProduct(a: Type, b: Type): Type {
   }
 
   if (a.intersects(Type.positiveZero)) {
-    if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveNumber) || b.intersects(Type.nan)) {
+    if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveFloat)) {
       types.push(Type.positiveZero)
     }
-    if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeNumber)) {
+    if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeFloat)) {
       types.push(Type.negativeZero)
     }
   }
 
   if (a.intersects(Type.negativeZero)) {
-    if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveNumber) || b.intersects(Type.nan)) {
+    if (b.intersects(Type.positiveZero) || b.intersects(Type.positiveFloat)) {
       types.push(Type.negativeZero)
     }
-    if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeNumber)) {
+    if (b.intersects(Type.negativeZero) || b.intersects(Type.negativeFloat)) {
       types.push(Type.positiveZero)
     }
   }
 
   if (b.intersects(Type.positiveZero)) {
-    if (a.intersects(Type.positiveNumber) || a.intersects(Type.nan)) {
+    if (a.intersects(Type.positiveFloat)) {
       types.push(Type.positiveZero)
     }
-    if (a.intersects(Type.negativeNumber)) {
+    if (a.intersects(Type.negativeFloat)) {
       types.push(Type.negativeZero)
     }
   }
 
   if (b.intersects(Type.negativeZero)) {
-    if (a.intersects(Type.positiveNumber) || a.intersects(Type.nan)) {
+    if (a.intersects(Type.positiveFloat)) {
       types.push(Type.negativeZero)
     }
-    if (a.intersects(Type.negativeNumber)) {
+    if (a.intersects(Type.negativeFloat)) {
       types.push(Type.positiveZero)
     }
   }

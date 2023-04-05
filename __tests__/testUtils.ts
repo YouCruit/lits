@@ -187,13 +187,16 @@ export function testTypeEvaluations(
       const hasExpressionParam = params.some(isExpressionObj)
       if (!hasExpressionParam && resultExpression !== `ERROR` && resultValue === undefined) {
         const resultType = lits.run(`(type-of ${resultExpression})`) as Type
-        let combinedSampeExpressionType = Type.or(...sampleExpressions.map(e => lits.run(`(type-of ${e})`) as Type))
+        const combinedSampeExpressionType = Type.or(...sampleExpressions.map(e => lits.run(`(type-of ${e})`) as Type))
 
         // handle -0 and 0 TODO
-        if (combinedSampeExpressionType.intersects(Type.zero)) {
-          combinedSampeExpressionType = combinedSampeExpressionType.or(Type.zero)
-        }
-        if (!combinedSampeExpressionType.equals(resultType)) {
+        const combinedSampeExpressionTypeWithFullZero = combinedSampeExpressionType.intersects(Type.zero)
+          ? combinedSampeExpressionType.or(Type.zero)
+          : combinedSampeExpressionType
+        if (
+          !combinedSampeExpressionType.equals(resultType) &&
+          !combinedSampeExpressionTypeWithFullZero.equals(resultType)
+        ) {
           throw Error(
             `Expected combined sample type (${combinedSampeExpressionType.toString({
               showDetails: false,

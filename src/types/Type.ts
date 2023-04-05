@@ -28,24 +28,24 @@ export function isNotType(value: unknown): boolean {
 
 export type PrimitiveTypeName =
   | `nil`
-  | `empty-string`
+  | `nan`
+  | `true`
+  | `false`
   | `positive-zero`
   | `negative-zero`
-  | `false`
-  | `nan`
-  | `positive-infinity`
-  | `negative-infinity`
-  | `true`
-  | `non-empty-string`
-  | `regexp`
   | `positive-integer`
   | `negative-integer`
   | `positive-non-integer`
   | `negative-non-integer`
+  | `positive-infinity`
+  | `negative-infinity`
+  | `empty-string`
+  | `non-empty-string`
   | `empty-array`
   | `non-empty-array`
   | `empty-object`
   | `non-empty-object`
+  | `regexp`
   | `function`
 
 export const typeToBitRecord: Record<PrimitiveTypeName, number> = {
@@ -91,6 +91,7 @@ const FALSY_BITS =
 // All non falsy bits
 const TRUTHY_BITS = UNKNWON_BITS & ~FALSY_BITS
 
+// Used for stringify Type only
 export const orderedTypeNames: TypeName[] = [
   `unknown`,
   `number`,

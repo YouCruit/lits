@@ -1,4 +1,4 @@
-import { Type, isNotType } from '../../../types/Type'
+import { Type } from '../../../types/Type'
 import { Arr } from '../../../interface'
 import { array, assertNumberOfParams, asValue, number } from '../../../utils/assertion'
 import { BuiltinNormalExpressions } from '../../interface'
@@ -70,7 +70,7 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
 
   repeat: {
     evaluate: (params, debugInfo): Arr | Type => {
-      if (params.every(isNotType)) {
+      if (params.every(Type.isNotType)) {
         const [count, value] = params
         number.assert(count, debugInfo, { integer: true, nonNegative: true })
         const result: Arr = []

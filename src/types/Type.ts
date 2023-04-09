@@ -5,27 +5,6 @@ import { MAX_NUMBER, MIN_NUMBER } from '../utils'
 import { any, array, litsFunction, object, regularExpression } from '../utils/assertion'
 import { TypeName } from './litsTypeNames'
 
-export function isType(value: unknown): value is Type {
-  return value instanceof Type
-}
-
-export function assertType(value: unknown, debugInfo: DebugInfo | undefined): asserts value is Type {
-  if (!(value instanceof Type)) {
-    throw new LitsError(`Expected instance of Type, got ${value}`, debugInfo)
-  }
-}
-
-export function asType(value: unknown, debugInfo: DebugInfo | undefined): Type {
-  if (!(value instanceof Type)) {
-    throw new LitsError(`Expected instance of Type, got ${value}`, debugInfo)
-  }
-  return value
-}
-
-export function isNotType(value: unknown): boolean {
-  return !(value instanceof Type)
-}
-
 export type PrimitiveTypeName =
   | `nil`
   | `nan`
@@ -382,6 +361,27 @@ export class Type {
 
   public static readonly function = new Type(builtinTypesBitMasks.function)
 
+  public static isType(value: unknown): value is Type {
+    return value instanceof Type
+  }
+
+  public static assertType(value: unknown, debugInfo: DebugInfo | undefined): asserts value is Type {
+    if (!(value instanceof Type)) {
+      throw new LitsError(`Expected instance of Type, got ${value}`, debugInfo)
+    }
+  }
+
+  public static asType(value: unknown, debugInfo: DebugInfo | undefined): Type {
+    if (!(value instanceof Type)) {
+      throw new LitsError(`Expected instance of Type, got ${value}`, debugInfo)
+    }
+    return value
+  }
+
+  public static isNotType(value: unknown): boolean {
+    return !(value instanceof Type)
+  }
+
   public static of(input: unknown): Type {
     any.assert(input)
     if (input instanceof Type) {
@@ -469,12 +469,8 @@ export class Type {
     return a.and(b).bitmask !== 0
   }
 
-  public static isUnionType(dataType: Type): boolean {
-    return !allBitValues.includes(dataType.bitmask)
-  }
-
   public static toValue(dataType: Any): Any {
-    if (isType(dataType)) {
+    if (Type.isType(dataType)) {
       if (dataType.equals(Type.positiveZero)) {
         return 0
       }
@@ -512,7 +508,7 @@ export class Type {
     return dataType
   }
 
-  public static toNumberValue(dataType: Type): Type | number {
+  public static toNumberOrNan(dataType: Type): Type | number {
     if (dataType.equals(Type.positiveZero)) {
       return 0
     }
@@ -594,10 +590,6 @@ export class Type {
     return Type.equals(this, type, ...rest)
   }
 
-  public isUnionType(): boolean {
-    return Type.isUnionType(this)
-  }
-
   public nilable(): Type {
     return this.or(Type.nil)
   }
@@ -644,10 +636,6 @@ export class Type {
     return new Type(newBitmask)
   }
 
-  public isFunction(): boolean {
-    return !!(this.bitmask & builtinTypesBitMasks.function)
-  }
-
   public isUnknown(): boolean {
     return this.bitmask === UNKNWON_BITS
   }
@@ -672,7 +660,7 @@ export class Type {
   }
 
   public toNumberValue(): Type | number {
-    return Type.toNumberValue(this)
+    return Type.toNumberOrNan(this)
   }
 
   public toString({ showDetails } = { showDetails: true }): string {

@@ -1,4 +1,4 @@
-import { Type, isType } from '../../types/Type'
+import { Type } from '../../types/Type'
 import { Any } from '../../interface'
 import { assertNumberOfParams, astNode, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
@@ -23,9 +23,9 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const [conditionNode, trueNode, falseNode] = node.params
     const conditionValue = evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)
-    if ((isType(conditionNode) && conditionNode.is(Type.truthy)) || !!conditionValue) {
+    if ((Type.isType(conditionNode) && conditionNode.is(Type.truthy)) || !!conditionValue) {
       return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack)
-    } else if ((isType(conditionNode) && conditionNode.is(Type.falsy)) || !conditionValue) {
+    } else if ((Type.isType(conditionNode) && conditionNode.is(Type.falsy)) || !conditionValue) {
       if (node.params.length === 3) {
         return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack)
       } else {

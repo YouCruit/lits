@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-import { asType, PrimitiveTypeName, typeToBitRecord } from '../src/types/Type'
+import { PrimitiveTypeName, typeToBitRecord } from '../src/types/Type'
 import { TypeName } from '../src/types/litsTypeNames'
 import { UndefinedSymbolEntry } from '../src/analyze/undefinedSymbols/interface'
 import { Any, Obj } from '../src/interface'
@@ -274,7 +274,7 @@ export function getSampleExpressions(lits: Lits, functionName: string, litsTypeP
   // Each param will be substituted with an array of sample values based on the type
   const litsTypeParamsVariants = litsTypeParams.map(param => {
     if (param.startsWith(`::`)) {
-      const type = asType(lits.run(`(type-of ${param})`), undefined)
+      const type = Type.asType(lits.run(`(type-of ${param})`), undefined)
       return getSampleValuesForType(type)
     } else {
       return [param]

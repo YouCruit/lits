@@ -1,4 +1,8 @@
+import { Lits } from '../src'
 import { Type, builtinTypesBitMasks, orderedTypeNames, typeToBitRecord } from '../src/types/Type'
+import { MAX_NUMBER, MIN_NUMBER } from '../src/utils'
+
+const lits = new Lits()
 
 describe(`Type`, () => {
   test(`orderedTypeNames`, () => {
@@ -6,6 +10,126 @@ describe(`Type`, () => {
     expect(set.size + 1).toBe(Object.keys(builtinTypesBitMasks).length)
     expect(orderedTypeNames.includes(`never`)).toBe(false)
   })
+  test(`isType`, () => {
+    const isType = Type.isType
+    expect(isType({})).toBe(false)
+    expect(isType(Type.emptySequence)).toBe(true)
+  })
+  test(`assertType`, () => {
+    const assertType = Type.assertType
+    expect(() => assertType({}, undefined)).toThrow()
+    expect(() => assertType(Type.emptySequence, undefined)).not.toThrow()
+  })
+  test(`assertType`, () => {
+    const asType = Type.asType
+    expect(() => asType({}, undefined)).toThrow()
+    expect(() => asType(Type.emptySequence, undefined)).not.toThrow()
+  })
+  test(`isNotType`, () => {
+    const isNotType = Type.isNotType
+    expect(isNotType({})).toBe(true)
+    expect(isNotType(Type.emptySequence)).toBe(false)
+  })
+  test(`Type.of.`, () => {
+    expect(Type.of(Type.collection)).toBe(Type.collection)
+    expect(Type.of(null)).toEqual(Type.nil)
+    expect(Type.of(``)).toEqual(Type.emptyString)
+    expect(Type.of(`Albert`)).toEqual(Type.nonEmptyString)
+    expect(Type.of(true)).toEqual(Type.true)
+    expect(Type.of(false)).toEqual(Type.false)
+    expect(Type.of(MAX_NUMBER + 1)).toEqual(Type.positiveInfinity)
+    expect(Type.of(MIN_NUMBER - 1)).toEqual(Type.negativeInfinity)
+    expect(Type.of(NaN)).toEqual(Type.nan)
+    expect(Type.of(0)).toEqual(Type.positiveZero)
+    expect(Type.of(-0)).toEqual(Type.negativeZero)
+    expect(Type.of(1)).toEqual(Type.positiveInteger)
+    expect(Type.of(-1)).toEqual(Type.negativeInteger)
+    expect(Type.of(1.1)).toEqual(Type.positiveFloat)
+    expect(Type.of(-1.1)).toEqual(Type.negativeFloat)
+    expect(Type.of(Infinity)).toEqual(Type.positiveInfinity)
+    expect(Type.of(-Infinity)).toEqual(Type.negativeInfinity)
+    expect(Type.of([])).toEqual(Type.emptyArray)
+    expect(Type.of([1])).toEqual(Type.nonEmptyArray)
+    expect(Type.of({})).toEqual(Type.emptyObject)
+    expect(Type.of({ foo: true })).toEqual(Type.nonEmptyObject)
+    expect(Type.of(lits.run(`#"^$"`))).toEqual(Type.regexp)
+    expect(Type.of(lits.run(`#(1)`))).toEqual(Type.function)
+    expect(() => Type.of(() => undefined)).toThrow()
+  })
+
+  test(`Type.toValue.`, () => {
+    expect(Type.toValue(Type.nil)).toBe(null)
+    expect(Type.toValue(Type.positiveZero)).toBe(0)
+    expect(Type.toValue(Type.negativeZero)).toBe(-0)
+    expect(Type.toValue(Type.emptyString)).toBe(``)
+    expect(Type.toValue(Type.true)).toBe(true)
+    expect(Type.toValue(Type.false)).toBe(false)
+    expect(Type.toValue(Type.nan)).toBe(NaN)
+    expect(Type.toValue(Type.positiveInfinity)).toBe(Infinity)
+    expect(Type.toValue(Type.negativeInfinity)).toBe(-Infinity)
+    expect(Type.toValue(Type.emptyArray)).toEqual([])
+    expect(Type.toValue(Type.emptyObject)).toEqual({})
+    expect(Type.toValue(Type.collection)).toEqual(Type.collection)
+
+    expect(Type.nil.toValue()).toBe(null)
+    expect(Type.positiveZero.toValue()).toBe(0)
+    expect(Type.negativeZero.toValue()).toBe(-0)
+    expect(Type.emptyString.toValue()).toBe(``)
+    expect(Type.true.toValue()).toBe(true)
+    expect(Type.false.toValue()).toBe(false)
+    expect(Type.nan.toValue()).toBe(NaN)
+    expect(Type.positiveInfinity.toValue()).toBe(Infinity)
+    expect(Type.negativeInfinity.toValue()).toBe(-Infinity)
+    expect(Type.emptyArray.toValue()).toEqual([])
+    expect(Type.emptyObject.toValue()).toEqual({})
+    expect(Type.collection.toValue()).toEqual(Type.collection)
+  })
+
+  test(`Type.toNumberOrNan.`, () => {
+    expect(Type.toNumberOrNan(Type.nil)).toEqual(Type.nil)
+    expect(Type.toNumberOrNan(Type.positiveZero)).toBe(0)
+    expect(Type.toNumberOrNan(Type.negativeZero)).toBe(-0)
+    expect(Type.toNumberOrNan(Type.emptyString)).toEqual(Type.emptyString)
+    expect(Type.toNumberOrNan(Type.true)).toEqual(Type.true)
+    expect(Type.toNumberOrNan(Type.false)).toEqual(Type.false)
+    expect(Type.toNumberOrNan(Type.nan)).toEqual(NaN)
+    expect(Type.toNumberOrNan(Type.positiveInfinity)).toBe(Infinity)
+    expect(Type.toNumberOrNan(Type.negativeInfinity)).toBe(-Infinity)
+    expect(Type.toNumberOrNan(Type.emptyArray)).toEqual(Type.emptyArray)
+    expect(Type.toNumberOrNan(Type.emptyObject)).toEqual(Type.emptyObject)
+    expect(Type.toNumberOrNan(Type.collection)).toEqual(Type.collection)
+  })
+
+  test(`Type.split.`, () => {
+    expect(Type.split(Type.string)).toEqual([Type.emptyString, Type.nonEmptyString])
+    expect(Type.split(Type.emptyString)).toEqual([Type.emptyString])
+    expect(Type.string.split()).toEqual([Type.emptyString, Type.nonEmptyString])
+    expect(Type.emptyString.split()).toEqual([Type.emptyString])
+  })
+
+  test(`assertIs.`, () => {
+    expect(() => Type.emptyString.assertIs(Type.string, undefined)).not.toThrow()
+    expect(() => Type.string.assertIs(Type.emptyString, undefined)).toThrow()
+  })
+
+  test(`assertEquals.`, () => {
+    expect(() => Type.emptyString.assertEquals(Type.emptyString, undefined)).not.toThrow()
+    expect(() => Type.string.assertEquals(Type.emptyString, undefined)).toThrow()
+  })
+
+  test(`assertIntersects.`, () => {
+    expect(() => Type.emptyString.assertIntersects(Type.string, undefined)).not.toThrow()
+    expect(() => Type.string.assertIntersects(Type.emptyString, undefined)).not.toThrow()
+    expect(() => Type.number.assertIntersects(Type.emptyString, undefined)).toThrow()
+  })
+
+  test(`Type.split.`, () => {
+    expect(Type.split(Type.string)).toEqual([Type.emptyString, Type.nonEmptyString])
+    expect(Type.split(Type.emptyString)).toEqual([Type.emptyString])
+    expect(Type.string.split()).toEqual([Type.emptyString, Type.nonEmptyString])
+    expect(Type.emptyString.split()).toEqual([Type.emptyString])
+  })
+
   test(`standard types.`, () => {
     expect(Type.nil.bitmask).toBe(typeToBitRecord.nil)
 
@@ -321,40 +445,18 @@ describe(`Type`, () => {
     })
   })
 
-  describe(`Type.isUnionType`, () => {
-    test(`sampples`, () => {
-      expect(Type.emptyCollection.isUnionType()).toBe(true)
-      expect(Type.nonEmptyCollection.isUnionType()).toBe(true)
-      expect(Type.collection.isUnionType()).toBe(true)
-      expect(Type.emptyArray.isUnionType()).toBe(false)
-      expect(Type.nonEmptyArray.isUnionType()).toBe(false)
-      expect(Type.array.isUnionType()).toBe(true)
-      expect(Type.emptyObject.isUnionType()).toBe(false)
-      expect(Type.nonEmptyObject.isUnionType()).toBe(false)
-      expect(Type.object.isUnionType()).toBe(true)
-      expect(Type.true.isUnionType()).toBe(false)
-      expect(Type.false.isUnionType()).toBe(false)
-      expect(Type.boolean.isUnionType()).toBe(true)
-      expect(Type.emptyString.isUnionType()).toBe(false)
-      expect(Type.nonEmptyString.isUnionType()).toBe(false)
-      expect(Type.string.isUnionType()).toBe(true)
-      expect(Type.zero.isUnionType()).toBe(true)
-      expect(Type.positiveZero.isUnionType()).toBe(false)
-      expect(Type.negativeZero.isUnionType()).toBe(false)
-      expect(Type.positiveFloat.isUnionType()).toBe(true)
-      expect(Type.negativeFloat.isUnionType()).toBe(true)
-      expect(Type.float.isUnionType()).toBe(true)
-      expect(Type.truthy.isUnionType()).toBe(true)
-      expect(Type.falsy.isUnionType()).toBe(true)
-    })
-  })
-
   describe(`Type.toString`, () => {
     test(`samples`, () => {
+      expect(Type.never.toString()).toBe(`::never [Bitmask = 0000 0000 0000 0000 0000  (0)]`)
       expect(Type.unknown.toString()).toBe(`::unknown [Bitmask = 1111 1111 1111 1111 1111  (1048575)]`)
       expect(Type.nil.toString()).toBe(`::nil [Bitmask = 0000 0000 0000 0000 0001  (1)]`)
       expect(Type.string.toString()).toBe(`::string [Bitmask = 0000 0011 0000 0000 0000  (12288)]`)
       expect(Type.string.nilable().toString()).toBe(`::string | ::nil [Bitmask = 0000 0011 0000 0000 0001  (12289)]`)
+      expect(Type.never.toString({ showDetails: false })).toBe(`::never`)
+      expect(Type.unknown.toString({ showDetails: false })).toBe(`::unknown`)
+      expect(Type.nil.toString({ showDetails: false })).toBe(`::nil`)
+      expect(Type.string.toString({ showDetails: false })).toBe(`::string`)
+      expect(Type.string.nilable().toString({ showDetails: false })).toBe(`::string | ::nil`)
     })
   })
 })

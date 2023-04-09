@@ -1,5 +1,5 @@
 import { Lits, LitsParams } from '../src'
-import { assertType, Type } from '../src/types/Type'
+import { Type } from '../src/types/Type'
 
 const lits = new Lits()
 
@@ -11,6 +11,6 @@ describe(`Evaluate data types`, () => {
       },
     }
     const result = lits.run(`(+ 10.1 x)`, litsParams)
-    assertType(result, undefined)
+    Type.assertType(result, undefined)
   })
 })

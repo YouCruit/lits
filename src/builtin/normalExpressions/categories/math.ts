@@ -1,4 +1,4 @@
-import { Type, isType, isNotType, assertType } from '../../../types/Type'
+import { Type } from '../../../types/Type'
 import { Arr } from '../../../interface'
 import { MAX_NUMBER, MIN_NUMBER } from '../../../utils'
 import { any, assertNumberOfParams, asValue, number } from '../../../utils/assertion'
@@ -8,7 +8,7 @@ import { DebugInfo } from '../../../tokenizer/interface'
 export const mathNormalExpression: BuiltinNormalExpressions = {
   inc: {
     evaluate: ([first]): number | Type => {
-      if (isNotType(first)) {
+      if (Type.isNotType(first)) {
         if (!number.is(first)) {
           return NaN
         }
@@ -60,7 +60,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   dec: {
     evaluate: ([first]): number | Type => {
-      if (isNotType(first)) {
+      if (Type.isNotType(first)) {
         if (!number.is(first)) {
           return NaN
         }
@@ -205,7 +205,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   quot: {
     evaluate: (params): number | Type => {
-      if (params.every(isNotType)) {
+      if (params.every(Type.isNotType)) {
         const [dividend, divisor] = params
         if (!number.is(dividend)) {
           return NaN
@@ -305,7 +305,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   mod: {
     evaluate: (params): number | Type => {
-      if (params.every(isNotType)) {
+      if (params.every(Type.isNotType)) {
         const [dividend, divisor] = params
         if (!number.is(dividend)) {
           return NaN
@@ -362,7 +362,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   rem: {
     evaluate: (params): number | Type => {
-      if (params.every(isNotType)) {
+      if (params.every(Type.isNotType)) {
         const [dividend, divisor] = params
         if (!number.is(dividend)) {
           return NaN
@@ -412,7 +412,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   sqrt: {
     evaluate: ([first]): number | Type => {
-      if (isNotType(first)) {
+      if (Type.isNotType(first)) {
         if (!number.is(first)) {
           return NaN
         }
@@ -452,7 +452,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   cbrt: {
     evaluate: ([first]): number | Type => {
-      if (isNotType(first)) {
+      if (Type.isNotType(first)) {
         if (!number.is(first)) {
           return NaN
         }
@@ -500,7 +500,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   pow: {
     evaluate: (params): number | Type => {
-      if (params.every(isNotType)) {
+      if (params.every(Type.isNotType)) {
         const [first, second] = params
         if (!number.is(first)) {
           return NaN
@@ -710,7 +710,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   round: {
     evaluate: (params): number | Type => {
-      if (params.every(isNotType)) {
+      if (params.every(Type.isNotType)) {
         const [value, decimals] = params
 
         if (!number.is(value)) {
@@ -800,7 +800,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   trunc: {
     evaluate: ([first]): number | Type => {
-      if (isNotType(first)) {
+      if (Type.isNotType(first)) {
         if (!number.is(first)) {
           return NaN
         }
@@ -851,7 +851,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   floor: {
     evaluate: ([first]): number | Type => {
-      if (isNotType(first)) {
+      if (Type.isNotType(first)) {
         if (!number.is(first)) {
           return NaN
         }
@@ -897,7 +897,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   ceil: {
     evaluate: ([first]): number | Type => {
-      if (isNotType(first)) {
+      if (Type.isNotType(first)) {
         if (!number.is(first)) {
           return NaN
         }
@@ -950,7 +950,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   'rand-int!': {
     evaluate: ([first]): number | Type => {
-      if (isNotType(first)) {
+      if (Type.isNotType(first)) {
         if (!number.is(first)) {
           return NaN
         }
@@ -991,7 +991,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   min: {
     evaluate: (params): number | Type => {
-      if (params.every(isNotType)) {
+      if (params.every(Type.isNotType)) {
         const [first, ...rest] = params
         if (!number.is(first)) {
           return NaN
@@ -1053,7 +1053,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   max: {
     evaluate: (params): number | Type => {
-      if (params.every(isNotType)) {
+      if (params.every(Type.isNotType)) {
         const [first, ...rest] = params
 
         if (!number.is(first)) {
@@ -1116,7 +1116,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   abs: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1143,7 +1143,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   sign: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1227,7 +1227,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   exp: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1270,7 +1270,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   log: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1285,7 +1285,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   log2: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1300,7 +1300,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   log10: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1315,7 +1315,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   sin: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1349,7 +1349,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   asin: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1387,7 +1387,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   sinh: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1427,7 +1427,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   asinh: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1470,7 +1470,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   cos: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1502,7 +1502,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   acos: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1537,7 +1537,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   cosh: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1572,7 +1572,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   acosh: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1615,7 +1615,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   tan: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1649,7 +1649,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   atan: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1693,7 +1693,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   tanh: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1740,7 +1740,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   atanh: {
     evaluate: ([value]): number | Type => {
-      if (isNotType(value)) {
+      if (Type.isNotType(value)) {
         if (!number.is(value)) {
           return NaN
         }
@@ -1791,17 +1791,17 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 }
 
 function getTypeOfSum(paramTypes: Arr, debugInfo: DebugInfo | undefined): Type | number {
-  paramTypes.sort((a, b) => (isType(a) ? 1 : isType(b) ? -1 : 0))
+  paramTypes.sort((a, b) => (Type.isType(a) ? 1 : Type.isType(b) ? -1 : 0))
   const first = paramTypes[0]
   any.assert(first)
   if (paramTypes.length === 1) {
-    assertType(first, debugInfo)
+    Type.assertType(first, debugInfo)
     return first.toNumberValue()
   }
   const rest = paramTypes.slice(1)
   const sum = rest.reduce((a: unknown | number, b) => getTypeOfBinarySum(a, b), first)
 
-  if (isType(sum)) {
+  if (Type.isType(sum)) {
     return sum.toNumberValue()
   }
   number.assert(sum, debugInfo)
@@ -2158,7 +2158,7 @@ function getTypeOfBinaryDivision(a: Type, b: Type): Type {
 }
 
 function negate(value: unknown): number | Type {
-  return isType(value) ? value.negateNumber().toNumberValue() : number.is(value) ? -value : NaN
+  return Type.isType(value) ? value.negateNumber().toNumberValue() : number.is(value) ? -value : NaN
 }
 
 function evaluateLogType(paramType: Type): number | Type {

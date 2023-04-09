@@ -1,4 +1,4 @@
-import { Type, isType } from '../../types/Type'
+import { Type } from '../../types/Type'
 import { Any } from '../../interface'
 import { asValue, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
@@ -23,9 +23,9 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     for (const param of node.params) {
       value = evaluateAstNode(param, contextStack)
-      if ((isType(value) && value.is(Type.falsy)) || !value) {
+      if ((Type.isType(value) && value.is(Type.falsy)) || !value) {
         break
-      } else if (isType(value)) {
+      } else if (Type.isType(value)) {
         possibleValues.push(value)
       }
     }

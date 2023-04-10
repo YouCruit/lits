@@ -1,7 +1,6 @@
 /* istanbul ignore file */
 
-import { PrimitiveTypeName, typeToBitRecord } from '../src/types/Type'
-import { TypeName } from '../src/types/litsTypeNames'
+import { PrimitiveTypeName, TypeName, typeToBitRecord } from '../src/types/constants'
 import { UndefinedSymbolEntry } from '../src/analyze/undefinedSymbols/interface'
 import { Any, Obj } from '../src/interface'
 import { Type, Lits } from '../src/Lits/Lits'

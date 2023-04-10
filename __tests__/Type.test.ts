@@ -1,5 +1,6 @@
 import { Lits } from '../src'
-import { Type, builtinTypesBitMasks, orderedTypeNames, typeToBitRecord } from '../src/types/Type'
+import { Type } from '../src/types/Type'
+import { builtinTypesBitMasks, orderedTypeNames, typeToBitRecord } from '../src/types/constants'
 import { MAX_NUMBER, MIN_NUMBER } from '../src/utils'
 
 const lits = new Lits()

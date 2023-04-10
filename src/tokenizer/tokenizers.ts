@@ -1,4 +1,4 @@
-import { isTypeName } from '../types/litsTypeNames'
+import { isTypeName } from '../types/constants'
 import { LitsError } from '../errors'
 import { ModifierName } from '../parser/interface'
 import { reservedNamesRecord } from '../reservedNames'

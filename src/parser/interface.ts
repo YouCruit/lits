@@ -1,4 +1,4 @@
-import { TypeName } from '../types/litsTypeNames'
+import { TypeName } from '../types/constants'
 import { SpecialExpressionName } from '../builtin/interface'
 import { Condition } from '../builtin/specialExpressions/cond'
 import { LoopBindingNode } from '../builtin/specialExpressions/loops'

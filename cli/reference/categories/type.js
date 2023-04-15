@@ -51,7 +51,7 @@ module.exports = {
     description: `Splits a type into its primitive components.`,
     examples: [
       `(type-split ::zero)`,
-      `(type-split ::collection)`,
+      `(type-split ::array)`,
       `(type-split ::infinity)`,
       `(type-split ::float)`,
       `(type-split ::string)`,

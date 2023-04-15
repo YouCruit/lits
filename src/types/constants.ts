@@ -43,12 +43,6 @@ const typeNames = [
   `unknown`,
   `truthy`,
   `falsy`,
-  `empty-collection`,
-  `non-empty-collection`,
-  `collection`,
-  `empty-sequence`,
-  `non-empty-sequence`,
-  `sequence`,
 ] as const
 
 export type TypeName = typeof typeNames[number]
@@ -72,8 +66,7 @@ export type PrimitiveTypeName =
   | `negative-infinity`
   | `empty-string`
   | `non-empty-string`
-  | `empty-array`
-  | `non-empty-array`
+  | `array`
   | `empty-object`
   | `non-empty-object`
   | `regexp`
@@ -97,8 +90,7 @@ export const typeToBitRecord: Record<PrimitiveTypeName, number> = {
 
   'empty-string': 1 << 12,
   'non-empty-string': 1 << 13,
-  'empty-array': 1 << 14,
-  'non-empty-array': 1 << 15,
+  array: 1 << 14,
 
   'empty-object': 1 << 16,
   'non-empty-object': 1 << 17,
@@ -154,12 +146,6 @@ export const orderedTypeNames: TypeName[] = [
   `boolean`,
   `true`,
   `false`,
-  `collection`,
-  `empty-collection`,
-  `non-empty-collection`,
-  `sequence`,
-  `empty-sequence`,
-  `non-empty-sequence`,
   `array`,
   `empty-array`,
   `non-empty-array`,
@@ -175,6 +161,8 @@ export const orderedTypeNames: TypeName[] = [
   `truthy`,
   `falsy`,
 ]
+
+export const arrayTypeNames: TypeName[] = [`array`, `empty-array`, `non-empty-array`]
 
 export const builtinTypesBitMasks: Record<TypeName, number> = {
   never: 0,
@@ -285,9 +273,9 @@ export const builtinTypesBitMasks: Record<TypeName, number> = {
   false: typeToBitRecord.false,
   boolean: typeToBitRecord.true | typeToBitRecord.false,
 
-  'empty-array': typeToBitRecord[`empty-array`],
-  'non-empty-array': typeToBitRecord[`non-empty-array`],
-  array: typeToBitRecord[`empty-array`] | typeToBitRecord[`non-empty-array`],
+  'empty-array': typeToBitRecord.array,
+  'non-empty-array': typeToBitRecord.array,
+  array: typeToBitRecord.array,
 
   'empty-object': typeToBitRecord[`empty-object`],
   'non-empty-object': typeToBitRecord[`non-empty-object`],
@@ -302,24 +290,4 @@ export const builtinTypesBitMasks: Record<TypeName, number> = {
   truthy: TRUTHY_BITS,
 
   falsy: FALSY_BITS,
-
-  'empty-collection':
-    typeToBitRecord[`empty-string`] | typeToBitRecord[`empty-array`] | typeToBitRecord[`empty-object`],
-  'non-empty-collection':
-    typeToBitRecord[`non-empty-string`] | typeToBitRecord[`non-empty-array`] | typeToBitRecord[`non-empty-object`],
-  collection:
-    typeToBitRecord[`empty-string`] |
-    typeToBitRecord[`non-empty-string`] |
-    typeToBitRecord[`empty-array`] |
-    typeToBitRecord[`non-empty-array`] |
-    typeToBitRecord[`empty-object`] |
-    typeToBitRecord[`non-empty-object`],
-
-  'empty-sequence': typeToBitRecord[`empty-string`] | typeToBitRecord[`empty-array`],
-  'non-empty-sequence': typeToBitRecord[`non-empty-string`] | typeToBitRecord[`non-empty-array`],
-  sequence:
-    typeToBitRecord[`empty-string`] |
-    typeToBitRecord[`non-empty-string`] |
-    typeToBitRecord[`empty-array`] |
-    typeToBitRecord[`non-empty-array`],
 }

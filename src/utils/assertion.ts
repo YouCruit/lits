@@ -70,6 +70,7 @@ export const object: Asserter<Obj> = new Asserter(
     !(
       value === null ||
       typeof value !== `object` ||
+      (value as Record<string, unknown>).__TYPE__ ||
       Array.isArray(value) ||
       value instanceof RegExp ||
       isLitsFunction(value) ||
@@ -118,7 +119,8 @@ export const expressionNode: Asserter<ExpressionNode> = new Asserter(`expression
     value.type === `NormalExpression` ||
     value.type === `SpecialExpression` ||
     value.type === `Number` ||
-    value.type === `String`
+    value.type === `String` ||
+    value.type === `TypeName`
   )
 })
 
@@ -176,5 +178,24 @@ export function asValue<T>(value: T | undefined, debugInfo?: DebugInfo): T {
 export function assertValue<T>(value: T | undefined, debugInfo?: DebugInfo): asserts value is T {
   if (value === undefined) {
     throw new LitsError(`Unexpected nil.`, getDebugInfo(value, debugInfo))
+  }
+}
+
+export function assertNotNull<T>(value: T | null, debugInfo?: DebugInfo): asserts value is T {
+  if (value === null) {
+    throw new LitsError(`Unexpected null.`, getDebugInfo(value, debugInfo))
+  }
+}
+
+export function asNotNull<T>(value: T | null, debugInfo?: DebugInfo): T {
+  if (value === null) {
+    throw new LitsError(`Unexpected null.`, getDebugInfo(value, debugInfo))
+  }
+  return value
+}
+
+export function assertNull(value: unknown, debugInfo?: DebugInfo): asserts value is null {
+  if (value !== null) {
+    throw new LitsError(`Unexpected value, expected null got ${value}.`, getDebugInfo(value, debugInfo))
   }
 }

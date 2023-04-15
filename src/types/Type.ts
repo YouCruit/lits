@@ -2,13 +2,40 @@ import { LitsError } from '../errors'
 import { Any } from '../interface'
 import { DebugInfo } from '../tokenizer/interface'
 import { MAX_NUMBER, MIN_NUMBER } from '../utils'
-import { any, array, litsFunction, object, regularExpression } from '../utils/assertion'
-import { UNKNWON_BITS, builtinTypesBitMasks, orderedTypeNames, typeToBitRecord } from './constants'
+import {
+  any,
+  array,
+  asNotNull,
+  assertNotNull,
+  assertNull,
+  litsFunction,
+  object,
+  regularExpression,
+} from '../utils/assertion'
+import { ArrayInfo, Size, arrayInfoExclude, arrayInfoIs, arrayInfoOr } from './ArrayInfo'
+import {
+  TypeName,
+  UNKNWON_BITS,
+  arrayTypeNames,
+  builtinTypesBitMasks,
+  orderedTypeNames,
+  typeToBitRecord,
+} from './constants'
 
 export class Type {
+  public readonly __TYPE__ = true
   public readonly bitmask: number
+  arrayInfo: ArrayInfo | null
 
-  private constructor(bitmask: number) {
+  private constructor(bitmask: number, arrayInfo: ArrayInfo | null = null) {
+    if (bitmask & builtinTypesBitMasks.array) {
+      assertNotNull(arrayInfo)
+    }
+    if (!(bitmask & builtinTypesBitMasks.array)) {
+      assertNull(arrayInfo)
+    }
+
+    this.arrayInfo = arrayInfo
     if (bitmask & typeToBitRecord[`positive-non-integer`]) {
       bitmask |= typeToBitRecord[`positive-integer`]
     }
@@ -57,9 +84,13 @@ export class Type {
   public static readonly false = new Type(builtinTypesBitMasks.false)
   public static readonly boolean = new Type(builtinTypesBitMasks.boolean)
 
-  public static readonly emptyArray = new Type(builtinTypesBitMasks[`empty-array`])
-  public static readonly nonEmptyArray = new Type(builtinTypesBitMasks[`non-empty-array`])
-  public static readonly array = new Type(builtinTypesBitMasks.array)
+  public static readonly emptyArray = new Type(builtinTypesBitMasks.array, [{ type: null, size: Size.Empty }])
+  public static readonly nonEmptyArray = new Type(builtinTypesBitMasks.array, [{ type: null, size: Size.NonEmpty }])
+  public static readonly array = new Type(builtinTypesBitMasks.array, [{ type: null, size: Size.Unknown }])
+  public static readonly createTypedArray = (type: Type) =>
+    new Type(builtinTypesBitMasks.array, [{ type, size: Size.Unknown }])
+  public static readonly createNonEmpyTypedArray = (type: Type) =>
+    new Type(builtinTypesBitMasks.array, [{ type, size: Size.NonEmpty }])
 
   public static readonly emptyObject = new Type(builtinTypesBitMasks[`empty-object`])
   public static readonly nonEmptyObject = new Type(builtinTypesBitMasks[`non-empty-object`])
@@ -67,18 +98,10 @@ export class Type {
 
   public static readonly regexp = new Type(builtinTypesBitMasks.regexp)
 
-  public static readonly emptyCollection = new Type(builtinTypesBitMasks[`empty-collection`])
-  public static readonly nonEmptyCollection = new Type(builtinTypesBitMasks[`non-empty-collection`])
-  public static readonly collection = new Type(builtinTypesBitMasks[`collection`])
-
-  public static readonly emptySequence = new Type(builtinTypesBitMasks[`empty-sequence`])
-  public static readonly nonEmptySequence = new Type(builtinTypesBitMasks[`non-empty-sequence`])
-  public static readonly sequence = new Type(builtinTypesBitMasks.sequence)
-
-  public static readonly truthy = new Type(builtinTypesBitMasks.truthy)
+  public static readonly truthy = new Type(builtinTypesBitMasks.truthy, [{ type: null, size: Size.Unknown }])
   public static readonly falsy = new Type(builtinTypesBitMasks.falsy)
 
-  public static readonly unknown = new Type(builtinTypesBitMasks.unknown)
+  public static readonly unknown = new Type(builtinTypesBitMasks.unknown, [{ type: null, size: Size.Unknown }])
 
   public static readonly function = new Type(builtinTypesBitMasks.function)
 
@@ -139,7 +162,11 @@ export class Type {
         ? Type.positiveFloat
         : Type.negativeFloat
     } else if (array.is(input)) {
-      return input.length === 0 ? Type.emptyArray : Type.nonEmptyArray
+      if (input.length === 0) {
+        return Type.emptyArray
+      }
+      const type = Type.or(...input.map(i => Type.of(i)))
+      return Type.createNonEmpyTypedArray(type)
     } else if (object.is(input)) {
       return Object.keys(input).length === 0 ? Type.emptyObject : Type.nonEmptyObject
     } else if (regularExpression.is(input)) {
@@ -154,7 +181,16 @@ export class Type {
     const newTypeMask = types.reduce((result, type) => {
       return result | type.bitmask
     }, 0)
-    return new Type(newTypeMask)
+
+    if (newTypeMask & builtinTypesBitMasks.array) {
+      const arrayInfo = types.reduce(
+        (result: ArrayInfo | null, type) => arrayInfoOr(result, type.arrayInfo, Type.unknown),
+        [],
+      )
+      return new Type(newTypeMask, arrayInfo)
+    } else {
+      return new Type(newTypeMask)
+    }
   }
 
   public static and(...types: Type[]): Type {
@@ -167,8 +203,15 @@ export class Type {
 
   public static exclude(first: Type, ...rest: Type[]): Type {
     return rest.reduce((result, type) => {
-      const newBitmask = result.bitmask & ~type.bitmask
-      return new Type(newBitmask)
+      if (result.bitmask & typeToBitRecord.array && type.bitmask & typeToBitRecord.array) {
+        const newArrayInfo = arrayInfoExclude(result.arrayInfo, type.arrayInfo, Type.unknown)
+        const newBitmask = newArrayInfo
+          ? (result.bitmask & ~type.bitmask) | typeToBitRecord.array
+          : result.bitmask & ~(type.bitmask | typeToBitRecord.array)
+        return new Type(newBitmask, newArrayInfo)
+      } else {
+        return new Type(result.bitmask & ~type.bitmask, result.arrayInfo)
+      }
     }, first)
   }
 
@@ -177,7 +220,11 @@ export class Type {
     const { bitmask: bitmaskB } = b
 
     // some bits must be the same AND no bits in a can appear in b
-    return !!(bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB))
+    const bitmaskOK = !!(bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB))
+    if (!bitmaskOK) {
+      return false
+    }
+    return bitmaskA & typeToBitRecord.array ? arrayInfoIs(a.arrayInfo, b.arrayInfo, Type.unknown) : true
   }
 
   public static equals(type1: Type, type2: Type, ...rest: Type[]): boolean {
@@ -259,7 +306,12 @@ export class Type {
   }
 
   public static split(dataType: Type): Type[] {
-    return Type.toSingelBits(dataType).map(bits => new Type(bits))
+    return Type.toSingelBits(dataType).flatMap(bits => {
+      if (bits === builtinTypesBitMasks.array && dataType.arrayInfo) {
+        return dataType.arrayInfo.map(i => new Type(bits, [i]))
+      }
+      return new Type(bits)
+    })
   }
 
   public or(...dataTypes: Type[]): Type {
@@ -354,7 +406,7 @@ export class Type {
       newBitmask = (newBitmask | typeToBitRecord[`positive-zero`]) & ~typeToBitRecord[`negative-zero`]
     }
 
-    return new Type(newBitmask)
+    return new Type(newBitmask, this.arrayInfo)
   }
 
   public isUnknown(): boolean {
@@ -386,43 +438,44 @@ export class Type {
 
   public toString({ showDetails } = { showDetails: true }): string {
     const suffix = ` [Bitmask = ${stringifyBitMask(this.bitmask)}  (${this.bitmask})]`
-    const typeString = this.getTypeString()
+    const typeString = this.getTypeString(showDetails)
     return `${typeString}${showDetails ? suffix : ``}`
   }
 
-  private getTypeString(): string {
-    if (this.isNever()) {
-      return `::never`
-    }
-
-    for (const typeName of orderedTypeNames) {
-      const bitmask = builtinTypesBitMasks[typeName]
-      if (this.bitmask === bitmask) {
-        return `::${typeName}`
-      }
-    }
-
+  private getTypeString(showDetails: boolean): string {
     const typeStrings: string[] = []
     let bits = this.bitmask
 
     for (const typeName of orderedTypeNames) {
+      if (bits === 0) {
+        break
+      }
       const bitmask = builtinTypesBitMasks[typeName]
       if ((bits & bitmask) === bitmask) {
-        typeStrings.push(`::${typeName}`)
+        if (arrayTypeNames.includes(typeName)) {
+          asNotNull(this.arrayInfo).forEach(elem => {
+            const arrayTypeName: TypeName =
+              elem.size === Size.Empty ? `empty-array` : elem.size === Size.NonEmpty ? `non-empty-array` : `array`
+            const innerArrayTypeString = elem.type ? `<${elem.type.toString({ showDetails })}>` : ``
+            typeStrings.push(`::${arrayTypeName}${innerArrayTypeString}`)
+          })
+        } else {
+          typeStrings.push(`::${typeName}`)
+        }
         bits &= ~bitmask
       }
     }
 
-    return typeStrings.join(` | `)
+    return typeStrings.length > 0 ? typeStrings.join(` | `) : `::never`
   }
 }
 
-function stringifyBitMask(bitMaks: number): string {
+function stringifyBitMask(bitmask: number): string {
   let mask = ``
 
   for (let index = 19; index >= 0; index -= 1) {
     const bitValue = 1 << index
-    const zeroOrOne = bitMaks & bitValue ? `1` : `0`
+    const zeroOrOne = bitmask & bitValue ? `1` : `0`
     const space = index !== 19 && (index + 1) % 4 === 0 ? ` ` : ``
     mask += `${space}${zeroOrOne}`
   }

@@ -162,7 +162,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
           ? Type.nil
           : Type.of(params[2])
 
-        collType.assertIs(Type.collection.nilable(), debugInfo)
+        collType.assertIs(Type.or(Type.array, Type.string, Type.object).nilable(), debugInfo)
         keyType.assertIs(Type.or(Type.string, Type.float, Type.nil), debugInfo)
 
         if (collType.is(Type.nil)) {
@@ -202,7 +202,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       } else {
         const collType = Type.of(params[0])
         const keysType = Type.of(params[1])
-        collType.assertIs(Type.collection.nilable(), debugInfo)
+        collType.assertIs(Type.or(Type.array, Type.string, Type.object).nilable(), debugInfo)
         keysType.assertIs(Type.array.nilable(), debugInfo)
 
         if (keysType.is(Type.nil)) {
@@ -227,10 +227,10 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         return Object.keys(coll).length
       } else {
         const collType = Type.of(coll)
-        collType.assertIs(Type.collection, debugInfo)
-        return collType.is(Type.emptyCollection)
+        collType.assertIs(Type.or(Type.array, Type.string, Type.object), debugInfo)
+        return collType.is(Type.or(Type.emptyArray, Type.emptyString, Type.emptyObject))
           ? Type.zero
-          : collType.is(Type.nonEmptyCollection)
+          : collType.is(Type.or(Type.nonEmptyArray, Type.nonEmptyString, Type.nonEmptyObject))
           ? Type.positiveInteger
           : Type.nonNegativeInteger
       }
@@ -253,7 +253,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         return !!Object.getOwnPropertyDescriptor(coll, key)
       } else {
         const collType = Type.of(params[0])
-        return collType.is(Type.emptyCollection) ? Type.false : Type.boolean
+        return collType.is(Type.or(Type.emptyArray, Type.emptyString, Type.emptyObject)) ? Type.false : Type.boolean
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `contains?`, debugInfo),
@@ -277,7 +277,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         return Object.values(coll).includes(value)
       } else {
         const collType = Type.of(params[0])
-        return collType.is(Type.emptyCollection) ? Type.false : Type.boolean
+        return collType.is(Type.or(Type.emptyArray, Type.emptyString, Type.emptyObject)) ? Type.false : Type.boolean
       }
     },
     validateArity: (arity, debugInfo) => assertNumberOfParams(2, arity, `has?`, debugInfo),

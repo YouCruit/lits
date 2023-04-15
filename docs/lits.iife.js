@@ -450,6 +450,7 @@ var Lits = (function (exports) {
   var object = new Asserter("Obj", function (value) {
       return !(value === null ||
           typeof value !== "object" ||
+          value.__TYPE__ ||
           Array.isArray(value) ||
           value instanceof RegExp ||
           isLitsFunction(value) ||
@@ -483,7 +484,8 @@ var Lits = (function (exports) {
       return (value.type === "NormalExpression" ||
           value.type === "SpecialExpression" ||
           value.type === "Number" ||
-          value.type === "String");
+          value.type === "String" ||
+          value.type === "TypeName");
   });
   function assertNumberOfParams(count, arity, name, debugInfo) {
       if (typeof count === "number") {
@@ -518,6 +520,22 @@ var Lits = (function (exports) {
   function assertValue(value, debugInfo) {
       if (value === undefined) {
           throw new LitsError("Unexpected nil.", getDebugInfo(value, debugInfo));
+      }
+  }
+  function assertNotNull(value, debugInfo) {
+      if (value === null) {
+          throw new LitsError("Unexpected null.", getDebugInfo(value, debugInfo));
+      }
+  }
+  function asNotNull(value, debugInfo) {
+      if (value === null) {
+          throw new LitsError("Unexpected null.", getDebugInfo(value, debugInfo));
+      }
+      return value;
+  }
+  function assertNull(value, debugInfo) {
+      if (value !== null) {
+          throw new LitsError("Unexpected value, expected null got ".concat(value, "."), getDebugInfo(value, debugInfo));
       }
   }
 
@@ -685,22 +703,175 @@ var Lits = (function (exports) {
   var MAX_NUMBER = Math.pow(2, 52);
   var MIN_NUMBER = -Math.pow(2, 52);
 
-  function isType(value) {
-      return value instanceof Type;
+  var Size;
+  (function (Size) {
+      Size[Size["Empty"] = 0] = "Empty";
+      Size[Size["NonEmpty"] = 1] = "NonEmpty";
+      Size[Size["Unknown"] = 2] = "Unknown";
+  })(Size || (Size = {}));
+  // export function arrayInfoOr(types: Type[], unknownType: Type): ArrayInfo {
+  //   return simplifyArrayInfo(
+  //     types.flatMap(type => type.arrayInfo ?? []),
+  //     unknownType,
+  //   )
+  // }
+  function arrayInfoOr(a, b, unknownType) {
+      return simplifyArrayInfo(__spreadArray(__spreadArray([], __read((a !== null && a !== void 0 ? a : [])), false), __read((b !== null && b !== void 0 ? b : [])), false), unknownType);
   }
-  function assertType(value, debugInfo) {
-      if (!(value instanceof Type)) {
-          throw new LitsError("Expected instance of Type, got ".concat(value), debugInfo);
+  function arrayInfoIs(a, b, unknownType) {
+      var simpleA = simplifyArrayInfo(a, unknownType);
+      var simpleB = simplifyArrayInfo(b, unknownType);
+      if (!simpleA && !simpleB) {
+          return true;
       }
-  }
-  function asType(value, debugInfo) {
-      if (!(value instanceof Type)) {
-          throw new LitsError("Expected instance of Type, got ".concat(value), debugInfo);
+      if (!simpleA || !simpleB) {
+          return false;
       }
-      return value;
+      return simpleA.every(function (aElem) {
+          var _a;
+          var aType = (_a = aElem.type) !== null && _a !== void 0 ? _a : unknownType;
+          return simpleB.some(function (bElem) {
+              var _a;
+              var bType = (_a = bElem.type) !== null && _a !== void 0 ? _a : unknownType;
+              if (!aType.is(bType)) {
+                  return false;
+              }
+              return bElem.size === Size.Unknown || bElem.size === aElem.size;
+          });
+      });
   }
-  function isNotType(value) {
-      return !(value instanceof Type);
+  function arrayInfoExclude(a, b, unknownType) {
+      var simpleA = simplifyArrayInfo(a, unknownType);
+      var simpleB = simplifyArrayInfo(b, unknownType);
+      if (!simpleA) {
+          return null;
+      }
+      if (!simpleB) {
+          return a;
+      }
+      return simplifyArrayInfo(simpleA.flatMap(function (aElem) {
+          var e_1, _a;
+          var _b, _c;
+          var result = __assign({}, aElem);
+          try {
+              for (var simpleB_1 = __values(simpleB), simpleB_1_1 = simpleB_1.next(); !simpleB_1_1.done; simpleB_1_1 = simpleB_1.next()) {
+                  var bElem = simpleB_1_1.value;
+                  if (bElem.size === Size.Empty || bElem.size === Size.Unknown) {
+                      if (result.size === Size.Empty) {
+                          return [];
+                      }
+                      else {
+                          result.size = Size.NonEmpty;
+                      }
+                      result.size = bElem.size === Size.Empty ? Size.NonEmpty : Size.Empty;
+                  }
+                  if (((_b = result.type) !== null && _b !== void 0 ? _b : unknownType).equals((_c = bElem.type) !== null && _c !== void 0 ? _c : unknownType)) {
+                      switch (result.size) {
+                          case Size.Empty:
+                              return bElem.size !== Size.NonEmpty ? [] : result;
+                          case Size.NonEmpty:
+                              return bElem.size !== Size.Empty ? [] : result;
+                          case Size.Unknown:
+                              if (bElem.size === Size.Unknown) {
+                                  return [];
+                              }
+                              result.size = bElem.size === Size.Empty ? Size.NonEmpty : Size.Empty;
+                              return result;
+                      }
+                  }
+              }
+          }
+          catch (e_1_1) { e_1 = { error: e_1_1 }; }
+          finally {
+              try {
+                  if (simpleB_1_1 && !simpleB_1_1.done && (_a = simpleB_1.return)) _a.call(simpleB_1);
+              }
+              finally { if (e_1) throw e_1.error; }
+          }
+          return result;
+      }), unknownType);
+  }
+  function simplifyArrayInfo(arrayInfo, unknownType) {
+      var _a, _b;
+      if (!arrayInfo) {
+          return null;
+      }
+      var input = arrayInfo;
+      var result = [];
+      var size = arrayInfo.length;
+      for (var i = 0; i < size; i += 1) {
+          var a = input[i];
+          if (!a) {
+              continue;
+          }
+          var elem = __assign({}, a);
+          for (var j = i + 1; j < size; j += 1) {
+              var b = input[j];
+              if (!b) {
+                  continue;
+              }
+              var aType = (_a = a.type) !== null && _a !== void 0 ? _a : unknownType;
+              var bType = (_b = b.type) !== null && _b !== void 0 ? _b : unknownType;
+              if (aType.equals(bType)) {
+                  if (a.size === Size.Unknown || b.size === Size.Unknown || a.size !== b.size) {
+                      elem.size = Size.Unknown;
+                  }
+                  input[j] = null;
+              }
+          }
+          result.push(elem);
+      }
+      return result.length > 0 ? result : null;
+  }
+
+  var typeNames = [
+      "never",
+      "nil",
+      "nan",
+      "positive-infinity",
+      "negative-infinity",
+      "infinity",
+      "empty-string",
+      "non-empty-string",
+      "string",
+      "positive-zero",
+      "negative-zero",
+      "zero",
+      "number",
+      "float",
+      "positive-float",
+      "negative-float",
+      "positive-number",
+      "negative-number",
+      "non-zero-number",
+      "non-positive-number",
+      "non-negative-number",
+      "non-zero-float",
+      "non-positive-float",
+      "non-negative-float",
+      "integer",
+      "non-zero-integer",
+      "positive-integer",
+      "negative-integer",
+      "non-positive-integer",
+      "non-negative-integer",
+      "true",
+      "false",
+      "boolean",
+      "empty-array",
+      "non-empty-array",
+      "array",
+      "empty-object",
+      "non-empty-object",
+      "object",
+      "regexp",
+      "function",
+      "unknown",
+      "truthy",
+      "falsy",
+  ];
+  function isTypeName(typeName) {
+      return typeNames.includes(typeName);
   }
   var typeToBitRecord = {
       nil: 1 << 0,
@@ -717,8 +888,7 @@ var Lits = (function (exports) {
       'negative-infinity': 1 << 11,
       'empty-string': 1 << 12,
       'non-empty-string': 1 << 13,
-      'empty-array': 1 << 14,
-      'non-empty-array': 1 << 15,
+      array: 1 << 14,
       'empty-object': 1 << 16,
       'non-empty-object': 1 << 17,
       regexp: 1 << 18,
@@ -735,6 +905,7 @@ var Lits = (function (exports) {
       typeToBitRecord.nan;
   // All non falsy bits
   var TRUTHY_BITS = UNKNWON_BITS & ~FALSY_BITS;
+  // Used for stringify Type only
   var orderedTypeNames = [
       "unknown",
       "number",
@@ -766,12 +937,6 @@ var Lits = (function (exports) {
       "boolean",
       "true",
       "false",
-      "collection",
-      "empty-collection",
-      "non-empty-collection",
-      "sequence",
-      "empty-sequence",
-      "non-empty-sequence",
       "array",
       "empty-array",
       "non-empty-array",
@@ -787,6 +952,7 @@ var Lits = (function (exports) {
       "truthy",
       "falsy",
   ];
+  var arrayTypeNames = ["array", "empty-array", "non-empty-array"];
   var builtinTypesBitMasks = {
       never: 0,
       nil: typeToBitRecord.nil,
@@ -863,9 +1029,9 @@ var Lits = (function (exports) {
       true: typeToBitRecord.true,
       false: typeToBitRecord.false,
       boolean: typeToBitRecord.true | typeToBitRecord.false,
-      'empty-array': typeToBitRecord["empty-array"],
-      'non-empty-array': typeToBitRecord["non-empty-array"],
-      array: typeToBitRecord["empty-array"] | typeToBitRecord["non-empty-array"],
+      'empty-array': typeToBitRecord.array,
+      'non-empty-array': typeToBitRecord.array,
+      array: typeToBitRecord.array,
       'empty-object': typeToBitRecord["empty-object"],
       'non-empty-object': typeToBitRecord["non-empty-object"],
       object: typeToBitRecord["empty-object"] | typeToBitRecord["non-empty-object"],
@@ -874,33 +1040,19 @@ var Lits = (function (exports) {
       unknown: UNKNWON_BITS,
       truthy: TRUTHY_BITS,
       falsy: FALSY_BITS,
-      'empty-collection': typeToBitRecord["empty-string"] | typeToBitRecord["empty-array"] | typeToBitRecord["empty-object"],
-      'non-empty-collection': typeToBitRecord["non-empty-string"] | typeToBitRecord["non-empty-array"] | typeToBitRecord["non-empty-object"],
-      collection: typeToBitRecord["empty-string"] |
-          typeToBitRecord["non-empty-string"] |
-          typeToBitRecord["empty-array"] |
-          typeToBitRecord["non-empty-array"] |
-          typeToBitRecord["empty-object"] |
-          typeToBitRecord["non-empty-object"],
-      'empty-sequence': typeToBitRecord["empty-string"] | typeToBitRecord["empty-array"],
-      'non-empty-sequence': typeToBitRecord["non-empty-string"] | typeToBitRecord["non-empty-array"],
-      sequence: typeToBitRecord["empty-string"] |
-          typeToBitRecord["non-empty-string"] |
-          typeToBitRecord["empty-array"] |
-          typeToBitRecord["non-empty-array"],
   };
-  function stringifyBitMask(bitMaks) {
-      var mask = "";
-      for (var index = 19; index >= 0; index -= 1) {
-          var bitValue = 1 << index;
-          var zeroOrOne = bitMaks & bitValue ? "1" : "0";
-          var space = index !== 19 && (index + 1) % 4 === 0 ? " " : "";
-          mask += "".concat(space).concat(zeroOrOne);
-      }
-      return mask;
-  }
+
   var Type = /** @class */ (function () {
-      function Type(bitmask) {
+      function Type(bitmask, arrayInfo) {
+          if (arrayInfo === void 0) { arrayInfo = null; }
+          this.__TYPE__ = true;
+          if (bitmask & builtinTypesBitMasks.array) {
+              assertNotNull(arrayInfo);
+          }
+          if (!(bitmask & builtinTypesBitMasks.array)) {
+              assertNull(arrayInfo);
+          }
+          this.arrayInfo = arrayInfo;
           if (bitmask & typeToBitRecord["positive-non-integer"]) {
               bitmask |= typeToBitRecord["positive-integer"];
           }
@@ -909,6 +1061,23 @@ var Lits = (function (exports) {
           }
           this.bitmask = bitmask;
       }
+      Type.isType = function (value) {
+          return value instanceof Type;
+      };
+      Type.assertType = function (value, debugInfo) {
+          if (!(value instanceof Type)) {
+              throw new LitsError("Expected instance of Type, got ".concat(value), debugInfo);
+          }
+      };
+      Type.asType = function (value, debugInfo) {
+          if (!(value instanceof Type)) {
+              throw new LitsError("Expected instance of Type, got ".concat(value), debugInfo);
+          }
+          return value;
+      };
+      Type.isNotType = function (value) {
+          return !(value instanceof Type);
+      };
       Type.of = function (input) {
           any.assert(input);
           if (input instanceof Type) {
@@ -953,7 +1122,11 @@ var Lits = (function (exports) {
                                   : Type.negativeFloat;
           }
           else if (array.is(input)) {
-              return input.length === 0 ? Type.emptyArray : Type.nonEmptyArray;
+              if (input.length === 0) {
+                  return Type.emptyArray;
+              }
+              var type = Type.or.apply(Type, __spreadArray([], __read(input.map(function (i) { return Type.of(i); })), false));
+              return Type.createNonEmpyTypedArray(type);
           }
           else if (object.is(input)) {
               return Object.keys(input).length === 0 ? Type.emptyObject : Type.nonEmptyObject;
@@ -974,7 +1147,13 @@ var Lits = (function (exports) {
           var newTypeMask = types.reduce(function (result, type) {
               return result | type.bitmask;
           }, 0);
-          return new Type(newTypeMask);
+          if (newTypeMask & builtinTypesBitMasks.array) {
+              var arrayInfo = types.reduce(function (result, type) { return arrayInfoOr(result, type.arrayInfo, Type.unknown); }, []);
+              return new Type(newTypeMask, arrayInfo);
+          }
+          else {
+              return new Type(newTypeMask);
+          }
       };
       Type.and = function () {
           var types = [];
@@ -992,15 +1171,27 @@ var Lits = (function (exports) {
               rest[_i - 1] = arguments[_i];
           }
           return rest.reduce(function (result, type) {
-              var newBitmask = result.bitmask & ~type.bitmask;
-              return new Type(newBitmask);
+              if (result.bitmask & typeToBitRecord.array && type.bitmask & typeToBitRecord.array) {
+                  var newArrayInfo = arrayInfoExclude(result.arrayInfo, type.arrayInfo, Type.unknown);
+                  var newBitmask = newArrayInfo
+                      ? (result.bitmask & ~type.bitmask) | typeToBitRecord.array
+                      : result.bitmask & ~(type.bitmask | typeToBitRecord.array);
+                  return new Type(newBitmask, newArrayInfo);
+              }
+              else {
+                  return new Type(result.bitmask & ~type.bitmask, result.arrayInfo);
+              }
           }, first);
       };
       Type.is = function (a, b) {
           var bitmaskA = a.bitmask;
           var bitmaskB = b.bitmask;
           // some bits must be the same AND no bits in a can appear in b
-          return !!(bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB));
+          var bitmaskOK = !!(bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB));
+          if (!bitmaskOK) {
+              return false;
+          }
+          return bitmaskA & typeToBitRecord.array ? arrayInfoIs(a.arrayInfo, b.arrayInfo, Type.unknown) : true;
       };
       Type.equals = function (type1, type2) {
           var rest = [];
@@ -1014,11 +1205,8 @@ var Lits = (function (exports) {
       Type.intersects = function (a, b) {
           return a.and(b).bitmask !== 0;
       };
-      Type.isUnionType = function (dataType) {
-          return !allBitValues.includes(dataType.bitmask);
-      };
       Type.toValue = function (dataType) {
-          if (isType(dataType)) {
+          if (Type.isType(dataType)) {
               if (dataType.equals(Type.positiveZero)) {
                   return 0;
               }
@@ -1055,7 +1243,7 @@ var Lits = (function (exports) {
           }
           return dataType;
       };
-      Type.toNumberValue = function (dataType) {
+      Type.toNumberOrNan = function (dataType) {
           if (dataType.equals(Type.positiveZero)) {
               return 0;
           }
@@ -1083,7 +1271,12 @@ var Lits = (function (exports) {
           return result;
       };
       Type.split = function (dataType) {
-          return Type.toSingelBits(dataType).map(function (bits) { return new Type(bits); });
+          return Type.toSingelBits(dataType).flatMap(function (bits) {
+              if (bits === builtinTypesBitMasks.array && dataType.arrayInfo) {
+                  return dataType.arrayInfo.map(function (i) { return new Type(bits, [i]); });
+              }
+              return new Type(bits);
+          });
       };
       Type.prototype.or = function () {
           var dataTypes = [];
@@ -1140,9 +1333,6 @@ var Lits = (function (exports) {
           }
           return Type.equals.apply(Type, __spreadArray([this, type], __read(rest), false));
       };
-      Type.prototype.isUnionType = function () {
-          return Type.isUnionType(this);
-      };
       Type.prototype.nilable = function () {
           return this.or(Type.nil);
       };
@@ -1177,10 +1367,7 @@ var Lits = (function (exports) {
           if (this.bitmask & typeToBitRecord["negative-zero"] && !(this.bitmask & typeToBitRecord["positive-zero"])) {
               newBitmask = (newBitmask | typeToBitRecord["positive-zero"]) & ~typeToBitRecord["negative-zero"];
           }
-          return new Type(newBitmask);
-      };
-      Type.prototype.isFunction = function () {
-          return !!(this.bitmask & builtinTypesBitMasks.function);
+          return new Type(newBitmask, this.arrayInfo);
       };
       Type.prototype.isUnknown = function () {
           return this.bitmask === UNKNWON_BITS;
@@ -1199,25 +1386,37 @@ var Lits = (function (exports) {
           return Type.toValue(this);
       };
       Type.prototype.toNumberValue = function () {
-          return Type.toNumberValue(this);
+          return Type.toNumberOrNan(this);
       };
       Type.prototype.toString = function (_a) {
           var _b = _a === void 0 ? { showDetails: true } : _a, showDetails = _b.showDetails;
           var suffix = " [Bitmask = ".concat(stringifyBitMask(this.bitmask), "  (").concat(this.bitmask, ")]");
-          var typeString = this.getTypeString();
+          var typeString = this.getTypeString(showDetails);
           return "".concat(typeString).concat(showDetails ? suffix : "");
       };
-      Type.prototype.getTypeString = function () {
-          var e_1, _a, e_2, _b;
-          if (this.isNever()) {
-              return "::never";
-          }
+      Type.prototype.getTypeString = function (showDetails) {
+          var e_1, _a;
+          var typeStrings = [];
+          var bits = this.bitmask;
           try {
               for (var orderedTypeNames_1 = __values(orderedTypeNames), orderedTypeNames_1_1 = orderedTypeNames_1.next(); !orderedTypeNames_1_1.done; orderedTypeNames_1_1 = orderedTypeNames_1.next()) {
                   var typeName = orderedTypeNames_1_1.value;
+                  if (bits === 0) {
+                      break;
+                  }
                   var bitmask = builtinTypesBitMasks[typeName];
-                  if (this.bitmask === bitmask) {
-                      return "::".concat(typeName);
+                  if ((bits & bitmask) === bitmask) {
+                      if (arrayTypeNames.includes(typeName)) {
+                          asNotNull(this.arrayInfo).forEach(function (elem) {
+                              var arrayTypeName = elem.size === Size.Empty ? "empty-array" : elem.size === Size.NonEmpty ? "non-empty-array" : "array";
+                              var innerArrayTypeString = elem.type ? "<".concat(elem.type.toString({ showDetails: showDetails }), ">") : "";
+                              typeStrings.push("::".concat(arrayTypeName).concat(innerArrayTypeString));
+                          });
+                      }
+                      else {
+                          typeStrings.push("::".concat(typeName));
+                      }
+                      bits &= ~bitmask;
                   }
               }
           }
@@ -1228,26 +1427,7 @@ var Lits = (function (exports) {
               }
               finally { if (e_1) throw e_1.error; }
           }
-          var typeStrings = [];
-          var bits = this.bitmask;
-          try {
-              for (var orderedTypeNames_2 = __values(orderedTypeNames), orderedTypeNames_2_1 = orderedTypeNames_2.next(); !orderedTypeNames_2_1.done; orderedTypeNames_2_1 = orderedTypeNames_2.next()) {
-                  var typeName = orderedTypeNames_2_1.value;
-                  var bitmask = builtinTypesBitMasks[typeName];
-                  if ((bits & bitmask) === bitmask) {
-                      typeStrings.push("::".concat(typeName));
-                      bits &= ~bitmask;
-                  }
-              }
-          }
-          catch (e_2_1) { e_2 = { error: e_2_1 }; }
-          finally {
-              try {
-                  if (orderedTypeNames_2_1 && !orderedTypeNames_2_1.done && (_b = orderedTypeNames_2.return)) _b.call(orderedTypeNames_2);
-              }
-              finally { if (e_2) throw e_2.error; }
-          }
-          return typeStrings.join(" | ");
+          return typeStrings.length > 0 ? typeStrings.join(" | ") : "::never";
       };
       Type.never = new Type(builtinTypesBitMasks.never);
       Type.nil = new Type(builtinTypesBitMasks.nil);
@@ -1282,25 +1462,35 @@ var Lits = (function (exports) {
       Type.true = new Type(builtinTypesBitMasks.true);
       Type.false = new Type(builtinTypesBitMasks.false);
       Type.boolean = new Type(builtinTypesBitMasks.boolean);
-      Type.emptyArray = new Type(builtinTypesBitMasks["empty-array"]);
-      Type.nonEmptyArray = new Type(builtinTypesBitMasks["non-empty-array"]);
-      Type.array = new Type(builtinTypesBitMasks.array);
+      Type.emptyArray = new Type(builtinTypesBitMasks.array, [{ type: null, size: Size.Empty }]);
+      Type.nonEmptyArray = new Type(builtinTypesBitMasks.array, [{ type: null, size: Size.NonEmpty }]);
+      Type.array = new Type(builtinTypesBitMasks.array, [{ type: null, size: Size.Unknown }]);
+      Type.createTypedArray = function (type) {
+          return new Type(builtinTypesBitMasks.array, [{ type: type, size: Size.Unknown }]);
+      };
+      Type.createNonEmpyTypedArray = function (type) {
+          return new Type(builtinTypesBitMasks.array, [{ type: type, size: Size.NonEmpty }]);
+      };
       Type.emptyObject = new Type(builtinTypesBitMasks["empty-object"]);
       Type.nonEmptyObject = new Type(builtinTypesBitMasks["non-empty-object"]);
       Type.object = new Type(builtinTypesBitMasks.object);
       Type.regexp = new Type(builtinTypesBitMasks.regexp);
-      Type.emptyCollection = new Type(builtinTypesBitMasks["empty-collection"]);
-      Type.nonEmptyCollection = new Type(builtinTypesBitMasks["non-empty-collection"]);
-      Type.collection = new Type(builtinTypesBitMasks["collection"]);
-      Type.emptySequence = new Type(builtinTypesBitMasks["empty-sequence"]);
-      Type.nonEmptySequence = new Type(builtinTypesBitMasks["non-empty-sequence"]);
-      Type.sequence = new Type(builtinTypesBitMasks.sequence);
-      Type.truthy = new Type(builtinTypesBitMasks.truthy);
+      Type.truthy = new Type(builtinTypesBitMasks.truthy, [{ type: null, size: Size.Unknown }]);
       Type.falsy = new Type(builtinTypesBitMasks.falsy);
-      Type.unknown = new Type(builtinTypesBitMasks.unknown);
+      Type.unknown = new Type(builtinTypesBitMasks.unknown, [{ type: null, size: Size.Unknown }]);
       Type.function = new Type(builtinTypesBitMasks.function);
       return Type;
   }());
+  function stringifyBitMask(bitmask) {
+      var mask = "";
+      for (var index = 19; index >= 0; index -= 1) {
+          var bitValue = 1 << index;
+          var zeroOrOne = bitmask & bitValue ? "1" : "0";
+          var space = index !== 19 && (index + 1) % 4 === 0 ? " " : "";
+          mask += "".concat(space).concat(zeroOrOne);
+      }
+      return mask;
+  }
 
   var andSpecialExpression = {
       parse: function (tokens, position, _a) {
@@ -1326,10 +1516,10 @@ var Lits = (function (exports) {
               for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var param = _d.value;
                   value = evaluateAstNode(param, contextStack);
-                  if ((isType(value) && value.is(Type.falsy)) || !value) {
+                  if ((Type.isType(value) && value.is(Type.falsy)) || !value) {
                       break;
                   }
-                  else if (isType(value)) {
+                  else if (Type.isType(value)) {
                       possibleValues.push(value);
                   }
               }
@@ -2319,10 +2509,10 @@ var Lits = (function (exports) {
           var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
           var _c = __read(node.params, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
           var conditionValue = evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack);
-          if ((isType(conditionNode) && conditionNode.is(Type.truthy)) || !!conditionValue) {
+          if ((Type.isType(conditionNode) && conditionNode.is(Type.truthy)) || !!conditionValue) {
               return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
           }
-          else if ((isType(conditionNode) && conditionNode.is(Type.falsy)) || !conditionValue) {
+          else if ((Type.isType(conditionNode) && conditionNode.is(Type.falsy)) || !conditionValue) {
               if (node.params.length === 3) {
                   return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
               }
@@ -2527,11 +2717,11 @@ var Lits = (function (exports) {
               for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var param = _d.value;
                   value = evaluateAstNode(param, contextStack);
-                  if ((isType(value) && value.is(Type.truthy)) || value) {
+                  if ((Type.isType(value) && value.is(Type.truthy)) || value) {
                       possibleValues.push(value);
                       break;
                   }
-                  else if (isType(value) && value.intersects(Type.truthy)) {
+                  else if (Type.isType(value) && value.intersects(Type.truthy)) {
                       possibleValues.push(value);
                   }
               }
@@ -3144,7 +3334,7 @@ var Lits = (function (exports) {
   var collectionNormalExpression = {
       get: {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), coll = _a[0], key = _a[1];
                   var defaultValue = toAny(params[2]);
                   stringOrNumber.assert(key, debugInfo);
@@ -3158,8 +3348,12 @@ var Lits = (function (exports) {
               else {
                   var collType = Type.of(params[0]);
                   var keyType = Type.of(params[1]);
-                  var defaultValueType = isType(params[2]) ? params[2] : params[2] === undefined ? Type.nil : Type.of(params[2]);
-                  collType.assertIs(Type.collection.nilable(), debugInfo);
+                  var defaultValueType = Type.isType(params[2])
+                      ? params[2]
+                      : params[2] === undefined
+                          ? Type.nil
+                          : Type.of(params[2]);
+                  collType.assertIs(Type.or(Type.array, Type.string, Type.object).nilable(), debugInfo);
                   keyType.assertIs(Type.or(Type.string, Type.float, Type.nil), debugInfo);
                   if (collType.is(Type.nil)) {
                       return defaultValueType;
@@ -3176,7 +3370,7 @@ var Lits = (function (exports) {
           evaluate: function (params, debugInfo) {
               var e_1, _a;
               var _b;
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var coll = toAny(params[0]);
                   var keys = (_b = params[1]) !== null && _b !== void 0 ? _b : []; // nil behaves as empty array
                   var defaultValue = toAny(params[2]);
@@ -3211,7 +3405,7 @@ var Lits = (function (exports) {
               else {
                   var collType = Type.of(params[0]);
                   var keysType = Type.of(params[1]);
-                  collType.assertIs(Type.collection.nilable(), debugInfo);
+                  collType.assertIs(Type.or(Type.array, Type.string, Type.object).nilable(), debugInfo);
                   keysType.assertIs(Type.array.nilable(), debugInfo);
                   if (keysType.is(Type.nil)) {
                       return collType;
@@ -3224,7 +3418,7 @@ var Lits = (function (exports) {
       count: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), coll = _b[0];
-              if (isNotType(coll)) {
+              if (Type.isNotType(coll)) {
                   if (typeof coll === "string") {
                       return coll.length;
                   }
@@ -3236,10 +3430,10 @@ var Lits = (function (exports) {
               }
               else {
                   var collType = Type.of(coll);
-                  collType.assertIs(Type.collection, debugInfo);
-                  return collType.is(Type.emptyCollection)
+                  collType.assertIs(Type.or(Type.array, Type.string, Type.object), debugInfo);
+                  return collType.is(Type.or(Type.emptyArray, Type.emptyString, Type.emptyObject))
                       ? Type.zero
-                      : collType.is(Type.nonEmptyCollection)
+                      : collType.is(Type.or(Type.nonEmptyArray, Type.nonEmptyString, Type.nonEmptyObject))
                           ? Type.positiveInteger
                           : Type.nonNegativeInteger;
               }
@@ -3248,7 +3442,7 @@ var Lits = (function (exports) {
       },
       'contains?': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), coll = _a[0], key = _a[1];
                   collection.assert(coll, debugInfo);
                   stringOrNumber.assert(key, debugInfo);
@@ -3263,17 +3457,17 @@ var Lits = (function (exports) {
               }
               else {
                   var collType = Type.of(params[0]);
-                  return collType.is(Type.emptyCollection) ? Type.false : Type.boolean;
+                  return collType.is(Type.or(Type.emptyArray, Type.emptyString, Type.emptyObject)) ? Type.false : Type.boolean;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "contains?", debugInfo); },
       },
       'has?': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), coll = _a[0], value = _a[1];
                   collection.assert(coll, debugInfo);
-                  if ((array.is(coll) && coll.some(isType)) || (object.is(coll) && Object.values(coll).some(isType))) {
+                  if ((array.is(coll) && coll.some(Type.isType)) || (object.is(coll) && Object.values(coll).some(Type.isType))) {
                       return Type.boolean;
                   }
                   if (array.is(coll)) {
@@ -3286,7 +3480,7 @@ var Lits = (function (exports) {
               }
               else {
                   var collType = Type.of(params[0]);
-                  return collType.is(Type.emptyCollection) ? Type.false : Type.boolean;
+                  return collType.is(Type.or(Type.emptyArray, Type.emptyString, Type.emptyObject)) ? Type.false : Type.boolean;
               }
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "has?", debugInfo); },
@@ -4565,7 +4759,7 @@ var Lits = (function (exports) {
       },
       repeat: {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), count = _a[0], value = _a[1];
                   number.assert(count, debugInfo, { integer: true, nonNegative: true });
                   var result = [];
@@ -4609,7 +4803,7 @@ var Lits = (function (exports) {
       inc: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
-              if (isNotType(first)) {
+              if (Type.isNotType(first)) {
                   if (!number.is(first)) {
                       return NaN;
                   }
@@ -4658,7 +4852,7 @@ var Lits = (function (exports) {
       dec: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
-              if (isNotType(first)) {
+              if (Type.isNotType(first)) {
                   if (!number.is(first)) {
                       return NaN;
                   }
@@ -4797,7 +4991,7 @@ var Lits = (function (exports) {
       },
       quot: {
           evaluate: function (params) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
                   if (!number.is(dividend)) {
                       return NaN;
@@ -4886,7 +5080,7 @@ var Lits = (function (exports) {
       },
       mod: {
           evaluate: function (params) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
                   if (!number.is(dividend)) {
                       return NaN;
@@ -4938,7 +5132,7 @@ var Lits = (function (exports) {
       },
       rem: {
           evaluate: function (params) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), dividend = _a[0], divisor = _a[1];
                   if (!number.is(dividend)) {
                       return NaN;
@@ -4982,7 +5176,7 @@ var Lits = (function (exports) {
       sqrt: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
-              if (isNotType(first)) {
+              if (Type.isNotType(first)) {
                   if (!number.is(first)) {
                       return NaN;
                   }
@@ -5018,7 +5212,7 @@ var Lits = (function (exports) {
       cbrt: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
-              if (isNotType(first)) {
+              if (Type.isNotType(first)) {
                   if (!number.is(first)) {
                       return NaN;
                   }
@@ -5058,7 +5252,7 @@ var Lits = (function (exports) {
       },
       pow: {
           evaluate: function (params) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   if (!number.is(first)) {
                       return NaN;
@@ -5259,7 +5453,7 @@ var Lits = (function (exports) {
       round: {
           evaluate: function (params) {
               var _a;
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _b = __read(params, 2), value = _b[0], decimals = _b[1];
                   if (!number.is(value)) {
                       return NaN;
@@ -5340,7 +5534,7 @@ var Lits = (function (exports) {
       trunc: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
-              if (isNotType(first)) {
+              if (Type.isNotType(first)) {
                   if (!number.is(first)) {
                       return NaN;
                   }
@@ -5388,7 +5582,7 @@ var Lits = (function (exports) {
       floor: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
-              if (isNotType(first)) {
+              if (Type.isNotType(first)) {
                   if (!number.is(first)) {
                       return NaN;
                   }
@@ -5431,7 +5625,7 @@ var Lits = (function (exports) {
       ceil: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
-              if (isNotType(first)) {
+              if (Type.isNotType(first)) {
                   if (!number.is(first)) {
                       return NaN;
                   }
@@ -5480,7 +5674,7 @@ var Lits = (function (exports) {
       'rand-int!': {
           evaluate: function (_a) {
               var _b = __read(_a, 1), first = _b[0];
-              if (isNotType(first)) {
+              if (Type.isNotType(first)) {
                   if (!number.is(first)) {
                       return NaN;
                   }
@@ -5517,7 +5711,7 @@ var Lits = (function (exports) {
       },
       min: {
           evaluate: function (params) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params), first = _a[0], rest = _a.slice(1);
                   if (!number.is(first)) {
                       return NaN;
@@ -5563,7 +5757,7 @@ var Lits = (function (exports) {
       },
       max: {
           evaluate: function (params) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params), first = _a[0], rest = _a.slice(1);
                   if (!number.is(first)) {
                       return NaN;
@@ -5610,7 +5804,7 @@ var Lits = (function (exports) {
       abs: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5633,7 +5827,7 @@ var Lits = (function (exports) {
       sign: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5708,7 +5902,7 @@ var Lits = (function (exports) {
       exp: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5746,7 +5940,7 @@ var Lits = (function (exports) {
       log: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5761,7 +5955,7 @@ var Lits = (function (exports) {
       log2: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5776,7 +5970,7 @@ var Lits = (function (exports) {
       log10: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5791,7 +5985,7 @@ var Lits = (function (exports) {
       sin: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5823,7 +6017,7 @@ var Lits = (function (exports) {
       asin: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5858,7 +6052,7 @@ var Lits = (function (exports) {
       sinh: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5896,7 +6090,7 @@ var Lits = (function (exports) {
       asinh: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5934,7 +6128,7 @@ var Lits = (function (exports) {
       cos: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5963,7 +6157,7 @@ var Lits = (function (exports) {
       acos: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -5995,7 +6189,7 @@ var Lits = (function (exports) {
       cosh: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -6027,7 +6221,7 @@ var Lits = (function (exports) {
       acosh: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -6065,7 +6259,7 @@ var Lits = (function (exports) {
       tan: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -6097,7 +6291,7 @@ var Lits = (function (exports) {
       atan: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -6135,7 +6329,7 @@ var Lits = (function (exports) {
       tanh: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -6179,7 +6373,7 @@ var Lits = (function (exports) {
       atanh: {
           evaluate: function (_a) {
               var _b = __read(_a, 1), value = _b[0];
-              if (isNotType(value)) {
+              if (Type.isNotType(value)) {
                   if (!number.is(value)) {
                       return NaN;
                   }
@@ -6224,16 +6418,16 @@ var Lits = (function (exports) {
       },
   };
   function getTypeOfSum(paramTypes, debugInfo) {
-      paramTypes.sort(function (a, b) { return (isType(a) ? 1 : isType(b) ? -1 : 0); });
+      paramTypes.sort(function (a, b) { return (Type.isType(a) ? 1 : Type.isType(b) ? -1 : 0); });
       var first = paramTypes[0];
       any.assert(first);
       if (paramTypes.length === 1) {
-          assertType(first, debugInfo);
+          Type.assertType(first, debugInfo);
           return first.toNumberValue();
       }
       var rest = paramTypes.slice(1);
       var sum = rest.reduce(function (a, b) { return getTypeOfBinarySum(a, b); }, first);
-      if (isType(sum)) {
+      if (Type.isType(sum)) {
           return sum.toNumberValue();
       }
       number.assert(sum, debugInfo);
@@ -6542,7 +6736,7 @@ var Lits = (function (exports) {
       return Type.or.apply(Type, __spreadArray([], __read(types), false));
   }
   function negate(value) {
-      return isType(value) ? value.negateNumber().toNumberValue() : number.is(value) ? -value : NaN;
+      return Type.isType(value) ? value.negateNumber().toNumberValue() : number.is(value) ? -value : NaN;
   }
   function evaluateLogType(paramType) {
       var types = [];
@@ -6831,7 +7025,7 @@ var Lits = (function (exports) {
   var assertNormalExpression = {
       assert: {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var value = params[0];
                   var message = params.length === 2 ? params[1] : "".concat(value);
                   string.assert(message, debugInfo);
@@ -6850,7 +7044,7 @@ var Lits = (function (exports) {
       },
       'assert=': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6870,7 +7064,7 @@ var Lits = (function (exports) {
       },
       'assert-not=': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6887,7 +7081,7 @@ var Lits = (function (exports) {
       },
       'assert-equal': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6907,7 +7101,7 @@ var Lits = (function (exports) {
       },
       'assert-not-equal': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6924,7 +7118,7 @@ var Lits = (function (exports) {
       },
       'assert>': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6941,7 +7135,7 @@ var Lits = (function (exports) {
       },
       'assert>=': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6958,7 +7152,7 @@ var Lits = (function (exports) {
       },
       'assert<': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6975,7 +7169,7 @@ var Lits = (function (exports) {
       },
       'assert<=': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _a = __read(params, 2), first = _a[0], second = _a[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -6992,7 +7186,7 @@ var Lits = (function (exports) {
       },
       'assert-true': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var first = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -7011,7 +7205,7 @@ var Lits = (function (exports) {
       },
       'assert-false': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var first = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -7030,7 +7224,7 @@ var Lits = (function (exports) {
       },
       'assert-truthy': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var first = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -7049,7 +7243,7 @@ var Lits = (function (exports) {
       },
       'assert-falsy': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var first = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -7068,7 +7262,7 @@ var Lits = (function (exports) {
       },
       'assert-nil': {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var first = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -7088,7 +7282,7 @@ var Lits = (function (exports) {
       'assert-throws': {
           evaluate: function (params, debugInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var func = params[0];
                   var message = params[1];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -7110,7 +7304,7 @@ var Lits = (function (exports) {
       'assert-throws-error': {
           evaluate: function (params, debugInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _b = __read(params, 2), func = _b[0], throwMessage = _b[1];
                   var message = params[2];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -7139,7 +7333,7 @@ var Lits = (function (exports) {
       'assert-not-throws': {
           evaluate: function (params, debugInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var func = params[0];
                   var message = params[0];
                   message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
@@ -7165,7 +7359,7 @@ var Lits = (function (exports) {
   var objectNormalExpression = {
       object: {
           evaluate: function (params, debugInfo) {
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var result = {};
                   for (var i = 0; i < params.length; i += 2) {
                       var key = params[i];
@@ -7481,7 +7675,7 @@ var Lits = (function (exports) {
       regexp: {
           evaluate: function (params, debugInfo) {
               var _a;
-              if (params.every(isNotType)) {
+              if (params.every(Type.isNotType)) {
                   var _b = __read(params, 2), sourceArg = _b[0], flagsArg = _b[1];
                   string.assert(sourceArg, debugInfo);
                   var source = sourceArg || "(?:)";
@@ -7948,7 +8142,7 @@ var Lits = (function (exports) {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), value = _b[0];
               any.assert(value, debugInfo);
-              if (isType(value)) {
+              if (Type.isType(value)) {
                   return Type.toValue(value);
               }
               else {
@@ -7960,29 +8154,29 @@ var Lits = (function (exports) {
       'type-split': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertType(value, debugInfo);
+              Type.assertType(value, debugInfo);
               return Type.split(value);
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(1, arity, "type-of", debugInfo); },
       },
       'type-or': {
           evaluate: function (params, debugInfo) {
-              params.forEach(function (param) { return assertType(param, debugInfo); });
+              params.forEach(function (param) { return Type.assertType(param, debugInfo); });
               return Type.or.apply(Type, __spreadArray([], __read(params), false));
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "type-or", debugInfo); },
       },
       'type-and': {
           evaluate: function (params, debugInfo) {
-              params.forEach(function (param) { return assertType(param, debugInfo); });
+              params.forEach(function (param) { return Type.assertType(param, debugInfo); });
               return Type.and.apply(Type, __spreadArray([], __read(params), false));
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "type-and", debugInfo); },
       },
       'type-exclude': {
           evaluate: function (params, debugInfo) {
-              params.forEach(function (param) { return assertType(param, debugInfo); });
-              var first = asType(params[0], debugInfo);
+              params.forEach(function (param) { return Type.assertType(param, debugInfo); });
+              var first = Type.asType(params[0], debugInfo);
               return Type.exclude.apply(Type, __spreadArray([first], __read(params.slice(1)), false));
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams({ min: 1 }, arity, "type-exclude", debugInfo); },
@@ -7990,8 +8184,8 @@ var Lits = (function (exports) {
       'type-is?': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), first = _b[0], second = _b[1];
-              assertType(first, debugInfo);
-              assertType(second, debugInfo);
+              Type.assertType(first, debugInfo);
+              Type.assertType(second, debugInfo);
               return Type.is(first, second);
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "type-is?", debugInfo); },
@@ -7999,8 +8193,8 @@ var Lits = (function (exports) {
       'type-equals?': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), first = _b[0], second = _b[1];
-              assertType(first, debugInfo);
-              assertType(second, debugInfo);
+              Type.assertType(first, debugInfo);
+              Type.assertType(second, debugInfo);
               return Type.equals(first, second);
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "type-equals?", debugInfo); },
@@ -8008,8 +8202,8 @@ var Lits = (function (exports) {
       'type-intersects?': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), first = _b[0], second = _b[1];
-              assertType(first, debugInfo);
-              assertType(second, debugInfo);
+              Type.assertType(first, debugInfo);
+              Type.assertType(second, debugInfo);
               return Type.intersects(first, second);
           },
           validateArity: function (arity, debugInfo) { return assertNumberOfParams(2, arity, "type-intersects?", debugInfo); },
@@ -8601,18 +8795,6 @@ var Lits = (function (exports) {
               return Type.truthy;
           case "falsy":
               return Type.falsy;
-          case "empty-collection":
-              return Type.emptyCollection;
-          case "non-empty-collection":
-              return Type.nonEmptyCollection;
-          case "collection":
-              return Type.collection;
-          case "empty-sequence":
-              return Type.emptySequence;
-          case "non-empty-sequence":
-              return Type.nonEmptySequence;
-          case "sequence":
-              return Type.sequence;
       }
   }
   function evaluateReservedName(node) {
@@ -8676,6 +8858,9 @@ var Lits = (function (exports) {
       if (number.is(fn)) {
           return evaluateNumberAsFunction(fn, params, debugInfo);
       }
+      if (Type.isType(fn)) {
+          return evaluateTypeAsFunction(fn, params, debugInfo);
+      }
       throw new NotAFunctionError(fn, debugInfo);
   };
   function evaluateBuiltinNormalExpression(node, params, contextStack) {
@@ -8728,6 +8913,20 @@ var Lits = (function (exports) {
       var param = params[0];
       sequence.assert(param, debugInfo);
       return toAny(param[fn]);
+  }
+  function evaluateTypeAsFunction(typeFunction, params, debugInfo) {
+      if (params.length !== 1) {
+          throw new LitsError("ArrayType as function requires one parameter.", debugInfo);
+      }
+      if (typeFunction.equals(Type.array)) {
+          var size = asValue(asNotNull(typeFunction.arrayInfo)[0]).size;
+          if (size === Size.Empty) {
+              return Type.emptyArray;
+          }
+          var type = Type.of(params[0]);
+          return size === Size.Unknown ? Type.createTypedArray(type) : Type.createNonEmpyTypedArray(type);
+      }
+      throw new LitsError("Type as function requires type to be ::array or ::object.", debugInfo);
   }
 
   var parseNumber = function (tokens, position) {
@@ -9026,62 +9225,6 @@ var Lits = (function (exports) {
           ast.body.push(node);
       }
       return ast;
-  }
-
-  var typeNames = [
-      "never",
-      "nil",
-      "nan",
-      "positive-infinity",
-      "negative-infinity",
-      "infinity",
-      "empty-string",
-      "non-empty-string",
-      "string",
-      "positive-zero",
-      "negative-zero",
-      "zero",
-      "number",
-      "float",
-      "positive-float",
-      "negative-float",
-      "positive-number",
-      "negative-number",
-      "non-zero-number",
-      "non-positive-number",
-      "non-negative-number",
-      "non-zero-float",
-      "non-positive-float",
-      "non-negative-float",
-      "integer",
-      "non-zero-integer",
-      "positive-integer",
-      "negative-integer",
-      "non-positive-integer",
-      "non-negative-integer",
-      "true",
-      "false",
-      "boolean",
-      "empty-array",
-      "non-empty-array",
-      "array",
-      "empty-object",
-      "non-empty-object",
-      "object",
-      "regexp",
-      "function",
-      "unknown",
-      "truthy",
-      "falsy",
-      "empty-collection",
-      "non-empty-collection",
-      "collection",
-      "empty-sequence",
-      "non-empty-sequence",
-      "sequence",
-  ];
-  function isTypeName(typeName) {
-      return typeNames.includes(typeName);
   }
 
   var NO_MATCH = [0, undefined];

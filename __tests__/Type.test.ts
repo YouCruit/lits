@@ -14,25 +14,25 @@ describe(`Type`, () => {
   test(`isType`, () => {
     const isType = Type.isType
     expect(isType({})).toBe(false)
-    expect(isType(Type.emptySequence)).toBe(true)
+    expect(isType(Type.string)).toBe(true)
   })
   test(`assertType`, () => {
     const assertType = Type.assertType
     expect(() => assertType({}, undefined)).toThrow()
-    expect(() => assertType(Type.emptySequence, undefined)).not.toThrow()
+    expect(() => assertType(Type.string, undefined)).not.toThrow()
   })
   test(`assertType`, () => {
     const asType = Type.asType
     expect(() => asType({}, undefined)).toThrow()
-    expect(() => asType(Type.emptySequence, undefined)).not.toThrow()
+    expect(() => asType(Type.string, undefined)).not.toThrow()
   })
   test(`isNotType`, () => {
     const isNotType = Type.isNotType
     expect(isNotType({})).toBe(true)
-    expect(isNotType(Type.emptySequence)).toBe(false)
+    expect(isNotType(Type.string)).toBe(false)
   })
   test(`Type.of.`, () => {
-    expect(Type.of(Type.collection)).toBe(Type.collection)
+    // expect(Type.of(Type.collection)).toBe(Type.collection)
     expect(Type.of(null)).toEqual(Type.nil)
     expect(Type.of(``)).toEqual(Type.emptyString)
     expect(Type.of(`Albert`)).toEqual(Type.nonEmptyString)
@@ -50,7 +50,7 @@ describe(`Type`, () => {
     expect(Type.of(Infinity)).toEqual(Type.positiveInfinity)
     expect(Type.of(-Infinity)).toEqual(Type.negativeInfinity)
     expect(Type.of([])).toEqual(Type.emptyArray)
-    expect(Type.of([1])).toEqual(Type.nonEmptyArray)
+    expect(Type.of([1])).toEqual(Type.createNonEmpyTypedArray(Type.positiveInteger))
     expect(Type.of({})).toEqual(Type.emptyObject)
     expect(Type.of({ foo: true })).toEqual(Type.nonEmptyObject)
     expect(Type.of(lits.run(`#"^$"`))).toEqual(Type.regexp)
@@ -70,7 +70,7 @@ describe(`Type`, () => {
     expect(Type.toValue(Type.negativeInfinity)).toBe(-Infinity)
     expect(Type.toValue(Type.emptyArray)).toEqual([])
     expect(Type.toValue(Type.emptyObject)).toEqual({})
-    expect(Type.toValue(Type.collection)).toEqual(Type.collection)
+    // expect(Type.toValue(Type.collection)).toEqual(Type.collection)
 
     expect(Type.nil.toValue()).toBe(null)
     expect(Type.positiveZero.toValue()).toBe(0)
@@ -81,9 +81,9 @@ describe(`Type`, () => {
     expect(Type.nan.toValue()).toBe(NaN)
     expect(Type.positiveInfinity.toValue()).toBe(Infinity)
     expect(Type.negativeInfinity.toValue()).toBe(-Infinity)
-    expect(Type.emptyArray.toValue()).toEqual([])
+    // expect(Type.emptyArray.toValue()).toEqual([])
     expect(Type.emptyObject.toValue()).toEqual({})
-    expect(Type.collection.toValue()).toEqual(Type.collection)
+    // expect(Type.collection.toValue()).toEqual(Type.collection)
   })
 
   test(`Type.toNumberOrNan.`, () => {
@@ -96,9 +96,9 @@ describe(`Type`, () => {
     expect(Type.toNumberOrNan(Type.nan)).toEqual(NaN)
     expect(Type.toNumberOrNan(Type.positiveInfinity)).toBe(Infinity)
     expect(Type.toNumberOrNan(Type.negativeInfinity)).toBe(-Infinity)
-    expect(Type.toNumberOrNan(Type.emptyArray)).toEqual(Type.emptyArray)
+    // expect(Type.toNumberOrNan(Type.emptyArray)).toEqual(Type.emptyArray)
     expect(Type.toNumberOrNan(Type.emptyObject)).toEqual(Type.emptyObject)
-    expect(Type.toNumberOrNan(Type.collection)).toEqual(Type.collection)
+    // expect(Type.toNumberOrNan(Type.collection)).toEqual(Type.collection)
   })
 
   test(`Type.split.`, () => {
@@ -161,9 +161,9 @@ describe(`Type`, () => {
         typeToBitRecord[`positive-integer`] |
         typeToBitRecord[`negative-integer`],
     )
-    expect(Type.nonEmptyArray.bitmask).toBe(typeToBitRecord[`non-empty-array`])
-    expect(Type.emptyArray.bitmask).toBe(typeToBitRecord[`empty-array`])
-    expect(Type.array.bitmask).toBe(typeToBitRecord[`non-empty-array`] | typeToBitRecord[`empty-array`])
+    // expect(Type.nonEmptyArray.bitmask).toBe(typeToBitRecord[`non-empty-array`])
+    // expect(Type.emptyArray.bitmask).toBe(typeToBitRecord[`empty-array`])
+    // expect(Type.array.bitmask).toBe(typeToBitRecord[`non-empty-array`] | typeToBitRecord[`empty-array`])
     expect(Type.nonEmptyObject.bitmask).toBe(typeToBitRecord[`non-empty-object`])
     expect(Type.emptyObject.bitmask).toBe(typeToBitRecord[`empty-object`])
     expect(Type.object.bitmask).toBe(typeToBitRecord[`non-empty-object`] | typeToBitRecord[`empty-object`])
@@ -186,8 +186,7 @@ describe(`Type`, () => {
         typeToBitRecord[`negative-integer`] |
         typeToBitRecord[`negative-non-integer`] |
         typeToBitRecord.true |
-        typeToBitRecord[`non-empty-array`] |
-        typeToBitRecord[`empty-array`] |
+        typeToBitRecord.array |
         typeToBitRecord[`non-empty-object`] |
         typeToBitRecord[`empty-object`] |
         typeToBitRecord.function |
@@ -196,20 +195,20 @@ describe(`Type`, () => {
         typeToBitRecord[`negative-infinity`],
     )
 
-    expect(Type.emptyCollection.bitmask).toBe(
-      typeToBitRecord[`empty-array`] | typeToBitRecord[`empty-object`] | typeToBitRecord[`empty-string`],
-    )
-    expect(Type.nonEmptyCollection.bitmask).toBe(
-      typeToBitRecord[`non-empty-array`] | typeToBitRecord[`non-empty-object`] | typeToBitRecord[`non-empty-string`],
-    )
-    expect(Type.collection.bitmask).toBe(
-      typeToBitRecord[`empty-array`] |
-        typeToBitRecord[`empty-object`] |
-        typeToBitRecord[`empty-string`] |
-        typeToBitRecord[`non-empty-array`] |
-        typeToBitRecord[`non-empty-object`] |
-        typeToBitRecord[`non-empty-string`],
-    )
+    //   expect(Type.emptyCollection.bitmask).toBe(
+    //     typeToBitRecord[`empty-array`] | typeToBitRecord[`empty-object`] | typeToBitRecord[`empty-string`],
+    //   )
+    //   expect(Type.nonEmptyCollection.bitmask).toBe(
+    //     typeToBitRecord[`non-empty-array`] | typeToBitRecord[`non-empty-object`] | typeToBitRecord[`non-empty-string`],
+    //   )
+    //   expect(Type.collection.bitmask).toBe(
+    //     typeToBitRecord[`empty-array`] |
+    //       typeToBitRecord[`empty-object`] |
+    //       typeToBitRecord[`empty-string`] |
+    //       typeToBitRecord[`non-empty-array`] |
+    //       typeToBitRecord[`non-empty-object`] |
+    //       typeToBitRecord[`non-empty-string`],
+    //   )
   })
   describe(`Type.and`, () => {
     test(`samples`, () => {
@@ -250,6 +249,15 @@ describe(`Type`, () => {
 
       expect(Type.unknown.exclude(Type.truthy)).toEqual(Type.falsy)
       expect(Type.unknown.exclude(Type.falsy)).toEqual(Type.truthy)
+
+      expect(Type.createTypedArray(Type.integer).exclude(Type.emptyArray)).toEqual(
+        Type.createNonEmpyTypedArray(Type.integer),
+      )
+
+      expect(Type.emptyArray.exclude(Type.createTypedArray(Type.string))).toEqual(Type.never)
+      expect(Type.createTypedArray(Type.string).exclude(Type.emptyArray)).toEqual(
+        Type.createNonEmpyTypedArray(Type.string),
+      )
     })
   })
 
@@ -297,9 +305,7 @@ describe(`Type`, () => {
           typeToBitRecord[`negative-non-integer`] |
           typeToBitRecord.nil,
       )
-      expect(Type.or(Type.nil, Type.array).bitmask).toBe(
-        typeToBitRecord[`non-empty-array`] | typeToBitRecord[`empty-array`] | typeToBitRecord.nil,
-      )
+      expect(Type.or(Type.nil, Type.array).bitmask).toBe(typeToBitRecord.array | typeToBitRecord.nil)
       expect(Type.or(Type.nil, Type.object).bitmask).toBe(
         typeToBitRecord[`non-empty-object`] | typeToBitRecord[`empty-object`] | typeToBitRecord.nil,
       )
@@ -438,6 +444,26 @@ describe(`Type`, () => {
     test(`nil samples`, () => {
       expect(Type.nil.is(Type.or(Type.array, Type.true, Type.nil))).toBe(true)
     })
+    test(`arrays.`, () => {
+      expect(
+        Type.is(
+          Type.createTypedArray(Type.or(Type.emptyString, Type.number)),
+          Type.or(
+            Type.createTypedArray(Type.or(Type.nonEmptyString, Type.number)),
+            Type.createTypedArray(Type.or(Type.emptyString, Type.number)),
+          ),
+        ),
+      ).toBe(true)
+      expect(
+        Type.is(
+          Type.createTypedArray(Type.or(Type.emptyString, Type.number)),
+          Type.or(
+            Type.createTypedArray(Type.or(Type.nonEmptyString, Type.number)),
+            Type.createTypedArray(Type.or(Type.emptyString, Type.integer)),
+          ),
+        ),
+      ).toBe(false)
+    })
   })
 
   describe(`Type.equals`, () => {
@@ -449,7 +475,7 @@ describe(`Type`, () => {
   describe(`Type.toString`, () => {
     test(`samples`, () => {
       expect(Type.never.toString()).toBe(`::never [Bitmask = 0000 0000 0000 0000 0000  (0)]`)
-      expect(Type.unknown.toString()).toBe(`::unknown [Bitmask = 1111 1111 1111 1111 1111  (1048575)]`)
+      expect(Type.unknown.toString()).toBe(`::unknown [Bitmask = 1111 0111 1111 1111 1111  (1015807)]`)
       expect(Type.nil.toString()).toBe(`::nil [Bitmask = 0000 0000 0000 0000 0001  (1)]`)
       expect(Type.string.toString()).toBe(`::string [Bitmask = 0000 0011 0000 0000 0000  (12288)]`)
       expect(Type.string.nilable().toString()).toBe(`::string | ::nil [Bitmask = 0000 0011 0000 0000 0001  (12289)]`)

@@ -18,6 +18,7 @@ import { functionExecutors } from './functionExecutors'
 import { DebugInfo } from '../tokenizer/interface'
 import { LitsError, NotAFunctionError, UndefinedSymbolError } from '../errors'
 import {
+  asNotNull,
   asValue,
   litsFunction,
   normalExpressionNodeWithName,
@@ -30,6 +31,7 @@ import { valueToString } from '../utils/helpers'
 import { ContextStack } from '../ContextStack'
 import { lookUp } from '../lookup'
 import { Type } from '../types/Type'
+import { Size } from '../types/ArrayInfo'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null
@@ -166,18 +168,6 @@ function evaluateTypeName(node: TypeNameNode): Type {
       return Type.truthy
     case `falsy`:
       return Type.falsy
-    case `empty-collection`:
-      return Type.emptyCollection
-    case `non-empty-collection`:
-      return Type.nonEmptyCollection
-    case `collection`:
-      return Type.collection
-    case `empty-sequence`:
-      return Type.emptySequence
-    case `non-empty-sequence`:
-      return Type.nonEmptySequence
-    case `sequence`:
-      return Type.sequence
   }
 }
 
@@ -229,6 +219,9 @@ const executeFunction: ExecuteFunction = (fn, params, contextStack, debugInfo) =
   }
   if (number.is(fn)) {
     return evaluateNumberAsFunction(fn, params, debugInfo)
+  }
+  if (Type.isType(fn)) {
+    return evaluateTypeAsFunction(fn, params, debugInfo)
   }
   throw new NotAFunctionError(fn, debugInfo)
 }
@@ -292,4 +285,19 @@ function evaluateNumberAsFunction(fn: number, params: Arr, debugInfo?: DebugInfo
   const param = params[0]
   sequence.assert(param, debugInfo)
   return toAny(param[fn])
+}
+
+function evaluateTypeAsFunction(typeFunction: Type, params: Arr, debugInfo?: DebugInfo) {
+  if (params.length !== 1) {
+    throw new LitsError(`ArrayType as function requires one parameter.`, debugInfo)
+  }
+  if (typeFunction.equals(Type.array)) {
+    const size = asValue(asNotNull(typeFunction.arrayInfo)[0]).size
+    if (size === Size.Empty) {
+      return Type.emptyArray
+    }
+    const type = Type.of(params[0])
+    return size === Size.Unknown ? Type.createTypedArray(type) : Type.createNonEmpyTypedArray(type)
+  }
+  throw new LitsError(`Type as function requires type to be ::array or ::object.`, debugInfo)
 }

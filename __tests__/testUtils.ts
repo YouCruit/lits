@@ -6,6 +6,7 @@ import { Any, Obj } from '../src/interface'
 import { Type, Lits } from '../src/Lits/Lits'
 import { MAX_NUMBER, MIN_NUMBER } from '../src/utils'
 import { asValue, regularExpression } from '../src/utils/assertion'
+import { Size } from '../src/types/ArrayInfo'
 
 interface Primitives extends Obj {
   string: string
@@ -360,11 +361,14 @@ export function combinations(litsTypeParams: string[]): string[][] {
 }
 
 const bitsToSampleValue = Object.entries(typeToBitRecord).reduce((result: Record<string, string[]>, entry) => {
-  result[entry[1]] = getSampleValueFromPrimitiveTypeName(entry[0] as PrimitiveTypeName)
+  const samples = getSampleValueFromPrimitiveTypeName(entry[0] as PrimitiveTypeName)
+  if (samples !== null) {
+    result[entry[1]] = samples
+  }
   return result
 }, {})
 
-function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string[] {
+function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string[] | null {
   switch (name) {
     case `nil`:
       return [`nil`]
@@ -396,19 +400,34 @@ function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string[] 
       return [`0.0000000001`, `0.5`, `1.5`, `(pi)`, `(e)`, `${MAX_NUMBER - 0.1}`]
     case `negative-non-integer`:
       return [`-0.0000000001`, `-0.5`, `-1.5`, `(- (pi))`, `(- (e))`, `${MIN_NUMBER + 0.1}`]
-    case `empty-array`:
-      return [`[]`]
-    case `non-empty-array`:
-      return [`[1 2 3]`]
     case `empty-object`:
       return [`{}`]
     case `non-empty-object`:
       return [`{ :foo :bar }`]
     case `function`:
       return [`#(+ %1 %2)`]
+    case `array`:
+      return null
   }
 }
 
 export function getSampleValuesForType(dataType: Type): string[] {
-  return dataType.toSingelBits().flatMap(bitmask => asValue(bitsToSampleValue[bitmask]))
+  return dataType.toSingelBits().flatMap(bitmask => {
+    if (bitmask !== typeToBitRecord.array) {
+      return asValue(bitsToSampleValue[bitmask])
+    } else {
+      return asValue(dataType.arrayInfo ?? undefined).flatMap(elem => {
+        const result: string[] = []
+        if (elem.size === Size.Empty) {
+          result.push(`[]`)
+        } else if (elem.size === Size.NonEmpty) {
+          result.push(`[${getSampleValuesForType(elem.type ?? Type.unknown.exclude(Type.array)).join(` `)}]`)
+        } else {
+          result.push(`[${getSampleValuesForType(elem.type ?? Type.unknown.exclude(Type.unknown)).join(` `)}]`)
+          result.push(`[]`)
+        }
+        return result
+      })
+    }
+  })
 }

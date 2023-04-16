@@ -52,7 +52,8 @@ describe(`type functions`, () => {
     test(`samples`, () => {
       expect(() => lits.run(`(type-is?)`)).toThrow()
       expect(() => lits.run(`(type-is? ::nil)`)).toThrow()
-      expect(() => lits.run(`(type-is? nil ::unknown)`)).toThrow()
+      expect(() => lits.run(`(type-is? ::nil ::unknown ::unknown)`)).toThrow()
+      expect(lits.run(`(type-is? nil ::unknown)`)).toBe(true)
       expect(lits.run(`(type-is? ::nil ::unknown)`)).toBe(true)
       expect(lits.run(`(type-is? ::integer ::float)`)).toBe(true)
       expect(lits.run(`(type-is? ::float ::integer)`)).toBe(false)

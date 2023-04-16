@@ -53,7 +53,7 @@ export const typeNormalExpression: BuiltinNormalExpressions = {
   },
   'type-is?': {
     evaluate: ([first, second], debugInfo): boolean => {
-      Type.assertType(first, debugInfo)
+      any.assert(first, debugInfo)
       Type.assertType(second, debugInfo)
       return Type.is(first, second)
     },

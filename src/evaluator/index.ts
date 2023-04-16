@@ -31,7 +31,7 @@ import { valueToString } from '../utils/helpers'
 import { ContextStack } from '../ContextStack'
 import { lookUp } from '../lookup'
 import { Type } from '../types/Type'
-import { Size } from '../types/ArrayInfo'
+import { ArrayVariant } from '../types/ArrayVariant'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null
@@ -291,13 +291,13 @@ function evaluateTypeAsFunction(typeFunction: Type, params: Arr, debugInfo?: Deb
   if (params.length !== 1) {
     throw new LitsError(`ArrayType as function requires one parameter.`, debugInfo)
   }
-  if (typeFunction.equals(Type.array)) {
-    const size = asValue(asNotNull(typeFunction.arrayInfo)[0]).size
-    if (size === Size.Empty) {
+  if (typeFunction.is(Type.array)) {
+    const size = asValue(asNotNull(typeFunction.arrayVariants)[0]).size
+    if (size === ArrayVariant.Size.Empty) {
       return Type.emptyArray
     }
     const type = Type.of(params[0])
-    return size === Size.Unknown ? Type.createTypedArray(type) : Type.createNonEmpyTypedArray(type)
+    return size === ArrayVariant.Size.Unknown ? Type.createTypedArray(type) : Type.createNonEmpyTypedArray(type)
   }
   throw new LitsError(`Type as function requires type to be ::array or ::object.`, debugInfo)
 }

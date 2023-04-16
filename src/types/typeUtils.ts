@@ -291,3 +291,15 @@ export const builtinTypesBitMasks: Record<TypeName, number> = {
 
   falsy: FALSY_BITS,
 }
+
+export function stringifyBitMask(bitmask: number): string {
+  let mask = ``
+
+  for (let index = 19; index >= 0; index -= 1) {
+    const bitValue = 1 << index
+    const zeroOrOne = bitmask & bitValue ? `1` : `0`
+    const space = index !== 19 && (index + 1) % 4 === 0 ? ` ` : ``
+    mask += `${space}${zeroOrOne}`
+  }
+  return mask
+}

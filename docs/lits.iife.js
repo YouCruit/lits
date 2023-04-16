@@ -709,121 +709,220 @@ var Lits = (function (exports) {
       Size[Size["NonEmpty"] = 1] = "NonEmpty";
       Size[Size["Unknown"] = 2] = "Unknown";
   })(Size || (Size = {}));
-  // export function arrayInfoOr(types: Type[], unknownType: Type): ArrayInfo {
-  //   return simplifyArrayInfo(
-  //     types.flatMap(type => type.arrayInfo ?? []),
-  //     unknownType,
-  //   )
-  // }
-  function arrayInfoOr(a, b, unknownType) {
-      return simplifyArrayInfo(__spreadArray(__spreadArray([], __read((a !== null && a !== void 0 ? a : [])), false), __read((b !== null && b !== void 0 ? b : [])), false), unknownType);
-  }
-  function arrayInfoIs(a, b, unknownType) {
-      var simpleA = simplifyArrayInfo(a, unknownType);
-      var simpleB = simplifyArrayInfo(b, unknownType);
-      if (!simpleA && !simpleB) {
-          return true;
+  var ArrayVariant = /** @class */ (function () {
+      function ArrayVariant(size, type) {
+          this.size = size;
+          this.type = type;
       }
-      if (!simpleA || !simpleB) {
-          return false;
-      }
-      return simpleA.every(function (aElem) {
-          var _a;
-          var aType = (_a = aElem.type) !== null && _a !== void 0 ? _a : unknownType;
-          return simpleB.some(function (bElem) {
-              var bType = bElem.type;
-              if (!bType) {
-                  return true;
-              }
-              if (!aType.is(bType)) {
-                  return false;
-              }
-              return bElem.size === Size.Unknown || bElem.size === aElem.size;
-          });
-      });
-  }
-  function arrayInfoExclude(a, b, unknownType) {
-      var simpleA = simplifyArrayInfo(a, unknownType);
-      var simpleB = simplifyArrayInfo(b, unknownType);
-      if (!simpleA) {
-          return null;
-      }
-      if (!simpleB) {
-          return a;
-      }
-      return simplifyArrayInfo(simpleA.flatMap(function (aElem) {
-          var e_1, _a;
-          var _b, _c;
-          var result = __assign({}, aElem);
-          try {
-              for (var simpleB_1 = __values(simpleB), simpleB_1_1 = simpleB_1.next(); !simpleB_1_1.done; simpleB_1_1 = simpleB_1.next()) {
-                  var bElem = simpleB_1_1.value;
-                  if (bElem.size === Size.Empty || bElem.size === Size.Unknown) {
-                      if (result.size === Size.Empty) {
-                          return [];
-                      }
-                      else {
-                          result.size = Size.NonEmpty;
-                      }
-                      result.size = bElem.size === Size.Empty ? Size.NonEmpty : Size.Empty;
-                  }
-                  if (((_b = result.type) !== null && _b !== void 0 ? _b : unknownType).equals((_c = bElem.type) !== null && _c !== void 0 ? _c : unknownType)) {
-                      switch (result.size) {
-                          case Size.Empty:
-                              return bElem.size !== Size.NonEmpty ? [] : result;
-                          case Size.NonEmpty:
-                              return bElem.size !== Size.Empty ? [] : result;
-                          case Size.Unknown:
-                              if (bElem.size === Size.Unknown) {
-                                  return [];
-                              }
-                              result.size = bElem.size === Size.Empty ? Size.NonEmpty : Size.Empty;
-                              return result;
-                      }
-                  }
-              }
+      ArrayVariant.create = function (type) {
+          if (type === void 0) { type = null; }
+          return new ArrayVariant(Size.Unknown, type);
+      };
+      ArrayVariant.createEmpty = function () {
+          return new ArrayVariant(Size.Empty, null);
+      };
+      ArrayVariant.createNonEmpty = function (type) {
+          if (type === void 0) { type = null; }
+          return new ArrayVariant(Size.NonEmpty, type);
+      };
+      ArrayVariant.or = function (a, b) {
+          return simplifyArrayInfo(__spreadArray(__spreadArray([], __read((a !== null && a !== void 0 ? a : [])), false), __read((b !== null && b !== void 0 ? b : [])), false));
+      };
+      ArrayVariant.and = function (a, b) {
+          if (a === null || b === null) {
+              return null;
           }
-          catch (e_1_1) { e_1 = { error: e_1_1 }; }
-          finally {
+          return simplifyArrayInfo(a.flatMap(function (aVariant) {
+              var e_1, _a;
+              var _b, _c;
+              var aType = (_b = aVariant.type) !== null && _b !== void 0 ? _b : ArrayVariant.unknownType;
               try {
-                  if (simpleB_1_1 && !simpleB_1_1.done && (_a = simpleB_1.return)) _a.call(simpleB_1);
+                  for (var b_1 = __values(b), b_1_1 = b_1.next(); !b_1_1.done; b_1_1 = b_1.next()) {
+                      var bVariant = b_1_1.value;
+                      var bType = (_c = bVariant.type) !== null && _c !== void 0 ? _c : ArrayVariant.unknownType;
+                      if (aType.equals(bType)) {
+                          var size = aVariant.size === Size.Empty && bVariant.size !== Size.NonEmpty
+                              ? Size.Empty
+                              : aVariant.size === Size.NonEmpty && bVariant.size !== Size.Empty
+                                  ? Size.NonEmpty
+                                  : aVariant.size === Size.Unknown
+                                      ? bVariant.size
+                                      : null;
+                          if (size === null) {
+                              return [];
+                          }
+                          return new ArrayVariant(size, aType);
+                      }
+                  }
               }
-              finally { if (e_1) throw e_1.error; }
+              catch (e_1_1) { e_1 = { error: e_1_1 }; }
+              finally {
+                  try {
+                      if (b_1_1 && !b_1_1.done && (_a = b_1.return)) _a.call(b_1);
+                  }
+                  finally { if (e_1) throw e_1.error; }
+              }
+              return [];
+          }));
+      };
+      ArrayVariant.equals = function (a, b) {
+          if (!a && !b) {
+              return true;
           }
-          return result;
-      }), unknownType);
-  }
-  function simplifyArrayInfo(arrayInfo, unknownType) {
+          if (!a || !b) {
+              return false;
+          }
+          if (a.length !== b.length) {
+              return false;
+          }
+          return a.every(function (aVariant) {
+              var e_2, _a;
+              var aSize = aVariant.size;
+              var aType = aVariant.type;
+              try {
+                  for (var b_2 = __values(b), b_2_1 = b_2.next(); !b_2_1.done; b_2_1 = b_2.next()) {
+                      var bVariant = b_2_1.value;
+                      var bSize = bVariant.size;
+                      var bType = bVariant.type;
+                      if (aSize === bSize) {
+                          if (!aType && !bType) {
+                              return true;
+                          }
+                          if (!aType || !bType) {
+                              continue;
+                          }
+                          if (aType.equals(bType)) {
+                              return true;
+                          }
+                      }
+                  }
+              }
+              catch (e_2_1) { e_2 = { error: e_2_1 }; }
+              finally {
+                  try {
+                      if (b_2_1 && !b_2_1.done && (_a = b_2.return)) _a.call(b_2);
+                  }
+                  finally { if (e_2) throw e_2.error; }
+              }
+              return false;
+          });
+      };
+      ArrayVariant.is = function (a, b, unknownType) {
+          var simpleA = simplifyArrayInfo(a);
+          var simpleB = simplifyArrayInfo(b);
+          if (!simpleA && !simpleB) {
+              return true;
+          }
+          if (!simpleA || !simpleB) {
+              return false;
+          }
+          return simpleA.every(function (aElem) {
+              var _a;
+              var aType = (_a = aElem.type) !== null && _a !== void 0 ? _a : unknownType;
+              return simpleB.some(function (bElem) {
+                  var bType = bElem.type;
+                  if (!bType) {
+                      return true;
+                  }
+                  if (!aType.is(bType)) {
+                      return false;
+                  }
+                  return bElem.size === Size.Unknown || bElem.size === aElem.size;
+              });
+          });
+      };
+      ArrayVariant.exclude = function (aTypeVariants, bTypeVariants) {
+          if (!aTypeVariants) {
+              return null;
+          }
+          if (!bTypeVariants) {
+              return aTypeVariants;
+          }
+          return simplifyArrayInfo(aTypeVariants.flatMap(function (aVariant) {
+              var e_3, _a;
+              var _b, _c;
+              var typeVariants = aVariant.clone();
+              try {
+                  for (var bTypeVariants_1 = __values(bTypeVariants), bTypeVariants_1_1 = bTypeVariants_1.next(); !bTypeVariants_1_1.done; bTypeVariants_1_1 = bTypeVariants_1.next()) {
+                      var bVariant = bTypeVariants_1_1.value;
+                      if (bVariant.size === Size.Empty || bVariant.size === Size.Unknown) {
+                          if (typeVariants.size === Size.Empty) {
+                              return [];
+                          }
+                          else {
+                              typeVariants.size = Size.NonEmpty;
+                          }
+                          typeVariants.size = bVariant.size === Size.Empty ? Size.NonEmpty : Size.Empty;
+                      }
+                      if (((_b = typeVariants.type) !== null && _b !== void 0 ? _b : ArrayVariant.unknownType).equals((_c = bVariant.type) !== null && _c !== void 0 ? _c : ArrayVariant.unknownType)) {
+                          switch (typeVariants.size) {
+                              case Size.Empty:
+                                  return bVariant.size !== Size.NonEmpty ? [] : typeVariants;
+                              case Size.NonEmpty:
+                                  return bVariant.size !== Size.Empty ? [] : typeVariants;
+                              case Size.Unknown:
+                                  if (bVariant.size === Size.Unknown) {
+                                      return [];
+                                  }
+                                  typeVariants.size = bVariant.size === Size.Empty ? Size.NonEmpty : Size.Empty;
+                                  return typeVariants;
+                          }
+                      }
+                  }
+              }
+              catch (e_3_1) { e_3 = { error: e_3_1 }; }
+              finally {
+                  try {
+                      if (bTypeVariants_1_1 && !bTypeVariants_1_1.done && (_a = bTypeVariants_1.return)) _a.call(bTypeVariants_1);
+                  }
+                  finally { if (e_3) throw e_3.error; }
+              }
+              return typeVariants;
+          }));
+      };
+      ArrayVariant.prototype.clone = function () {
+          return new ArrayVariant(this.size, this.type);
+      };
+      ArrayVariant.Size = Size;
+      return ArrayVariant;
+  }());
+  function simplifyArrayInfo(arrayVariants) {
       var _a, _b;
-      if (!arrayInfo) {
+      if (!arrayVariants) {
           return null;
       }
-      var input = arrayInfo;
-      var result = [];
-      var size = arrayInfo.length;
+      var input = __spreadArray([], __read(arrayVariants), false).sort(function (a, b) { return b.size - a.size; });
+      var resultArrayVariants = [];
+      var size = arrayVariants.length;
       for (var i = 0; i < size; i += 1) {
-          var a = input[i];
-          if (!a) {
+          var aVariant = input[i];
+          if (!aVariant) {
               continue;
           }
-          var elem = __assign({}, a);
+          var resultVariant = aVariant.clone();
           for (var j = i + 1; j < size; j += 1) {
-              var b = input[j];
-              if (!b) {
+              var bVariant = input[j];
+              if (!bVariant) {
                   continue;
               }
-              var aType = (_a = a.type) !== null && _a !== void 0 ? _a : unknownType;
-              var bType = (_b = b.type) !== null && _b !== void 0 ? _b : unknownType;
+              var aType = (_a = aVariant.type) !== null && _a !== void 0 ? _a : ArrayVariant.unknownType;
+              var bType = (_b = bVariant.type) !== null && _b !== void 0 ? _b : ArrayVariant.unknownType;
               if (aType.equals(bType)) {
-                  if (a.size === Size.Unknown || b.size === Size.Unknown || a.size !== b.size) {
-                      elem.size = Size.Unknown;
+                  if (aVariant.size === Size.Unknown || bVariant.size === Size.Unknown || aVariant.size !== bVariant.size) {
+                      resultVariant.size = Size.Unknown;
+                  }
+                  input[j] = null;
+              }
+              if (bVariant.size === Size.Empty) {
+                  if (resultVariant.size === Size.NonEmpty) {
+                      resultVariant.size = Size.Unknown;
                   }
                   input[j] = null;
               }
           }
-          result.push(elem);
+          resultArrayVariants.push(resultVariant);
       }
-      return result.length > 0 ? result : null;
+      return resultArrayVariants.length > 0 ? resultArrayVariants : null;
   }
 
   var typeNames = [
@@ -1043,6 +1142,16 @@ var Lits = (function (exports) {
       truthy: TRUTHY_BITS,
       falsy: FALSY_BITS,
   };
+  function stringifyBitMask(bitmask) {
+      var mask = "";
+      for (var index = 19; index >= 0; index -= 1) {
+          var bitValue = 1 << index;
+          var zeroOrOne = bitmask & bitValue ? "1" : "0";
+          var space = index !== 19 && (index + 1) % 4 === 0 ? " " : "";
+          mask += "".concat(space).concat(zeroOrOne);
+      }
+      return mask;
+  }
 
   var Type = /** @class */ (function () {
       function Type(bitmask, arrayInfo) {
@@ -1054,7 +1163,7 @@ var Lits = (function (exports) {
           if (!(bitmask & builtinTypesBitMasks.array)) {
               assertNull(arrayInfo);
           }
-          this.arrayInfo = arrayInfo;
+          this.arrayVariants = arrayInfo;
           if (bitmask & typeToBitRecord["positive-non-integer"]) {
               bitmask |= typeToBitRecord["positive-integer"];
           }
@@ -1149,15 +1258,11 @@ var Lits = (function (exports) {
           var newTypeMask = types.reduce(function (result, type) {
               return result | type.bitmask;
           }, 0);
-          if (newTypeMask & builtinTypesBitMasks.array) {
-              var arrayInfo = types.reduce(function (result, type) { return arrayInfoOr(result, type.arrayInfo, Type.unknown); }, []);
-              return new Type(newTypeMask, arrayInfo);
-          }
-          else {
-              return new Type(newTypeMask);
-          }
+          var arrayInfo = types.reduce(function (result, type) { return ArrayVariant.or(result, type.arrayVariants); }, null);
+          return new Type(newTypeMask, arrayInfo);
       };
       Type.and = function () {
+          var _a, _b;
           var types = [];
           for (var _i = 0; _i < arguments.length; _i++) {
               types[_i] = arguments[_i];
@@ -1165,7 +1270,11 @@ var Lits = (function (exports) {
           var newTypeMask = types.reduce(function (result, type) {
               return result & type.bitmask;
           }, UNKNWON_BITS);
-          return new Type(newTypeMask);
+          var first = (_b = (_a = types[0]) === null || _a === void 0 ? void 0 : _a.arrayVariants) !== null && _b !== void 0 ? _b : null;
+          var arrayInfo = types
+              .slice(1)
+              .reduce(function (result, type) { return ArrayVariant.and(result, type.arrayVariants); }, first);
+          return new Type(newTypeMask, arrayInfo);
       };
       Type.exclude = function (first) {
           var rest = [];
@@ -1174,26 +1283,29 @@ var Lits = (function (exports) {
           }
           return rest.reduce(function (result, type) {
               if (result.bitmask & typeToBitRecord.array && type.bitmask & typeToBitRecord.array) {
-                  var newArrayInfo = arrayInfoExclude(result.arrayInfo, type.arrayInfo, Type.unknown);
+                  var newArrayInfo = ArrayVariant.exclude(result.arrayVariants, type.arrayVariants);
                   var newBitmask = newArrayInfo
                       ? (result.bitmask & ~type.bitmask) | typeToBitRecord.array
                       : result.bitmask & ~(type.bitmask | typeToBitRecord.array);
                   return new Type(newBitmask, newArrayInfo);
               }
               else {
-                  return new Type(result.bitmask & ~type.bitmask, result.arrayInfo);
+                  return new Type(result.bitmask & ~type.bitmask, result.arrayVariants);
               }
           }, first);
       };
-      Type.is = function (a, b) {
-          var bitmaskA = a.bitmask;
-          var bitmaskB = b.bitmask;
+      Type.is = function (a, bType) {
+          var aType = Type.of(a);
+          var bitmaskA = aType.bitmask;
+          var bitmaskB = bType.bitmask;
           // some bits must be the same AND no bits in a can appear in b
           var bitmaskOK = !!(bitmaskA & bitmaskB && !(bitmaskA & ~bitmaskB));
           if (!bitmaskOK) {
               return false;
           }
-          return bitmaskA & typeToBitRecord.array ? arrayInfoIs(a.arrayInfo, b.arrayInfo, Type.unknown) : true;
+          return bitmaskA & typeToBitRecord.array
+              ? ArrayVariant.is(aType.arrayVariants, bType.arrayVariants, Type.unknown)
+              : true;
       };
       Type.equals = function (type1, type2) {
           var rest = [];
@@ -1201,7 +1313,7 @@ var Lits = (function (exports) {
               rest[_i - 2] = arguments[_i];
           }
           return __spreadArray([type2], __read(rest), false).every(function (t) {
-              return type1.bitmask === t.bitmask;
+              return type1.bitmask === t.bitmask && ArrayVariant.equals(type1.arrayVariants, t.arrayVariants);
           });
       };
       Type.intersects = function (a, b) {
@@ -1274,8 +1386,8 @@ var Lits = (function (exports) {
       };
       Type.split = function (dataType) {
           return Type.toSingelBits(dataType).flatMap(function (bits) {
-              if (bits === builtinTypesBitMasks.array && dataType.arrayInfo) {
-                  return dataType.arrayInfo.map(function (i) { return new Type(bits, [i]); });
+              if (bits === builtinTypesBitMasks.array && dataType.arrayVariants) {
+                  return dataType.arrayVariants.map(function (i) { return new Type(bits, [i]); });
               }
               return new Type(bits);
           });
@@ -1369,7 +1481,7 @@ var Lits = (function (exports) {
           if (this.bitmask & typeToBitRecord["negative-zero"] && !(this.bitmask & typeToBitRecord["positive-zero"])) {
               newBitmask = (newBitmask | typeToBitRecord["positive-zero"]) & ~typeToBitRecord["negative-zero"];
           }
-          return new Type(newBitmask, this.arrayInfo);
+          return new Type(newBitmask, this.arrayVariants);
       };
       Type.prototype.isUnknown = function () {
           return this.bitmask === UNKNWON_BITS;
@@ -1409,8 +1521,12 @@ var Lits = (function (exports) {
                   var bitmask = builtinTypesBitMasks[typeName];
                   if ((bits & bitmask) === bitmask) {
                       if (arrayTypeNames.includes(typeName)) {
-                          asNotNull(this.arrayInfo).forEach(function (elem) {
-                              var arrayTypeName = elem.size === Size.Empty ? "empty-array" : elem.size === Size.NonEmpty ? "non-empty-array" : "array";
+                          asNotNull(this.arrayVariants).forEach(function (elem) {
+                              var arrayTypeName = elem.size === ArrayVariant.Size.Empty
+                                  ? "empty-array"
+                                  : elem.size === ArrayVariant.Size.NonEmpty
+                                      ? "non-empty-array"
+                                      : "array";
                               var innerArrayTypeString = elem.type ? "<".concat(elem.type.toString({ showDetails: showDetails }), ">") : "";
                               typeStrings.push("::".concat(arrayTypeName).concat(innerArrayTypeString));
                           });
@@ -1464,35 +1580,26 @@ var Lits = (function (exports) {
       Type.true = new Type(builtinTypesBitMasks.true);
       Type.false = new Type(builtinTypesBitMasks.false);
       Type.boolean = new Type(builtinTypesBitMasks.boolean);
-      Type.emptyArray = new Type(builtinTypesBitMasks.array, [{ type: null, size: Size.Empty }]);
-      Type.nonEmptyArray = new Type(builtinTypesBitMasks.array, [{ type: null, size: Size.NonEmpty }]);
-      Type.array = new Type(builtinTypesBitMasks.array, [{ type: null, size: Size.Unknown }]);
+      Type.emptyArray = new Type(builtinTypesBitMasks.array, [ArrayVariant.createEmpty()]);
+      Type.nonEmptyArray = new Type(builtinTypesBitMasks.array, [ArrayVariant.createNonEmpty()]);
+      Type.array = new Type(builtinTypesBitMasks.array, [ArrayVariant.create()]);
       Type.createTypedArray = function (type) {
-          return new Type(builtinTypesBitMasks.array, [{ type: type, size: Size.Unknown }]);
+          return new Type(builtinTypesBitMasks.array, [ArrayVariant.create(type)]);
       };
       Type.createNonEmpyTypedArray = function (type) {
-          return new Type(builtinTypesBitMasks.array, [{ type: type, size: Size.NonEmpty }]);
+          return new Type(builtinTypesBitMasks.array, [ArrayVariant.createNonEmpty(type)]);
       };
       Type.emptyObject = new Type(builtinTypesBitMasks["empty-object"]);
       Type.nonEmptyObject = new Type(builtinTypesBitMasks["non-empty-object"]);
       Type.object = new Type(builtinTypesBitMasks.object);
       Type.regexp = new Type(builtinTypesBitMasks.regexp);
-      Type.truthy = new Type(builtinTypesBitMasks.truthy, [{ type: null, size: Size.Unknown }]);
+      Type.truthy = new Type(builtinTypesBitMasks.truthy, [ArrayVariant.create()]);
       Type.falsy = new Type(builtinTypesBitMasks.falsy);
-      Type.unknown = new Type(builtinTypesBitMasks.unknown, [{ type: null, size: Size.Unknown }]);
+      Type.unknown = new Type(builtinTypesBitMasks.unknown, [ArrayVariant.create()]);
       Type.function = new Type(builtinTypesBitMasks.function);
       return Type;
   }());
-  function stringifyBitMask(bitmask) {
-      var mask = "";
-      for (var index = 19; index >= 0; index -= 1) {
-          var bitValue = 1 << index;
-          var zeroOrOne = bitmask & bitValue ? "1" : "0";
-          var space = index !== 19 && (index + 1) % 4 === 0 ? " " : "";
-          mask += "".concat(space).concat(zeroOrOne);
-      }
-      return mask;
-  }
+  ArrayVariant.unknownType = Type.unknown;
 
   var andSpecialExpression = {
       parse: function (tokens, position, _a) {
@@ -8186,7 +8293,7 @@ var Lits = (function (exports) {
       'type-is?': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), first = _b[0], second = _b[1];
-              Type.assertType(first, debugInfo);
+              any.assert(first, debugInfo);
               Type.assertType(second, debugInfo);
               return Type.is(first, second);
           },
@@ -8920,8 +9027,8 @@ var Lits = (function (exports) {
       if (params.length !== 1) {
           throw new LitsError("ArrayType as function requires one parameter.", debugInfo);
       }
-      if (typeFunction.equals(Type.array)) {
-          var size = asValue(asNotNull(typeFunction.arrayInfo)[0]).size;
+      if (typeFunction.is(Type.array)) {
+          var size = asValue(asNotNull(typeFunction.arrayVariants)[0]).size;
           if (size === Size.Empty) {
               return Type.emptyArray;
           }

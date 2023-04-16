@@ -158,21 +158,23 @@ module.exports = {
     },
     arguments: [
       {
-        name: `type1`,
-        type: `type`,
+        name: `input`,
+        type: `any`,
       },
       {
-        name: `type2`,
+        name: `type`,
         type: `type`,
       },
     ],
-    description: `Check if \`type1\` is of type \`type2\`.`,
+    description: `Check if \`input\` is of type \`type\`.`,
     examples: [
       `(type-is? ::float ::integer)`,
       `(type-is? ::integer ::float)`,
       `(type-is? ::empty-string ::string)`,
       `(type-is? ::empty-string ::falsy)`,
       `(type-is? ::empty-string ::truthy)`,
+      `(type-is? [1 2 3] (::array ::positive-integer))`,
+      `(type-is? [0 1 2 3] (::array ::positive-integer))`,
     ],
   },
   'type-equals?': {

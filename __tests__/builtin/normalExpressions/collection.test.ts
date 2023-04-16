@@ -21,7 +21,7 @@ describe(`collection functions`, () => {
         expect(() => lits.run(`(count undefined)`)).toThrow()
       })
 
-      test(`dataType`, () => {
+      test(`type.`, () => {
         expect(lits.run(`(count ::empty-array)`)).toEqual(Type.zero)
         expect(lits.run(`(count ::empty-object)`)).toEqual(Type.zero)
         expect(lits.run(`(count ::non-empty-string)`)).toEqual(Type.positiveInteger)

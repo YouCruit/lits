@@ -1,12 +1,12 @@
 /* istanbul ignore file */
 
-import { PrimitiveTypeName, TypeName, typeToBitRecord } from '../src/types/constants'
+import { PrimitiveTypeName, TypeName, typeToBitRecord } from '../src/types/typeUtils'
 import { UndefinedSymbolEntry } from '../src/analyze/undefinedSymbols/interface'
 import { Any, Obj } from '../src/interface'
 import { Type, Lits } from '../src/Lits/Lits'
 import { MAX_NUMBER, MIN_NUMBER } from '../src/utils'
 import { asValue, regularExpression } from '../src/utils/assertion'
-import { Size } from '../src/types/ArrayInfo'
+import { ArrayVariant } from '../src/types/ArrayVariant'
 
 interface Primitives extends Obj {
   string: string
@@ -411,19 +411,19 @@ function getSampleValueFromPrimitiveTypeName(name: PrimitiveTypeName): string[] 
   }
 }
 
-export function getSampleValuesForType(dataType: Type): string[] {
-  return dataType.toSingelBits().flatMap(bitmask => {
+export function getSampleValuesForType(type: Type): string[] {
+  return type.toSingelBits().flatMap(bitmask => {
     if (bitmask !== typeToBitRecord.array) {
       return asValue(bitsToSampleValue[bitmask])
     } else {
-      return asValue(dataType.arrayInfo ?? undefined).flatMap(elem => {
+      return asValue(type.arrayVariants ?? undefined).flatMap(arrayVariant => {
         const result: string[] = []
-        if (elem.size === Size.Empty) {
+        if (arrayVariant.size === ArrayVariant.Size.Empty) {
           result.push(`[]`)
-        } else if (elem.size === Size.NonEmpty) {
-          result.push(`[${getSampleValuesForType(elem.type ?? Type.unknown.exclude(Type.array)).join(` `)}]`)
+        } else if (arrayVariant.size === ArrayVariant.Size.NonEmpty) {
+          result.push(`[${getSampleValuesForType(arrayVariant.type ?? Type.unknown.exclude(Type.array)).join(` `)}]`)
         } else {
-          result.push(`[${getSampleValuesForType(elem.type ?? Type.unknown.exclude(Type.unknown)).join(` `)}]`)
+          result.push(`[${getSampleValuesForType(arrayVariant.type ?? Type.unknown.exclude(Type.unknown)).join(` `)}]`)
           result.push(`[]`)
         }
         return result

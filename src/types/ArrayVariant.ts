@@ -41,16 +41,18 @@ export class ArrayVariant {
     return simplifyArrayVariants(
       a.flatMap(aVariant => {
         const aType = aVariant.type ?? ArrayVariant.unknownType
+        const aSize = aVariant.size
         for (const bVariant of b) {
           const bType = bVariant.type ?? ArrayVariant.unknownType
+          const bSize = bVariant.size
           if (aType.equals(bType)) {
             const size: null | Size =
-              aVariant.size === Size.Empty && bVariant.size !== Size.NonEmpty
+              aSize === Size.Empty && bSize !== Size.NonEmpty
                 ? Size.Empty
-                : aVariant.size === Size.NonEmpty && bVariant.size !== Size.Empty
+                : aSize === Size.NonEmpty && bSize !== Size.Empty
                 ? Size.NonEmpty
-                : aVariant.size === Size.Unknown
-                ? bVariant.size
+                : aSize === Size.Unknown
+                ? bSize
                 : null
             if (size === null) {
               return []
@@ -130,32 +132,33 @@ export class ArrayVariant {
 
     return simplifyArrayVariants(
       aTypeVariants.flatMap(aVariant => {
-        const typeVariants = aVariant.clone()
+        const typeVariant = aVariant.clone()
         for (const bVariant of bTypeVariants) {
-          if (bVariant.size === Size.Empty || bVariant.size === Size.Unknown) {
-            if (typeVariants.size === Size.Empty) {
+          const bSize = bVariant.size
+          if (bSize === Size.Empty || bSize === Size.Unknown) {
+            if (typeVariant.size === Size.Empty) {
               return []
             } else {
-              typeVariants.size = Size.NonEmpty
+              typeVariant.size = Size.NonEmpty
             }
-            typeVariants.size = bVariant.size === Size.Empty ? Size.NonEmpty : Size.Empty
+            typeVariant.size = bSize === Size.Empty ? Size.NonEmpty : Size.Empty
           }
-          if ((typeVariants.type ?? ArrayVariant.unknownType).equals(bVariant.type ?? ArrayVariant.unknownType)) {
-            switch (typeVariants.size) {
+          if ((typeVariant.type ?? ArrayVariant.unknownType).equals(bVariant.type ?? ArrayVariant.unknownType)) {
+            switch (typeVariant.size) {
               case Size.Empty:
-                return bVariant.size !== Size.NonEmpty ? [] : typeVariants
+                return bSize !== Size.NonEmpty ? [] : typeVariant
               case Size.NonEmpty:
-                return bVariant.size !== Size.Empty ? [] : typeVariants
+                return bSize !== Size.Empty ? [] : typeVariant
               case Size.Unknown:
-                if (bVariant.size === Size.Unknown) {
+                if (bSize === Size.Unknown) {
                   return []
                 }
-                typeVariants.size = bVariant.size === Size.Empty ? Size.NonEmpty : Size.Empty
-                return typeVariants
+                typeVariant.size = bSize === Size.Empty ? Size.NonEmpty : Size.Empty
+                return typeVariant
             }
           }
         }
-        return typeVariants
+        return typeVariant
       }),
     )
   }
@@ -169,15 +172,20 @@ function simplifyArrayVariants(arrayVariants: ArrayVariant[] | null): ArrayVaria
   if (!arrayVariants) {
     return null
   }
+
+  // Sorting is important, see below
   const input: Array<ArrayVariant[][number] | null> = [...arrayVariants].sort((a, b) => b.size - a.size)
   const resultArrayVariants: ArrayVariant[] = []
   const size = arrayVariants.length
 
   for (let i = 0; i < size; i += 1) {
     const aVariant = input[i]
+
     if (!aVariant) {
       continue
     }
+    const aType = aVariant.type ?? ArrayVariant.unknownType
+    const aSize = aVariant.size
     const resultVariant: ArrayVariant = aVariant.clone()
 
     for (let j = i + 1; j < size; j += 1) {
@@ -185,15 +193,18 @@ function simplifyArrayVariants(arrayVariants: ArrayVariant[] | null): ArrayVaria
       if (!bVariant) {
         continue
       }
-      const aType = aVariant.type ?? ArrayVariant.unknownType
       const bType = bVariant.type ?? ArrayVariant.unknownType
+      const bSize = bVariant.size
+
       if (aType.equals(bType)) {
-        if (aVariant.size === Size.Unknown || bVariant.size === Size.Unknown || aVariant.size !== bVariant.size) {
+        if (aSize === Size.Unknown || bSize === Size.Unknown || aSize !== bSize) {
           resultVariant.size = Size.Unknown
         }
         input[j] = null
       }
-      if (bVariant.size === Size.Empty) {
+
+      // This would not work unless input is reversed sorted by Size
+      if (bSize === Size.Empty) {
         if (resultVariant.size === Size.NonEmpty) {
           resultVariant.size = Size.Unknown
         }

@@ -445,6 +445,8 @@ describe(`Type`, () => {
       expect(Type.nil.is(Type.or(Type.array, Type.true, Type.nil))).toBe(true)
     })
     test(`arrays.`, () => {
+      expect(Type.is(Type.emptyArray, Type.emptyArray)).toBe(true)
+
       expect(
         Type.is(
           Type.createTypedArray(Type.or(Type.emptyString, Type.number)),
@@ -484,6 +486,18 @@ describe(`Type`, () => {
       expect(Type.nil.toString({ showDetails: false })).toBe(`::nil`)
       expect(Type.string.toString({ showDetails: false })).toBe(`::string`)
       expect(Type.string.nilable().toString({ showDetails: false })).toBe(`::string | ::nil`)
+    })
+  })
+
+  describe(`Misc.`, () => {
+    test(`::empty-array litteral`, () => {
+      const emptyArray1 = lits.run(`::empty-array`)
+      const emptyArray2 = Type.emptyArray
+
+      expect(emptyArray1).toEqual(emptyArray2)
+    })
+    test(`maximum call stack`, () => {
+      expect(lits.run(`(type-is? ::empty-array ::empty-array)`)).toBe(true)
     })
   })
 })

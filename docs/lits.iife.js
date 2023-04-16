@@ -731,8 +731,10 @@ var Lits = (function (exports) {
           var _a;
           var aType = (_a = aElem.type) !== null && _a !== void 0 ? _a : unknownType;
           return simpleB.some(function (bElem) {
-              var _a;
-              var bType = (_a = bElem.type) !== null && _a !== void 0 ? _a : unknownType;
+              var bType = bElem.type;
+              if (!bType) {
+                  return true;
+              }
               if (!aType.is(bType)) {
                   return false;
               }

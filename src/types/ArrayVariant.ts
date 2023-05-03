@@ -17,16 +17,16 @@ export class ArrayVariant {
     this.type = type
   }
 
-  static create(type: Type | null = null): ArrayVariant {
-    return new ArrayVariant(Size.Unknown, type)
-  }
-
   static createEmpty(): ArrayVariant {
     return new ArrayVariant(Size.Empty, null)
   }
 
-  static createNonEmpty(type: Type | null = null): ArrayVariant {
+  static createNonEmpty(type: Type | null): ArrayVariant {
     return new ArrayVariant(Size.NonEmpty, type)
+  }
+
+  static create(type: Type | null): ArrayVariant {
+    return new ArrayVariant(Size.Unknown, type)
   }
 
   static or(a: ArrayVariant[] | null, b: ArrayVariant[] | null): ArrayVariant[] | null {
@@ -42,6 +42,7 @@ export class ArrayVariant {
       a.flatMap(aVariant => {
         const aType = aVariant.type ?? ArrayVariant.unknownType
         const aSize = aVariant.size
+        const variants: ArrayVariant[] = []
         for (const bVariant of b) {
           const bType = bVariant.type ?? ArrayVariant.unknownType
           const bSize = bVariant.size
@@ -57,10 +58,10 @@ export class ArrayVariant {
             if (size === null) {
               return []
             }
-            return new ArrayVariant(size, aType)
+            variants.push(new ArrayVariant(size, aType))
           }
         }
-        return []
+        return variants
       }),
     )
   }
@@ -168,8 +169,8 @@ export class ArrayVariant {
   }
 }
 
-function simplifyArrayVariants(arrayVariants: ArrayVariant[] | null): ArrayVariant[] | null {
-  if (!arrayVariants) {
+export function simplifyArrayVariants(arrayVariants: ArrayVariant[] | null): ArrayVariant[] | null {
+  if (!arrayVariants || arrayVariants.length === 0) {
     return null
   }
 
@@ -185,7 +186,6 @@ function simplifyArrayVariants(arrayVariants: ArrayVariant[] | null): ArrayVaria
       continue
     }
     const aType = aVariant.type ?? ArrayVariant.unknownType
-    const aSize = aVariant.size
     const resultVariant: ArrayVariant = aVariant.clone()
 
     for (let j = i + 1; j < size; j += 1) {
@@ -197,7 +197,7 @@ function simplifyArrayVariants(arrayVariants: ArrayVariant[] | null): ArrayVaria
       const bSize = bVariant.size
 
       if (aType.equals(bType)) {
-        if (aSize === Size.Unknown || bSize === Size.Unknown || aSize !== bSize) {
+        if (resultVariant.size === Size.Unknown || bSize === Size.Unknown || resultVariant.size !== bSize) {
           resultVariant.size = Size.Unknown
         }
         input[j] = null
@@ -208,10 +208,18 @@ function simplifyArrayVariants(arrayVariants: ArrayVariant[] | null): ArrayVaria
         if (resultVariant.size === Size.NonEmpty) {
           resultVariant.size = Size.Unknown
         }
-        input[j] = null
       }
     }
     resultArrayVariants.push(resultVariant)
   }
-  return resultArrayVariants.length > 0 ? resultArrayVariants : null
+  let emptyArrayFound = false
+  return resultArrayVariants.filter(variant => {
+    if (emptyArrayFound && variant.size === Size.Empty) {
+      return false
+    }
+    if (variant.size !== Size.NonEmpty) {
+      emptyArrayFound = true
+    }
+    return true
+  })
 }

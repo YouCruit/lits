@@ -86,8 +86,8 @@ export class Type {
   public static readonly boolean = new Type(builtinTypesBitMasks.boolean)
 
   public static readonly emptyArray = new Type(builtinTypesBitMasks.array, [ArrayVariant.createEmpty()])
-  public static readonly nonEmptyArray = new Type(builtinTypesBitMasks.array, [ArrayVariant.createNonEmpty()])
-  public static readonly array = new Type(builtinTypesBitMasks.array, [ArrayVariant.create()])
+  public static readonly nonEmptyArray = new Type(builtinTypesBitMasks.array, [ArrayVariant.createNonEmpty(null)])
+  public static readonly array = new Type(builtinTypesBitMasks.array, [ArrayVariant.create(null)])
   public static readonly createTypedArray = (type: Type) =>
     new Type(builtinTypesBitMasks.array, [ArrayVariant.create(type)])
   public static readonly createNonEmpyTypedArray = (type: Type) =>
@@ -99,10 +99,10 @@ export class Type {
 
   public static readonly regexp = new Type(builtinTypesBitMasks.regexp)
 
-  public static readonly truthy = new Type(builtinTypesBitMasks.truthy, [ArrayVariant.create()])
+  public static readonly truthy = new Type(builtinTypesBitMasks.truthy, [ArrayVariant.create(null)])
   public static readonly falsy = new Type(builtinTypesBitMasks.falsy)
 
-  public static readonly unknown = new Type(builtinTypesBitMasks.unknown, [ArrayVariant.create()])
+  public static readonly unknown = new Type(builtinTypesBitMasks.unknown, [ArrayVariant.create(null)])
 
   public static readonly function = new Type(builtinTypesBitMasks.function)
 

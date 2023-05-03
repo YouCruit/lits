@@ -2413,16 +2413,14 @@ var Lits = (function (exports) {
       }, { coll: coll, parent: {} });
       return { coll: coll, innerCollMeta: innerCollMeta };
   }
-  function get(coll, key, debugInfo) {
+  function get(coll, key) {
       if (object.is(coll)) {
-          string.assert(key, debugInfo);
-          if (collHasKey(coll, key)) {
+          if (string.is(key) && collHasKey(coll, key)) {
               return toAny(coll[key]);
           }
       }
       else {
-          number.assert(key, debugInfo, { integer: true });
-          if (key >= 0 && key < coll.length) {
+          if (number.is(key, { nonNegative: true, integer: true }) && key >= 0 && key < coll.length) {
               return toAny(coll[key]);
           }
       }
@@ -2499,7 +2497,7 @@ var Lits = (function (exports) {
                   return defaultValue;
               }
               collection.assert(coll, debugInfo);
-              var result = get(coll, key, debugInfo);
+              var result = get(coll, key);
               return result === undefined ? defaultValue : result;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
@@ -2507,17 +2505,23 @@ var Lits = (function (exports) {
       'get-in': {
           evaluate: function (params, debugInfo) {
               var e_1, _a;
-              var coll = params[0];
-              var keys = params[1];
+              var _b;
+              var coll = toAny(params[0]);
+              var keys = (_b = params[1]) !== null && _b !== void 0 ? _b : []; // nil behaves as empty array
               var defaultValue = toAny(params[2]);
-              collection.assert(coll, debugInfo);
               array.assert(keys, debugInfo);
               try {
                   for (var keys_1 = __values(keys), keys_1_1 = keys_1.next(); !keys_1_1.done; keys_1_1 = keys_1.next()) {
                       var key = keys_1_1.value;
                       stringOrNumber.assert(key, debugInfo);
                       if (collection.is(coll)) {
-                          coll = get(coll, key, debugInfo);
+                          var nextValue = get(coll, key);
+                          if (nextValue !== undefined) {
+                              coll = nextValue;
+                          }
+                          else {
+                              return defaultValue;
+                          }
                       }
                       else {
                           return defaultValue;
@@ -2531,7 +2535,7 @@ var Lits = (function (exports) {
                   }
                   finally { if (e_1) throw e_1.error; }
               }
-              return any.is(coll) ? coll : defaultValue;
+              return coll;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
@@ -4275,7 +4279,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.54";
+  var version = "1.0.55-alpha.0";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -5579,6 +5583,40 @@ var Lits = (function (exports) {
       },
   };
 
+  var qqSpecialExpression = {
+      parse: function (tokens, position, _a) {
+          var parseTokens = _a.parseTokens;
+          var firstToken = token.as(tokens[position], "EOF");
+          var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
+          var node = {
+              type: "SpecialExpression",
+              name: "??",
+              params: params,
+              token: firstToken.debugInfo ? firstToken : undefined,
+          };
+          return [newPosition + 1, node];
+      },
+      evaluate: function (node, contextStack, _a) {
+          var _b;
+          var lookUp = _a.lookUp, evaluateAstNode = _a.evaluateAstNode;
+          var _c = __read(node.params, 2), firstNode = _c[0], secondNode = _c[1];
+          if (nameNode.is(firstNode)) {
+              var lookUpResult = lookUp(firstNode, contextStack);
+              if (!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression)) {
+                  return secondNode ? evaluateAstNode(secondNode, contextStack) : null;
+              }
+          }
+          any.assert(firstNode, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          var firstResult = evaluateAstNode(firstNode, contextStack);
+          return firstResult ? firstResult : secondNode ? evaluateAstNode(secondNode, contextStack) : firstResult;
+      },
+      validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+      analyze: function (node, contextStack, _a) {
+          var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+          return analyzeAst(node.params, contextStack, builtin);
+      },
+  };
+
   var specialExpressions = {
       and: andSpecialExpression,
       comment: commentSpecialExpression,
@@ -5606,6 +5644,7 @@ var Lits = (function (exports) {
       'when-let': whenLetSpecialExpression,
       'when-not': whenNotSpecialExpression,
       'declared?': declaredSpecialExpression,
+      '??': qqSpecialExpression,
   };
   Object.keys(specialExpressions).forEach(function (key) {
       /* istanbul ignore next */

@@ -87,6 +87,7 @@ export type SpecialExpressionName =
   | `when-not`
   | `when`
   | `declared?`
+  | `??`
 
 export type Builtin = {
   normalExpressions: BuiltinNormalExpressions

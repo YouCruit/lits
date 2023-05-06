@@ -342,6 +342,7 @@ function formatDescription(value) {
   value = value.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
   value = value.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
   value = value.replace(/\*(.*?)\*/g, '<em>$1</em>')
+  value = value.replace(/\n/g, '<br />')
   return value
 }
 

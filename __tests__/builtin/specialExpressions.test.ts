@@ -907,5 +907,27 @@ describe(`specialExpressions`, () => {
         expect(getUndefinedSymbolNames(lits.findUndefinedSymbols(`(declared? x)`))).toEqual(new Set([`x`]))
       })
     })
+
+    describe(`??`, () => {
+      test(`samples`, () => {
+        expect(lits.run(`(?? foo)`)).toBe(null)
+        expect(lits.run(`(?? foo 0)`)).toBe(0)
+        expect(lits.run(`(?? foo 0)`)).toBe(0)
+        expect(lits.run(`(?? 0 1)`)).toBe(1)
+        expect(lits.run(`(?? "")`)).toBe(``)
+        expect(lits.run(`(?? false)`)).toBe(false)
+        expect(lits.run(`(def foo :foo) (?? foo)`)).toBe(`foo`)
+
+        expect(() => lits.run(`(??)`)).toThrow()
+        expect(() => lits.run(`(?? foo bar)`)).toThrow()
+      })
+
+      describe(`undefinedSymbols`, () => {
+        test(`samples`, () => {
+          expect(getUndefinedSymbolNames(lits.findUndefinedSymbols(`(?? x)`))).toEqual(new Set([`x`]))
+          expect(getUndefinedSymbolNames(lits.findUndefinedSymbols(`(?? x y)`))).toEqual(new Set([`x`, `y`]))
+        })
+      })
+    })
   }
 })

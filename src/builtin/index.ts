@@ -23,6 +23,7 @@ import { Builtin, BuiltinSpecialExpressions } from './interface'
 import { normalExpressions } from './normalExpressions'
 import { commentSpecialExpression } from './specialExpressions/comment'
 import { declaredSpecialExpression } from './specialExpressions/declared'
+import { qqSpecialExpression } from './specialExpressions/qq'
 
 export const specialExpressions: BuiltinSpecialExpressions = {
   and: andSpecialExpression,
@@ -51,6 +52,7 @@ export const specialExpressions: BuiltinSpecialExpressions = {
   'when-let': whenLetSpecialExpression,
   'when-not': whenNotSpecialExpression,
   'declared?': declaredSpecialExpression,
+  '??': qqSpecialExpression,
 }
 
 Object.keys(specialExpressions).forEach(key => {

@@ -628,4 +628,37 @@ module.exports = {
     ],
     specialExpression: true,
   },
+
+  '??': {
+    name: `??`,
+    category: `Special expression`,
+    linkName: `_question_question`,
+    returns: {
+      type: `any`,
+    },
+    arguments: [
+      {
+        name: `test`,
+        type: `any`,
+      },
+      {
+        name: `default`,
+        type: `any`,
+        description: `optional`,
+      },
+    ],
+    description: `Sort of like \`or\` with a couple of differences.\n\n1. \`test\` does not need to be declared (defaults to \`nil\`)\n2. Accept exactly one or two parameters.`,
+    examples: [
+      `(?? foo)`,
+      `(def foo :foo) (?? foo)`,
+      `(?? +)`,
+      `(def foo nil) (?? foo)`,
+      `(?? foo 1)`,
+      `(?? "")`,
+      `(?? 0)`,
+      `(?? 0 1)`,
+      `(?? 2 1)`,
+    ],
+    specialExpression: true,
+  },
 }

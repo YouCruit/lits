@@ -8,15 +8,15 @@ import { Builtin } from './interface'
 export type Arity = number | { min: number }
 
 export type FunctionOverload = {
-  arguments: FunctionArguments
-  arity: Arity
-  body: AstNode[]
+  as: FunctionArguments
+  a: Arity
+  b: AstNode[]
 }
 
 export type FunctionArguments = {
-  mandatoryArguments: string[]
-  restArgument?: string
-  bindings: BindingNode[]
+  m: string[]
+  r?: string
+  b: BindingNode[]
 }
 
 export function assertNameNotDefined<T>(

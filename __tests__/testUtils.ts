@@ -80,9 +80,9 @@ export function regexpEquals(udr: unknown, r: RegExp): boolean {
   if (!regularExpression.is(udr)) {
     return false
   }
-  const sortedUdrFlags = udr.flags.split(``).sort().join(``)
+  const sortedUdrFlags = udr.f.split(``).sort().join(``)
   const sortedRFlags = r.flags.split(``).sort().join(``)
-  return udr.source === r.source && sortedRFlags === sortedUdrFlags
+  return udr.s === r.source && sortedRFlags === sortedUdrFlags
 }
 
 export function getUndefinedSymbolNames(result: AnalyzeResult): Set<string> {

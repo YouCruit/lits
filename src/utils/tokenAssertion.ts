@@ -17,11 +17,11 @@ function is(value: unknown, options: Options = {}): value is Token {
     return false
   }
 
-  if (options.type && value.type !== options.type) {
+  if (options.type && value.t !== options.type) {
     return false
   }
 
-  if (options.value && value.value !== options.value) {
+  if (options.value && value.v !== options.value) {
     return false
   }
 
@@ -31,7 +31,7 @@ function is(value: unknown, options: Options = {}): value is Token {
 function assert(value: unknown, debugInfo: DebugInfo | undefined, options: Options = {}): asserts value is Token {
   if (!is(value, options)) {
     if (isToken(value)) {
-      debugInfo = value.debugInfo
+      debugInfo = value.d
     }
 
     throw new LitsError(

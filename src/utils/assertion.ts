@@ -5,7 +5,7 @@ import {
   ExpressionNode,
   LitsFunction,
   NameNode,
-  NodeType,
+  AstNodeType,
   NormalExpressionNode,
   NormalExpressionNodeWithName,
   RegularExpression,
@@ -69,8 +69,7 @@ export const nameNode: Asserter<NameNode> = new Asserter(`NameNode`, value => {
   if (!isAstNode(value)) {
     return false
   }
-  const nodeType: NodeType = `Name`
-  return value.type === nodeType
+  return value.t === AstNodeType.Name
 })
 export const normalExpressionNodeWithName: Asserter<NormalExpressionNodeWithName> = new Asserter(
   `Normal expression node with name`,
@@ -78,8 +77,7 @@ export const normalExpressionNodeWithName: Asserter<NormalExpressionNodeWithName
     if (!isAstNode(value)) {
       return false
     }
-    const nodeType: NodeType = `NormalExpression`
-    return value.type === nodeType && typeof value.name === `string`
+    return value.t === AstNodeType.NormalExpression && typeof value.n === `string`
   },
 )
 
@@ -101,10 +99,10 @@ export const expressionNode: Asserter<ExpressionNode> = new Asserter(`expression
     return false
   }
   return (
-    value.type === `NormalExpression` ||
-    value.type === `SpecialExpression` ||
-    value.type === `Number` ||
-    value.type === `String`
+    value.t === AstNodeType.NormalExpression ||
+    value.t === AstNodeType.SpecialExpression ||
+    value.t === AstNodeType.Number ||
+    value.t === AstNodeType.String
   )
 })
 
@@ -112,13 +110,13 @@ export function assertNumberOfParams(
   count: number | { min?: number; max?: number },
   node: NormalExpressionNode | SpecialExpressionNode,
 ): void {
-  const length = node.params.length
-  const debugInfo = node.token?.debugInfo
+  const length = node.p.length
+  const debugInfo = node.tkn?.d
   if (typeof count === `number`) {
     if (length !== count) {
       throw new LitsError(
-        `Wrong number of arguments to "${node.name}", expected ${count}, got ${valueToString(length)}.`,
-        node.token?.debugInfo,
+        `Wrong number of arguments to "${node.n}", expected ${count}, got ${valueToString(length)}.`,
+        node.tkn?.d,
       )
     }
   } else {
@@ -129,14 +127,14 @@ export function assertNumberOfParams(
 
     if (typeof min === `number` && length < min) {
       throw new LitsError(
-        `Wrong number of arguments to "${node.name}", expected at least ${min}, got ${valueToString(length)}.`,
+        `Wrong number of arguments to "${node.n}", expected at least ${min}, got ${valueToString(length)}.`,
         debugInfo,
       )
     }
 
     if (typeof max === `number` && length > max) {
       throw new LitsError(
-        `Wrong number of arguments to "${node.name}", expected at most ${max}, got ${valueToString(length)}.`,
+        `Wrong number of arguments to "${node.n}", expected at most ${max}, got ${valueToString(length)}.`,
         debugInfo,
       )
     }
@@ -144,11 +142,11 @@ export function assertNumberOfParams(
 }
 
 export function assertEventNumberOfParams(node: NormalExpressionNode): void {
-  const length = node.params.length
+  const length = node.p.length
   if (length % 2 !== 0) {
     throw new LitsError(
       `Wrong number of arguments, expected an even number, got ${valueToString(length)}.`,
-      node.token?.debugInfo,
+      node.tkn?.d,
     )
   }
 }

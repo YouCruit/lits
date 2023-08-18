@@ -1,4 +1,5 @@
 import { Any } from '../../interface'
+import { AstNodeType } from '../../parser/interface'
 import { assertNumberOfParams, astNode, string, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 import { assertNameNotDefined } from '../utils'
@@ -10,21 +11,21 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [
       newPosition + 1,
       {
-        type: `SpecialExpression`,
-        name: `defs`,
-        params,
-        token: firstToken.debugInfo ? firstToken : undefined,
+        t: AstNodeType.SpecialExpression,
+        n: `defs`,
+        p: params,
+        tkn: firstToken.d ? firstToken : undefined,
       },
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode, builtin }) => {
-    const debugInfo = node.token?.debugInfo
-    const name = evaluateAstNode(astNode.as(node.params[0], debugInfo), contextStack)
+    const debugInfo = node.tkn?.d
+    const name = evaluateAstNode(astNode.as(node.p[0], debugInfo), contextStack)
     string.assert(name, debugInfo)
 
-    assertNameNotDefined(name, contextStack, builtin, node.token?.debugInfo)
+    assertNameNotDefined(name, contextStack, builtin, node.tkn?.d)
 
-    const value = evaluateAstNode(astNode.as(node.params[1], debugInfo), contextStack)
+    const value = evaluateAstNode(astNode.as(node.p[1], debugInfo), contextStack)
 
     contextStack.globalContext[name] = { value }
 
@@ -32,7 +33,7 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   validate: node => assertNumberOfParams(2, node),
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    const subNode = astNode.as(node.params[1], node.token?.debugInfo)
+    const subNode = astNode.as(node.p[1], node.tkn?.d)
     return analyzeAst(subNode, contextStack, builtin)
   },
 }

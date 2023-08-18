@@ -9,6 +9,7 @@ import {
   PartialFunction,
   SomePredFunction,
   FNilFunction,
+  FunctionType,
 } from '../../../parser/interface'
 import { toAny } from '../../../utils'
 import { litsFunction, array, assertNumberOfParams } from '../../../utils/assertion'
@@ -37,10 +38,10 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([fn, ...params], debugInfo): PartialFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        debugInfo,
-        type: `partial`,
-        fn: toAny(fn),
-        params,
+        d: debugInfo,
+        t: FunctionType.Partial,
+        f: toAny(fn),
+        p: params,
       }
     },
     validate: node => assertNumberOfParams({ min: 1 }, node),
@@ -56,9 +57,9 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
       }
       return {
         [FUNCTION_SYMBOL]: true,
-        debugInfo,
-        type: `comp`,
-        fns,
+        d: debugInfo,
+        t: FunctionType.Comp,
+        f: fns,
       }
     },
   },
@@ -67,9 +68,9 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([value], debugInfo): ConstantlyFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        debugInfo,
-        type: `constantly`,
-        value: toAny(value),
+        d: debugInfo,
+        t: FunctionType.Constantly,
+        v: toAny(value),
       }
     },
     validate: node => assertNumberOfParams(1, node),
@@ -79,9 +80,9 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: (fns, debugInfo): JuxtFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        debugInfo,
-        type: `juxt`,
-        fns,
+        d: debugInfo,
+        t: FunctionType.Juxt,
+        f: fns,
       }
     },
     validate: node => assertNumberOfParams({ min: 1 }, node),
@@ -91,9 +92,9 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([fn], debugInfo): ComplementFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        debugInfo,
-        type: `complement`,
-        fn: toAny(fn),
+        d: debugInfo,
+        t: FunctionType.Complement,
+        f: toAny(fn),
       }
     },
     validate: node => assertNumberOfParams(1, node),
@@ -103,9 +104,9 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: (fns, debugInfo): EveryPredFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        debugInfo,
-        type: `every-pred`,
-        fns,
+        d: debugInfo,
+        t: FunctionType.EveryPred,
+        f: fns,
       }
     },
     validate: node => assertNumberOfParams({ min: 1 }, node),
@@ -115,9 +116,9 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: (fns, debugInfo): SomePredFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        debugInfo,
-        type: `some-pred`,
-        fns,
+        d: debugInfo,
+        t: FunctionType.SomePred,
+        f: fns,
       }
     },
     validate: node => assertNumberOfParams({ min: 1 }, node),
@@ -127,10 +128,10 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([fn, ...params], debugInfo): FNilFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        debugInfo,
-        type: `fnil`,
-        fn: toAny(fn),
-        params,
+        d: debugInfo,
+        t: FunctionType.Fnil,
+        f: toAny(fn),
+        p: params,
       }
     },
     validate: node => assertNumberOfParams({ min: 2 }, node),

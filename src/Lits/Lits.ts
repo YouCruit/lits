@@ -78,7 +78,7 @@ export class Lits {
     const contextStack = createContextStackFromParams(params)
     const ast = this.generateAst(program, params.getLocation)
 
-    return analyzeAst(ast.body, contextStack, builtin)
+    return analyzeAst(ast.b, contextStack, builtin)
   }
 
   public tokenize(program: string, getLocation?: LocationGetter): Token[] {

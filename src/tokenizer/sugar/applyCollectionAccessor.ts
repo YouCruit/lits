@@ -1,48 +1,48 @@
 import { SugarFunction } from '.'
 import { LitsError } from '../../errors'
 import { asValue, number } from '../../utils/assertion'
-import { DebugInfo, Token } from '../interface'
+import { DebugInfo, Token, TokenizerType } from '../interface'
 
 export const applyCollectionAccessors: SugarFunction = tokens => {
-  let dotTokenIndex = tokens.findIndex(tkn => tkn.type === `collectionAccessor`)
+  let dotTokenIndex = tokens.findIndex(tkn => tkn.t === TokenizerType.CollectionAccessor)
   while (dotTokenIndex >= 0) {
     applyCollectionAccessor(tokens, dotTokenIndex)
-    dotTokenIndex = tokens.findIndex(tkn => tkn.type === `collectionAccessor`)
+    dotTokenIndex = tokens.findIndex(tkn => tkn.t === TokenizerType.CollectionAccessor)
   }
   return tokens
 }
 
 function applyCollectionAccessor(tokens: Token[], position: number) {
   const dotTkn = asValue(tokens[position])
-  const debugInfo = dotTkn.debugInfo
+  const debugInfo = dotTkn.d
   const backPosition = getPositionBackwards(tokens, position, debugInfo)
   checkForward(tokens, position, dotTkn, debugInfo)
 
   tokens.splice(position, 1)
   tokens.splice(backPosition, 0, {
-    type: `paren`,
-    value: `(`,
-    debugInfo,
+    t: TokenizerType.Bracket,
+    v: `(`,
+    d: debugInfo,
   })
   const nextTkn = asValue(tokens[position + 1])
-  if (dotTkn.value === `.`) {
+  if (dotTkn.v === `.`) {
     tokens[position + 1] = {
-      type: `string`,
-      value: nextTkn.value,
-      debugInfo: nextTkn.debugInfo,
+      t: TokenizerType.String,
+      v: nextTkn.v,
+      d: nextTkn.d,
     }
   } else {
-    number.assert(Number(nextTkn.value), debugInfo, { integer: true, nonNegative: true })
+    number.assert(Number(nextTkn.v), debugInfo, { integer: true, nonNegative: true })
     tokens[position + 1] = {
-      type: `number`,
-      value: nextTkn.value,
-      debugInfo: nextTkn.debugInfo,
+      t: TokenizerType.Number,
+      v: nextTkn.v,
+      d: nextTkn.d,
     }
   }
   tokens.splice(position + 2, 0, {
-    type: `paren`,
-    value: `)`,
-    debugInfo,
+    t: TokenizerType.Bracket,
+    v: `)`,
+    d: debugInfo,
   })
 }
 
@@ -55,8 +55,8 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
   let openBracket: null | `(` | `[` | `{` = null
   let closeBracket: null | `)` | `]` | `}` = null
 
-  if (prevToken.type === `paren`) {
-    switch (prevToken.value) {
+  if (prevToken.t === TokenizerType.Bracket) {
+    switch (prevToken.v) {
       case `)`:
         openBracket = `(`
         closeBracket = `)`
@@ -78,18 +78,18 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
     bracketCount = bracketCount === null ? 0 : bracketCount
     position -= 1
     const tkn = asValue(tokens[position], debugInfo)
-    if (tkn.type === `paren`) {
-      if (tkn.value === openBracket) {
+    if (tkn.t === TokenizerType.Bracket) {
+      if (tkn.v === openBracket) {
         bracketCount += 1
       }
-      if (tkn.value === closeBracket) {
+      if (tkn.v === closeBracket) {
         bracketCount -= 1
       }
     }
   }
   if (openBracket === `(` && position > 0) {
     const prevToken = asValue(tokens[position - 1])
-    if (prevToken.type === `fnShorthand`) {
+    if (prevToken.t === TokenizerType.FnShorthand) {
       throw new LitsError(`# or . must NOT be preceeded by shorthand lambda function`, debugInfo)
     }
   }
@@ -99,10 +99,10 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
 function checkForward(tokens: Token[], position: number, dotTkn: Token, debugInfo: DebugInfo | undefined) {
   const tkn = asValue(tokens[position + 1], debugInfo)
 
-  if (dotTkn.value === `.` && tkn.type !== `name`) {
+  if (dotTkn.v === `.` && tkn.t !== TokenizerType.Name) {
     throw new LitsError(`# as a collection accessor must be followed by an name`, debugInfo)
   }
-  if (dotTkn.value === `#` && tkn.type !== `number`) {
+  if (dotTkn.v === `#` && tkn.t !== TokenizerType.Number) {
     throw new LitsError(`# as a collection accessor must be followed by an integer`, debugInfo)
   }
 }

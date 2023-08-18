@@ -171,7 +171,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       const delimiter =
         typeof stringOrRegExpValue === `string`
           ? stringOrRegExpValue
-          : new RegExp(stringOrRegExpValue.source, stringOrRegExpValue.flags)
+          : new RegExp(stringOrRegExpValue.s, stringOrRegExpValue.f)
       return str.split(delimiter, limit)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 2, max: 3 }, node),

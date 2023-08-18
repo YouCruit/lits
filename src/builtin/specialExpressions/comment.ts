@@ -1,4 +1,5 @@
-import { AstNode, SpecialExpressionNode } from '../../parser/interface'
+import { AstNode, AstNodeType, SpecialExpressionNode } from '../../parser/interface'
+import { TokenizerType } from '../../tokenizer/interface'
 import { token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
@@ -7,16 +8,16 @@ export const commentSpecialExpression: BuiltinSpecialExpression<null> = {
     let tkn = token.as(tokens[position], `EOF`)
 
     const node: SpecialExpressionNode = {
-      type: `SpecialExpression`,
-      name: `comment`,
-      params: [],
-      token: tkn.debugInfo ? tkn : undefined,
+      t: AstNodeType.SpecialExpression,
+      n: `comment`,
+      p: [],
+      tkn: tkn.d ? tkn : undefined,
     }
 
-    while (!token.is(tkn, { type: `paren`, value: `)` })) {
+    while (!token.is(tkn, { type: TokenizerType.Bracket, value: `)` })) {
       let bodyNode: AstNode
       ;[position, bodyNode] = parseToken(tokens, position)
-      node.params.push(bodyNode)
+      node.p.push(bodyNode)
       tkn = token.as(tokens[position], `EOF`)
     }
     return [position + 1, node]

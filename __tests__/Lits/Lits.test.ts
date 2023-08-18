@@ -1,6 +1,8 @@
 import { Ast, Lits } from '../../src'
 import { UndefinedSymbolError } from '../../src/errors'
 import { Cache } from '../../src/Lits/Cache'
+import { AstNodeType } from '../../src/parser/interface'
+import { TokenizerType } from '../../src/tokenizer/interface'
 import { litsFunction } from '../../src/utils/assertion'
 
 describe(`TEST`, () => {
@@ -63,32 +65,31 @@ describe(`context`, () => {
   test(`a function - initial cache`, () => {
     const initialCache: Record<string, Ast> = {
       '(pow 2 4)': {
-        type: `Program`,
-        body: [
+        b: [
           {
-            type: `NormalExpression`,
-            name: `pow`,
-            params: [
+            t: AstNodeType.NormalExpression,
+            n: `pow`,
+            p: [
               {
-                type: `Number`,
-                value: 2,
-                token: {
-                  type: `number`,
-                  value: `2`,
+                t: AstNodeType.Number,
+                v: 2,
+                tkn: {
+                  t: TokenizerType.Number,
+                  v: `2`,
                 },
               },
               {
-                type: `Number`,
-                value: 4,
-                token: {
-                  type: `number`,
-                  value: `4`,
+                t: AstNodeType.Number,
+                v: 4,
+                tkn: {
+                  t: TokenizerType.Number,
+                  v: `4`,
                 },
               },
             ],
-            token: {
-              type: `name`,
-              value: `pow`,
+            tkn: {
+              t: TokenizerType.Name,
+              v: `pow`,
             },
           },
         ],
@@ -143,13 +144,12 @@ describe(`context`, () => {
 
 function ast(n: number): Ast {
   return {
-    body: [
+    b: [
       {
-        type: `Number`,
-        value: n,
+        t: AstNodeType.Number,
+        v: n,
       },
     ],
-    type: `Program`,
   }
 }
 

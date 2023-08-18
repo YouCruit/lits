@@ -1,7 +1,9 @@
 import { Token } from '../../src'
 import { parse } from '../../src/parser'
+import { Ast, AstNodeType } from '../../src/parser/interface'
 import { parseToken } from '../../src/parser/parsers'
 import { tokenize } from '../../src/tokenizer'
+import { TokenizerType } from '../../src/tokenizer/interface'
 
 const program = `
 (let [day (* 24 60 60 1000)]
@@ -17,18 +19,18 @@ describe(`Parser`, () => {
   test(`simple program`, () => {
     const tokens = tokenize(program, { debug: true })
     const ast = parse(tokens)
-    expect(ast.body.length).toBe(1)
+    expect(ast.b.length).toBe(1)
   })
   test(`empty program`, () => {
     const tokens = tokenize(``, { debug: true })
     const ast = parse(tokens)
-    expect(ast.body.length).toBe(0)
+    expect(ast.b.length).toBe(0)
   })
 
   test(`optimization`, () => {
     const tokens = tokenize(optimizableProgram, { debug: true })
     const ast = parse(tokens)
-    expect(ast.body.length).toBe(1)
+    expect(ast.b.length).toBe(1)
   })
 
   test(`Unparsable expression`, () => {
@@ -58,25 +60,24 @@ describe(`Parser`, () => {
   test(`parse dotNotation, check ast 1`, () => {
     const tokens = tokenize(`foo#1.a`, { debug: false })
     const ast = parse(tokens)
-    expect(ast).toEqual({
-      type: `Program`,
-      body: [
+    expect(ast).toEqual<Ast>({
+      b: [
         {
-          type: `NormalExpression`,
-          expression: {
-            type: `NormalExpression`,
-            name: `foo`,
-            params: [
+          t: AstNodeType.NormalExpression,
+          e: {
+            t: AstNodeType.NormalExpression,
+            n: `foo`,
+            p: [
               {
-                type: `Number`,
-                value: 1,
+                t: AstNodeType.Number,
+                v: 1,
               },
             ],
           },
-          params: [
+          p: [
             {
-              type: `String`,
-              value: `a`,
+              t: AstNodeType.String,
+              v: `a`,
             },
           ],
         },
@@ -87,64 +88,63 @@ describe(`Parser`, () => {
   test(`parse dotNotation, check ast 2`, () => {
     const tokens = tokenize(`(#(identity %1) [1 2 3])#1`, { debug: false })
     const ast = parse(tokens)
-    expect(ast).toEqual({
-      type: `Program`,
-      body: [
+    expect(ast).toEqual<Ast>({
+      b: [
         {
-          type: `NormalExpression`,
-          expression: {
-            type: `NormalExpression`,
-            expression: {
-              type: `SpecialExpression`,
-              name: `fn`,
-              params: [],
-              overloads: [
+          t: 2,
+          e: {
+            t: 2,
+            e: {
+              t: 3,
+              n: `fn`,
+              p: [],
+              o: [
                 {
-                  arguments: {
-                    bindings: [],
-                    mandatoryArguments: [`%1`],
+                  as: {
+                    b: [],
+                    m: [`%1`],
                   },
-                  body: [
+                  b: [
                     {
-                      type: `NormalExpression`,
-                      name: `identity`,
-                      params: [
+                      t: 2,
+                      n: `identity`,
+                      p: [
                         {
-                          type: `Name`,
-                          value: `%1`,
+                          t: 4,
+                          v: `%1`,
                         },
                       ],
                     },
                   ],
-                  arity: 1,
+                  a: 1,
                 },
               ],
             },
-            params: [
+            p: [
               {
-                type: `NormalExpression`,
-                name: `array`,
-                params: [
+                t: 2,
+                n: `array`,
+                p: [
                   {
-                    type: `Number`,
-                    value: 1,
+                    t: 0,
+                    v: 1,
                   },
                   {
-                    type: `Number`,
-                    value: 2,
+                    t: 0,
+                    v: 2,
                   },
                   {
-                    type: `Number`,
-                    value: 3,
+                    t: 0,
+                    v: 3,
                   },
                 ],
               },
             ],
           },
-          params: [
+          p: [
             {
-              type: `Number`,
-              value: 1,
+              t: 0,
+              v: 1,
             },
           ],
         },
@@ -155,12 +155,12 @@ describe(`Parser`, () => {
   test(`parseToken unknown token`, () => {
     const tokens: Token[] = [
       {
-        type: `collectionAccessor`,
-        value: ``,
+        t: TokenizerType.CollectionAccessor,
+        v: ``,
       },
       {
-        type: `modifier`,
-        value: ``,
+        t: TokenizerType.Modifier,
+        v: ``,
       },
     ]
     expect(() => parseToken(tokens, 0)).toThrow()

@@ -11,7 +11,7 @@ describe(`analyzeAst.`, () => {
       const program = `(+ a b)`
       const tokens = lits.tokenize(program)
       const ast = lits.parse(tokens)
-      const astNode = ast.body[0] as AstNode
+      const astNode = ast.b[0] as AstNode
       const analyzeResult = analyzeAst(astNode, createContextStack(), builtin)
       expect(getUndefinedSymbolNames(analyzeResult)).toEqual(new Set([`a`, `b`]))
     })

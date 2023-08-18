@@ -8,6 +8,8 @@ import {
   NormalExpressionNodeWithName,
   BuiltinFunction,
   SpecialExpressionNode,
+  AstNodeType,
+  FunctionType,
 } from '../parser/interface'
 import { Ast } from '../parser/interface'
 import { builtin } from '../builtin'
@@ -55,41 +57,41 @@ class ContextStackImpl implements ContextStack {
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null
-  for (const node of ast.body) {
+  for (const node of ast.b) {
     result = evaluateAstNode(node, contextStack)
   }
   return result
 }
 
 export const evaluateAstNode: EvaluateAstNode = (node, contextStack) => {
-  switch (node.type) {
-    case `Number`:
+  switch (node.t) {
+    case AstNodeType.Number:
       return evaluateNumber(node)
-    case `String`:
+    case AstNodeType.String:
       return evaluateString(node)
-    case `Name`:
+    case AstNodeType.Name:
       return evaluateName(node, contextStack)
-    case `ReservedName`:
+    case AstNodeType.ReservedName:
       return evaluateReservedName(node)
-    case `NormalExpression`:
+    case AstNodeType.NormalExpression:
       return evaluateNormalExpression(node, contextStack)
-    case `SpecialExpression`:
+    case AstNodeType.SpecialExpression:
       return evaluateSpecialExpression(node, contextStack)
     default:
-      throw new LitsError(`${node.type}-node cannot be evaluated`, node.token?.debugInfo)
+      throw new LitsError(`${node.t}-node cannot be evaluated`, node.tkn?.d)
   }
 }
 
 function evaluateNumber(node: NumberNode): number {
-  return node.value
+  return node.v
 }
 
 function evaluateString(node: StringNode): string {
-  return node.value
+  return node.v
 }
 
 function evaluateReservedName(node: ReservedNameNode): Any {
-  return asValue(reservedNamesRecord[node.value], node.token?.debugInfo).value
+  return asValue(reservedNamesRecord[node.v], node.tkn?.d).value
 }
 
 function evaluateName(node: NameNode, contextStack: ContextStack): Any {
@@ -99,12 +101,12 @@ function evaluateName(node: NameNode, contextStack: ContextStack): Any {
   } else if (lookUpResult.builtinFunction) {
     return lookUpResult.builtinFunction
   }
-  throw new UndefinedSymbolError(node.value, node.token?.debugInfo)
+  throw new UndefinedSymbolError(node.v, node.tkn?.d)
 }
 
 export function lookUp(node: NameNode, contextStack: ContextStack): LookUpResult {
-  const value = node.value
-  const debugInfo = node.token?.debugInfo
+  const value = node.v
+  const debugInfo = node.tkn?.d
 
   for (const context of contextStack.stack) {
     const variable = context[value]
@@ -119,9 +121,9 @@ export function lookUp(node: NameNode, contextStack: ContextStack): LookUpResult
   if (builtin.normalExpressions[value]) {
     const builtinFunction: BuiltinFunction = {
       [FUNCTION_SYMBOL]: true,
-      debugInfo,
-      type: `builtin`,
-      name: value,
+      d: debugInfo,
+      t: FunctionType.Builtin,
+      n: value,
     }
     return {
       builtinFunction,
@@ -146,11 +148,11 @@ export function lookUp(node: NameNode, contextStack: ContextStack): LookUpResult
 }
 
 function evaluateNormalExpression(node: NormalExpressionNode, contextStack: ContextStack): Any {
-  const params = node.params.map(paramNode => evaluateAstNode(paramNode, contextStack))
-  const debugInfo = node.token?.debugInfo
+  const params = node.p.map(paramNode => evaluateAstNode(paramNode, contextStack))
+  const debugInfo = node.tkn?.d
   if (normalExpressionNodeWithName.is(node)) {
     for (const context of contextStack.stack) {
-      const fn = context[node.name]?.value
+      const fn = context[node.n]?.value
       if (fn === undefined) {
         continue
       }
@@ -159,14 +161,14 @@ function evaluateNormalExpression(node: NormalExpressionNode, contextStack: Cont
 
     return evaluateBuiltinNormalExpression(node, params, contextStack)
   } else {
-    const fn = evaluateAstNode(node.expression, contextStack)
+    const fn = evaluateAstNode(node.e, contextStack)
     return executeFunction(fn, params, contextStack, debugInfo)
   }
 }
 
 const executeFunction: ExecuteFunction = (fn, params, contextStack, debugInfo) => {
   if (litsFunction.is(fn)) {
-    return functionExecutors[fn.type](fn, params, debugInfo, contextStack, { evaluateAstNode, executeFunction })
+    return functionExecutors[fn.t](fn, params, debugInfo, contextStack, { evaluateAstNode, executeFunction })
   }
   if (Array.isArray(fn)) {
     return evaluateArrayAsFunction(fn, params, debugInfo)
@@ -188,16 +190,16 @@ function evaluateBuiltinNormalExpression(
   params: Arr,
   contextStack: ContextStack,
 ): Any {
-  const normalExpression = builtin.normalExpressions[node.name]
+  const normalExpression = builtin.normalExpressions[node.n]
   if (!normalExpression) {
-    throw new UndefinedSymbolError(node.name, node.token?.debugInfo)
+    throw new UndefinedSymbolError(node.n, node.tkn?.d)
   }
 
-  return normalExpression.evaluate(params, node.token?.debugInfo, contextStack, { executeFunction })
+  return normalExpression.evaluate(params, node.tkn?.d, contextStack, { executeFunction })
 }
 
 function evaluateSpecialExpression(node: SpecialExpressionNode, contextStack: ContextStack): Any {
-  const specialExpression = asValue(builtin.specialExpressions[node.name], node.token?.debugInfo)
+  const specialExpression = asValue(builtin.specialExpressions[node.n], node.tkn?.d)
 
   return specialExpression.evaluate(node, contextStack, { evaluateAstNode, builtin, lookUp })
 }

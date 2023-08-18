@@ -1,4 +1,5 @@
 import { Lits } from '../src/'
+import { TokenizerType } from '../src/tokenizer/interface'
 import { tokenizeNumber } from '../src/tokenizer/tokenizers'
 
 describe(`parse numbers`, () => {
@@ -29,7 +30,7 @@ describe(`parse numbers`, () => {
         test(`number sample: ${sample}`, () => {
           expect(tokenizeNumber(sample, 0, { line: 0, column: 0, code: `` })).toEqual([
             sample.length,
-            { type: `number`, value: sample, debugInfo: { line: 0, column: 0, code: `` } },
+            { t: TokenizerType.Number, v: sample, d: { line: 0, column: 0, code: `` } },
           ])
           expect(lits.run(sample)).toEqual(Number(sample))
         })

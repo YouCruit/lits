@@ -1,9 +1,16 @@
-import { AstNode, FUNCTION_SYMBOL, LitsFunction, NodeType, REGEXP_SYMBOL, RegularExpression } from '../parser/interface'
-import { DebugInfo, SourceCodeInfo, Token, TokenizerType } from '../tokenizer/interface'
+import {
+  AstNode,
+  FUNCTION_SYMBOL,
+  LitsFunction,
+  REGEXP_SYMBOL,
+  RegularExpression,
+  isAstNodeType,
+} from '../parser/interface'
+import { DebugInfo, SourceCodeInfo, Token, isTokenType } from '../tokenizer/interface'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
 export function getDebugInfo(anyValue: any, debugInfo?: DebugInfo): DebugInfo | undefined {
-  return anyValue?.debugInfo ?? debugInfo
+  return anyValue?.d ?? debugInfo
 }
 
 export function getCodeMarker(sourceCodeInfo: SourceCodeInfo): string {
@@ -18,10 +25,10 @@ export function valueToString(value: unknown): string {
     return `<function ${(value as any).name || `λ`}>`
   }
   if (isToken(value)) {
-    return `${value.type}-token "${value.value}"`
+    return `${value.t}-token "${value.v}"`
   }
   if (isAstNode(value)) {
-    return `${value.type}-node`
+    return `${value.t}-node`
   }
   if (value === null) {
     return `null`
@@ -35,50 +42,24 @@ export function valueToString(value: unknown): string {
   return JSON.stringify(value)
 }
 
-const tokenTypeRecord: Record<TokenizerType, true> = {
-  fnShorthand: true,
-  modifier: true,
-  name: true,
-  number: true,
-  paren: true,
-  regexpShorthand: true,
-  reservedName: true,
-  string: true,
-  collectionAccessor: true,
-}
-const tokenTypes = new Set(Object.keys(tokenTypeRecord))
-
 export function isToken(value: unknown): value is Token {
   if (typeof value !== `object` || value === null) {
     return false
   }
 
   const tkn = value as Token
-  if (!tkn.type || typeof tkn.value !== `string`) {
+  if (typeof tkn.v !== `string`) {
     return false
   }
 
-  return tokenTypes.has(tkn.type)
-}
-
-const astTypes: Record<NodeType, true> = {
-  Number: true,
-  String: true,
-  NormalExpression: true,
-  SpecialExpression: true,
-  Name: true,
-  Modifier: true,
-  ReservedName: true,
-  Binding: true,
-  Argument: true,
-  Partial: true,
+  return isTokenType(tkn.t)
 }
 
 export function isAstNode(value: unknown): value is AstNode {
   if (value === null || typeof value !== `object`) {
     return false
   }
-  if (!astTypes[(value as AstNode).type]) {
+  if (!isAstNodeType((value as AstNode).t)) {
     return false
   }
   return true

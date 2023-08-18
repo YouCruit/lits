@@ -11,9 +11,9 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
       new RegExp(source, flags) // Throws if invalid regexp
       return {
         [REGEXP_SYMBOL]: true,
-        debugInfo,
-        source,
-        flags,
+        d: debugInfo,
+        s: source,
+        f: flags,
       }
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
@@ -22,7 +22,7 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([regexp, text], debugInfo): string[] | null => {
       regularExpression.assert(regexp, debugInfo)
       string.assert(text, debugInfo)
-      const regExp = new RegExp(regexp.source, regexp.flags)
+      const regExp = new RegExp(regexp.s, regexp.f)
 
       const match = regExp.exec(text)
       if (match) {
@@ -38,7 +38,7 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
       regularExpression.assert(regexp, debugInfo)
       string.assert(value, debugInfo)
 
-      const regExp = new RegExp(regexp.source, regexp.flags)
+      const regExp = new RegExp(regexp.s, regexp.f)
       return str.replace(regExp, value)
     },
     validate: node => assertNumberOfParams(3, node),

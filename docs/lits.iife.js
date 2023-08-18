@@ -1,13 +1,58 @@
 var Lits = (function (exports) {
   'use strict';
 
-  var FUNCTION_SYMBOL = "__LITS_FUNCTION__";
-  var REGEXP_SYMBOL = "__REGEXP__";
+  var FUNCTION_SYMBOL = "_LF_";
+  var REGEXP_SYMBOL = "_RE_";
+  var FunctionType;
+  (function (FunctionType) {
+      FunctionType[FunctionType["UserDefined"] = 0] = "UserDefined";
+      FunctionType[FunctionType["Partial"] = 1] = "Partial";
+      FunctionType[FunctionType["Comp"] = 2] = "Comp";
+      FunctionType[FunctionType["Constantly"] = 3] = "Constantly";
+      FunctionType[FunctionType["Juxt"] = 4] = "Juxt";
+      FunctionType[FunctionType["Complement"] = 5] = "Complement";
+      FunctionType[FunctionType["EveryPred"] = 6] = "EveryPred";
+      FunctionType[FunctionType["SomePred"] = 7] = "SomePred";
+      FunctionType[FunctionType["Fnil"] = 8] = "Fnil";
+      FunctionType[FunctionType["Builtin"] = 9] = "Builtin";
+  })(FunctionType || (FunctionType = {}));
+  var AstNodeType;
+  (function (AstNodeType) {
+      AstNodeType[AstNodeType["Number"] = 0] = "Number";
+      AstNodeType[AstNodeType["String"] = 1] = "String";
+      AstNodeType[AstNodeType["NormalExpression"] = 2] = "NormalExpression";
+      AstNodeType[AstNodeType["SpecialExpression"] = 3] = "SpecialExpression";
+      AstNodeType[AstNodeType["Name"] = 4] = "Name";
+      AstNodeType[AstNodeType["Modifier"] = 5] = "Modifier";
+      AstNodeType[AstNodeType["ReservedName"] = 6] = "ReservedName";
+      AstNodeType[AstNodeType["Binding"] = 7] = "Binding";
+      AstNodeType[AstNodeType["Argument"] = 8] = "Argument";
+      AstNodeType[AstNodeType["Partial"] = 9] = "Partial";
+  })(AstNodeType || (AstNodeType = {}));
+  function isAstNodeType(type) {
+      return typeof type === "number" && Number.isInteger(type) && type >= 0 && type <= 9;
+  }
+
+  var TokenizerType;
+  (function (TokenizerType) {
+      TokenizerType[TokenizerType["Bracket"] = 0] = "Bracket";
+      TokenizerType[TokenizerType["Number"] = 1] = "Number";
+      TokenizerType[TokenizerType["Name"] = 2] = "Name";
+      TokenizerType[TokenizerType["String"] = 3] = "String";
+      TokenizerType[TokenizerType["ReservedName"] = 4] = "ReservedName";
+      TokenizerType[TokenizerType["Modifier"] = 5] = "Modifier";
+      TokenizerType[TokenizerType["RegexpShorthand"] = 6] = "RegexpShorthand";
+      TokenizerType[TokenizerType["FnShorthand"] = 7] = "FnShorthand";
+      TokenizerType[TokenizerType["CollectionAccessor"] = 8] = "CollectionAccessor";
+  })(TokenizerType || (TokenizerType = {}));
+  function isTokenType(type) {
+      return typeof type === "number" && Number.isInteger(type) && type >= 0 && type <= 8;
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
   function getDebugInfo(anyValue, debugInfo) {
       var _a;
-      return (_a = anyValue === null || anyValue === void 0 ? void 0 : anyValue.debugInfo) !== null && _a !== void 0 ? _a : debugInfo;
+      return (_a = anyValue === null || anyValue === void 0 ? void 0 : anyValue.d) !== null && _a !== void 0 ? _a : debugInfo;
   }
   function getCodeMarker(sourceCodeInfo) {
       var leftPadding = sourceCodeInfo.column - 1;
@@ -20,10 +65,10 @@ var Lits = (function (exports) {
           return "<function ".concat(value.name || "\u03BB", ">");
       }
       if (isToken(value)) {
-          return "".concat(value.type, "-token \"").concat(value.value, "\"");
+          return "".concat(value.t, "-token \"").concat(value.v, "\"");
       }
       if (isAstNode(value)) {
-          return "".concat(value.type, "-node");
+          return "".concat(value.t, "-node");
       }
       if (value === null) {
           return "null";
@@ -36,45 +81,21 @@ var Lits = (function (exports) {
       }
       return JSON.stringify(value);
   }
-  var tokenTypeRecord = {
-      fnShorthand: true,
-      modifier: true,
-      name: true,
-      number: true,
-      paren: true,
-      regexpShorthand: true,
-      reservedName: true,
-      string: true,
-      collectionAccessor: true,
-  };
-  var tokenTypes = new Set(Object.keys(tokenTypeRecord));
   function isToken(value) {
       if (typeof value !== "object" || value === null) {
           return false;
       }
       var tkn = value;
-      if (!tkn.type || typeof tkn.value !== "string") {
+      if (typeof tkn.v !== "string") {
           return false;
       }
-      return tokenTypes.has(tkn.type);
+      return isTokenType(tkn.t);
   }
-  var astTypes = {
-      Number: true,
-      String: true,
-      NormalExpression: true,
-      SpecialExpression: true,
-      Name: true,
-      Modifier: true,
-      ReservedName: true,
-      Binding: true,
-      Argument: true,
-      Partial: true,
-  };
   function isAstNode(value) {
       if (value === null || typeof value !== "object") {
           return false;
       }
-      if (!astTypes[value.type]) {
+      if (!isAstNodeType(value.t)) {
           return false;
       }
       return true;
@@ -387,10 +408,10 @@ var Lits = (function (exports) {
       if (!isToken(value)) {
           return false;
       }
-      if (options.type && value.type !== options.type) {
+      if (options.type && value.t !== options.type) {
           return false;
       }
-      if (options.value && value.value !== options.value) {
+      if (options.value && value.v !== options.value) {
           return false;
       }
       return true;
@@ -399,7 +420,7 @@ var Lits = (function (exports) {
       if (options === void 0) { options = {}; }
       if (!is(value, options)) {
           if (isToken(value)) {
-              debugInfo = value.debugInfo;
+              debugInfo = value.d;
           }
           throw new LitsError("Expected ".concat(options.type ? "".concat(options.type, "-") : "", "token").concat(typeof options.value === "string" ? " value='".concat(options.value, "'") : "", ", got ").concat(valueToString$1(value), "."), getDebugInfo(value, debugInfo));
       }
@@ -453,15 +474,13 @@ var Lits = (function (exports) {
       if (!isAstNode(value)) {
           return false;
       }
-      var nodeType = "Name";
-      return value.type === nodeType;
+      return value.t === AstNodeType.Name;
   });
   var normalExpressionNodeWithName = new Asserter("Normal expression node with name", function (value) {
       if (!isAstNode(value)) {
           return false;
       }
-      var nodeType = "NormalExpression";
-      return value.type === nodeType && typeof value.name === "string";
+      return value.t === AstNodeType.NormalExpression && typeof value.n === "string";
   });
   var stringArray = new Asserter("string array", function (value) { return Array.isArray(value) && value.every(function (v) { return typeof v === "string"; }); });
   var charArray = new Asserter("character array", function (value) { return Array.isArray(value) && value.every(function (v) { return typeof v === "string" && v.length === 1; }); });
@@ -471,18 +490,18 @@ var Lits = (function (exports) {
       if (!astNode.is(value)) {
           return false;
       }
-      return (value.type === "NormalExpression" ||
-          value.type === "SpecialExpression" ||
-          value.type === "Number" ||
-          value.type === "String");
+      return (value.t === AstNodeType.NormalExpression ||
+          value.t === AstNodeType.SpecialExpression ||
+          value.t === AstNodeType.Number ||
+          value.t === AstNodeType.String);
   });
   function assertNumberOfParams(count, node) {
       var _a, _b;
-      var length = node.params.length;
-      var debugInfo = (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo;
+      var length = node.p.length;
+      var debugInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d;
       if (typeof count === "number") {
           if (length !== count) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.name, "\", expected ").concat(count, ", got ").concat(valueToString$1(length), "."), (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected ").concat(count, ", got ").concat(valueToString$1(length), "."), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
           }
       }
       else {
@@ -491,18 +510,18 @@ var Lits = (function (exports) {
               throw new LitsError("Min or max must be specified.", debugInfo);
           }
           if (typeof min === "number" && length < min) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.name, "\", expected at least ").concat(min, ", got ").concat(valueToString$1(length), "."), debugInfo);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at least ").concat(min, ", got ").concat(valueToString$1(length), "."), debugInfo);
           }
           if (typeof max === "number" && length > max) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.name, "\", expected at most ").concat(max, ", got ").concat(valueToString$1(length), "."), debugInfo);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at most ").concat(max, ", got ").concat(valueToString$1(length), "."), debugInfo);
           }
       }
   }
   function assertEventNumberOfParams(node) {
       var _a;
-      var length = node.params.length;
+      var length = node.p.length;
       if (length % 2 !== 0) {
-          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString$1(length), "."), (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
+          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString$1(length), "."), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
       }
   }
   function asValue(value, debugInfo) {
@@ -529,10 +548,10 @@ var Lits = (function (exports) {
           return [
               newPosition + 1,
               {
-                  type: "SpecialExpression",
-                  name: "and",
-                  params: params,
-                  token: firstToken.debugInfo ? firstToken : undefined,
+                  t: AstNodeType.SpecialExpression,
+                  n: "and",
+                  p: params,
+                  tkn: firstToken.d ? firstToken : undefined,
               },
           ];
       },
@@ -541,7 +560,7 @@ var Lits = (function (exports) {
           var evaluateAstNode = _a.evaluateAstNode;
           var value = true;
           try {
-              for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
+              for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var param = _d.value;
                   value = evaluateAstNode(param, contextStack);
                   if (!value) {
@@ -560,7 +579,7 @@ var Lits = (function (exports) {
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+          return analyzeAst(node.p, contextStack, builtin);
       },
   };
 
@@ -568,7 +587,7 @@ var Lits = (function (exports) {
       var _a, _b;
       var conditions = [];
       var tkn = token.as(tokens[position], "EOF");
-      while (!token.is(tkn, { type: "paren", value: ")" })) {
+      while (!token.is(tkn, { type: TokenizerType.Bracket, value: ")" })) {
           var test_1 = void 0;
           _a = __read(parseToken(tokens, position), 2), position = _a[0], test_1 = _a[1];
           var form = void 0;
@@ -588,11 +607,11 @@ var Lits = (function (exports) {
           return [
               position + 1,
               {
-                  type: "SpecialExpression",
-                  name: "cond",
-                  conditions: conditions,
-                  params: [],
-                  token: firstToken.debugInfo ? firstToken : undefined,
+                  t: AstNodeType.SpecialExpression,
+                  n: "cond",
+                  c: conditions,
+                  p: [],
+                  tkn: firstToken.d ? firstToken : undefined,
               },
           ];
       },
@@ -600,7 +619,7 @@ var Lits = (function (exports) {
           var e_1, _b;
           var evaluateAstNode = _a.evaluateAstNode;
           try {
-              for (var _c = __values(node.conditions), _d = _c.next(); !_d.done; _d = _c.next()) {
+              for (var _c = __values(node.c), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var condition = _d.value;
                   var value = evaluateAstNode(condition.test, contextStack);
                   if (!value) {
@@ -620,7 +639,7 @@ var Lits = (function (exports) {
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var astNodes = node.conditions.flatMap(function (condition) { return [condition.test, condition.form]; });
+          var astNodes = node.c.flatMap(function (condition) { return [condition.test, condition.form]; });
           return analyzeAst(astNodes, contextStack, builtin);
       },
   };
@@ -693,18 +712,18 @@ var Lits = (function (exports) {
           var parseToken = parsers.parseToken;
           var functionName = undefined;
           _a = __read(parseToken(tokens, position), 2), position = _a[0], functionName = _a[1];
-          nameNode.assert(functionName, (_c = functionName.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+          nameNode.assert(functionName, (_c = functionName.tkn) === null || _c === void 0 ? void 0 : _c.d);
           var functionOverloades;
           _b = __read(parseFunctionOverloades(tokens, position, parsers), 2), position = _b[0], functionOverloades = _b[1];
           return [
               position,
               {
-                  type: "SpecialExpression",
-                  name: "defn",
-                  functionName: functionName,
-                  params: [],
-                  overloads: functionOverloades,
-                  token: firstToken.debugInfo ? firstToken : undefined,
+                  t: AstNodeType.SpecialExpression,
+                  n: "defn",
+                  f: functionName,
+                  p: [],
+                  o: functionOverloades,
+                  tkn: firstToken.d ? firstToken : undefined,
               },
           ];
       },
@@ -713,14 +732,14 @@ var Lits = (function (exports) {
           var _c, _d;
           var builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
           var name = getFunctionName("defn", node, contextStack, evaluateAstNode);
-          assertNameNotDefined(name, contextStack, builtin, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+          assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
           var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
           var litsFunction = (_b = {},
               _b[FUNCTION_SYMBOL] = true,
-              _b.debugInfo = (_d = node.token) === null || _d === void 0 ? void 0 : _d.debugInfo,
-              _b.type = "user-defined",
-              _b.name = name,
-              _b.overloads = evaluatedFunctionOverloades,
+              _b.d = (_d = node.tkn) === null || _d === void 0 ? void 0 : _d.d,
+              _b.t = FunctionType.UserDefined,
+              _b.n = name,
+              _b.o = evaluatedFunctionOverloades,
               _b);
           contextStack.globalContext[name] = { value: litsFunction };
           return null;
@@ -728,9 +747,9 @@ var Lits = (function (exports) {
       analyze: function (node, contextStack, _a) {
           var _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          contextStack.globalContext[node.functionName.value] = { value: true };
-          var newContext = (_b = {}, _b[node.functionName.value] = { value: true }, _b);
-          return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin, newContext);
+          contextStack.globalContext[node.f.v] = { value: true };
+          var newContext = (_b = {}, _b[node.f.v] = { value: true }, _b);
+          return addOverloadsUndefinedSymbols(node.o, contextStack, analyzeAst, builtin, newContext);
       },
   };
   var defnsSpecialExpression = {
@@ -745,12 +764,12 @@ var Lits = (function (exports) {
           return [
               position,
               {
-                  type: "SpecialExpression",
-                  name: "defns",
-                  functionName: functionName,
-                  params: [],
-                  overloads: functionOverloades,
-                  token: firstToken.debugInfo ? firstToken : undefined,
+                  t: AstNodeType.SpecialExpression,
+                  n: "defns",
+                  f: functionName,
+                  p: [],
+                  o: functionOverloades,
+                  tkn: firstToken.d ? firstToken : undefined,
               },
           ];
       },
@@ -759,21 +778,21 @@ var Lits = (function (exports) {
           var _c, _d;
           var builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
           var name = getFunctionName("defns", node, contextStack, evaluateAstNode);
-          assertNameNotDefined(name, contextStack, builtin, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+          assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
           var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
           var litsFunction = (_b = {},
               _b[FUNCTION_SYMBOL] = true,
-              _b.debugInfo = (_d = node.token) === null || _d === void 0 ? void 0 : _d.debugInfo,
-              _b.type = "user-defined",
-              _b.name = name,
-              _b.overloads = evaluatedFunctionOverloades,
+              _b.d = (_d = node.tkn) === null || _d === void 0 ? void 0 : _d.d,
+              _b.t = FunctionType.UserDefined,
+              _b.n = name,
+              _b.o = evaluatedFunctionOverloades,
               _b);
           contextStack.globalContext[name] = { value: litsFunction };
           return null;
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin);
+          return addOverloadsUndefinedSymbols(node.o, contextStack, analyzeAst, builtin);
       },
   };
   var fnSpecialExpression = {
@@ -785,11 +804,11 @@ var Lits = (function (exports) {
           return [
               position,
               {
-                  type: "SpecialExpression",
-                  name: "fn",
-                  params: [],
-                  overloads: functionOverloades,
-                  token: firstToken.debugInfo ? firstToken : undefined,
+                  t: AstNodeType.SpecialExpression,
+                  n: "fn",
+                  p: [],
+                  o: functionOverloades,
+                  tkn: firstToken.d ? firstToken : undefined,
               },
           ];
       },
@@ -800,25 +819,25 @@ var Lits = (function (exports) {
           var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
           var litsFunction = (_b = {},
               _b[FUNCTION_SYMBOL] = true,
-              _b.debugInfo = (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo,
-              _b.type = "user-defined",
-              _b.name = undefined,
-              _b.overloads = evaluatedFunctionOverloades,
+              _b.d = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d,
+              _b.t = FunctionType.UserDefined,
+              _b.n = undefined,
+              _b.o = evaluatedFunctionOverloades,
               _b);
           return litsFunction;
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return addOverloadsUndefinedSymbols(node.overloads, contextStack, analyzeAst, builtin);
+          return addOverloadsUndefinedSymbols(node.o, contextStack, analyzeAst, builtin);
       },
   };
   function getFunctionName(expressionName, node, contextStack, evaluateAstNode) {
       var _a;
-      var debugInfo = (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo;
+      var debugInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d;
       if (expressionName === "defn") {
-          return node.functionName.value;
+          return node.f.v;
       }
-      var name = evaluateAstNode(node.functionName, contextStack);
+      var name = evaluateAstNode(node.f, contextStack);
       string.assert(name, debugInfo);
       return name;
   }
@@ -826,15 +845,15 @@ var Lits = (function (exports) {
       var e_1, _a, e_2, _b;
       var evaluatedFunctionOverloades = [];
       try {
-          for (var _c = __values(node.overloads), _d = _c.next(); !_d.done; _d = _c.next()) {
+          for (var _c = __values(node.o), _d = _c.next(); !_d.done; _d = _c.next()) {
               var functionOverload = _d.value;
               var functionContext = {};
               try {
-                  for (var _e = (e_2 = void 0, __values(functionOverload.arguments.bindings)), _f = _e.next(); !_f.done; _f = _e.next()) {
+                  for (var _e = (e_2 = void 0, __values(functionOverload.as.b)), _f = _e.next(); !_f.done; _f = _e.next()) {
                       var binding = _f.value;
-                      var bindingValueNode = binding.value;
+                      var bindingValueNode = binding.v;
                       var bindingValue = evaluateAstNode(bindingValueNode, contextStack);
-                      functionContext[binding.name] = { value: bindingValue };
+                      functionContext[binding.n] = { value: bindingValue };
                   }
               }
               catch (e_2_1) { e_2 = { error: e_2_1 }; }
@@ -845,13 +864,13 @@ var Lits = (function (exports) {
                   finally { if (e_2) throw e_2.error; }
               }
               var evaluatedFunctionOverload = {
-                  arguments: {
-                      mandatoryArguments: functionOverload.arguments.mandatoryArguments,
-                      restArgument: functionOverload.arguments.restArgument,
+                  as: {
+                      mandatoryArguments: functionOverload.as.m,
+                      restArgument: functionOverload.as.r,
                   },
-                  arity: functionOverload.arity,
-                  body: functionOverload.body,
-                  functionContext: functionContext,
+                  a: functionOverload.a,
+                  b: functionOverload.b,
+                  f: functionContext,
               };
               evaluatedFunctionOverloades.push(evaluatedFunctionOverload);
           }
@@ -873,19 +892,19 @@ var Lits = (function (exports) {
           : contextStack;
       var _loop_1 = function (overload) {
           var newContext = {};
-          overload.arguments.bindings.forEach(function (binding) {
-              var bindingResult = analyzeAst(binding.value, contextStack, builtin);
+          overload.as.b.forEach(function (binding) {
+              var bindingResult = analyzeAst(binding.v, contextStack, builtin);
               addAnalyzeResults(result, bindingResult);
-              newContext[binding.name] = { value: true };
+              newContext[binding.n] = { value: true };
           });
-          overload.arguments.mandatoryArguments.forEach(function (arg) {
+          overload.as.m.forEach(function (arg) {
               newContext[arg] = { value: true };
           });
-          if (typeof overload.arguments.restArgument === "string") {
-              newContext[overload.arguments.restArgument] = { value: true };
+          if (typeof overload.as.r === "string") {
+              newContext[overload.as.r] = { value: true };
           }
           var newContextStack = contextStackWithFunctionName.withContext(newContext);
-          var overloadResult = analyzeAst(overload.body, newContextStack, builtin);
+          var overloadResult = analyzeAst(overload.b, newContextStack, builtin);
           addAnalyzeResults(result, overloadResult);
       };
       try {
@@ -906,15 +925,15 @@ var Lits = (function (exports) {
   function arityOk(overloadedFunctions, arity) {
       if (typeof arity === "number") {
           return overloadedFunctions.every(function (fun) {
-              if (typeof fun.arity === "number") {
-                  return fun.arity !== arity;
+              if (typeof fun.a === "number") {
+                  return fun.a !== arity;
               }
-              return fun.arity.min > arity;
+              return fun.a.min > arity;
           });
       }
       return overloadedFunctions.every(function (fun) {
-          if (typeof fun.arity === "number") {
-              return fun.arity < arity.min;
+          if (typeof fun.a === "number") {
+              return fun.a < arity.min;
           }
           return false;
       });
@@ -924,68 +943,64 @@ var Lits = (function (exports) {
       var parseToken = _a.parseToken;
       var tkn = token.as(tokens[position], "EOF");
       var body = [];
-      while (!(tkn.type === "paren" && tkn.value === ")")) {
+      while (!(tkn.t === TokenizerType.Bracket && tkn.v === ")")) {
           var bodyNode = void 0;
           _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
           body.push(bodyNode);
           tkn = token.as(tokens[position], "EOF");
       }
       if (body.length === 0) {
-          throw new LitsError("Missing body in function", tkn.debugInfo);
+          throw new LitsError("Missing body in function", tkn.d);
       }
       return [position + 1, body];
   }
   function parseFunctionOverloades(tokens, position, parsers) {
       var _a, _b, _c, _d;
-      var tkn = token.as(tokens[position], "EOF", { type: "paren" });
-      if (tkn.value === "(") {
+      var tkn = token.as(tokens[position], "EOF", { type: TokenizerType.Bracket });
+      if (tkn.v === "(") {
           var functionOverloades = [];
-          while (!(tkn.type === "paren" && tkn.value === ")")) {
+          while (!(tkn.t === TokenizerType.Bracket && tkn.v === ")")) {
               position += 1;
               tkn = token.as(tokens[position], "EOF");
               var functionArguments = void 0;
               _a = __read(parseFunctionArguments(tokens, position, parsers), 2), position = _a[0], functionArguments = _a[1];
-              var arity = functionArguments.restArgument
-                  ? { min: functionArguments.mandatoryArguments.length }
-                  : functionArguments.mandatoryArguments.length;
+              var arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length;
               if (!arityOk(functionOverloades, arity)) {
-                  throw new LitsError("All overloaded functions must have different arity", tkn.debugInfo);
+                  throw new LitsError("All overloaded functions must have different arity", tkn.d);
               }
               var functionBody = void 0;
               _b = __read(parseFunctionBody(tokens, position, parsers), 2), position = _b[0], functionBody = _b[1];
               functionOverloades.push({
-                  arguments: functionArguments,
-                  body: functionBody,
-                  arity: arity,
+                  as: functionArguments,
+                  b: functionBody,
+                  a: arity,
               });
-              tkn = token.as(tokens[position], "EOF", { type: "paren" });
-              if (tkn.value !== ")" && tkn.value !== "(") {
-                  throw new LitsError("Expected ( or ) token, got ".concat(valueToString$1(tkn), "."), tkn.debugInfo);
+              tkn = token.as(tokens[position], "EOF", { type: TokenizerType.Bracket });
+              if (tkn.v !== ")" && tkn.v !== "(") {
+                  throw new LitsError("Expected ( or ) token, got ".concat(valueToString$1(tkn), "."), tkn.d);
               }
           }
           return [position + 1, functionOverloades];
       }
-      else if (tkn.value === "[") {
+      else if (tkn.v === "[") {
           var functionArguments = void 0;
           _c = __read(parseFunctionArguments(tokens, position, parsers), 2), position = _c[0], functionArguments = _c[1];
-          var arity = functionArguments.restArgument
-              ? { min: functionArguments.mandatoryArguments.length }
-              : functionArguments.mandatoryArguments.length;
+          var arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length;
           var functionBody = void 0;
           _d = __read(parseFunctionBody(tokens, position, parsers), 2), position = _d[0], functionBody = _d[1];
           return [
               position,
               [
                   {
-                      arguments: functionArguments,
-                      body: functionBody,
-                      arity: arity,
+                      as: functionArguments,
+                      b: functionBody,
+                      a: arity,
                   },
               ],
           ];
       }
       else {
-          throw new LitsError("Expected [ or ( token, got ".concat(valueToString$1(tkn)), tkn.debugInfo);
+          throw new LitsError("Expected [ or ( token, got ".concat(valueToString$1(tkn)), tkn.d);
       }
   }
   function parseFunctionArguments(tokens, position, parsers) {
@@ -998,7 +1013,7 @@ var Lits = (function (exports) {
       var tkn = token.as(tokens[position], "EOF");
       position += 1;
       tkn = token.as(tokens[position], "EOF");
-      while (!(tkn.type === "paren" && tkn.value === "]")) {
+      while (!(tkn.t === TokenizerType.Bracket && tkn.v === "]")) {
           if (state === "let") {
               _a = __read(parseBindings(tokens, position), 2), position = _a[0], bindings = _a[1];
               break;
@@ -1007,47 +1022,47 @@ var Lits = (function (exports) {
               var _b = __read(parseArgument(tokens, position), 2), newPosition = _b[0], node = _b[1];
               position = newPosition;
               tkn = token.as(tokens[position], "EOF");
-              if (node.type === "Modifier") {
-                  switch (node.value) {
+              if (node.t === AstNodeType.Modifier) {
+                  switch (node.v) {
                       case "&":
                           if (state === "rest") {
-                              throw new LitsError("& can only appear once", tkn.debugInfo);
+                              throw new LitsError("& can only appear once", tkn.d);
                           }
                           state = "rest";
                           break;
                       case "&let":
                           if (state === "rest" && !restArgument) {
-                              throw new LitsError("No rest argument was specified", tkn.debugInfo);
+                              throw new LitsError("No rest argument was specified", tkn.d);
                           }
                           state = "let";
                           break;
                       default:
-                          throw new LitsError("Illegal modifier: ".concat(node.value), tkn.debugInfo);
+                          throw new LitsError("Illegal modifier: ".concat(node.v), tkn.d);
                   }
               }
               else {
                   switch (state) {
                       case "mandatory":
-                          mandatoryArguments.push(node.name);
+                          mandatoryArguments.push(node.n);
                           break;
                       case "rest":
                           if (restArgument !== undefined) {
-                              throw new LitsError("Can only specify one rest argument", tkn.debugInfo);
+                              throw new LitsError("Can only specify one rest argument", tkn.d);
                           }
-                          restArgument = node.name;
+                          restArgument = node.n;
                           break;
                   }
               }
           }
       }
       if (state === "rest" && restArgument === undefined) {
-          throw new LitsError("Missing rest argument name", tkn.debugInfo);
+          throw new LitsError("Missing rest argument name", tkn.d);
       }
       position += 1;
       var args = {
-          mandatoryArguments: mandatoryArguments,
-          restArgument: restArgument,
-          bindings: bindings,
+          m: mandatoryArguments,
+          r: restArgument,
+          b: bindings,
       };
       return [position, args];
   }
@@ -1057,24 +1072,24 @@ var Lits = (function (exports) {
           var parseTokens = _a.parseTokens;
           var firstToken = token.as(tokens[position], "EOF");
           var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
-          nameNode.assert(params[0], firstToken.debugInfo);
+          nameNode.assert(params[0], firstToken.d);
           return [
               newPosition + 1,
               {
-                  type: "SpecialExpression",
-                  name: "def",
-                  params: params,
-                  token: firstToken.debugInfo ? firstToken : undefined,
+                  t: AstNodeType.SpecialExpression,
+                  n: "def",
+                  p: params,
+                  tkn: firstToken.d ? firstToken : undefined,
               },
           ];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
-          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
-          var name = nameNode.as(node.params[0], debugInfo).value;
+          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+          var name = nameNode.as(node.p[0], debugInfo).v;
           assertNameNotDefined(name, contextStack, builtin, debugInfo);
-          var value = evaluateAstNode(astNode.as(node.params[1], debugInfo), contextStack);
+          var value = evaluateAstNode(astNode.as(node.p[1], debugInfo), contextStack);
           contextStack.globalContext[name] = { value: value };
           return value;
       },
@@ -1082,10 +1097,10 @@ var Lits = (function (exports) {
       analyze: function (node, contextStack, _a) {
           var _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
-          var subNode = astNode.as(node.params[1], debugInfo);
+          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+          var subNode = astNode.as(node.p[1], debugInfo);
           var result = analyzeAst(subNode, contextStack, builtin);
-          var name = nameNode.as(node.params[0], debugInfo).value;
+          var name = nameNode.as(node.p[0], debugInfo).v;
           assertNameNotDefined(name, contextStack, builtin, debugInfo);
           contextStack.globalContext[name] = { value: true };
           return result;
@@ -1100,21 +1115,21 @@ var Lits = (function (exports) {
           return [
               newPosition + 1,
               {
-                  type: "SpecialExpression",
-                  name: "defs",
-                  params: params,
-                  token: firstToken.debugInfo ? firstToken : undefined,
+                  t: AstNodeType.SpecialExpression,
+                  n: "defs",
+                  p: params,
+                  tkn: firstToken.d ? firstToken : undefined,
               },
           ];
       },
       evaluate: function (node, contextStack, _a) {
           var _b, _c;
           var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
-          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
-          var name = evaluateAstNode(astNode.as(node.params[0], debugInfo), contextStack);
+          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+          var name = evaluateAstNode(astNode.as(node.p[0], debugInfo), contextStack);
           string.assert(name, debugInfo);
-          assertNameNotDefined(name, contextStack, builtin, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
-          var value = evaluateAstNode(astNode.as(node.params[1], debugInfo), contextStack);
+          assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
+          var value = evaluateAstNode(astNode.as(node.p[1], debugInfo), contextStack);
           contextStack.globalContext[name] = { value: value };
           return value;
       },
@@ -1122,7 +1137,7 @@ var Lits = (function (exports) {
       analyze: function (node, contextStack, _a) {
           var _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var subNode = astNode.as(node.params[1], (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          var subNode = astNode.as(node.p[1], (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
           return analyzeAst(subNode, contextStack, builtin);
       },
   };
@@ -1133,15 +1148,15 @@ var Lits = (function (exports) {
           var parseToken = _a.parseToken;
           var tkn = token.as(tokens[position], "EOF");
           var node = {
-              type: "SpecialExpression",
-              name: "do",
-              params: [],
-              token: tkn.debugInfo ? tkn : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "do",
+              p: [],
+              tkn: tkn.d ? tkn : undefined,
           };
-          while (!token.is(tkn, { type: "paren", value: ")" })) {
+          while (!token.is(tkn, { type: TokenizerType.Bracket, value: ")" })) {
               var bodyNode = void 0;
               _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
-              node.params.push(bodyNode);
+              node.p.push(bodyNode);
               tkn = token.as(tokens[position], "EOF");
           }
           return [position + 1, node];
@@ -1153,7 +1168,7 @@ var Lits = (function (exports) {
           var newContextStack = contextStack.withContext(newContext);
           var result = null;
           try {
-              for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
+              for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var form = _d.value;
                   result = evaluateAstNode(form, newContextStack);
               }
@@ -1169,7 +1184,7 @@ var Lits = (function (exports) {
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+          return analyzeAst(node.p, contextStack, builtin);
       },
   };
 
@@ -1179,35 +1194,35 @@ var Lits = (function (exports) {
       var bindingNode;
       _b = __read(parseBinding(tokens, position), 2), position = _b[0], bindingNode = _b[1];
       var loopBinding = {
-          binding: bindingNode,
-          modifiers: [],
+          b: bindingNode,
+          m: [],
       };
       var tkn = token.as(tokens[position], "EOF");
-      while (tkn.type === "modifier") {
-          switch (tkn.value) {
+      while (tkn.t === TokenizerType.Modifier) {
+          switch (tkn.v) {
               case "&let":
-                  if (loopBinding.letBindings) {
-                      throw new LitsError("Only one &let modifier allowed", tkn.debugInfo);
+                  if (loopBinding.l) {
+                      throw new LitsError("Only one &let modifier allowed", tkn.d);
                   }
-                  _c = __read(parseBindings(tokens, position + 1), 2), position = _c[0], loopBinding.letBindings = _c[1];
-                  loopBinding.modifiers.push("&let");
+                  _c = __read(parseBindings(tokens, position + 1), 2), position = _c[0], loopBinding.l = _c[1];
+                  loopBinding.m.push("&let");
                   break;
               case "&when":
-                  if (loopBinding.whenNode) {
-                      throw new LitsError("Only one &when modifier allowed", tkn.debugInfo);
+                  if (loopBinding.wn) {
+                      throw new LitsError("Only one &when modifier allowed", tkn.d);
                   }
-                  _d = __read(parseToken(tokens, position + 1), 2), position = _d[0], loopBinding.whenNode = _d[1];
-                  loopBinding.modifiers.push("&when");
+                  _d = __read(parseToken(tokens, position + 1), 2), position = _d[0], loopBinding.wn = _d[1];
+                  loopBinding.m.push("&when");
                   break;
               case "&while":
-                  if (loopBinding.whileNode) {
-                      throw new LitsError("Only one &while modifier allowed", tkn.debugInfo);
+                  if (loopBinding.we) {
+                      throw new LitsError("Only one &while modifier allowed", tkn.d);
                   }
-                  _e = __read(parseToken(tokens, position + 1), 2), position = _e[0], loopBinding.whileNode = _e[1];
-                  loopBinding.modifiers.push("&while");
+                  _e = __read(parseToken(tokens, position + 1), 2), position = _e[0], loopBinding.we = _e[1];
+                  loopBinding.m.push("&while");
                   break;
               default:
-                  throw new LitsError("Illegal modifier: ".concat(tkn.value), tkn.debugInfo);
+                  throw new LitsError("Illegal modifier: ".concat(tkn.v), tkn.d);
           }
           tkn = token.as(tokens[position], "EOF");
       }
@@ -1218,10 +1233,10 @@ var Lits = (function (exports) {
       try {
           for (var bindings_1 = __values(bindings), bindings_1_1 = bindings_1.next(); !bindings_1_1.done; bindings_1_1 = bindings_1.next()) {
               var binding = bindings_1_1.value;
-              if (context[binding.name]) {
-                  throw new LitsError("Variable already defined: ".concat(binding.name, "."), debugInfo);
+              if (context[binding.n]) {
+                  throw new LitsError("Variable already defined: ".concat(binding.n, "."), debugInfo);
               }
-              context[binding.name] = { value: evaluateAstNode(binding.value, contextStack) };
+              context[binding.n] = { value: evaluateAstNode(binding.v, contextStack) };
           }
       }
       catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -1234,11 +1249,11 @@ var Lits = (function (exports) {
   }
   function parseLoopBindings(tokens, position, parsers) {
       var _a;
-      token.assert(tokens[position], "EOF", { type: "paren", value: "[" });
+      token.assert(tokens[position], "EOF", { type: TokenizerType.Bracket, value: "[" });
       position += 1;
       var loopBindings = [];
       var tkn = token.as(tokens[position], "EOF");
-      while (!token.is(tkn, { type: "paren", value: "]" })) {
+      while (!token.is(tkn, { type: TokenizerType.Bracket, value: "]" })) {
           var loopBinding = void 0;
           _a = __read(parseLoopBinding(tokens, position, parsers), 2), position = _a[0], loopBinding = _a[1];
           loopBindings.push(loopBinding);
@@ -1249,8 +1264,8 @@ var Lits = (function (exports) {
   function evaluateLoop(returnResult, node, contextStack, evaluateAstNode) {
       var e_2, _a;
       var _b;
-      var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
-      var _c = node, loopBindings = _c.loopBindings, params = _c.params;
+      var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+      var _c = node, loopBindings = _c.l, params = _c.p;
       var expression = astNode.as(params[0], debugInfo);
       var result = [];
       var bindingIndices = loopBindings.map(function () { return 0; });
@@ -1260,8 +1275,8 @@ var Lits = (function (exports) {
           var newContextStack = contextStack.withContext(context);
           var skip = false;
           bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
-              var _d = asValue(loopBindings[bindingIndex], debugInfo), binding = _d.binding, letBindings = _d.letBindings, whenNode = _d.whenNode, whileNode = _d.whileNode, modifiers = _d.modifiers;
-              var coll = collection.as(evaluateAstNode(binding.value, newContextStack), debugInfo);
+              var _d = asValue(loopBindings[bindingIndex], debugInfo), binding = _d.b, letBindings = _d.l, whenNode = _d.wn, whileNode = _d.we, modifiers = _d.m;
+              var coll = collection.as(evaluateAstNode(binding.v, newContextStack), debugInfo);
               var seq = sequence.is(coll) ? coll : Object.entries(coll);
               if (seq.length === 0) {
                   skip = true;
@@ -1279,10 +1294,10 @@ var Lits = (function (exports) {
                   bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], debugInfo) + 1;
                   break;
               }
-              if (context[binding.name]) {
-                  throw new LitsError("Variable already defined: ".concat(binding.name, "."), debugInfo);
+              if (context[binding.n]) {
+                  throw new LitsError("Variable already defined: ".concat(binding.n, "."), debugInfo);
               }
-              context[binding.name] = {
+              context[binding.n] = {
                   value: any.as(seq[index], debugInfo),
               };
               try {
@@ -1332,19 +1347,19 @@ var Lits = (function (exports) {
           undefinedSymbols: new Set(),
       };
       var newContext = {};
-      var loopBindings = node.loopBindings;
+      var loopBindings = node.l;
       loopBindings.forEach(function (loopBinding) {
-          var binding = loopBinding.binding, letBindings = loopBinding.letBindings, whenNode = loopBinding.whenNode, whileNode = loopBinding.whileNode;
-          analyzeAst(binding.value, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
+          var binding = loopBinding.b, letBindings = loopBinding.l, whenNode = loopBinding.wn, whileNode = loopBinding.we;
+          analyzeAst(binding.v, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
               return result.undefinedSymbols.add(symbol);
           });
-          newContext[binding.name] = { value: true };
+          newContext[binding.n] = { value: true };
           if (letBindings) {
               letBindings.forEach(function (letBinding) {
-                  analyzeAst(letBinding.value, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
+                  analyzeAst(letBinding.v, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
                       return result.undefinedSymbols.add(symbol);
                   });
-                  newContext[letBinding.name] = { value: true };
+                  newContext[letBinding.n] = { value: true };
               });
           }
           if (whenNode) {
@@ -1358,7 +1373,7 @@ var Lits = (function (exports) {
               });
           }
       });
-      analyzeAst(node.params, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
+      analyzeAst(node.p, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
           return result.undefinedSymbols.add(symbol);
       });
       return result;
@@ -1372,13 +1387,13 @@ var Lits = (function (exports) {
           _a = __read(parseLoopBindings(tokens, position, parsers), 2), position = _a[0], loopBindings = _a[1];
           var expression;
           _b = __read(parseToken(tokens, position), 2), position = _b[0], expression = _b[1];
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
+          token.assert(tokens[position], "EOF", { type: TokenizerType.Bracket, value: ")" });
           var node = {
-              name: "for",
-              type: "SpecialExpression",
-              loopBindings: loopBindings,
-              params: [expression],
-              token: firstToken.debugInfo ? firstToken : undefined,
+              n: "for",
+              t: AstNodeType.SpecialExpression,
+              l: loopBindings,
+              p: [expression],
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [position + 1, node];
       },
@@ -1397,13 +1412,13 @@ var Lits = (function (exports) {
           _a = __read(parseLoopBindings(tokens, position, parsers), 2), position = _a[0], loopBindings = _a[1];
           var expression;
           _b = __read(parseToken(tokens, position), 2), position = _b[0], expression = _b[1];
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
+          token.assert(tokens[position], "EOF", { type: TokenizerType.Bracket, value: ")" });
           var node = {
-              name: "doseq",
-              type: "SpecialExpression",
-              loopBindings: loopBindings,
-              params: [expression],
-              token: firstToken.debugInfo ? firstToken : undefined,
+              n: "doseq",
+              t: AstNodeType.SpecialExpression,
+              l: loopBindings,
+              p: [expression],
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [position + 1, node];
       },
@@ -1425,33 +1440,33 @@ var Lits = (function (exports) {
           var bindings;
           _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.debugInfo);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.d);
           }
           var params;
           _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
           var node = {
-              type: "SpecialExpression",
-              name: "if-let",
-              binding: asValue(bindings[0], firstToken.debugInfo),
-              params: params,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "if-let",
+              b: asValue(bindings[0], firstToken.d),
+              p: params,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [position + 1, node];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
+          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
           var locals = {};
-          var bindingValue = evaluateAstNode(node.binding.value, contextStack);
+          var bindingValue = evaluateAstNode(node.b.v, contextStack);
           if (bindingValue) {
-              locals[node.binding.name] = { value: bindingValue };
+              locals[node.b.n] = { value: bindingValue };
               var newContextStack = contextStack.withContext(locals);
-              var thenForm = astNode.as(node.params[0], debugInfo);
+              var thenForm = astNode.as(node.p[0], debugInfo);
               return evaluateAstNode(thenForm, newContextStack);
           }
-          if (node.params.length === 2) {
-              var elseForm = astNode.as(node.params[1], debugInfo);
+          if (node.p.length === 2) {
+              var elseForm = astNode.as(node.p[1], debugInfo);
               return evaluateAstNode(elseForm, contextStack);
           }
           return null;
@@ -1460,9 +1475,9 @@ var Lits = (function (exports) {
       analyze: function (node, contextStack, _a) {
           var _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var newContext = (_b = {}, _b[node.binding.name] = { value: true }, _b);
-          var bindingResult = analyzeAst(node.binding.value, contextStack, builtin);
-          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin);
+          var newContext = (_b = {}, _b[node.b.n] = { value: true }, _b);
+          var bindingResult = analyzeAst(node.b.v, contextStack, builtin);
+          var paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin);
           return joinAnalyzeResults(bindingResult, paramsResult);
       },
   };
@@ -1475,23 +1490,23 @@ var Lits = (function (exports) {
           return [
               newPosition + 1,
               {
-                  type: "SpecialExpression",
-                  name: "if-not",
-                  params: params,
-                  token: firstToken.debugInfo ? firstToken : undefined,
+                  t: AstNodeType.SpecialExpression,
+                  n: "if-not",
+                  p: params,
+                  tkn: firstToken.d ? firstToken : undefined,
               },
           ];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
-          var _c = __read(node.params, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
+          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+          var _c = __read(node.p, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
           if (!evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)) {
               return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
           }
           else {
-              if (node.params.length === 3) {
+              if (node.p.length === 3) {
                   return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
               }
               else {
@@ -1502,7 +1517,7 @@ var Lits = (function (exports) {
       validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+          return analyzeAst(node.p, contextStack, builtin);
       },
   };
 
@@ -1514,23 +1529,23 @@ var Lits = (function (exports) {
           return [
               newPosition + 1,
               {
-                  type: "SpecialExpression",
-                  name: "if",
-                  params: params,
-                  token: firstToken.debugInfo ? firstToken : undefined,
+                  t: AstNodeType.SpecialExpression,
+                  n: "if",
+                  p: params,
+                  tkn: firstToken.d ? firstToken : undefined,
               },
           ];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
-          var _c = __read(node.params, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
+          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+          var _c = __read(node.p, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
           if (evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)) {
               return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack);
           }
           else {
-              if (node.params.length === 3) {
+              if (node.p.length === 3) {
                   return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack);
               }
               else {
@@ -1541,7 +1556,7 @@ var Lits = (function (exports) {
       validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+          return analyzeAst(node.p, contextStack, builtin);
       },
   };
 
@@ -1555,11 +1570,11 @@ var Lits = (function (exports) {
           var params;
           _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
           var node = {
-              type: "SpecialExpression",
-              name: "let",
-              params: params,
-              bindings: bindings,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "let",
+              p: params,
+              bs: bindings,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [position + 1, node];
       },
@@ -1569,11 +1584,11 @@ var Lits = (function (exports) {
           var locals = {};
           var newContextStack = contextStack.withContext(locals);
           try {
-              for (var _d = __values(node.bindings), _e = _d.next(); !_e.done; _e = _d.next()) {
+              for (var _d = __values(node.bs), _e = _d.next(); !_e.done; _e = _d.next()) {
                   var binding = _e.value;
-                  var bindingValueNode = binding.value;
+                  var bindingValueNode = binding.v;
                   var bindingValue = evaluateAstNode(bindingValueNode, newContextStack);
-                  locals[binding.name] = { value: bindingValue };
+                  locals[binding.n] = { value: bindingValue };
               }
           }
           catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -1585,7 +1600,7 @@ var Lits = (function (exports) {
           }
           var result = null;
           try {
-              for (var _f = __values(node.params), _g = _f.next(); !_g.done; _g = _f.next()) {
+              for (var _f = __values(node.p), _g = _f.next(); !_g.done; _g = _f.next()) {
                   var astNode = _g.value;
                   result = evaluateAstNode(astNode, newContextStack);
               }
@@ -1601,20 +1616,20 @@ var Lits = (function (exports) {
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var newContext = node.bindings
-              .map(function (binding) { return binding.name; })
+          var newContext = node.bs
+              .map(function (binding) { return binding.n; })
               .reduce(function (context, name) {
               context[name] = { value: true };
               return context;
           }, {});
           var bindingContext = {};
-          var bindingResults = node.bindings.map(function (bindingNode) {
-              var valueNode = bindingNode.value;
+          var bindingResults = node.bs.map(function (bindingNode) {
+              var valueNode = bindingNode.v;
               var bindingsResult = analyzeAst(valueNode, contextStack.withContext(bindingContext), builtin);
-              bindingContext[bindingNode.name] = { value: true };
+              bindingContext[bindingNode.n] = { value: true };
               return bindingsResult;
           });
-          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin);
+          var paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin);
           return joinAnalyzeResults.apply(void 0, __spreadArray(__spreadArray([], __read(bindingResults), false), [paramsResult], false));
       },
   };
@@ -1629,20 +1644,20 @@ var Lits = (function (exports) {
           var params;
           _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
           var node = {
-              type: "SpecialExpression",
-              name: "loop",
-              params: params,
-              bindings: bindings,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "loop",
+              p: params,
+              bs: bindings,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [position + 1, node];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
-          var bindingContext = node.bindings.reduce(function (result, binding) {
-              result[binding.name] = { value: evaluateAstNode(binding.value, contextStack) };
+          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+          var bindingContext = node.bs.reduce(function (result, binding) {
+              result[binding.n] = { value: evaluateAstNode(binding.v, contextStack) };
               return result;
           }, {});
           var newContextStack = contextStack.withContext(bindingContext);
@@ -1651,7 +1666,7 @@ var Lits = (function (exports) {
               var result = null;
               try {
                   try {
-                      for (var _d = (e_1 = void 0, __values(node.params)), _e = _d.next(); !_e.done; _e = _d.next()) {
+                      for (var _d = (e_1 = void 0, __values(node.p)), _e = _d.next(); !_e.done; _e = _d.next()) {
                           var form = _e.value;
                           result = evaluateAstNode(form, newContextStack);
                       }
@@ -1667,11 +1682,11 @@ var Lits = (function (exports) {
               catch (error) {
                   if (error instanceof RecurSignal) {
                       var params_1 = error.params;
-                      if (params_1.length !== node.bindings.length) {
-                          throw new LitsError("recur expected ".concat(node.bindings.length, " parameters, got ").concat(valueToString$1(params_1.length)), debugInfo);
+                      if (params_1.length !== node.bs.length) {
+                          throw new LitsError("recur expected ".concat(node.bs.length, " parameters, got ").concat(valueToString$1(params_1.length)), debugInfo);
                       }
-                      node.bindings.forEach(function (binding, index) {
-                          asValue(bindingContext[binding.name], debugInfo).value = any.as(params_1[index], debugInfo);
+                      node.bs.forEach(function (binding, index) {
+                          asValue(bindingContext[binding.n], debugInfo).value = any.as(params_1[index], debugInfo);
                       });
                       return "continue";
                   }
@@ -1687,15 +1702,15 @@ var Lits = (function (exports) {
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var newContext = node.bindings
-              .map(function (binding) { return binding.name; })
+          var newContext = node.bs
+              .map(function (binding) { return binding.n; })
               .reduce(function (context, name) {
               context[name] = { value: true };
               return context;
           }, {});
-          var bindingValueNodes = node.bindings.map(function (binding) { return binding.value; });
+          var bindingValueNodes = node.bs.map(function (binding) { return binding.v; });
           var bindingsResult = analyzeAst(bindingValueNodes, contextStack, builtin);
-          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin);
+          var paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin);
           return joinAnalyzeResults(bindingsResult, paramsResult);
       },
   };
@@ -1708,10 +1723,10 @@ var Lits = (function (exports) {
           return [
               newPosition + 1,
               {
-                  type: "SpecialExpression",
-                  name: "or",
-                  params: params,
-                  token: firstToken.debugInfo ? firstToken : undefined,
+                  t: AstNodeType.SpecialExpression,
+                  n: "or",
+                  p: params,
+                  tkn: firstToken.d ? firstToken : undefined,
               },
           ];
       },
@@ -1720,7 +1735,7 @@ var Lits = (function (exports) {
           var evaluateAstNode = _a.evaluateAstNode;
           var value = false;
           try {
-              for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
+              for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var param = _d.value;
                   value = evaluateAstNode(param, contextStack);
                   if (value) {
@@ -1739,7 +1754,7 @@ var Lits = (function (exports) {
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+          return analyzeAst(node.p, contextStack, builtin);
       },
   };
 
@@ -1751,21 +1766,21 @@ var Lits = (function (exports) {
           var params;
           _b = __read(parseTokens(tokens, position), 2), position = _b[0], params = _b[1];
           var node = {
-              type: "SpecialExpression",
-              name: "recur",
-              params: params,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "recur",
+              p: params,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [position + 1, node];
       },
       evaluate: function (node, contextStack, _a) {
           var evaluateAstNode = _a.evaluateAstNode;
-          var params = node.params.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
+          var params = node.p.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
           throw new RecurSignal(params);
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+          return analyzeAst(node.p, contextStack, builtin);
       },
   };
 
@@ -1775,28 +1790,28 @@ var Lits = (function (exports) {
           var firstToken = token.as(tokens[position], "EOF");
           var _b = __read(parseToken(tokens, position), 2), newPosition = _b[0], messageNode = _b[1];
           position = newPosition;
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
+          token.assert(tokens[position], "EOF", { type: TokenizerType.Bracket, value: ")" });
           position += 1;
           var node = {
-              type: "SpecialExpression",
-              name: "throw",
-              params: [],
-              messageNode: messageNode,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "throw",
+              p: [],
+              m: messageNode,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [position, node];
       },
       evaluate: function (node, contextStack, _a) {
           var _b, _c;
           var evaluateAstNode = _a.evaluateAstNode;
-          var message = string.as(evaluateAstNode(node.messageNode, contextStack), (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo, {
+          var message = string.as(evaluateAstNode(node.m, contextStack), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d, {
               nonEmpty: true,
           });
-          throw new UserDefinedError(message, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+          throw new UserDefinedError(message, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.messageNode, contextStack, builtin);
+          return analyzeAst(node.m, contextStack, builtin);
       },
   };
 
@@ -1806,18 +1821,18 @@ var Lits = (function (exports) {
           var firstToken = token.as(tokens[position], "EOF");
           var _b = __read(parseToken(tokens, position), 2), newPosition = _b[0], astNode = _b[1];
           var node = {
-              type: "SpecialExpression",
-              name: "time!",
-              params: [astNode],
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "time!",
+              p: [astNode],
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [newPosition + 1, node];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode;
-          var _c = __read(node.params, 1), param = _c[0];
-          astNode.assert(param, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          var _c = __read(node.p, 1), param = _c[0];
+          astNode.assert(param, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
           var startTime = Date.now();
           var result = evaluateAstNode(param, contextStack);
           var totalTime = Date.now() - startTime;
@@ -1828,7 +1843,7 @@ var Lits = (function (exports) {
       validate: function (node) { return assertNumberOfParams(1, node); },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+          return analyzeAst(node.p, contextStack, builtin);
       },
   };
 
@@ -1840,31 +1855,31 @@ var Lits = (function (exports) {
           var firstToken = token.as(tokens[position], "EOF");
           var tryExpression;
           _b = __read(parseToken(tokens, position), 2), position = _b[0], tryExpression = _b[1];
-          token.assert(tokens[position], "EOF", { type: "paren", value: "(" });
+          token.assert(tokens[position], "EOF", { type: TokenizerType.Bracket, value: "(" });
           position += 1;
           var catchNode;
           _c = __read(parseToken(tokens, position), 2), position = _c[0], catchNode = _c[1];
-          nameNode.assert(catchNode, (_f = catchNode.token) === null || _f === void 0 ? void 0 : _f.debugInfo);
-          if (catchNode.value !== "catch") {
-              throw new LitsError("Expected 'catch', got '".concat(catchNode.value, "'."), getDebugInfo(catchNode, (_g = catchNode.token) === null || _g === void 0 ? void 0 : _g.debugInfo));
+          nameNode.assert(catchNode, (_f = catchNode.tkn) === null || _f === void 0 ? void 0 : _f.d);
+          if (catchNode.v !== "catch") {
+              throw new LitsError("Expected 'catch', got '".concat(catchNode.v, "'."), getDebugInfo(catchNode, (_g = catchNode.tkn) === null || _g === void 0 ? void 0 : _g.d));
           }
           var error;
           _d = __read(parseToken(tokens, position), 2), position = _d[0], error = _d[1];
-          nameNode.assert(error, (_h = error.token) === null || _h === void 0 ? void 0 : _h.debugInfo);
+          nameNode.assert(error, (_h = error.tkn) === null || _h === void 0 ? void 0 : _h.d);
           var catchExpression;
           _e = __read(parseToken(tokens, position), 2), position = _e[0], catchExpression = _e[1];
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
+          token.assert(tokens[position], "EOF", { type: TokenizerType.Bracket, value: ")" });
           position += 1;
-          token.assert(tokens[position], "EOF", { type: "paren", value: ")" });
+          token.assert(tokens[position], "EOF", { type: TokenizerType.Bracket, value: ")" });
           position += 1;
           var node = {
-              type: "SpecialExpression",
-              name: "try",
-              params: [],
-              tryExpression: tryExpression,
-              catchExpression: catchExpression,
-              error: error,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "try",
+              p: [],
+              te: tryExpression,
+              ce: catchExpression,
+              e: error,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [position, node];
       },
@@ -1872,13 +1887,13 @@ var Lits = (function (exports) {
           var _b;
           var _c;
           var evaluateAstNode = _a.evaluateAstNode;
-          var _d = node, tryExpression = _d.tryExpression, catchExpression = _d.catchExpression, errorNode = _d.error;
+          var _d = node, tryExpression = _d.te, catchExpression = _d.ce, errorNode = _d.e;
           try {
               return evaluateAstNode(tryExpression, contextStack);
           }
           catch (error) {
               var newContext = (_b = {},
-                  _b[errorNode.value] = { value: any.as(error, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo) },
+                  _b[errorNode.v] = { value: any.as(error, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d) },
                   _b);
               return evaluateAstNode(catchExpression, contextStack.withContext(newContext));
           }
@@ -1886,10 +1901,10 @@ var Lits = (function (exports) {
       analyze: function (node, contextStack, _a) {
           var _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var _c = node, tryExpression = _c.tryExpression, catchExpression = _c.catchExpression, errorNode = _c.error;
+          var _c = node, tryExpression = _c.te, catchExpression = _c.ce, errorNode = _c.e;
           var tryResult = analyzeAst(tryExpression, contextStack, builtin);
           var newContext = (_b = {},
-              _b[errorNode.value] = { value: true },
+              _b[errorNode.v] = { value: true },
               _b);
           var catchResult = analyzeAst(catchExpression, contextStack.withContext(newContext), builtin);
           return joinAnalyzeResults(tryResult, catchResult);
@@ -1988,8 +2003,8 @@ var Lits = (function (exports) {
               return Math.sign(Object.keys(aObj).length - Object.keys(bObj).length);
           }
           case "regexp": {
-              var aString = a.source;
-              var bString = b.source;
+              var aString = a.s;
+              var bString = b.s;
               return aString < bString ? -1 : aString > bString ? 1 : 0;
           }
           case "unknown":
@@ -2015,7 +2030,7 @@ var Lits = (function (exports) {
           return true;
       }
       if (isRegularExpression(a) && isRegularExpression(b)) {
-          return a.source === b.source && a.flags === b.flags;
+          return a.s === b.s && a.f === b.f;
       }
       if (typeof a === "object" && a !== null && typeof b === "object" && b !== null) {
           var aObj = a;
@@ -2076,16 +2091,16 @@ var Lits = (function (exports) {
           var bindings;
           _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.debugInfo);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.d);
           }
           var params;
           _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
           var node = {
-              type: "SpecialExpression",
-              name: "when-first",
-              binding: asValue(bindings[0], firstToken.debugInfo),
-              params: params,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "when-first",
+              b: asValue(bindings[0], firstToken.d),
+              p: params,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [position + 1, node];
       },
@@ -2094,20 +2109,20 @@ var Lits = (function (exports) {
           var _c;
           var evaluateAstNode = _a.evaluateAstNode;
           var locals = {};
-          var binding = node.binding;
-          var evaluatedBindingForm = evaluateAstNode(binding.value, contextStack);
+          var binding = node.b;
+          var evaluatedBindingForm = evaluateAstNode(binding.v, contextStack);
           if (!sequence.is(evaluatedBindingForm)) {
-              throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString$1(evaluatedBindingForm)), (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+              throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString$1(evaluatedBindingForm)), (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
           }
           if (evaluatedBindingForm.length === 0) {
               return null;
           }
           var bindingValue = toAny(evaluatedBindingForm[0]);
-          locals[binding.name] = { value: bindingValue };
+          locals[binding.n] = { value: bindingValue };
           var newContextStack = contextStack.withContext(locals);
           var result = null;
           try {
-              for (var _d = __values(node.params), _e = _d.next(); !_e.done; _e = _d.next()) {
+              for (var _d = __values(node.p), _e = _d.next(); !_e.done; _e = _d.next()) {
                   var form = _e.value;
                   result = evaluateAstNode(form, newContextStack);
               }
@@ -2125,10 +2140,10 @@ var Lits = (function (exports) {
       analyze: function (node, contextStack, _a) {
           var _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var binding = node.binding;
-          var newContext = (_b = {}, _b[binding.name] = { value: true }, _b);
-          var bindingResult = analyzeAst(binding.value, contextStack, builtin);
-          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin);
+          var binding = node.b;
+          var newContext = (_b = {}, _b[binding.n] = { value: true }, _b);
+          var bindingResult = analyzeAst(binding.v, contextStack, builtin);
+          var paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin);
           return joinAnalyzeResults(bindingResult, paramsResult);
       },
   };
@@ -2141,33 +2156,33 @@ var Lits = (function (exports) {
           var bindings;
           _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.debugInfo);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.d);
           }
           var params;
           _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
           var node = {
-              type: "SpecialExpression",
-              name: "when-let",
-              binding: asValue(bindings[0], firstToken.debugInfo),
-              params: params,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "when-let",
+              b: asValue(bindings[0], firstToken.d),
+              p: params,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [position + 1, node];
       },
       evaluate: function (node, contextStack, _a) {
           var e_1, _b;
           var evaluateAstNode = _a.evaluateAstNode;
-          var binding = node.binding;
+          var binding = node.b;
           var locals = {};
-          var bindingValue = evaluateAstNode(binding.value, contextStack);
+          var bindingValue = evaluateAstNode(binding.v, contextStack);
           if (!bindingValue) {
               return null;
           }
-          locals[binding.name] = { value: bindingValue };
+          locals[binding.n] = { value: bindingValue };
           var newContextStack = contextStack.withContext(locals);
           var result = null;
           try {
-              for (var _c = __values(node.params), _d = _c.next(); !_d.done; _d = _c.next()) {
+              for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var form = _d.value;
                   result = evaluateAstNode(form, newContextStack);
               }
@@ -2185,10 +2200,10 @@ var Lits = (function (exports) {
       analyze: function (node, contextStack, _a) {
           var _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var binding = node.binding;
-          var newContext = (_b = {}, _b[binding.name] = { value: true }, _b);
-          var bindingResult = analyzeAst(binding.value, contextStack, builtin);
-          var paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin);
+          var binding = node.b;
+          var newContext = (_b = {}, _b[binding.n] = { value: true }, _b);
+          var bindingResult = analyzeAst(binding.v, contextStack, builtin);
+          var paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin);
           return joinAnalyzeResults(bindingResult, paramsResult);
       },
   };
@@ -2199,10 +2214,10 @@ var Lits = (function (exports) {
           var firstToken = token.as(tokens[position], "EOF");
           var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
           var node = {
-              type: "SpecialExpression",
-              name: "when-not",
-              params: params,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "when-not",
+              p: params,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [newPosition + 1, node];
       },
@@ -2210,8 +2225,8 @@ var Lits = (function (exports) {
           var e_1, _b;
           var _c;
           var evaluateAstNode = _a.evaluateAstNode;
-          var _d = __read(node.params), whenExpression = _d[0], body = _d.slice(1);
-          astNode.assert(whenExpression, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+          var _d = __read(node.p), whenExpression = _d[0], body = _d.slice(1);
+          astNode.assert(whenExpression, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
           if (evaluateAstNode(whenExpression, contextStack)) {
               return null;
           }
@@ -2234,7 +2249,7 @@ var Lits = (function (exports) {
       validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+          return analyzeAst(node.p, contextStack, builtin);
       },
   };
 
@@ -2244,10 +2259,10 @@ var Lits = (function (exports) {
           var firstToken = token.as(tokens[position], "EOF");
           var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
           var node = {
-              type: "SpecialExpression",
-              name: "when",
-              params: params,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "when",
+              p: params,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [newPosition + 1, node];
       },
@@ -2255,8 +2270,8 @@ var Lits = (function (exports) {
           var e_1, _b;
           var _c;
           var evaluateAstNode = _a.evaluateAstNode;
-          var _d = __read(node.params), whenExpression = _d[0], body = _d.slice(1);
-          astNode.assert(whenExpression, (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo);
+          var _d = __read(node.p), whenExpression = _d[0], body = _d.slice(1);
+          astNode.assert(whenExpression, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
           if (!evaluateAstNode(whenExpression, contextStack)) {
               return null;
           }
@@ -2279,7 +2294,7 @@ var Lits = (function (exports) {
       validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+          return analyzeAst(node.p, contextStack, builtin);
       },
   };
 
@@ -4539,10 +4554,10 @@ var Lits = (function (exports) {
       var name = value.name;
       if (litsFunction.is(value)) {
           if (name) {
-              return "<".concat(value.type, " function ").concat(name, ">");
+              return "<".concat(value.t, " function ").concat(name, ">");
           }
           else {
-              return "<".concat(value.type, " function \u03BB>");
+              return "<".concat(value.t, " function \u03BB>");
           }
       }
       return JSON.stringify(contextEntry.value);
@@ -5095,9 +5110,9 @@ var Lits = (function (exports) {
               var flags = string.is(flagsArg) ? flagsArg : "";
               return _b = {},
                   _b[REGEXP_SYMBOL] = true,
-                  _b.debugInfo = debugInfo,
-                  _b.source = source,
-                  _b.flags = flags,
+                  _b.d = debugInfo,
+                  _b.s = source,
+                  _b.f = flags,
                   _b;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
@@ -5107,7 +5122,7 @@ var Lits = (function (exports) {
               var _b = __read(_a, 2), regexp = _b[0], text = _b[1];
               regularExpression.assert(regexp, debugInfo);
               string.assert(text, debugInfo);
-              var regExp = new RegExp(regexp.source, regexp.flags);
+              var regExp = new RegExp(regexp.s, regexp.f);
               var match = regExp.exec(text);
               if (match) {
                   return __spreadArray([], __read(match), false);
@@ -5122,7 +5137,7 @@ var Lits = (function (exports) {
               string.assert(str, debugInfo);
               regularExpression.assert(regexp, debugInfo);
               string.assert(value, debugInfo);
-              var regExp = new RegExp(regexp.source, regexp.flags);
+              var regExp = new RegExp(regexp.s, regexp.f);
               return str.replace(regExp, value);
           },
           validate: function (node) { return assertNumberOfParams(3, node); },
@@ -5281,7 +5296,7 @@ var Lits = (function (exports) {
               }
               var delimiter = typeof stringOrRegExpValue === "string"
                   ? stringOrRegExpValue
-                  : new RegExp(stringOrRegExpValue.source, stringOrRegExpValue.flags);
+                  : new RegExp(stringOrRegExpValue.s, stringOrRegExpValue.f);
               return str.split(delimiter, limit);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
@@ -5433,10 +5448,10 @@ var Lits = (function (exports) {
               var _c = __read(_a), fn = _c[0], params = _c.slice(1);
               return _b = {},
                   _b[FUNCTION_SYMBOL] = true,
-                  _b.debugInfo = debugInfo,
-                  _b.type = "partial",
-                  _b.fn = toAny(fn),
-                  _b.params = params,
+                  _b.d = debugInfo,
+                  _b.t = FunctionType.Partial,
+                  _b.f = toAny(fn),
+                  _b.p = params,
                   _b;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
@@ -5452,9 +5467,9 @@ var Lits = (function (exports) {
               }
               return _a = {},
                   _a[FUNCTION_SYMBOL] = true,
-                  _a.debugInfo = debugInfo,
-                  _a.type = "comp",
-                  _a.fns = fns,
+                  _a.d = debugInfo,
+                  _a.t = FunctionType.Comp,
+                  _a.f = fns,
                   _a;
           },
       },
@@ -5464,9 +5479,9 @@ var Lits = (function (exports) {
               var _c = __read(_a, 1), value = _c[0];
               return _b = {},
                   _b[FUNCTION_SYMBOL] = true,
-                  _b.debugInfo = debugInfo,
-                  _b.type = "constantly",
-                  _b.value = toAny(value),
+                  _b.d = debugInfo,
+                  _b.t = FunctionType.Constantly,
+                  _b.v = toAny(value),
                   _b;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
@@ -5476,9 +5491,9 @@ var Lits = (function (exports) {
               var _a;
               return _a = {},
                   _a[FUNCTION_SYMBOL] = true,
-                  _a.debugInfo = debugInfo,
-                  _a.type = "juxt",
-                  _a.fns = fns,
+                  _a.d = debugInfo,
+                  _a.t = FunctionType.Juxt,
+                  _a.f = fns,
                   _a;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
@@ -5489,9 +5504,9 @@ var Lits = (function (exports) {
               var _c = __read(_a, 1), fn = _c[0];
               return _b = {},
                   _b[FUNCTION_SYMBOL] = true,
-                  _b.debugInfo = debugInfo,
-                  _b.type = "complement",
-                  _b.fn = toAny(fn),
+                  _b.d = debugInfo,
+                  _b.t = FunctionType.Complement,
+                  _b.f = toAny(fn),
                   _b;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
@@ -5501,9 +5516,9 @@ var Lits = (function (exports) {
               var _a;
               return _a = {},
                   _a[FUNCTION_SYMBOL] = true,
-                  _a.debugInfo = debugInfo,
-                  _a.type = "every-pred",
-                  _a.fns = fns,
+                  _a.d = debugInfo,
+                  _a.t = FunctionType.EveryPred,
+                  _a.f = fns,
                   _a;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
@@ -5513,9 +5528,9 @@ var Lits = (function (exports) {
               var _a;
               return _a = {},
                   _a[FUNCTION_SYMBOL] = true,
-                  _a.debugInfo = debugInfo,
-                  _a.type = "some-pred",
-                  _a.fns = fns,
+                  _a.d = debugInfo,
+                  _a.t = FunctionType.SomePred,
+                  _a.f = fns,
                   _a;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
@@ -5526,10 +5541,10 @@ var Lits = (function (exports) {
               var _c = __read(_a), fn = _c[0], params = _c.slice(1);
               return _b = {},
                   _b[FUNCTION_SYMBOL] = true,
-                  _b.debugInfo = debugInfo,
-                  _b.type = "fnil",
-                  _b.fn = toAny(fn),
-                  _b.params = params,
+                  _b.d = debugInfo,
+                  _b.t = FunctionType.Fnil,
+                  _b.f = toAny(fn),
+                  _b.p = params,
                   _b;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
@@ -5544,15 +5559,15 @@ var Lits = (function (exports) {
           var parseToken = _a.parseToken;
           var tkn = token.as(tokens[position], "EOF");
           var node = {
-              type: "SpecialExpression",
-              name: "comment",
-              params: [],
-              token: tkn.debugInfo ? tkn : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "comment",
+              p: [],
+              tkn: tkn.d ? tkn : undefined,
           };
-          while (!token.is(tkn, { type: "paren", value: ")" })) {
+          while (!token.is(tkn, { type: TokenizerType.Bracket, value: ")" })) {
               var bodyNode = void 0;
               _b = __read(parseToken(tokens, position), 2), position = _b[0], bodyNode = _b[1];
-              node.params.push(bodyNode);
+              node.p.push(bodyNode);
               tkn = token.as(tokens[position], "EOF");
           }
           return [position + 1, node];
@@ -5567,25 +5582,25 @@ var Lits = (function (exports) {
           var firstToken = token.as(tokens[position], "EOF");
           var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
           var node = {
-              type: "SpecialExpression",
-              name: "declared?",
-              params: params,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "declared?",
+              p: params,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [newPosition + 1, node];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var lookUp = _a.lookUp;
-          var _c = __read(node.params, 1), astNode = _c[0];
-          nameNode.assert(astNode, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          var _c = __read(node.p, 1), astNode = _c[0];
+          nameNode.assert(astNode, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
           var lookUpResult = lookUp(astNode, contextStack);
           return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
       },
       validate: function (node) { return assertNumberOfParams(1, node); },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+          return analyzeAst(node.p, contextStack, builtin);
       },
   };
 
@@ -5595,31 +5610,31 @@ var Lits = (function (exports) {
           var firstToken = token.as(tokens[position], "EOF");
           var _b = __read(parseTokens(tokens, position), 2), newPosition = _b[0], params = _b[1];
           var node = {
-              type: "SpecialExpression",
-              name: "??",
-              params: params,
-              token: firstToken.debugInfo ? firstToken : undefined,
+              t: AstNodeType.SpecialExpression,
+              n: "??",
+              p: params,
+              tkn: firstToken.d ? firstToken : undefined,
           };
           return [newPosition + 1, node];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var lookUp = _a.lookUp, evaluateAstNode = _a.evaluateAstNode;
-          var _c = __read(node.params, 2), firstNode = _c[0], secondNode = _c[1];
+          var _c = __read(node.p, 2), firstNode = _c[0], secondNode = _c[1];
           if (nameNode.is(firstNode)) {
               var lookUpResult = lookUp(firstNode, contextStack);
               if (!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression)) {
                   return secondNode ? evaluateAstNode(secondNode, contextStack) : null;
               }
           }
-          any.assert(firstNode, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          any.assert(firstNode, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
           var firstResult = evaluateAstNode(firstNode, contextStack);
           return firstResult ? firstResult : secondNode ? evaluateAstNode(secondNode, contextStack) : firstResult;
       },
       validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          return analyzeAst(node.params, contextStack, builtin);
+          return analyzeAst(node.p, contextStack, builtin);
       },
   };
 
@@ -5665,9 +5680,10 @@ var Lits = (function (exports) {
   var normalExpressionKeys = Object.keys(normalExpressions);
   var specialExpressionKeys = Object.keys(specialExpressions);
 
+  var _a;
   function findOverloadFunction(overloads, nbrOfParams, debugInfo) {
       var overloadFunction = overloads.find(function (overload) {
-          var arity = overload.arity;
+          var arity = overload.a;
           if (typeof arity === "number") {
               return arity === nbrOfParams;
           }
@@ -5680,15 +5696,15 @@ var Lits = (function (exports) {
       }
       return overloadFunction;
   }
-  var functionExecutors = {
-      'user-defined': function (fn, params, debugInfo, contextStack, _a) {
+  var functionExecutors = (_a = {},
+      _a[FunctionType.UserDefined] = function (fn, params, debugInfo, contextStack, _a) {
           var e_1, _b;
           var evaluateAstNode = _a.evaluateAstNode;
           for (;;) {
-              var overloadFunction = findOverloadFunction(fn.overloads, params.length, debugInfo);
-              var args = overloadFunction.arguments;
+              var overloadFunction = findOverloadFunction(fn.o, params.length, debugInfo);
+              var args = overloadFunction.as;
               var nbrOfMandatoryArgs = args.mandatoryArguments.length;
-              var newContext = __assign({}, overloadFunction.functionContext);
+              var newContext = __assign({}, overloadFunction.f);
               var length_1 = Math.max(params.length, args.mandatoryArguments.length);
               var rest = [];
               for (var i = 0; i < length_1; i += 1) {
@@ -5707,7 +5723,7 @@ var Lits = (function (exports) {
               try {
                   var result = null;
                   try {
-                      for (var _c = (e_1 = void 0, __values(overloadFunction.body)), _d = _c.next(); !_d.done; _d = _c.next()) {
+                      for (var _c = (e_1 = void 0, __values(overloadFunction.b)), _d = _c.next(); !_d.done; _d = _c.next()) {
                           var node = _d.value;
                           result = evaluateAstNode(node, contextStack.withContext(newContext));
                       }
@@ -5730,39 +5746,39 @@ var Lits = (function (exports) {
               }
           }
       },
-      partial: function (fn, params, debugInfo, contextStack, _a) {
+      _a[FunctionType.Partial] = function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          return executeFunction(fn.fn, __spreadArray(__spreadArray([], __read(fn.params), false), __read(params), false), contextStack, debugInfo);
+          return executeFunction(fn.f, __spreadArray(__spreadArray([], __read(fn.p), false), __read(params), false), contextStack, debugInfo);
       },
-      comp: function (fn, params, debugInfo, contextStack, _a) {
+      _a[FunctionType.Comp] = function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          var fns = fn.fns;
-          if (fns.length === 0) {
+          var f = fn.f;
+          if (f.length === 0) {
               if (params.length !== 1) {
                   throw new LitsError("(comp) expects one argument, got ".concat(valueToString$1(params.length), "."), debugInfo);
               }
               return any.as(params[0], debugInfo);
           }
-          return any.as(fns.reduceRight(function (result, fn) {
+          return any.as(f.reduceRight(function (result, fn) {
               return [executeFunction(toAny(fn), result, contextStack, debugInfo)];
           }, params)[0], debugInfo);
       },
-      constantly: function (fn) {
-          return fn.value;
+      _a[FunctionType.Constantly] = function (fn) {
+          return fn.v;
       },
-      juxt: function (fn, params, debugInfo, contextStack, _a) {
+      _a[FunctionType.Juxt] = function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          return fn.fns.map(function (fn) { return executeFunction(toAny(fn), params, contextStack, debugInfo); });
+          return fn.f.map(function (fn) { return executeFunction(toAny(fn), params, contextStack, debugInfo); });
       },
-      complement: function (fn, params, debugInfo, contextStack, _a) {
+      _a[FunctionType.Complement] = function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          return !executeFunction(fn.fn, params, contextStack, debugInfo);
+          return !executeFunction(fn.f, params, contextStack, debugInfo);
       },
-      'every-pred': function (fn, params, debugInfo, contextStack, _a) {
+      _a[FunctionType.EveryPred] = function (fn, params, debugInfo, contextStack, _a) {
           var e_2, _b, e_3, _c;
           var executeFunction = _a.executeFunction;
           try {
-              for (var _d = __values(fn.fns), _e = _d.next(); !_e.done; _e = _d.next()) {
+              for (var _d = __values(fn.f), _e = _d.next(); !_e.done; _e = _d.next()) {
                   var f = _e.value;
                   try {
                       for (var params_1 = (e_3 = void 0, __values(params)), params_1_1 = params_1.next(); !params_1_1.done; params_1_1 = params_1.next()) {
@@ -5791,11 +5807,11 @@ var Lits = (function (exports) {
           }
           return true;
       },
-      'some-pred': function (fn, params, debugInfo, contextStack, _a) {
+      _a[FunctionType.SomePred] = function (fn, params, debugInfo, contextStack, _a) {
           var e_4, _b, e_5, _c;
           var executeFunction = _a.executeFunction;
           try {
-              for (var _d = __values(fn.fns), _e = _d.next(); !_e.done; _e = _d.next()) {
+              for (var _d = __values(fn.f), _e = _d.next(); !_e.done; _e = _d.next()) {
                   var f = _e.value;
                   try {
                       for (var params_2 = (e_5 = void 0, __values(params)), params_2_1 = params_2.next(); !params_2_1.done; params_2_1 = params_2.next()) {
@@ -5824,17 +5840,17 @@ var Lits = (function (exports) {
           }
           return false;
       },
-      fnil: function (fn, params, debugInfo, contextStack, _a) {
+      _a[FunctionType.Fnil] = function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          var fniledParams = params.map(function (param, index) { return (param === null ? toAny(fn.params[index]) : param); });
-          return executeFunction(toAny(fn.fn), fniledParams, contextStack, debugInfo);
+          var fniledParams = params.map(function (param, index) { return (param === null ? toAny(fn.p[index]) : param); });
+          return executeFunction(toAny(fn.f), fniledParams, contextStack, debugInfo);
       },
-      builtin: function (fn, params, debugInfo, contextStack, _a) {
+      _a[FunctionType.Builtin] = function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          var normalExpression = asValue(normalExpressions[fn.name], debugInfo);
+          var normalExpression = asValue(normalExpressions[fn.n], debugInfo);
           return normalExpression.evaluate(params, debugInfo, contextStack, { executeFunction: executeFunction });
       },
-  };
+      _a);
 
   function createContextStack(contexts) {
       if (contexts === void 0) { contexts = []; }
@@ -5858,7 +5874,7 @@ var Lits = (function (exports) {
       var e_1, _a;
       var result = null;
       try {
-          for (var _b = __values(ast.body), _c = _b.next(); !_c.done; _c = _b.next()) {
+          for (var _b = __values(ast.b), _c = _b.next(); !_c.done; _c = _b.next()) {
               var node = _c.value;
               result = evaluateAstNode(node, contextStack);
           }
@@ -5874,32 +5890,32 @@ var Lits = (function (exports) {
   }
   var evaluateAstNode = function (node, contextStack) {
       var _a;
-      switch (node.type) {
-          case "Number":
+      switch (node.t) {
+          case AstNodeType.Number:
               return evaluateNumber(node);
-          case "String":
+          case AstNodeType.String:
               return evaluateString(node);
-          case "Name":
+          case AstNodeType.Name:
               return evaluateName(node, contextStack);
-          case "ReservedName":
+          case AstNodeType.ReservedName:
               return evaluateReservedName(node);
-          case "NormalExpression":
+          case AstNodeType.NormalExpression:
               return evaluateNormalExpression(node, contextStack);
-          case "SpecialExpression":
+          case AstNodeType.SpecialExpression:
               return evaluateSpecialExpression(node, contextStack);
           default:
-              throw new LitsError("".concat(node.type, "-node cannot be evaluated"), (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
+              throw new LitsError("".concat(node.t, "-node cannot be evaluated"), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
       }
   };
   function evaluateNumber(node) {
-      return node.value;
+      return node.v;
   }
   function evaluateString(node) {
-      return node.value;
+      return node.v;
   }
   function evaluateReservedName(node) {
       var _a;
-      return asValue(reservedNamesRecord[node.value], (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo).value;
+      return asValue(reservedNamesRecord[node.v], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d).value;
   }
   function evaluateName(node, contextStack) {
       var _a;
@@ -5910,13 +5926,13 @@ var Lits = (function (exports) {
       else if (lookUpResult.builtinFunction) {
           return lookUpResult.builtinFunction;
       }
-      throw new UndefinedSymbolError(node.value, (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
+      throw new UndefinedSymbolError(node.v, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
   }
   function lookUp(node, contextStack) {
       var e_2, _a, _b;
       var _c;
-      var value = node.value;
-      var debugInfo = (_c = node.token) === null || _c === void 0 ? void 0 : _c.debugInfo;
+      var value = node.v;
+      var debugInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d;
       try {
           for (var _d = __values(contextStack.stack), _e = _d.next(); !_e.done; _e = _d.next()) {
               var context = _e.value;
@@ -5940,9 +5956,9 @@ var Lits = (function (exports) {
       if (builtin.normalExpressions[value]) {
           var builtinFunction = (_b = {},
               _b[FUNCTION_SYMBOL] = true,
-              _b.debugInfo = debugInfo,
-              _b.type = "builtin",
-              _b.name = value,
+              _b.d = debugInfo,
+              _b.t = FunctionType.Builtin,
+              _b.n = value,
               _b);
           return {
               builtinFunction: builtinFunction,
@@ -5966,13 +5982,13 @@ var Lits = (function (exports) {
   function evaluateNormalExpression(node, contextStack) {
       var e_3, _a;
       var _b, _c;
-      var params = node.params.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
-      var debugInfo = (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo;
+      var params = node.p.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
+      var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
       if (normalExpressionNodeWithName.is(node)) {
           try {
               for (var _d = __values(contextStack.stack), _e = _d.next(); !_e.done; _e = _d.next()) {
                   var context = _e.value;
-                  var fn = (_c = context[node.name]) === null || _c === void 0 ? void 0 : _c.value;
+                  var fn = (_c = context[node.n]) === null || _c === void 0 ? void 0 : _c.value;
                   if (fn === undefined) {
                       continue;
                   }
@@ -5989,13 +6005,13 @@ var Lits = (function (exports) {
           return evaluateBuiltinNormalExpression(node, params, contextStack);
       }
       else {
-          var fn = evaluateAstNode(node.expression, contextStack);
+          var fn = evaluateAstNode(node.e, contextStack);
           return executeFunction(fn, params, contextStack, debugInfo);
       }
   }
   var executeFunction = function (fn, params, contextStack, debugInfo) {
       if (litsFunction.is(fn)) {
-          return functionExecutors[fn.type](fn, params, debugInfo, contextStack, { evaluateAstNode: evaluateAstNode, executeFunction: executeFunction });
+          return functionExecutors[fn.t](fn, params, debugInfo, contextStack, { evaluateAstNode: evaluateAstNode, executeFunction: executeFunction });
       }
       if (Array.isArray(fn)) {
           return evaluateArrayAsFunction(fn, params, debugInfo);
@@ -6013,15 +6029,15 @@ var Lits = (function (exports) {
   };
   function evaluateBuiltinNormalExpression(node, params, contextStack) {
       var _a, _b;
-      var normalExpression = builtin.normalExpressions[node.name];
+      var normalExpression = builtin.normalExpressions[node.n];
       if (!normalExpression) {
-          throw new UndefinedSymbolError(node.name, (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
+          throw new UndefinedSymbolError(node.n, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
       }
-      return normalExpression.evaluate(params, (_b = node.token) === null || _b === void 0 ? void 0 : _b.debugInfo, contextStack, { executeFunction: executeFunction });
+      return normalExpression.evaluate(params, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d, contextStack, { executeFunction: executeFunction });
   }
   function evaluateSpecialExpression(node, contextStack) {
       var _a;
-      var specialExpression = asValue(builtin.specialExpressions[node.name], (_a = node.token) === null || _a === void 0 ? void 0 : _a.debugInfo);
+      var specialExpression = asValue(builtin.specialExpressions[node.n], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
       return specialExpression.evaluate(node, contextStack, { evaluateAstNode: evaluateAstNode, builtin: builtin, lookUp: lookUp });
   }
   function evalueateObjectAsFunction(fn, params, debugInfo) {
@@ -6089,37 +6105,37 @@ var Lits = (function (exports) {
       var e_2, _a;
       var _b;
       var emptySet = new Set();
-      switch (astNode.type) {
-          case "Name": {
+      switch (astNode.t) {
+          case AstNodeType.Name: {
               var lookUpResult = lookUp(astNode, contextStack);
               if (!lookUpResult.builtinFunction && !lookUpResult.contextEntry && !lookUpResult.specialExpression) {
-                  return { undefinedSymbols: new Set([{ symbol: astNode.value, token: astNode.token }]) };
+                  return { undefinedSymbols: new Set([{ symbol: astNode.v, token: astNode.tkn }]) };
               }
               return { undefinedSymbols: emptySet };
           }
-          case "String":
-          case "Number":
-          case "Modifier":
-          case "ReservedName":
+          case AstNodeType.String:
+          case AstNodeType.Number:
+          case AstNodeType.Modifier:
+          case AstNodeType.ReservedName:
               return { undefinedSymbols: emptySet };
-          case "NormalExpression": {
+          case AstNodeType.NormalExpression: {
               var undefinedSymbols_1 = new Set();
-              var expression = astNode.expression, name_1 = astNode.name, token = astNode.token;
+              var expression = astNode.e, name_1 = astNode.n, token = astNode.tkn;
               if (typeof name_1 === "string") {
-                  var lookUpResult = lookUp({ type: "Name", value: name_1, token: token }, contextStack);
+                  var lookUpResult = lookUp({ t: AstNodeType.Name, v: name_1, tkn: token }, contextStack);
                   if (lookUpResult.builtinFunction === null &&
                       lookUpResult.contextEntry === null &&
                       lookUpResult.specialExpression === null) {
-                      undefinedSymbols_1.add({ symbol: name_1, token: astNode.token });
+                      undefinedSymbols_1.add({ symbol: name_1, token: astNode.tkn });
                   }
               }
               if (expression) {
-                  switch (expression.type) {
-                      case "String":
-                      case "Number":
+                  switch (expression.t) {
+                      case AstNodeType.String:
+                      case AstNodeType.Number:
                           break;
-                      case "NormalExpression":
-                      case "SpecialExpression": {
+                      case AstNodeType.NormalExpression:
+                      case AstNodeType.SpecialExpression: {
                           var subResult = analyzeAstNode(expression, contextStack, builtin);
                           subResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
                           break;
@@ -6127,7 +6143,7 @@ var Lits = (function (exports) {
                   }
               }
               try {
-                  for (var _c = __values(astNode.params), _d = _c.next(); !_d.done; _d = _c.next()) {
+                  for (var _c = __values(astNode.p), _d = _c.next(); !_d.done; _d = _c.next()) {
                       var subNode = _d.value;
                       var subNodeResult = analyzeAst(subNode, contextStack, builtin);
                       subNodeResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
@@ -6142,8 +6158,8 @@ var Lits = (function (exports) {
               }
               return { undefinedSymbols: undefinedSymbols_1 };
           }
-          case "SpecialExpression": {
-              var specialExpression = asValue(builtin.specialExpressions[astNode.name], (_b = astNode.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+          case AstNodeType.SpecialExpression: {
+              var specialExpression = asValue(builtin.specialExpressions[astNode.n], (_b = astNode.tkn) === null || _b === void 0 ? void 0 : _b.d);
               var result = specialExpression.analyze(astNode, contextStack, {
                   analyzeAst: analyzeAst,
                   builtin: builtin,
@@ -6155,29 +6171,26 @@ var Lits = (function (exports) {
 
   var parseNumber = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
-      return [position + 1, { type: "Number", value: Number(tkn.value), token: tkn.debugInfo ? tkn : undefined }];
+      return [position + 1, { t: AstNodeType.Number, v: Number(tkn.v), tkn: tkn.d ? tkn : undefined }];
   };
   var parseString = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
-      return [position + 1, { type: "String", value: tkn.value, token: tkn.debugInfo ? tkn : undefined }];
+      return [position + 1, { t: AstNodeType.String, v: tkn.v, tkn: tkn.d ? tkn : undefined }];
   };
   var parseName = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
-      return [position + 1, { type: "Name", value: tkn.value, token: tkn.debugInfo ? tkn : undefined }];
+      return [position + 1, { t: AstNodeType.Name, v: tkn.v, tkn: tkn.d ? tkn : undefined }];
   };
   var parseReservedName = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
-      return [
-          position + 1,
-          { type: "ReservedName", value: tkn.value, token: tkn.debugInfo ? tkn : undefined },
-      ];
+      return [position + 1, { t: AstNodeType.ReservedName, v: tkn.v, tkn: tkn.d ? tkn : undefined }];
   };
   var parseTokens = function (tokens, position) {
       var _a;
       var tkn = token.as(tokens[position], "EOF");
       var astNodes = [];
       var astNode;
-      while (!(tkn.type === "paren" && (tkn.value === ")" || tkn.value === "]"))) {
+      while (!(tkn.t === TokenizerType.Bracket && (tkn.v === ")" || tkn.v === "]"))) {
           _a = __read(parseToken(tokens, position), 2), position = _a[0], astNode = _a[1];
           astNodes.push(astNode);
           tkn = token.as(tokens[position], "EOF");
@@ -6187,7 +6200,7 @@ var Lits = (function (exports) {
   var parseExpression = function (tokens, position) {
       position += 1; // Skip parenthesis
       var tkn = token.as(tokens[position], "EOF");
-      if (tkn.type === "name" && builtin.specialExpressions[tkn.value]) {
+      if (tkn.t === TokenizerType.Name && builtin.specialExpressions[tkn.v]) {
           return parseSpecialExpression(tokens, position);
       }
       return parseNormalExpression(tokens, position);
@@ -6199,17 +6212,17 @@ var Lits = (function (exports) {
       var tkn = token.as(tokens[position], "EOF");
       var params = [];
       var param;
-      while (!(tkn.type === "paren" && tkn.value === "]")) {
+      while (!(tkn.t === TokenizerType.Bracket && tkn.v === "]")) {
           _a = __read(parseToken(tokens, position), 2), position = _a[0], param = _a[1];
           params.push(param);
           tkn = token.as(tokens[position], "EOF");
       }
       position = position + 1;
       var node = {
-          type: "NormalExpression",
-          name: "array",
-          params: params,
-          token: firstToken.debugInfo ? firstToken : undefined,
+          t: AstNodeType.NormalExpression,
+          n: "array",
+          p: params,
+          tkn: firstToken.d ? firstToken : undefined,
       };
       return [position, node];
   };
@@ -6220,17 +6233,17 @@ var Lits = (function (exports) {
       var tkn = token.as(tokens[position], "EOF");
       var params = [];
       var param;
-      while (!(tkn.type === "paren" && tkn.value === "}")) {
+      while (!(tkn.t === TokenizerType.Bracket && tkn.v === "}")) {
           _a = __read(parseToken(tokens, position), 2), position = _a[0], param = _a[1];
           params.push(param);
           tkn = token.as(tokens[position], "EOF");
       }
       position = position + 1;
       var node = {
-          type: "NormalExpression",
-          name: "object",
-          params: params,
-          token: firstToken.debugInfo ? firstToken : undefined,
+          t: AstNodeType.NormalExpression,
+          n: "object",
+          p: params,
+          tkn: firstToken.d ? firstToken : undefined,
       };
       assertEventNumberOfParams(node);
       return [position, node];
@@ -6238,21 +6251,21 @@ var Lits = (function (exports) {
   var parseRegexpShorthand = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
       var stringNode = {
-          type: "String",
-          value: tkn.value,
-          token: tkn.debugInfo ? tkn : undefined,
+          t: AstNodeType.String,
+          v: tkn.v,
+          tkn: tkn.d ? tkn : undefined,
       };
-      assertValue(tkn.options, tkn.debugInfo);
+      assertValue(tkn.o, tkn.d);
       var optionsNode = {
-          type: "String",
-          value: "".concat(tkn.options.g ? "g" : "").concat(tkn.options.i ? "i" : ""),
-          token: tkn.debugInfo ? tkn : undefined,
+          t: AstNodeType.String,
+          v: "".concat(tkn.o.g ? "g" : "").concat(tkn.o.i ? "i" : ""),
+          tkn: tkn.d ? tkn : undefined,
       };
       var node = {
-          type: "NormalExpression",
-          name: "regexp",
-          params: [stringNode, optionsNode],
-          token: tkn.debugInfo ? tkn : undefined,
+          t: AstNodeType.NormalExpression,
+          n: "regexp",
+          p: [stringNode, optionsNode],
+          tkn: tkn.d ? tkn : undefined,
       };
       return [position + 1, node];
   };
@@ -6264,17 +6277,17 @@ var Lits = (function (exports) {
       var arity = 0;
       for (var pos = position + 1; pos < newPosition - 1; pos += 1) {
           var tkn = token.as(tokens[pos], "EOF");
-          if (tkn.type === "name") {
-              var match = placeholderRegexp.exec(tkn.value);
+          if (tkn.t === TokenizerType.Name) {
+              var match = placeholderRegexp.exec(tkn.v);
               if (match) {
                   arity = Math.max(arity, Number(match[1]));
                   if (arity > 20) {
-                      throw new LitsError("Can't specify more than 20 arguments", firstToken.debugInfo);
+                      throw new LitsError("Can't specify more than 20 arguments", firstToken.d);
                   }
               }
           }
-          if (tkn.type === "fnShorthand") {
-              throw new LitsError("Nested shortcut functions are not allowed", firstToken.debugInfo);
+          if (tkn.t === TokenizerType.FnShorthand) {
+              throw new LitsError("Nested shortcut functions are not allowed", firstToken.d);
           }
       }
       var mandatoryArguments = [];
@@ -6282,45 +6295,45 @@ var Lits = (function (exports) {
           mandatoryArguments.push("%".concat(i));
       }
       var args = {
-          bindings: [],
-          mandatoryArguments: mandatoryArguments,
+          b: [],
+          m: mandatoryArguments,
       };
       var node = {
-          type: "SpecialExpression",
-          name: "fn",
-          params: [],
-          overloads: [
+          t: AstNodeType.SpecialExpression,
+          n: "fn",
+          p: [],
+          o: [
               {
-                  arguments: args,
-                  body: [expressionNode],
-                  arity: args.mandatoryArguments.length,
+                  as: args,
+                  b: [expressionNode],
+                  a: args.m.length,
               },
           ],
-          token: firstToken.debugInfo ? firstToken : undefined,
+          tkn: firstToken.d ? firstToken : undefined,
       };
       return [newPosition, node];
   };
   var parseArgument = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
-      if (tkn.type === "name") {
-          return [position + 1, { type: "Argument", name: tkn.value, token: tkn }];
+      if (tkn.t === TokenizerType.Name) {
+          return [position + 1, { t: AstNodeType.Argument, n: tkn.v, tkn: tkn }];
       }
-      else if (tkn.type === "modifier") {
-          var value = tkn.value;
-          return [position + 1, { type: "Modifier", value: value, token: tkn.debugInfo ? tkn : undefined }];
+      else if (tkn.t === TokenizerType.Modifier) {
+          var value = tkn.v;
+          return [position + 1, { t: AstNodeType.Modifier, v: value, tkn: tkn.d ? tkn : undefined }];
       }
       else {
-          throw new LitsError("Expected name or modifier token, got ".concat(valueToString$1(tkn), "."), tkn.debugInfo);
+          throw new LitsError("Expected name or modifier token, got ".concat(valueToString$1(tkn), "."), tkn.d);
       }
   };
   var parseBindings = function (tokens, position) {
       var _a;
-      var tkn = token.as(tokens[position], "EOF", { type: "paren", value: "[" });
+      var tkn = token.as(tokens[position], "EOF", { type: TokenizerType.Bracket, value: "[" });
       position += 1;
       tkn = token.as(tokens[position], "EOF");
       var bindings = [];
       var binding;
-      while (!(tkn.type === "paren" && tkn.value === "]")) {
+      while (!(tkn.t === TokenizerType.Bracket && tkn.v === "]")) {
           _a = __read(parseBinding(tokens, position), 2), position = _a[0], binding = _a[1];
           bindings.push(binding);
           tkn = token.as(tokens[position], "EOF");
@@ -6330,16 +6343,16 @@ var Lits = (function (exports) {
   };
   var parseBinding = function (tokens, position) {
       var _a;
-      var firstToken = token.as(tokens[position], "EOF", { type: "name" });
-      var name = firstToken.value;
+      var firstToken = token.as(tokens[position], "EOF", { type: TokenizerType.Name });
+      var name = firstToken.v;
       position += 1;
       var value;
       _a = __read(parseToken(tokens, position), 2), position = _a[0], value = _a[1];
       var node = {
-          type: "Binding",
-          name: name,
-          value: value,
-          token: firstToken.debugInfo ? firstToken : undefined,
+          t: AstNodeType.Binding,
+          n: name,
+          v: value,
+          tkn: firstToken.d ? firstToken : undefined,
       };
       return [position, node];
   };
@@ -6352,28 +6365,28 @@ var Lits = (function (exports) {
       position += 1;
       if (expressionNode.is(fnNode)) {
           var node_1 = {
-              type: "NormalExpression",
-              expression: fnNode,
-              params: params,
-              token: fnNode.token,
+              t: AstNodeType.NormalExpression,
+              e: fnNode,
+              p: params,
+              tkn: fnNode.tkn,
           };
           return [position, node_1];
       }
-      nameNode.assert(fnNode, (_b = fnNode.token) === null || _b === void 0 ? void 0 : _b.debugInfo);
+      nameNode.assert(fnNode, (_b = fnNode.tkn) === null || _b === void 0 ? void 0 : _b.d);
       var node = {
-          type: "NormalExpression",
-          name: fnNode.value,
-          params: params,
-          token: fnNode.token,
+          t: AstNodeType.NormalExpression,
+          n: fnNode.v,
+          p: params,
+          tkn: fnNode.tkn,
       };
-      var builtinExpression = builtin.normalExpressions[node.name];
+      var builtinExpression = builtin.normalExpressions[node.n];
       if (builtinExpression) {
           (_c = builtinExpression.validate) === null || _c === void 0 ? void 0 : _c.call(builtinExpression, node);
       }
       return [position, node];
   };
   var parseSpecialExpression = function (tokens, position) {
-      var _a = token.as(tokens[position], "EOF"), expressionName = _a.value, debugInfo = _a.debugInfo;
+      var _a = token.as(tokens[position], "EOF"), expressionName = _a.v, debugInfo = _a.d;
       position += 1;
       var _b = asValue(builtin.specialExpressions[expressionName], debugInfo), parse = _b.parse, validate = _b.validate;
       var _c = __read(parse(tokens, position, {
@@ -6389,94 +6402,93 @@ var Lits = (function (exports) {
   };
   var parseToken = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
-      switch (tkn.type) {
-          case "number":
+      switch (tkn.t) {
+          case TokenizerType.Number:
               return parseNumber(tokens, position);
-          case "string":
+          case TokenizerType.String:
               return parseString(tokens, position);
-          case "name":
+          case TokenizerType.Name:
               return parseName(tokens, position);
-          case "reservedName":
+          case TokenizerType.ReservedName:
               return parseReservedName(tokens, position);
-          case "paren":
-              if (tkn.value === "(") {
+          case TokenizerType.Bracket:
+              if (tkn.v === "(") {
                   return parseExpression(tokens, position);
               }
-              else if (tkn.value === "[") {
+              else if (tkn.v === "[") {
                   return parseArrayLitteral(tokens, position);
               }
-              else if (tkn.value === "{") {
+              else if (tkn.v === "{") {
                   return parseObjectLitteral(tokens, position);
               }
               break;
-          case "regexpShorthand":
+          case TokenizerType.RegexpShorthand:
               return parseRegexpShorthand(tokens, position);
-          case "fnShorthand":
+          case TokenizerType.FnShorthand:
               return parseFnShorthand(tokens, position);
-          case "collectionAccessor":
-          case "modifier":
+          case TokenizerType.CollectionAccessor:
+          case TokenizerType.Modifier:
               break;
           /* istanbul ignore next */
           default:
-              assertUnreachable(tkn.type);
+              assertUnreachable(tkn.t);
       }
-      throw new LitsError("Unrecognized token: ".concat(tkn.type, " value=").concat(tkn.value), tkn.debugInfo);
+      throw new LitsError("Unrecognized token: ".concat(tkn.t, " value=").concat(tkn.v), tkn.d);
   };
 
   function parse(tokens) {
       var _a;
       var ast = {
-          type: "Program",
-          body: [],
+          b: [],
       };
       var position = 0;
       var node;
       while (position < tokens.length) {
           _a = __read(parseToken(tokens, position), 2), position = _a[0], node = _a[1];
-          ast.body.push(node);
+          ast.b.push(node);
       }
       return ast;
   }
 
   var applyCollectionAccessors = function (tokens) {
-      var dotTokenIndex = tokens.findIndex(function (tkn) { return tkn.type === "collectionAccessor"; });
+      var dotTokenIndex = tokens.findIndex(function (tkn) { return tkn.t === TokenizerType.CollectionAccessor; });
       while (dotTokenIndex >= 0) {
           applyCollectionAccessor(tokens, dotTokenIndex);
-          dotTokenIndex = tokens.findIndex(function (tkn) { return tkn.type === "collectionAccessor"; });
+          dotTokenIndex = tokens.findIndex(function (tkn) { return tkn.t === TokenizerType.CollectionAccessor; });
       }
       return tokens;
   };
   function applyCollectionAccessor(tokens, position) {
       var dotTkn = asValue(tokens[position]);
-      var debugInfo = dotTkn.debugInfo;
+      var debugInfo = dotTkn.d;
       var backPosition = getPositionBackwards(tokens, position, debugInfo);
       checkForward(tokens, position, dotTkn, debugInfo);
       tokens.splice(position, 1);
       tokens.splice(backPosition, 0, {
-          type: "paren",
-          value: "(",
-          debugInfo: debugInfo,
+          t: TokenizerType.Bracket,
+          v: "(",
+          d: debugInfo,
       });
       var nextTkn = asValue(tokens[position + 1]);
-      if (dotTkn.value === ".") {
+      if (dotTkn.v === ".") {
           tokens[position + 1] = {
-              type: "string",
-              value: nextTkn.value,
-              debugInfo: nextTkn.debugInfo,
+              t: TokenizerType.String,
+              v: nextTkn.v,
+              d: nextTkn.d,
           };
       }
       else {
-          number.assert(Number(nextTkn.value), debugInfo, { integer: true, nonNegative: true });
+          number.assert(Number(nextTkn.v), debugInfo, { integer: true, nonNegative: true });
           tokens[position + 1] = {
-              type: "number",
-              value: nextTkn.value,
-              debugInfo: nextTkn.debugInfo,
+              t: TokenizerType.Number,
+              v: nextTkn.v,
+              d: nextTkn.d,
           };
       }
       tokens.splice(position + 2, 0, {
-          type: "paren",
-          value: ")",
-          debugInfo: debugInfo,
+          t: TokenizerType.Bracket,
+          v: ")",
+          d: debugInfo,
       });
   }
   function getPositionBackwards(tokens, position, debugInfo) {
@@ -6487,8 +6499,8 @@ var Lits = (function (exports) {
       var prevToken = asValue(tokens[position - 1]);
       var openBracket = null;
       var closeBracket = null;
-      if (prevToken.type === "paren") {
-          switch (prevToken.value) {
+      if (prevToken.t === TokenizerType.Bracket) {
+          switch (prevToken.v) {
               case ")":
                   openBracket = "(";
                   closeBracket = ")";
@@ -6509,18 +6521,18 @@ var Lits = (function (exports) {
           bracketCount = bracketCount === null ? 0 : bracketCount;
           position -= 1;
           var tkn = asValue(tokens[position], debugInfo);
-          if (tkn.type === "paren") {
-              if (tkn.value === openBracket) {
+          if (tkn.t === TokenizerType.Bracket) {
+              if (tkn.v === openBracket) {
                   bracketCount += 1;
               }
-              if (tkn.value === closeBracket) {
+              if (tkn.v === closeBracket) {
                   bracketCount -= 1;
               }
           }
       }
       if (openBracket === "(" && position > 0) {
           var prevToken_1 = asValue(tokens[position - 1]);
-          if (prevToken_1.type === "fnShorthand") {
+          if (prevToken_1.t === TokenizerType.FnShorthand) {
               throw new LitsError("# or . must NOT be preceeded by shorthand lambda function", debugInfo);
           }
       }
@@ -6528,10 +6540,10 @@ var Lits = (function (exports) {
   }
   function checkForward(tokens, position, dotTkn, debugInfo) {
       var tkn = asValue(tokens[position + 1], debugInfo);
-      if (dotTkn.value === "." && tkn.type !== "name") {
+      if (dotTkn.v === "." && tkn.t !== TokenizerType.Name) {
           throw new LitsError("# as a collection accessor must be followed by an name", debugInfo);
       }
-      if (dotTkn.value === "#" && tkn.type !== "number") {
+      if (dotTkn.v === "#" && tkn.t !== TokenizerType.Number) {
           throw new LitsError("# as a collection accessor must be followed by an integer", debugInfo);
       }
   }
@@ -6561,22 +6573,22 @@ var Lits = (function (exports) {
       return NO_MATCH;
   };
   var tokenizeLeftParen = function (input, position, debugInfo) {
-      return tokenizeCharacter("paren", "(", input, position, debugInfo);
+      return tokenizeCharacter(TokenizerType.Bracket, "(", input, position, debugInfo);
   };
   var tokenizeRightParen = function (input, position, debugInfo) {
-      return tokenizeCharacter("paren", ")", input, position, debugInfo);
+      return tokenizeCharacter(TokenizerType.Bracket, ")", input, position, debugInfo);
   };
   var tokenizeLeftBracket = function (input, position, debugInfo) {
-      return tokenizeCharacter("paren", "[", input, position, debugInfo);
+      return tokenizeCharacter(TokenizerType.Bracket, "[", input, position, debugInfo);
   };
   var tokenizeRightBracket = function (input, position, debugInfo) {
-      return tokenizeCharacter("paren", "]", input, position, debugInfo);
+      return tokenizeCharacter(TokenizerType.Bracket, "]", input, position, debugInfo);
   };
   var tokenizeLeftCurly = function (input, position, debugInfo) {
-      return tokenizeCharacter("paren", "{", input, position, debugInfo);
+      return tokenizeCharacter(TokenizerType.Bracket, "{", input, position, debugInfo);
   };
   var tokenizeRightCurly = function (input, position, debugInfo) {
-      return tokenizeCharacter("paren", "}", input, position, debugInfo);
+      return tokenizeCharacter(TokenizerType.Bracket, "}", input, position, debugInfo);
   };
   var tokenizeString = function (input, position, debugInfo) {
       if (input[position] !== "\"") {
@@ -6611,7 +6623,7 @@ var Lits = (function (exports) {
           }
           char = input[position + length];
       }
-      return [length + 1, { type: "string", value: value, debugInfo: debugInfo }];
+      return [length + 1, { t: TokenizerType.String, v: value, d: debugInfo }];
   };
   var tokenizeCollectionAccessor = function (input, position, debugInfo) {
       var char = input[position];
@@ -6621,9 +6633,9 @@ var Lits = (function (exports) {
       return [
           1,
           {
-              type: "collectionAccessor",
-              value: char,
-              debugInfo: debugInfo,
+              t: TokenizerType.CollectionAccessor,
+              v: char,
+              d: debugInfo,
           },
       ];
   };
@@ -6642,7 +6654,7 @@ var Lits = (function (exports) {
       if (length === 1) {
           return NO_MATCH;
       }
-      return [length, { type: "string", value: value, debugInfo: debugInfo }];
+      return [length, { t: TokenizerType.String, v: value, d: debugInfo }];
   };
   var tokenizeRegexpShorthand = function (input, position, debugInfo) {
       var _a;
@@ -6679,10 +6691,10 @@ var Lits = (function (exports) {
       return [
           length,
           {
-              type: "regexpShorthand",
-              value: token.value,
-              options: options,
-              debugInfo: debugInfo,
+              t: TokenizerType.RegexpShorthand,
+              v: token.v,
+              o: options,
+              d: debugInfo,
           },
       ];
   };
@@ -6693,9 +6705,9 @@ var Lits = (function (exports) {
       return [
           1,
           {
-              type: "fnShorthand",
-              value: "#",
-              debugInfo: debugInfo,
+              t: TokenizerType.FnShorthand,
+              v: "#",
+              d: debugInfo,
           },
       ];
   };
@@ -6773,7 +6785,7 @@ var Lits = (function (exports) {
       if ((type !== "decimal" && length <= 2) || value === "." || value === "-") {
           return NO_MATCH;
       }
-      return [length, { type: "number", value: value, debugInfo: debugInfo }];
+      return [length, { t: TokenizerType.Number, v: value, d: debugInfo }];
   };
   var tokenizeReservedName = function (input, position, debugInfo) {
       var e_1, _a;
@@ -6790,7 +6802,7 @@ var Lits = (function (exports) {
                   if (forbidden) {
                       throw new LitsError("".concat(name_1, " is forbidden!"), debugInfo);
                   }
-                  return [length_2, { type: "reservedName", value: reservedName, debugInfo: debugInfo }];
+                  return [length_2, { t: TokenizerType.ReservedName, v: reservedName, d: debugInfo }];
               }
           }
       }
@@ -6804,7 +6816,7 @@ var Lits = (function (exports) {
       return NO_MATCH;
   };
   var tokenizeName = function (input, position, debugInfo) {
-      return tokenizePattern("name", nameRegExp, input, position, debugInfo);
+      return tokenizePattern(TokenizerType.Name, nameRegExp, input, position, debugInfo);
   };
   var tokenizeModifier = function (input, position, debugInfo) {
       var e_2, _a;
@@ -6816,7 +6828,7 @@ var Lits = (function (exports) {
               var charAfterModifier = input[position + length_3];
               if (input.substr(position, length_3) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
                   var value = modifier;
-                  return [length_3, { type: "modifier", value: value, debugInfo: debugInfo }];
+                  return [length_3, { t: TokenizerType.Modifier, v: value, d: debugInfo }];
               }
           }
       }
@@ -6831,7 +6843,7 @@ var Lits = (function (exports) {
   };
   function tokenizeCharacter(type, value, input, position, debugInfo) {
       if (value === input[position]) {
-          return [1, { type: type, value: value, debugInfo: debugInfo }];
+          return [1, { t: type, v: value, d: debugInfo }];
       }
       else {
           return NO_MATCH;
@@ -6849,7 +6861,7 @@ var Lits = (function (exports) {
           length += 1;
           char = input[position + length];
       }
-      return [length, { type: type, value: value, debugInfo: debugInfo }];
+      return [length, { t: type, v: value, d: debugInfo }];
   }
 
   // All tokenizers, order matters!
@@ -7050,7 +7062,7 @@ var Lits = (function (exports) {
           var params = {};
           var contextStack = createContextStackFromParams(params);
           var ast = this.generateAst(program, params.getLocation);
-          return analyzeAst(ast.body, contextStack, builtin);
+          return analyzeAst(ast.b, contextStack, builtin);
       };
       Lits.prototype.tokenize = function (program, getLocation) {
           return tokenize(program, { debug: this.debug, getLocation: getLocation });

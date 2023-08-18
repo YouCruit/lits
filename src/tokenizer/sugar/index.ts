@@ -1,5 +1,5 @@
 import { Token } from '../interface'
-import { applyCollectionAccessors } from './applyDots'
+import { applyCollectionAccessors } from './applyCollectionAccessor'
 
 export type SugarFunction = (tokens: Token[]) => Token[]
 

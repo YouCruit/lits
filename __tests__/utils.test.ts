@@ -37,23 +37,23 @@ describe(`utils`, () => {
     test(`RegExp`, () => {
       const a: RegularExpression = {
         [REGEXP_SYMBOL]: true,
-        source: `^ab`,
-        flags: ``,
+        s: `^ab`,
+        f: ``,
       }
       const b: RegularExpression = {
         [REGEXP_SYMBOL]: true,
-        source: `^ab`,
-        flags: ``,
+        s: `^ab`,
+        f: ``,
       }
       const c: RegularExpression = {
         [REGEXP_SYMBOL]: true,
-        source: `^ab`,
-        flags: `g`,
+        s: `^ab`,
+        f: `g`,
       }
       const d: RegularExpression = {
         [REGEXP_SYMBOL]: true,
-        source: `^ab`,
-        flags: `g`,
+        s: `^ab`,
+        f: `g`,
       }
       expect(deepEqual(a, a, debugInfo)).toBe(true)
       expect(deepEqual(a, b, debugInfo)).toBe(true)

@@ -3,6 +3,8 @@ import { parse } from '../../src/parser'
 import { createContextStack, evaluate, evaluateAstNode } from '../../src/evaluator'
 import { Lits } from '../../src'
 import { Context } from '../../src/evaluator/interface'
+import { TokenizerType } from '../../src/tokenizer/interface'
+import { AstNodeType } from '../../src/parser/interface'
 
 let lits: Lits
 
@@ -153,9 +155,9 @@ test(`evaluateAstNode`, () => {
   expect(() =>
     evaluateAstNode(
       {
-        type: `Modifier`,
-        value: `&`,
-        token: { type: `name`, value: `X` },
+        t: AstNodeType.Modifier,
+        v: `&`,
+        tkn: { t: TokenizerType.Name, v: `X` },
       },
       createContextStack(),
     ),
@@ -163,8 +165,8 @@ test(`evaluateAstNode`, () => {
   expect(() =>
     evaluateAstNode(
       {
-        type: `Modifier`,
-        value: `&`,
+        t: AstNodeType.Modifier,
+        v: `&`,
       },
       createContextStack(),
     ),
@@ -172,9 +174,9 @@ test(`evaluateAstNode`, () => {
   expect(() =>
     evaluateAstNode(
       {
-        type: `Modifier`,
-        value: `&`,
-        token: { type: `name`, debugInfo: { code: ``, column: 1, line: 1 }, value: `X` },
+        t: AstNodeType.Modifier,
+        v: `&`,
+        tkn: { t: TokenizerType.Name, d: { code: ``, column: 1, line: 1 }, v: `X` },
       },
       createContextStack(),
     ),

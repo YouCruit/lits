@@ -2,12 +2,12 @@ import { joinAnalyzeResults } from '../../analyze/utils'
 import { LitsError, RecurSignal } from '../../errors'
 import { Context } from '../../evaluator/interface'
 import { Any } from '../../interface'
-import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
+import { AstNode, BindingNode, AstNodeType, SpecialExpressionNode } from '../../parser/interface'
 import { any, asValue, token } from '../../utils/assertion'
 import { valueToString } from '../../utils/helpers'
 import { BuiltinSpecialExpression } from '../interface'
 
-type LoopNode = SpecialExpressionNode & { bindings: BindingNode[] }
+type LoopNode = SpecialExpressionNode & { bs: BindingNode[] }
 
 export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens, parseBindings }) => {
@@ -19,18 +19,18 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
     ;[position, params] = parseTokens(tokens, position)
 
     const node: LoopNode = {
-      type: `SpecialExpression`,
-      name: `loop`,
-      params,
-      bindings,
-      token: firstToken.debugInfo ? firstToken : undefined,
+      t: AstNodeType.SpecialExpression,
+      n: `loop`,
+      p: params,
+      bs: bindings,
+      tkn: firstToken.d ? firstToken : undefined,
     }
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const debugInfo = node.token?.debugInfo
-    const bindingContext: Context = (node as LoopNode).bindings.reduce((result: Context, binding) => {
-      result[binding.name] = { value: evaluateAstNode(binding.value, contextStack) }
+    const debugInfo = node.tkn?.d
+    const bindingContext: Context = (node as LoopNode).bs.reduce((result: Context, binding) => {
+      result[binding.n] = { value: evaluateAstNode(binding.v, contextStack) }
       return result
     }, {})
     const newContextStack = contextStack.withContext(bindingContext)
@@ -38,20 +38,20 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
     for (;;) {
       let result: Any = null
       try {
-        for (const form of node.params) {
+        for (const form of node.p) {
           result = evaluateAstNode(form, newContextStack)
         }
       } catch (error) {
         if (error instanceof RecurSignal) {
           const params = error.params
-          if (params.length !== (node as LoopNode).bindings.length) {
+          if (params.length !== (node as LoopNode).bs.length) {
             throw new LitsError(
-              `recur expected ${(node as LoopNode).bindings.length} parameters, got ${valueToString(params.length)}`,
+              `recur expected ${(node as LoopNode).bs.length} parameters, got ${valueToString(params.length)}`,
               debugInfo,
             )
           }
-          ;(node as LoopNode).bindings.forEach((binding, index) => {
-            asValue(bindingContext[binding.name], debugInfo).value = any.as(params[index], debugInfo)
+          ;(node as LoopNode).bs.forEach((binding, index) => {
+            asValue(bindingContext[binding.n], debugInfo).value = any.as(params[index], debugInfo)
           })
           continue
         }
@@ -61,16 +61,16 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
   },
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    const newContext = (node as LoopNode).bindings
-      .map(binding => binding.name)
+    const newContext = (node as LoopNode).bs
+      .map(binding => binding.n)
       .reduce((context: Context, name) => {
         context[name] = { value: true }
         return context
       }, {})
 
-    const bindingValueNodes = (node as LoopNode).bindings.map(binding => binding.value)
+    const bindingValueNodes = (node as LoopNode).bs.map(binding => binding.v)
     const bindingsResult = analyzeAst(bindingValueNodes, contextStack, builtin)
-    const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin)
+    const paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin)
     return joinAnalyzeResults(bindingsResult, paramsResult)
   },
 }

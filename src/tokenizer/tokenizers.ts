@@ -30,17 +30,17 @@ export const skipComment: Tokenizer = (input, current) => {
 }
 
 export const tokenizeLeftParen: Tokenizer = (input, position, debugInfo) =>
-  tokenizeCharacter(`paren`, `(`, input, position, debugInfo)
+  tokenizeCharacter(TokenizerType.Bracket, `(`, input, position, debugInfo)
 export const tokenizeRightParen: Tokenizer = (input, position, debugInfo) =>
-  tokenizeCharacter(`paren`, `)`, input, position, debugInfo)
+  tokenizeCharacter(TokenizerType.Bracket, `)`, input, position, debugInfo)
 export const tokenizeLeftBracket: Tokenizer = (input, position, debugInfo) =>
-  tokenizeCharacter(`paren`, `[`, input, position, debugInfo)
+  tokenizeCharacter(TokenizerType.Bracket, `[`, input, position, debugInfo)
 export const tokenizeRightBracket: Tokenizer = (input, position, debugInfo) =>
-  tokenizeCharacter(`paren`, `]`, input, position, debugInfo)
+  tokenizeCharacter(TokenizerType.Bracket, `]`, input, position, debugInfo)
 export const tokenizeLeftCurly: Tokenizer = (input, position, debugInfo) =>
-  tokenizeCharacter(`paren`, `{`, input, position, debugInfo)
+  tokenizeCharacter(TokenizerType.Bracket, `{`, input, position, debugInfo)
 export const tokenizeRightCurly: Tokenizer = (input, position, debugInfo) =>
-  tokenizeCharacter(`paren`, `}`, input, position, debugInfo)
+  tokenizeCharacter(TokenizerType.Bracket, `}`, input, position, debugInfo)
 
 export const tokenizeString: Tokenizer = (input, position, debugInfo) => {
   if (input[position] !== `"`) {
@@ -73,7 +73,7 @@ export const tokenizeString: Tokenizer = (input, position, debugInfo) => {
     }
     char = input[position + length]
   }
-  return [length + 1, { type: `string`, value, debugInfo }]
+  return [length + 1, { t: TokenizerType.String, v: value, d: debugInfo }]
 }
 
 export const tokenizeCollectionAccessor: Tokenizer = (input, position, debugInfo) => {
@@ -84,9 +84,9 @@ export const tokenizeCollectionAccessor: Tokenizer = (input, position, debugInfo
   return [
     1,
     {
-      type: `collectionAccessor`,
-      value: char,
-      debugInfo,
+      t: TokenizerType.CollectionAccessor,
+      v: char,
+      d: debugInfo,
     },
   ]
 }
@@ -107,7 +107,7 @@ export const tokenizeSymbolString: Tokenizer = (input, position, debugInfo) => {
   if (length === 1) {
     return NO_MATCH
   }
-  return [length, { type: `string`, value, debugInfo }]
+  return [length, { t: TokenizerType.String, v: value, d: debugInfo }]
 }
 
 export const tokenizeRegexpShorthand: Tokenizer = (input, position, debugInfo) => {
@@ -146,10 +146,10 @@ export const tokenizeRegexpShorthand: Tokenizer = (input, position, debugInfo) =
   return [
     length,
     {
-      type: `regexpShorthand`,
-      value: token.value,
-      options,
-      debugInfo,
+      t: TokenizerType.RegexpShorthand,
+      v: token.v,
+      o: options,
+      d: debugInfo,
     },
   ]
 }
@@ -161,9 +161,9 @@ export const tokenizeFnShorthand: Tokenizer = (input, position, debugInfo) => {
   return [
     1,
     {
-      type: `fnShorthand`,
-      value: `#`,
-      debugInfo,
+      t: TokenizerType.FnShorthand,
+      v: `#`,
+      d: debugInfo,
     },
   ]
 }
@@ -242,7 +242,7 @@ export const tokenizeNumber: Tokenizer = (input, position, debugInfo) => {
     return NO_MATCH
   }
 
-  return [length, { type: `number`, value, debugInfo }]
+  return [length, { t: TokenizerType.Number, v: value, d: debugInfo }]
 }
 
 export const tokenizeReservedName: Tokenizer = (input, position, debugInfo) => {
@@ -257,14 +257,14 @@ export const tokenizeReservedName: Tokenizer = (input, position, debugInfo) => {
       if (forbidden) {
         throw new LitsError(`${name} is forbidden!`, debugInfo)
       }
-      return [length, { type: `reservedName`, value: reservedName, debugInfo }]
+      return [length, { t: TokenizerType.ReservedName, v: reservedName, d: debugInfo }]
     }
   }
   return NO_MATCH
 }
 
 export const tokenizeName: Tokenizer = (input, position, debugInfo) =>
-  tokenizePattern(`name`, nameRegExp, input, position, debugInfo)
+  tokenizePattern(TokenizerType.Name, nameRegExp, input, position, debugInfo)
 
 export const tokenizeModifier: Tokenizer = (input, position, debugInfo) => {
   const modifiers: ModifierName[] = [`&`, `&let`, `&when`, `&while`]
@@ -273,7 +273,7 @@ export const tokenizeModifier: Tokenizer = (input, position, debugInfo) => {
     const charAfterModifier = input[position + length]
     if (input.substr(position, length) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
       const value: ModifierName = modifier
-      return [length, { type: `modifier`, value, debugInfo }]
+      return [length, { t: TokenizerType.Modifier, v: value, d: debugInfo }]
     }
   }
   return NO_MATCH
@@ -287,7 +287,7 @@ function tokenizeCharacter(
   debugInfo?: DebugInfo,
 ): TokenDescriptor {
   if (value === input[position]) {
-    return [1, { type, value, debugInfo }]
+    return [1, { t: type, v: value, d: debugInfo }]
   } else {
     return NO_MATCH
   }
@@ -314,5 +314,5 @@ function tokenizePattern(
     char = input[position + length]
   }
 
-  return [length, { type, value, debugInfo }]
+  return [length, { t: type, v: value, d: debugInfo }]
 }

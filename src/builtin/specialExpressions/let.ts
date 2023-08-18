@@ -1,12 +1,12 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
 import { Context } from '../../evaluator/interface'
 import { Any } from '../../interface'
-import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
+import { AstNode, BindingNode, AstNodeType, SpecialExpressionNode } from '../../parser/interface'
 import { token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
 type LetNode = SpecialExpressionNode & {
-  bindings: BindingNode[]
+  bs: BindingNode[]
 }
 
 export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
@@ -19,45 +19,45 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
     ;[position, params] = parseTokens(tokens, position)
 
     const node: LetNode = {
-      type: `SpecialExpression`,
-      name: `let`,
-      params,
-      bindings,
-      token: firstToken.debugInfo ? firstToken : undefined,
+      t: AstNodeType.SpecialExpression,
+      n: `let`,
+      p: params,
+      bs: bindings,
+      tkn: firstToken.d ? firstToken : undefined,
     }
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const locals: Context = {}
     const newContextStack = contextStack.withContext(locals)
-    for (const binding of (node as LetNode).bindings) {
-      const bindingValueNode = binding.value
+    for (const binding of (node as LetNode).bs) {
+      const bindingValueNode = binding.v
       const bindingValue = evaluateAstNode(bindingValueNode, newContextStack)
-      locals[binding.name] = { value: bindingValue }
+      locals[binding.n] = { value: bindingValue }
     }
 
     let result: Any = null
-    for (const astNode of node.params) {
+    for (const astNode of node.p) {
       result = evaluateAstNode(astNode, newContextStack)
     }
     return result
   },
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    const newContext = (node as LetNode).bindings
-      .map(binding => binding.name)
+    const newContext = (node as LetNode).bs
+      .map(binding => binding.n)
       .reduce((context: Context, name) => {
         context[name] = { value: true }
         return context
       }, {})
     const bindingContext: Context = {}
-    const bindingResults = (node as LetNode).bindings.map(bindingNode => {
-      const valueNode = bindingNode.value
+    const bindingResults = (node as LetNode).bs.map(bindingNode => {
+      const valueNode = bindingNode.v
       const bindingsResult = analyzeAst(valueNode, contextStack.withContext(bindingContext), builtin)
-      bindingContext[bindingNode.name] = { value: true }
+      bindingContext[bindingNode.n] = { value: true }
       return bindingsResult
     })
 
-    const paramsResult = analyzeAst(node.params, contextStack.withContext(newContext), builtin)
+    const paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin)
     return joinAnalyzeResults(...bindingResults, paramsResult)
   },
 }

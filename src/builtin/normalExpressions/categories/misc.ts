@@ -198,12 +198,12 @@ function contextToString(context: Context) {
 function valueToString(contextEntry: ContextEntry): string {
   const { value } = contextEntry
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const name: string | undefined = (value as any).name
+  const name: string | undefined = (value as any).n
   if (litsFunction.is(value)) {
     if (name) {
-      return `<${value.type} function ${name}>`
+      return `<${value.t} function ${name}>`
     } else {
-      return `<${value.type} function λ>`
+      return `<${value.t} function λ>`
     }
   }
   return JSON.stringify(contextEntry.value)

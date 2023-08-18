@@ -3,11 +3,13 @@ import {
   FUNCTION_SYMBOL,
   LitsFunction,
   NameNode,
+  AstNodeType,
   NormalExpressionNode,
   REGEXP_SYMBOL,
   RegularExpression,
+  FunctionType,
 } from '../src/parser/interface'
-import { DebugInfo, Token } from '../src/tokenizer/interface'
+import { DebugInfo, Token, TokenizerType } from '../src/tokenizer/interface'
 import {
   any,
   collection,
@@ -35,9 +37,9 @@ describe(`utils`, () => {
   test(`asAny`, () => {
     expect(() => any.as(undefined, debugInfo)).toThrow()
     const node: AstNode = {
-      type: `Name`,
-      value: `test`,
-      token: { type: `name`, value: `X` },
+      t: AstNodeType.Name,
+      v: `test`,
+      tkn: { t: TokenizerType.Name, v: `X` },
     }
 
     expect(any.as(node, debugInfo)).toBe(node)
@@ -45,9 +47,9 @@ describe(`utils`, () => {
   test(`assertAny`, () => {
     expect(() => any.assert(undefined, debugInfo)).toThrow()
     const node: AstNode = {
-      type: `Name`,
-      value: `test`,
-      token: { type: `name`, value: `X` },
+      t: AstNodeType.Name,
+      v: `test`,
+      tkn: { t: TokenizerType.Name, v: `X` },
     }
 
     expect(() => any.assert(node, debugInfo)).not.toThrow()
@@ -55,9 +57,9 @@ describe(`utils`, () => {
   test(`assertAny`, () => {
     expect(() => any.assert(undefined, debugInfo)).toThrow()
     const node: AstNode = {
-      type: `Name`,
-      value: `test`,
-      token: { type: `name`, value: `X` },
+      t: AstNodeType.Name,
+      v: `test`,
+      tkn: { t: TokenizerType.Name, v: `X` },
     }
 
     expect(() => any.assert(node, debugInfo)).not.toThrow()
@@ -66,17 +68,17 @@ describe(`utils`, () => {
     expect(() => litsFunction.as(undefined, debugInfo)).toThrow()
     const lf: LitsFunction = {
       [FUNCTION_SYMBOL]: true,
-      debugInfo: `EOF`,
-      type: `user-defined`,
-      name: undefined,
-      overloads: [
+      d: `EOF`,
+      t: FunctionType.UserDefined,
+      n: undefined,
+      o: [
         {
-          arguments: {
+          as: {
             mandatoryArguments: [],
           },
-          functionContext: {},
-          body: [],
-          arity: 0,
+          f: {},
+          b: [],
+          a: 0,
         },
       ],
     }
@@ -87,27 +89,27 @@ describe(`utils`, () => {
     expect(() => nameNode.as(undefined, {} as any)).toThrow()
     expect(() =>
       nameNode.as({
-        type: `Number`,
-        value: 12,
-        token: { type: `name`, value: `X` },
+        t: AstNodeType.Number,
+        v: 12,
+        token: { t: TokenizerType.Name, v: `X` },
       }),
     ).toThrow()
     const node: NameNode = {
-      type: `Name`,
-      value: `a-name`,
-      token: { type: `name`, value: `X` },
+      t: AstNodeType.Name,
+      v: `a-name`,
+      tkn: { t: TokenizerType.Name, v: `X` },
     }
-    expect(nameNode.as(node, node.token?.debugInfo)).toBe(node)
+    expect(nameNode.as(node, node.tkn?.d)).toBe(node)
   })
   test(`assertNameNode`, () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => nameNode.assert(undefined, {} as any)).toThrow()
     const node: NameNode = {
-      type: `Name`,
-      value: `a-name`,
-      token: { type: `name`, value: `X` },
+      t: AstNodeType.Name,
+      v: `a-name`,
+      tkn: { t: TokenizerType.Name, v: `X` },
     }
-    nameNode.as(node, node.token?.debugInfo)
+    nameNode.as(node, node.tkn?.d)
   })
   test(`asNotUndefined`, () => {
     expect(() => asValue(undefined, `EOF`)).toThrow()
@@ -176,8 +178,8 @@ describe(`utils`, () => {
   test(`assertRegExp`, () => {
     const a: RegularExpression = {
       [REGEXP_SYMBOL]: true,
-      source: `^ab`,
-      flags: ``,
+      s: `^ab`,
+      f: ``,
     }
     expect(() => regularExpression.assert(/a/, debugInfo)).toThrow()
     expect(() => regularExpression.assert(a, debugInfo)).not.toThrow()
@@ -194,15 +196,15 @@ describe(`utils`, () => {
 
   function node(arr: number[]): NormalExpressionNode {
     const astNodes: AstNode[] = arr.map(n => ({
-      type: `Number`,
-      value: n,
-      token: { type: `name`, value: `X` },
+      t: AstNodeType.Number,
+      v: n,
+      tkn: { t: TokenizerType.Name, v: `X` },
     }))
     return {
-      name: `let`,
-      params: astNodes,
-      type: `NormalExpression`,
-      token: { type: `name`, value: `X` },
+      n: `let`,
+      p: astNodes,
+      t: AstNodeType.NormalExpression,
+      tkn: { t: TokenizerType.Name, v: `X` },
     }
   }
 
@@ -257,17 +259,17 @@ describe(`utils`, () => {
   test(`assertLitsFunction`, () => {
     const lf: LitsFunction = {
       [FUNCTION_SYMBOL]: true,
-      debugInfo: `EOF`,
-      type: `user-defined`,
-      name: undefined,
-      overloads: [
+      d: `EOF`,
+      t: FunctionType.UserDefined,
+      n: undefined,
+      o: [
         {
-          arguments: {
+          as: {
             mandatoryArguments: [],
           },
-          functionContext: {},
-          body: [],
-          arity: 0,
+          f: {},
+          b: [],
+          a: 0,
         },
       ],
     }
@@ -477,8 +479,8 @@ describe(`utils`, () => {
   test(`assertStringOrRegExp`, () => {
     const a: RegularExpression = {
       [REGEXP_SYMBOL]: true,
-      source: `^ab`,
-      flags: ``,
+      s: `^ab`,
+      f: ``,
     }
     expect(() => stringOrRegExp.assert(``, debugInfo)).not.toThrow()
     expect(() => stringOrRegExp.assert(`1`, debugInfo)).not.toThrow()
@@ -498,44 +500,44 @@ describe(`utils`, () => {
   test(`isLitsFunction`, () => {
     const lf1: LitsFunction = {
       [FUNCTION_SYMBOL]: true,
-      debugInfo: `EOF`,
-      type: `user-defined`,
-      name: undefined,
-      overloads: [
+      d: `EOF`,
+      t: FunctionType.UserDefined,
+      n: undefined,
+      o: [
         {
-          arguments: {
+          as: {
             mandatoryArguments: [],
           },
-          functionContext: {},
-          body: [],
-          arity: 0,
+          f: {},
+          b: [],
+          a: 0,
         },
       ],
     }
     const lf2: LitsFunction = {
       [FUNCTION_SYMBOL]: true,
-      debugInfo: `EOF`,
-      type: `builtin`,
-      name: `+`,
+      d: `EOF`,
+      t: FunctionType.Builtin,
+      n: `+`,
     }
     const lf3: LitsFunction = {
       [FUNCTION_SYMBOL]: true,
-      debugInfo: `EOF`,
-      type: `partial`,
-      fn: { a: 10, b: 20 },
-      params: [],
+      d: `EOF`,
+      t: FunctionType.Partial,
+      f: { a: 10, b: 20 },
+      p: [],
     }
     const lf4: LitsFunction = {
       [FUNCTION_SYMBOL]: true,
-      debugInfo: `EOF`,
-      type: `comp`,
-      fns: [`x`],
+      d: `EOF`,
+      t: FunctionType.Comp,
+      f: [`x`],
     }
     const lf5: LitsFunction = {
       [FUNCTION_SYMBOL]: true,
-      debugInfo: `EOF`,
-      type: `constantly`,
-      value: 10,
+      d: `EOF`,
+      t: FunctionType.Constantly,
+      v: 10,
     }
     expect(litsFunction.is(lf1)).toBe(true)
     expect(litsFunction.is(lf2)).toBe(true)
@@ -596,8 +598,8 @@ describe(`utils`, () => {
   test(`isRegexp`, () => {
     const a: RegularExpression = {
       [REGEXP_SYMBOL]: true,
-      source: `^ab`,
-      flags: ``,
+      s: `^ab`,
+      f: ``,
     }
 
     expect(regularExpression.is(`Hej`)).toBe(false)
@@ -608,47 +610,45 @@ describe(`utils`, () => {
   test(`isNormalExpressionNodeName`, () => {
     expect(
       normalExpressionNodeWithName.is({
-        type: `NormalExpression`,
-        params: [],
-        name: `object`,
-        token: { type: `name`, value: `X` },
+        t: AstNodeType.NormalExpression,
+        p: [],
+        n: `object`,
+        tkn: { t: TokenizerType.Name, v: `X` },
       }),
     ).toBe(true)
-    expect(
-      normalExpressionNodeWithName.is({
-        type: `NormalExpression`,
-        params: [],
-        expression: {
-          type: `NormalExpression`,
-          name: `+`,
-          params: [
-            {
-              type: `Number`,
-              value: 2,
-              token: { type: `name`, value: `X` },
-            },
-          ],
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any),
-    ).toBe(false)
-    expect(
-      normalExpressionNodeWithName.is({
-        params: [],
-        expression: {
-          type: `NormalExpression`,
-          name: `+`,
-          params: [
-            {
-              type: `Number`,
-              value: 2,
-              token: { type: `name`, value: `X` },
-            },
-          ],
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any),
-    ).toBe(false)
+
+    const ne: NormalExpressionNode = {
+      t: AstNodeType.NormalExpression,
+      p: [],
+      e: {
+        t: AstNodeType.NormalExpression,
+        n: `+`,
+        p: [
+          {
+            t: AstNodeType.Number,
+            v: 2,
+            tkn: { t: TokenizerType.Name, v: `X` },
+          },
+        ],
+      },
+    }
+    expect(normalExpressionNodeWithName.is(ne)).toBe(false)
+
+    const ne2 = {
+      p: [],
+      e: {
+        t: AstNodeType.NormalExpression,
+        n: `+`,
+        p: [
+          {
+            t: AstNodeType.Number,
+            v: 2,
+            tkn: { t: TokenizerType.Name, v: `X` },
+          },
+        ],
+      },
+    }
+    expect(normalExpressionNodeWithName.is(ne2)).toBe(false)
   })
 
   test(`assertMax`, () => {
@@ -695,13 +695,13 @@ describe(`utils`, () => {
 
   test(`isAstNode`, () => {
     const node: AstNode = {
-      type: `Name`,
-      token: { debugInfo: `EOF`, type: `paren`, value: `(` },
-      value: `A name`,
+      t: AstNodeType.Name,
+      tkn: { d: `EOF`, t: TokenizerType.Bracket, v: `(` },
+      v: `A name`,
     }
     const nonNode = {
       ...node,
-      type: `name`,
+      t: `name`,
     }
     expect(astNode.is(node)).toBe(true)
     expect(astNode.is(nonNode)).toBe(false)
@@ -725,27 +725,27 @@ describe(`utils`, () => {
 
   test(`token`, () => {
     const tkn: Token = {
-      debugInfo: `EOF`,
-      type: `name`,
-      value: `Albert`,
+      d: `EOF`,
+      t: TokenizerType.Name,
+      v: `Albert`,
     }
     const nonTkn = {
       ...tkn,
-      type: `Name`,
+      t: `Name`,
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const nonTkn2: any = {
       ...tkn,
     }
-    delete nonTkn2.type
+    delete nonTkn2.t
     expect(token.is(tkn)).toBe(true)
     expect(token.is(nonTkn)).toBe(false)
     expect(() => token.assert(tkn, `EOF`)).not.toThrow()
     expect(() => token.assert(nonTkn, `EOF`)).toThrow()
     expect(() => token.assert(nonTkn2, `EOF`)).toThrow()
-    expect(() => token.assert(tkn, `EOF`, { type: `name` })).not.toThrow()
-    expect(() => token.assert(tkn, `EOF`, { type: `number` })).toThrow()
-    expect(() => token.assert(tkn, `EOF`, { type: `name`, value: `Albert` })).not.toThrow()
-    expect(() => token.assert(tkn, `EOF`, { type: `name`, value: `Mojir` })).toThrow()
+    expect(() => token.assert(tkn, `EOF`, { type: TokenizerType.Name })).not.toThrow()
+    expect(() => token.assert(tkn, `EOF`, { type: TokenizerType.Number })).toThrow()
+    expect(() => token.assert(tkn, `EOF`, { type: TokenizerType.Name, value: `Albert` })).not.toThrow()
+    expect(() => token.assert(tkn, `EOF`, { type: TokenizerType.Name, value: `Mojir` })).toThrow()
   })
 })

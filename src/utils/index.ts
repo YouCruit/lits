@@ -95,8 +95,8 @@ export function compare(a: unknown, b: unknown): number {
       return Math.sign(Object.keys(aObj).length - Object.keys(bObj).length)
     }
     case `regexp`: {
-      const aString = (a as RegularExpression).source
-      const bString = (b as RegularExpression).source
+      const aString = (a as RegularExpression).s
+      const bString = (b as RegularExpression).s
       return aString < bString ? -1 : aString > bString ? 1 : 0
     }
     case `unknown`:
@@ -125,7 +125,7 @@ export function deepEqual(a: Any, b: Any, debugInfo?: DebugInfo): boolean {
     return true
   }
   if (isRegularExpression(a) && isRegularExpression(b)) {
-    return a.source === b.source && a.flags === b.flags
+    return a.s === b.s && a.f === b.f
   }
   if (typeof a === `object` && a !== null && typeof b === `object` && b !== null) {
     const aObj = a as Record<string, unknown>

@@ -7,85 +7,98 @@ import { Any, Arr } from '../interface'
 import { ReservedName } from '../reservedNames'
 import { DebugInfo, Token } from '../tokenizer/interface'
 
-export const FUNCTION_SYMBOL = `__LITS_FUNCTION__`
-export const REGEXP_SYMBOL = `__REGEXP__`
+export const FUNCTION_SYMBOL = `_LF_`
+export const REGEXP_SYMBOL = `_RE_`
 
 export type EvaluatedFunctionArguments = {
   mandatoryArguments: string[]
   restArgument?: string
 }
 
+export enum FunctionType {
+  UserDefined = 0,
+  Partial = 1,
+  Comp = 2,
+  Constantly = 3,
+  Juxt = 4,
+  Complement = 5,
+  EveryPred = 6,
+  SomePred = 7,
+  Fnil = 8,
+  Builtin = 9,
+}
+
 export type EvaluatedFunctionOverload = {
-  arguments: EvaluatedFunctionArguments
-  body: AstNode[]
-  arity: Arity
-  functionContext: Context
+  as: EvaluatedFunctionArguments
+  b: AstNode[]
+  a: Arity
+  f: Context
 }
 
 type GenericLitsFunction = {
   [FUNCTION_SYMBOL]: true
-  debugInfo?: DebugInfo
-  type: string
+  d?: DebugInfo
+  t: FunctionType
 }
 
 export interface RegularExpression {
   [REGEXP_SYMBOL]: true
-  debugInfo?: DebugInfo
-  source: string
-  flags: string
+  d?: DebugInfo
+  s: string
+  f: string
 }
 
 export interface UserDefinedFunction extends GenericLitsFunction {
-  type: `user-defined`
-  name: string | undefined
-  overloads: EvaluatedFunctionOverload[]
+  t: FunctionType.UserDefined
+  n: string | undefined // name
+  o: EvaluatedFunctionOverload[]
 }
 
 export interface PartialFunction extends GenericLitsFunction {
-  type: `partial`
-  fn: Any
-  params: Arr
+  t: FunctionType.Partial
+  f: Any
+  p: Arr
 }
 
 export interface CompFunction extends GenericLitsFunction {
-  type: `comp`
-  fns: Arr
+  t: FunctionType.Comp
+  f: Arr
 }
 
 export interface ConstantlyFunction extends GenericLitsFunction {
-  type: `constantly`
-  value: Any
+  t: FunctionType.Constantly
+  v: Any
 }
 
 export interface JuxtFunction extends GenericLitsFunction {
-  type: `juxt`
-  fns: Arr
+  t: FunctionType.Juxt
+  f: Arr
 }
 
 export interface ComplementFunction extends GenericLitsFunction {
-  type: `complement`
-  fn: Any
+  t: FunctionType.Complement
+  f: Any
 }
 
 export interface EveryPredFunction extends GenericLitsFunction {
-  type: `every-pred`
-  fns: Arr
+  t: FunctionType.EveryPred
+  f: Arr
 }
 
 export interface SomePredFunction extends GenericLitsFunction {
-  type: `some-pred`
-  fns: Arr
+  t: FunctionType.SomePred
+  f: Arr
 }
 
 export interface FNilFunction extends GenericLitsFunction {
-  type: `fnil`
-  fn: Any
-  params: Arr
+  t: FunctionType.Fnil
+  f: Any
+  p: Arr
 }
 
 export interface BuiltinFunction extends GenericLitsFunction {
-  type: `builtin`
-  name: string
+  t: FunctionType.Builtin
+  n: string // name
 }
 
 export type LitsFunction =
@@ -100,25 +113,30 @@ export type LitsFunction =
   | SomePredFunction
   | FNilFunction
 
-export type LitsFunctionType = LitsFunction[`type`]
+export type LitsFunctionType = LitsFunction[`t`]
 
-export type NodeType =
-  | `Number`
-  | `String`
-  | `NormalExpression`
-  | `SpecialExpression`
-  | `Name`
-  | `Modifier`
-  | `ReservedName`
-  | `Binding`
-  | `Argument`
-  | `Partial`
+export enum AstNodeType {
+  Number = 0,
+  String = 1,
+  NormalExpression = 2,
+  SpecialExpression = 3,
+  Name = 4,
+  Modifier = 5,
+  ReservedName = 6,
+  Binding = 7,
+  Argument = 8,
+  Partial = 9,
+}
+
+export function isAstNodeType(type: unknown): type is AstNodeType {
+  return typeof type === `number` && Number.isInteger(type) && type >= 0 && type <= 9
+}
 
 export type ModifierName = `&` | `&let` | `&when` | `&while`
 
 interface GenericNode {
-  type: NodeType
-  token?: Token
+  t: AstNodeType // type
+  tkn?: Token
 }
 
 export type ExpressionNode = NormalExpressionNode | SpecialExpressionNode | NumberNode | StringNode
@@ -132,69 +150,69 @@ export type ParseTokens = (tokens: Token[], position: number) => [number, AstNod
 export type ParseToken = (tokens: Token[], position: number) => [number, AstNode]
 
 export interface NumberNode extends GenericNode {
-  type: `Number`
-  value: number
+  t: AstNodeType.Number // type
+  v: number // value
 }
 export interface StringNode extends GenericNode {
-  type: `String`
-  value: string
+  t: AstNodeType.String // type
+  v: string // value
 }
 export interface NameNode extends GenericNode {
-  type: `Name`
-  value: string
+  t: AstNodeType.Name // type
+  v: string // value
 }
 export interface ModifierNode extends GenericNode {
-  type: `Modifier`
-  value: ModifierName
+  t: AstNodeType.Modifier // type
+  v: ModifierName
 }
 export interface ReservedNameNode extends GenericNode {
-  type: `ReservedName`
-  value: ReservedName
+  t: AstNodeType.ReservedName // type
+  v: ReservedName // reservedName
 }
 
 interface NormalExpressionNodeBase extends GenericNode {
-  type: `NormalExpression`
-  params: AstNode[]
+  t: AstNodeType.NormalExpression // type
+  p: AstNode[] // params
 }
 
 export interface NormalExpressionNodeWithName extends NormalExpressionNodeBase {
-  name: string
-  expression?: ExpressionNode
+  n: string // name
+  e?: ExpressionNode // expressionNode
 }
 
 interface NormalExpressionNodeExpression extends NormalExpressionNodeBase {
-  name?: never
-  expression: ExpressionNode
+  n?: never // name
+  e: ExpressionNode // expressionNode
 }
 
 export type NormalExpressionNode = NormalExpressionNodeWithName | NormalExpressionNodeExpression
 
 export interface BindingNode extends GenericNode {
-  type: `Binding`
-  name: string
-  value: AstNode
+  t: AstNodeType.Binding // type
+  n: string // name
+  v: AstNode // value
 }
 
 export interface ArgumentNode extends GenericNode {
-  type: `Argument`
-  name: string
-  defaultValue?: AstNode
+  t: AstNodeType.Argument // type
+  n: string // name
+  d?: AstNode // defaultValue
 }
 
 export interface SpecialExpressionNode extends GenericNode {
-  type: `SpecialExpression`
-  name: SpecialExpressionName
-  params: AstNode[]
-  binding?: BindingNode
-  bindings?: BindingNode[]
-  conditions?: Condition[]
-  functionName?: AstNode
-  overloads?: FunctionOverload[]
-  loopBindings?: LoopBindingNode[]
-  messageNode?: AstNode
-  tryExpression?: AstNode
-  error?: NameNode
-  catchExpression?: AstNode
+  t: AstNodeType.SpecialExpression // type
+  n: SpecialExpressionName // name
+  p: AstNode[] // params
+  b?: BindingNode // binding
+  bs?: BindingNode[] // bindings
+  c?: Condition[] // conditions
+  f?: AstNode // functionName
+  o?: FunctionOverload[] // overloads
+  l?: LoopBindingNode[] // loopBindings
+  m?: AstNode // messageNode
+  te?: AstNode // tryExpression
+  e?: NameNode // error
+  ce?: AstNode // catchExpression
 }
 
 export type AstNode =
@@ -206,7 +224,7 @@ export type AstNode =
   | ModifierNode
   | SpecialExpressionNode
 
+type AstBody = AstNode[]
 export type Ast = {
-  type: `Program`
-  body: AstNode[]
+  b: AstBody // body
 }

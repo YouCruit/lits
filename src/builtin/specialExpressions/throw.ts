@@ -1,10 +1,11 @@
 import { UserDefinedError } from '../../errors'
-import { AstNode, SpecialExpressionNode } from '../../parser/interface'
+import { AstNode, AstNodeType, SpecialExpressionNode } from '../../parser/interface'
+import { TokenizerType } from '../../tokenizer/interface'
 import { string, token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
 type ThrowNode = SpecialExpressionNode & {
-  messageNode: AstNode
+  m: AstNode
 }
 
 export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
@@ -13,24 +14,23 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
     const [newPosition, messageNode] = parseToken(tokens, position)
     position = newPosition
 
-    token.assert(tokens[position], `EOF`, { type: `paren`, value: `)` })
+    token.assert(tokens[position], `EOF`, { type: TokenizerType.Bracket, value: `)` })
     position += 1
 
     const node: ThrowNode = {
-      type: `SpecialExpression`,
-      name: `throw`,
-      params: [],
-      messageNode,
-      token: firstToken.debugInfo ? firstToken : undefined,
+      t: AstNodeType.SpecialExpression,
+      n: `throw`,
+      p: [],
+      m: messageNode,
+      tkn: firstToken.d ? firstToken : undefined,
     }
     return [position, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const message = string.as(evaluateAstNode((node as ThrowNode).messageNode, contextStack), node.token?.debugInfo, {
+    const message = string.as(evaluateAstNode((node as ThrowNode).m, contextStack), node.tkn?.d, {
       nonEmpty: true,
     })
-    throw new UserDefinedError(message, node.token?.debugInfo)
+    throw new UserDefinedError(message, node.tkn?.d)
   },
-  analyze: (node, contextStack, { analyzeAst, builtin }) =>
-    analyzeAst((node as ThrowNode).messageNode, contextStack, builtin),
+  analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst((node as ThrowNode).m, contextStack, builtin),
 }

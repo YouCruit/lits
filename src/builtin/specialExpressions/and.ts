@@ -1,4 +1,5 @@
 import { Any } from '../../interface'
+import { AstNodeType } from '../../parser/interface'
 import { token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
@@ -9,17 +10,17 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [
       newPosition + 1,
       {
-        type: `SpecialExpression`,
-        name: `and`,
-        params,
-        token: firstToken.debugInfo ? firstToken : undefined,
+        t: AstNodeType.SpecialExpression,
+        n: `and`,
+        p: params,
+        tkn: firstToken.d ? firstToken : undefined,
       },
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     let value: Any = true
 
-    for (const param of node.params) {
+    for (const param of node.p) {
       value = evaluateAstNode(param, contextStack)
       if (!value) {
         break
@@ -28,5 +29,5 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     return value
   },
-  analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.params, contextStack, builtin),
+  analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.p, contextStack, builtin),
 }

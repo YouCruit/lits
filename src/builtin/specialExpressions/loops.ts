@@ -2,21 +2,21 @@ import { AnalyzeAst, AnalyzeResult } from '../../analyze/interface'
 import { LitsError } from '../../errors'
 import { Context, ContextStack, EvaluateAstNode } from '../../evaluator/interface'
 import { Any, Arr } from '../../interface'
-import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
-import { Token, DebugInfo } from '../../tokenizer/interface'
+import { AstNode, BindingNode, AstNodeType, SpecialExpressionNode } from '../../parser/interface'
+import { Token, DebugInfo, TokenizerType } from '../../tokenizer/interface'
 import { any, astNode, asValue, collection, sequence, token } from '../../utils/assertion'
 import { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
 
 type LoopNode = SpecialExpressionNode & {
-  loopBindings: LoopBindingNode[]
+  l: LoopBindingNode[]
 }
 
 export type LoopBindingNode = {
-  binding: BindingNode
-  modifiers: Array<`&let` | `&when` | `&while`>
-  letBindings?: BindingNode[]
-  whenNode?: AstNode
-  whileNode?: AstNode
+  b: BindingNode // Binding
+  m: Array<`&let` | `&when` | `&while`> // Modifiers
+  l?: BindingNode[] // Let-Bindings
+  wn?: AstNode // When Node
+  we?: AstNode // While Node
 }
 
 function parseLoopBinding(
@@ -28,36 +28,36 @@ function parseLoopBinding(
   ;[position, bindingNode] = parseBinding(tokens, position)
 
   const loopBinding: LoopBindingNode = {
-    binding: bindingNode,
-    modifiers: [],
+    b: bindingNode,
+    m: [],
   }
 
   let tkn = token.as(tokens[position], `EOF`)
-  while (tkn.type === `modifier`) {
-    switch (tkn.value) {
+  while (tkn.t === TokenizerType.Modifier) {
+    switch (tkn.v) {
       case `&let`:
-        if (loopBinding.letBindings) {
-          throw new LitsError(`Only one &let modifier allowed`, tkn.debugInfo)
+        if (loopBinding.l) {
+          throw new LitsError(`Only one &let modifier allowed`, tkn.d)
         }
-        ;[position, loopBinding.letBindings] = parseBindings(tokens, position + 1)
-        loopBinding.modifiers.push(`&let`)
+        ;[position, loopBinding.l] = parseBindings(tokens, position + 1)
+        loopBinding.m.push(`&let`)
         break
       case `&when`:
-        if (loopBinding.whenNode) {
-          throw new LitsError(`Only one &when modifier allowed`, tkn.debugInfo)
+        if (loopBinding.wn) {
+          throw new LitsError(`Only one &when modifier allowed`, tkn.d)
         }
-        ;[position, loopBinding.whenNode] = parseToken(tokens, position + 1)
-        loopBinding.modifiers.push(`&when`)
+        ;[position, loopBinding.wn] = parseToken(tokens, position + 1)
+        loopBinding.m.push(`&when`)
         break
       case `&while`:
-        if (loopBinding.whileNode) {
-          throw new LitsError(`Only one &while modifier allowed`, tkn.debugInfo)
+        if (loopBinding.we) {
+          throw new LitsError(`Only one &while modifier allowed`, tkn.d)
         }
-        ;[position, loopBinding.whileNode] = parseToken(tokens, position + 1)
-        loopBinding.modifiers.push(`&while`)
+        ;[position, loopBinding.we] = parseToken(tokens, position + 1)
+        loopBinding.m.push(`&while`)
         break
       default:
-        throw new LitsError(`Illegal modifier: ${tkn.value}`, tkn.debugInfo)
+        throw new LitsError(`Illegal modifier: ${tkn.v}`, tkn.d)
     }
     tkn = token.as(tokens[position], `EOF`)
   }
@@ -72,21 +72,21 @@ function addToContext(
   debugInfo?: DebugInfo,
 ) {
   for (const binding of bindings) {
-    if (context[binding.name]) {
-      throw new LitsError(`Variable already defined: ${binding.name}.`, debugInfo)
+    if (context[binding.n]) {
+      throw new LitsError(`Variable already defined: ${binding.n}.`, debugInfo)
     }
-    context[binding.name] = { value: evaluateAstNode(binding.value, contextStack) }
+    context[binding.n] = { value: evaluateAstNode(binding.v, contextStack) }
   }
 }
 
 function parseLoopBindings(tokens: Token[], position: number, parsers: ParserHelpers): [number, LoopBindingNode[]] {
-  token.assert(tokens[position], `EOF`, { type: `paren`, value: `[` })
+  token.assert(tokens[position], `EOF`, { type: TokenizerType.Bracket, value: `[` })
   position += 1
 
   const loopBindings: LoopBindingNode[] = []
 
   let tkn = token.as(tokens[position], `EOF`)
-  while (!token.is(tkn, { type: `paren`, value: `]` })) {
+  while (!token.is(tkn, { type: TokenizerType.Bracket, value: `]` })) {
     let loopBinding: LoopBindingNode
     ;[position, loopBinding] = parseLoopBinding(tokens, position, parsers)
     loopBindings.push(loopBinding)
@@ -100,8 +100,8 @@ function evaluateLoop(
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
 ) {
-  const debugInfo = node.token?.debugInfo
-  const { loopBindings, params } = node as LoopNode
+  const debugInfo = node.tkn?.d
+  const { l: loopBindings, p: params } = node as LoopNode
   const expression = astNode.as(params[0], debugInfo)
 
   const result: Arr = []
@@ -113,8 +113,14 @@ function evaluateLoop(
     const newContextStack = contextStack.withContext(context)
     let skip = false
     bindingsLoop: for (let bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
-      const { binding, letBindings, whenNode, whileNode, modifiers } = asValue(loopBindings[bindingIndex], debugInfo)
-      const coll = collection.as(evaluateAstNode(binding.value, newContextStack), debugInfo)
+      const {
+        b: binding,
+        l: letBindings,
+        wn: whenNode,
+        we: whileNode,
+        m: modifiers,
+      } = asValue(loopBindings[bindingIndex], debugInfo)
+      const coll = collection.as(evaluateAstNode(binding.v, newContextStack), debugInfo)
       const seq = sequence.is(coll) ? coll : Object.entries(coll)
       if (seq.length === 0) {
         skip = true
@@ -132,10 +138,10 @@ function evaluateLoop(
         bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], debugInfo) + 1
         break
       }
-      if (context[binding.name]) {
-        throw new LitsError(`Variable already defined: ${binding.name}.`, debugInfo)
+      if (context[binding.n]) {
+        throw new LitsError(`Variable already defined: ${binding.n}.`, debugInfo)
       }
-      context[binding.name] = {
+      context[binding.n] = {
         value: any.as(seq[index], debugInfo),
       }
       for (const modifier of modifiers) {
@@ -181,19 +187,19 @@ function analyze(
     undefinedSymbols: new Set(),
   }
   const newContext: Context = {}
-  const { loopBindings } = node as LoopNode
+  const { l: loopBindings } = node as LoopNode
   loopBindings.forEach(loopBinding => {
-    const { binding, letBindings, whenNode, whileNode } = loopBinding
-    analyzeAst(binding.value, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
+    const { b: binding, l: letBindings, wn: whenNode, we: whileNode } = loopBinding
+    analyzeAst(binding.v, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
       result.undefinedSymbols.add(symbol),
     )
-    newContext[binding.name] = { value: true }
+    newContext[binding.n] = { value: true }
     if (letBindings) {
       letBindings.forEach(letBinding => {
-        analyzeAst(letBinding.value, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
+        analyzeAst(letBinding.v, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
           result.undefinedSymbols.add(symbol),
         )
-        newContext[letBinding.name] = { value: true }
+        newContext[letBinding.n] = { value: true }
       })
     }
     if (whenNode) {
@@ -207,7 +213,7 @@ function analyze(
       )
     }
   })
-  analyzeAst(node.params, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
+  analyzeAst(node.p, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
     result.undefinedSymbols.add(symbol),
   )
   return result
@@ -223,14 +229,14 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any> = {
     let expression: AstNode
     ;[position, expression] = parseToken(tokens, position)
 
-    token.assert(tokens[position], `EOF`, { type: `paren`, value: `)` })
+    token.assert(tokens[position], `EOF`, { type: TokenizerType.Bracket, value: `)` })
 
     const node: LoopNode = {
-      name: `for`,
-      type: `SpecialExpression`,
-      loopBindings,
-      params: [expression],
-      token: firstToken.debugInfo ? firstToken : undefined,
+      n: `for`,
+      t: AstNodeType.SpecialExpression,
+      l: loopBindings,
+      p: [expression],
+      tkn: firstToken.d ? firstToken : undefined,
     }
 
     return [position + 1, node]
@@ -249,14 +255,14 @@ export const doseqSpecialExpression: BuiltinSpecialExpression<null> = {
     let expression: AstNode
     ;[position, expression] = parseToken(tokens, position)
 
-    token.assert(tokens[position], `EOF`, { type: `paren`, value: `)` })
+    token.assert(tokens[position], `EOF`, { type: TokenizerType.Bracket, value: `)` })
 
     const node: LoopNode = {
-      name: `doseq`,
-      type: `SpecialExpression`,
-      loopBindings,
-      params: [expression],
-      token: firstToken.debugInfo ? firstToken : undefined,
+      n: `doseq`,
+      t: AstNodeType.SpecialExpression,
+      l: loopBindings,
+      p: [expression],
+      tkn: firstToken.d ? firstToken : undefined,
     }
 
     return [position + 1, node]

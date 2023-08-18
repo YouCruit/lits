@@ -3,33 +3,33 @@
 exports[`misc functions debug! debug value. 1`] = `
 "*** LITS DEBUG ***
 {
-  \\"__LITS_FUNCTION__\\": true,
-  \\"type\\": \\"user-defined\\",
-  \\"overloads\\": [
+  \\"_LF_\\": true,
+  \\"t\\": 0,
+  \\"o\\": [
     {
-      \\"arguments\\": {
+      \\"as\\": {
         \\"mandatoryArguments\\": [
           \\"%1\\"
         ]
       },
-      \\"arity\\": 1,
-      \\"body\\": [
+      \\"a\\": 1,
+      \\"b\\": [
         {
-          \\"type\\": \\"NormalExpression\\",
-          \\"name\\": \\">\\",
-          \\"params\\": [
+          \\"t\\": 2,
+          \\"n\\": \\">\\",
+          \\"p\\": [
             {
-              \\"type\\": \\"Name\\",
-              \\"value\\": \\"%1\\"
+              \\"t\\": 4,
+              \\"v\\": \\"%1\\"
             },
             {
-              \\"type\\": \\"Number\\",
-              \\"value\\": 2
+              \\"t\\": 0,
+              \\"v\\": 2
             }
           ]
         }
       ],
-      \\"functionContext\\": {}
+      \\"f\\": {}
     }
   ]
 }
@@ -39,33 +39,33 @@ exports[`misc functions debug! debug value. 1`] = `
 exports[`misc functions debug! debug value. 2`] = `
 "*** LITS DEBUG ***
 {
-  \\"__LITS_FUNCTION__\\": true,
-  \\"debugInfo\\": {
+  \\"_LF_\\": true,
+  \\"d\\": {
     \\"code\\": \\"(debug! #(> %1 2))\\",
     \\"line\\": 1,
     \\"column\\": 9
   },
-  \\"type\\": \\"user-defined\\",
-  \\"overloads\\": [
+  \\"t\\": 0,
+  \\"o\\": [
     {
-      \\"arguments\\": {
+      \\"as\\": {
         \\"mandatoryArguments\\": [
           \\"%1\\"
         ]
       },
-      \\"arity\\": 1,
-      \\"body\\": [
+      \\"a\\": 1,
+      \\"b\\": [
         {
-          \\"type\\": \\"NormalExpression\\",
-          \\"name\\": \\">\\",
-          \\"params\\": [
+          \\"t\\": 2,
+          \\"n\\": \\">\\",
+          \\"p\\": [
             {
-              \\"type\\": \\"Name\\",
-              \\"value\\": \\"%1\\",
-              \\"token\\": {
-                \\"type\\": \\"name\\",
-                \\"value\\": \\"%1\\",
-                \\"debugInfo\\": {
+              \\"t\\": 4,
+              \\"v\\": \\"%1\\",
+              \\"tkn\\": {
+                \\"t\\": 2,
+                \\"v\\": \\"%1\\",
+                \\"d\\": {
                   \\"code\\": \\"(debug! #(> %1 2))\\",
                   \\"line\\": 1,
                   \\"column\\": 13
@@ -73,12 +73,12 @@ exports[`misc functions debug! debug value. 2`] = `
               }
             },
             {
-              \\"type\\": \\"Number\\",
-              \\"value\\": 2,
-              \\"token\\": {
-                \\"type\\": \\"number\\",
-                \\"value\\": \\"2\\",
-                \\"debugInfo\\": {
+              \\"t\\": 0,
+              \\"v\\": 2,
+              \\"tkn\\": {
+                \\"t\\": 1,
+                \\"v\\": \\"2\\",
+                \\"d\\": {
                   \\"code\\": \\"(debug! #(> %1 2))\\",
                   \\"line\\": 1,
                   \\"column\\": 16
@@ -86,10 +86,10 @@ exports[`misc functions debug! debug value. 2`] = `
               }
             }
           ],
-          \\"token\\": {
-            \\"type\\": \\"name\\",
-            \\"value\\": \\">\\",
-            \\"debugInfo\\": {
+          \\"tkn\\": {
+            \\"t\\": 2,
+            \\"v\\": \\">\\",
+            \\"d\\": {
               \\"code\\": \\"(debug! #(> %1 2))\\",
               \\"line\\": 1,
               \\"column\\": 11
@@ -97,7 +97,7 @@ exports[`misc functions debug! debug value. 2`] = `
           }
         }
       ],
-      \\"functionContext\\": {}
+      \\"f\\": {}
     }
   ]
 }
@@ -114,9 +114,9 @@ Context 1 - Global context
 
 Context 2
   x     10
-  foo   <user-defined function foo>
-  bar   <user-defined function λ>
-  plus  <builtin function +>
+  foo   <0 function foo>
+  bar   <0 function λ>
+  plus  <9 function +>
 
 
 "
@@ -132,9 +132,9 @@ Context 1 - Global context
 
 Context 2
   x     10
-  foo   <user-defined function foo>
-  bar   <user-defined function λ>
-  plus  <builtin function +>
+  foo   <0 function foo>
+  bar   <0 function λ>
+  plus  <9 function +>
 
 
 "

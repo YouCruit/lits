@@ -35,7 +35,7 @@ export function valueToString(value: unknown): string {
   return JSON.stringify(value)
 }
 
-const tokenTypes: Record<TokenizerType, true> = {
+const tokenTypeRecord: Record<TokenizerType, true> = {
   fnShorthand: true,
   modifier: true,
   name: true,
@@ -44,7 +44,9 @@ const tokenTypes: Record<TokenizerType, true> = {
   regexpShorthand: true,
   reservedName: true,
   string: true,
+  dot: true,
 }
+const tokenTypes = new Set(Object.keys(tokenTypeRecord))
 
 export function isToken(value: unknown): value is Token {
   if (typeof value !== `object` || value === null) {
@@ -56,7 +58,7 @@ export function isToken(value: unknown): value is Token {
     return false
   }
 
-  return !!tokenTypes[tkn.type]
+  return tokenTypes.has(tkn.type)
 }
 
 const astTypes: Record<NodeType, true> = {

@@ -36,7 +36,7 @@ var Lits = (function (exports) {
       }
       return JSON.stringify(value);
   }
-  var tokenTypes = {
+  var tokenTypeRecord = {
       fnShorthand: true,
       modifier: true,
       name: true,
@@ -45,7 +45,9 @@ var Lits = (function (exports) {
       regexpShorthand: true,
       reservedName: true,
       string: true,
+      dot: true,
   };
+  var tokenTypes = new Set(Object.keys(tokenTypeRecord));
   function isToken(value) {
       if (typeof value !== "object" || value === null) {
           return false;
@@ -54,7 +56,7 @@ var Lits = (function (exports) {
       if (!tkn.type || typeof tkn.value !== "string") {
           return false;
       }
-      return !!tokenTypes[tkn.type];
+      return tokenTypes.has(tkn.type);
   }
   var astTypes = {
       Number: true,
@@ -513,6 +515,10 @@ var Lits = (function (exports) {
       if (value === undefined) {
           throw new LitsError("Unexpected nil.", getDebugInfo(value, debugInfo));
       }
+  }
+  /* istanbul ignore next */
+  function assertUnreachable(_) {
+      throw new Error("This should not be reached");
   }
 
   var andSpecialExpression = {
@@ -4279,7 +4285,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.55";
+  var version = "1.0.56-alpha.0";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6383,42 +6389,38 @@ var Lits = (function (exports) {
   };
   var parseToken = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
-      var nodeDescriptor = undefined;
       switch (tkn.type) {
           case "number":
-              nodeDescriptor = parseNumber(tokens, position);
-              break;
+              return parseNumber(tokens, position);
           case "string":
-              nodeDescriptor = parseString(tokens, position);
-              break;
+              return parseString(tokens, position);
           case "name":
-              nodeDescriptor = parseName(tokens, position);
-              break;
+              return parseName(tokens, position);
           case "reservedName":
-              nodeDescriptor = parseReservedName(tokens, position);
-              break;
+              return parseReservedName(tokens, position);
           case "paren":
               if (tkn.value === "(") {
-                  nodeDescriptor = parseExpression(tokens, position);
+                  return parseExpression(tokens, position);
               }
               else if (tkn.value === "[") {
-                  nodeDescriptor = parseArrayLitteral(tokens, position);
+                  return parseArrayLitteral(tokens, position);
               }
               else if (tkn.value === "{") {
-                  nodeDescriptor = parseObjectLitteral(tokens, position);
+                  return parseObjectLitteral(tokens, position);
               }
               break;
           case "regexpShorthand":
-              nodeDescriptor = parseRegexpShorthand(tokens, position);
-              break;
+              return parseRegexpShorthand(tokens, position);
           case "fnShorthand":
-              nodeDescriptor = parseFnShorthand(tokens, position);
+              return parseFnShorthand(tokens, position);
+          case "dot":
+          case "modifier":
               break;
+          /* istanbul ignore next */
+          default:
+              assertUnreachable(tkn.type);
       }
-      if (!nodeDescriptor) {
-          throw new LitsError("Unrecognized token: ".concat(tkn.type, " value=").concat(tkn.value), tkn.debugInfo);
-      }
-      return nodeDescriptor;
+      throw new LitsError("Unrecognized token: ".concat(tkn.type, " value=").concat(tkn.value), tkn.debugInfo);
   };
 
   function parse(tokens) {
@@ -6434,6 +6436,111 @@ var Lits = (function (exports) {
           ast.body.push(node);
       }
       return ast;
+  }
+
+  var applyDots = function (tokens) {
+      var dotTokenIndex = tokens.findIndex(function (tkn) { return tkn.type === "dot"; });
+      while (dotTokenIndex >= 0) {
+          applyDot(tokens, dotTokenIndex);
+          dotTokenIndex = tokens.findIndex(function (tkn) { return tkn.type === "dot"; });
+      }
+      return tokens;
+  };
+  function applyDot(tokens, position) {
+      var dotTkn = asValue(tokens[position]);
+      var debugInfo = dotTkn.debugInfo;
+      var backPosition = getPositionBackwards(tokens, position, debugInfo);
+      checkForward(tokens, position, dotTkn, debugInfo);
+      tokens.splice(position, 1);
+      tokens.splice(backPosition, 0, {
+          type: "paren",
+          value: "(",
+          debugInfo: debugInfo,
+      });
+      var nextTkn = asValue(tokens[position + 1]);
+      if (dotTkn.value === ".") {
+          tokens[position + 1] = {
+              type: "string",
+              value: nextTkn.value,
+              debugInfo: nextTkn.debugInfo,
+          };
+      }
+      else {
+          number.assert(Number(nextTkn.value), debugInfo, { integer: true, nonNegative: true });
+          tokens[position + 1] = {
+              type: "number",
+              value: nextTkn.value,
+              debugInfo: nextTkn.debugInfo,
+          };
+      }
+      tokens.splice(position + 2, 0, {
+          type: "paren",
+          value: ")",
+          debugInfo: debugInfo,
+      });
+  }
+  function getPositionBackwards(tokens, position, debugInfo) {
+      var bracketCount = null;
+      if (position <= 0) {
+          throw new LitsError("Array accessor # must come after an array", debugInfo);
+      }
+      var prevToken = asValue(tokens[position - 1]);
+      var openBracket = null;
+      var closeBracket = null;
+      if (prevToken.type === "paren") {
+          switch (prevToken.value) {
+              case ")":
+                  openBracket = "(";
+                  closeBracket = ")";
+                  break;
+              case "]":
+                  openBracket = "[";
+                  closeBracket = "]";
+                  break;
+              case "}":
+                  openBracket = "{";
+                  closeBracket = "}";
+                  break;
+              default:
+                  throw new LitsError("# or . must be preceeded by an array or an object", debugInfo);
+          }
+      }
+      while (bracketCount !== 0) {
+          bracketCount = bracketCount === null ? 0 : bracketCount;
+          position -= 1;
+          var tkn = asValue(tokens[position], debugInfo);
+          if (tkn.type === "paren") {
+              if (tkn.value === openBracket) {
+                  bracketCount += 1;
+              }
+              if (tkn.value === closeBracket) {
+                  bracketCount -= 1;
+              }
+          }
+          if (bracketCount > 0) {
+              throw new LitsError("# or . must be preceeded by a valid form", debugInfo);
+          }
+      }
+      if (openBracket === "(" && position > 0) {
+          var prevToken_1 = asValue(tokens[position - 1]);
+          if (prevToken_1.type === "fnShorthand") {
+              throw new LitsError("# or . must NOT be preceeded by shorthand lambda function", debugInfo);
+          }
+      }
+      return position;
+  }
+  function checkForward(tokens, position, dotTkn, debugInfo) {
+      var tkn = asValue(tokens[position + 1], debugInfo);
+      if (dotTkn.value === "." && tkn.type !== "name") {
+          throw new LitsError("# as a array accessor must be followed by an name", debugInfo);
+      }
+      if (dotTkn.value === "#" && tkn.type !== "number") {
+          throw new LitsError("# as a array accessor must be followed by an integer", debugInfo);
+      }
+  }
+
+  function getSugar() {
+      return [applyDots];
   }
 
   var NO_MATCH = [0, undefined];
@@ -6509,6 +6616,20 @@ var Lits = (function (exports) {
       }
       return [length + 1, { type: "string", value: value, debugInfo: debugInfo }];
   };
+  var tokenizeDot = function (input, position, debugInfo) {
+      var char = input[position];
+      if (char !== "." && char !== "#") {
+          return NO_MATCH;
+      }
+      return [
+          1,
+          {
+              type: "dot",
+              value: char,
+              debugInfo: debugInfo,
+          },
+      ];
+  };
   var tokenizeSymbolString = function (input, position, debugInfo) {
       if (input[position] !== ":") {
           return NO_MATCH;
@@ -6581,7 +6702,7 @@ var Lits = (function (exports) {
           },
       ];
   };
-  var endOfNumberRegExp = /\s|[)\]},]/;
+  var endOfNumberRegExp = /\s|[)\]},#]/;
   var decimalNumberRegExp = /[0-9]/;
   var octalNumberRegExp = /[0-7]/;
   var hexNumberRegExp = /[0-9a-fA-F]/;
@@ -6599,6 +6720,12 @@ var Lits = (function (exports) {
           var char = string.as(input[i], debugInfo, { char: true });
           if (endOfNumberRegExp.test(char)) {
               break;
+          }
+          if (char === ".") {
+              var char_1 = input[i + 1];
+              if (typeof char_1 === "string" && !decimalNumberRegExp.test(char_1)) {
+                  break;
+              }
           }
           if (i === position + 1 && firstChar === "0") {
               if (char === "b" || char === "B") {
@@ -6741,11 +6868,13 @@ var Lits = (function (exports) {
       tokenizeString,
       tokenizeSymbolString,
       tokenizeNumber,
+      // tokenizeDotExpression,
       tokenizeReservedName,
       tokenizeName,
       tokenizeModifier,
       tokenizeRegexpShorthand,
       tokenizeFnShorthand,
+      tokenizeDot,
   ];
   function getSourceCodeLine(input, lineNbr) {
       return input.split(/\r\n|\r|\n/)[lineNbr];
@@ -6800,7 +6929,12 @@ var Lits = (function (exports) {
               throw new LitsError("Unrecognized character '".concat(input[position], "'."), debugInfo);
           }
       }
+      applySugar(tokens);
       return tokens;
+  }
+  function applySugar(tokens) {
+      var sugar = getSugar();
+      sugar.forEach(function (sugarFn) { return sugarFn(tokens); });
   }
 
   var Cache = /** @class */ (function () {

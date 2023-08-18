@@ -8,6 +8,22 @@ module.exports = [
     `.trim(),
   },
   {
+    id: 'dot-notation',
+    name: 'Object and array accessors',
+    description: 'Syntactic sugar for accessing object members and array elements.',
+    code: `
+;; Access object properies with . and array elements with #
+
+(def data {:numbers [1 2 3], :chars [:a :b :c]})
+
+(write! data.numbers#0)
+(write! data.chars#2)
+
+(write! [1 2 3]#2)
+(write! {:a 1, :b 2, :c 3}.b)
+    `.trim(),
+  },
+  {
     id: 'simple-params-example',
     name: 'Params in use',
     description: 'Simple example using params.',

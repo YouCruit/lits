@@ -299,7 +299,7 @@ function run() {
   try {
     params = paramsString.trim().length > 0 ? JSON.parse(paramsString) : {}
   } catch (e) {
-    output.value = 'Error: Could not parse params'
+    output.value = `Error: Could not parse params: ${paramsString}`
     output.classList.add('error')
     return
   }

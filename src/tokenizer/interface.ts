@@ -9,6 +9,7 @@ export type TokenizerType =
   | `modifier`
   | `regexpShorthand`
   | `fnShorthand`
+  | `dot`
 
 export type SourceCodeInfo = {
   line: number

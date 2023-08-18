@@ -1,4 +1,6 @@
+import { Token } from '../../src'
 import { parse } from '../../src/parser'
+import { parseToken } from '../../src/parser/parsers'
 import { tokenize } from '../../src/tokenizer'
 
 const program = `
@@ -51,5 +53,117 @@ describe(`Parser`, () => {
         ),
       ),
     ).not.toThrow()
+  })
+
+  test(`parse dotNotation, check ast 1`, () => {
+    const tokens = tokenize(`foo#1.a`, { debug: false })
+    const ast = parse(tokens)
+    expect(ast).toEqual({
+      type: `Program`,
+      body: [
+        {
+          type: `NormalExpression`,
+          expression: {
+            type: `NormalExpression`,
+            name: `foo`,
+            params: [
+              {
+                type: `Number`,
+                value: 1,
+              },
+            ],
+          },
+          params: [
+            {
+              type: `String`,
+              value: `a`,
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  test(`parse dotNotation, check ast 2`, () => {
+    const tokens = tokenize(`(#(identity %1) [1 2 3])#1`, { debug: false })
+    const ast = parse(tokens)
+    expect(ast).toEqual({
+      type: `Program`,
+      body: [
+        {
+          type: `NormalExpression`,
+          expression: {
+            type: `NormalExpression`,
+            expression: {
+              type: `SpecialExpression`,
+              name: `fn`,
+              params: [],
+              overloads: [
+                {
+                  arguments: {
+                    bindings: [],
+                    mandatoryArguments: [`%1`],
+                  },
+                  body: [
+                    {
+                      type: `NormalExpression`,
+                      name: `identity`,
+                      params: [
+                        {
+                          type: `Name`,
+                          value: `%1`,
+                        },
+                      ],
+                    },
+                  ],
+                  arity: 1,
+                },
+              ],
+            },
+            params: [
+              {
+                type: `NormalExpression`,
+                name: `array`,
+                params: [
+                  {
+                    type: `Number`,
+                    value: 1,
+                  },
+                  {
+                    type: `Number`,
+                    value: 2,
+                  },
+                  {
+                    type: `Number`,
+                    value: 3,
+                  },
+                ],
+              },
+            ],
+          },
+          params: [
+            {
+              type: `Number`,
+              value: 1,
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  test(`parseToken unknown token`, () => {
+    const tokens: Token[] = [
+      {
+        type: `dot`,
+        value: ``,
+      },
+      {
+        type: `modifier`,
+        value: ``,
+      },
+    ]
+    expect(() => parseToken(tokens, 0)).toThrow()
+    expect(() => parseToken(tokens, 1)).toThrow()
   })
 })

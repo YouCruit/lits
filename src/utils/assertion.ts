@@ -165,3 +165,8 @@ export function assertValue<T>(value: T | undefined, debugInfo?: DebugInfo): ass
     throw new LitsError(`Unexpected nil.`, getDebugInfo(value, debugInfo))
   }
 }
+
+/* istanbul ignore next */
+export function assertUnreachable(_: never): never {
+  throw new Error(`This should not be reached`)
+}

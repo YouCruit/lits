@@ -1,6 +1,7 @@
 import { LitsError } from '../errors'
 import { LocationGetter } from '../Lits/Lits'
 import { Token, Tokenizer, DebugInfo, TokenizeParams } from './interface'
+import { getSugar } from './sugar'
 import {
   skipComment,
   skipWhiteSpace,
@@ -18,6 +19,7 @@ import {
   tokenizeRegexpShorthand,
   tokenizeFnShorthand,
   tokenizeSymbolString,
+  tokenizeDot,
 } from './tokenizers'
 
 // All tokenizers, order matters!
@@ -38,6 +40,7 @@ const tokenizers: Tokenizer[] = [
   tokenizeModifier,
   tokenizeRegexpShorthand,
   tokenizeFnShorthand,
+  tokenizeDot,
 ]
 
 function getSourceCodeLine(input: string, lineNbr: number): string {
@@ -87,5 +90,13 @@ export function tokenize(input: string, params: TokenizeParams): Token[] {
       throw new LitsError(`Unrecognized character '${input[position]}'.`, debugInfo)
     }
   }
+
+  applySugar(tokens)
+
   return tokens
+}
+
+function applySugar(tokens: Token[]) {
+  const sugar = getSugar()
+  sugar.forEach(sugarFn => sugarFn(tokens))
 }

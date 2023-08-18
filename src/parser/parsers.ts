@@ -23,7 +23,15 @@ import { ReservedName } from '../reservedNames'
 import { LitsError } from '../errors'
 import { FnNode } from '../builtin/specialExpressions/functions'
 import { FunctionArguments } from '../builtin/utils'
-import { assertEventNumberOfParams, assertValue, asValue, expressionNode, nameNode, token } from '../utils/assertion'
+import {
+  assertEventNumberOfParams,
+  assertUnreachable,
+  assertValue,
+  asValue,
+  expressionNode,
+  nameNode,
+  token,
+} from '../utils/assertion'
 import { valueToString } from '../utils/helpers'
 
 type ParseNumber = (tokens: Token[], position: number) => [number, NumberNode]
@@ -311,38 +319,34 @@ const parseSpecialExpression: ParseSpecialExpression = (tokens, position) => {
 
 export const parseToken: ParseToken = (tokens, position) => {
   const tkn = token.as(tokens[position], `EOF`)
-  let nodeDescriptor: [number, AstNode] | undefined = undefined
   switch (tkn.type) {
     case `number`:
-      nodeDescriptor = parseNumber(tokens, position)
-      break
+      return parseNumber(tokens, position)
     case `string`:
-      nodeDescriptor = parseString(tokens, position)
-      break
+      return parseString(tokens, position)
     case `name`:
-      nodeDescriptor = parseName(tokens, position)
-      break
+      return parseName(tokens, position)
     case `reservedName`:
-      nodeDescriptor = parseReservedName(tokens, position)
-      break
+      return parseReservedName(tokens, position)
     case `paren`:
       if (tkn.value === `(`) {
-        nodeDescriptor = parseExpression(tokens, position)
+        return parseExpression(tokens, position)
       } else if (tkn.value === `[`) {
-        nodeDescriptor = parseArrayLitteral(tokens, position)
+        return parseArrayLitteral(tokens, position)
       } else if (tkn.value === `{`) {
-        nodeDescriptor = parseObjectLitteral(tokens, position)
+        return parseObjectLitteral(tokens, position)
       }
       break
     case `regexpShorthand`:
-      nodeDescriptor = parseRegexpShorthand(tokens, position)
-      break
+      return parseRegexpShorthand(tokens, position)
     case `fnShorthand`:
-      nodeDescriptor = parseFnShorthand(tokens, position)
+      return parseFnShorthand(tokens, position)
+    case `dot`:
+    case `modifier`:
       break
+    /* istanbul ignore next */
+    default:
+      assertUnreachable(tkn.type)
   }
-  if (!nodeDescriptor) {
-    throw new LitsError(`Unrecognized token: ${tkn.type} value=${tkn.value}`, tkn.debugInfo)
-  }
-  return nodeDescriptor
+  throw new LitsError(`Unrecognized token: ${tkn.type} value=${tkn.value}`, tkn.debugInfo)
 }

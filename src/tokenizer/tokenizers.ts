@@ -76,6 +76,21 @@ export const tokenizeString: Tokenizer = (input, position, debugInfo) => {
   return [length + 1, { type: `string`, value, debugInfo }]
 }
 
+export const tokenizeDot: Tokenizer = (input, position, debugInfo) => {
+  const char = input[position]
+  if (char !== `.` && char !== `#`) {
+    return NO_MATCH
+  }
+  return [
+    1,
+    {
+      type: `dot`,
+      value: char,
+      debugInfo,
+    },
+  ]
+}
+
 export const tokenizeSymbolString: Tokenizer = (input, position, debugInfo) => {
   if (input[position] !== `:`) {
     return NO_MATCH
@@ -153,7 +168,7 @@ export const tokenizeFnShorthand: Tokenizer = (input, position, debugInfo) => {
   ]
 }
 
-const endOfNumberRegExp = /\s|[)\]},]/
+const endOfNumberRegExp = /\s|[)\]},#]/
 const decimalNumberRegExp = /[0-9]/
 const octalNumberRegExp = /[0-7]/
 const hexNumberRegExp = /[0-9a-fA-F]/
@@ -173,6 +188,12 @@ export const tokenizeNumber: Tokenizer = (input, position, debugInfo) => {
     const char = string.as(input[i], debugInfo, { char: true })
     if (endOfNumberRegExp.test(char)) {
       break
+    }
+    if (char === `.`) {
+      const char = input[i + 1]
+      if (typeof char === `string` && !decimalNumberRegExp.test(char)) {
+        break
+      }
     }
     if (i === position + 1 && firstChar === `0`) {
       if (char === `b` || char === `B`) {

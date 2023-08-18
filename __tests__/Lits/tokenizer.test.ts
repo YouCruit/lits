@@ -121,4 +121,34 @@ describe(`Tokenizer`, () => {
       expect(() => tokenize(`#`, { debug: true })).toThrow()
     })
   })
+
+  describe(`dotExpression`, () => {
+    test(`samples`, () => {
+      const samples = [
+        `(#(indentity %1) [1 2 3])#1`,
+        `x#1.bar`,
+        `x.y.z#1#2`,
+        `foo.bar`,
+        `foo#10`,
+        `foo # 10`,
+        `foo #10 #20 . bar`,
+        `[1 2 3]#1`,
+        `{:a 1}.a`,
+      ]
+      for (const sample of samples) {
+        tokenize(sample, { debug: false })
+      }
+    })
+    test(`illegal samples`, () => {
+      const illegalSamples = [`#(indentity %1)#1`, `(.bar`, `foo##1`, `foo..bar`, `.bar`, `).1`]
+      for (const sample of illegalSamples) {
+        try {
+          tokenize(sample, { debug: false })
+          throw Error()
+        } catch {
+          // Expected
+        }
+      }
+    })
+  })
 })

@@ -1,3 +1,4 @@
+import { Readable } from '../Lits/Lits'
 import { Context } from '../evaluator/interface'
 import { Any, Arr, Coll, Obj } from '../interface'
 import { RegularExpression } from '../parser/interface'
@@ -172,12 +173,22 @@ export function cloneColl<T extends Coll>(value: T): T {
   return clone(value)
 }
 
-export function createContextFromValues(values?: Obj): Context {
+export function createContextFromGlobals(values?: Obj): Context {
   if (!values) {
     return {}
   }
   return Object.entries(values).reduce((context: Context, [key, value]) => {
     context[key] = { value: toAny(value) }
+    return context
+  }, {})
+}
+
+export function createContextFromReadables(readables: Record<string, Readable> | undefined): Context {
+  if (!readables) {
+    return {}
+  }
+  return Object.entries(readables).reduce((context: Context, [key, readable]) => {
+    context[key] = readable
     return context
   }, {})
 }

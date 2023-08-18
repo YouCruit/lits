@@ -1,8 +1,8 @@
 var Lits = (function (exports) {
   'use strict';
 
-  var FUNCTION_SYMBOL = "_LF_";
-  var REGEXP_SYMBOL = "_RE_";
+  var FUNCTION_SYMBOL = "\u03BB";
+  var REGEXP_SYMBOL = "\u01A6";
   var FunctionType;
   (function (FunctionType) {
       FunctionType[FunctionType["UserDefined"] = 0] = "UserDefined";
@@ -2072,13 +2072,23 @@ var Lits = (function (exports) {
   function cloneColl(value) {
       return clone(value);
   }
-  function createContextFromValues(values) {
+  function createContextFromGlobals(values) {
       if (!values) {
           return {};
       }
       return Object.entries(values).reduce(function (context, _a) {
           var _b = __read(_a, 2), key = _b[0], value = _b[1];
           context[key] = { value: toAny(value) };
+          return context;
+      }, {});
+  }
+  function createContextFromReadables(readables) {
+      if (!readables) {
+          return {};
+      }
+      return Object.entries(readables).reduce(function (context, _a) {
+          var _b = __read(_a, 2), key = _b[0], readable = _b[1];
+          context[key] = readable;
           return context;
       }, {});
   }
@@ -5921,7 +5931,7 @@ var Lits = (function (exports) {
       var _a;
       var lookUpResult = lookUp(node, contextStack);
       if (lookUpResult.contextEntry) {
-          return lookUpResult.contextEntry.value;
+          return getValueFromContextEntry(lookUpResult.contextEntry);
       }
       else if (lookUpResult.builtinFunction) {
           return lookUpResult.builtinFunction;
@@ -5981,24 +5991,25 @@ var Lits = (function (exports) {
   }
   function evaluateNormalExpression(node, contextStack) {
       var e_3, _a;
-      var _b, _c;
+      var _b;
       var params = node.p.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
       var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
       if (normalExpressionNodeWithName.is(node)) {
           try {
-              for (var _d = __values(contextStack.stack), _e = _d.next(); !_e.done; _e = _d.next()) {
-                  var context = _e.value;
-                  var fn = (_c = context[node.n]) === null || _c === void 0 ? void 0 : _c.value;
-                  if (fn === undefined) {
+              for (var _c = __values(contextStack.stack), _d = _c.next(); !_d.done; _d = _c.next()) {
+                  var context = _d.value;
+                  var contextEntry = context[node.n];
+                  if (contextEntry === undefined) {
                       continue;
                   }
+                  var fn = getValueFromContextEntry(contextEntry);
                   return executeFunction(fn, params, contextStack, debugInfo);
               }
           }
           catch (e_3_1) { e_3 = { error: e_3_1 }; }
           finally {
               try {
-                  if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
+                  if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
               }
               finally { if (e_3) throw e_3.error; }
           }
@@ -6077,6 +6088,12 @@ var Lits = (function (exports) {
       var param = params[0];
       sequence.assert(param, debugInfo);
       return toAny(param[fn]);
+  }
+  function getValueFromContextEntry(contextEntry) {
+      if (contextEntry.read) {
+          return contextEntry.read();
+      }
+      return contextEntry.value;
   }
 
   var analyzeAst = function (astNode, contextStack, builtin) {
@@ -7111,7 +7128,7 @@ var Lits = (function (exports) {
   function createContextStackFromParams(params) {
       var _a, _b;
       var globalContext = (_a = params.globalContext) !== null && _a !== void 0 ? _a : {};
-      Object.assign(globalContext, createContextFromValues(params.globals));
+      Object.assign(globalContext, createContextFromGlobals(params.globals), createContextFromReadables(params.readables));
       var contextStack = createContextStack(__spreadArray([globalContext], __read(((_b = params.contexts) !== null && _b !== void 0 ? _b : [])), false));
       return contextStack;
   }

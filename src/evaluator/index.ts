@@ -15,7 +15,7 @@ import { Ast } from '../parser/interface'
 import { builtin } from '../builtin'
 import { reservedNamesRecord } from '../reservedNames'
 import { toAny } from '../utils'
-import { Context, EvaluateAstNode, ExecuteFunction, LookUpResult } from './interface'
+import { Context, ContextEntry, EvaluateAstNode, ExecuteFunction, LookUpResult } from './interface'
 import { Any, Arr, Obj } from '../interface'
 import { ContextStack } from './interface'
 import { functionExecutors } from './functionExecutors'
@@ -97,7 +97,7 @@ function evaluateReservedName(node: ReservedNameNode): Any {
 function evaluateName(node: NameNode, contextStack: ContextStack): Any {
   const lookUpResult = lookUp(node, contextStack)
   if (lookUpResult.contextEntry) {
-    return lookUpResult.contextEntry.value
+    return getValueFromContextEntry(lookUpResult.contextEntry)
   } else if (lookUpResult.builtinFunction) {
     return lookUpResult.builtinFunction
   }
@@ -152,10 +152,11 @@ function evaluateNormalExpression(node: NormalExpressionNode, contextStack: Cont
   const debugInfo = node.tkn?.d
   if (normalExpressionNodeWithName.is(node)) {
     for (const context of contextStack.stack) {
-      const fn = context[node.n]?.value
-      if (fn === undefined) {
+      const contextEntry = context[node.n]
+      if (contextEntry === undefined) {
         continue
       }
+      const fn = getValueFromContextEntry(contextEntry)
       return executeFunction(fn, params, contextStack, debugInfo)
     }
 
@@ -244,4 +245,11 @@ function evaluateNumberAsFunction(fn: number, params: Arr, debugInfo?: DebugInfo
   const param = params[0]
   sequence.assert(param, debugInfo)
   return toAny(param[fn])
+}
+
+function getValueFromContextEntry(contextEntry: ContextEntry): Any {
+  if (contextEntry.read) {
+    return contextEntry.read()
+  }
+  return contextEntry.value
 }

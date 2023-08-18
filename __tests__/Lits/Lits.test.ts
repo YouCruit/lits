@@ -1,4 +1,4 @@
-import { Ast, Lits } from '../../src'
+import { Ast, Context, Lits } from '../../src'
 import { UndefinedSymbolError } from '../../src/errors'
 import { Cache } from '../../src/Lits/Cache'
 import { AstNodeType } from '../../src/parser/interface'
@@ -25,6 +25,43 @@ describe(`TEST`, () => {
     const fn = lits.run(`#(+ %1 %2 x)`)
     litsFunction.assert(fn)
     expect(lits.apply(fn, [2, 3], { globalContext: { x: { value: 1 } } })).toBe(6)
+  })
+})
+
+describe(`Context entry as function`, () => {
+  test(`that it works`, () => {
+    const lits = new Lits()
+    const contexts: Context[] = [
+      {
+        x: {
+          read: () => 42,
+        },
+        foo: {
+          read: () => ({
+            λ: true,
+            t: 0,
+            o: [
+              {
+                as: {
+                  mandatoryArguments: [],
+                },
+                a: 0,
+                b: [
+                  {
+                    t: 0,
+                    v: 42,
+                  },
+                ],
+                f: {},
+              },
+            ],
+          }),
+        },
+      },
+    ]
+    expect(lits.run(`x`, { contexts })).toBe(42)
+    expect(lits.run(`(foo)`, { contexts })).toBe(42)
+    expect(lits.run(`z`, { readables: { z: { read: () => 12 } } })).toBe(12)
   })
 })
 

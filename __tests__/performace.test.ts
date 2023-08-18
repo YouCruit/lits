@@ -6,12 +6,12 @@ import { Context } from '../src/evaluator/interface'
 import { Obj } from '../src/interface'
 import { parse } from '../src/parser'
 import { tokenize } from '../src/tokenizer'
-import { createContextFromValues } from '../src/utils'
+import { createContextFromGlobals } from '../src/utils'
 
 const ITERATIONS = 25000
 const program = `(+ (* (- x y) (- y x)) (* (/ x y) (/ y x)))`
 const globals: Obj = { x: 20, y: 30 }
-const context = createContextFromValues(globals)
+const context = createContextFromGlobals(globals)
 const contextStack = createContextStack([context])
 const jsExpression = `((x - y) * (y - x)) + ((x / y) * (y / x))`
 

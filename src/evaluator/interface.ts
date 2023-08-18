@@ -2,7 +2,7 @@ import { Any, Arr } from '../interface'
 import { AstNode, BuiltinFunction } from '../parser/interface'
 import { DebugInfo } from '../tokenizer/interface'
 
-export type ContextEntry = { value: Any }
+export type ContextEntry = { value: Any; read?: never } | { read: () => Any; value?: never }
 export type Context = Record<string, ContextEntry>
 export interface ContextStack {
   withContext(context: Context): ContextStack

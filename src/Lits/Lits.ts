@@ -9,7 +9,7 @@ import { parse } from '../parser'
 import { Ast } from '../parser/interface'
 import { tokenize } from '../tokenizer'
 import { Token } from '../tokenizer/interface'
-import { createContextFromValues } from '../utils'
+import { createContextFromGlobals, createContextFromReadables } from '../utils'
 import { Cache } from './Cache'
 
 export type LocationGetter = (line: number, col: number) => string
@@ -20,9 +20,14 @@ export type LitsRuntimeInfo = {
   debug: boolean
 }
 
+export interface Readable {
+  read: () => Any
+}
+
 export type LitsParams = {
   contexts?: Context[]
   globals?: Obj
+  readables?: Record<string, Readable>
   globalContext?: Context
   getLocation?: LocationGetter
 }
@@ -135,7 +140,7 @@ export class Lits {
 
 function createContextStackFromParams(params: LitsParams): ContextStack {
   const globalContext: Context = params.globalContext ?? {}
-  Object.assign(globalContext, createContextFromValues(params.globals))
+  Object.assign(globalContext, createContextFromGlobals(params.globals), createContextFromReadables(params.readables))
   const contextStack = createContextStack([globalContext, ...(params.contexts ?? [])])
   return contextStack
 }

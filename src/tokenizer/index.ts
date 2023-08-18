@@ -19,7 +19,7 @@ import {
   tokenizeRegexpShorthand,
   tokenizeFnShorthand,
   tokenizeSymbolString,
-  tokenizeDot,
+  tokenizeCollectionAccessor,
 } from './tokenizers'
 
 // All tokenizers, order matters!
@@ -40,7 +40,7 @@ const tokenizers: Tokenizer[] = [
   tokenizeModifier,
   tokenizeRegexpShorthand,
   tokenizeFnShorthand,
-  tokenizeDot,
+  tokenizeCollectionAccessor,
 ]
 
 function getSourceCodeLine(input: string, lineNbr: number): string {

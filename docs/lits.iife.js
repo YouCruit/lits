@@ -45,7 +45,7 @@ var Lits = (function (exports) {
       regexpShorthand: true,
       reservedName: true,
       string: true,
-      dot: true,
+      collectionAccessor: true,
   };
   var tokenTypes = new Set(Object.keys(tokenTypeRecord));
   function isToken(value) {
@@ -6413,7 +6413,7 @@ var Lits = (function (exports) {
               return parseRegexpShorthand(tokens, position);
           case "fnShorthand":
               return parseFnShorthand(tokens, position);
-          case "dot":
+          case "collectionAccessor":
           case "modifier":
               break;
           /* istanbul ignore next */
@@ -6438,15 +6438,15 @@ var Lits = (function (exports) {
       return ast;
   }
 
-  var applyDots = function (tokens) {
-      var dotTokenIndex = tokens.findIndex(function (tkn) { return tkn.type === "dot"; });
+  var applyCollectionAccessors = function (tokens) {
+      var dotTokenIndex = tokens.findIndex(function (tkn) { return tkn.type === "collectionAccessor"; });
       while (dotTokenIndex >= 0) {
-          applyDot(tokens, dotTokenIndex);
-          dotTokenIndex = tokens.findIndex(function (tkn) { return tkn.type === "dot"; });
+          applyCollectionAccessor(tokens, dotTokenIndex);
+          dotTokenIndex = tokens.findIndex(function (tkn) { return tkn.type === "collectionAccessor"; });
       }
       return tokens;
   };
-  function applyDot(tokens, position) {
+  function applyCollectionAccessor(tokens, position) {
       var dotTkn = asValue(tokens[position]);
       var debugInfo = dotTkn.debugInfo;
       var backPosition = getPositionBackwards(tokens, position, debugInfo);
@@ -6482,7 +6482,7 @@ var Lits = (function (exports) {
   function getPositionBackwards(tokens, position, debugInfo) {
       var bracketCount = null;
       if (position <= 0) {
-          throw new LitsError("Array accessor # must come after an array", debugInfo);
+          throw new LitsError("Array accessor # must come after a sequence", debugInfo);
       }
       var prevToken = asValue(tokens[position - 1]);
       var openBracket = null;
@@ -6502,7 +6502,7 @@ var Lits = (function (exports) {
                   closeBracket = "}";
                   break;
               default:
-                  throw new LitsError("# or . must be preceeded by an array or an object", debugInfo);
+                  throw new LitsError("# or . must be preceeded by a collection", debugInfo);
           }
       }
       while (bracketCount !== 0) {
@@ -6517,9 +6517,6 @@ var Lits = (function (exports) {
                   bracketCount -= 1;
               }
           }
-          if (bracketCount > 0) {
-              throw new LitsError("# or . must be preceeded by a valid form", debugInfo);
-          }
       }
       if (openBracket === "(" && position > 0) {
           var prevToken_1 = asValue(tokens[position - 1]);
@@ -6532,15 +6529,15 @@ var Lits = (function (exports) {
   function checkForward(tokens, position, dotTkn, debugInfo) {
       var tkn = asValue(tokens[position + 1], debugInfo);
       if (dotTkn.value === "." && tkn.type !== "name") {
-          throw new LitsError("# as a array accessor must be followed by an name", debugInfo);
+          throw new LitsError("# as a collection accessor must be followed by an name", debugInfo);
       }
       if (dotTkn.value === "#" && tkn.type !== "number") {
-          throw new LitsError("# as a array accessor must be followed by an integer", debugInfo);
+          throw new LitsError("# as a collection accessor must be followed by an integer", debugInfo);
       }
   }
 
   function getSugar() {
-      return [applyDots];
+      return [applyCollectionAccessors];
   }
 
   var NO_MATCH = [0, undefined];
@@ -6616,7 +6613,7 @@ var Lits = (function (exports) {
       }
       return [length + 1, { type: "string", value: value, debugInfo: debugInfo }];
   };
-  var tokenizeDot = function (input, position, debugInfo) {
+  var tokenizeCollectionAccessor = function (input, position, debugInfo) {
       var char = input[position];
       if (char !== "." && char !== "#") {
           return NO_MATCH;
@@ -6624,7 +6621,7 @@ var Lits = (function (exports) {
       return [
           1,
           {
-              type: "dot",
+              type: "collectionAccessor",
               value: char,
               debugInfo: debugInfo,
           },
@@ -6868,13 +6865,12 @@ var Lits = (function (exports) {
       tokenizeString,
       tokenizeSymbolString,
       tokenizeNumber,
-      // tokenizeDotExpression,
       tokenizeReservedName,
       tokenizeName,
       tokenizeModifier,
       tokenizeRegexpShorthand,
       tokenizeFnShorthand,
-      tokenizeDot,
+      tokenizeCollectionAccessor,
   ];
   function getSourceCodeLine(input, lineNbr) {
       return input.split(/\r\n|\r|\n/)[lineNbr];

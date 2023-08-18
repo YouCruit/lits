@@ -76,7 +76,7 @@ export const tokenizeString: Tokenizer = (input, position, debugInfo) => {
   return [length + 1, { type: `string`, value, debugInfo }]
 }
 
-export const tokenizeDot: Tokenizer = (input, position, debugInfo) => {
+export const tokenizeCollectionAccessor: Tokenizer = (input, position, debugInfo) => {
   const char = input[position]
   if (char !== `.` && char !== `#`) {
     return NO_MATCH
@@ -84,7 +84,7 @@ export const tokenizeDot: Tokenizer = (input, position, debugInfo) => {
   return [
     1,
     {
-      type: `dot`,
+      type: `collectionAccessor`,
       value: char,
       debugInfo,
     },

@@ -8,11 +8,12 @@ module.exports = [
     `.trim(),
   },
   {
-    id: 'dot-notation',
-    name: 'Object and array accessors',
-    description: 'Syntactic sugar for accessing object members and array elements.',
+    id: 'collection-accessor',
+    name: 'Collection accessors',
+    description: 'Syntactic sugar for accessing object, array and string elements.',
     code: `
-;; Access object properies with . and array elements with #
+;; Access object properies with .
+;; Access string and array elements with #
 
 (def data {:numbers [1 2 3], :chars [:a :b :c]})
 

@@ -341,7 +341,7 @@ export const parseToken: ParseToken = (tokens, position) => {
       return parseRegexpShorthand(tokens, position)
     case `fnShorthand`:
       return parseFnShorthand(tokens, position)
-    case `dot`:
+    case `collectionAccessor`:
     case `modifier`:
       break
     /* istanbul ignore next */

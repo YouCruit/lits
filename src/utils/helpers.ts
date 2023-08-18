@@ -44,7 +44,7 @@ const tokenTypeRecord: Record<TokenizerType, true> = {
   regexpShorthand: true,
   reservedName: true,
   string: true,
-  dot: true,
+  collectionAccessor: true,
 }
 const tokenTypes = new Set(Object.keys(tokenTypeRecord))
 

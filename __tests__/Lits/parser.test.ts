@@ -155,7 +155,7 @@ describe(`Parser`, () => {
   test(`parseToken unknown token`, () => {
     const tokens: Token[] = [
       {
-        type: `dot`,
+        type: `collectionAccessor`,
         value: ``,
       },
       {

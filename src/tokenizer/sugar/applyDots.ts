@@ -3,16 +3,16 @@ import { LitsError } from '../../errors'
 import { asValue, number } from '../../utils/assertion'
 import { DebugInfo, Token } from '../interface'
 
-export const applyDots: SugarFunction = tokens => {
-  let dotTokenIndex = tokens.findIndex(tkn => tkn.type === `dot`)
+export const applyCollectionAccessors: SugarFunction = tokens => {
+  let dotTokenIndex = tokens.findIndex(tkn => tkn.type === `collectionAccessor`)
   while (dotTokenIndex >= 0) {
-    applyDot(tokens, dotTokenIndex)
-    dotTokenIndex = tokens.findIndex(tkn => tkn.type === `dot`)
+    applyCollectionAccessor(tokens, dotTokenIndex)
+    dotTokenIndex = tokens.findIndex(tkn => tkn.type === `collectionAccessor`)
   }
   return tokens
 }
 
-function applyDot(tokens: Token[], position: number) {
+function applyCollectionAccessor(tokens: Token[], position: number) {
   const dotTkn = asValue(tokens[position])
   const debugInfo = dotTkn.debugInfo
   const backPosition = getPositionBackwards(tokens, position, debugInfo)
@@ -49,7 +49,7 @@ function applyDot(tokens: Token[], position: number) {
 function getPositionBackwards(tokens: Token[], position: number, debugInfo: DebugInfo | undefined) {
   let bracketCount: number | null = null
   if (position <= 0) {
-    throw new LitsError(`Array accessor # must come after an array`, debugInfo)
+    throw new LitsError(`Array accessor # must come after a sequence`, debugInfo)
   }
   const prevToken = asValue(tokens[position - 1])
   let openBracket: null | `(` | `[` | `{` = null
@@ -70,7 +70,7 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
         closeBracket = `}`
         break
       default:
-        throw new LitsError(`# or . must be preceeded by an array or an object`, debugInfo)
+        throw new LitsError(`# or . must be preceeded by a collection`, debugInfo)
     }
   }
 
@@ -100,9 +100,9 @@ function checkForward(tokens: Token[], position: number, dotTkn: Token, debugInf
   const tkn = asValue(tokens[position + 1], debugInfo)
 
   if (dotTkn.value === `.` && tkn.type !== `name`) {
-    throw new LitsError(`# as a array accessor must be followed by an name`, debugInfo)
+    throw new LitsError(`# as a collection accessor must be followed by an name`, debugInfo)
   }
   if (dotTkn.value === `#` && tkn.type !== `number`) {
-    throw new LitsError(`# as a array accessor must be followed by an integer`, debugInfo)
+    throw new LitsError(`# as a collection accessor must be followed by an integer`, debugInfo)
   }
 }

@@ -31,16 +31,16 @@ Array [
     "a": 1,
   },
   Object {
-    "_RE_": true,
     "d": undefined,
     "f": "",
     "s": "ABC",
+    "Ʀ": true,
   },
   Object {
-    "_RE_": true,
     "d": undefined,
     "f": "",
     "s": "abc",
+    "Ʀ": true,
   },
   null,
 ]
@@ -77,7 +77,6 @@ Array [
     "a": 1,
   },
   Object {
-    "_RE_": true,
     "d": Object {
       "code": "(sort [1 true 2 false  -100 nil (regexp \\"abc\\") (regexp \\"ABC\\") [] [1 2 3] [0 1 2] [0 0 0 0] {:a 1} {} \\"Albert\\" \\"albert\\"])",
       "column": 49,
@@ -86,9 +85,9 @@ Array [
     },
     "f": "",
     "s": "ABC",
+    "Ʀ": true,
   },
   Object {
-    "_RE_": true,
     "d": Object {
       "code": "(sort [1 true 2 false  -100 nil (regexp \\"abc\\") (regexp \\"ABC\\") [] [1 2 3] [0 1 2] [0 0 0 0] {:a 1} {} \\"Albert\\" \\"albert\\"])",
       "column": 34,
@@ -97,6 +96,7 @@ Array [
     },
     "f": "",
     "s": "abc",
+    "Ʀ": true,
   },
   null,
 ]

@@ -592,7 +592,7 @@ var Lits = (function (exports) {
           _a = __read(parseToken(tokens, position), 2), position = _a[0], test_1 = _a[1];
           var form = void 0;
           _b = __read(parseToken(tokens, position), 2), position = _b[0], form = _b[1];
-          conditions.push({ test: test_1, form: form });
+          conditions.push({ t: test_1, f: form });
           tkn = token.as(tokens[position], "EOF");
       }
       return [position, conditions];
@@ -621,11 +621,11 @@ var Lits = (function (exports) {
           try {
               for (var _c = __values(node.c), _d = _c.next(); !_d.done; _d = _c.next()) {
                   var condition = _d.value;
-                  var value = evaluateAstNode(condition.test, contextStack);
+                  var value = evaluateAstNode(condition.t, contextStack);
                   if (!value) {
                       continue;
                   }
-                  return evaluateAstNode(condition.form, contextStack);
+                  return evaluateAstNode(condition.f, contextStack);
               }
           }
           catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -639,7 +639,7 @@ var Lits = (function (exports) {
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var astNodes = node.c.flatMap(function (condition) { return [condition.test, condition.form]; });
+          var astNodes = node.c.flatMap(function (condition) { return [condition.t, condition.f]; });
           return analyzeAst(astNodes, contextStack, builtin);
       },
   };
@@ -4551,7 +4551,7 @@ var Lits = (function (exports) {
   function valueToString(contextEntry) {
       var value = contextEntry.value;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      var name = value.name;
+      var name = value.n;
       if (litsFunction.is(value)) {
           if (name) {
               return "<".concat(value.t, " function ").concat(name, ">");

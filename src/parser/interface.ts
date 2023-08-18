@@ -7,8 +7,8 @@ import { Any, Arr } from '../interface'
 import { ReservedName } from '../reservedNames'
 import { DebugInfo, Token } from '../tokenizer/interface'
 
-export const FUNCTION_SYMBOL = `_LF_`
-export const REGEXP_SYMBOL = `_RE_`
+export const FUNCTION_SYMBOL = `λ`
+export const REGEXP_SYMBOL = `Ʀ`
 
 export type EvaluatedFunctionArguments = {
   mandatoryArguments: string[]

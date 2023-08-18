@@ -3,7 +3,7 @@
 exports[`misc functions debug! debug value. 1`] = `
 "*** LITS DEBUG ***
 {
-  \\"_LF_\\": true,
+  \\"λ\\": true,
   \\"t\\": 0,
   \\"o\\": [
     {
@@ -39,7 +39,7 @@ exports[`misc functions debug! debug value. 1`] = `
 exports[`misc functions debug! debug value. 2`] = `
 "*** LITS DEBUG ***
 {
-  \\"_LF_\\": true,
+  \\"λ\\": true,
   \\"d\\": {
     \\"code\\": \\"(debug! #(> %1 2))\\",
     \\"line\\": 1,

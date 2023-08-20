@@ -1,5 +1,6 @@
 import { Any } from '../../interface'
-import { AstNodeType, SpecialExpressionNode } from '../../parser/interface'
+import { AstNodeType } from '../../parser/AstNodeType'
+import { SpecialExpressionNode } from '../../parser/interface'
 import { assertNumberOfParams, astNode } from '../../utils/assertion'
 import { token } from '../../utils/tokenAssertion'
 import { BuiltinSpecialExpression } from '../interface'

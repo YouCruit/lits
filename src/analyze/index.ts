@@ -1,7 +1,7 @@
 import { Builtin } from '../builtin/interface'
-import { lookUp } from '../evaluator'
-import { ContextStack } from '../evaluator/interface'
-import { AstNode, AstNodeType } from '../parser/interface'
+import { ContextStack } from '../evaluator/ContextStack'
+import { AstNodeType } from '../parser/AstNodeType'
+import { AstNode } from '../parser/interface'
 import { asValue } from '../utils/assertion'
 import { AnalyzeAst, AnalyzeResult, UndefinedSymbolEntry } from './interface'
 
@@ -24,8 +24,8 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack, builtin: B
   const emptySet = new Set<UndefinedSymbolEntry>()
   switch (astNode.t) {
     case AstNodeType.Name: {
-      const lookUpResult = lookUp(astNode, contextStack)
-      if (!lookUpResult.builtinFunction && !lookUpResult.contextEntry && !lookUpResult.specialExpression) {
+      const lookUpResult = contextStack.lookUp(astNode)
+      if (lookUpResult === null) {
         return { undefinedSymbols: new Set([{ symbol: astNode.v, token: astNode.tkn }]) }
       }
       return { undefinedSymbols: emptySet }
@@ -39,12 +39,8 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack, builtin: B
       const undefinedSymbols = new Set<UndefinedSymbolEntry>()
       const { e: expression, n: name, tkn: token } = astNode
       if (typeof name === `string`) {
-        const lookUpResult = lookUp({ t: AstNodeType.Name, v: name, tkn: token }, contextStack)
-        if (
-          lookUpResult.builtinFunction === null &&
-          lookUpResult.contextEntry === null &&
-          lookUpResult.specialExpression === null
-        ) {
+        const lookUpResult = contextStack.lookUp({ t: AstNodeType.Name, v: name, tkn: token })
+        if (lookUpResult === null) {
           undefinedSymbols.add({ symbol: name, token: astNode.tkn })
         }
       }

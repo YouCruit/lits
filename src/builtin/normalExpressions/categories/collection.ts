@@ -1,5 +1,6 @@
 import { LitsFunction } from '../../..'
-import { ContextStack, ExecuteFunction } from '../../../evaluator/interface'
+import { ContextStack } from '../../../evaluator/ContextStack'
+import { ExecuteFunction } from '../../../evaluator/interface'
 import { Any, Arr, Coll, Obj } from '../../../interface'
 import { DebugInfo } from '../../../tokenizer/interface'
 import { toNonNegativeInteger, toAny, collHasKey, cloneColl } from '../../../utils'

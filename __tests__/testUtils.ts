@@ -1,6 +1,9 @@
 /* istanbul ignore file */
 
+import { Context, Lits, LitsFunction, LitsParams, isLitsFunction } from '../src'
 import { AnalyzeResult } from '../src/analyze/interface'
+import { LitsError } from '../src/errors'
+import { ContextStack } from '../src/evaluator/ContextStack'
 import { Obj } from '../src/interface'
 import { regularExpression } from '../src/utils/assertion'
 
@@ -88,4 +91,38 @@ export function regexpEquals(udr: unknown, r: RegExp): boolean {
 export function getUndefinedSymbolNames(result: AnalyzeResult): Set<string> {
   const names = [...result.undefinedSymbols].map(entry => entry.symbol)
   return new Set<string>(names)
+}
+
+export function getLitsVariants() {
+  const variants = [new Lits(), new Lits({ debug: true })]
+  return {
+    run(program: string, LitsParams?: LitsParams): unknown {
+      const [result1, result2] = variants.map(l => l.run(program, LitsParams))
+      if (isLitsFunction(result1)) {
+        expect(isLitsFunction(result2)).toBe(true)
+        expect((result2 as LitsFunction).t).toBe(result1.t)
+        return result1
+      }
+      if (result1 instanceof Error) {
+        expect(result2).toBeInstanceOf(Error)
+        expect((result2 as LitsError).name).toBe(result1.name)
+        return result1
+      }
+      expect(result1).toStrictEqual(result2)
+      return result1
+    },
+    analyze(program: string): AnalyzeResult {
+      const results = variants.map(l => l.analyze(program))
+      const result1 = results[0] as AnalyzeResult
+      const result2 = results[1] as AnalyzeResult
+      const us1 = getUndefinedSymbolNames(result1)
+      const us2 = getUndefinedSymbolNames(result2)
+      expect(us1).toStrictEqual(us2)
+      return result1 as AnalyzeResult
+    },
+  }
+}
+
+export function createContextStackWithGlobalContext(context: Context) {
+  return new ContextStack({ contexts: [context] })
 }

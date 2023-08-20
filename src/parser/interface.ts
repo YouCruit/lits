@@ -6,9 +6,9 @@ import { Context } from '../evaluator/interface'
 import { Any, Arr } from '../interface'
 import { ReservedName } from '../reservedNames'
 import { DebugInfo, Token } from '../tokenizer/interface'
-
-export const FUNCTION_SYMBOL = `λ`
-export const REGEXP_SYMBOL = `Ʀ`
+import { isUnknownRecord } from '../utils/assertion'
+import { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
+import type { AstNodeType } from './AstNodeType'
 
 export type EvaluatedFunctionArguments = {
   mandatoryArguments: string[]
@@ -101,6 +101,10 @@ export interface BuiltinFunction extends GenericLitsFunction {
   n: string // name
 }
 
+export function isBuiltinFunction(value: unknown): value is BuiltinFunction {
+  return isUnknownRecord(value) && value.t === FunctionType.Builtin
+}
+
 export type LitsFunction =
   | UserDefinedFunction
   | BuiltinFunction
@@ -114,23 +118,6 @@ export type LitsFunction =
   | FNilFunction
 
 export type LitsFunctionType = LitsFunction[`t`]
-
-export enum AstNodeType {
-  Number = 0,
-  String = 1,
-  NormalExpression = 2,
-  SpecialExpression = 3,
-  Name = 4,
-  Modifier = 5,
-  ReservedName = 6,
-  Binding = 7,
-  Argument = 8,
-  Partial = 9,
-}
-
-export function isAstNodeType(type: unknown): type is AstNodeType {
-  return typeof type === `number` && Number.isInteger(type) && type >= 0 && type <= 9
-}
 
 export type ModifierName = `&` | `&let` | `&when` | `&while`
 

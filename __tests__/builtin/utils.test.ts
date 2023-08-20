@@ -1,10 +1,10 @@
 import { builtin } from '../../src/builtin'
 import { assertNameNotDefined } from '../../src/builtin/utils'
-import { createContextStack } from '../../src/evaluator'
-import { ContextStack } from '../../src/evaluator/interface'
+import { ContextStack } from '../../src/evaluator/ContextStack'
 import { DebugInfo } from '../../src/tokenizer/interface'
+import { createContextStackWithGlobalContext } from '../testUtils'
 
-const contextStack: ContextStack = createContextStack([{ a: { value: 1 } }, {}])
+const contextStack: ContextStack = createContextStackWithGlobalContext({ a: { value: 1 } })
 
 describe(`builtin utils`, () => {
   test(`assertNameNotDefined`, () => {

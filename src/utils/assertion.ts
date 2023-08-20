@@ -1,11 +1,12 @@
+import type { LazyValue } from '../Lits/Lits'
 import { LitsError } from '../errors'
 import { Any, Arr, Coll, Obj, Seq } from '../interface'
+import { AstNodeType } from '../parser/AstNodeType'
 import {
   AstNode,
   ExpressionNode,
   LitsFunction,
   NameNode,
-  AstNodeType,
   NormalExpressionNode,
   NormalExpressionNodeWithName,
   RegularExpression,
@@ -167,4 +168,12 @@ export function assertValue<T>(value: T | undefined, debugInfo?: DebugInfo): ass
 /* istanbul ignore next */
 export function assertUnreachable(_: never): never {
   throw new Error(`This should not be reached`)
+}
+
+export function isLazyValue(value: unknown): value is LazyValue {
+  return isUnknownRecord(value) && !!value.read
+}
+
+export function isUnknownRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === `object` && !Array.isArray(value)
 }

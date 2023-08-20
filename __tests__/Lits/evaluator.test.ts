@@ -1,10 +1,11 @@
 import { tokenize } from '../../src/tokenizer'
 import { parse } from '../../src/parser'
-import { createContextStack, evaluate, evaluateAstNode } from '../../src/evaluator'
+import { evaluate, evaluateAstNode } from '../../src/evaluator'
 import { Lits } from '../../src'
 import { Context } from '../../src/evaluator/interface'
 import { TokenizerType } from '../../src/tokenizer/interface'
-import { AstNodeType } from '../../src/parser/interface'
+import { AstNodeType } from '../../src/parser/AstNodeType'
+import { createContextStack } from '../../src/Lits/Lits'
 
 let lits: Lits
 
@@ -54,13 +55,13 @@ describe(`Evaluator`, () => {
   test(`super simple program`, () => {
     const tokens = tokenize(`(+ 10 kalle)`, { debug: true })
     const ast = parse(tokens)
-    const result = evaluate(ast, createContextStack([context]))
+    const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toBe(15)
   })
   test(`simple program`, () => {
     const tokens = tokenize(simpleProgram, { debug: true })
     const ast = parse(tokens)
-    const result = evaluate(ast, createContextStack([context]))
+    const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toBe(13 * 24 * 60 * 60 * 1000)
   })
   test(`if statement (true)`, () => {
@@ -71,7 +72,7 @@ describe(`Evaluator`, () => {
       { debug: true },
     )
     const ast = parse(tokens)
-    const result = evaluate(ast, createContextStack([context]))
+    const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toBe(`It"s a boy`)
   })
   test(`if statement (false)`, () => {
@@ -82,7 +83,7 @@ describe(`Evaluator`, () => {
       { debug: true },
     )
     const ast = parse(tokens)
-    const result = evaluate(ast, createContextStack([context]))
+    const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toBe(`It"s not a girl`)
   })
   test(`> statement`, () => {
@@ -93,7 +94,7 @@ describe(`Evaluator`, () => {
       { debug: true },
     )
     const ast = parse(tokens)
-    const result = evaluate(ast, createContextStack([context]))
+    const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toBe(true)
   })
   test(`not= statement 1`, () => {
@@ -104,7 +105,7 @@ describe(`Evaluator`, () => {
       { debug: true },
     )
     const ast = parse(tokens)
-    const result = evaluate(ast, createContextStack([context]))
+    const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toEqual([true, false])
   })
 
@@ -122,32 +123,32 @@ describe(`Evaluator`, () => {
   })
 
   test(`formatPhoneNumber`, () => {
-    expect(lits.run(formatPhoneNumber, { globals: { $data: null } })).toBe(``)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `` } })).toBe(``)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+` } })).toBe(``)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+1` } })).toBe(``)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+12` } })).toBe(`(2`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+123` } })).toBe(`(23`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+1234` } })).toBe(`(234`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+12345` } })).toBe(`(234) 5`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+123456` } })).toBe(`(234) 56`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+1234567` } })).toBe(`(234) 567`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+12345678` } })).toBe(`(234) 567-8`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+123456789` } })).toBe(`(234) 567-89`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+1234567890` } })).toBe(`(234) 567-890`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+12345678901` } })).toBe(`(234) 567-8901`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `+123456789012` } })).toBe(`(234) 567-89012`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `2` } })).toBe(`(2`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `23` } })).toBe(`(23`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `234` } })).toBe(`(234`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `2345` } })).toBe(`(234) 5`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `23456` } })).toBe(`(234) 56`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `234567` } })).toBe(`(234) 567`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `2345678` } })).toBe(`(234) 567-8`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `23456789` } })).toBe(`(234) 567-89`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `234567890` } })).toBe(`(234) 567-890`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `2345678901` } })).toBe(`(234) 567-8901`)
-    expect(lits.run(formatPhoneNumber, { globals: { $data: `23456789012` } })).toBe(`(234) 567-89012`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: null } })).toBe(``)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `` } })).toBe(``)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+` } })).toBe(``)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+1` } })).toBe(``)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+12` } })).toBe(`(2`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+123` } })).toBe(`(23`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+1234` } })).toBe(`(234`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+12345` } })).toBe(`(234) 5`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+123456` } })).toBe(`(234) 56`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+1234567` } })).toBe(`(234) 567`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+12345678` } })).toBe(`(234) 567-8`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+123456789` } })).toBe(`(234) 567-89`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+1234567890` } })).toBe(`(234) 567-890`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+12345678901` } })).toBe(`(234) 567-8901`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `+123456789012` } })).toBe(`(234) 567-89012`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `2` } })).toBe(`(2`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `23` } })).toBe(`(23`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `234` } })).toBe(`(234`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `2345` } })).toBe(`(234) 5`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `23456` } })).toBe(`(234) 56`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `234567` } })).toBe(`(234) 567`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `2345678` } })).toBe(`(234) 567-8`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `23456789` } })).toBe(`(234) 567-89`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `234567890` } })).toBe(`(234) 567-890`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `2345678901` } })).toBe(`(234) 567-8901`)
+    expect(lits.run(formatPhoneNumber, { values: { $data: `23456789012` } })).toBe(`(234) 567-89012`)
   })
 })
 

@@ -1,5 +1,6 @@
-import { REGEXP_SYMBOL, RegularExpression } from '../../../parser/interface'
+import { RegularExpression } from '../../../parser/interface'
 import { assertNumberOfParams, regularExpression, string } from '../../../utils/assertion'
+import { REGEXP_SYMBOL } from '../../../utils/symbols'
 import { BuiltinNormalExpressions } from '../../interface'
 
 export const regexpNormalExpression: BuiltinNormalExpressions = {

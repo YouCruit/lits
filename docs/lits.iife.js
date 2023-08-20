@@ -1,21 +1,6 @@
 var Lits = (function (exports) {
   'use strict';
 
-  var FUNCTION_SYMBOL = "\u03BB";
-  var REGEXP_SYMBOL = "\u01A6";
-  var FunctionType;
-  (function (FunctionType) {
-      FunctionType[FunctionType["UserDefined"] = 0] = "UserDefined";
-      FunctionType[FunctionType["Partial"] = 1] = "Partial";
-      FunctionType[FunctionType["Comp"] = 2] = "Comp";
-      FunctionType[FunctionType["Constantly"] = 3] = "Constantly";
-      FunctionType[FunctionType["Juxt"] = 4] = "Juxt";
-      FunctionType[FunctionType["Complement"] = 5] = "Complement";
-      FunctionType[FunctionType["EveryPred"] = 6] = "EveryPred";
-      FunctionType[FunctionType["SomePred"] = 7] = "SomePred";
-      FunctionType[FunctionType["Fnil"] = 8] = "Fnil";
-      FunctionType[FunctionType["Builtin"] = 9] = "Builtin";
-  })(FunctionType || (FunctionType = {}));
   var AstNodeType;
   (function (AstNodeType) {
       AstNodeType[AstNodeType["Number"] = 0] = "Number";
@@ -49,6 +34,9 @@ var Lits = (function (exports) {
       return typeof type === "number" && Number.isInteger(type) && type >= 0 && type <= 8;
   }
 
+  var FUNCTION_SYMBOL = "\u03BB";
+  var REGEXP_SYMBOL = "\u01A6";
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
   function getDebugInfo(anyValue, debugInfo) {
       var _a;
@@ -59,7 +47,7 @@ var Lits = (function (exports) {
       var rightPadding = sourceCodeInfo.code.length - leftPadding - 1;
       return "".concat(" ".repeat(Math.max(leftPadding, 0)), "^").concat(" ".repeat(Math.max(rightPadding, 0)));
   }
-  function valueToString$1(value) {
+  function valueToString(value) {
       if (isLitsFunction(value)) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return "<function ".concat(value.name || "\u03BB", ">");
@@ -127,7 +115,7 @@ var Lits = (function (exports) {
   OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
   PERFORMANCE OF THIS SOFTWARE.
   ***************************************************************************** */
-  /* global Reflect, Promise */
+  /* global Reflect, Promise, SuppressedError, Symbol */
 
   var extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf ||
@@ -194,6 +182,11 @@ var Lits = (function (exports) {
       return to.concat(ar || Array.prototype.slice.call(from));
   }
 
+  typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+      var e = new Error(message);
+      return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+  };
+
   function getLitsErrorMessage(message, debugInfo) {
       return "".concat(message).concat(debugInfo ? "\n".concat(debugInfo === "EOF" ? "EOF" : "".concat(debugInfo.code, "\n").concat(getCodeMarker(debugInfo))) : "");
   }
@@ -238,7 +231,7 @@ var Lits = (function (exports) {
       __extends(NotAFunctionError, _super);
       function NotAFunctionError(fn, debugInfo) {
           var _this = this;
-          var message = "Expected function, got ".concat(valueToString$1(fn), ".");
+          var message = "Expected function, got ".concat(valueToString(fn), ".");
           _this = _super.call(this, message, debugInfo) || this;
           Object.setPrototypeOf(_this, NotAFunctionError.prototype);
           _this.name = "NotAFunctionError";
@@ -296,7 +289,7 @@ var Lits = (function (exports) {
   function assert$2(value, debugInfo, options) {
       if (options === void 0) { options = {}; }
       if (!is$2(value, options)) {
-          throw new LitsError("Expected ".concat(options.nonEmpty ? "non empty string" : options.char ? "character" : "string", ", got ").concat(valueToString$1(value), "."), getDebugInfo(value, debugInfo));
+          throw new LitsError("Expected ".concat(options.nonEmpty ? "non empty string" : options.char ? "character" : "string", ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
       }
   }
   function as$2(value, debugInfo, options) {
@@ -389,7 +382,7 @@ var Lits = (function (exports) {
   function assert$1(value, debugInfo, options) {
       if (options === void 0) { options = {}; }
       if (!is$1(value, options)) {
-          throw new LitsError("Expected ".concat(getNumberTypeName(options), ", got ").concat(valueToString$1(value), "."), getDebugInfo(value, debugInfo));
+          throw new LitsError("Expected ".concat(getNumberTypeName(options), ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
       }
   }
   function as$1(value, debugInfo, options) {
@@ -422,7 +415,7 @@ var Lits = (function (exports) {
           if (isToken(value)) {
               debugInfo = value.d;
           }
-          throw new LitsError("Expected ".concat(options.type ? "".concat(options.type, "-") : "", "token").concat(typeof options.value === "string" ? " value='".concat(options.value, "'") : "", ", got ").concat(valueToString$1(value), "."), getDebugInfo(value, debugInfo));
+          throw new LitsError("Expected ".concat(options.type ? "".concat(options.type, "-") : "", "token").concat(typeof options.value === "string" ? " value='".concat(options.value, "'") : "", ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
       }
   }
   function as(value, debugInfo, options) {
@@ -446,7 +439,7 @@ var Lits = (function (exports) {
       };
       Asserter.prototype.assert = function (value, debugInfo) {
           if (!this.predicate(value)) {
-              throw new LitsError("Expected ".concat(this.typeName, ", got ").concat(valueToString$1(value), "."), getDebugInfo(value, debugInfo));
+              throw new LitsError("Expected ".concat(this.typeName, ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
           }
       };
       Asserter.prototype.as = function (value, debugInfo) {
@@ -501,7 +494,7 @@ var Lits = (function (exports) {
       var debugInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d;
       if (typeof count === "number") {
           if (length !== count) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected ").concat(count, ", got ").concat(valueToString$1(length), "."), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected ").concat(count, ", got ").concat(valueToString(length), "."), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
           }
       }
       else {
@@ -510,10 +503,10 @@ var Lits = (function (exports) {
               throw new LitsError("Min or max must be specified.", debugInfo);
           }
           if (typeof min === "number" && length < min) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at least ").concat(min, ", got ").concat(valueToString$1(length), "."), debugInfo);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at least ").concat(min, ", got ").concat(valueToString(length), "."), debugInfo);
           }
           if (typeof max === "number" && length > max) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at most ").concat(max, ", got ").concat(valueToString$1(length), "."), debugInfo);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at most ").concat(max, ", got ").concat(valueToString(length), "."), debugInfo);
           }
       }
   }
@@ -521,7 +514,7 @@ var Lits = (function (exports) {
       var _a;
       var length = node.p.length;
       if (length % 2 !== 0) {
-          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString$1(length), "."), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
+          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString(length), "."), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
       }
   }
   function asValue(value, debugInfo) {
@@ -538,6 +531,12 @@ var Lits = (function (exports) {
   /* istanbul ignore next */
   function assertUnreachable(_) {
       throw new Error("This should not be reached");
+  }
+  function isLazyValue(value) {
+      return isUnknownRecord(value) && !!value.read;
+  }
+  function isUnknownRecord(value) {
+      return value !== null && typeof value === "object" && !Array.isArray(value);
   }
 
   var andSpecialExpression = {
@@ -670,6 +669,23 @@ var Lits = (function (exports) {
   }
   function addAnalyzeResults(target, source) {
       source.undefinedSymbols.forEach(function (symbol) { return target.undefinedSymbols.add(symbol); });
+  }
+
+  var FunctionType;
+  (function (FunctionType) {
+      FunctionType[FunctionType["UserDefined"] = 0] = "UserDefined";
+      FunctionType[FunctionType["Partial"] = 1] = "Partial";
+      FunctionType[FunctionType["Comp"] = 2] = "Comp";
+      FunctionType[FunctionType["Constantly"] = 3] = "Constantly";
+      FunctionType[FunctionType["Juxt"] = 4] = "Juxt";
+      FunctionType[FunctionType["Complement"] = 5] = "Complement";
+      FunctionType[FunctionType["EveryPred"] = 6] = "EveryPred";
+      FunctionType[FunctionType["SomePred"] = 7] = "SomePred";
+      FunctionType[FunctionType["Fnil"] = 8] = "Fnil";
+      FunctionType[FunctionType["Builtin"] = 9] = "Builtin";
+  })(FunctionType || (FunctionType = {}));
+  function isBuiltinFunction(value) {
+      return isUnknownRecord(value) && value.t === FunctionType.Builtin;
   }
 
   var reservedNamesRecord = {
@@ -977,7 +993,7 @@ var Lits = (function (exports) {
               });
               tkn = token.as(tokens[position], "EOF", { type: TokenizerType.Bracket });
               if (tkn.v !== ")" && tkn.v !== "(") {
-                  throw new LitsError("Expected ( or ) token, got ".concat(valueToString$1(tkn), "."), tkn.d);
+                  throw new LitsError("Expected ( or ) token, got ".concat(valueToString(tkn), "."), tkn.d);
               }
           }
           return [position + 1, functionOverloades];
@@ -1000,7 +1016,7 @@ var Lits = (function (exports) {
           ];
       }
       else {
-          throw new LitsError("Expected [ or ( token, got ".concat(valueToString$1(tkn)), tkn.d);
+          throw new LitsError("Expected [ or ( token, got ".concat(valueToString(tkn)), tkn.d);
       }
   }
   function parseFunctionArguments(tokens, position, parsers) {
@@ -1440,7 +1456,7 @@ var Lits = (function (exports) {
           var bindings;
           _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.d);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.d);
           }
           var params;
           _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
@@ -1683,7 +1699,7 @@ var Lits = (function (exports) {
                   if (error instanceof RecurSignal) {
                       var params_1 = error.params;
                       if (params_1.length !== node.bs.length) {
-                          throw new LitsError("recur expected ".concat(node.bs.length, " parameters, got ").concat(valueToString$1(params_1.length)), debugInfo);
+                          throw new LitsError("recur expected ".concat(node.bs.length, " parameters, got ").concat(valueToString(params_1.length)), debugInfo);
                       }
                       node.bs.forEach(function (binding, index) {
                           asValue(bindingContext[binding.n], debugInfo).value = any.as(params_1[index], debugInfo);
@@ -2072,26 +2088,6 @@ var Lits = (function (exports) {
   function cloneColl(value) {
       return clone(value);
   }
-  function createContextFromGlobals(values) {
-      if (!values) {
-          return {};
-      }
-      return Object.entries(values).reduce(function (context, _a) {
-          var _b = __read(_a, 2), key = _b[0], value = _b[1];
-          context[key] = { value: toAny(value) };
-          return context;
-      }, {});
-  }
-  function createContextFromReadables(readables) {
-      if (!readables) {
-          return {};
-      }
-      return Object.entries(readables).reduce(function (context, _a) {
-          var _b = __read(_a, 2), key = _b[0], readable = _b[1];
-          context[key] = readable;
-          return context;
-      }, {});
-  }
 
   var whenFirstSpecialExpression = {
       parse: function (tokens, position, _a) {
@@ -2101,7 +2097,7 @@ var Lits = (function (exports) {
           var bindings;
           _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.d);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.d);
           }
           var params;
           _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
@@ -2122,7 +2118,7 @@ var Lits = (function (exports) {
           var binding = node.b;
           var evaluatedBindingForm = evaluateAstNode(binding.v, contextStack);
           if (!sequence.is(evaluatedBindingForm)) {
-              throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString$1(evaluatedBindingForm)), (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
+              throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString(evaluatedBindingForm)), (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
           }
           if (evaluatedBindingForm.length === 0) {
               return null;
@@ -2166,7 +2162,7 @@ var Lits = (function (exports) {
           var bindings;
           _b = __read(parseBindings(tokens, position), 2), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString$1(bindings.length)), firstToken.d);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.d);
           }
           var params;
           _c = __read(parseTokens(tokens, position), 2), position = _c[0], params = _c[1];
@@ -4503,7 +4499,7 @@ var Lits = (function (exports) {
           evaluate: function (params, debugInfo, contextStack) {
               if (params.length === 0) {
                   // eslint-disable-next-line no-console
-                  console.warn("*** LITS DEBUG ***\n".concat(contextStackToString(contextStack), "\n"));
+                  console.warn("*** LITS DEBUG ***\n".concat(contextStack.toString(), "\n"));
                   return null;
               }
               // eslint-disable-next-line no-console
@@ -4543,35 +4539,6 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(0, node); },
       },
   };
-  function contextStackToString(contextStack) {
-      return contextStack.stack.reduce(function (result, context, index) {
-          return "".concat(result, "Context ").concat(index).concat(context === contextStack.globalContext ? " - Global context" : "", "\n").concat(contextToString(context), "\n");
-      }, "");
-  }
-  function contextToString(context) {
-      if (Object.keys(context).length === 0) {
-          return "  <empty>\n";
-      }
-      var maxKeyLength = Math.max.apply(Math, __spreadArray([], __read(Object.keys(context).map(function (key) { return key.length; })), false));
-      return Object.entries(context).reduce(function (result, entry) {
-          var key = "".concat(entry[0]).padEnd(maxKeyLength + 2, " ");
-          return "".concat(result, "  ").concat(key).concat(valueToString(entry[1]), "\n");
-      }, "");
-  }
-  function valueToString(contextEntry) {
-      var value = contextEntry.value;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      var name = value.n;
-      if (litsFunction.is(value)) {
-          if (name) {
-              return "<".concat(value.t, " function ").concat(name, ">");
-          }
-          else {
-              return "<".concat(value.t, " function \u03BB>");
-          }
-      }
-      return JSON.stringify(contextEntry.value);
-  }
 
   var assertNormalExpression = {
       assert: {
@@ -5599,13 +5566,12 @@ var Lits = (function (exports) {
           };
           return [newPosition + 1, node];
       },
-      evaluate: function (node, contextStack, _a) {
-          var _b;
-          var lookUp = _a.lookUp;
-          var _c = __read(node.p, 1), astNode = _c[0];
-          nameNode.assert(astNode, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
-          var lookUpResult = lookUp(astNode, contextStack);
-          return !!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression);
+      evaluate: function (node, contextStack) {
+          var _a;
+          var _b = __read(node.p, 1), astNode = _b[0];
+          nameNode.assert(astNode, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
+          var lookUpResult = contextStack.lookUp(astNode);
+          return lookUpResult !== null;
       },
       validate: function (node) { return assertNumberOfParams(1, node); },
       analyze: function (node, contextStack, _a) {
@@ -5629,11 +5595,10 @@ var Lits = (function (exports) {
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
-          var lookUp = _a.lookUp, evaluateAstNode = _a.evaluateAstNode;
+          var evaluateAstNode = _a.evaluateAstNode;
           var _c = __read(node.p, 2), firstNode = _c[0], secondNode = _c[1];
           if (nameNode.is(firstNode)) {
-              var lookUpResult = lookUp(firstNode, contextStack);
-              if (!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression)) {
+              if (contextStack.lookUp(firstNode) === null) {
                   return secondNode ? evaluateAstNode(secondNode, contextStack) : null;
               }
           }
@@ -5690,6 +5655,94 @@ var Lits = (function (exports) {
   var normalExpressionKeys = Object.keys(normalExpressions);
   var specialExpressionKeys = Object.keys(specialExpressions);
 
+  var analyzeAst = function (astNode, contextStack, builtin) {
+      var e_1, _a;
+      var astNodes = Array.isArray(astNode) ? astNode : [astNode];
+      var analyzeResult = {
+          undefinedSymbols: new Set(),
+      };
+      try {
+          for (var astNodes_1 = __values(astNodes), astNodes_1_1 = astNodes_1.next(); !astNodes_1_1.done; astNodes_1_1 = astNodes_1.next()) {
+              var subNode = astNodes_1_1.value;
+              var result = analyzeAstNode(subNode, contextStack, builtin);
+              result.undefinedSymbols.forEach(function (symbol) { return analyzeResult.undefinedSymbols.add(symbol); });
+          }
+      }
+      catch (e_1_1) { e_1 = { error: e_1_1 }; }
+      finally {
+          try {
+              if (astNodes_1_1 && !astNodes_1_1.done && (_a = astNodes_1.return)) _a.call(astNodes_1);
+          }
+          finally { if (e_1) throw e_1.error; }
+      }
+      return analyzeResult;
+  };
+  function analyzeAstNode(astNode, contextStack, builtin) {
+      var e_2, _a;
+      var _b;
+      var emptySet = new Set();
+      switch (astNode.t) {
+          case AstNodeType.Name: {
+              var lookUpResult = contextStack.lookUp(astNode);
+              if (lookUpResult === null) {
+                  return { undefinedSymbols: new Set([{ symbol: astNode.v, token: astNode.tkn }]) };
+              }
+              return { undefinedSymbols: emptySet };
+          }
+          case AstNodeType.String:
+          case AstNodeType.Number:
+          case AstNodeType.Modifier:
+          case AstNodeType.ReservedName:
+              return { undefinedSymbols: emptySet };
+          case AstNodeType.NormalExpression: {
+              var undefinedSymbols_1 = new Set();
+              var expression = astNode.e, name_1 = astNode.n, token = astNode.tkn;
+              if (typeof name_1 === "string") {
+                  var lookUpResult = contextStack.lookUp({ t: AstNodeType.Name, v: name_1, tkn: token });
+                  if (lookUpResult === null) {
+                      undefinedSymbols_1.add({ symbol: name_1, token: astNode.tkn });
+                  }
+              }
+              if (expression) {
+                  switch (expression.t) {
+                      case AstNodeType.String:
+                      case AstNodeType.Number:
+                          break;
+                      case AstNodeType.NormalExpression:
+                      case AstNodeType.SpecialExpression: {
+                          var subResult = analyzeAstNode(expression, contextStack, builtin);
+                          subResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
+                          break;
+                      }
+                  }
+              }
+              try {
+                  for (var _c = __values(astNode.p), _d = _c.next(); !_d.done; _d = _c.next()) {
+                      var subNode = _d.value;
+                      var subNodeResult = analyzeAst(subNode, contextStack, builtin);
+                      subNodeResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
+                  }
+              }
+              catch (e_2_1) { e_2 = { error: e_2_1 }; }
+              finally {
+                  try {
+                      if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                  }
+                  finally { if (e_2) throw e_2.error; }
+              }
+              return { undefinedSymbols: undefinedSymbols_1 };
+          }
+          case AstNodeType.SpecialExpression: {
+              var specialExpression = asValue(builtin.specialExpressions[astNode.n], (_b = astNode.tkn) === null || _b === void 0 ? void 0 : _b.d);
+              var result = specialExpression.analyze(astNode, contextStack, {
+                  analyzeAst: analyzeAst,
+                  builtin: builtin,
+              });
+              return result;
+          }
+      }
+  }
+
   var _a;
   function findOverloadFunction(overloads, nbrOfParams, debugInfo) {
       var overloadFunction = overloads.find(function (overload) {
@@ -5702,7 +5755,7 @@ var Lits = (function (exports) {
           }
       });
       if (!overloadFunction) {
-          throw new LitsError("Unexpected number of arguments, got ".concat(valueToString$1(nbrOfParams), "."), debugInfo);
+          throw new LitsError("Unexpected number of arguments, got ".concat(valueToString(nbrOfParams), "."), debugInfo);
       }
       return overloadFunction;
   }
@@ -5765,7 +5818,7 @@ var Lits = (function (exports) {
           var f = fn.f;
           if (f.length === 0) {
               if (params.length !== 1) {
-                  throw new LitsError("(comp) expects one argument, got ".concat(valueToString$1(params.length), "."), debugInfo);
+                  throw new LitsError("(comp) expects one argument, got ".concat(valueToString(params.length), "."), debugInfo);
               }
               return any.as(params[0], debugInfo);
           }
@@ -5862,24 +5915,6 @@ var Lits = (function (exports) {
       },
       _a);
 
-  function createContextStack(contexts) {
-      if (contexts === void 0) { contexts = []; }
-      if (contexts.length === 0) {
-          contexts.push({});
-      }
-      return new ContextStackImpl(contexts, 0);
-  }
-  var ContextStackImpl = /** @class */ (function () {
-      function ContextStackImpl(contexts, globalContextIndex) {
-          this.stack = contexts;
-          this.numberOfImportedContexts = contexts.length - (globalContextIndex + 1);
-          this.globalContext = contexts[globalContextIndex];
-      }
-      ContextStackImpl.prototype.withContext = function (context) {
-          return new ContextStackImpl(__spreadArray([context], __read(this.stack), false), this.stack.length - this.numberOfImportedContexts);
-      };
-      return ContextStackImpl;
-  }());
   function evaluate(ast, contextStack) {
       var e_1, _a;
       var result = null;
@@ -5906,7 +5941,7 @@ var Lits = (function (exports) {
           case AstNodeType.String:
               return evaluateString(node);
           case AstNodeType.Name:
-              return evaluateName(node, contextStack);
+              return contextStack.evaluateName(node);
           case AstNodeType.ReservedName:
               return evaluateReservedName(node);
           case AstNodeType.NormalExpression:
@@ -5927,91 +5962,14 @@ var Lits = (function (exports) {
       var _a;
       return asValue(reservedNamesRecord[node.v], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d).value;
   }
-  function evaluateName(node, contextStack) {
-      var _a;
-      var lookUpResult = lookUp(node, contextStack);
-      if (lookUpResult.contextEntry) {
-          return getValueFromContextEntry(lookUpResult.contextEntry);
-      }
-      else if (lookUpResult.builtinFunction) {
-          return lookUpResult.builtinFunction;
-      }
-      throw new UndefinedSymbolError(node.v, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
-  }
-  function lookUp(node, contextStack) {
-      var e_2, _a, _b;
-      var _c;
-      var value = node.v;
-      var debugInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d;
-      try {
-          for (var _d = __values(contextStack.stack), _e = _d.next(); !_e.done; _e = _d.next()) {
-              var context = _e.value;
-              var variable = context[value];
-              if (variable) {
-                  return {
-                      builtinFunction: null,
-                      contextEntry: variable,
-                      specialExpression: null,
-                  };
-              }
-          }
-      }
-      catch (e_2_1) { e_2 = { error: e_2_1 }; }
-      finally {
-          try {
-              if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
-          }
-          finally { if (e_2) throw e_2.error; }
-      }
-      if (builtin.normalExpressions[value]) {
-          var builtinFunction = (_b = {},
-              _b[FUNCTION_SYMBOL] = true,
-              _b.d = debugInfo,
-              _b.t = FunctionType.Builtin,
-              _b.n = value,
-              _b);
-          return {
-              builtinFunction: builtinFunction,
-              contextEntry: null,
-              specialExpression: null,
-          };
-      }
-      if (builtin.specialExpressions[value]) {
-          return {
-              specialExpression: true,
-              builtinFunction: null,
-              contextEntry: null,
-          };
-      }
-      return {
-          specialExpression: null,
-          builtinFunction: null,
-          contextEntry: null,
-      };
-  }
   function evaluateNormalExpression(node, contextStack) {
-      var e_3, _a;
-      var _b;
+      var _a;
       var params = node.p.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
-      var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+      var debugInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d;
       if (normalExpressionNodeWithName.is(node)) {
-          try {
-              for (var _c = __values(contextStack.stack), _d = _c.next(); !_d.done; _d = _c.next()) {
-                  var context = _d.value;
-                  var contextEntry = context[node.n];
-                  if (contextEntry === undefined) {
-                      continue;
-                  }
-                  var fn = getValueFromContextEntry(contextEntry);
-                  return executeFunction(fn, params, contextStack, debugInfo);
-              }
-          }
-          catch (e_3_1) { e_3 = { error: e_3_1 }; }
-          finally {
-              try {
-                  if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-              }
-              finally { if (e_3) throw e_3.error; }
+          var value = contextStack.getValue(node.n);
+          if (value !== undefined) {
+              return executeFunction(any.as(value), params, contextStack, debugInfo);
           }
           return evaluateBuiltinNormalExpression(node, params, contextStack);
       }
@@ -6049,7 +6007,7 @@ var Lits = (function (exports) {
   function evaluateSpecialExpression(node, contextStack) {
       var _a;
       var specialExpression = asValue(builtin.specialExpressions[node.n], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
-      return specialExpression.evaluate(node, contextStack, { evaluateAstNode: evaluateAstNode, builtin: builtin, lookUp: lookUp });
+      return specialExpression.evaluate(node, contextStack, { evaluateAstNode: evaluateAstNode, builtin: builtin });
   }
   function evalueateObjectAsFunction(fn, params, debugInfo) {
       if (params.length !== 1) {
@@ -6078,7 +6036,7 @@ var Lits = (function (exports) {
       if (number.is(param, { integer: true })) {
           return toAny(fn[param]);
       }
-      throw new LitsError("string as function expects Obj or integer parameter, got ".concat(valueToString$1(param)), debugInfo);
+      throw new LitsError("string as function expects Obj or integer parameter, got ".concat(valueToString(param)), debugInfo);
   }
   function evaluateNumberAsFunction(fn, params, debugInfo) {
       number.assert(fn, debugInfo, { integer: true });
@@ -6089,102 +6047,148 @@ var Lits = (function (exports) {
       sequence.assert(param, debugInfo);
       return toAny(param[fn]);
   }
-  function getValueFromContextEntry(contextEntry) {
-      if (contextEntry.read) {
-          return contextEntry.read();
+  function contextToString(context) {
+      if (Object.keys(context).length === 0) {
+          return "  <empty>\n";
       }
-      return contextEntry.value;
+      var maxKeyLength = Math.max.apply(Math, __spreadArray([], __read(Object.keys(context).map(function (key) { return key.length; })), false));
+      return Object.entries(context).reduce(function (result, entry) {
+          var key = "".concat(entry[0]).padEnd(maxKeyLength + 2, " ");
+          return "".concat(result, "  ").concat(key).concat(contextEntryToString(entry[1]), "\n");
+      }, "");
+  }
+  function contextEntryToString(contextEntry) {
+      var value = contextEntry.value;
+      if (litsFunction.is(value)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          var name_1 = value.n;
+          //TODO value.t makes littl sence, should be mapped to a type name
+          if (name_1) {
+              return "<".concat(value.t, " function ").concat(name_1, ">");
+          }
+          else {
+              return "<".concat(value.t, " function \u03BB>");
+          }
+      }
+      return JSON.stringify(contextEntry.value);
   }
 
-  var analyzeAst = function (astNode, contextStack, builtin) {
-      var e_1, _a;
-      var astNodes = Array.isArray(astNode) ? astNode : [astNode];
-      var analyzeResult = {
-          undefinedSymbols: new Set(),
-      };
-      try {
-          for (var astNodes_1 = __values(astNodes), astNodes_1_1 = astNodes_1.next(); !astNodes_1_1.done; astNodes_1_1 = astNodes_1.next()) {
-              var subNode = astNodes_1_1.value;
-              var result = analyzeAstNode(subNode, contextStack, builtin);
-              result.undefinedSymbols.forEach(function (symbol) { return analyzeResult.undefinedSymbols.add(symbol); });
-          }
-      }
-      catch (e_1_1) { e_1 = { error: e_1_1 }; }
-      finally {
-          try {
-              if (astNodes_1_1 && !astNodes_1_1.done && (_a = astNodes_1.return)) _a.call(astNodes_1);
-          }
-          finally { if (e_1) throw e_1.error; }
-      }
-      return analyzeResult;
-  };
-  function analyzeAstNode(astNode, contextStack, builtin) {
-      var e_2, _a;
-      var _b;
-      var emptySet = new Set();
-      switch (astNode.t) {
-          case AstNodeType.Name: {
-              var lookUpResult = lookUp(astNode, contextStack);
-              if (!lookUpResult.builtinFunction && !lookUpResult.contextEntry && !lookUpResult.specialExpression) {
-                  return { undefinedSymbols: new Set([{ symbol: astNode.v, token: astNode.tkn }]) };
-              }
-              return { undefinedSymbols: emptySet };
-          }
-          case AstNodeType.String:
-          case AstNodeType.Number:
-          case AstNodeType.Modifier:
-          case AstNodeType.ReservedName:
-              return { undefinedSymbols: emptySet };
-          case AstNodeType.NormalExpression: {
-              var undefinedSymbols_1 = new Set();
-              var expression = astNode.e, name_1 = astNode.n, token = astNode.tkn;
-              if (typeof name_1 === "string") {
-                  var lookUpResult = lookUp({ t: AstNodeType.Name, v: name_1, tkn: token }, contextStack);
-                  if (lookUpResult.builtinFunction === null &&
-                      lookUpResult.contextEntry === null &&
-                      lookUpResult.specialExpression === null) {
-                      undefinedSymbols_1.add({ symbol: name_1, token: astNode.tkn });
-                  }
-              }
-              if (expression) {
-                  switch (expression.t) {
-                      case AstNodeType.String:
-                      case AstNodeType.Number:
-                          break;
-                      case AstNodeType.NormalExpression:
-                      case AstNodeType.SpecialExpression: {
-                          var subResult = analyzeAstNode(expression, contextStack, builtin);
-                          subResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
-                          break;
-                      }
-                  }
-              }
-              try {
-                  for (var _c = __values(astNode.p), _d = _c.next(); !_d.done; _d = _c.next()) {
-                      var subNode = _d.value;
-                      var subNodeResult = analyzeAst(subNode, contextStack, builtin);
-                      subNodeResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
-                  }
-              }
-              catch (e_2_1) { e_2 = { error: e_2_1 }; }
-              finally {
-                  try {
-                      if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-                  }
-                  finally { if (e_2) throw e_2.error; }
-              }
-              return { undefinedSymbols: undefinedSymbols_1 };
-          }
-          case AstNodeType.SpecialExpression: {
-              var specialExpression = asValue(builtin.specialExpressions[astNode.n], (_b = astNode.tkn) === null || _b === void 0 ? void 0 : _b.d);
-              var result = specialExpression.analyze(astNode, contextStack, {
-                  analyzeAst: analyzeAst,
-                  builtin: builtin,
-              });
-              return result;
-          }
-      }
+  function isContextEntry(value) {
+      return isUnknownRecord(value) && value.value !== undefined;
   }
+
+  var ContextStack = /** @class */ (function () {
+      function ContextStack(_a) {
+          var contexts = _a.contexts, hostValues = _a.values, lazyHostValues = _a.lazyValues;
+          this.contexts = contexts;
+          this.globalContext = asValue(contexts[0]);
+          this.values = hostValues;
+          this.lazyValues = lazyHostValues;
+      }
+      ContextStack.prototype.toString = function () {
+          var _this = this;
+          return this.contexts.reduce(function (result, context, index) {
+              return "".concat(result, "Context ").concat(index).concat(index === _this.contexts.length - 1 ? " - Global context" : "", "\n").concat(contextToString(context), "\n");
+          }, "");
+      };
+      ContextStack.prototype.withContext = function (context) {
+          var globalContext = this.globalContext;
+          var contextStack = new ContextStack({
+              contexts: __spreadArray([context], __read(this.contexts), false),
+              values: this.values,
+              lazyValues: this.lazyValues,
+          });
+          contextStack.globalContext = globalContext;
+          return contextStack;
+      };
+      ContextStack.prototype.getValue = function (name) {
+          var e_1, _a;
+          var _b, _c;
+          try {
+              for (var _d = __values(this.contexts), _e = _d.next(); !_e.done; _e = _d.next()) {
+                  var context = _e.value;
+                  var contextEntry = context[name];
+                  if (contextEntry) {
+                      return contextEntry.value;
+                  }
+              }
+          }
+          catch (e_1_1) { e_1 = { error: e_1_1 }; }
+          finally {
+              try {
+                  if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
+              }
+              finally { if (e_1) throw e_1.error; }
+          }
+          var lazyHostValue = (_b = this.lazyValues) === null || _b === void 0 ? void 0 : _b[name];
+          if (lazyHostValue) {
+              return lazyHostValue.read();
+          }
+          return (_c = this.values) === null || _c === void 0 ? void 0 : _c[name];
+      };
+      ContextStack.prototype.lookUp = function (node) {
+          var e_2, _a, _b;
+          var _c, _d, _e;
+          var value = node.v;
+          var debugInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d;
+          try {
+              for (var _f = __values(this.contexts), _g = _f.next(); !_g.done; _g = _f.next()) {
+                  var context = _g.value;
+                  var variable = context[value];
+                  if (variable) {
+                      return variable;
+                  }
+              }
+          }
+          catch (e_2_1) { e_2 = { error: e_2_1 }; }
+          finally {
+              try {
+                  if (_g && !_g.done && (_a = _f.return)) _a.call(_f);
+              }
+              finally { if (e_2) throw e_2.error; }
+          }
+          var lazyHostValue = (_d = this.lazyValues) === null || _d === void 0 ? void 0 : _d[value];
+          if (lazyHostValue !== undefined) {
+              return {
+                  value: toAny(lazyHostValue.read()),
+              };
+          }
+          var hostValue = (_e = this.values) === null || _e === void 0 ? void 0 : _e[value];
+          if (hostValue !== undefined) {
+              return {
+                  value: toAny(hostValue),
+              };
+          }
+          if (builtin.normalExpressions[value]) {
+              var builtinFunction = (_b = {},
+                  _b[FUNCTION_SYMBOL] = true,
+                  _b.d = debugInfo,
+                  _b.t = FunctionType.Builtin,
+                  _b.n = value,
+                  _b);
+              return builtinFunction;
+          }
+          if (builtin.specialExpressions[value]) {
+              return "specialExpression";
+          }
+          return null;
+      };
+      ContextStack.prototype.evaluateName = function (node) {
+          var _a;
+          var lookUpResult = this.lookUp(node);
+          if (isContextEntry(lookUpResult)) {
+              return lookUpResult.value;
+          }
+          else if (isBuiltinFunction(lookUpResult)) {
+              return lookUpResult;
+          }
+          else if (isLazyValue(lookUpResult)) {
+              return toAny(lookUpResult.read());
+          }
+          throw new UndefinedSymbolError(node.v, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
+      };
+      return ContextStack;
+  }());
 
   var parseNumber = function (tokens, position) {
       var tkn = token.as(tokens[position], "EOF");
@@ -6340,7 +6344,7 @@ var Lits = (function (exports) {
           return [position + 1, { t: AstNodeType.Modifier, v: value, tkn: tkn.d ? tkn : undefined }];
       }
       else {
-          throw new LitsError("Expected name or modifier token, got ".concat(valueToString$1(tkn), "."), tkn.d);
+          throw new LitsError("Expected name or modifier token, got ".concat(valueToString(tkn), "."), tkn.d);
       }
   };
   var parseBindings = function (tokens, position) {
@@ -6970,7 +6974,7 @@ var Lits = (function (exports) {
           this._size = 0;
           this.maxSize = maxSize === null ? null : toNonNegativeInteger(maxSize);
           if (typeof this.maxSize === "number" && this.maxSize < 1) {
-              throw Error("1 is the minimum maxSize, got ".concat(valueToString$1(maxSize)));
+              throw Error("1 is the minimum maxSize, got ".concat(valueToString(maxSize)));
           }
       }
       Cache.prototype.getContent = function () {
@@ -7034,7 +7038,7 @@ var Lits = (function (exports) {
           var _b, _c, _d;
           this.debug = (_b = config.debug) !== null && _b !== void 0 ? _b : false;
           this.astCacheSize = (_c = config.astCacheSize) !== null && _c !== void 0 ? _c : null;
-          if (this.astCacheSize !== 0) {
+          if (this.astCacheSize) {
               this.astCache = new Cache(this.astCacheSize);
               var initialCache = (_d = config.initialCache) !== null && _d !== void 0 ? _d : {};
               try {
@@ -7070,14 +7074,14 @@ var Lits = (function (exports) {
       };
       Lits.prototype.context = function (program, params) {
           if (params === void 0) { params = {}; }
-          var contextStack = createContextStackFromParams(params);
+          var contextStack = createContextStack(params);
           var ast = this.generateAst(program, params.getLocation);
           evaluate(ast, contextStack);
           return contextStack.globalContext;
       };
       Lits.prototype.analyze = function (program) {
           var params = {};
-          var contextStack = createContextStackFromParams(params);
+          var contextStack = createContextStack(params);
           var ast = this.generateAst(program, params.getLocation);
           return analyzeAst(ast.b, contextStack, builtin);
       };
@@ -7088,7 +7092,7 @@ var Lits = (function (exports) {
           return parse(tokens);
       };
       Lits.prototype.evaluate = function (ast, params) {
-          var contextStack = createContextStackFromParams(params);
+          var contextStack = createContextStack(params);
           return evaluate(ast, contextStack);
       };
       Lits.prototype.apply = function (fn, fnParams, params) {
@@ -7102,11 +7106,11 @@ var Lits = (function (exports) {
               .join(" ");
           var program = "(".concat(fnName, " ").concat(paramsString, ")");
           var ast = this.generateAst(program, params.getLocation);
-          var globals = fnParams.reduce(function (result, param, index) {
+          var hostValues = fnParams.reduce(function (result, param, index) {
               result["".concat(fnName, "_").concat(index)] = param;
               return result;
           }, (_a = {}, _a[fnName] = fn, _a));
-          params.globals = __assign(__assign({}, params.globals), globals);
+          params.values = __assign(__assign({}, params.values), hostValues);
           return this.evaluate(ast, params);
       };
       Lits.prototype.generateAst = function (untrimmedProgram, getLocation) {
@@ -7125,11 +7129,16 @@ var Lits = (function (exports) {
       };
       return Lits;
   }());
-  function createContextStackFromParams(params) {
-      var _a, _b;
-      var globalContext = (_a = params.globalContext) !== null && _a !== void 0 ? _a : {};
-      Object.assign(globalContext, createContextFromGlobals(params.globals), createContextFromReadables(params.readables));
-      var contextStack = createContextStack(__spreadArray([globalContext], __read(((_b = params.contexts) !== null && _b !== void 0 ? _b : [])), false));
+  function createContextStack(params) {
+      if (params === void 0) { params = {}; }
+      // Insert an empty context (globalContext), before provided contexts
+      // Contexts are checked from left to right
+      var contexts = params.contexts ? __spreadArray([{}], __read(params.contexts), false) : [{}];
+      var contextStack = new ContextStack({
+          contexts: contexts,
+          values: params.values,
+          lazyValues: params.lazyValues,
+      });
       return contextStack;
   }
 

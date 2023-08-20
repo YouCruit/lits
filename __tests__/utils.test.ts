@@ -1,6 +1,7 @@
 import { DebugInfo } from '../src/tokenizer/interface'
-import { REGEXP_SYMBOL, RegularExpression } from '../src/parser/interface'
+import { RegularExpression } from '../src/parser/interface'
 import { collHasKey, deepEqual, toNonNegativeInteger, cloneColl } from '../src/utils'
+import { REGEXP_SYMBOL } from '../src/utils/symbols'
 import { valueToString } from '../src/utils/helpers'
 
 const debugInfo: DebugInfo = `EOF`

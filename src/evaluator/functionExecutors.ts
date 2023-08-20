@@ -1,3 +1,4 @@
+import { ContextStack } from './ContextStack'
 import { normalExpressions } from '../builtin/normalExpressions'
 import { LitsError, RecurSignal } from '../errors'
 import { Any, Arr } from '../interface'
@@ -20,7 +21,7 @@ import { DebugInfo } from '../tokenizer/interface'
 import { toAny } from '../utils'
 import { any, asValue, string } from '../utils/assertion'
 import { valueToString } from '../utils/helpers'
-import { Context, ContextStack, EvaluateAstNode, ExecuteFunction } from './interface'
+import { Context, EvaluateAstNode, ExecuteFunction } from './interface'
 
 type FunctionExecutors = Record<
   LitsFunctionType,

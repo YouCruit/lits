@@ -1,5 +1,6 @@
 import { Any } from '../../interface'
-import { AstNodeType, SpecialExpressionNode } from '../../parser/interface'
+import { AstNodeType } from '../../parser/AstNodeType'
+import { SpecialExpressionNode } from '../../parser/interface'
 import { assertNumberOfParams, token, nameNode, any } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 
@@ -16,12 +17,11 @@ export const qqSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     return [newPosition + 1, node]
   },
-  evaluate: (node, contextStack, { lookUp, evaluateAstNode }) => {
+  evaluate: (node, contextStack, { evaluateAstNode }) => {
     const [firstNode, secondNode] = node.p
 
     if (nameNode.is(firstNode)) {
-      const lookUpResult = lookUp(firstNode, contextStack)
-      if (!(lookUpResult.builtinFunction || lookUpResult.contextEntry || lookUpResult.specialExpression)) {
+      if (contextStack.lookUp(firstNode) === null) {
         return secondNode ? evaluateAstNode(secondNode, contextStack) : null
       }
     }

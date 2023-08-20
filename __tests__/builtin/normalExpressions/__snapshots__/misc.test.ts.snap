@@ -3,33 +3,33 @@
 exports[`misc functions debug! debug value. 1`] = `
 "*** LITS DEBUG ***
 {
-  \\"λ\\": true,
-  \\"t\\": 0,
-  \\"o\\": [
+  "λ": true,
+  "t": 0,
+  "o": [
     {
-      \\"as\\": {
-        \\"mandatoryArguments\\": [
-          \\"%1\\"
+      "as": {
+        "mandatoryArguments": [
+          "%1"
         ]
       },
-      \\"a\\": 1,
-      \\"b\\": [
+      "a": 1,
+      "b": [
         {
-          \\"t\\": 2,
-          \\"n\\": \\">\\",
-          \\"p\\": [
+          "t": 2,
+          "n": ">",
+          "p": [
             {
-              \\"t\\": 4,
-              \\"v\\": \\"%1\\"
+              "t": 4,
+              "v": "%1"
             },
             {
-              \\"t\\": 0,
-              \\"v\\": 2
+              "t": 0,
+              "v": 2
             }
           ]
         }
       ],
-      \\"f\\": {}
+      "f": {}
     }
   ]
 }
@@ -39,65 +39,65 @@ exports[`misc functions debug! debug value. 1`] = `
 exports[`misc functions debug! debug value. 2`] = `
 "*** LITS DEBUG ***
 {
-  \\"λ\\": true,
-  \\"d\\": {
-    \\"code\\": \\"(debug! #(> %1 2))\\",
-    \\"line\\": 1,
-    \\"column\\": 9
+  "λ": true,
+  "d": {
+    "code": "(debug! #(> %1 2))",
+    "line": 1,
+    "column": 9
   },
-  \\"t\\": 0,
-  \\"o\\": [
+  "t": 0,
+  "o": [
     {
-      \\"as\\": {
-        \\"mandatoryArguments\\": [
-          \\"%1\\"
+      "as": {
+        "mandatoryArguments": [
+          "%1"
         ]
       },
-      \\"a\\": 1,
-      \\"b\\": [
+      "a": 1,
+      "b": [
         {
-          \\"t\\": 2,
-          \\"n\\": \\">\\",
-          \\"p\\": [
+          "t": 2,
+          "n": ">",
+          "p": [
             {
-              \\"t\\": 4,
-              \\"v\\": \\"%1\\",
-              \\"tkn\\": {
-                \\"t\\": 2,
-                \\"v\\": \\"%1\\",
-                \\"d\\": {
-                  \\"code\\": \\"(debug! #(> %1 2))\\",
-                  \\"line\\": 1,
-                  \\"column\\": 13
+              "t": 4,
+              "v": "%1",
+              "tkn": {
+                "t": 2,
+                "v": "%1",
+                "d": {
+                  "code": "(debug! #(> %1 2))",
+                  "line": 1,
+                  "column": 13
                 }
               }
             },
             {
-              \\"t\\": 0,
-              \\"v\\": 2,
-              \\"tkn\\": {
-                \\"t\\": 1,
-                \\"v\\": \\"2\\",
-                \\"d\\": {
-                  \\"code\\": \\"(debug! #(> %1 2))\\",
-                  \\"line\\": 1,
-                  \\"column\\": 16
+              "t": 0,
+              "v": 2,
+              "tkn": {
+                "t": 1,
+                "v": "2",
+                "d": {
+                  "code": "(debug! #(> %1 2))",
+                  "line": 1,
+                  "column": 16
                 }
               }
             }
           ],
-          \\"tkn\\": {
-            \\"t\\": 2,
-            \\"v\\": \\">\\",
-            \\"d\\": {
-              \\"code\\": \\"(debug! #(> %1 2))\\",
-              \\"line\\": 1,
-              \\"column\\": 11
+          "tkn": {
+            "t": 2,
+            "v": ">",
+            "d": {
+              "code": "(debug! #(> %1 2))",
+              "line": 1,
+              "column": 11
             }
           }
         }
       ],
-      \\"f\\": {}
+      "f": {}
     }
   ]
 }
@@ -109,10 +109,10 @@ exports[`misc functions debug! multiple contexts 1`] = `
 Context 0
   z  10
 
-Context 1 - Global context
-  y  20
+Context 1
+  <empty>
 
-Context 2
+Context 2 - Global context
   x     10
   foo   <0 function foo>
   bar   <0 function λ>
@@ -127,10 +127,10 @@ exports[`misc functions debug! multiple contexts 2`] = `
 Context 0
   z  10
 
-Context 1 - Global context
-  y  20
+Context 1
+  <empty>
 
-Context 2
+Context 2 - Global context
   x     10
   foo   <0 function foo>
   bar   <0 function λ>

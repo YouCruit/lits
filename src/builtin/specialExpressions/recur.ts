@@ -1,5 +1,6 @@
 import { RecurSignal } from '../../errors'
-import { AstNodeType, SpecialExpressionNode } from '../../parser/interface'
+import { AstNodeType } from '../../parser/AstNodeType'
+import { SpecialExpressionNode } from '../../parser/interface'
 import { token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'
 

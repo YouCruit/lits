@@ -1,21 +1,22 @@
 import { AnalyzeAst, AnalyzeResult } from '../../analyze/interface'
 import { addAnalyzeResults } from '../../analyze/utils'
 import { LitsError } from '../../errors'
-import { Context, ContextStack, EvaluateAstNode } from '../../evaluator/interface'
+import { ContextStack } from '../../evaluator/ContextStack'
+import { Context, EvaluateAstNode } from '../../evaluator/interface'
+import { AstNodeType } from '../../parser/AstNodeType'
 import {
   AstNode,
   BindingNode,
   EvaluatedFunctionOverload,
-  FUNCTION_SYMBOL,
   LitsFunction,
   NameNode,
-  AstNodeType,
   SpecialExpressionNode,
   FunctionType,
 } from '../../parser/interface'
 import { Token, TokenizerType } from '../../tokenizer/interface'
 import { nameNode, string, token } from '../../utils/assertion'
 import { valueToString } from '../../utils/helpers'
+import { FUNCTION_SYMBOL } from '../../utils/symbols'
 import { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
 import { Arity, assertNameNotDefined, FunctionArguments, FunctionOverload } from '../utils'
 

@@ -1,9 +1,8 @@
-import { Context, ContextEntry, ContextStack } from '../../../evaluator/interface'
 import { Any } from '../../../interface'
 import { compare, deepEqual } from '../../../utils'
 import { BuiltinNormalExpressions } from '../../interface'
 import { version } from '../../../version'
-import { any, assertNumberOfParams, litsFunction, number, string } from '../../../utils/assertion'
+import { any, assertNumberOfParams, number, string } from '../../../utils/assertion'
 const uuidTemplate = `xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx`
 const xyRegexp = /[xy]/g
 
@@ -137,7 +136,7 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
     evaluate: (params, debugInfo, contextStack): Any => {
       if (params.length === 0) {
         // eslint-disable-next-line no-console
-        console.warn(`*** LITS DEBUG ***\n${contextStackToString(contextStack)}\n`)
+        console.warn(`*** LITS DEBUG ***\n${contextStack.toString()}\n`)
         return null
       }
       // eslint-disable-next-line no-console
@@ -174,37 +173,4 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
     },
     validate: node => assertNumberOfParams(0, node),
   },
-}
-
-function contextStackToString(contextStack: ContextStack): string {
-  return contextStack.stack.reduce((result, context, index) => {
-    return `${result}Context ${index}${
-      context === contextStack.globalContext ? ` - Global context` : ``
-    }\n${contextToString(context)}\n`
-  }, ``)
-}
-
-function contextToString(context: Context) {
-  if (Object.keys(context).length === 0) {
-    return `  <empty>\n`
-  }
-  const maxKeyLength = Math.max(...Object.keys(context).map(key => key.length))
-  return Object.entries(context).reduce((result, entry) => {
-    const key = `${entry[0]}`.padEnd(maxKeyLength + 2, ` `)
-    return `${result}  ${key}${valueToString(entry[1])}\n`
-  }, ``)
-}
-
-function valueToString(contextEntry: ContextEntry): string {
-  const { value } = contextEntry
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const name: string | undefined = (value as any).n
-  if (litsFunction.is(value)) {
-    if (name) {
-      return `<${value.t} function ${name}>`
-    } else {
-      return `<${value.t} function λ>`
-    }
-  }
-  return JSON.stringify(contextEntry.value)
 }

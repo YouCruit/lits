@@ -1,5 +1,5 @@
 import { LitsError } from '../errors'
-import { ContextStack } from '../evaluator/interface'
+import { ContextStack } from '../evaluator/ContextStack'
 import { AstNode, BindingNode } from '../parser/interface'
 import { reservedNamesRecord } from '../reservedNames'
 import { DebugInfo } from '../tokenizer/interface'

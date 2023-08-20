@@ -17,7 +17,6 @@ import {
   ParseBindings,
   NormalExpressionNodeWithName,
   ParseBinding,
-  AstNodeType,
 } from './interface'
 import { builtin } from '../builtin'
 import { ReservedName } from '../reservedNames'
@@ -34,6 +33,7 @@ import {
   token,
 } from '../utils/assertion'
 import { valueToString } from '../utils/helpers'
+import { AstNodeType } from './AstNodeType'
 
 type ParseNumber = (tokens: Token[], position: number) => [number, NumberNode]
 export const parseNumber: ParseNumber = (tokens: Token[], position: number) => {

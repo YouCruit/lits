@@ -1,27 +1,22 @@
 import {
   NormalExpressionNode,
-  NameNode,
   NumberNode,
   StringNode,
   ReservedNameNode,
-  FUNCTION_SYMBOL,
   NormalExpressionNodeWithName,
-  BuiltinFunction,
   SpecialExpressionNode,
-  AstNodeType,
-  FunctionType,
 } from '../parser/interface'
 import { Ast } from '../parser/interface'
 import { builtin } from '../builtin'
 import { reservedNamesRecord } from '../reservedNames'
 import { toAny } from '../utils'
-import { Context, ContextEntry, EvaluateAstNode, ExecuteFunction, LookUpResult } from './interface'
+import { Context, ContextEntry, EvaluateAstNode, ExecuteFunction } from './interface'
 import { Any, Arr, Obj } from '../interface'
-import { ContextStack } from './interface'
 import { functionExecutors } from './functionExecutors'
 import { DebugInfo } from '../tokenizer/interface'
 import { LitsError, NotAFunctionError, UndefinedSymbolError } from '../errors'
 import {
+  any,
   asValue,
   litsFunction,
   normalExpressionNodeWithName,
@@ -31,29 +26,8 @@ import {
   string,
 } from '../utils/assertion'
 import { valueToString } from '../utils/helpers'
-
-export function createContextStack(contexts: Context[] = []): ContextStack {
-  if (contexts.length === 0) {
-    contexts.push({})
-  }
-
-  return new ContextStackImpl(contexts, 0)
-}
-
-class ContextStackImpl implements ContextStack {
-  public stack: Context[]
-  public globalContext: Context
-  public numberOfImportedContexts: number
-  constructor(contexts: Context[], globalContextIndex: number) {
-    this.stack = contexts
-    this.numberOfImportedContexts = contexts.length - (globalContextIndex + 1)
-    this.globalContext = contexts[globalContextIndex] as Context
-  }
-
-  public withContext(context: Context): ContextStack {
-    return new ContextStackImpl([context, ...this.stack], this.stack.length - this.numberOfImportedContexts)
-  }
-}
+import { AstNodeType } from '../parser/AstNodeType'
+import { ContextStack } from './ContextStack'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null
@@ -70,7 +44,7 @@ export const evaluateAstNode: EvaluateAstNode = (node, contextStack) => {
     case AstNodeType.String:
       return evaluateString(node)
     case AstNodeType.Name:
-      return evaluateName(node, contextStack)
+      return contextStack.evaluateName(node)
     case AstNodeType.ReservedName:
       return evaluateReservedName(node)
     case AstNodeType.NormalExpression:
@@ -94,72 +68,14 @@ function evaluateReservedName(node: ReservedNameNode): Any {
   return asValue(reservedNamesRecord[node.v], node.tkn?.d).value
 }
 
-function evaluateName(node: NameNode, contextStack: ContextStack): Any {
-  const lookUpResult = lookUp(node, contextStack)
-  if (lookUpResult.contextEntry) {
-    return getValueFromContextEntry(lookUpResult.contextEntry)
-  } else if (lookUpResult.builtinFunction) {
-    return lookUpResult.builtinFunction
-  }
-  throw new UndefinedSymbolError(node.v, node.tkn?.d)
-}
-
-export function lookUp(node: NameNode, contextStack: ContextStack): LookUpResult {
-  const value = node.v
-  const debugInfo = node.tkn?.d
-
-  for (const context of contextStack.stack) {
-    const variable = context[value]
-    if (variable) {
-      return {
-        builtinFunction: null,
-        contextEntry: variable,
-        specialExpression: null,
-      }
-    }
-  }
-  if (builtin.normalExpressions[value]) {
-    const builtinFunction: BuiltinFunction = {
-      [FUNCTION_SYMBOL]: true,
-      d: debugInfo,
-      t: FunctionType.Builtin,
-      n: value,
-    }
-    return {
-      builtinFunction,
-      contextEntry: null,
-      specialExpression: null,
-    }
-  }
-
-  if (builtin.specialExpressions[value]) {
-    return {
-      specialExpression: true,
-      builtinFunction: null,
-      contextEntry: null,
-    }
-  }
-
-  return {
-    specialExpression: null,
-    builtinFunction: null,
-    contextEntry: null,
-  }
-}
-
 function evaluateNormalExpression(node: NormalExpressionNode, contextStack: ContextStack): Any {
   const params = node.p.map(paramNode => evaluateAstNode(paramNode, contextStack))
   const debugInfo = node.tkn?.d
   if (normalExpressionNodeWithName.is(node)) {
-    for (const context of contextStack.stack) {
-      const contextEntry = context[node.n]
-      if (contextEntry === undefined) {
-        continue
-      }
-      const fn = getValueFromContextEntry(contextEntry)
-      return executeFunction(fn, params, contextStack, debugInfo)
+    const value = contextStack.getValue(node.n)
+    if (value !== undefined) {
+      return executeFunction(any.as(value), params, contextStack, debugInfo)
     }
-
     return evaluateBuiltinNormalExpression(node, params, contextStack)
   } else {
     const fn = evaluateAstNode(node.e, contextStack)
@@ -202,7 +118,7 @@ function evaluateBuiltinNormalExpression(
 function evaluateSpecialExpression(node: SpecialExpressionNode, contextStack: ContextStack): Any {
   const specialExpression = asValue(builtin.specialExpressions[node.n], node.tkn?.d)
 
-  return specialExpression.evaluate(node, contextStack, { evaluateAstNode, builtin, lookUp })
+  return specialExpression.evaluate(node, contextStack, { evaluateAstNode, builtin })
 }
 
 function evalueateObjectAsFunction(fn: Obj, params: Arr, debugInfo?: DebugInfo): Any {
@@ -247,9 +163,28 @@ function evaluateNumberAsFunction(fn: number, params: Arr, debugInfo?: DebugInfo
   return toAny(param[fn])
 }
 
-function getValueFromContextEntry(contextEntry: ContextEntry): Any {
-  if (contextEntry.read) {
-    return contextEntry.read()
+export function contextToString(context: Context) {
+  if (Object.keys(context).length === 0) {
+    return `  <empty>\n`
   }
-  return contextEntry.value
+  const maxKeyLength = Math.max(...Object.keys(context).map(key => key.length))
+  return Object.entries(context).reduce((result, entry) => {
+    const key = `${entry[0]}`.padEnd(maxKeyLength + 2, ` `)
+    return `${result}  ${key}${contextEntryToString(entry[1])}\n`
+  }, ``)
+}
+
+function contextEntryToString(contextEntry: ContextEntry): string {
+  const { value } = contextEntry
+  if (litsFunction.is(value)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const name: string | undefined = (value as any).n
+    //TODO value.t makes littl sence, should be mapped to a type name
+    if (name) {
+      return `<${value.t} function ${name}>`
+    } else {
+      return `<${value.t} function λ>`
+    }
+  }
+  return JSON.stringify(contextEntry.value)
 }

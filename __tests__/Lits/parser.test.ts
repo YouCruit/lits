@@ -1,6 +1,7 @@
 import { Token } from '../../src'
 import { parse } from '../../src/parser'
-import { Ast, AstNodeType } from '../../src/parser/interface'
+import { AstNodeType } from '../../src/parser/AstNodeType'
+import { Ast } from '../../src/parser/interface'
 import { parseToken } from '../../src/parser/parsers'
 import { tokenize } from '../../src/tokenizer'
 import { TokenizerType } from '../../src/tokenizer/interface'

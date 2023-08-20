@@ -15,20 +15,22 @@ var examples = [
 ;; Access object properies with .
 ;; Access string and array elements with #
 
-(def data {:numbers [1 2 3], :chars [:a :b :c]})
+(def data {:numbers [1 2 3], :chars [:a :b :c], :string "Albert"})
 
 (write! data.numbers#0)
 (write! data.chars#2)
+(write! data.string#0)
 
-(write! [1 2 3]#2)
 (write! {:a 1, :b 2, :c 3}.b)
+(write! "Albert"#3)
+(write! [1 2 3]#2)
     `.trim(),
   },
   {
     id: 'simple-params-example',
     name: 'Params in use',
     description: 'Simple example using params.',
-    params: { globals: { x: 15, y: 97 } },
+    params: { values: { x: 15, y: 97 } },
     code: `
 (+ x y)
     `.trim(),
@@ -131,7 +133,7 @@ var examples = [
     name: 'Translations lib',
     description: 'A Lits take on i18n.',
     params: {
-      globals: {
+      values: {
         TRANSLATIONS: {
           'welcome-message': 'Welcome, $1',
           'count-chairs': '$1 chair||||$1 chairs',

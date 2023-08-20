@@ -1,4 +1,4 @@
-import { ContextStack, EvaluateAstNode, ExecuteFunction, LookUpResult } from '../evaluator/interface'
+import { EvaluateAstNode, ExecuteFunction } from '../evaluator/interface'
 import {
   ParseArgument,
   ParseBindings,
@@ -6,13 +6,13 @@ import {
   ParseTokens,
   ParseToken,
   ParseBinding,
-  NameNode,
   SpecialExpressionNode,
 } from '../parser/interface'
 import { Token, DebugInfo } from '../tokenizer/interface'
 import { NormalExpressionNode } from '../parser/interface'
 import { Any, Arr } from '../interface'
 import { AnalyzeAst, AnalyzeResult } from '../analyze/interface'
+import { ContextStack } from '../evaluator/ContextStack'
 
 export type NormalExpressionEvaluator<T> = (
   params: Arr,
@@ -42,7 +42,6 @@ export type BuiltinSpecialExpressions = Record<string, BuiltinSpecialExpression<
 type EvaluateHelpers = {
   evaluateAstNode: EvaluateAstNode
   builtin: Builtin
-  lookUp(nameNode: NameNode, contextStack: ContextStack): LookUpResult
 }
 export type BuiltinSpecialExpression<T> = {
   parse: (tokens: Token[], position: number, parsers: ParserHelpers) => [number, SpecialExpressionNode]

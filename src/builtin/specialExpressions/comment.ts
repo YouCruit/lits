@@ -1,4 +1,5 @@
-import { AstNode, AstNodeType, SpecialExpressionNode } from '../../parser/interface'
+import { AstNodeType } from '../../parser/AstNodeType'
+import { AstNode, SpecialExpressionNode } from '../../parser/interface'
 import { TokenizerType } from '../../tokenizer/interface'
 import { token } from '../../utils/assertion'
 import { BuiltinSpecialExpression } from '../interface'

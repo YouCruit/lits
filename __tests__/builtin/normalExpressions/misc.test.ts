@@ -274,7 +274,8 @@ describe(`misc functions`, () => {
       })
       test(`multiple contexts`, () => {
         const context = lits.context(`(def x 10) (defn foo [] "foo") (def bar (fn [] "bar")) (def plus +)`)
-        lits.run(`((fn [z] (debug!) (+ z 1)) 10)`, { globals: { y: 20 }, contexts: [context] })
+        lits.run(`((fn [z] (debug!) (+ z 1)) 10)`, { values: { y: 20 }, contexts: [context] })
+        console.log(lastLog)
         expect(lastLog).toMatchSnapshot()
       })
       test(`debug value.`, () => {

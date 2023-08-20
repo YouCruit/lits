@@ -1,12 +1,7 @@
-import {
-  AstNode,
-  FUNCTION_SYMBOL,
-  LitsFunction,
-  REGEXP_SYMBOL,
-  RegularExpression,
-  isAstNodeType,
-} from '../parser/interface'
+import { isAstNodeType } from '../parser/AstNodeType'
+import type { AstNode, LitsFunction, RegularExpression } from '../parser/interface'
 import { DebugInfo, SourceCodeInfo, Token, isTokenType } from '../tokenizer/interface'
+import { FUNCTION_SYMBOL, REGEXP_SYMBOL } from './symbols'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
 export function getDebugInfo(anyValue: any, debugInfo?: DebugInfo): DebugInfo | undefined {

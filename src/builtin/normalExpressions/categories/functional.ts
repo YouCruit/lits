@@ -4,7 +4,6 @@ import {
   CompFunction,
   ConstantlyFunction,
   EveryPredFunction,
-  FUNCTION_SYMBOL,
   JuxtFunction,
   PartialFunction,
   SomePredFunction,
@@ -13,6 +12,7 @@ import {
 } from '../../../parser/interface'
 import { toAny } from '../../../utils'
 import { litsFunction, array, assertNumberOfParams } from '../../../utils/assertion'
+import { FUNCTION_SYMBOL } from '../../../utils/symbols'
 import { BuiltinNormalExpressions } from '../../interface'
 export const functionalNormalExpression: BuiltinNormalExpressions = {
   apply: {

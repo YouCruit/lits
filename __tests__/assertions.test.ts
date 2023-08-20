@@ -1,11 +1,10 @@
+import { LazyValue } from '../src/Lits/Lits'
+import { AstNodeType } from '../src/parser/AstNodeType'
 import {
   AstNode,
-  FUNCTION_SYMBOL,
   LitsFunction,
   NameNode,
-  AstNodeType,
   NormalExpressionNode,
-  REGEXP_SYMBOL,
   RegularExpression,
   FunctionType,
 } from '../src/parser/interface'
@@ -30,7 +29,9 @@ import {
   expressionNode,
   astNode,
   token,
+  isLazyValue,
 } from '../src/utils/assertion'
+import { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../src/utils/symbols'
 
 const debugInfo: DebugInfo = `EOF`
 describe(`utils`, () => {
@@ -747,5 +748,17 @@ describe(`utils`, () => {
     expect(() => token.assert(tkn, `EOF`, { type: TokenizerType.Number })).toThrow()
     expect(() => token.assert(tkn, `EOF`, { type: TokenizerType.Name, value: `Albert` })).not.toThrow()
     expect(() => token.assert(tkn, `EOF`, { type: TokenizerType.Name, value: `Mojir` })).toThrow()
+  })
+
+  test(`isLazyValue`, () => {
+    expect(isLazyValue(null)).toBe(false)
+    const lazyValue: LazyValue = {
+      a: 1,
+      read() {
+        return 1
+      },
+    }
+    expect(isLazyValue(lazyValue)).toBe(true)
+    expect(isLazyValue({})).toBe(false)
   })
 })

@@ -25,7 +25,7 @@ describe(`string functions`, () => {
 
     describe(`str`, () => {
       test(`samples`, () => {
-        expect(lits.run(`(str x)`, { globals: { x: undefined } })).toBe(``)
+        expect(lits.run(`(str x)`, { values: { x: null } })).toBe(``)
         expect(lits.run(`(str)`)).toBe(``)
         expect(lits.run(`(str "")`)).toBe(``)
         expect(lits.run(`(str :1)`)).toBe(`1`)

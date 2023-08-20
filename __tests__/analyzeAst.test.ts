@@ -1,7 +1,7 @@
 import { Lits } from '../src'
+import { createContextStack } from '../src/Lits/Lits'
 import { analyzeAst } from '../src/analyze'
 import { builtin } from '../src/builtin'
-import { createContextStack } from '../src/evaluator'
 import { AstNode } from '../src/parser/interface'
 import { getUndefinedSymbolNames } from './testUtils'
 

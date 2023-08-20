@@ -1,5 +1,6 @@
 import { Any } from '../../interface'
-import { AstNode, AstNodeType, ParseToken, SpecialExpressionNode } from '../../parser/interface'
+import { AstNodeType } from '../../parser/AstNodeType'
+import { AstNode, ParseToken, SpecialExpressionNode } from '../../parser/interface'
 import { Token, TokenizerType } from '../../tokenizer/interface'
 import { token } from '../../utils/tokenAssertion'
 import { BuiltinSpecialExpression } from '../interface'

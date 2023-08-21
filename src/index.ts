@@ -1,3 +1,6 @@
+export { FunctionType } from './parser/interface'
+export { AstNodeType } from './parser/AstNodeType'
+export { TokenizerType } from './tokenizer/interface'
 export { isLitsFunction } from './utils/helpers'
 export { LitsFunction } from './parser/interface'
 export { Context } from './evaluator/interface'

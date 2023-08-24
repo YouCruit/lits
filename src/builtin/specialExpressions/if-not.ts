@@ -1,11 +1,13 @@
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { assertNumberOfParams, astNode, token } from '../../utils/assertion'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import { assertNumberOfParams } from '../../utils/assertion'
+import { asAstNode } from '../../utils/astNodeAsserter'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 export const ifNotSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     const [newPosition, params] = parseTokens(tokens, position)
     return [
       newPosition + 1,
@@ -21,11 +23,11 @@ export const ifNotSpecialExpression: BuiltinSpecialExpression<Any> = {
     const debugInfo = node.tkn?.d
 
     const [conditionNode, trueNode, falseNode] = node.p
-    if (!evaluateAstNode(astNode.as(conditionNode, debugInfo), contextStack)) {
-      return evaluateAstNode(astNode.as(trueNode, debugInfo), contextStack)
+    if (!evaluateAstNode(asAstNode(conditionNode, debugInfo), contextStack)) {
+      return evaluateAstNode(asAstNode(trueNode, debugInfo), contextStack)
     } else {
       if (node.p.length === 3) {
-        return evaluateAstNode(astNode.as(falseNode, debugInfo), contextStack)
+        return evaluateAstNode(asAstNode(falseNode, debugInfo), contextStack)
       } else {
         return null
       }

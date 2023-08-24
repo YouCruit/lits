@@ -1,8 +1,8 @@
-import { ContextStack } from './ContextStack'
-import { LazyValue } from '../Lits/Lits'
-import { Any, Arr } from '../interface'
-import { AstNode, BuiltinFunction } from '../parser/interface'
-import { DebugInfo } from '../tokenizer/interface'
+import type { ContextStack } from './ContextStack'
+import type { LazyValue } from '../Lits/Lits'
+import type { Any, Arr } from '../interface'
+import type { AstNode, BuiltinFunction } from '../parser/interface'
+import type { DebugInfo } from '../tokenizer/interface'
 import { isUnknownRecord } from '../utils/assertion'
 
 export type ContextEntry = { value: Any }

@@ -2,7 +2,7 @@ import { Lits } from '../src'
 import { createContextStack } from '../src/Lits/Lits'
 import { analyzeAst } from '../src/analyze'
 import { builtin } from '../src/builtin'
-import { AstNode } from '../src/parser/interface'
+import type { AstNode } from '../src/parser/interface'
 import { getUndefinedSymbolNames } from './testUtils'
 
 describe(`analyzeAst.`, () => {

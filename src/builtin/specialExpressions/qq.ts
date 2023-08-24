@@ -1,12 +1,14 @@
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { SpecialExpressionNode } from '../../parser/interface'
-import { assertNumberOfParams, token, nameNode, any } from '../../utils/assertion'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { SpecialExpressionNode } from '../../parser/interface'
+import { assertAny, assertNumberOfParams } from '../../utils/assertion'
+import { isNameNode } from '../../utils/astNodeAsserter'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 export const qqSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     const [newPosition, params] = parseTokens(tokens, position)
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
@@ -20,12 +22,12 @@ export const qqSpecialExpression: BuiltinSpecialExpression<Any> = {
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const [firstNode, secondNode] = node.p
 
-    if (nameNode.is(firstNode)) {
+    if (isNameNode(firstNode)) {
       if (contextStack.lookUp(firstNode) === null) {
         return secondNode ? evaluateAstNode(secondNode, contextStack) : null
       }
     }
-    any.assert(firstNode, node.tkn?.d)
+    assertAny(firstNode, node.tkn?.d)
     const firstResult = evaluateAstNode(firstNode, contextStack)
     return firstResult ? firstResult : secondNode ? evaluateAstNode(secondNode, contextStack) : firstResult
   },

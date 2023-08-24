@@ -1,11 +1,13 @@
-import { AstNodeType } from '../../parser/AstNodeType'
-import { SpecialExpressionNode } from '../../parser/interface'
-import { assertNumberOfParams, token, nameNode } from '../../utils/assertion'
-import { BuiltinSpecialExpression } from '../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { SpecialExpressionNode } from '../../parser/interface'
+import { assertNumberOfParams } from '../../utils/assertion'
+import { assertNameNode } from '../../utils/astNodeAsserter'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 export const declaredSpecialExpression: BuiltinSpecialExpression<boolean> = {
   parse: (tokens, position, { parseTokens }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     const [newPosition, params] = parseTokens(tokens, position)
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
@@ -18,7 +20,7 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<boolean> = {
   },
   evaluate: (node, contextStack) => {
     const [astNode] = node.p
-    nameNode.assert(astNode, node.tkn?.d)
+    assertNameNode(astNode, node.tkn?.d)
 
     const lookUpResult = contextStack.lookUp(astNode)
     return lookUpResult !== null

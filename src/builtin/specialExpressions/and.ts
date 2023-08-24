@@ -1,11 +1,11 @@
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { token } from '../../utils/assertion'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 export const andSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     const [newPosition, params] = parseTokens(tokens, position)
     return [
       newPosition + 1,

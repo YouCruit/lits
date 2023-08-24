@@ -1,13 +1,14 @@
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { SpecialExpressionNode } from '../../parser/interface'
-import { assertNumberOfParams, astNode } from '../../utils/assertion'
-import { token } from '../../utils/tokenAssertion'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { SpecialExpressionNode } from '../../parser/interface'
+import { assertNumberOfParams } from '../../utils/assertion'
+import { assertAstNode } from '../../utils/astNodeAsserter'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseToken }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     const [newPosition, astNode] = parseToken(tokens, position)
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
@@ -20,7 +21,7 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const [param] = node.p
-    astNode.assert(param, node.tkn?.d)
+    assertAstNode(param, node.tkn?.d)
 
     const startTime = Date.now()
     const result = evaluateAstNode(param, contextStack)

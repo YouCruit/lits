@@ -1,7 +1,7 @@
 import { builtin } from '../../src/builtin'
 import { assertNameNotDefined } from '../../src/builtin/utils'
-import { ContextStack } from '../../src/evaluator/ContextStack'
-import { DebugInfo } from '../../src/tokenizer/interface'
+import type { ContextStack } from '../../src/evaluator/ContextStack'
+import type { DebugInfo } from '../../src/tokenizer/interface'
 import { createContextStackWithGlobalContext } from '../testUtils'
 
 const contextStack: ContextStack = createContextStackWithGlobalContext({ a: { value: 1 } })

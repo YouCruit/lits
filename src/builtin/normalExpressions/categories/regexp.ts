@@ -1,14 +1,14 @@
-import { RegularExpression } from '../../../parser/interface'
-import { assertNumberOfParams, regularExpression, string } from '../../../utils/assertion'
+import type { RegularExpression } from '../../../parser/interface'
+import { assertString, assertNumberOfParams, assertRegularExpression } from '../../../utils/assertion'
 import { REGEXP_SYMBOL } from '../../../utils/symbols'
-import { BuiltinNormalExpressions } from '../../interface'
+import type { BuiltinNormalExpressions } from '../../interface'
 
 export const regexpNormalExpression: BuiltinNormalExpressions = {
   regexp: {
     evaluate: ([sourceArg, flagsArg], debugInfo): RegularExpression => {
-      string.assert(sourceArg, debugInfo)
+      assertString(sourceArg, debugInfo)
       const source = sourceArg || `(?:)`
-      const flags = string.is(flagsArg) ? flagsArg : ``
+      const flags = typeof flagsArg === `string` ? flagsArg : ``
       new RegExp(source, flags) // Throws if invalid regexp
       return {
         [REGEXP_SYMBOL]: true,
@@ -21,8 +21,8 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
   },
   match: {
     evaluate: ([regexp, text], debugInfo): string[] | null => {
-      regularExpression.assert(regexp, debugInfo)
-      string.assert(text, debugInfo)
+      assertRegularExpression(regexp, debugInfo)
+      assertString(text, debugInfo)
       const regExp = new RegExp(regexp.s, regexp.f)
 
       const match = regExp.exec(text)
@@ -35,9 +35,9 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
   },
   replace: {
     evaluate: ([str, regexp, value], debugInfo): string => {
-      string.assert(str, debugInfo)
-      regularExpression.assert(regexp, debugInfo)
-      string.assert(value, debugInfo)
+      assertString(str, debugInfo)
+      assertRegularExpression(regexp, debugInfo)
+      assertString(value, debugInfo)
 
       const regExp = new RegExp(regexp.s, regexp.f)
       return str.replace(regExp, value)

@@ -1,8 +1,9 @@
-import { DebugInfo } from '../src/tokenizer/interface'
-import { RegularExpression } from '../src/parser/interface'
+import type { DebugInfo } from '../src/tokenizer/interface'
+import type { NameNode, RegularExpression } from '../src/parser/interface'
 import { collHasKey, deepEqual, toNonNegativeInteger, cloneColl } from '../src/utils'
 import { REGEXP_SYMBOL } from '../src/utils/symbols'
-import { valueToString } from '../src/utils/helpers'
+import { valueToString } from '../src/utils/debugTools'
+import { AstNodeType } from '../src'
 
 const debugInfo: DebugInfo = `EOF`
 describe(`utils`, () => {
@@ -96,8 +97,13 @@ describe(`utils`, () => {
   })
 
   describe(`helpers`, () => {
+    const n: NameNode = {
+      t: AstNodeType.Name,
+      v: `Foo`,
+    }
     test(`valueToString`, () => {
       expect(valueToString(new Error())).toBe(`Error`)
+      expect(valueToString(n)).toBe(`Name-node`)
     })
   })
 })

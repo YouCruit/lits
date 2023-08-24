@@ -1,13 +1,15 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
 import { LitsError } from '../../errors'
-import { Context } from '../../evaluator/interface'
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { AstNode, NameNode, SpecialExpressionNode } from '../../parser/interface'
-import { TokenizerType } from '../../tokenizer/interface'
-import { any, nameNode, token } from '../../utils/assertion'
-import { getDebugInfo } from '../../utils/helpers'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Context } from '../../evaluator/interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { AstNode, NameNode, SpecialExpressionNode } from '../../parser/interface'
+import { TokenType } from '../../constants/constants'
+import { asAny } from '../../utils/assertion'
+import { assertNameNode } from '../../utils/astNodeAsserter'
+import { getDebugInfo } from '../../utils/getDebugInfo'
+import { asToken, assertToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 type TryNode = SpecialExpressionNode & {
   te: AstNode
@@ -17,31 +19,31 @@ type TryNode = SpecialExpressionNode & {
 
 export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseToken }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     let tryExpression: AstNode
     ;[position, tryExpression] = parseToken(tokens, position)
 
-    token.assert(tokens[position], `EOF`, { type: TokenizerType.Bracket, value: `(` })
+    assertToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `(` })
     position += 1
 
     let catchNode: AstNode
     ;[position, catchNode] = parseToken(tokens, position)
-    nameNode.assert(catchNode, catchNode.tkn?.d)
+    assertNameNode(catchNode, catchNode.tkn?.d)
     if (catchNode.v !== `catch`) {
       throw new LitsError(`Expected 'catch', got '${catchNode.v}'.`, getDebugInfo(catchNode, catchNode.tkn?.d))
     }
 
     let error: AstNode
     ;[position, error] = parseToken(tokens, position)
-    nameNode.assert(error, error.tkn?.d)
+    assertNameNode(error, error.tkn?.d)
 
     let catchExpression: AstNode
     ;[position, catchExpression] = parseToken(tokens, position)
 
-    token.assert(tokens[position], `EOF`, { type: TokenizerType.Bracket, value: `)` })
+    assertToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `)` })
     position += 1
 
-    token.assert(tokens[position], `EOF`, { type: TokenizerType.Bracket, value: `)` })
+    assertToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `)` })
     position += 1
 
     const node: TryNode = {
@@ -62,8 +64,8 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
       return evaluateAstNode(tryExpression, contextStack)
     } catch (error) {
       const newContext: Context = {
-        [errorNode.v]: { value: any.as(error, node.tkn?.d) },
-      } as Context
+        [errorNode.v]: { value: asAny(error, node.tkn?.d) },
+      }
       return evaluateAstNode(catchExpression, contextStack.withContext(newContext))
     }
   },

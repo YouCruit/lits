@@ -1,10 +1,10 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
-import { Context } from '../../evaluator/interface'
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
-import { token } from '../../utils/assertion'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Context } from '../../evaluator/interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 type LetNode = SpecialExpressionNode & {
   bs: BindingNode[]
@@ -12,7 +12,7 @@ type LetNode = SpecialExpressionNode & {
 
 export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseBindings, parseTokens }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokens, position)
 

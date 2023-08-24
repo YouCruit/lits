@@ -1,14 +1,14 @@
-import { Context } from '../../evaluator/interface'
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { AstNode, SpecialExpressionNode } from '../../parser/interface'
-import { TokenizerType } from '../../tokenizer/interface'
-import { token } from '../../utils/assertion'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Context } from '../../evaluator/interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { AstNode, SpecialExpressionNode } from '../../parser/interface'
+import { TokenType } from '../../constants/constants'
+import { asToken, isToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseToken }) => {
-    let tkn = token.as(tokens[position], `EOF`)
+    let tkn = asToken(tokens[position], `EOF`)
 
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
@@ -17,11 +17,11 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
       tkn: tkn.d ? tkn : undefined,
     }
 
-    while (!token.is(tkn, { type: TokenizerType.Bracket, value: `)` })) {
+    while (!isToken(tkn, { type: TokenType.Bracket, value: `)` })) {
       let bodyNode: AstNode
       ;[position, bodyNode] = parseToken(tokens, position)
       node.p.push(bodyNode)
-      tkn = token.as(tokens[position], `EOF`)
+      tkn = asToken(tokens[position], `EOF`)
     }
     return [position + 1, node]
   },

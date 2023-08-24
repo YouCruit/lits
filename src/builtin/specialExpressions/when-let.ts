@@ -1,12 +1,13 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
 import { LitsError } from '../../errors'
-import { Context } from '../../evaluator/interface'
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
-import { assertNumberOfParams, asValue, token } from '../../utils/assertion'
-import { valueToString } from '../../utils/helpers'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Context } from '../../evaluator/interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
+import { asValue, assertNumberOfParams } from '../../utils/assertion'
+import { valueToString } from '../../utils/debugTools'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 type WhenLetNode = SpecialExpressionNode & {
   b: BindingNode
@@ -14,7 +15,7 @@ type WhenLetNode = SpecialExpressionNode & {
 
 export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseBindings, parseTokens }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokens, position)
 

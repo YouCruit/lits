@@ -5,15 +5,15 @@ const litsInstances = [lits, new Lits({ debug: true })]
 describe(`sequence functions`, () => {
   describe(`nth`, () => {
     test(`array samples`, () => {
-      for (const lits of litsInstances) {
-        expect(lits.run(`(nth [1 2 3] 1)`)).toBe(2)
-        expect(lits.run(`(nth [1 2 3] 3)`)).toBeNull()
-        expect(lits.run(`(nth [1 2 3] -1)`)).toBeNull()
-        expect(lits.run(`(nth [1 2 3] -4)`)).toBeNull()
-        expect(() => lits.run(`(nth)`)).toThrow()
-        expect(() => lits.run(`(nth (object) 1)`)).toThrow()
-        expect(() => lits.run(`(nth [1 2 3])`)).toThrow()
-        expect(() => lits.run(`(nth [1 2 3] 1 2 3)`)).toThrow()
+      for (const lits2 of litsInstances) {
+        expect(lits2.run(`(nth [1 2 3] 1)`)).toBe(2)
+        expect(lits2.run(`(nth [1 2 3] 3)`)).toBeNull()
+        expect(lits2.run(`(nth [1 2 3] -1)`)).toBeNull()
+        expect(lits2.run(`(nth [1 2 3] -4)`)).toBeNull()
+        expect(() => lits2.run(`(nth)`)).toThrow()
+        expect(() => lits2.run(`(nth (object) 1)`)).toThrow()
+        expect(() => lits2.run(`(nth [1 2 3])`)).toThrow()
+        expect(() => lits2.run(`(nth [1 2 3] 1 2 3)`)).toThrow()
       }
     })
 

@@ -1,6 +1,7 @@
 import { LitsError } from '../errors'
-import { DebugInfo } from '../tokenizer/interface'
-import { getDebugInfo, valueToString } from './helpers'
+import type { DebugInfo } from '../tokenizer/interface'
+import { valueToString } from './debugTools'
+import { getDebugInfo } from './getDebugInfo'
 
 type SignOptions =
   | {
@@ -80,21 +81,18 @@ type NumberOptions = {
   LtOptions
 
 function getRangeString(options: NumberOptions): string {
-  if (
+  const hasUpperAndLowerBound =
     (typeof options.gt === `number` || typeof options.gte === `number`) &&
     (typeof options.lt === `number` || typeof options.lte === `number`)
-  ) {
+  if (hasUpperAndLowerBound) {
     return `${typeof options.gt === `number` ? `${options.gt} < n ` : `${options.gte} <= n `}${
       typeof options.lt === `number` ? `< ${options.lt}` : `<= ${options.lte}`
     }`
-  }
-  if (typeof options.gt === `number` || typeof options.gte === `number`) {
+  } else if (typeof options.gt === `number` || typeof options.gte === `number`) {
     return `${typeof options.gt === `number` ? `n > ${options.gt}` : `n >= ${options.gte}`}`
-  }
-  if (typeof options.lt === `number` || typeof options.lte === `number`) {
+  } else if (typeof options.lt === `number` || typeof options.lte === `number`) {
     return `${typeof options.lt === `number` ? `n < ${options.lt}` : `n <= ${options.lte}`}`
-  }
-  return ``
+  } else return ``
 }
 
 function getNumberTypeName(options: NumberOptions): string {
@@ -119,7 +117,7 @@ function getNumberTypeName(options: NumberOptions): string {
   return [sign, finite, numberType, range].filter(x => !!x).join(` `)
 }
 
-function is(value: unknown, options: NumberOptions = {}): value is number {
+export function isNumber(value: unknown, options: NumberOptions = {}): value is number {
   if (typeof value !== `number`) {
     return false
   }
@@ -162,8 +160,12 @@ function is(value: unknown, options: NumberOptions = {}): value is number {
   return true
 }
 
-function assert(value: unknown, debugInfo?: DebugInfo, options: NumberOptions = {}): asserts value is number {
-  if (!is(value, options)) {
+export function assertNumber(
+  value: unknown,
+  debugInfo?: DebugInfo,
+  options: NumberOptions = {},
+): asserts value is number {
+  if (!isNumber(value, options)) {
     throw new LitsError(
       `Expected ${getNumberTypeName(options)}, got ${valueToString(value)}.`,
       getDebugInfo(value, debugInfo),
@@ -171,17 +173,7 @@ function assert(value: unknown, debugInfo?: DebugInfo, options: NumberOptions = 
   }
 }
 
-function as(value: unknown, debugInfo: DebugInfo | undefined, options: NumberOptions = {}): number {
-  assert(value, debugInfo, options)
+export function asNumber(value: unknown, debugInfo: DebugInfo | undefined, options: NumberOptions = {}): number {
+  assertNumber(value, debugInfo, options)
   return value
-}
-
-export const number: {
-  is: (value: unknown, options?: NumberOptions) => value is number
-  as: (value: unknown, debugInfo: DebugInfo | undefined, options?: NumberOptions) => number
-  assert(value: unknown, debugInfo: DebugInfo | undefined, options?: NumberOptions): asserts value is number
-} = {
-  is,
-  as,
-  assert,
 }

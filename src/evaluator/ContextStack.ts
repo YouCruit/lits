@@ -1,13 +1,16 @@
-import { NameNode, BuiltinFunction, FunctionType, isBuiltinFunction } from '../parser/interface'
+import type { NameNode, BuiltinFunction } from '../parser/interface'
+import { isBuiltinFunction } from '../parser/interface'
 import { builtin } from '../builtin'
 import { toAny } from '../utils'
-import { Context, LookUpResult, isContextEntry } from './interface'
-import { Any } from '../interface'
+import type { Context, LookUpResult } from './interface'
+import { isContextEntry } from './interface'
+import type { Any } from '../interface'
 import { UndefinedSymbolError } from '../errors'
-import { asValue, isLazyValue } from '../utils/assertion'
+import { asValue } from '../utils/assertion'
 import type { LazyValue } from '../Lits/Lits'
 import { FUNCTION_SYMBOL } from '../utils/symbols'
 import { contextToString } from '.'
+import { FunctionType } from '../constants/constants'
 
 export class ContextStack {
   private contexts: Context[]
@@ -109,8 +112,6 @@ export class ContextStack {
       return lookUpResult.value
     } else if (isBuiltinFunction(lookUpResult)) {
       return lookUpResult
-    } else if (isLazyValue(lookUpResult)) {
-      return toAny(lookUpResult.read())
     }
     throw new UndefinedSymbolError(node.v, node.tkn?.d)
   }

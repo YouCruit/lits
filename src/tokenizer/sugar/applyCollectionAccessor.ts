@@ -1,13 +1,14 @@
-import { SugarFunction } from '.'
+import type { SugarFunction } from '.'
+import { TokenType } from '../../constants/constants'
 import { LitsError } from '../../errors'
-import { asValue, number } from '../../utils/assertion'
-import { DebugInfo, Token, TokenizerType } from '../interface'
+import { asValue, assertNumber } from '../../utils/assertion'
+import type { DebugInfo, Token } from '../interface'
 
 export const applyCollectionAccessors: SugarFunction = tokens => {
-  let dotTokenIndex = tokens.findIndex(tkn => tkn.t === TokenizerType.CollectionAccessor)
+  let dotTokenIndex = tokens.findIndex(tkn => tkn.t === TokenType.CollectionAccessor)
   while (dotTokenIndex >= 0) {
     applyCollectionAccessor(tokens, dotTokenIndex)
-    dotTokenIndex = tokens.findIndex(tkn => tkn.t === TokenizerType.CollectionAccessor)
+    dotTokenIndex = tokens.findIndex(tkn => tkn.t === TokenType.CollectionAccessor)
   }
   return tokens
 }
@@ -20,27 +21,27 @@ function applyCollectionAccessor(tokens: Token[], position: number) {
 
   tokens.splice(position, 1)
   tokens.splice(backPosition, 0, {
-    t: TokenizerType.Bracket,
+    t: TokenType.Bracket,
     v: `(`,
     d: debugInfo,
   })
   const nextTkn = asValue(tokens[position + 1])
   if (dotTkn.v === `.`) {
     tokens[position + 1] = {
-      t: TokenizerType.String,
+      t: TokenType.String,
       v: nextTkn.v,
       d: nextTkn.d,
     }
   } else {
-    number.assert(Number(nextTkn.v), debugInfo, { integer: true, nonNegative: true })
+    assertNumber(Number(nextTkn.v), debugInfo, { integer: true, nonNegative: true })
     tokens[position + 1] = {
-      t: TokenizerType.Number,
+      t: TokenType.Number,
       v: nextTkn.v,
       d: nextTkn.d,
     }
   }
   tokens.splice(position + 2, 0, {
-    t: TokenizerType.Bracket,
+    t: TokenType.Bracket,
     v: `)`,
     d: debugInfo,
   })
@@ -55,7 +56,7 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
   let openBracket: null | `(` | `[` | `{` = null
   let closeBracket: null | `)` | `]` | `}` = null
 
-  if (prevToken.t === TokenizerType.Bracket) {
+  if (prevToken.t === TokenType.Bracket) {
     switch (prevToken.v) {
       case `)`:
         openBracket = `(`
@@ -78,7 +79,7 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
     bracketCount = bracketCount === null ? 0 : bracketCount
     position -= 1
     const tkn = asValue(tokens[position], debugInfo)
-    if (tkn.t === TokenizerType.Bracket) {
+    if (tkn.t === TokenType.Bracket) {
       if (tkn.v === openBracket) {
         bracketCount += 1
       }
@@ -88,8 +89,8 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
     }
   }
   if (openBracket === `(` && position > 0) {
-    const prevToken = asValue(tokens[position - 1])
-    if (prevToken.t === TokenizerType.FnShorthand) {
+    const tokenBeforeBracket = asValue(tokens[position - 1])
+    if (tokenBeforeBracket.t === TokenType.FnShorthand) {
       throw new LitsError(`# or . must NOT be preceeded by shorthand lambda function`, debugInfo)
     }
   }
@@ -99,10 +100,10 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
 function checkForward(tokens: Token[], position: number, dotTkn: Token, debugInfo: DebugInfo | undefined) {
   const tkn = asValue(tokens[position + 1], debugInfo)
 
-  if (dotTkn.v === `.` && tkn.t !== TokenizerType.Name) {
+  if (dotTkn.v === `.` && tkn.t !== TokenType.Name) {
     throw new LitsError(`# as a collection accessor must be followed by an name`, debugInfo)
   }
-  if (dotTkn.v === `#` && tkn.t !== TokenizerType.Number) {
+  if (dotTkn.v === `#` && tkn.t !== TokenType.Number) {
     throw new LitsError(`# as a collection accessor must be followed by an integer`, debugInfo)
   }
 }

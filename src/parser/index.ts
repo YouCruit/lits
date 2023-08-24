@@ -1,5 +1,5 @@
-import { Token } from '../tokenizer/interface'
-import { Ast, AstNode } from './interface'
+import type { Token } from '../tokenizer/interface'
+import type { Ast, AstNode } from './interface'
 import { parseToken } from './parsers'
 
 export function parse(tokens: Token[]): Ast {

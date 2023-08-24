@@ -1,10 +1,9 @@
-import { Token } from '../../src'
+import type { Token } from '../../src'
 import { parse } from '../../src/parser'
-import { AstNodeType } from '../../src/parser/AstNodeType'
-import { Ast } from '../../src/parser/interface'
+import { AstNodeType, TokenType } from '../../src/constants/constants'
+import type { Ast } from '../../src/parser/interface'
 import { parseToken } from '../../src/parser/parsers'
 import { tokenize } from '../../src/tokenizer'
-import { TokenizerType } from '../../src/tokenizer/interface'
 
 const program = `
 (let [day (* 24 60 60 1000)]
@@ -92,11 +91,11 @@ describe(`Parser`, () => {
     expect(ast).toEqual<Ast>({
       b: [
         {
-          t: 2,
+          t: 203,
           e: {
-            t: 2,
+            t: 203,
             e: {
-              t: 3,
+              t: 204,
               n: `fn`,
               p: [],
               o: [
@@ -107,11 +106,11 @@ describe(`Parser`, () => {
                   },
                   b: [
                     {
-                      t: 2,
+                      t: 203,
                       n: `identity`,
                       p: [
                         {
-                          t: 4,
+                          t: 205,
                           v: `%1`,
                         },
                       ],
@@ -123,19 +122,19 @@ describe(`Parser`, () => {
             },
             p: [
               {
-                t: 2,
+                t: 203,
                 n: `array`,
                 p: [
                   {
-                    t: 0,
+                    t: 201,
                     v: 1,
                   },
                   {
-                    t: 0,
+                    t: 201,
                     v: 2,
                   },
                   {
-                    t: 0,
+                    t: 201,
                     v: 3,
                   },
                 ],
@@ -144,7 +143,7 @@ describe(`Parser`, () => {
           },
           p: [
             {
-              t: 0,
+              t: 201,
               v: 1,
             },
           ],
@@ -156,11 +155,11 @@ describe(`Parser`, () => {
   test(`parseToken unknown token`, () => {
     const tokens: Token[] = [
       {
-        t: TokenizerType.CollectionAccessor,
+        t: TokenType.CollectionAccessor,
         v: ``,
       },
       {
-        t: TokenizerType.Modifier,
+        t: TokenType.Modifier,
         v: ``,
       },
     ]

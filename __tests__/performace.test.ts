@@ -3,7 +3,7 @@
 import { Lits } from '../src'
 import { evaluate } from '../src/evaluator'
 import { ContextStack } from '../src/evaluator/ContextStack'
-import { Obj } from '../src/interface'
+import type { Obj } from '../src/interface'
 import { parse } from '../src/parser'
 import { tokenize } from '../src/tokenizer'
 

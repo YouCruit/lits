@@ -1,4 +1,4 @@
-import {
+import type {
   NormalExpressionNode,
   NumberNode,
   StringNode,
@@ -6,28 +6,21 @@ import {
   NormalExpressionNodeWithName,
   SpecialExpressionNode,
 } from '../parser/interface'
-import { Ast } from '../parser/interface'
+import type { Ast } from '../parser/interface'
 import { builtin } from '../builtin'
 import { reservedNamesRecord } from '../reservedNames'
 import { toAny } from '../utils'
-import { Context, ContextEntry, EvaluateAstNode, ExecuteFunction } from './interface'
-import { Any, Arr, Obj } from '../interface'
+import type { Context, ContextEntry, EvaluateAstNode, ExecuteFunction } from './interface'
+import type { Any, Arr, Obj } from '../interface'
 import { functionExecutors } from './functionExecutors'
-import { DebugInfo } from '../tokenizer/interface'
+import type { DebugInfo } from '../tokenizer/interface'
 import { LitsError, NotAFunctionError, UndefinedSymbolError } from '../errors'
-import {
-  any,
-  asValue,
-  litsFunction,
-  normalExpressionNodeWithName,
-  number,
-  object,
-  sequence,
-  string,
-} from '../utils/assertion'
-import { valueToString } from '../utils/helpers'
-import { AstNodeType } from '../parser/AstNodeType'
-import { ContextStack } from './ContextStack'
+import { AstNodeType } from '../constants/constants'
+import type { ContextStack } from './ContextStack'
+import { asAny, asValue, assertNumber, assertSeq, assertString, isNumber, isObj } from '../utils/assertion'
+import { isNormalExpressionNodeWithName } from '../utils/astNodeAsserter'
+import { valueToString } from '../utils/debugTools'
+import { isLitsFunction } from '../utils/functionAsserter'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null
@@ -71,10 +64,10 @@ function evaluateReservedName(node: ReservedNameNode): Any {
 function evaluateNormalExpression(node: NormalExpressionNode, contextStack: ContextStack): Any {
   const params = node.p.map(paramNode => evaluateAstNode(paramNode, contextStack))
   const debugInfo = node.tkn?.d
-  if (normalExpressionNodeWithName.is(node)) {
+  if (isNormalExpressionNodeWithName(node)) {
     const value = contextStack.getValue(node.n)
     if (value !== undefined) {
-      return executeFunction(any.as(value), params, contextStack, debugInfo)
+      return executeFunction(asAny(value), params, contextStack, debugInfo)
     }
     return evaluateBuiltinNormalExpression(node, params, contextStack)
   } else {
@@ -84,19 +77,19 @@ function evaluateNormalExpression(node: NormalExpressionNode, contextStack: Cont
 }
 
 const executeFunction: ExecuteFunction = (fn, params, contextStack, debugInfo) => {
-  if (litsFunction.is(fn)) {
+  if (isLitsFunction(fn)) {
     return functionExecutors[fn.t](fn, params, debugInfo, contextStack, { evaluateAstNode, executeFunction })
   }
   if (Array.isArray(fn)) {
     return evaluateArrayAsFunction(fn, params, debugInfo)
   }
-  if (object.is(fn)) {
+  if (isObj(fn)) {
     return evalueateObjectAsFunction(fn, params, debugInfo)
   }
-  if (string.is(fn)) {
+  if (typeof fn === `string`) {
     return evaluateStringAsFunction(fn, params, debugInfo)
   }
-  if (number.is(fn)) {
+  if (isNumber(fn)) {
     return evaluateNumberAsFunction(fn, params, debugInfo)
   }
   throw new NotAFunctionError(fn, debugInfo)
@@ -126,7 +119,7 @@ function evalueateObjectAsFunction(fn: Obj, params: Arr, debugInfo?: DebugInfo):
     throw new LitsError(`Object as function requires one string parameter.`, debugInfo)
   }
   const key = params[0]
-  string.assert(key, debugInfo)
+  assertString(key, debugInfo)
   return toAny(fn[key])
 }
 
@@ -135,7 +128,7 @@ function evaluateArrayAsFunction(fn: Arr, params: Arr, debugInfo?: DebugInfo): A
     throw new LitsError(`Array as function requires one non negative integer parameter.`, debugInfo)
   }
   const index = params[0]
-  number.assert(index, debugInfo, { integer: true, nonNegative: true })
+  assertNumber(index, debugInfo, { integer: true, nonNegative: true })
   return toAny(fn[index])
 }
 
@@ -144,22 +137,22 @@ function evaluateStringAsFunction(fn: string, params: Arr, debugInfo?: DebugInfo
     throw new LitsError(`String as function requires one Obj parameter.`, debugInfo)
   }
   const param = toAny(params[0])
-  if (object.is(param)) {
+  if (isObj(param)) {
     return toAny((param as Obj)[fn])
   }
-  if (number.is(param, { integer: true })) {
+  if (isNumber(param, { integer: true })) {
     return toAny(fn[param])
   }
   throw new LitsError(`string as function expects Obj or integer parameter, got ${valueToString(param)}`, debugInfo)
 }
 
 function evaluateNumberAsFunction(fn: number, params: Arr, debugInfo?: DebugInfo): Any {
-  number.assert(fn, debugInfo, { integer: true })
+  assertNumber(fn, debugInfo, { integer: true })
   if (params.length !== 1) {
     throw new LitsError(`Number as function requires one Arr parameter.`, debugInfo)
   }
   const param = params[0]
-  sequence.assert(param, debugInfo)
+  assertSeq(param, debugInfo)
   return toAny(param[fn])
 }
 
@@ -176,7 +169,7 @@ export function contextToString(context: Context) {
 
 function contextEntryToString(contextEntry: ContextEntry): string {
   const { value } = contextEntry
-  if (litsFunction.is(value)) {
+  if (isLitsFunction(value)) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const name: string | undefined = (value as any).n
     //TODO value.t makes littl sence, should be mapped to a type name

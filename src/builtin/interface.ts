@@ -1,5 +1,5 @@
-import { EvaluateAstNode, ExecuteFunction } from '../evaluator/interface'
-import {
+import type { EvaluateAstNode, ExecuteFunction } from '../evaluator/interface'
+import type {
   ParseArgument,
   ParseBindings,
   ParseExpression,
@@ -8,11 +8,11 @@ import {
   ParseBinding,
   SpecialExpressionNode,
 } from '../parser/interface'
-import { Token, DebugInfo } from '../tokenizer/interface'
-import { NormalExpressionNode } from '../parser/interface'
-import { Any, Arr } from '../interface'
-import { AnalyzeAst, AnalyzeResult } from '../analyze/interface'
-import { ContextStack } from '../evaluator/ContextStack'
+import type { Token, DebugInfo } from '../tokenizer/interface'
+import type { NormalExpressionNode } from '../parser/interface'
+import type { Any, Arr } from '../interface'
+import type { AnalyzeAst, AnalyzeResult } from '../analyze/interface'
+import type { ContextStack } from '../evaluator/ContextStack'
 
 export type NormalExpressionEvaluator<T> = (
   params: Arr,

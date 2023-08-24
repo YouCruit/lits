@@ -1,13 +1,14 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
 import { LitsError } from '../../errors'
-import { Context } from '../../evaluator/interface'
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
+import type { Context } from '../../evaluator/interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
 import { toAny } from '../../utils'
-import { assertNumberOfParams, asValue, sequence, token } from '../../utils/assertion'
-import { valueToString } from '../../utils/helpers'
-import { BuiltinSpecialExpression } from '../interface'
+import { asValue, isSeq, assertNumberOfParams } from '../../utils/assertion'
+import { valueToString } from '../../utils/debugTools'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 type WhenFirstNode = SpecialExpressionNode & {
   b: BindingNode
@@ -15,7 +16,7 @@ type WhenFirstNode = SpecialExpressionNode & {
 
 export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseBindings, parseTokens }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokens, position)
 
@@ -39,7 +40,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
     const locals: Context = {}
     const { b: binding } = node as WhenFirstNode
     const evaluatedBindingForm = evaluateAstNode(binding.v, contextStack)
-    if (!sequence.is(evaluatedBindingForm)) {
+    if (!isSeq(evaluatedBindingForm)) {
       throw new LitsError(`Expected undefined or a sequence, got ${valueToString(evaluatedBindingForm)}`, node.tkn?.d)
     }
 

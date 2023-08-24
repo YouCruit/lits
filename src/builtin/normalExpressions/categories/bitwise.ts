@@ -1,12 +1,11 @@
-import { assertNumberOfParams } from '../../../utils/assertion'
-import { number } from '../../../utils/numberAssertion'
-import { BuiltinNormalExpressions } from '../../interface'
+import { assertNumber, assertNumberOfParams } from '../../../utils/assertion'
+import type { BuiltinNormalExpressions } from '../../interface'
 
 export const bitwiseNormalExpression: BuiltinNormalExpressions = {
   'bit-shift-left': {
     evaluate: ([num, count], debugInfo): number => {
-      number.assert(num, debugInfo, { integer: true })
-      number.assert(count, debugInfo, { integer: true, nonNegative: true })
+      assertNumber(num, debugInfo, { integer: true })
+      assertNumber(count, debugInfo, { integer: true, nonNegative: true })
 
       return num << count
     },
@@ -14,8 +13,8 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
   },
   'bit-shift-right': {
     evaluate: ([num, count], debugInfo): number => {
-      number.assert(num, debugInfo, { integer: true })
-      number.assert(count, debugInfo, { integer: true, nonNegative: true })
+      assertNumber(num, debugInfo, { integer: true })
+      assertNumber(count, debugInfo, { integer: true, nonNegative: true })
 
       return num >> count
     },
@@ -23,17 +22,17 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
   },
   'bit-not': {
     evaluate: ([num], debugInfo): number => {
-      number.assert(num, debugInfo, { integer: true })
+      assertNumber(num, debugInfo, { integer: true })
       return ~num
     },
     validate: node => assertNumberOfParams(1, node),
   },
   'bit-and': {
     evaluate: ([first, ...rest], debugInfo): number => {
-      number.assert(first, debugInfo, { integer: true })
+      assertNumber(first, debugInfo, { integer: true })
 
       return rest.reduce((result: number, value) => {
-        number.assert(value, debugInfo, { integer: true })
+        assertNumber(value, debugInfo, { integer: true })
         return result & value
       }, first)
     },
@@ -41,10 +40,10 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
   },
   'bit-and-not': {
     evaluate: ([first, ...rest], debugInfo): number => {
-      number.assert(first, debugInfo, { integer: true })
+      assertNumber(first, debugInfo, { integer: true })
 
       return rest.reduce((result: number, value) => {
-        number.assert(value, debugInfo, { integer: true })
+        assertNumber(value, debugInfo, { integer: true })
         return result & ~value
       }, first)
     },
@@ -52,10 +51,10 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
   },
   'bit-or': {
     evaluate: ([first, ...rest], debugInfo): number => {
-      number.assert(first, debugInfo, { integer: true })
+      assertNumber(first, debugInfo, { integer: true })
 
       return rest.reduce((result: number, value) => {
-        number.assert(value, debugInfo, { integer: true })
+        assertNumber(value, debugInfo, { integer: true })
         return result | value
       }, first)
     },
@@ -63,10 +62,10 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
   },
   'bit-xor': {
     evaluate: ([first, ...rest], debugInfo): number => {
-      number.assert(first, debugInfo, { integer: true })
+      assertNumber(first, debugInfo, { integer: true })
 
       return rest.reduce((result: number, value) => {
-        number.assert(value, debugInfo, { integer: true })
+        assertNumber(value, debugInfo, { integer: true })
         return result ^ value
       }, first)
     },
@@ -74,8 +73,8 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
   },
   'bit-flip': {
     evaluate: ([num, index], debugInfo): number => {
-      number.assert(num, debugInfo, { integer: true })
-      number.assert(index, debugInfo, { integer: true, nonNegative: true })
+      assertNumber(num, debugInfo, { integer: true })
+      assertNumber(index, debugInfo, { integer: true, nonNegative: true })
 
       const mask = 1 << index
       return (num ^= mask)
@@ -84,8 +83,8 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
   },
   'bit-set': {
     evaluate: ([num, index], debugInfo): number => {
-      number.assert(num, debugInfo, { integer: true })
-      number.assert(index, debugInfo, { integer: true, nonNegative: true })
+      assertNumber(num, debugInfo, { integer: true })
+      assertNumber(index, debugInfo, { integer: true, nonNegative: true })
 
       const mask = 1 << index
       return (num |= mask)
@@ -94,8 +93,8 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
   },
   'bit-clear': {
     evaluate: ([num, index], debugInfo): number => {
-      number.assert(num, debugInfo, { integer: true })
-      number.assert(index, debugInfo, { integer: true, nonNegative: true })
+      assertNumber(num, debugInfo, { integer: true })
+      assertNumber(index, debugInfo, { integer: true, nonNegative: true })
 
       const mask = 1 << index
       return (num &= ~mask)
@@ -104,8 +103,8 @@ export const bitwiseNormalExpression: BuiltinNormalExpressions = {
   },
   'bit-test': {
     evaluate: ([num, index], debugInfo): boolean => {
-      number.assert(num, debugInfo, { integer: true })
-      number.assert(index, debugInfo, { integer: true, nonNegative: true })
+      assertNumber(num, debugInfo, { integer: true })
+      assertNumber(index, debugInfo, { integer: true, nonNegative: true })
 
       const mask = 1 << index
       return !!(num & mask)

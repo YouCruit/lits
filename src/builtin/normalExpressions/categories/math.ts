@@ -1,11 +1,11 @@
-import { NormalExpressionNode } from '../../../parser/interface'
-import { assertNumberOfParams, number } from '../../../utils/assertion'
-import { BuiltinNormalExpressions } from '../../interface'
+import type { NormalExpressionNode } from '../../../parser/interface'
+import { asNumber, assertNumber, assertNumberOfParams } from '../../../utils/assertion'
+import type { BuiltinNormalExpressions } from '../../interface'
 
 export const mathNormalExpression: BuiltinNormalExpressions = {
   inc: {
     evaluate: ([first], debugInfo): number => {
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       return first + 1
     },
     validate: node => assertNumberOfParams(1, node),
@@ -13,7 +13,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   dec: {
     evaluate: ([first], debugInfo): number => {
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       return first - 1
     },
     validate: node => assertNumberOfParams(1, node),
@@ -22,7 +22,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   '+': {
     evaluate: (params, debugInfo): number => {
       return params.reduce((result: number, param) => {
-        number.assert(param, debugInfo)
+        assertNumber(param, debugInfo)
         return result + param
       }, 0)
     },
@@ -31,7 +31,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   '*': {
     evaluate: (params, debugInfo): number => {
       return params.reduce((result: number, param) => {
-        number.assert(param, debugInfo)
+        assertNumber(param, debugInfo)
         return result * param
       }, 1)
     },
@@ -43,13 +43,13 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return 1
       }
       const [first, ...rest] = params
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       if (rest.length === 0) {
-        number.assert(first, debugInfo)
+        assertNumber(first, debugInfo)
         return 1 / first
       }
       return rest.reduce((result: number, param) => {
-        number.assert(param, debugInfo)
+        assertNumber(param, debugInfo)
         return result / param
       }, first)
     },
@@ -61,12 +61,12 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
         return 0
       }
       const [first, ...rest] = params
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       if (rest.length === 0) {
         return -first
       }
       return rest.reduce((result: number, param) => {
-        number.assert(param, debugInfo)
+        assertNumber(param, debugInfo)
         return result - param
       }, first)
     },
@@ -74,8 +74,8 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   quot: {
     evaluate: ([dividend, divisor], debugInfo): number => {
-      number.assert(dividend, debugInfo)
-      number.assert(divisor, debugInfo)
+      assertNumber(dividend, debugInfo)
+      assertNumber(divisor, debugInfo)
       const quotient = Math.trunc(dividend / divisor)
       return quotient
     },
@@ -84,8 +84,8 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   mod: {
     evaluate: ([dividend, divisor], debugInfo): number => {
-      number.assert(dividend, debugInfo)
-      number.assert(divisor, debugInfo)
+      assertNumber(dividend, debugInfo)
+      assertNumber(divisor, debugInfo)
       const quotient = Math.floor(dividend / divisor)
       return dividend - divisor * quotient
     },
@@ -94,8 +94,8 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   rem: {
     evaluate: ([dividend, divisor], debugInfo): number => {
-      number.assert(dividend, debugInfo)
-      number.assert(divisor, debugInfo)
+      assertNumber(dividend, debugInfo)
+      assertNumber(divisor, debugInfo)
       const quotient = Math.trunc(dividend / divisor)
       return dividend - divisor * quotient
     },
@@ -104,7 +104,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   sqrt: {
     evaluate: ([first], debugInfo): number => {
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       return Math.sqrt(first)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -112,7 +112,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   cbrt: {
     evaluate: ([first], debugInfo): number => {
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       return Math.cbrt(first)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -120,8 +120,8 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   pow: {
     evaluate: ([first, second], debugInfo): number => {
-      number.assert(first, debugInfo)
-      number.assert(second, debugInfo)
+      assertNumber(first, debugInfo)
+      assertNumber(second, debugInfo)
       return Math.pow(first, second)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(2, node),
@@ -130,11 +130,11 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
   round: {
     evaluate: (params, debugInfo): number => {
       const [value, decimals] = params
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       if (params.length === 1 || decimals === 0) {
         return Math.round(value)
       }
-      number.assert(decimals, debugInfo, { integer: true, nonNegative: true })
+      assertNumber(decimals, debugInfo, { integer: true, nonNegative: true })
       const factor = Math.pow(10, decimals)
       return Math.round(value * factor) / factor
     },
@@ -143,7 +143,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   trunc: {
     evaluate: ([first], debugInfo): number => {
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       return Math.trunc(first)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -151,7 +151,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   floor: {
     evaluate: ([first], debugInfo): number => {
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       return Math.floor(first)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -159,7 +159,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   ceil: {
     evaluate: ([first], debugInfo): number => {
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       return Math.ceil(first)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -167,7 +167,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   'rand!': {
     evaluate: (parameters, debugInfo): number => {
-      const num = number.as(parameters.length === 1 ? parameters[0] : 1, debugInfo)
+      const num = asNumber(parameters.length === 1 ? parameters[0] : 1, debugInfo)
       return Math.random() * num
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 0, max: 1 }, node),
@@ -175,7 +175,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   'rand-int!': {
     evaluate: ([first], debugInfo): number => {
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       return Math.floor(Math.random() * Math.abs(first)) * Math.sign(first)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -183,13 +183,13 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   min: {
     evaluate: ([first, ...rest], debugInfo): number => {
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       if (rest.length === 0) {
         return first
       }
 
       return rest.reduce((min: number, value) => {
-        number.assert(value, debugInfo)
+        assertNumber(value, debugInfo)
         return Math.min(min, value)
       }, first)
     },
@@ -198,13 +198,13 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   max: {
     evaluate: ([first, ...rest], debugInfo): number => {
-      number.assert(first, debugInfo)
+      assertNumber(first, debugInfo)
       if (rest.length === 0) {
         return first
       }
 
       return rest.reduce((min: number, value) => {
-        number.assert(value, debugInfo)
+        assertNumber(value, debugInfo)
         return Math.max(min, value)
       }, first)
     },
@@ -213,7 +213,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   abs: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.abs(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -221,7 +221,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   sign: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.sign(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -299,7 +299,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   exp: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.exp(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -307,7 +307,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   log: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.log(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -315,7 +315,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   log2: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.log2(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -323,7 +323,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   log10: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.log10(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -331,7 +331,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   sin: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.sin(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -339,7 +339,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   asin: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.asin(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -347,7 +347,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   sinh: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.sinh(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -355,7 +355,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   asinh: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.asinh(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -363,7 +363,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   cos: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.cos(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -371,7 +371,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   acos: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.acos(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -379,7 +379,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   cosh: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.cosh(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -387,7 +387,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   acosh: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.acosh(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -395,7 +395,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   tan: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.tan(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -403,7 +403,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   atan: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.atan(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -411,7 +411,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   tanh: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.tanh(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -419,7 +419,7 @@ export const mathNormalExpression: BuiltinNormalExpressions = {
 
   atanh: {
     evaluate: ([value], debugInfo): number => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Math.atanh(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),

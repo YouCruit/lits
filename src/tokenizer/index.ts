@@ -1,6 +1,6 @@
 import { LitsError } from '../errors'
-import { LocationGetter } from '../Lits/Lits'
-import { Token, Tokenizer, DebugInfo, TokenizeParams } from './interface'
+import type { LocationGetter } from '../Lits/Lits'
+import type { Token, Tokenizer, DebugInfo, TokenizeParams } from './interface'
 import { getSugar } from './sugar'
 import {
   skipComment,
@@ -73,8 +73,8 @@ export function tokenize(input: string, params: TokenizeParams): Token[] {
     const debugInfo: DebugInfo | undefined = params.debug
       ? createDebugInfo(input, position, params.getLocation)
       : undefined
-    for (const tokenize of tokenizers) {
-      const [nbrOfCharacters, token] = tokenize(input, position, debugInfo)
+    for (const tokenizer of tokenizers) {
+      const [nbrOfCharacters, token] = tokenizer(input, position, debugInfo)
 
       // tokenizer matched
       if (nbrOfCharacters > 0) {

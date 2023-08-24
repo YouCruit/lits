@@ -1,18 +1,22 @@
 import { LitsError } from '../../../errors'
-import { Any, Arr, Obj, Seq } from '../../../interface'
-import { DebugInfo } from '../../../tokenizer/interface'
+import type { Any, Arr, Obj, Seq } from '../../../interface'
+import type { DebugInfo } from '../../../tokenizer/interface'
 import { compare, toAny, toNonNegativeInteger, collHasKey } from '../../../utils'
 import {
-  any,
-  litsFunction,
-  number,
-  sequence,
-  array,
-  string,
+  asAny,
+  asArray,
+  asNumber,
+  asSeq,
+  assertAny,
+  assertArray,
+  assertCharArray,
+  assertNumber,
   assertNumberOfParams,
-  charArray,
+  assertSeq,
+  assertString,
 } from '../../../utils/assertion'
-import { BuiltinNormalExpressions, NormalExpressionEvaluator } from '../../interface'
+import { assertLitsFunction } from '../../../utils/functionAsserter'
+import type { BuiltinNormalExpressions, NormalExpressionEvaluator } from '../../interface'
 
 export const evaluateMap: NormalExpressionEvaluator<Arr | string> = (
   params: Arr,
@@ -21,20 +25,20 @@ export const evaluateMap: NormalExpressionEvaluator<Arr | string> = (
   { executeFunction },
 ) => {
   const [fn, firstList] = params
-  litsFunction.assert(fn, debugInfo)
-  sequence.assert(firstList, debugInfo)
-  const isStringSeq = string.is(firstList)
+  assertLitsFunction(fn, debugInfo)
+  assertSeq(firstList, debugInfo)
+  const isStringSeq = typeof firstList === `string`
 
   const length = firstList.length
   if (params.length === 2) {
-    if (array.is(firstList)) {
+    if (Array.isArray(firstList)) {
       return firstList.map(elem => executeFunction(fn, [elem], contextStack, debugInfo))
     } else {
       return firstList
         .split(``)
         .map(elem => {
           const newVal = executeFunction(fn, [elem], contextStack, debugInfo)
-          string.assert(newVal, debugInfo, { char: true })
+          assertString(newVal, debugInfo, { char: true })
           return newVal
         })
         .join(``)
@@ -42,9 +46,9 @@ export const evaluateMap: NormalExpressionEvaluator<Arr | string> = (
   } else {
     params.slice(2).forEach(collParam => {
       if (isStringSeq) {
-        string.assert(collParam, debugInfo)
+        assertString(collParam, debugInfo)
       } else {
-        array.assert(collParam, debugInfo)
+        assertArray(collParam, debugInfo)
       }
       if (length !== collParam.length) {
         throw new LitsError(`All arguments to "map" must have the same length.`, debugInfo)
@@ -56,7 +60,7 @@ export const evaluateMap: NormalExpressionEvaluator<Arr | string> = (
       for (let i = 0; i < length; i += 1) {
         const fnParams = params.slice(1).map(l => (l as string)[i]) as string[]
         const newValue = executeFunction(fn, fnParams, contextStack, debugInfo)
-        string.assert(newValue, debugInfo, { char: true })
+        assertString(newValue, debugInfo, { char: true })
         result += newValue
       }
       return result
@@ -74,12 +78,12 @@ export const evaluateMap: NormalExpressionEvaluator<Arr | string> = (
 export const sequenceNormalExpression: BuiltinNormalExpressions = {
   cons: {
     evaluate: ([elem, seq], debugInfo): Any => {
-      any.assert(elem, debugInfo)
-      sequence.assert(seq, debugInfo)
+      assertAny(elem, debugInfo)
+      assertSeq(seq, debugInfo)
       if (Array.isArray(seq)) {
         return [elem, ...seq]
       }
-      string.assert(elem, debugInfo, { char: true })
+      assertString(elem, debugInfo, { char: true })
       return `${elem}${seq}`
     },
     validate: node => assertNumberOfParams(2, node),
@@ -89,20 +93,20 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
       const [seq, i] = params
       const defaultValue = toAny(params[2])
 
-      number.assert(i, debugInfo, { integer: true })
+      assertNumber(i, debugInfo, { integer: true })
 
       if (seq === null) {
         return defaultValue
       }
-      sequence.assert(seq, debugInfo)
+      assertSeq(seq, debugInfo)
       return i >= 0 && i < seq.length ? toAny(seq[i]) : defaultValue
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
   },
   filter: {
     evaluate: ([fn, seq]: Arr, debugInfo, contextStack, { executeFunction }): Seq => {
-      litsFunction.assert(fn, debugInfo)
-      sequence.assert(seq, debugInfo)
+      assertLitsFunction(fn, debugInfo)
+      assertSeq(seq, debugInfo)
       if (Array.isArray(seq)) {
         return seq.filter(elem => executeFunction(fn, [elem], contextStack, debugInfo))
       }
@@ -115,14 +119,14 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   first: {
     evaluate: ([array], debugInfo): Any => {
-      sequence.assert(array, debugInfo)
+      assertSeq(array, debugInfo)
       return toAny(array[0])
     },
     validate: node => assertNumberOfParams(1, node),
   },
   last: {
     evaluate: ([first], debugInfo): Any => {
-      sequence.assert(first, debugInfo)
+      assertSeq(first, debugInfo)
       return toAny(first[first.length - 1])
     },
     validate: node => assertNumberOfParams(1, node),
@@ -133,8 +137,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   pop: {
     evaluate: ([seq], debugInfo): Seq => {
-      sequence.assert(seq, debugInfo)
-      if (string.is(seq)) {
+      assertSeq(seq, debugInfo)
+      if (typeof seq === `string`) {
         return seq.substr(0, seq.length - 1)
       }
       const copy = [...seq]
@@ -145,9 +149,9 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   position: {
     evaluate: ([fn, seq]: Arr, debugInfo, contextStack, { executeFunction }): number | null => {
-      litsFunction.assert(fn, debugInfo)
-      sequence.assert(seq, debugInfo)
-      if (string.is(seq)) {
+      assertLitsFunction(fn, debugInfo)
+      assertSeq(seq, debugInfo)
+      if (typeof seq === `string`) {
         const index = seq.split(``).findIndex(elem => executeFunction(fn, [elem], contextStack, debugInfo))
         return index !== -1 ? index : null
       } else {
@@ -159,10 +163,10 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   'index-of': {
     evaluate: ([seq, value], debugInfo): number | null => {
-      any.assert(value, debugInfo)
-      sequence.assert(seq, debugInfo)
-      if (string.is(seq)) {
-        string.assert(value, debugInfo)
+      assertAny(value, debugInfo)
+      assertSeq(seq, debugInfo)
+      if (typeof seq === `string`) {
+        assertString(value, debugInfo)
         const index = seq.indexOf(value)
         return index !== -1 ? index : null
       } else {
@@ -174,9 +178,9 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   push: {
     evaluate: ([seq, ...values], debugInfo): Seq => {
-      sequence.assert(seq, debugInfo)
-      if (string.is(seq)) {
-        charArray.assert(values, debugInfo)
+      assertSeq(seq, debugInfo)
+      if (typeof seq === `string`) {
+        assertCharArray(values, debugInfo)
         return [seq, ...values].join(``)
       } else {
         return [...seq, ...values]
@@ -187,24 +191,27 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   reductions: {
     evaluate: (params: Arr, debugInfo, contextStack, { executeFunction }): Any[] => {
       const fn = params[0]
-      litsFunction.assert(fn, debugInfo)
+      assertLitsFunction(fn, debugInfo)
 
       if (params.length === 2) {
         const [, arr] = params
-        sequence.assert(arr, debugInfo)
+        assertSeq(arr, debugInfo)
         if (arr.length === 0) {
           return [executeFunction(fn, [], contextStack, debugInfo)]
         } else if (arr.length === 1) {
           return [toAny(arr[0])]
         }
-        if (string.is(arr)) {
+        if (typeof arr === `string`) {
           const chars = arr.split(``)
-          const resultArray: Any[] = [any.as(chars[0], debugInfo)]
-          chars.slice(1).reduce((result: Any, elem) => {
-            const newVal = executeFunction(fn, [result, elem], contextStack, debugInfo)
-            resultArray.push(newVal)
-            return newVal
-          }, any.as(chars[0], debugInfo))
+          const resultArray: Any[] = [asAny(chars[0], debugInfo)]
+          chars.slice(1).reduce(
+            (result: Any, elem) => {
+              const newVal = executeFunction(fn, [result, elem], contextStack, debugInfo)
+              resultArray.push(newVal)
+              return newVal
+            },
+            asAny(chars[0], debugInfo),
+          )
           return resultArray
         } else {
           const resultArray: Any[] = [toAny(arr[0])]
@@ -217,10 +224,10 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         }
       } else {
         const [, val, seq] = params
-        any.assert(val, debugInfo)
-        sequence.assert(seq, debugInfo)
-        if (string.is(seq)) {
-          string.assert(val, debugInfo)
+        assertAny(val, debugInfo)
+        assertSeq(seq, debugInfo)
+        if (typeof seq === `string`) {
+          assertString(val, debugInfo)
           if (seq.length === 0) {
             return [val]
           }
@@ -250,22 +257,25 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   reduce: {
     evaluate: (params: Arr, debugInfo, contextStack, { executeFunction }): Any => {
       const fn = params[0]
-      litsFunction.assert(fn, debugInfo)
+      assertLitsFunction(fn, debugInfo)
 
       if (params.length === 2) {
         const [, arr] = params
-        sequence.assert(arr, debugInfo)
+        assertSeq(arr, debugInfo)
         if (arr.length === 0) {
           return executeFunction(fn, [], contextStack, debugInfo)
         } else if (arr.length === 1) {
           return toAny(arr[0])
         }
-        if (string.is(arr)) {
+        if (typeof arr === `string`) {
           const chars = arr.split(``)
-          return chars.slice(1).reduce((result: Any, elem) => {
-            const val = executeFunction(fn, [result, elem], contextStack, debugInfo)
-            return val
-          }, any.as(chars[0], debugInfo))
+          return chars.slice(1).reduce(
+            (result: Any, elem) => {
+              const val = executeFunction(fn, [result, elem], contextStack, debugInfo)
+              return val
+            },
+            asAny(chars[0], debugInfo),
+          )
         } else {
           return arr.slice(1).reduce((result: Any, elem) => {
             return executeFunction(fn, [result, elem], contextStack, debugInfo)
@@ -273,10 +283,10 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         }
       } else {
         const [, val, seq] = params
-        any.assert(val, debugInfo)
-        sequence.assert(seq, debugInfo)
-        if (string.is(seq)) {
-          string.assert(val, debugInfo)
+        assertAny(val, debugInfo)
+        assertSeq(seq, debugInfo)
+        if (typeof seq === `string`) {
+          assertString(val, debugInfo)
           if (seq.length === 0) {
             return val
           }
@@ -299,33 +309,39 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   'reduce-right': {
     evaluate: (params: Arr, debugInfo, contextStack, { executeFunction }): Any => {
       const fn = params[0]
-      litsFunction.assert(fn, debugInfo)
+      assertLitsFunction(fn, debugInfo)
 
       if (params.length === 2) {
         const [, seq] = params
-        sequence.assert(seq, debugInfo)
+        assertSeq(seq, debugInfo)
         if (seq.length === 0) {
           return executeFunction(fn, [], contextStack, debugInfo)
         } else if (seq.length === 1) {
           return toAny(seq[0])
         }
-        if (string.is(seq)) {
+        if (typeof seq === `string`) {
           const chars = seq.split(``)
-          return chars.slice(0, chars.length - 1).reduceRight((result, elem) => {
-            const newVal = executeFunction(fn, [result, elem], contextStack, debugInfo)
-            string.assert(newVal, debugInfo)
-            return newVal
-          }, chars[chars.length - 1] as string)
+          return chars.slice(0, chars.length - 1).reduceRight(
+            (result, elem) => {
+              const newVal = executeFunction(fn, [result, elem], contextStack, debugInfo)
+              assertString(newVal, debugInfo)
+              return newVal
+            },
+            chars[chars.length - 1] as string,
+          )
         } else {
-          return seq.slice(0, seq.length - 1).reduceRight((result: Any, elem) => {
-            return executeFunction(fn, [result, elem], contextStack, debugInfo)
-          }, any.as(seq[seq.length - 1], debugInfo))
+          return seq.slice(0, seq.length - 1).reduceRight(
+            (result: Any, elem) => {
+              return executeFunction(fn, [result, elem], contextStack, debugInfo)
+            },
+            asAny(seq[seq.length - 1], debugInfo),
+          )
         }
       } else {
         const [, val, seq] = params
-        any.assert(val, debugInfo)
-        sequence.assert(seq, debugInfo)
-        if (string.is(seq)) {
+        assertAny(val, debugInfo)
+        assertSeq(seq, debugInfo)
+        if (typeof seq === `string`) {
           if (seq.length === 0) {
             return val
           }
@@ -347,7 +363,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   rest: {
     evaluate: ([first], debugInfo): Arr | string => {
-      sequence.assert(first, debugInfo)
+      assertSeq(first, debugInfo)
       if (Array.isArray(first)) {
         if (first.length <= 1) {
           return []
@@ -361,8 +377,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   nthrest: {
     evaluate: ([seq, count], debugInfo): Arr | string => {
-      sequence.assert(seq, debugInfo)
-      number.assert(count, debugInfo, { finite: true })
+      assertSeq(seq, debugInfo)
+      assertNumber(count, debugInfo, { finite: true })
       const integerCount = Math.max(Math.ceil(count), 0)
       if (Array.isArray(seq)) {
         return seq.slice(integerCount)
@@ -373,7 +389,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   next: {
     evaluate: ([first], debugInfo): Arr | string | null => {
-      sequence.assert(first, debugInfo)
+      assertSeq(first, debugInfo)
       if (Array.isArray(first)) {
         if (first.length <= 1) {
           return null
@@ -390,8 +406,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   nthnext: {
     evaluate: ([seq, count], debugInfo): Arr | string | null => {
-      sequence.assert(seq, debugInfo)
-      number.assert(count, debugInfo, { finite: true })
+      assertSeq(seq, debugInfo)
+      assertNumber(count, debugInfo, { finite: true })
       const integerCount = Math.max(Math.ceil(count), 0)
       if (seq.length <= count) {
         return null
@@ -405,7 +421,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   reverse: {
     evaluate: ([first], debugInfo): Any => {
-      sequence.assert(first, debugInfo)
+      assertSeq(first, debugInfo)
       if (Array.isArray(first)) {
         return [...first].reverse()
       }
@@ -415,15 +431,15 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   second: {
     evaluate: ([array], debugInfo): Any => {
-      sequence.assert(array, debugInfo)
+      assertSeq(array, debugInfo)
       return toAny(array[1])
     },
     validate: node => assertNumberOfParams(1, node),
   },
   shift: {
     evaluate: ([seq], debugInfo): Any => {
-      sequence.assert(seq, debugInfo)
-      if (string.is(seq)) {
+      assertSeq(seq, debugInfo)
+      if (typeof seq === `string`) {
         return seq.substr(1)
       }
       const copy = [...seq]
@@ -435,33 +451,33 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   slice: {
     evaluate: (params, debugInfo): Any => {
       const [seq, from, to] = params
-      sequence.assert(seq, debugInfo)
+      assertSeq(seq, debugInfo)
 
       if (params.length === 1) {
         return seq
       }
 
-      number.assert(from, debugInfo, { integer: true })
+      assertNumber(from, debugInfo, { integer: true })
 
       if (params.length === 2) {
         return seq.slice(from)
       }
 
-      number.assert(to, debugInfo, { integer: true })
+      assertNumber(to, debugInfo, { integer: true })
       return seq.slice(from, to)
     },
     validate: node => assertNumberOfParams({ min: 1, max: 3 }, node),
   },
   some: {
     evaluate: ([fn, seq]: Arr, debugInfo, contextStack, { executeFunction }): Any => {
-      litsFunction.assert(fn, debugInfo)
-      sequence.assert(seq, debugInfo)
+      assertLitsFunction(fn, debugInfo)
+      assertSeq(seq, debugInfo)
 
       if (seq.length === 0) {
         return null
       }
 
-      if (string.is(seq)) {
+      if (typeof seq === `string`) {
         return seq.split(``).find(elem => executeFunction(fn, [elem], contextStack, debugInfo)) ?? null
       }
 
@@ -474,17 +490,17 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
       const defaultComparer = params.length === 1
       const seq = defaultComparer ? params[0] : params[1]
       const comparer = defaultComparer ? null : params[0]
-      sequence.assert(seq, debugInfo)
+      assertSeq(seq, debugInfo)
 
-      if (string.is(seq)) {
+      if (typeof seq === `string`) {
         const result = seq.split(``)
         if (defaultComparer) {
           result.sort(compare)
         } else {
-          litsFunction.assert(comparer, debugInfo)
+          assertLitsFunction(comparer, debugInfo)
           result.sort((a, b) => {
             const compareValue = executeFunction(comparer, [a, b], contextStack, debugInfo)
-            number.assert(compareValue, debugInfo, { finite: true })
+            assertNumber(compareValue, debugInfo, { finite: true })
             return compareValue
           })
         }
@@ -496,9 +512,9 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         result.sort(compare)
       } else {
         result.sort((a, b) => {
-          litsFunction.assert(comparer, debugInfo)
+          assertLitsFunction(comparer, debugInfo)
           const compareValue = executeFunction(comparer, [a, b], contextStack, debugInfo)
-          number.assert(compareValue, debugInfo, { finite: true })
+          assertNumber(compareValue, debugInfo, { finite: true })
           return compareValue
         })
       }
@@ -510,11 +526,11 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
     evaluate: (params: Arr, debugInfo, contextStack, { executeFunction }): Seq => {
       const defaultComparer = params.length === 2
 
-      const keyfn = any.as(params[0], debugInfo)
+      const keyfn = asAny(params[0], debugInfo)
       const comparer = defaultComparer ? null : params[1]
-      const seq = sequence.as(defaultComparer ? params[1] : params[2], debugInfo)
+      const seq = asSeq(defaultComparer ? params[1] : params[2], debugInfo)
 
-      if (string.is(seq)) {
+      if (typeof seq === `string`) {
         const result = seq.split(``)
         if (defaultComparer) {
           result.sort((a, b) => {
@@ -523,12 +539,12 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
             return compare(aKey, bKey)
           })
         } else {
-          litsFunction.assert(comparer, debugInfo)
+          assertLitsFunction(comparer, debugInfo)
           result.sort((a, b) => {
             const aKey = executeFunction(keyfn, [a], contextStack, debugInfo)
             const bKey = executeFunction(keyfn, [b], contextStack, debugInfo)
             const compareValue = executeFunction(comparer, [aKey, bKey], contextStack, debugInfo)
-            number.assert(compareValue, debugInfo, { finite: true })
+            assertNumber(compareValue, debugInfo, { finite: true })
             return compareValue
           })
         }
@@ -543,12 +559,12 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
           return compare(aKey, bKey)
         })
       } else {
-        litsFunction.assert(comparer, debugInfo)
+        assertLitsFunction(comparer, debugInfo)
         result.sort((a, b) => {
           const aKey = executeFunction(keyfn, [a], contextStack, debugInfo)
           const bKey = executeFunction(keyfn, [b], contextStack, debugInfo)
           const compareValue = executeFunction(comparer, [aKey, bKey], contextStack, debugInfo)
-          number.assert(compareValue, debugInfo, { finite: true })
+          assertNumber(compareValue, debugInfo, { finite: true })
           return compareValue
         })
       }
@@ -558,8 +574,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   take: {
     evaluate: ([n, input], debugInfo): Seq => {
-      number.assert(n, debugInfo)
-      sequence.assert(input, debugInfo)
+      assertNumber(n, debugInfo)
+      assertSeq(input, debugInfo)
       const num = Math.max(Math.ceil(n), 0)
       return input.slice(0, num)
     },
@@ -567,8 +583,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   'take-last': {
     evaluate: ([n, array], debugInfo): Seq => {
-      sequence.assert(array, debugInfo)
-      number.assert(n, debugInfo)
+      assertSeq(array, debugInfo)
+      assertNumber(n, debugInfo)
       const num = Math.max(Math.ceil(n), 0)
       const from = array.length - num
       return array.slice(from)
@@ -577,8 +593,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   'take-while': {
     evaluate: ([fn, seq]: Arr, debugInfo, contextStack, { executeFunction }): Any => {
-      sequence.assert(seq, debugInfo)
-      litsFunction.assert(fn, debugInfo)
+      assertSeq(seq, debugInfo)
+      assertLitsFunction(fn, debugInfo)
 
       const result: Arr = []
       for (const item of seq) {
@@ -588,23 +604,23 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
           break
         }
       }
-      return string.is(seq) ? result.join(``) : result
+      return typeof seq === `string` ? result.join(``) : result
     },
     validate: node => assertNumberOfParams(2, node),
   },
   drop: {
     evaluate: ([n, input], debugInfo): Seq => {
-      number.assert(n, debugInfo)
+      assertNumber(n, debugInfo)
       const num = Math.max(Math.ceil(n), 0)
-      sequence.assert(input, debugInfo)
+      assertSeq(input, debugInfo)
       return input.slice(num)
     },
     validate: node => assertNumberOfParams(2, node),
   },
   'drop-last': {
     evaluate: ([n, array], debugInfo): Seq => {
-      sequence.assert(array, debugInfo)
-      number.assert(n, debugInfo)
+      assertSeq(array, debugInfo)
+      assertNumber(n, debugInfo)
       const num = Math.max(Math.ceil(n), 0)
 
       const from = array.length - num
@@ -614,8 +630,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   'drop-while': {
     evaluate: ([fn, seq]: Arr, debugInfo, contextStack, { executeFunction }): Any => {
-      sequence.assert(seq, debugInfo)
-      litsFunction.assert(fn, debugInfo)
+      assertSeq(seq, debugInfo)
+      assertLitsFunction(fn, debugInfo)
 
       if (Array.isArray(seq)) {
         const from = seq.findIndex(elem => !executeFunction(fn, [elem], contextStack, debugInfo))
@@ -629,9 +645,9 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   unshift: {
     evaluate: ([seq, ...values], debugInfo): Seq => {
-      sequence.assert(seq, debugInfo)
-      if (string.is(seq)) {
-        charArray.assert(values, debugInfo)
+      assertSeq(seq, debugInfo)
+      if (typeof seq === `string`) {
+        assertCharArray(values, debugInfo)
         return [...values, seq].join(``)
       }
       const copy = [...seq]
@@ -642,10 +658,10 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   'random-sample!': {
     evaluate: ([prob, seq], debugInfo): Seq => {
-      number.assert(prob, debugInfo, { finite: true })
-      sequence.assert(seq, debugInfo)
+      assertNumber(prob, debugInfo, { finite: true })
+      assertSeq(seq, debugInfo)
 
-      if (string.is(seq)) {
+      if (typeof seq === `string`) {
         return seq
           .split(``)
           .filter(() => Math.random() < prob)
@@ -658,14 +674,14 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   'rand-nth!': {
     evaluate: ([seq], debugInfo): Any => {
-      sequence.assert(seq, debugInfo)
+      assertSeq(seq, debugInfo)
       if (seq.length === 0) {
         return null
       }
 
       const index = Math.floor(Math.random() * seq.length)
 
-      if (string.is(seq)) {
+      if (typeof seq === `string`) {
         return toAny(seq.split(``)[index])
       }
       return toAny(seq[index])
@@ -674,8 +690,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   'shuffle!': {
     evaluate: ([input], debugInfo): Seq => {
-      sequence.assert(input, debugInfo)
-      const array: Arr = string.is(input) ? [...input.split(``)] : [...input]
+      assertSeq(input, debugInfo)
+      const array: Arr = typeof input === `string` ? [...input.split(``)] : [...input]
       let remainingLength = array.length
       let arrayElement: Any
       let pickedIndex: number
@@ -693,13 +709,13 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         array[pickedIndex] = arrayElement
       }
 
-      return string.is(input) ? array.join(``) : array
+      return typeof input === `string` ? array.join(``) : array
     },
     validate: node => assertNumberOfParams(1, node),
   },
   distinct: {
     evaluate: ([input], debugInfo): Seq => {
-      sequence.assert(input, debugInfo)
+      assertSeq(input, debugInfo)
       if (Array.isArray(input)) {
         return Array.from(new Set(input))
       }
@@ -709,8 +725,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   remove: {
     evaluate: ([fn, input], debugInfo, contextStack, { executeFunction }): Seq => {
-      litsFunction.assert(fn, debugInfo)
-      sequence.assert(input, debugInfo)
+      assertLitsFunction(fn, debugInfo)
+      assertSeq(input, debugInfo)
       if (Array.isArray(input)) {
         return input.filter(elem => !executeFunction(fn, [elem], contextStack, debugInfo))
       }
@@ -723,8 +739,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   'remove-at': {
     evaluate: ([index, input], debugInfo): Seq => {
-      number.assert(index, debugInfo)
-      sequence.assert(input, debugInfo)
+      assertNumber(index, debugInfo)
+      assertSeq(input, debugInfo)
 
       const intIndex = Math.ceil(index)
       if (intIndex < 0 || intIndex >= input.length) {
@@ -742,9 +758,9 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   },
   'split-at': {
     evaluate: ([pos, seq], debugInfo): Seq => {
-      number.assert(pos, debugInfo, { finite: true })
+      assertNumber(pos, debugInfo, { finite: true })
       const intPos = toNonNegativeInteger(pos)
-      sequence.assert(seq, debugInfo)
+      assertSeq(seq, debugInfo)
       return [seq.slice(0, intPos), seq.slice(intPos)]
     },
     validate: node => assertNumberOfParams(2, node),
@@ -752,8 +768,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
 
   'split-with': {
     evaluate: ([fn, seq], debugInfo, contextStack, { executeFunction }): Seq => {
-      litsFunction.assert(fn, debugInfo)
-      sequence.assert(seq, debugInfo)
+      assertLitsFunction(fn, debugInfo)
+      assertSeq(seq, debugInfo)
       const seqIsArray = Array.isArray(seq)
       const arr = seqIsArray ? seq : seq.split(``)
       const index = arr.findIndex(elem => !executeFunction(fn, [elem], contextStack, debugInfo))
@@ -767,12 +783,12 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
 
   frequencies: {
     evaluate: ([seq], debugInfo): Obj => {
-      sequence.assert(seq, debugInfo)
+      assertSeq(seq, debugInfo)
 
-      const arr = string.is(seq) ? seq.split(``) : seq
+      const arr = typeof seq === `string` ? seq.split(``) : seq
 
       return arr.reduce((result: Obj, val) => {
-        string.assert(val, debugInfo)
+        assertString(val, debugInfo)
         if (collHasKey(result, val)) {
           result[val] = (result[val] as number) + 1
         } else {
@@ -786,13 +802,13 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
 
   'group-by': {
     evaluate: ([fn, seq], debugInfo, contextStack, { executeFunction }): Obj => {
-      any.assert(fn, debugInfo)
-      sequence.assert(seq, debugInfo)
+      assertAny(fn, debugInfo)
+      assertSeq(seq, debugInfo)
       const arr = Array.isArray(seq) ? seq : seq.split(``)
 
       return arr.reduce((result: Obj, val) => {
         const key = executeFunction(fn, [val], contextStack, debugInfo)
-        string.assert(key, debugInfo)
+        assertString(key, debugInfo)
         if (!collHasKey(result, key)) {
           result[key] = []
         }
@@ -806,15 +822,11 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   partition: {
     evaluate: (params, debugInfo): Seq => {
       const len = params.length
-      const n = toNonNegativeInteger(number.as(params[0], debugInfo))
+      const n = toNonNegativeInteger(asNumber(params[0], debugInfo))
       const seq =
-        len === 2
-          ? sequence.as(params[1], debugInfo)
-          : len === 3
-          ? sequence.as(params[2], debugInfo)
-          : sequence.as(params[3], debugInfo)
-      const step = len >= 3 ? toNonNegativeInteger(number.as(params[1], debugInfo)) : n
-      const pad = len === 4 ? (params[2] === null ? [] : array.as(params[2], debugInfo)) : undefined
+        len === 2 ? asSeq(params[1], debugInfo) : len === 3 ? asSeq(params[2], debugInfo) : asSeq(params[3], debugInfo)
+      const step = len >= 3 ? toNonNegativeInteger(asNumber(params[1], debugInfo)) : n
+      const pad = len === 4 ? (params[2] === null ? [] : asArray(params[2], debugInfo)) : undefined
 
       return partition(n, step, seq, pad, debugInfo)
     },
@@ -824,9 +836,9 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   'partition-all': {
     evaluate: (params, debugInfo): Seq => {
       const len = params.length
-      const n = toNonNegativeInteger(number.as(params[0], debugInfo))
-      const seq = len === 2 ? sequence.as(params[1], debugInfo) : sequence.as(params[2], debugInfo)
-      const step = len >= 3 ? toNonNegativeInteger(number.as(params[1], debugInfo)) : n
+      const n = toNonNegativeInteger(asNumber(params[0], debugInfo))
+      const seq = len === 2 ? asSeq(params[1], debugInfo) : asSeq(params[2], debugInfo)
+      const step = len >= 3 ? toNonNegativeInteger(asNumber(params[1], debugInfo)) : n
 
       return partition(n, step, seq, [], debugInfo)
     },
@@ -835,19 +847,19 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
 
   'partition-by': {
     evaluate: ([fn, seq], debugInfo, contextStack, { executeFunction }): Seq => {
-      litsFunction.assert(fn, debugInfo)
-      sequence.assert(seq, debugInfo)
-      const isStringSeq = string.is(seq)
+      assertLitsFunction(fn, debugInfo)
+      assertSeq(seq, debugInfo)
+      const isStringSeq = typeof seq === `string`
       let oldValue: unknown = undefined
 
-      const result = (isStringSeq ? seq.split(``) : seq).reduce((result: Arr, elem) => {
+      const result = (isStringSeq ? seq.split(``) : seq).reduce((acc: Arr, elem) => {
         const value = executeFunction(fn, [elem], contextStack, debugInfo)
         if (value !== oldValue) {
-          result.push([])
+          acc.push([])
           oldValue = value
         }
-        ;(result[result.length - 1] as Arr).push(elem)
-        return result
+        ;(acc[acc.length - 1] as Arr).push(elem)
+        return acc
       }, [])
 
       return isStringSeq ? result.map(elem => (elem as Arr).join(``)) : result
@@ -857,8 +869,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
 }
 
 function partition(n: number, step: number, seq: Seq, pad: Arr | undefined, debugInfo?: DebugInfo) {
-  number.assert(step, debugInfo, { positive: true })
-  const isStringSeq = string.is(seq)
+  assertNumber(step, debugInfo, { positive: true })
+  const isStringSeq = typeof seq === `string`
 
   const result: Arr[] = []
   let start = 0

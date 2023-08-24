@@ -1,12 +1,14 @@
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { SpecialExpressionNode } from '../../parser/interface'
-import { assertNumberOfParams, astNode, token } from '../../utils/assertion'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { SpecialExpressionNode } from '../../parser/interface'
+import { assertNumberOfParams } from '../../utils/assertion'
+import { assertAstNode } from '../../utils/astNodeAsserter'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 export const whenSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     const [newPosition, params] = parseTokens(tokens, position)
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
@@ -19,7 +21,7 @@ export const whenSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const [whenExpression, ...body] = node.p
-    astNode.assert(whenExpression, node.tkn?.d)
+    assertAstNode(whenExpression, node.tkn?.d)
 
     if (!evaluateAstNode(whenExpression, contextStack)) {
       return null

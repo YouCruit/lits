@@ -1,7 +1,7 @@
-import { Builtin } from '../builtin/interface'
-import { ContextStack } from '../evaluator/ContextStack'
-import { AstNode } from '../parser/interface'
-import { Token } from '../tokenizer/interface'
+import type { Builtin } from '../builtin/interface'
+import type { ContextStack } from '../evaluator/ContextStack'
+import type { AstNode } from '../parser/interface'
+import type { Token } from '../tokenizer/interface'
 
 export type UndefinedSymbolEntry = {
   symbol: string

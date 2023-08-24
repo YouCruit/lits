@@ -1,11 +1,13 @@
 /* istanbul ignore file */
 
-import { Context, Lits, LitsFunction, LitsParams, isLitsFunction } from '../src'
-import { AnalyzeResult } from '../src/analyze/interface'
-import { LitsError } from '../src/errors'
+import type { Context, LitsFunction, LitsParams } from '../src'
+import { Lits } from '../src'
+import type { AnalyzeResult } from '../src/analyze/interface'
+import type { LitsError } from '../src/errors'
 import { ContextStack } from '../src/evaluator/ContextStack'
-import { Obj } from '../src/interface'
-import { regularExpression } from '../src/utils/assertion'
+import type { Obj } from '../src/interface'
+import { isRegularExpression, isUnknownRecord } from '../src/utils/assertion'
+import { isLitsFunction } from '../src/utils/functionAsserter'
 
 interface Primitives extends Obj {
   string: string
@@ -80,7 +82,7 @@ export function checkTestData(): void {
 }
 
 export function regexpEquals(udr: unknown, r: RegExp): boolean {
-  if (!regularExpression.is(udr)) {
+  if (!isRegularExpression(udr)) {
     return false
   }
   const sortedUdrFlags = udr.f.split(``).sort().join(``)
@@ -97,7 +99,23 @@ export function getLitsVariants() {
   const variants = [new Lits(), new Lits({ debug: true })]
   return {
     run(program: string, LitsParams?: LitsParams): unknown {
-      const [result1, result2] = variants.map(l => l.run(program, LitsParams))
+      const [result1, result2] = variants.map(l => {
+        try {
+          return l.run(program, LitsParams)
+        } catch (error) {
+          return { _error_: error }
+        }
+      })
+
+      if (isUnknownRecord(result1) && result1._error_ instanceof Error) {
+        expect(isUnknownRecord(result2)).toBe(true)
+        expect((result2 as Record<string, unknown>)._error_).toBeInstanceOf(Error)
+        expect(((result2 as Record<string, unknown>)._error_ as LitsError).name).toBe(
+          (result1._error_ as LitsError).name,
+        )
+        throw result1._error_
+      }
+
       if (isLitsFunction(result1)) {
         expect(isLitsFunction(result2)).toBe(true)
         expect((result2 as LitsFunction).t).toBe(result1.t)

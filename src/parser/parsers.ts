@@ -1,5 +1,6 @@
-import { Token, TokenizerType } from '../tokenizer/interface'
-import {
+import type { Token } from '../tokenizer/interface'
+import { TokenType } from '../constants/constants'
+import type {
   AstNode,
   NormalExpressionNode,
   NameNode,
@@ -19,54 +20,54 @@ import {
   ParseBinding,
 } from './interface'
 import { builtin } from '../builtin'
-import { ReservedName } from '../reservedNames'
+import type { ReservedName } from '../reservedNames'
 import { LitsError } from '../errors'
-import { FnNode } from '../builtin/specialExpressions/functions'
-import { FunctionArguments } from '../builtin/utils'
+import type { FnNode } from '../builtin/specialExpressions/functions'
+import type { FunctionArguments } from '../builtin/utils'
+import { AstNodeType } from '../constants/constants'
 import {
   assertEventNumberOfParams,
-  assertUnreachable,
   assertValue,
+  isExpressionNode,
   asValue,
-  expressionNode,
-  nameNode,
-  token,
+  assertUnreachable,
 } from '../utils/assertion'
-import { valueToString } from '../utils/helpers'
-import { AstNodeType } from './AstNodeType'
+import { assertNameNode } from '../utils/astNodeAsserter'
+import { valueToString } from '../utils/debugTools'
+import { asToken } from '../utils/tokenAsserter'
 
 type ParseNumber = (tokens: Token[], position: number) => [number, NumberNode]
 export const parseNumber: ParseNumber = (tokens: Token[], position: number) => {
-  const tkn = token.as(tokens[position], `EOF`)
+  const tkn = asToken(tokens[position], `EOF`)
   return [position + 1, { t: AstNodeType.Number, v: Number(tkn.v), tkn: tkn.d ? tkn : undefined }]
 }
 
 type ParseString = (tokens: Token[], position: number) => [number, StringNode]
 export const parseString: ParseString = (tokens: Token[], position: number) => {
-  const tkn = token.as(tokens[position], `EOF`)
+  const tkn = asToken(tokens[position], `EOF`)
   return [position + 1, { t: AstNodeType.String, v: tkn.v, tkn: tkn.d ? tkn : undefined }]
 }
 
 type ParseName = (tokens: Token[], position: number) => [number, NameNode]
 export const parseName: ParseName = (tokens: Token[], position: number) => {
-  const tkn = token.as(tokens[position], `EOF`)
+  const tkn = asToken(tokens[position], `EOF`)
   return [position + 1, { t: AstNodeType.Name, v: tkn.v, tkn: tkn.d ? tkn : undefined }]
 }
 
 type ParseReservedName = (tokens: Token[], position: number) => [number, ReservedNameNode]
 export const parseReservedName: ParseReservedName = (tokens: Token[], position: number) => {
-  const tkn = token.as(tokens[position], `EOF`)
+  const tkn = asToken(tokens[position], `EOF`)
   return [position + 1, { t: AstNodeType.ReservedName, v: tkn.v as ReservedName, tkn: tkn.d ? tkn : undefined }]
 }
 
 const parseTokens: ParseTokens = (tokens, position) => {
-  let tkn = token.as(tokens[position], `EOF`)
+  let tkn = asToken(tokens[position], `EOF`)
   const astNodes: AstNode[] = []
   let astNode: AstNode
-  while (!(tkn.t === TokenizerType.Bracket && (tkn.v === `)` || tkn.v === `]`))) {
+  while (!(tkn.t === TokenType.Bracket && (tkn.v === `)` || tkn.v === `]`))) {
     ;[position, astNode] = parseToken(tokens, position)
     astNodes.push(astNode)
-    tkn = token.as(tokens[position], `EOF`)
+    tkn = asToken(tokens[position], `EOF`)
   }
   return [position, astNodes]
 }
@@ -74,8 +75,8 @@ const parseTokens: ParseTokens = (tokens, position) => {
 const parseExpression: ParseExpression = (tokens, position) => {
   position += 1 // Skip parenthesis
 
-  const tkn = token.as(tokens[position], `EOF`)
-  if (tkn.t === TokenizerType.Name && builtin.specialExpressions[tkn.v]) {
+  const tkn = asToken(tokens[position], `EOF`)
+  if (tkn.t === TokenType.Name && builtin.specialExpressions[tkn.v]) {
     return parseSpecialExpression(tokens, position)
   }
   return parseNormalExpression(tokens, position)
@@ -83,16 +84,16 @@ const parseExpression: ParseExpression = (tokens, position) => {
 
 type ParseArrayLitteral = (tokens: Token[], position: number) => [number, AstNode]
 const parseArrayLitteral: ParseArrayLitteral = (tokens, position) => {
-  const firstToken = token.as(tokens[position], `EOF`)
+  const firstToken = asToken(tokens[position], `EOF`)
   position = position + 1
 
-  let tkn = token.as(tokens[position], `EOF`)
+  let tkn = asToken(tokens[position], `EOF`)
   const params: AstNode[] = []
   let param: AstNode
-  while (!(tkn.t === TokenizerType.Bracket && tkn.v === `]`)) {
+  while (!(tkn.t === TokenType.Bracket && tkn.v === `]`)) {
     ;[position, param] = parseToken(tokens, position)
     params.push(param)
-    tkn = token.as(tokens[position], `EOF`)
+    tkn = asToken(tokens[position], `EOF`)
   }
 
   position = position + 1
@@ -109,16 +110,16 @@ const parseArrayLitteral: ParseArrayLitteral = (tokens, position) => {
 
 type ParseObjectLitteral = (tokens: Token[], position: number) => [number, NormalExpressionNodeWithName]
 const parseObjectLitteral: ParseObjectLitteral = (tokens, position) => {
-  const firstToken = token.as(tokens[position], `EOF`)
+  const firstToken = asToken(tokens[position], `EOF`)
   position = position + 1
 
-  let tkn = token.as(tokens[position], `EOF`)
+  let tkn = asToken(tokens[position], `EOF`)
   const params: AstNode[] = []
   let param: AstNode
-  while (!(tkn.t === TokenizerType.Bracket && tkn.v === `}`)) {
+  while (!(tkn.t === TokenType.Bracket && tkn.v === `}`)) {
     ;[position, param] = parseToken(tokens, position)
     params.push(param)
-    tkn = token.as(tokens[position], `EOF`)
+    tkn = asToken(tokens[position], `EOF`)
   }
 
   position = position + 1
@@ -137,7 +138,7 @@ const parseObjectLitteral: ParseObjectLitteral = (tokens, position) => {
 
 type ParseRegexpShorthand = (tokens: Token[], position: number) => [number, NormalExpressionNodeWithName]
 const parseRegexpShorthand: ParseRegexpShorthand = (tokens, position) => {
-  const tkn = token.as(tokens[position], `EOF`)
+  const tkn = asToken(tokens[position], `EOF`)
   const stringNode: StringNode = {
     t: AstNodeType.String,
     v: tkn.v,
@@ -165,15 +166,15 @@ const parseRegexpShorthand: ParseRegexpShorthand = (tokens, position) => {
 const placeholderRegexp = /^%([1-9][0-9]?$)/
 type ParseFnShorthand = (tokens: Token[], position: number) => [number, FnNode]
 const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
-  const firstToken = token.as(tokens[position], `EOF`)
+  const firstToken = asToken(tokens[position], `EOF`)
 
   position += 1
-  const [newPosition, expressionNode] = parseExpression(tokens, position)
+  const [newPosition, exprNode] = parseExpression(tokens, position)
 
   let arity = 0
   for (let pos = position + 1; pos < newPosition - 1; pos += 1) {
-    const tkn = token.as(tokens[pos], `EOF`)
-    if (tkn.t === TokenizerType.Name) {
+    const tkn = asToken(tokens[pos], `EOF`)
+    if (tkn.t === TokenType.Name) {
       const match = placeholderRegexp.exec(tkn.v)
       if (match) {
         arity = Math.max(arity, Number(match[1]))
@@ -182,7 +183,7 @@ const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
         }
       }
     }
-    if (tkn.t === TokenizerType.FnShorthand) {
+    if (tkn.t === TokenType.FnShorthand) {
       throw new LitsError(`Nested shortcut functions are not allowed`, firstToken.d)
     }
   }
@@ -205,7 +206,7 @@ const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
     o: [
       {
         as: args,
-        b: [expressionNode],
+        b: [exprNode],
         a: args.m.length,
       },
     ],
@@ -216,10 +217,10 @@ const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
 }
 
 const parseArgument: ParseArgument = (tokens, position) => {
-  const tkn = token.as(tokens[position], `EOF`)
-  if (tkn.t === TokenizerType.Name) {
+  const tkn = asToken(tokens[position], `EOF`)
+  if (tkn.t === TokenType.Name) {
     return [position + 1, { t: AstNodeType.Argument, n: tkn.v, tkn }]
-  } else if (tkn.t === TokenizerType.Modifier) {
+  } else if (tkn.t === TokenType.Modifier) {
     const value = tkn.v as ModifierName
     return [position + 1, { t: AstNodeType.Modifier, v: value, tkn: tkn.d ? tkn : undefined }]
   } else {
@@ -228,15 +229,15 @@ const parseArgument: ParseArgument = (tokens, position) => {
 }
 
 const parseBindings: ParseBindings = (tokens, position) => {
-  let tkn = token.as(tokens[position], `EOF`, { type: TokenizerType.Bracket, value: `[` })
+  let tkn = asToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `[` })
   position += 1
-  tkn = token.as(tokens[position], `EOF`)
+  tkn = asToken(tokens[position], `EOF`)
   const bindings: BindingNode[] = []
   let binding: BindingNode
-  while (!(tkn.t === TokenizerType.Bracket && tkn.v === `]`)) {
+  while (!(tkn.t === TokenType.Bracket && tkn.v === `]`)) {
     ;[position, binding] = parseBinding(tokens, position)
     bindings.push(binding)
-    tkn = token.as(tokens[position], `EOF`)
+    tkn = asToken(tokens[position], `EOF`)
   }
   position += 1
 
@@ -244,7 +245,7 @@ const parseBindings: ParseBindings = (tokens, position) => {
 }
 
 const parseBinding: ParseBinding = (tokens, position) => {
-  const firstToken = token.as(tokens[position], `EOF`, { type: TokenizerType.Name })
+  const firstToken = asToken(tokens[position], `EOF`, { type: TokenType.Name })
   const name = firstToken.v
 
   position += 1
@@ -267,7 +268,7 @@ const parseNormalExpression: ParseNormalExpression = (tokens, position) => {
   ;[position, params] = parseTokens(tokens, newPosition)
   position += 1
 
-  if (expressionNode.is(fnNode)) {
+  if (isExpressionNode(fnNode)) {
     const node: NormalExpressionNode = {
       t: AstNodeType.NormalExpression,
       e: fnNode,
@@ -278,7 +279,7 @@ const parseNormalExpression: ParseNormalExpression = (tokens, position) => {
     return [position, node]
   }
 
-  nameNode.assert(fnNode, fnNode.tkn?.d)
+  assertNameNode(fnNode, fnNode.tkn?.d)
   const node: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
     n: fnNode.v,
@@ -296,7 +297,7 @@ const parseNormalExpression: ParseNormalExpression = (tokens, position) => {
 }
 
 const parseSpecialExpression: ParseSpecialExpression = (tokens, position) => {
-  const { v: expressionName, d: debugInfo } = token.as(tokens[position], `EOF`)
+  const { v: expressionName, d: debugInfo } = asToken(tokens[position], `EOF`)
   position += 1
 
   const { parse, validate } = asValue(builtin.specialExpressions[expressionName], debugInfo)
@@ -316,17 +317,17 @@ const parseSpecialExpression: ParseSpecialExpression = (tokens, position) => {
 }
 
 export const parseToken: ParseToken = (tokens, position) => {
-  const tkn = token.as(tokens[position], `EOF`)
+  const tkn = asToken(tokens[position], `EOF`)
   switch (tkn.t) {
-    case TokenizerType.Number:
+    case TokenType.Number:
       return parseNumber(tokens, position)
-    case TokenizerType.String:
+    case TokenType.String:
       return parseString(tokens, position)
-    case TokenizerType.Name:
+    case TokenType.Name:
       return parseName(tokens, position)
-    case TokenizerType.ReservedName:
+    case TokenType.ReservedName:
       return parseReservedName(tokens, position)
-    case TokenizerType.Bracket:
+    case TokenType.Bracket:
       if (tkn.v === `(`) {
         return parseExpression(tokens, position)
       } else if (tkn.v === `[`) {
@@ -335,12 +336,12 @@ export const parseToken: ParseToken = (tokens, position) => {
         return parseObjectLitteral(tokens, position)
       }
       break
-    case TokenizerType.RegexpShorthand:
+    case TokenType.RegexpShorthand:
       return parseRegexpShorthand(tokens, position)
-    case TokenizerType.FnShorthand:
+    case TokenType.FnShorthand:
       return parseFnShorthand(tokens, position)
-    case TokenizerType.CollectionAccessor:
-    case TokenizerType.Modifier:
+    case TokenType.CollectionAccessor:
+    case TokenType.Modifier:
       break
     /* istanbul ignore next */
     default:

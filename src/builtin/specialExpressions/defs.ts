@@ -1,12 +1,14 @@
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { assertNumberOfParams, astNode, string, token } from '../../utils/assertion'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import { assertString, assertNumberOfParams } from '../../utils/assertion'
+import { asAstNode } from '../../utils/astNodeAsserter'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 import { assertNameNotDefined } from '../utils'
 
 export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     const [newPosition, params] = parseTokens(tokens, position)
     return [
       newPosition + 1,
@@ -20,12 +22,12 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   evaluate: (node, contextStack, { evaluateAstNode, builtin }) => {
     const debugInfo = node.tkn?.d
-    const name = evaluateAstNode(astNode.as(node.p[0], debugInfo), contextStack)
-    string.assert(name, debugInfo)
+    const name = evaluateAstNode(asAstNode(node.p[0], debugInfo), contextStack)
+    assertString(name, debugInfo)
 
     assertNameNotDefined(name, contextStack, builtin, node.tkn?.d)
 
-    const value = evaluateAstNode(astNode.as(node.p[1], debugInfo), contextStack)
+    const value = evaluateAstNode(asAstNode(node.p[1], debugInfo), contextStack)
 
     contextStack.globalContext[name] = { value }
 
@@ -33,7 +35,7 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   validate: node => assertNumberOfParams(2, node),
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    const subNode = astNode.as(node.p[1], node.tkn?.d)
+    const subNode = asAstNode(node.p[1], node.tkn?.d)
     return analyzeAst(subNode, contextStack, builtin)
   },
 }

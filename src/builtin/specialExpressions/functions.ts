@@ -1,24 +1,27 @@
-import { AnalyzeAst, AnalyzeResult } from '../../analyze/interface'
+import type { AnalyzeAst, AnalyzeResult } from '../../analyze/interface'
 import { addAnalyzeResults } from '../../analyze/utils'
 import { LitsError } from '../../errors'
-import { ContextStack } from '../../evaluator/ContextStack'
-import { Context, EvaluateAstNode } from '../../evaluator/interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import {
+import type { ContextStack } from '../../evaluator/ContextStack'
+import type { Context, EvaluateAstNode } from '../../evaluator/interface'
+import { AstNodeType, FunctionType } from '../../constants/constants'
+import type {
   AstNode,
   BindingNode,
   EvaluatedFunctionOverload,
   LitsFunction,
   NameNode,
   SpecialExpressionNode,
-  FunctionType,
 } from '../../parser/interface'
-import { Token, TokenizerType } from '../../tokenizer/interface'
-import { nameNode, string, token } from '../../utils/assertion'
-import { valueToString } from '../../utils/helpers'
+import type { Token } from '../../tokenizer/interface'
+import { TokenType } from '../../constants/constants'
+import { assertString } from '../../utils/assertion'
+import { assertNameNode } from '../../utils/astNodeAsserter'
+import { valueToString } from '../../utils/debugTools'
 import { FUNCTION_SYMBOL } from '../../utils/symbols'
-import { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
-import { Arity, assertNameNotDefined, FunctionArguments, FunctionOverload } from '../utils'
+import { asToken } from '../../utils/tokenAsserter'
+import type { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
+import type { Arity, FunctionArguments, FunctionOverload } from '../utils'
+import { assertNameNotDefined } from '../utils'
 
 type DefnNode = SpecialExpressionNode & {
   f: NameNode
@@ -36,11 +39,11 @@ export type FnNode = SpecialExpressionNode & {
 
 export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
   parse: (tokens, position, parsers) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     const { parseToken } = parsers
     let functionName = undefined
     ;[position, functionName] = parseToken(tokens, position)
-    nameNode.assert(functionName, functionName.tkn?.d)
+    assertNameNode(functionName, functionName.tkn?.d)
 
     let functionOverloades: FunctionOverload[]
     ;[position, functionOverloades] = parseFunctionOverloades(tokens, position, parsers)
@@ -84,7 +87,7 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
 
 export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
   parse: (tokens, position, parsers) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     const { parseToken } = parsers
     let functionName: AstNode
     ;[position, functionName] = parseToken(tokens, position)
@@ -128,7 +131,7 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
 
 export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
   parse: (tokens, position, parsers) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
 
     let functionOverloades: FunctionOverload[]
     ;[position, functionOverloades] = parseFunctionOverloades(tokens, position, parsers)
@@ -173,7 +176,7 @@ function getFunctionName(
   }
 
   const name = evaluateAstNode((node as DefnsNode).f, contextStack)
-  string.assert(name, debugInfo)
+  assertString(name, debugInfo)
   return name
 }
 
@@ -255,13 +258,13 @@ function arityOk(overloadedFunctions: FunctionOverload[], arity: Arity) {
 }
 
 function parseFunctionBody(tokens: Token[], position: number, { parseToken }: ParserHelpers): [number, AstNode[]] {
-  let tkn = token.as(tokens[position], `EOF`)
+  let tkn = asToken(tokens[position], `EOF`)
   const body: AstNode[] = []
-  while (!(tkn.t === TokenizerType.Bracket && tkn.v === `)`)) {
+  while (!(tkn.t === TokenType.Bracket && tkn.v === `)`)) {
     let bodyNode: AstNode
     ;[position, bodyNode] = parseToken(tokens, position)
     body.push(bodyNode)
-    tkn = token.as(tokens[position], `EOF`)
+    tkn = asToken(tokens[position], `EOF`)
   }
   if (body.length === 0) {
     throw new LitsError(`Missing body in function`, tkn.d)
@@ -274,12 +277,12 @@ function parseFunctionOverloades(
   position: number,
   parsers: ParserHelpers,
 ): [number, FunctionOverload[]] {
-  let tkn = token.as(tokens[position], `EOF`, { type: TokenizerType.Bracket })
+  let tkn = asToken(tokens[position], `EOF`, { type: TokenType.Bracket })
   if (tkn.v === `(`) {
     const functionOverloades: FunctionOverload[] = []
-    while (!(tkn.t === TokenizerType.Bracket && tkn.v === `)`)) {
+    while (!(tkn.t === TokenType.Bracket && tkn.v === `)`)) {
       position += 1
-      tkn = token.as(tokens[position], `EOF`)
+      tkn = asToken(tokens[position], `EOF`)
       let functionArguments: FunctionArguments
       ;[position, functionArguments] = parseFunctionArguments(tokens, position, parsers)
       const arity: Arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length
@@ -296,7 +299,7 @@ function parseFunctionOverloades(
         a: arity,
       })
 
-      tkn = token.as(tokens[position], `EOF`, { type: TokenizerType.Bracket })
+      tkn = asToken(tokens[position], `EOF`, { type: TokenType.Bracket })
       if (tkn.v !== `)` && tkn.v !== `(`) {
         throw new LitsError(`Expected ( or ) token, got ${valueToString(tkn)}.`, tkn.d)
       }
@@ -335,18 +338,18 @@ function parseFunctionArguments(
   let restArgument: string | undefined = undefined
   const mandatoryArguments: string[] = []
   let state: `mandatory` | `rest` | `let` = `mandatory`
-  let tkn = token.as(tokens[position], `EOF`)
+  let tkn = asToken(tokens[position], `EOF`)
 
   position += 1
-  tkn = token.as(tokens[position], `EOF`)
-  while (!(tkn.t === TokenizerType.Bracket && tkn.v === `]`)) {
+  tkn = asToken(tokens[position], `EOF`)
+  while (!(tkn.t === TokenType.Bracket && tkn.v === `]`)) {
     if (state === `let`) {
       ;[position, bindings] = parseBindings(tokens, position)
       break
     } else {
       const [newPosition, node] = parseArgument(tokens, position)
       position = newPosition
-      tkn = token.as(tokens[position], `EOF`)
+      tkn = asToken(tokens[position], `EOF`)
 
       if (node.t === AstNodeType.Modifier) {
         switch (node.v) {

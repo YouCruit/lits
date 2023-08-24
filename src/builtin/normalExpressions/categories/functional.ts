@@ -1,5 +1,6 @@
-import { Any, Arr } from '../../../interface'
-import {
+import { FunctionType } from '../../../constants/constants'
+import type { Any, Arr } from '../../../interface'
+import type {
   ComplementFunction,
   CompFunction,
   ConstantlyFunction,
@@ -8,19 +9,19 @@ import {
   PartialFunction,
   SomePredFunction,
   FNilFunction,
-  FunctionType,
 } from '../../../parser/interface'
 import { toAny } from '../../../utils'
-import { litsFunction, array, assertNumberOfParams } from '../../../utils/assertion'
+import { assertArray, assertNumberOfParams } from '../../../utils/assertion'
+import { assertLitsFunction } from '../../../utils/functionAsserter'
 import { FUNCTION_SYMBOL } from '../../../utils/symbols'
-import { BuiltinNormalExpressions } from '../../interface'
+import type { BuiltinNormalExpressions } from '../../interface'
 export const functionalNormalExpression: BuiltinNormalExpressions = {
   apply: {
     evaluate: ([func, ...params]: Arr, debugInfo, contextStack, { executeFunction }): Any => {
-      litsFunction.assert(func, debugInfo)
+      assertLitsFunction(func, debugInfo)
       const paramsLength = params.length
       const last = params[paramsLength - 1]
-      array.assert(last, debugInfo)
+      assertArray(last, debugInfo)
       const applyArray = [...params.slice(0, -1), ...last]
       return executeFunction(func, applyArray, contextStack, debugInfo)
     },
@@ -51,7 +52,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: (fns, debugInfo): CompFunction => {
       if (fns.length > 1) {
         const last = fns[fns.length - 1]
-        if (array.is(last)) {
+        if (Array.isArray(last)) {
           fns = [...fns.slice(0, -1), ...last]
         }
       }

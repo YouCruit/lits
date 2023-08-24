@@ -1,9 +1,10 @@
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { AstNode, ParseToken, SpecialExpressionNode } from '../../parser/interface'
-import { Token, TokenizerType } from '../../tokenizer/interface'
-import { token } from '../../utils/tokenAssertion'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { AstNode, ParseToken, SpecialExpressionNode } from '../../parser/interface'
+import type { Token } from '../../tokenizer/interface'
+import { TokenType } from '../../constants/constants'
+import { asToken, isToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 export type Condition = {
   t: AstNode // test
@@ -17,8 +18,8 @@ type CondNode = SpecialExpressionNode & {
 function parseConditions(tokens: Token[], position: number, parseToken: ParseToken): [number, Condition[]] {
   const conditions: Condition[] = []
 
-  let tkn = token.as(tokens[position], `EOF`)
-  while (!token.is(tkn, { type: TokenizerType.Bracket, value: `)` })) {
+  let tkn = asToken(tokens[position], `EOF`)
+  while (!isToken(tkn, { type: TokenType.Bracket, value: `)` })) {
     let test: AstNode
     ;[position, test] = parseToken(tokens, position)
 
@@ -27,14 +28,14 @@ function parseConditions(tokens: Token[], position: number, parseToken: ParseTok
 
     conditions.push({ t: test, f: form })
 
-    tkn = token.as(tokens[position], `EOF`)
+    tkn = asToken(tokens[position], `EOF`)
   }
   return [position, conditions]
 }
 
 export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseToken }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     let conditions: Condition[]
     ;[position, conditions] = parseConditions(tokens, position, parseToken)
 

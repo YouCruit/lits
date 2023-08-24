@@ -1,72 +1,70 @@
-import { LazyValue } from '../src/Lits/Lits'
-import { AstNodeType } from '../src/parser/AstNodeType'
+import { isLitsFunction } from '../src'
+import type { LazyValue } from '../src/Lits/Lits'
+import { AstNodeType, FunctionType, TokenType } from '../src/constants/constants'
+import type { AstNode, LitsFunction, NameNode, NormalExpressionNode, RegularExpression } from '../src/parser/interface'
+import type { DebugInfo, Token } from '../src/tokenizer/interface'
 import {
-  AstNode,
-  LitsFunction,
-  NameNode,
-  NormalExpressionNode,
-  RegularExpression,
-  FunctionType,
-} from '../src/parser/interface'
-import { DebugInfo, Token, TokenizerType } from '../src/tokenizer/interface'
-import {
-  any,
-  collection,
-  litsFunction,
-  number,
-  object,
-  sequence,
-  array,
-  nameNode,
-  string,
+  asAny,
+  assertAny,
   asValue,
   assertValue,
-  regularExpression,
+  asString,
+  assertArray,
+  assertObj,
+  assertNumber,
+  assertRegularExpression,
   assertEventNumberOfParams,
   assertNumberOfParams,
-  stringOrRegExp,
-  normalExpressionNodeWithName,
-  expressionNode,
-  astNode,
-  token,
+  asNumber,
+  assertString,
+  assertSeq,
+  assertStringOrRegularExpression,
+  isNumber,
+  isRegularExpression,
+  asColl,
+  isExpressionNode,
   isLazyValue,
 } from '../src/utils/assertion'
+import { asNameNode, assertNameNode, isNormalExpressionNodeWithName, isAstNode } from '../src/utils/astNodeAsserter'
+import { asLitsFunction, assertLitsFunction } from '../src/utils/functionAsserter'
+
 import { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../src/utils/symbols'
+import { assertToken, isToken } from '../src/utils/tokenAsserter'
 
 const debugInfo: DebugInfo = `EOF`
 describe(`utils`, () => {
   test(`asAny`, () => {
-    expect(() => any.as(undefined, debugInfo)).toThrow()
+    expect(() => asAny(undefined, debugInfo)).toThrow()
     const node: AstNode = {
       t: AstNodeType.Name,
       v: `test`,
-      tkn: { t: TokenizerType.Name, v: `X` },
+      tkn: { t: TokenType.Name, v: `X` },
     }
 
-    expect(any.as(node, debugInfo)).toBe(node)
+    expect(asAny(node, debugInfo)).toBe(node)
   })
   test(`assertAny`, () => {
-    expect(() => any.assert(undefined, debugInfo)).toThrow()
+    expect(() => assertAny(undefined, debugInfo)).toThrow()
     const node: AstNode = {
       t: AstNodeType.Name,
       v: `test`,
-      tkn: { t: TokenizerType.Name, v: `X` },
+      tkn: { t: TokenType.Name, v: `X` },
     }
 
-    expect(() => any.assert(node, debugInfo)).not.toThrow()
+    expect(() => assertAny(node, debugInfo)).not.toThrow()
   })
   test(`assertAny`, () => {
-    expect(() => any.assert(undefined, debugInfo)).toThrow()
+    expect(() => assertAny(undefined, debugInfo)).toThrow()
     const node: AstNode = {
       t: AstNodeType.Name,
       v: `test`,
-      tkn: { t: TokenizerType.Name, v: `X` },
+      tkn: { t: TokenType.Name, v: `X` },
     }
 
-    expect(() => any.assert(node, debugInfo)).not.toThrow()
+    expect(() => assertAny(node, debugInfo)).not.toThrow()
   })
   test(`asLitsFunction`, () => {
-    expect(() => litsFunction.as(undefined, debugInfo)).toThrow()
+    expect(() => asLitsFunction(undefined, debugInfo)).toThrow()
     const lf: LitsFunction = {
       [FUNCTION_SYMBOL]: true,
       d: `EOF`,
@@ -83,34 +81,34 @@ describe(`utils`, () => {
         },
       ],
     }
-    expect(litsFunction.as(lf, debugInfo)).toBe(lf)
+    expect(asLitsFunction(lf, debugInfo)).toBe(lf)
   })
   test(`asNameNode`, () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(() => nameNode.as(undefined, {} as any)).toThrow()
+    expect(() => asNameNode(undefined, {} as any)).toThrow()
     expect(() =>
-      nameNode.as({
+      asNameNode({
         t: AstNodeType.Number,
         v: 12,
-        token: { t: TokenizerType.Name, v: `X` },
+        token: { t: TokenType.Name, v: `X` },
       }),
     ).toThrow()
     const node: NameNode = {
       t: AstNodeType.Name,
       v: `a-name`,
-      tkn: { t: TokenizerType.Name, v: `X` },
+      tkn: { t: TokenType.Name, v: `X` },
     }
-    expect(nameNode.as(node, node.tkn?.d)).toBe(node)
+    expect(asNameNode(node, node.tkn?.d)).toBe(node)
   })
   test(`assertNameNode`, () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(() => nameNode.assert(undefined, {} as any)).toThrow()
+    expect(() => assertNameNode(undefined, {} as any)).toThrow()
     const node: NameNode = {
       t: AstNodeType.Name,
       v: `a-name`,
-      tkn: { t: TokenizerType.Name, v: `X` },
+      tkn: { t: TokenType.Name, v: `X` },
     }
-    nameNode.as(node, node.tkn?.d)
+    asNameNode(node, node.tkn?.d)
   })
   test(`asNotUndefined`, () => {
     expect(() => asValue(undefined, `EOF`)).toThrow()
@@ -131,50 +129,50 @@ describe(`utils`, () => {
     expect(() => assertValue({}, `EOF`)).not.toThrow()
   })
   test(`asNonEmptyString`, () => {
-    expect(string.as(`1`, debugInfo, { nonEmpty: true })).toBe(`1`)
-    expect(() => string.as(``, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.as(0, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.as(1, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.as(true, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.as(false, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.as(null, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.as(undefined, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.as([], debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.as({}, debugInfo, { nonEmpty: true })).toThrow()
+    expect(asString(`1`, debugInfo, { nonEmpty: true })).toBe(`1`)
+    expect(() => asString(``, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(0, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(1, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(true, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(false, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(null, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(undefined, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString([], debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString({}, debugInfo, { nonEmpty: true })).toThrow()
   })
 
   test(`assertArr`, () => {
-    expect(() => array.assert(0, debugInfo)).toThrow()
-    expect(() => array.assert({}, debugInfo)).toThrow()
-    expect(() => array.assert([], debugInfo)).not.toThrow()
-    expect(() => array.assert([1], debugInfo)).not.toThrow()
-    expect(() => array.assert(true, debugInfo)).toThrow()
-    expect(() => array.assert(null, debugInfo)).toThrow()
-    expect(() => array.assert(undefined, debugInfo)).toThrow()
+    expect(() => assertArray(0, debugInfo)).toThrow()
+    expect(() => assertArray({}, debugInfo)).toThrow()
+    expect(() => assertArray([], debugInfo)).not.toThrow()
+    expect(() => assertArray([1], debugInfo)).not.toThrow()
+    expect(() => assertArray(true, debugInfo)).toThrow()
+    expect(() => assertArray(null, debugInfo)).toThrow()
+    expect(() => assertArray(undefined, debugInfo)).toThrow()
   })
   test(`assertObj`, () => {
-    expect(() => object.assert(0, debugInfo)).toThrow()
-    expect(() => object.assert({}, debugInfo)).not.toThrow()
-    expect(() => object.assert({ [FUNCTION_SYMBOL]: true }, debugInfo)).toThrow()
-    expect(() => object.assert({ a: 1 }, debugInfo)).not.toThrow()
-    expect(() => object.assert(/test/, debugInfo)).toThrow()
-    expect(() => object.assert([], debugInfo)).toThrow()
-    expect(() => object.assert([1], debugInfo)).toThrow()
-    expect(() => object.assert(true, debugInfo)).toThrow()
-    expect(() => object.assert(null, debugInfo)).toThrow()
-    expect(() => object.assert(undefined, debugInfo)).toThrow()
+    expect(() => assertObj(0, debugInfo)).toThrow()
+    expect(() => assertObj({}, debugInfo)).not.toThrow()
+    expect(() => assertObj({ [FUNCTION_SYMBOL]: true }, debugInfo)).toThrow()
+    expect(() => assertObj({ a: 1 }, debugInfo)).not.toThrow()
+    expect(() => assertObj(/test/, debugInfo)).toThrow()
+    expect(() => assertObj([], debugInfo)).toThrow()
+    expect(() => assertObj([1], debugInfo)).toThrow()
+    expect(() => assertObj(true, debugInfo)).toThrow()
+    expect(() => assertObj(null, debugInfo)).toThrow()
+    expect(() => assertObj(undefined, debugInfo)).toThrow()
   })
   test(`assertInteger`, () => {
-    expect(() => number.assert(-0, debugInfo, { integer: true })).not.toThrow()
-    expect(() => number.assert(-1, debugInfo, { integer: true })).not.toThrow()
-    expect(() => number.assert(1, debugInfo, { integer: true })).not.toThrow()
-    expect(() => number.assert(-0.1, debugInfo, { integer: true })).toThrow()
-    expect(() => number.assert(1.00001, debugInfo, { integer: true })).toThrow()
-    expect(() => number.assert(`k`, debugInfo, { integer: true })).toThrow()
-    expect(() => number.assert(false, debugInfo, { integer: true })).toThrow()
-    expect(() => number.assert(undefined, debugInfo, { integer: true })).toThrow()
-    expect(() => number.assert(null, debugInfo, { integer: true })).toThrow()
-    expect(() => number.assert([], debugInfo, { integer: true })).toThrow()
+    expect(() => assertNumber(-0, debugInfo, { integer: true })).not.toThrow()
+    expect(() => assertNumber(-1, debugInfo, { integer: true })).not.toThrow()
+    expect(() => assertNumber(1, debugInfo, { integer: true })).not.toThrow()
+    expect(() => assertNumber(-0.1, debugInfo, { integer: true })).toThrow()
+    expect(() => assertNumber(1.00001, debugInfo, { integer: true })).toThrow()
+    expect(() => assertNumber(`k`, debugInfo, { integer: true })).toThrow()
+    expect(() => assertNumber(false, debugInfo, { integer: true })).toThrow()
+    expect(() => assertNumber(undefined, debugInfo, { integer: true })).toThrow()
+    expect(() => assertNumber(null, debugInfo, { integer: true })).toThrow()
+    expect(() => assertNumber([], debugInfo, { integer: true })).toThrow()
   })
   test(`assertRegExp`, () => {
     const a: RegularExpression = {
@@ -182,79 +180,79 @@ describe(`utils`, () => {
       s: `^ab`,
       f: ``,
     }
-    expect(() => regularExpression.assert(/a/, debugInfo)).toThrow()
-    expect(() => regularExpression.assert(a, debugInfo)).not.toThrow()
-    expect(() => regularExpression.assert(new RegExp(`a`), debugInfo)).toThrow()
-    expect(() => regularExpression.assert(0, debugInfo)).toThrow()
-    expect(() => regularExpression.assert(`0`, debugInfo)).toThrow()
-    expect(() => regularExpression.assert(null, debugInfo)).toThrow()
-    expect(() => regularExpression.assert(undefined, debugInfo)).toThrow()
-    expect(() => regularExpression.assert(false, debugInfo)).toThrow()
-    expect(() => regularExpression.assert(true, debugInfo)).toThrow()
-    expect(() => regularExpression.assert([], debugInfo)).toThrow()
-    expect(() => regularExpression.assert({}, debugInfo)).toThrow()
+    expect(() => assertRegularExpression(/a/, debugInfo)).toThrow()
+    expect(() => assertRegularExpression(a, debugInfo)).not.toThrow()
+    expect(() => assertRegularExpression(new RegExp(`a`), debugInfo)).toThrow()
+    expect(() => assertRegularExpression(0, debugInfo)).toThrow()
+    expect(() => assertRegularExpression(`0`, debugInfo)).toThrow()
+    expect(() => assertRegularExpression(null, debugInfo)).toThrow()
+    expect(() => assertRegularExpression(undefined, debugInfo)).toThrow()
+    expect(() => assertRegularExpression(false, debugInfo)).toThrow()
+    expect(() => assertRegularExpression(true, debugInfo)).toThrow()
+    expect(() => assertRegularExpression([], debugInfo)).toThrow()
+    expect(() => assertRegularExpression({}, debugInfo)).toThrow()
   })
 
-  function node(arr: number[]): NormalExpressionNode {
+  function toNormalExpressionNode(arr: number[]): NormalExpressionNode {
     const astNodes: AstNode[] = arr.map(n => ({
       t: AstNodeType.Number,
       v: n,
-      tkn: { t: TokenizerType.Name, v: `X` },
+      tkn: { t: TokenType.Name, v: `X` },
     }))
     return {
       n: `let`,
       p: astNodes,
       t: AstNodeType.NormalExpression,
-      tkn: { t: TokenizerType.Name, v: `X` },
+      tkn: { t: TokenType.Name, v: `X` },
     }
   }
 
   test(`assertLengthEven`, () => {
-    expect(() => assertEventNumberOfParams(node([]))).not.toThrow()
-    expect(() => assertEventNumberOfParams(node([0]))).toThrow()
-    expect(() => assertEventNumberOfParams(node([0, 1]))).not.toThrow()
-    expect(() => assertEventNumberOfParams(node([0, 1, 2]))).toThrow()
-    expect(() => assertEventNumberOfParams(node([0, 1, 2, 3]))).not.toThrow()
-    expect(() => assertEventNumberOfParams(node([0, 1, 2, 3, 4]))).toThrow()
-    expect(() => assertEventNumberOfParams(node([0, 1, 2, 3, 4, 5]))).not.toThrow()
+    expect(() => assertEventNumberOfParams(toNormalExpressionNode([]))).not.toThrow()
+    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0]))).toThrow()
+    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1]))).not.toThrow()
+    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1, 2]))).toThrow()
+    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1, 2, 3]))).not.toThrow()
+    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1, 2, 3, 4]))).toThrow()
+    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1, 2, 3, 4, 5]))).not.toThrow()
   })
 
   test(`assertLength`, () => {
-    expect(() => assertNumberOfParams(0, node([]))).not.toThrow()
-    expect(() => assertNumberOfParams(0, node([1]))).toThrow()
-    expect(() => assertNumberOfParams(1, node([1]))).not.toThrow()
-    expect(() => assertNumberOfParams(1, node([]))).toThrow()
-    expect(() => assertNumberOfParams(1, node([1, 2]))).toThrow()
-    expect(() => assertNumberOfParams(2, node([1, 2]))).not.toThrow()
-    expect(() => assertNumberOfParams(2, node([1]))).toThrow()
-    expect(() => assertNumberOfParams(2, node([1, 2, 3]))).toThrow()
-    expect(() => assertNumberOfParams({}, node([]))).toThrow()
-    expect(() => assertNumberOfParams({ min: 1 }, node([1, 2, 3, 4, 5]))).not.toThrow()
-    expect(() => assertNumberOfParams({ min: 1 }, node([1, 2, 3, 4]))).not.toThrow()
-    expect(() => assertNumberOfParams({ min: 1 }, node([1, 2, 3]))).not.toThrow()
-    expect(() => assertNumberOfParams({ min: 1 }, node([1, 2]))).not.toThrow()
-    expect(() => assertNumberOfParams({ min: 1 }, node([1]))).not.toThrow()
-    expect(() => assertNumberOfParams({ min: 1 }, node([]))).toThrow()
-    expect(() => assertNumberOfParams({ max: 3 }, node([1, 2, 3, 4, 5]))).toThrow()
-    expect(() => assertNumberOfParams({ max: 3 }, node([1, 2, 3, 4]))).toThrow()
-    expect(() => assertNumberOfParams({ max: 3 }, node([1, 2, 3]))).not.toThrow()
-    expect(() => assertNumberOfParams({ max: 3 }, node([1, 2]))).not.toThrow()
-    expect(() => assertNumberOfParams({ max: 3 }, node([1]))).not.toThrow()
-    expect(() => assertNumberOfParams({ max: 3 }, node([]))).not.toThrow()
-    expect(() => assertNumberOfParams({ min: 1, max: 3 }, node([]))).toThrow()
-    expect(() => assertNumberOfParams({ min: 1, max: 3 }, node([1]))).not.toThrow()
-    expect(() => assertNumberOfParams({ min: 1, max: 3 }, node([1, 2]))).not.toThrow()
-    expect(() => assertNumberOfParams({ min: 1, max: 3 }, node([1, 2, 3]))).not.toThrow()
-    expect(() => assertNumberOfParams({ min: 1, max: 3 }, node([1, 2, 3, 4]))).toThrow()
-    expect(() => assertNumberOfParams({ min: 1, max: 3 }, node([1, 2, 3, 4, 5]))).toThrow()
-    expect(() => assertNumberOfParams({ min: 1, max: 3 }, node([1, 2, 3, 4, 5, 6]))).toThrow()
-    expect(() => assertNumberOfParams({ min: 3, max: 1 }, node([]))).toThrow()
-    expect(() => assertNumberOfParams({ min: 3, max: 1 }, node([1]))).toThrow()
-    expect(() => assertNumberOfParams({ min: 3, max: 1 }, node([1, 2]))).toThrow()
-    expect(() => assertNumberOfParams({ min: 3, max: 1 }, node([1, 2, 3]))).toThrow()
-    expect(() => assertNumberOfParams({ min: 3, max: 1 }, node([1, 2, 3, 4]))).toThrow()
-    expect(() => assertNumberOfParams({ min: 3, max: 1 }, node([1, 2, 3, 4, 5]))).toThrow()
-    expect(() => assertNumberOfParams({ min: 3, max: 1 }, node([1, 2, 3, 4, 5, 6]))).toThrow()
+    expect(() => assertNumberOfParams(0, toNormalExpressionNode([]))).not.toThrow()
+    expect(() => assertNumberOfParams(0, toNormalExpressionNode([1]))).toThrow()
+    expect(() => assertNumberOfParams(1, toNormalExpressionNode([1]))).not.toThrow()
+    expect(() => assertNumberOfParams(1, toNormalExpressionNode([]))).toThrow()
+    expect(() => assertNumberOfParams(1, toNormalExpressionNode([1, 2]))).toThrow()
+    expect(() => assertNumberOfParams(2, toNormalExpressionNode([1, 2]))).not.toThrow()
+    expect(() => assertNumberOfParams(2, toNormalExpressionNode([1]))).toThrow()
+    expect(() => assertNumberOfParams(2, toNormalExpressionNode([1, 2, 3]))).toThrow()
+    expect(() => assertNumberOfParams({}, toNormalExpressionNode([]))).toThrow()
+    expect(() => assertNumberOfParams({ min: 1 }, toNormalExpressionNode([1, 2, 3, 4, 5]))).not.toThrow()
+    expect(() => assertNumberOfParams({ min: 1 }, toNormalExpressionNode([1, 2, 3, 4]))).not.toThrow()
+    expect(() => assertNumberOfParams({ min: 1 }, toNormalExpressionNode([1, 2, 3]))).not.toThrow()
+    expect(() => assertNumberOfParams({ min: 1 }, toNormalExpressionNode([1, 2]))).not.toThrow()
+    expect(() => assertNumberOfParams({ min: 1 }, toNormalExpressionNode([1]))).not.toThrow()
+    expect(() => assertNumberOfParams({ min: 1 }, toNormalExpressionNode([]))).toThrow()
+    expect(() => assertNumberOfParams({ max: 3 }, toNormalExpressionNode([1, 2, 3, 4, 5]))).toThrow()
+    expect(() => assertNumberOfParams({ max: 3 }, toNormalExpressionNode([1, 2, 3, 4]))).toThrow()
+    expect(() => assertNumberOfParams({ max: 3 }, toNormalExpressionNode([1, 2, 3]))).not.toThrow()
+    expect(() => assertNumberOfParams({ max: 3 }, toNormalExpressionNode([1, 2]))).not.toThrow()
+    expect(() => assertNumberOfParams({ max: 3 }, toNormalExpressionNode([1]))).not.toThrow()
+    expect(() => assertNumberOfParams({ max: 3 }, toNormalExpressionNode([]))).not.toThrow()
+    expect(() => assertNumberOfParams({ min: 1, max: 3 }, toNormalExpressionNode([]))).toThrow()
+    expect(() => assertNumberOfParams({ min: 1, max: 3 }, toNormalExpressionNode([1]))).not.toThrow()
+    expect(() => assertNumberOfParams({ min: 1, max: 3 }, toNormalExpressionNode([1, 2]))).not.toThrow()
+    expect(() => assertNumberOfParams({ min: 1, max: 3 }, toNormalExpressionNode([1, 2, 3]))).not.toThrow()
+    expect(() => assertNumberOfParams({ min: 1, max: 3 }, toNormalExpressionNode([1, 2, 3, 4]))).toThrow()
+    expect(() => assertNumberOfParams({ min: 1, max: 3 }, toNormalExpressionNode([1, 2, 3, 4, 5]))).toThrow()
+    expect(() => assertNumberOfParams({ min: 1, max: 3 }, toNormalExpressionNode([1, 2, 3, 4, 5, 6]))).toThrow()
+    expect(() => assertNumberOfParams({ min: 3, max: 1 }, toNormalExpressionNode([]))).toThrow()
+    expect(() => assertNumberOfParams({ min: 3, max: 1 }, toNormalExpressionNode([1]))).toThrow()
+    expect(() => assertNumberOfParams({ min: 3, max: 1 }, toNormalExpressionNode([1, 2]))).toThrow()
+    expect(() => assertNumberOfParams({ min: 3, max: 1 }, toNormalExpressionNode([1, 2, 3]))).toThrow()
+    expect(() => assertNumberOfParams({ min: 3, max: 1 }, toNormalExpressionNode([1, 2, 3, 4]))).toThrow()
+    expect(() => assertNumberOfParams({ min: 3, max: 1 }, toNormalExpressionNode([1, 2, 3, 4, 5]))).toThrow()
+    expect(() => assertNumberOfParams({ min: 3, max: 1 }, toNormalExpressionNode([1, 2, 3, 4, 5, 6]))).toThrow()
   })
 
   test(`assertLitsFunction`, () => {
@@ -274,207 +272,207 @@ describe(`utils`, () => {
         },
       ],
     }
-    expect(() => litsFunction.assert(lf, debugInfo)).not.toThrow()
-    expect(() => litsFunction.assert(1, debugInfo)).toThrow()
-    expect(() => litsFunction.assert({}, debugInfo)).toThrow()
+    expect(() => assertLitsFunction(lf, debugInfo)).not.toThrow()
+    expect(() => assertLitsFunction(1, debugInfo)).toThrow()
+    expect(() => assertLitsFunction({}, debugInfo)).toThrow()
   })
   test(`assertPositiveNumber`, () => {
-    expect(() => number.assert(-1, debugInfo, { positive: true })).toThrow()
-    expect(() => number.assert(-0.5, debugInfo, { positive: true })).toThrow()
-    expect(() => number.assert(0, debugInfo, { positive: true })).toThrow()
-    expect(() => number.assert(0.5, debugInfo, { positive: true })).not.toThrow()
-    expect(() => number.assert(1, debugInfo, { positive: true })).not.toThrow()
-    expect(() => number.assert(`1`, debugInfo, { positive: true })).toThrow()
-    expect(() => number.assert([], debugInfo, { positive: true })).toThrow()
-    expect(() => number.assert({}, debugInfo, { positive: true })).toThrow()
-    expect(() => number.assert(true, debugInfo, { positive: true })).toThrow()
-    expect(() => number.assert(false, debugInfo, { positive: true })).toThrow()
-    expect(() => number.assert(null, debugInfo, { positive: true })).toThrow()
-    expect(() => number.assert(undefined, debugInfo, { positive: true })).toThrow()
+    expect(() => assertNumber(-1, debugInfo, { positive: true })).toThrow()
+    expect(() => assertNumber(-0.5, debugInfo, { positive: true })).toThrow()
+    expect(() => assertNumber(0, debugInfo, { positive: true })).toThrow()
+    expect(() => assertNumber(0.5, debugInfo, { positive: true })).not.toThrow()
+    expect(() => assertNumber(1, debugInfo, { positive: true })).not.toThrow()
+    expect(() => assertNumber(`1`, debugInfo, { positive: true })).toThrow()
+    expect(() => assertNumber([], debugInfo, { positive: true })).toThrow()
+    expect(() => assertNumber({}, debugInfo, { positive: true })).toThrow()
+    expect(() => assertNumber(true, debugInfo, { positive: true })).toThrow()
+    expect(() => assertNumber(false, debugInfo, { positive: true })).toThrow()
+    expect(() => assertNumber(null, debugInfo, { positive: true })).toThrow()
+    expect(() => assertNumber(undefined, debugInfo, { positive: true })).toThrow()
   })
   test(`assertNegativeNumber`, () => {
-    expect(() => number.assert(-1, debugInfo, { negative: true })).not.toThrow()
-    expect(() => number.assert(-0.5, debugInfo, { negative: true })).not.toThrow()
-    expect(() => number.assert(0, debugInfo, { negative: true })).toThrow()
-    expect(() => number.assert(0.5, debugInfo, { negative: true })).toThrow()
-    expect(() => number.assert(1, debugInfo, { negative: true })).toThrow()
-    expect(() => number.assert(`1`, debugInfo, { negative: true })).toThrow()
-    expect(() => number.assert([], debugInfo, { negative: true })).toThrow()
-    expect(() => number.assert({}, debugInfo, { negative: true })).toThrow()
-    expect(() => number.assert(true, debugInfo, { negative: true })).toThrow()
-    expect(() => number.assert(false, debugInfo, { negative: true })).toThrow()
-    expect(() => number.assert(null, debugInfo, { negative: true })).toThrow()
-    expect(() => number.assert(undefined, debugInfo, { negative: true })).toThrow()
+    expect(() => assertNumber(-1, debugInfo, { negative: true })).not.toThrow()
+    expect(() => assertNumber(-0.5, debugInfo, { negative: true })).not.toThrow()
+    expect(() => assertNumber(0, debugInfo, { negative: true })).toThrow()
+    expect(() => assertNumber(0.5, debugInfo, { negative: true })).toThrow()
+    expect(() => assertNumber(1, debugInfo, { negative: true })).toThrow()
+    expect(() => assertNumber(`1`, debugInfo, { negative: true })).toThrow()
+    expect(() => assertNumber([], debugInfo, { negative: true })).toThrow()
+    expect(() => assertNumber({}, debugInfo, { negative: true })).toThrow()
+    expect(() => assertNumber(true, debugInfo, { negative: true })).toThrow()
+    expect(() => assertNumber(false, debugInfo, { negative: true })).toThrow()
+    expect(() => assertNumber(null, debugInfo, { negative: true })).toThrow()
+    expect(() => assertNumber(undefined, debugInfo, { negative: true })).toThrow()
   })
   test(`assertNonNegativeNumber`, () => {
-    expect(() => number.assert(-1, debugInfo, { nonNegative: true })).toThrow()
-    expect(() => number.assert(-1.1, debugInfo, { nonNegative: true })).toThrow()
-    expect(() => number.assert(0, debugInfo, { nonNegative: true })).not.toThrow()
-    expect(() => number.assert(0.1, debugInfo, { nonNegative: true })).not.toThrow()
-    expect(() => number.assert(1, debugInfo, { nonNegative: true })).not.toThrow()
-    expect(() => number.assert(1.1, debugInfo, { nonNegative: true })).not.toThrow()
-    expect(() => number.assert(`1`, debugInfo, { nonNegative: true })).toThrow()
-    expect(() => number.assert([], debugInfo, { nonNegative: true })).toThrow()
-    expect(() => number.assert({}, debugInfo, { nonNegative: true })).toThrow()
-    expect(() => number.assert(true, debugInfo, { nonNegative: true })).toThrow()
-    expect(() => number.assert(false, debugInfo, { nonNegative: true })).toThrow()
-    expect(() => number.assert(null, debugInfo, { nonNegative: true })).toThrow()
-    expect(() => number.assert(undefined, debugInfo, { nonNegative: true })).toThrow()
+    expect(() => assertNumber(-1, debugInfo, { nonNegative: true })).toThrow()
+    expect(() => assertNumber(-1.1, debugInfo, { nonNegative: true })).toThrow()
+    expect(() => assertNumber(0, debugInfo, { nonNegative: true })).not.toThrow()
+    expect(() => assertNumber(0.1, debugInfo, { nonNegative: true })).not.toThrow()
+    expect(() => assertNumber(1, debugInfo, { nonNegative: true })).not.toThrow()
+    expect(() => assertNumber(1.1, debugInfo, { nonNegative: true })).not.toThrow()
+    expect(() => assertNumber(`1`, debugInfo, { nonNegative: true })).toThrow()
+    expect(() => assertNumber([], debugInfo, { nonNegative: true })).toThrow()
+    expect(() => assertNumber({}, debugInfo, { nonNegative: true })).toThrow()
+    expect(() => assertNumber(true, debugInfo, { nonNegative: true })).toThrow()
+    expect(() => assertNumber(false, debugInfo, { nonNegative: true })).toThrow()
+    expect(() => assertNumber(null, debugInfo, { nonNegative: true })).toThrow()
+    expect(() => assertNumber(undefined, debugInfo, { nonNegative: true })).toThrow()
   })
   test(`assertNonPositiveNumber`, () => {
-    expect(() => number.assert(-1, debugInfo, { nonPositive: true })).not.toThrow()
-    expect(() => number.assert(-1.1, debugInfo, { nonPositive: true })).not.toThrow()
-    expect(() => number.assert(0, debugInfo, { nonPositive: true })).not.toThrow()
-    expect(() => number.assert(0.1, debugInfo, { nonPositive: true })).toThrow()
-    expect(() => number.assert(1, debugInfo, { nonPositive: true })).toThrow()
-    expect(() => number.assert(1.1, debugInfo, { nonPositive: true })).toThrow()
-    expect(() => number.assert(`1`, debugInfo, { nonPositive: true })).toThrow()
-    expect(() => number.assert([], debugInfo, { nonPositive: true })).toThrow()
-    expect(() => number.assert({}, debugInfo, { nonPositive: true })).toThrow()
-    expect(() => number.assert(true, debugInfo, { nonPositive: true })).toThrow()
-    expect(() => number.assert(false, debugInfo, { nonPositive: true })).toThrow()
-    expect(() => number.assert(null, debugInfo, { nonPositive: true })).toThrow()
-    expect(() => number.assert(undefined, debugInfo, { nonPositive: true })).toThrow()
+    expect(() => assertNumber(-1, debugInfo, { nonPositive: true })).not.toThrow()
+    expect(() => assertNumber(-1.1, debugInfo, { nonPositive: true })).not.toThrow()
+    expect(() => assertNumber(0, debugInfo, { nonPositive: true })).not.toThrow()
+    expect(() => assertNumber(0.1, debugInfo, { nonPositive: true })).toThrow()
+    expect(() => assertNumber(1, debugInfo, { nonPositive: true })).toThrow()
+    expect(() => assertNumber(1.1, debugInfo, { nonPositive: true })).toThrow()
+    expect(() => assertNumber(`1`, debugInfo, { nonPositive: true })).toThrow()
+    expect(() => assertNumber([], debugInfo, { nonPositive: true })).toThrow()
+    expect(() => assertNumber({}, debugInfo, { nonPositive: true })).toThrow()
+    expect(() => assertNumber(true, debugInfo, { nonPositive: true })).toThrow()
+    expect(() => assertNumber(false, debugInfo, { nonPositive: true })).toThrow()
+    expect(() => assertNumber(null, debugInfo, { nonPositive: true })).toThrow()
+    expect(() => assertNumber(undefined, debugInfo, { nonPositive: true })).toThrow()
   })
   test(`assertFiniteNumber`, () => {
-    expect(() => number.assert(-1, debugInfo, { finite: true })).not.toThrow()
-    expect(() => number.assert(-1.1, debugInfo, { finite: true })).not.toThrow()
-    expect(() => number.assert(0, debugInfo, { finite: true })).not.toThrow()
-    expect(() => number.assert(0.1, debugInfo, { finite: true })).not.toThrow()
-    expect(() => number.assert(1, debugInfo, { finite: true })).not.toThrow()
-    expect(() => number.assert(1.1, debugInfo, { finite: true })).not.toThrow()
-    expect(() => number.assert(Math.asin(2), debugInfo, { finite: true })).toThrow()
-    expect(() => number.assert(1 / 0, debugInfo, { finite: true })).toThrow()
-    expect(() => number.assert(`1`, debugInfo, { finite: true })).toThrow()
-    expect(() => number.assert([], debugInfo, { finite: true })).toThrow()
-    expect(() => number.assert({}, debugInfo, { finite: true })).toThrow()
-    expect(() => number.assert(true, debugInfo, { finite: true })).toThrow()
-    expect(() => number.assert(false, debugInfo, { finite: true })).toThrow()
-    expect(() => number.assert(null, debugInfo, { finite: true })).toThrow()
-    expect(() => number.assert(undefined, debugInfo, { finite: true })).toThrow()
+    expect(() => assertNumber(-1, debugInfo, { finite: true })).not.toThrow()
+    expect(() => assertNumber(-1.1, debugInfo, { finite: true })).not.toThrow()
+    expect(() => assertNumber(0, debugInfo, { finite: true })).not.toThrow()
+    expect(() => assertNumber(0.1, debugInfo, { finite: true })).not.toThrow()
+    expect(() => assertNumber(1, debugInfo, { finite: true })).not.toThrow()
+    expect(() => assertNumber(1.1, debugInfo, { finite: true })).not.toThrow()
+    expect(() => assertNumber(Math.asin(2), debugInfo, { finite: true })).toThrow()
+    expect(() => assertNumber(1 / 0, debugInfo, { finite: true })).toThrow()
+    expect(() => assertNumber(`1`, debugInfo, { finite: true })).toThrow()
+    expect(() => assertNumber([], debugInfo, { finite: true })).toThrow()
+    expect(() => assertNumber({}, debugInfo, { finite: true })).toThrow()
+    expect(() => assertNumber(true, debugInfo, { finite: true })).toThrow()
+    expect(() => assertNumber(false, debugInfo, { finite: true })).toThrow()
+    expect(() => assertNumber(null, debugInfo, { finite: true })).toThrow()
+    expect(() => assertNumber(undefined, debugInfo, { finite: true })).toThrow()
   })
   test(`asFiniteNumber`, () => {
-    expect(number.as(-1, debugInfo, { finite: true })).toBe(-1)
-    expect(number.as(-1.1, debugInfo, { finite: true })).toBe(-1.1)
-    expect(number.as(0, debugInfo, { finite: true })).toBe(0)
-    expect(number.as(0.1, debugInfo, { finite: true })).toBe(0.1)
-    expect(number.as(1, debugInfo, { finite: true })).toBe(1)
-    expect(number.as(1.1, debugInfo, { finite: true })).toBe(1.1)
-    expect(() => number.as(Math.asin(2), debugInfo, { finite: true })).toThrow()
-    expect(() => number.as(1 / 0, debugInfo, { finite: true })).toThrow()
-    expect(() => number.as(`1`, debugInfo, { finite: true })).toThrow()
-    expect(() => number.as(`1`, debugInfo, { finite: true })).toThrow()
-    expect(() => number.as([], debugInfo, { finite: true })).toThrow()
-    expect(() => number.as({}, debugInfo, { finite: true })).toThrow()
-    expect(() => number.as(true, debugInfo, { finite: true })).toThrow()
-    expect(() => number.as(false, debugInfo, { finite: true })).toThrow()
-    expect(() => number.as(null, debugInfo, { finite: true })).toThrow()
-    expect(() => number.as(undefined, debugInfo, { finite: true })).toThrow()
+    expect(asNumber(-1, debugInfo, { finite: true })).toBe(-1)
+    expect(asNumber(-1.1, debugInfo, { finite: true })).toBe(-1.1)
+    expect(asNumber(0, debugInfo, { finite: true })).toBe(0)
+    expect(asNumber(0.1, debugInfo, { finite: true })).toBe(0.1)
+    expect(asNumber(1, debugInfo, { finite: true })).toBe(1)
+    expect(asNumber(1.1, debugInfo, { finite: true })).toBe(1.1)
+    expect(() => asNumber(Math.asin(2), debugInfo, { finite: true })).toThrow()
+    expect(() => asNumber(1 / 0, debugInfo, { finite: true })).toThrow()
+    expect(() => asNumber(`1`, debugInfo, { finite: true })).toThrow()
+    expect(() => asNumber(`1`, debugInfo, { finite: true })).toThrow()
+    expect(() => asNumber([], debugInfo, { finite: true })).toThrow()
+    expect(() => asNumber({}, debugInfo, { finite: true })).toThrow()
+    expect(() => asNumber(true, debugInfo, { finite: true })).toThrow()
+    expect(() => asNumber(false, debugInfo, { finite: true })).toThrow()
+    expect(() => asNumber(null, debugInfo, { finite: true })).toThrow()
+    expect(() => asNumber(undefined, debugInfo, { finite: true })).toThrow()
   })
   test(`assertNumberGt`, () => {
-    expect(() => number.assert(0, debugInfo, { gt: 1 })).toThrow()
-    expect(() => number.assert(0.5, debugInfo, { gt: 1 })).toThrow()
-    expect(() => number.assert(1, debugInfo, { gt: 1 })).toThrow()
-    expect(() => number.assert(1.5, debugInfo, { gt: 1 })).not.toThrow()
-    expect(() => number.assert(2, debugInfo, { gt: 1 })).not.toThrow()
-    expect(() => number.assert(`2`, debugInfo, { gt: 1 })).toThrow()
-    expect(() => number.assert([], debugInfo, { gt: 1 })).toThrow()
-    expect(() => number.assert(false, debugInfo, { gt: 1 })).toThrow()
+    expect(() => assertNumber(0, debugInfo, { gt: 1 })).toThrow()
+    expect(() => assertNumber(0.5, debugInfo, { gt: 1 })).toThrow()
+    expect(() => assertNumber(1, debugInfo, { gt: 1 })).toThrow()
+    expect(() => assertNumber(1.5, debugInfo, { gt: 1 })).not.toThrow()
+    expect(() => assertNumber(2, debugInfo, { gt: 1 })).not.toThrow()
+    expect(() => assertNumber(`2`, debugInfo, { gt: 1 })).toThrow()
+    expect(() => assertNumber([], debugInfo, { gt: 1 })).toThrow()
+    expect(() => assertNumber(false, debugInfo, { gt: 1 })).toThrow()
   })
   test(`assertNumberGte`, () => {
-    expect(() => number.assert(0, debugInfo, { gte: 1 })).toThrow()
-    expect(() => number.assert(0.5, debugInfo, { gte: 1 })).toThrow()
-    expect(() => number.assert(1, debugInfo, { gte: 1 })).not.toThrow()
-    expect(() => number.assert(1.5, debugInfo, { gte: 1 })).not.toThrow()
-    expect(() => number.assert(2, debugInfo, { gte: 1 })).not.toThrow()
-    expect(() => number.assert(`2`, debugInfo, { gte: 1 })).toThrow()
-    expect(() => number.assert([], debugInfo, { gte: 1 })).toThrow()
-    expect(() => number.assert(false, debugInfo, { gte: 1 })).toThrow()
+    expect(() => assertNumber(0, debugInfo, { gte: 1 })).toThrow()
+    expect(() => assertNumber(0.5, debugInfo, { gte: 1 })).toThrow()
+    expect(() => assertNumber(1, debugInfo, { gte: 1 })).not.toThrow()
+    expect(() => assertNumber(1.5, debugInfo, { gte: 1 })).not.toThrow()
+    expect(() => assertNumber(2, debugInfo, { gte: 1 })).not.toThrow()
+    expect(() => assertNumber(`2`, debugInfo, { gte: 1 })).toThrow()
+    expect(() => assertNumber([], debugInfo, { gte: 1 })).toThrow()
+    expect(() => assertNumber(false, debugInfo, { gte: 1 })).toThrow()
   })
   test(`assertNumberLt`, () => {
-    expect(() => number.assert(0, debugInfo, { lt: 1 })).not.toThrow()
-    expect(() => number.assert(0.5, debugInfo, { lt: 1 })).not.toThrow()
-    expect(() => number.assert(1, debugInfo, { lt: 1 })).toThrow()
-    expect(() => number.assert(1.5, debugInfo, { lt: 1 })).toThrow()
-    expect(() => number.assert(2, debugInfo, { lt: 1 })).toThrow()
-    expect(() => number.assert(`2`, debugInfo, { lt: 1 })).toThrow()
-    expect(() => number.assert([], debugInfo, { lt: 1 })).toThrow()
-    expect(() => number.assert(false, debugInfo, { lt: 1 })).toThrow()
+    expect(() => assertNumber(0, debugInfo, { lt: 1 })).not.toThrow()
+    expect(() => assertNumber(0.5, debugInfo, { lt: 1 })).not.toThrow()
+    expect(() => assertNumber(1, debugInfo, { lt: 1 })).toThrow()
+    expect(() => assertNumber(1.5, debugInfo, { lt: 1 })).toThrow()
+    expect(() => assertNumber(2, debugInfo, { lt: 1 })).toThrow()
+    expect(() => assertNumber(`2`, debugInfo, { lt: 1 })).toThrow()
+    expect(() => assertNumber([], debugInfo, { lt: 1 })).toThrow()
+    expect(() => assertNumber(false, debugInfo, { lt: 1 })).toThrow()
   })
   test(`assertNumberLte`, () => {
-    expect(() => number.assert(0, debugInfo, { lte: 1 })).not.toThrow()
-    expect(() => number.assert(0.5, debugInfo, { lte: 1 })).not.toThrow()
-    expect(() => number.assert(1, debugInfo, { lte: 1 })).not.toThrow()
-    expect(() => number.assert(1.5, debugInfo, { lte: 1 })).toThrow()
-    expect(() => number.assert(2, debugInfo, { lte: 1 })).toThrow()
-    expect(() => number.assert(`2`, debugInfo, { lte: 1 })).toThrow()
-    expect(() => number.assert([], debugInfo, { lte: 1 })).toThrow()
-    expect(() => number.assert(false, debugInfo, { lte: 1 })).toThrow()
+    expect(() => assertNumber(0, debugInfo, { lte: 1 })).not.toThrow()
+    expect(() => assertNumber(0.5, debugInfo, { lte: 1 })).not.toThrow()
+    expect(() => assertNumber(1, debugInfo, { lte: 1 })).not.toThrow()
+    expect(() => assertNumber(1.5, debugInfo, { lte: 1 })).toThrow()
+    expect(() => assertNumber(2, debugInfo, { lte: 1 })).toThrow()
+    expect(() => assertNumber(`2`, debugInfo, { lte: 1 })).toThrow()
+    expect(() => assertNumber([], debugInfo, { lte: 1 })).toThrow()
+    expect(() => assertNumber(false, debugInfo, { lte: 1 })).toThrow()
   })
   test(`assertNumberNotZero`, () => {
-    expect(() => number.assert(-1, debugInfo, { nonZero: true })).not.toThrow()
-    expect(() => number.assert(-0.5, debugInfo, { nonZero: true })).not.toThrow()
-    expect(() => number.assert(0, debugInfo, { nonZero: true })).toThrow()
-    expect(() => number.assert(0.5, debugInfo, { nonZero: true })).not.toThrow()
-    expect(() => number.assert(1, debugInfo, { nonZero: true })).not.toThrow()
-    expect(() => number.assert(`1`, debugInfo, { nonZero: true })).toThrow()
-    expect(() => number.assert([], debugInfo, { nonZero: true })).toThrow()
-    expect(() => number.assert({}, debugInfo, { nonZero: true })).toThrow()
-    expect(() => number.assert(true, debugInfo, { nonZero: true })).toThrow()
-    expect(() => number.assert(false, debugInfo, { nonZero: true })).toThrow()
-    expect(() => number.assert(null, debugInfo, { nonZero: true })).toThrow()
-    expect(() => number.assert(undefined, debugInfo, { nonZero: true })).toThrow()
+    expect(() => assertNumber(-1, debugInfo, { nonZero: true })).not.toThrow()
+    expect(() => assertNumber(-0.5, debugInfo, { nonZero: true })).not.toThrow()
+    expect(() => assertNumber(0, debugInfo, { nonZero: true })).toThrow()
+    expect(() => assertNumber(0.5, debugInfo, { nonZero: true })).not.toThrow()
+    expect(() => assertNumber(1, debugInfo, { nonZero: true })).not.toThrow()
+    expect(() => assertNumber(`1`, debugInfo, { nonZero: true })).toThrow()
+    expect(() => assertNumber([], debugInfo, { nonZero: true })).toThrow()
+    expect(() => assertNumber({}, debugInfo, { nonZero: true })).toThrow()
+    expect(() => assertNumber(true, debugInfo, { nonZero: true })).toThrow()
+    expect(() => assertNumber(false, debugInfo, { nonZero: true })).toThrow()
+    expect(() => assertNumber(null, debugInfo, { nonZero: true })).toThrow()
+    expect(() => assertNumber(undefined, debugInfo, { nonZero: true })).toThrow()
   })
   test(`assertString`, () => {
-    expect(() => string.assert(``, debugInfo)).not.toThrow()
-    expect(() => string.assert(`1`, debugInfo)).not.toThrow()
-    expect(() => string.assert(0, debugInfo)).toThrow()
-    expect(() => string.assert(1, debugInfo)).toThrow()
-    expect(() => string.assert(true, debugInfo)).toThrow()
-    expect(() => string.assert(false, debugInfo)).toThrow()
-    expect(() => string.assert(null, debugInfo)).toThrow()
-    expect(() => string.assert(undefined, debugInfo)).toThrow()
-    expect(() => string.assert([], debugInfo)).toThrow()
-    expect(() => string.assert({}, debugInfo)).toThrow()
+    expect(() => assertString(``, debugInfo)).not.toThrow()
+    expect(() => assertString(`1`, debugInfo)).not.toThrow()
+    expect(() => assertString(0, debugInfo)).toThrow()
+    expect(() => assertString(1, debugInfo)).toThrow()
+    expect(() => assertString(true, debugInfo)).toThrow()
+    expect(() => assertString(false, debugInfo)).toThrow()
+    expect(() => assertString(null, debugInfo)).toThrow()
+    expect(() => assertString(undefined, debugInfo)).toThrow()
+    expect(() => assertString([], debugInfo)).toThrow()
+    expect(() => assertString({}, debugInfo)).toThrow()
   })
   test(`asString`, () => {
-    expect(() => string.as(``, debugInfo)).not.toThrow()
-    expect(() => string.as(`1`, debugInfo)).not.toThrow()
-    expect(() => string.as(0, debugInfo)).toThrow()
-    expect(() => string.as(1, debugInfo)).toThrow()
-    expect(() => string.as(true, debugInfo)).toThrow()
-    expect(() => string.as(false, debugInfo)).toThrow()
-    expect(() => string.as(null, debugInfo)).toThrow()
-    expect(() => string.as(undefined, debugInfo)).toThrow()
-    expect(() => string.as([], debugInfo)).toThrow()
-    expect(() => string.as({}, debugInfo)).toThrow()
+    expect(() => asString(``, debugInfo)).not.toThrow()
+    expect(() => asString(`1`, debugInfo)).not.toThrow()
+    expect(() => asString(0, debugInfo)).toThrow()
+    expect(() => asString(1, debugInfo)).toThrow()
+    expect(() => asString(true, debugInfo)).toThrow()
+    expect(() => asString(false, debugInfo)).toThrow()
+    expect(() => asString(null, debugInfo)).toThrow()
+    expect(() => asString(undefined, debugInfo)).toThrow()
+    expect(() => asString([], debugInfo)).toThrow()
+    expect(() => asString({}, debugInfo)).toThrow()
   })
   test(`assertNonEmptyString`, () => {
-    expect(() => string.assert(`1`, debugInfo, { nonEmpty: true })).not.toThrow()
-    expect(() => string.assert(`abc`, debugInfo, { nonEmpty: true })).not.toThrow()
-    expect(() => string.assert(``, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.assert(0, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.assert(1, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.assert(true, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.assert(false, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.assert(null, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.assert(undefined, debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.assert([], debugInfo, { nonEmpty: true })).toThrow()
-    expect(() => string.assert({}, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(`1`, debugInfo, { nonEmpty: true })).not.toThrow()
+    expect(() => assertString(`abc`, debugInfo, { nonEmpty: true })).not.toThrow()
+    expect(() => assertString(``, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(0, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(1, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(true, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(false, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(null, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(undefined, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString([], debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString({}, debugInfo, { nonEmpty: true })).toThrow()
   })
 
   test(`assertStringOrArray`, () => {
-    expect(() => sequence.assert(``, debugInfo)).not.toThrow()
-    expect(() => sequence.assert(`1`, debugInfo)).not.toThrow()
-    expect(() => sequence.assert([], debugInfo)).not.toThrow()
-    expect(() => sequence.assert([1, 2, 3], debugInfo)).not.toThrow()
-    expect(() => sequence.assert(0, debugInfo)).toThrow()
-    expect(() => sequence.assert(1, debugInfo)).toThrow()
-    expect(() => sequence.assert(true, debugInfo)).toThrow()
-    expect(() => sequence.assert(false, debugInfo)).toThrow()
-    expect(() => sequence.assert(null, debugInfo)).toThrow()
-    expect(() => sequence.assert(undefined, debugInfo)).toThrow()
-    expect(() => sequence.assert({}, debugInfo)).toThrow()
+    expect(() => assertSeq(``, debugInfo)).not.toThrow()
+    expect(() => assertSeq(`1`, debugInfo)).not.toThrow()
+    expect(() => assertSeq([], debugInfo)).not.toThrow()
+    expect(() => assertSeq([1, 2, 3], debugInfo)).not.toThrow()
+    expect(() => assertSeq(0, debugInfo)).toThrow()
+    expect(() => assertSeq(1, debugInfo)).toThrow()
+    expect(() => assertSeq(true, debugInfo)).toThrow()
+    expect(() => assertSeq(false, debugInfo)).toThrow()
+    expect(() => assertSeq(null, debugInfo)).toThrow()
+    expect(() => assertSeq(undefined, debugInfo)).toThrow()
+    expect(() => assertSeq({}, debugInfo)).toThrow()
   })
 
   test(`assertStringOrRegExp`, () => {
@@ -483,19 +481,19 @@ describe(`utils`, () => {
       s: `^ab`,
       f: ``,
     }
-    expect(() => stringOrRegExp.assert(``, debugInfo)).not.toThrow()
-    expect(() => stringOrRegExp.assert(`1`, debugInfo)).not.toThrow()
-    expect(() => stringOrRegExp.assert(a, debugInfo)).not.toThrow()
-    expect(() => stringOrRegExp.assert(/^a/, debugInfo)).toThrow()
-    expect(() => stringOrRegExp.assert([], debugInfo)).toThrow()
-    expect(() => stringOrRegExp.assert([1, 2, 3], debugInfo)).toThrow()
-    expect(() => stringOrRegExp.assert(0, debugInfo)).toThrow()
-    expect(() => stringOrRegExp.assert(1, debugInfo)).toThrow()
-    expect(() => stringOrRegExp.assert(true, debugInfo)).toThrow()
-    expect(() => stringOrRegExp.assert(false, debugInfo)).toThrow()
-    expect(() => stringOrRegExp.assert(null, debugInfo)).toThrow()
-    expect(() => stringOrRegExp.assert(undefined, debugInfo)).toThrow()
-    expect(() => stringOrRegExp.assert({}, debugInfo)).toThrow()
+    expect(() => assertStringOrRegularExpression(``, debugInfo)).not.toThrow()
+    expect(() => assertStringOrRegularExpression(`1`, debugInfo)).not.toThrow()
+    expect(() => assertStringOrRegularExpression(a, debugInfo)).not.toThrow()
+    expect(() => assertStringOrRegularExpression(/^a/, debugInfo)).toThrow()
+    expect(() => assertStringOrRegularExpression([], debugInfo)).toThrow()
+    expect(() => assertStringOrRegularExpression([1, 2, 3], debugInfo)).toThrow()
+    expect(() => assertStringOrRegularExpression(0, debugInfo)).toThrow()
+    expect(() => assertStringOrRegularExpression(1, debugInfo)).toThrow()
+    expect(() => assertStringOrRegularExpression(true, debugInfo)).toThrow()
+    expect(() => assertStringOrRegularExpression(false, debugInfo)).toThrow()
+    expect(() => assertStringOrRegularExpression(null, debugInfo)).toThrow()
+    expect(() => assertStringOrRegularExpression(undefined, debugInfo)).toThrow()
+    expect(() => assertStringOrRegularExpression({}, debugInfo)).toThrow()
   })
 
   test(`isLitsFunction`, () => {
@@ -540,60 +538,60 @@ describe(`utils`, () => {
       t: FunctionType.Constantly,
       v: 10,
     }
-    expect(litsFunction.is(lf1)).toBe(true)
-    expect(litsFunction.is(lf2)).toBe(true)
-    expect(litsFunction.is(lf3)).toBe(true)
-    expect(litsFunction.is(lf4)).toBe(true)
-    expect(litsFunction.is(lf5)).toBe(true)
-    expect(litsFunction.is(``)).toBe(false)
-    expect(litsFunction.is(`1`)).toBe(false)
-    expect(litsFunction.is(0)).toBe(false)
-    expect(litsFunction.is(1)).toBe(false)
-    expect(litsFunction.is(true)).toBe(false)
-    expect(litsFunction.is(false)).toBe(false)
-    expect(litsFunction.is(null)).toBe(false)
-    expect(litsFunction.is(undefined)).toBe(false)
-    expect(litsFunction.is([])).toBe(false)
-    expect(litsFunction.is({})).toBe(false)
+    expect(isLitsFunction(lf1)).toBe(true)
+    expect(isLitsFunction(lf2)).toBe(true)
+    expect(isLitsFunction(lf3)).toBe(true)
+    expect(isLitsFunction(lf4)).toBe(true)
+    expect(isLitsFunction(lf5)).toBe(true)
+    expect(isLitsFunction(``)).toBe(false)
+    expect(isLitsFunction(`1`)).toBe(false)
+    expect(isLitsFunction(0)).toBe(false)
+    expect(isLitsFunction(1)).toBe(false)
+    expect(isLitsFunction(true)).toBe(false)
+    expect(isLitsFunction(false)).toBe(false)
+    expect(isLitsFunction(null)).toBe(false)
+    expect(isLitsFunction(undefined)).toBe(false)
+    expect(isLitsFunction([])).toBe(false)
+    expect(isLitsFunction({})).toBe(false)
   })
 
   test(`isNumber`, () => {
-    expect(number.is(1 / 0)).toBe(true)
-    expect(number.is(Number(`abc`))).toBe(true)
-    expect(number.is(0.12)).toBe(true)
-    expect(number.is(undefined)).toBe(false)
-    expect(number.is(`undefined`)).toBe(false)
-    expect(number.is([])).toBe(false)
+    expect(isNumber(1 / 0)).toBe(true)
+    expect(isNumber(Number(`abc`))).toBe(true)
+    expect(isNumber(0.12)).toBe(true)
+    expect(isNumber(undefined)).toBe(false)
+    expect(isNumber(`undefined`)).toBe(false)
+    expect(isNumber([])).toBe(false)
   })
 
   test(`asInteger`, () => {
-    expect(() => number.as(1 / 0, `EOF`, { integer: true })).toThrow()
-    expect(() => number.as(Number(`abc`), `EOF`, { integer: true })).toThrow()
-    expect(() => number.as(12, `EOF`, { integer: true })).not.toThrow()
-    expect(() => number.as(undefined, `EOF`, { integer: true })).toThrow()
-    expect(() => number.as(`undefined`, `EOF`, { integer: true })).toThrow()
-    expect(() => number.as([], `EOF`, { integer: true })).toThrow()
+    expect(() => asNumber(1 / 0, `EOF`, { integer: true })).toThrow()
+    expect(() => asNumber(Number(`abc`), `EOF`, { integer: true })).toThrow()
+    expect(() => asNumber(12, `EOF`, { integer: true })).not.toThrow()
+    expect(() => asNumber(undefined, `EOF`, { integer: true })).toThrow()
+    expect(() => asNumber(`undefined`, `EOF`, { integer: true })).toThrow()
+    expect(() => asNumber([], `EOF`, { integer: true })).toThrow()
   })
 
   test(`isInteger`, () => {
-    expect(number.is(1 / 0, { integer: true })).toBe(false)
-    expect(number.is(Number(`abc`), { integer: true })).toBe(false)
-    expect(number.is(0.12, { integer: true })).toBe(false)
-    expect(number.is(-12, { integer: true })).toBe(true)
-    expect(number.is(0, { integer: true })).toBe(true)
-    expect(number.is(12, { integer: true })).toBe(true)
-    expect(number.is(undefined, { integer: true })).toBe(false)
-    expect(number.is(`undefined`, { integer: true })).toBe(false)
-    expect(number.is([], { integer: true })).toBe(false)
+    expect(isNumber(1 / 0, { integer: true })).toBe(false)
+    expect(isNumber(Number(`abc`), { integer: true })).toBe(false)
+    expect(isNumber(0.12, { integer: true })).toBe(false)
+    expect(isNumber(-12, { integer: true })).toBe(true)
+    expect(isNumber(0, { integer: true })).toBe(true)
+    expect(isNumber(12, { integer: true })).toBe(true)
+    expect(isNumber(undefined, { integer: true })).toBe(false)
+    expect(isNumber(`undefined`, { integer: true })).toBe(false)
+    expect(isNumber([], { integer: true })).toBe(false)
   })
 
   test(`assertNumber`, () => {
-    expect(() => number.assert(1 / 0, debugInfo)).not.toThrow()
-    expect(() => number.assert(Number(`abc`), debugInfo)).not.toThrow()
-    expect(() => number.assert(0.12, debugInfo)).not.toThrow()
-    expect(() => number.assert(undefined, debugInfo)).toThrow()
-    expect(() => number.assert(`undefined`, debugInfo)).toThrow()
-    expect(() => number.assert([], debugInfo)).toThrow()
+    expect(() => assertNumber(1 / 0, debugInfo)).not.toThrow()
+    expect(() => assertNumber(Number(`abc`), debugInfo)).not.toThrow()
+    expect(() => assertNumber(0.12, debugInfo)).not.toThrow()
+    expect(() => assertNumber(undefined, debugInfo)).toThrow()
+    expect(() => assertNumber(`undefined`, debugInfo)).toThrow()
+    expect(() => assertNumber([], debugInfo)).toThrow()
   })
 
   test(`isRegexp`, () => {
@@ -603,18 +601,18 @@ describe(`utils`, () => {
       f: ``,
     }
 
-    expect(regularExpression.is(`Hej`)).toBe(false)
-    expect(regularExpression.is({})).toBe(false)
-    expect(regularExpression.is(a)).toBe(true)
+    expect(isRegularExpression(`Hej`)).toBe(false)
+    expect(isRegularExpression({})).toBe(false)
+    expect(isRegularExpression(a)).toBe(true)
   })
 
   test(`isNormalExpressionNodeName`, () => {
     expect(
-      normalExpressionNodeWithName.is({
+      isNormalExpressionNodeWithName({
         t: AstNodeType.NormalExpression,
         p: [],
         n: `object`,
-        tkn: { t: TokenizerType.Name, v: `X` },
+        tkn: { t: TokenType.Name, v: `X` },
       }),
     ).toBe(true)
 
@@ -628,12 +626,12 @@ describe(`utils`, () => {
           {
             t: AstNodeType.Number,
             v: 2,
-            tkn: { t: TokenizerType.Name, v: `X` },
+            tkn: { t: TokenType.Name, v: `X` },
           },
         ],
       },
     }
-    expect(normalExpressionNodeWithName.is(ne)).toBe(false)
+    expect(isNormalExpressionNodeWithName(ne)).toBe(false)
 
     const ne2 = {
       p: [],
@@ -644,110 +642,111 @@ describe(`utils`, () => {
           {
             t: AstNodeType.Number,
             v: 2,
-            tkn: { t: TokenizerType.Name, v: `X` },
+            tkn: { t: TokenType.Name, v: `X` },
           },
         ],
       },
     }
-    expect(normalExpressionNodeWithName.is(ne2)).toBe(false)
+    expect(isNormalExpressionNodeWithName(ne2)).toBe(false)
   })
 
   test(`assertMax`, () => {
-    expect(() => number.assert(12, debugInfo, { lte: 10 })).toThrow()
-    expect(() => number.assert(-12, debugInfo, { lte: -10 })).not.toThrow()
-    expect(() => number.assert(-8, debugInfo, { lte: -10 })).toThrow()
-    expect(() => number.assert(10, debugInfo, { lte: 10 })).not.toThrow()
-    expect(() => number.assert(0, debugInfo, { lte: 10 })).not.toThrow()
+    expect(() => assertNumber(12, debugInfo, { lte: 10 })).toThrow()
+    expect(() => assertNumber(-12, debugInfo, { lte: -10 })).not.toThrow()
+    expect(() => assertNumber(-8, debugInfo, { lte: -10 })).toThrow()
+    expect(() => assertNumber(10, debugInfo, { lte: 10 })).not.toThrow()
+    expect(() => assertNumber(0, debugInfo, { lte: 10 })).not.toThrow()
   })
   test(`assertChar`, () => {
-    expect(() => string.assert(`2`, debugInfo, { char: true })).not.toThrow()
-    expect(() => string.assert(`Albert`, debugInfo, { char: true })).toThrow()
-    expect(() => string.assert(0, debugInfo, { char: true })).toThrow()
-    expect(() => string.assert(null, debugInfo, { char: true })).toThrow()
-    expect(() => string.assert(true, debugInfo, { char: true })).toThrow()
-    expect(() => string.assert(false, debugInfo, { char: true })).toThrow()
-    expect(() => string.assert([`a`], debugInfo, { char: true })).toThrow()
-    expect(() => string.assert({ a: `a` }, debugInfo, { char: true })).toThrow()
+    expect(() => assertString(`2`, debugInfo, { char: true })).not.toThrow()
+    expect(() => assertString(`Albert`, debugInfo, { char: true })).toThrow()
+    expect(() => assertString(0, debugInfo, { char: true })).toThrow()
+    expect(() => assertString(null, debugInfo, { char: true })).toThrow()
+    expect(() => assertString(true, debugInfo, { char: true })).toThrow()
+    expect(() => assertString(false, debugInfo, { char: true })).toThrow()
+    expect(() => assertString([`a`], debugInfo, { char: true })).toThrow()
+    expect(() => assertString({ a: `a` }, debugInfo, { char: true })).toThrow()
   })
   test(`asChar`, () => {
-    expect(string.as(`2`, debugInfo, { char: true })).toBe(`2`)
-    expect(() => string.as(`Albert`, debugInfo, { char: true })).toThrow()
-    expect(() => string.as(0, debugInfo, { char: true })).toThrow()
-    expect(() => string.as(null, debugInfo, { char: true })).toThrow()
-    expect(() => string.as(true, debugInfo, { char: true })).toThrow()
-    expect(() => string.as(false, debugInfo, { char: true })).toThrow()
-    expect(() => string.as([`a`], debugInfo, { char: true })).toThrow()
-    expect(() => string.as({ a: `a` }, debugInfo, { char: true })).toThrow()
+    expect(asString(`2`, debugInfo, { char: true })).toBe(`2`)
+    expect(() => asString(`Albert`, debugInfo, { char: true })).toThrow()
+    expect(() => asString(0, debugInfo, { char: true })).toThrow()
+    expect(() => asString(null, debugInfo, { char: true })).toThrow()
+    expect(() => asString(true, debugInfo, { char: true })).toThrow()
+    expect(() => asString(false, debugInfo, { char: true })).toThrow()
+    expect(() => asString([`a`], debugInfo, { char: true })).toThrow()
+    expect(() => asString({ a: `a` }, debugInfo, { char: true })).toThrow()
   })
 
   test(`asColl`, () => {
-    expect(collection.as(`2`, debugInfo)).toEqual(`2`)
-    expect(collection.as({ a: 1 }, debugInfo)).toEqual({ a: 1 })
-    expect(collection.as([2], debugInfo)).toEqual([2])
-    expect(() => collection.as(0, debugInfo)).toThrow()
-    expect(() => collection.as(null, debugInfo)).toThrow()
-    expect(() => collection.as(true, debugInfo)).toThrow()
-    expect(() => collection.as(false, debugInfo)).toThrow()
+    expect(asColl(`2`, debugInfo)).toEqual(`2`)
+    expect(asColl({ a: 1 }, debugInfo)).toEqual({ a: 1 })
+    expect(asColl([2], debugInfo)).toEqual([2])
+    expect(() => asColl(0, debugInfo)).toThrow()
+    expect(() => asColl(null, debugInfo)).toThrow()
+    expect(() => asColl(true, debugInfo)).toThrow()
+    expect(() => asColl(false, debugInfo)).toThrow()
   })
 
   test(`expressionNode`, () => {
-    expect(expressionNode.is(`2`)).toBe(false)
+    expect(isExpressionNode(`2`)).toBe(false)
   })
 
   test(`isAstNode`, () => {
     const node: AstNode = {
       t: AstNodeType.Name,
-      tkn: { d: `EOF`, t: TokenizerType.Bracket, v: `(` },
+      tkn: { d: `EOF`, t: TokenType.Bracket, v: `(` },
       v: `A name`,
     }
     const nonNode = {
       ...node,
       t: `name`,
     }
-    expect(astNode.is(node)).toBe(true)
-    expect(astNode.is(nonNode)).toBe(false)
+    expect(isAstNode(node)).toBe(true)
+    expect(isAstNode(nonNode)).toBe(false)
   })
 
   test(`number`, () => {
-    expect(() => number.assert(0, `EOF`, { zero: true })).not.toThrow()
-    expect(() => number.assert(1, `EOF`, { zero: true })).toThrow()
-    expect(() => number.assert(1.5, `EOF`, { gt: 1, lt: 2 })).not.toThrow()
-    expect(() => number.assert(1, `EOF`, { gt: 1, lt: 2 })).toThrow()
-    expect(() => number.assert(2, `EOF`, { gt: 1, lt: 2 })).toThrow()
-    expect(() => number.assert(1.5, `EOF`, { gte: 1, lte: 2 })).not.toThrow()
-    expect(() => number.assert(1, `EOF`, { gte: 1, lte: 2 })).not.toThrow()
-    expect(() => number.assert(2.5, `EOF`, { gte: 1, lte: 2 })).toThrow()
+    expect(() => assertNumber(0, `EOF`, { zero: true })).not.toThrow()
+    expect(() => assertNumber(1, `EOF`, { zero: true })).toThrow()
+    expect(() => assertNumber(1.5, `EOF`, { gt: 1, lt: 2 })).not.toThrow()
+    expect(() => assertNumber(1, `EOF`, { gt: 1, lt: 2 })).toThrow()
+    expect(() => assertNumber(2, `EOF`, { gt: 1, lt: 2 })).toThrow()
+    expect(() => assertNumber(1.5, `EOF`, { gte: 1, lte: 2 })).not.toThrow()
+    expect(() => assertNumber(1, `EOF`, { gte: 1, lte: 2 })).not.toThrow()
+    expect(() => assertNumber(2.5, `EOF`, { gte: 1, lte: 2 })).toThrow()
   })
   test(`character`, () => {
-    expect(() => string.assert(`k`, `EOF`, { char: true })).not.toThrow()
-    expect(() => string.assert(`k1`, `EOF`, { char: true })).toThrow()
-    expect(() => string.assert(1, `EOF`, { char: true })).toThrow()
+    expect(() => assertString(`k`, `EOF`, { char: true })).not.toThrow()
+    expect(() => assertString(`k1`, `EOF`, { char: true })).toThrow()
+    expect(() => assertString(1, `EOF`, { char: true })).toThrow()
   })
 
   test(`token`, () => {
     const tkn: Token = {
       d: `EOF`,
-      t: TokenizerType.Name,
+      t: TokenType.Name,
       v: `Albert`,
     }
-    const nonTkn = {
+    const nonTkn1 = {
       ...tkn,
-      t: `Name`,
+      t: 999,
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const nonTkn2: any = {
       ...tkn,
     }
-    delete nonTkn2.t
-    expect(token.is(tkn)).toBe(true)
-    expect(token.is(nonTkn)).toBe(false)
-    expect(() => token.assert(tkn, `EOF`)).not.toThrow()
-    expect(() => token.assert(nonTkn, `EOF`)).toThrow()
-    expect(() => token.assert(nonTkn2, `EOF`)).toThrow()
-    expect(() => token.assert(tkn, `EOF`, { type: TokenizerType.Name })).not.toThrow()
-    expect(() => token.assert(tkn, `EOF`, { type: TokenizerType.Number })).toThrow()
-    expect(() => token.assert(tkn, `EOF`, { type: TokenizerType.Name, value: `Albert` })).not.toThrow()
-    expect(() => token.assert(tkn, `EOF`, { type: TokenizerType.Name, value: `Mojir` })).toThrow()
+    delete nonTkn2.v
+    expect(isToken(tkn)).toBe(true)
+    expect(isToken(nonTkn1)).toBe(false)
+    expect(isToken(10)).toBe(false)
+    expect(() => assertToken(tkn, `EOF`)).not.toThrow()
+    expect(() => assertToken(nonTkn2, `EOF`)).toThrow()
+    expect(() => assertToken(nonTkn2, `EOF`)).toThrow()
+    expect(() => assertToken(tkn, `EOF`, { type: TokenType.Name })).not.toThrow()
+    expect(() => assertToken(tkn, `EOF`, { type: TokenType.Number })).toThrow()
+    expect(() => assertToken(tkn, `EOF`, { type: TokenType.Name, value: `Albert` })).not.toThrow()
+    expect(() => assertToken(tkn, `EOF`, { type: TokenType.Name, value: `Mojir` })).toThrow()
   })
 
   test(`isLazyValue`, () => {

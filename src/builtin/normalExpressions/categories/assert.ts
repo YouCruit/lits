@@ -1,19 +1,21 @@
-import { AssertionError, LitsError } from '../../../errors'
-import { Any } from '../../../interface'
+import type { LitsError } from '../../../errors'
+import { AssertionError } from '../../../errors'
+import type { Any } from '../../../interface'
 import { compare, deepEqual } from '../../../utils'
-import { BuiltinNormalExpressions } from '../../interface'
-import { any, assertNumberOfParams, litsFunction, string } from '../../../utils/assertion'
+import type { BuiltinNormalExpressions } from '../../interface'
+import { asAny, assertNumberOfParams, assertString } from '../../../utils/assertion'
+import { assertLitsFunction } from '../../../utils/functionAsserter'
 
 export const assertNormalExpression: BuiltinNormalExpressions = {
   assert: {
     evaluate: (params, debugInfo): Any => {
       const value = params[0]
       const message = params.length === 2 ? params[1] : `${value}`
-      string.assert(message, debugInfo)
+      assertString(message, debugInfo)
       if (!value) {
         throw new AssertionError(message, debugInfo)
       }
-      return any.as(value, debugInfo)
+      return asAny(value, debugInfo)
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   },
@@ -40,7 +42,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert-equal': {
     evaluate: ([first, second, message], debugInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (!deepEqual(any.as(first, debugInfo), any.as(second, debugInfo), debugInfo)) {
+      if (!deepEqual(asAny(first, debugInfo), asAny(second, debugInfo), debugInfo)) {
         throw new AssertionError(
           `Expected\n${JSON.stringify(first, null, 2)}\nto deep equal\n${JSON.stringify(second, null, 2)}.${message}`,
           debugInfo,
@@ -53,7 +55,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert-not-equal': {
     evaluate: ([first, second, message], debugInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (deepEqual(any.as(first, debugInfo), any.as(second, debugInfo), debugInfo)) {
+      if (deepEqual(asAny(first, debugInfo), asAny(second, debugInfo), debugInfo)) {
         throw new AssertionError(
           `Expected ${JSON.stringify(first)} not to deep equal ${JSON.stringify(second)}.${message}`,
           debugInfo,
@@ -156,7 +158,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert-throws': {
     evaluate: ([func, message], debugInfo, contextStack, { executeFunction }): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      litsFunction.assert(func, debugInfo)
+      assertLitsFunction(func, debugInfo)
       try {
         executeFunction(func, [], contextStack, debugInfo)
       } catch {
@@ -169,8 +171,8 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert-throws-error': {
     evaluate: ([func, throwMessage, message], debugInfo, contextStack, { executeFunction }): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      string.assert(throwMessage, debugInfo)
-      litsFunction.assert(func, debugInfo)
+      assertString(throwMessage, debugInfo)
+      assertLitsFunction(func, debugInfo)
       try {
         executeFunction(func, [], contextStack, debugInfo)
       } catch (error) {
@@ -190,7 +192,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert-not-throws': {
     evaluate: ([func, message], debugInfo, contextStack, { executeFunction }): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      litsFunction.assert(func, debugInfo)
+      assertLitsFunction(func, debugInfo)
       try {
         executeFunction(func, [], contextStack, debugInfo)
       } catch {

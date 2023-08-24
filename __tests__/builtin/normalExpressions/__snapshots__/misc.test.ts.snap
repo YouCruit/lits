@@ -3,33 +3,33 @@
 exports[`misc functions debug! debug value. 1`] = `
 "*** LITS DEBUG ***
 {
-  \\"λ\\": true,
-  \\"t\\": 0,
-  \\"o\\": [
+  "λ": true,
+  "t": 301,
+  "o": [
     {
-      \\"as\\": {
-        \\"mandatoryArguments\\": [
-          \\"%1\\"
+      "as": {
+        "mandatoryArguments": [
+          "%1"
         ]
       },
-      \\"a\\": 1,
-      \\"b\\": [
+      "a": 1,
+      "b": [
         {
-          \\"t\\": 2,
-          \\"n\\": \\">\\",
-          \\"p\\": [
+          "t": 203,
+          "n": ">",
+          "p": [
             {
-              \\"t\\": 4,
-              \\"v\\": \\"%1\\"
+              "t": 205,
+              "v": "%1"
             },
             {
-              \\"t\\": 0,
-              \\"v\\": 2
+              "t": 201,
+              "v": 2
             }
           ]
         }
       ],
-      \\"f\\": {}
+      "f": {}
     }
   ]
 }
@@ -39,65 +39,65 @@ exports[`misc functions debug! debug value. 1`] = `
 exports[`misc functions debug! debug value. 2`] = `
 "*** LITS DEBUG ***
 {
-  \\"λ\\": true,
-  \\"d\\": {
-    \\"code\\": \\"(debug! #(> %1 2))\\",
-    \\"line\\": 1,
-    \\"column\\": 9
+  "λ": true,
+  "d": {
+    "code": "(debug! #(> %1 2))",
+    "line": 1,
+    "column": 9
   },
-  \\"t\\": 0,
-  \\"o\\": [
+  "t": 301,
+  "o": [
     {
-      \\"as\\": {
-        \\"mandatoryArguments\\": [
-          \\"%1\\"
+      "as": {
+        "mandatoryArguments": [
+          "%1"
         ]
       },
-      \\"a\\": 1,
-      \\"b\\": [
+      "a": 1,
+      "b": [
         {
-          \\"t\\": 2,
-          \\"n\\": \\">\\",
-          \\"p\\": [
+          "t": 203,
+          "n": ">",
+          "p": [
             {
-              \\"t\\": 4,
-              \\"v\\": \\"%1\\",
-              \\"tkn\\": {
-                \\"t\\": 2,
-                \\"v\\": \\"%1\\",
-                \\"d\\": {
-                  \\"code\\": \\"(debug! #(> %1 2))\\",
-                  \\"line\\": 1,
-                  \\"column\\": 13
+              "t": 205,
+              "v": "%1",
+              "tkn": {
+                "t": 103,
+                "v": "%1",
+                "d": {
+                  "code": "(debug! #(> %1 2))",
+                  "line": 1,
+                  "column": 13
                 }
               }
             },
             {
-              \\"t\\": 0,
-              \\"v\\": 2,
-              \\"tkn\\": {
-                \\"t\\": 1,
-                \\"v\\": \\"2\\",
-                \\"d\\": {
-                  \\"code\\": \\"(debug! #(> %1 2))\\",
-                  \\"line\\": 1,
-                  \\"column\\": 16
+              "t": 201,
+              "v": 2,
+              "tkn": {
+                "t": 102,
+                "v": "2",
+                "d": {
+                  "code": "(debug! #(> %1 2))",
+                  "line": 1,
+                  "column": 16
                 }
               }
             }
           ],
-          \\"tkn\\": {
-            \\"t\\": 2,
-            \\"v\\": \\">\\",
-            \\"d\\": {
-              \\"code\\": \\"(debug! #(> %1 2))\\",
-              \\"line\\": 1,
-              \\"column\\": 11
+          "tkn": {
+            "t": 103,
+            "v": ">",
+            "d": {
+              "code": "(debug! #(> %1 2))",
+              "line": 1,
+              "column": 11
             }
           }
         }
       ],
-      \\"f\\": {}
+      "f": {}
     }
   ]
 }
@@ -114,9 +114,9 @@ Context 1
 
 Context 2 - Global context
   x     10
-  foo   <0 function foo>
-  bar   <0 function λ>
-  plus  <9 function +>
+  foo   <301 function foo>
+  bar   <301 function λ>
+  plus  <310 function +>
 
 
 "
@@ -132,9 +132,9 @@ Context 1
 
 Context 2 - Global context
   x     10
-  foo   <0 function foo>
-  bar   <0 function λ>
-  plus  <9 function +>
+  foo   <301 function foo>
+  bar   <301 function λ>
+  plus  <310 function +>
 
 
 "

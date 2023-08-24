@@ -1,20 +1,5 @@
-import { LocationGetter } from '../Lits/Lits'
-
-export enum TokenizerType {
-  Bracket = 0,
-  Number = 1,
-  Name = 2,
-  String = 3,
-  ReservedName = 4,
-  Modifier = 5,
-  RegexpShorthand = 6,
-  FnShorthand = 7,
-  CollectionAccessor = 8,
-}
-
-export function isTokenType(type: unknown): type is TokenizerType {
-  return typeof type === `number` && Number.isInteger(type) && type >= 0 && type <= 8
-}
+import type { LocationGetter } from '../Lits/Lits'
+import type { TokenType } from '../constants/constants'
 
 export type SourceCodeInfo = {
   line: number
@@ -26,7 +11,7 @@ export type SourceCodeInfo = {
 export type DebugInfo = SourceCodeInfo | `EOF`
 
 export type Token = {
-  t: TokenizerType // type
+  t: TokenType // type
   v: string // value
   o?: Record<string, boolean> // options
   d?: DebugInfo // debugInfo

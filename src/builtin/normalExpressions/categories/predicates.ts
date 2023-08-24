@@ -1,20 +1,20 @@
-import { NormalExpressionNode } from '../../../parser/interface'
-import { BuiltinNormalExpressions } from '../../interface'
+import type { NormalExpressionNode } from '../../../parser/interface'
 import {
-  collection,
-  litsFunction,
-  number,
-  object,
-  sequence,
-  array,
   assertNumberOfParams,
-  string,
+  isNumber,
+  assertNumber,
+  isColl,
+  isSeq,
+  isObj,
+  isRegularExpression,
+  assertColl,
 } from '../../../utils/assertion'
-import { isRegularExpression } from '../../../utils/helpers'
+import { isLitsFunction } from '../../../utils/functionAsserter'
+import type { BuiltinNormalExpressions } from '../../interface'
 
 export const predicatesNormalExpression: BuiltinNormalExpressions = {
   'function?': {
-    evaluate: ([first]): boolean => litsFunction.is(first),
+    evaluate: ([first]): boolean => isLitsFunction(first),
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
@@ -29,7 +29,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
   },
 
   'integer?': {
-    evaluate: ([first]): boolean => typeof first === `number` && number.is(first, { integer: true }),
+    evaluate: ([first]): boolean => typeof first === `number` && isNumber(first, { integer: true }),
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
@@ -45,7 +45,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'zero?': {
     evaluate: ([first], debugInfo): boolean => {
-      number.assert(first, debugInfo, { finite: true })
+      assertNumber(first, debugInfo, { finite: true })
       return first === 0
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -53,7 +53,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'pos?': {
     evaluate: ([first], debugInfo): boolean => {
-      number.assert(first, debugInfo, { finite: true })
+      assertNumber(first, debugInfo, { finite: true })
       return first > 0
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -61,7 +61,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'neg?': {
     evaluate: ([first], debugInfo): boolean => {
-      number.assert(first, debugInfo, { finite: true })
+      assertNumber(first, debugInfo, { finite: true })
       return first < 0
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -69,7 +69,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'even?': {
     evaluate: ([first], debugInfo): boolean => {
-      number.assert(first, debugInfo, { finite: true })
+      assertNumber(first, debugInfo, { finite: true })
       return first % 2 === 0
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -77,35 +77,35 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'odd?': {
     evaluate: ([first], debugInfo): boolean => {
-      number.assert(first, debugInfo, { finite: true })
-      return number.is(first, { integer: true }) && first % 2 !== 0
+      assertNumber(first, debugInfo, { finite: true })
+      return isNumber(first, { integer: true }) && first % 2 !== 0
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'array?': {
     evaluate: ([first]): boolean => {
-      return array.is(first)
+      return Array.isArray(first)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'coll?': {
     evaluate: ([first]): boolean => {
-      return collection.is(first)
+      return isColl(first)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'seq?': {
     evaluate: ([first]): boolean => {
-      return sequence.is(first)
+      return isSeq(first)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'object?': {
-    evaluate: ([first]): boolean => object.is(first),
+    evaluate: ([first]): boolean => isObj(first),
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
@@ -116,7 +116,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'finite?': {
     evaluate: ([value], debugInfo): boolean => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Number.isFinite(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -124,7 +124,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'nan?': {
     evaluate: ([value], debugInfo): boolean => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return Number.isNaN(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -132,7 +132,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'positive-infinity?': {
     evaluate: ([value], debugInfo): boolean => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return value === Number.POSITIVE_INFINITY
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -140,7 +140,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'negative-infinity?': {
     evaluate: ([value], debugInfo): boolean => {
-      number.assert(value, debugInfo)
+      assertNumber(value, debugInfo)
       return value === Number.NEGATIVE_INFINITY
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -162,8 +162,8 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'empty?': {
     evaluate: ([coll], debugInfo): boolean => {
-      collection.assert(coll, debugInfo)
-      if (string.is(coll)) {
+      assertColl(coll, debugInfo)
+      if (typeof coll === `string`) {
         return coll.length === 0
       }
       if (Array.isArray(coll)) {
@@ -175,8 +175,8 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
   },
   'not-empty?': {
     evaluate: ([coll], debugInfo): boolean => {
-      collection.assert(coll, debugInfo)
-      if (string.is(coll)) {
+      assertColl(coll, debugInfo)
+      if (typeof coll === `string`) {
         return coll.length > 0
       }
       if (Array.isArray(coll)) {

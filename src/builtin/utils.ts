@@ -1,9 +1,9 @@
 import { LitsError } from '../errors'
-import { ContextStack } from '../evaluator/ContextStack'
-import { AstNode, BindingNode } from '../parser/interface'
+import type { ContextStack } from '../evaluator/ContextStack'
+import type { AstNode, BindingNode } from '../parser/interface'
 import { reservedNamesRecord } from '../reservedNames'
-import { DebugInfo } from '../tokenizer/interface'
-import { Builtin } from './interface'
+import type { DebugInfo } from '../tokenizer/interface'
+import type { Builtin } from './interface'
 
 export type Arity = number | { min: number }
 

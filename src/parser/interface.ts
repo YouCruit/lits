@@ -1,31 +1,18 @@
-import { SpecialExpressionName } from '../builtin/interface'
-import { Condition } from '../builtin/specialExpressions/cond'
-import { LoopBindingNode } from '../builtin/specialExpressions/loops'
-import { Arity, FunctionOverload } from '../builtin/utils'
-import { Context } from '../evaluator/interface'
-import { Any, Arr } from '../interface'
-import { ReservedName } from '../reservedNames'
-import { DebugInfo, Token } from '../tokenizer/interface'
+import type { SpecialExpressionName } from '../builtin/interface'
+import type { Condition } from '../builtin/specialExpressions/cond'
+import type { LoopBindingNode } from '../builtin/specialExpressions/loops'
+import type { Arity, FunctionOverload } from '../builtin/utils'
+import type { Context } from '../evaluator/interface'
+import type { Any, Arr } from '../interface'
+import type { ReservedName } from '../reservedNames'
+import type { DebugInfo, Token } from '../tokenizer/interface'
 import { isUnknownRecord } from '../utils/assertion'
-import { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
-import type { AstNodeType } from './AstNodeType'
+import type { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
+import { type AstNodeType, FunctionType } from '../constants/constants'
 
 export type EvaluatedFunctionArguments = {
   mandatoryArguments: string[]
   restArgument?: string
-}
-
-export enum FunctionType {
-  UserDefined = 0,
-  Partial = 1,
-  Comp = 2,
-  Constantly = 3,
-  Juxt = 4,
-  Complement = 5,
-  EveryPred = 6,
-  SomePred = 7,
-  Fnil = 8,
-  Builtin = 9,
 }
 
 export type EvaluatedFunctionOverload = {

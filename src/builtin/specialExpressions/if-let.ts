@@ -1,12 +1,14 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
 import { LitsError } from '../../errors'
-import { Context } from '../../evaluator/interface'
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
-import { assertNumberOfParams, astNode, asValue, token } from '../../utils/assertion'
-import { valueToString } from '../../utils/helpers'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Context } from '../../evaluator/interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
+import { asValue, assertNumberOfParams } from '../../utils/assertion'
+import { asAstNode } from '../../utils/astNodeAsserter'
+import { valueToString } from '../../utils/debugTools'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 type IfLetNode = SpecialExpressionNode & {
   b: BindingNode
@@ -14,7 +16,7 @@ type IfLetNode = SpecialExpressionNode & {
 
 export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseBindings, parseTokens }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokens, position)
 
@@ -41,11 +43,11 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     if (bindingValue) {
       locals[(node as IfLetNode).b.n] = { value: bindingValue }
       const newContextStack = contextStack.withContext(locals)
-      const thenForm = astNode.as(node.p[0], debugInfo)
+      const thenForm = asAstNode(node.p[0], debugInfo)
       return evaluateAstNode(thenForm, newContextStack)
     }
     if (node.p.length === 2) {
-      const elseForm = astNode.as(node.p[1], debugInfo)
+      const elseForm = asAstNode(node.p[1], debugInfo)
       return evaluateAstNode(elseForm, contextStack)
     }
     return null

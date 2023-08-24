@@ -1,18 +1,19 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
 import { LitsError, RecurSignal } from '../../errors'
-import { Context } from '../../evaluator/interface'
-import { Any } from '../../interface'
-import { AstNodeType } from '../../parser/AstNodeType'
-import { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
-import { any, asValue, token } from '../../utils/assertion'
-import { valueToString } from '../../utils/helpers'
-import { BuiltinSpecialExpression } from '../interface'
+import type { Context } from '../../evaluator/interface'
+import type { Any } from '../../interface'
+import { AstNodeType } from '../../constants/constants'
+import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
+import { asValue, asAny } from '../../utils/assertion'
+import { valueToString } from '../../utils/debugTools'
+import { asToken } from '../../utils/tokenAsserter'
+import type { BuiltinSpecialExpression } from '../interface'
 
 type LoopNode = SpecialExpressionNode & { bs: BindingNode[] }
 
 export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens, parseBindings }) => {
-    const firstToken = token.as(tokens[position], `EOF`)
+    const firstToken = asToken(tokens[position], `EOF`)
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokens, position)
 
@@ -52,7 +53,7 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
             )
           }
           ;(node as LoopNode).bs.forEach((binding, index) => {
-            asValue(bindingContext[binding.n], debugInfo).value = any.as(params[index], debugInfo)
+            asValue(bindingContext[binding.n], debugInfo).value = asAny(params[index], debugInfo)
           })
           continue
         }

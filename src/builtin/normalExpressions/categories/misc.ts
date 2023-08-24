@@ -1,8 +1,8 @@
-import { Any } from '../../../interface'
+import type { Any } from '../../../interface'
 import { compare, deepEqual } from '../../../utils'
-import { BuiltinNormalExpressions } from '../../interface'
+import type { BuiltinNormalExpressions } from '../../interface'
 import { version } from '../../../version'
-import { any, assertNumberOfParams, number, string } from '../../../utils/assertion'
+import { asAny, assertNumber, assertNumberOfParams, assertString } from '../../../utils/assertion'
 const uuidTemplate = `xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx`
 const xyRegexp = /[xy]/g
 
@@ -35,7 +35,7 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
   },
   'equal?': {
     evaluate: ([a, b], debugInfo): boolean => {
-      return deepEqual(any.as(a, debugInfo), any.as(b, debugInfo), debugInfo)
+      return deepEqual(asAny(a, debugInfo), asAny(b, debugInfo), debugInfo)
     },
     validate: node => assertNumberOfParams({ min: 1 }, node),
   },
@@ -106,16 +106,16 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
   },
   'inst-ms->iso-date-time': {
     evaluate: ([ms], debugInfo): string => {
-      number.assert(ms, debugInfo)
+      assertNumber(ms, debugInfo)
       return new Date(ms).toISOString()
     },
     validate: node => assertNumberOfParams(1, node),
   },
   'iso-date-time->inst-ms': {
     evaluate: ([dateTime], debugInfo): number => {
-      string.assert(dateTime, debugInfo)
+      assertString(dateTime, debugInfo)
       const ms = new Date(dateTime).valueOf()
-      number.assert(ms, debugInfo, { finite: true })
+      assertNumber(ms, debugInfo, { finite: true })
       return ms
     },
     validate: node => assertNumberOfParams(1, node),
@@ -126,7 +126,7 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
       console.log(...params)
 
       if (params.length > 0) {
-        return any.as(params[params.length - 1], debugInfo)
+        return asAny(params[params.length - 1], debugInfo)
       }
 
       return null
@@ -141,7 +141,7 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
       }
       // eslint-disable-next-line no-console
       console.warn(`*** LITS DEBUG ***\n${JSON.stringify(params[0], null, 2)}\n`)
-      return any.as(params[0], debugInfo)
+      return asAny(params[0], debugInfo)
     },
     validate: node => assertNumberOfParams({ max: 1 }, node),
   },

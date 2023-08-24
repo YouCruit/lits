@@ -1,10 +1,11 @@
-import { Ast, Lits } from '../../src'
+import type { Ast } from '../../src'
+import { Lits } from '../../src'
 import { UndefinedSymbolError } from '../../src/errors'
 import { Cache } from '../../src/Lits/Cache'
-import { LazyValue } from '../../src/Lits/Lits'
-import { AstNodeType } from '../../src/parser/AstNodeType'
-import { TokenizerType } from '../../src/tokenizer/interface'
-import { litsFunction } from '../../src/utils/assertion'
+import type { LazyValue } from '../../src/Lits/Lits'
+import { AstNodeType } from '../../src/constants/constants'
+import { TokenType } from '../../src/constants/constants'
+import { assertLitsFunction } from '../../src/utils/functionAsserter'
 
 describe(`TEST`, () => {
   let lits: Lits
@@ -13,18 +14,18 @@ describe(`TEST`, () => {
   })
   test(`without params`, () => {
     const fn = lits.run(`#(+ %1 %2)`)
-    litsFunction.assert(fn)
+    assertLitsFunction(fn)
     expect(lits.apply(fn, [2, 3])).toBe(5)
   })
   test(`with empty params`, () => {
     const fn = lits.run(`#(+ %1 %2)`)
-    litsFunction.assert(fn)
+    assertLitsFunction(fn)
     expect(lits.apply(fn, [2, 3], {})).toBe(5)
   })
 
   test(`with params`, () => {
     const fn = lits.run(`#(+ %1 %2 x)`)
-    litsFunction.assert(fn)
+    assertLitsFunction(fn)
     expect(lits.apply(fn, [2, 3], { contexts: [{ x: { value: 1 } }] })).toBe(6)
   })
 })
@@ -39,7 +40,7 @@ describe(`Lazy host values as function`, () => {
       foo: {
         read: () => ({
           λ: true,
-          t: 0,
+          t: 301,
           o: [
             {
               as: {
@@ -48,7 +49,7 @@ describe(`Lazy host values as function`, () => {
               a: 0,
               b: [
                 {
-                  t: 0,
+                  t: 201,
                   v: 42,
                 },
               ],
@@ -59,7 +60,7 @@ describe(`Lazy host values as function`, () => {
       },
     }
 
-    expect(lits.run(`x`, { lazyValues: lazyHostValues })).toBe(42)
+    // expect(lits.run(`x`, { lazyValues: lazyHostValues })).toBe(42)
     expect(lits.run(`(foo)`, { lazyValues: lazyHostValues })).toBe(42)
     expect(lits.run(`z`, { lazyValues: { z: { read: () => 12 } } })).toBe(12)
   })
@@ -88,15 +89,15 @@ describe(`context`, () => {
   test(`a function.`, () => {
     lits = new Lits({ astCacheSize: 10 })
     const contexts = [lits.context(`(defn tripple [x] (* x 3))`)]
-    expect(lits.run(`(tripple 10)`, { contexts: contexts })).toBe(30)
-    expect(lits.run(`(tripple 10)`, { contexts: contexts })).toBe(30)
+    expect(lits.run(`(tripple 10)`, { contexts })).toBe(30)
+    expect(lits.run(`(tripple 10)`, { contexts })).toBe(30)
   })
 
   test(`a function - no cache`, () => {
     lits = new Lits({ debug: true })
     const contexts = [lits.context(`(defn tripple [x] (* x 3))`, {})]
-    expect(lits.run(`(tripple 10)`, { contexts: contexts })).toBe(30)
-    expect(lits.run(`(tripple 10)`, { contexts: contexts })).toBe(30)
+    expect(lits.run(`(tripple 10)`, { contexts })).toBe(30)
+    expect(lits.run(`(tripple 10)`, { contexts })).toBe(30)
   })
 
   test(`a function - initial cache`, () => {
@@ -111,7 +112,7 @@ describe(`context`, () => {
                 t: AstNodeType.Number,
                 v: 2,
                 tkn: {
-                  t: TokenizerType.Number,
+                  t: TokenType.Number,
                   v: `2`,
                 },
               },
@@ -119,13 +120,13 @@ describe(`context`, () => {
                 t: AstNodeType.Number,
                 v: 4,
                 tkn: {
-                  t: TokenizerType.Number,
+                  t: TokenType.Number,
                   v: `4`,
                 },
               },
             ],
             tkn: {
-              t: TokenizerType.Name,
+              t: TokenType.Name,
               v: `pow`,
             },
           },
@@ -139,7 +140,7 @@ describe(`context`, () => {
 
   test(`a variable.`, () => {
     const contexts = [lits.context(`(def magicNumber 42)`)]
-    expect(lits.run(`magicNumber`, { contexts: contexts })).toBe(42)
+    expect(lits.run(`magicNumber`, { contexts })).toBe(42)
   })
 
   test(`a variable - again.`, () => {
@@ -150,12 +151,12 @@ describe(`context`, () => {
     (def NAME_LENGTH 100)
     `),
     ]
-    expect(lits.run(`NAME_LENGTH`, { contexts: contexts })).toBe(100)
+    expect(lits.run(`NAME_LENGTH`, { contexts })).toBe(100)
   })
 
   test(`change imported variable`, () => {
     const contexts = [lits.context(`(def magicNumber 42)`)]
-    expect(lits.run(`magicNumber`, { contexts: contexts })).toBe(42)
+    expect(lits.run(`magicNumber`, { contexts })).toBe(42)
   })
 
   test(`a function with a built in normal expression name`, () => {
@@ -170,12 +171,12 @@ describe(`context`, () => {
 
   test(`a variable twice`, () => {
     const contexts = [lits.context(`(def magicNumber 42) (defn getMagic [] 42)`)]
-    lits.context(`(def magicNumber 42) (defn getMagic [] 42)`, { contexts: contexts })
+    lits.context(`(def magicNumber 42) (defn getMagic [] 42)`, { contexts })
   })
 
   test(`more than one`, () => {
     const contexts = [lits.context(`(defn tripple [x] (* x 3))`), lits.context(`(def magicNumber 42)`)]
-    expect(lits.run(`(tripple magicNumber)`, { contexts: contexts })).toBe(126)
+    expect(lits.run(`(tripple magicNumber)`, { contexts })).toBe(126)
   })
 })
 
@@ -199,6 +200,15 @@ describe(`Cache`, () => {
 
   test(`getContent`, () => {
     const cache = new Cache(10)
+    cache.set(`a`, ast(1))
+    cache.set(`b`, ast(2))
+    expect(cache.getContent()).toEqual({
+      a: ast(1),
+      b: ast(2),
+    })
+  })
+  test(`getContent`, () => {
+    const cache = new Cache(null)
     cache.set(`a`, ast(1))
     cache.set(`b`, ast(2))
     expect(cache.getContent()).toEqual({

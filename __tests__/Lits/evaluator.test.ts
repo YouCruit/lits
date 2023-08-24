@@ -2,10 +2,10 @@ import { tokenize } from '../../src/tokenizer'
 import { parse } from '../../src/parser'
 import { evaluate, evaluateAstNode } from '../../src/evaluator'
 import { Lits } from '../../src'
-import { Context } from '../../src/evaluator/interface'
-import { TokenizerType } from '../../src/tokenizer/interface'
-import { AstNodeType } from '../../src/parser/AstNodeType'
-import { createContextStack } from '../../src/Lits/Lits'
+import type { Context } from '../../src/evaluator/interface'
+import { TokenType } from '../../src/constants/constants'
+import { AstNodeType } from '../../src/constants/constants'
+import { type LazyValue, createContextStack } from '../../src/Lits/Lits'
 
 let lits: Lits
 
@@ -43,6 +43,7 @@ const formatPhoneNumber = `
 
 const context: Context = {
   kalle: { value: 5 },
+
   info: {
     value: {
       days: [10, 13],
@@ -51,12 +52,22 @@ const context: Context = {
   },
 }
 
+const lazyValues: Record<string, LazyValue> = {
+  lisa: { read: () => 15 },
+}
+
 describe(`Evaluator`, () => {
   test(`super simple program`, () => {
     const tokens = tokenize(`(+ 10 kalle)`, { debug: true })
     const ast = parse(tokens)
     const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toBe(15)
+  })
+  test(`Another super simple program`, () => {
+    const tokens = tokenize(`(+ 10 lisa)`, { debug: true })
+    const ast = parse(tokens)
+    const result = evaluate(ast, createContextStack({ lazyValues }))
+    expect(result).toBe(25)
   })
   test(`simple program`, () => {
     const tokens = tokenize(simpleProgram, { debug: true })
@@ -158,7 +169,7 @@ test(`evaluateAstNode`, () => {
       {
         t: AstNodeType.Modifier,
         v: `&`,
-        tkn: { t: TokenizerType.Name, v: `X` },
+        tkn: { t: TokenType.Name, v: `X` },
       },
       createContextStack(),
     ),
@@ -177,7 +188,7 @@ test(`evaluateAstNode`, () => {
       {
         t: AstNodeType.Modifier,
         v: `&`,
-        tkn: { t: TokenizerType.Name, d: { code: ``, column: 1, line: 1 }, v: `X` },
+        tkn: { t: TokenType.Name, d: { code: ``, column: 1, line: 1 }, v: `X` },
       },
       createContextStack(),
     ),

@@ -1,15 +1,14 @@
-import { Any, Arr, Coll, Obj } from '../interface'
-import { RegularExpression } from '../parser/interface'
-import { DebugInfo } from '../tokenizer/interface'
-import { any, array, collection, number, object, regularExpression, string } from './assertion'
-import { isRegularExpression } from './helpers'
+import type { Any, Arr, Coll, Obj } from '../interface'
+import type { RegularExpression } from '../parser/interface'
+import type { DebugInfo } from '../tokenizer/interface'
+import { asAny, asString, isColl, isNumber, isObj, isRegularExpression } from './assertion'
 
 export function collHasKey(coll: unknown, key: string | number): boolean {
-  if (!collection.is(coll)) {
+  if (!isColl(coll)) {
     return false
   }
-  if (string.is(coll) || array.is(coll)) {
-    if (!number.is(key, { integer: true })) {
+  if (typeof coll === `string` || Array.isArray(coll)) {
+    if (!isNumber(key, { integer: true })) {
       return false
     }
     return key >= 0 && key < coll.length
@@ -39,11 +38,11 @@ function getType(value: unknown): Type {
     return `number`
   } else if (typeof value === `string`) {
     return `string`
-  } else if (array.is(value)) {
+  } else if (Array.isArray(value)) {
     return `array`
-  } else if (object.is(value)) {
+  } else if (isObj(value)) {
     return `object`
-  } else if (regularExpression.is(value)) {
+  } else if (isRegularExpression(value)) {
     return `regexp`
   } else {
     return `unknown`
@@ -112,12 +111,12 @@ export function deepEqual(a: Any, b: Any, debugInfo?: DebugInfo): boolean {
     return Math.abs(a - b) < Number.EPSILON
   }
 
-  if (array.is(a) && array.is(b)) {
+  if (Array.isArray(a) && Array.isArray(b)) {
     if (a.length !== b.length) {
       return false
     }
     for (let i = 0; i < a.length; i += 1) {
-      if (!deepEqual(any.as(a[i], debugInfo), any.as(b[i], debugInfo), debugInfo)) {
+      if (!deepEqual(asAny(a[i], debugInfo), asAny(b[i], debugInfo), debugInfo)) {
         return false
       }
     }
@@ -135,7 +134,7 @@ export function deepEqual(a: Any, b: Any, debugInfo?: DebugInfo): boolean {
       return false
     }
     for (let i = 0; i < aKeys.length; i += 1) {
-      const key = string.as(aKeys[i], debugInfo)
+      const key = asString(aKeys[i], debugInfo)
       if (!deepEqual(toAny(aObj[key]), toAny(bObj[key]), debugInfo)) {
         return false
       }
@@ -145,8 +144,8 @@ export function deepEqual(a: Any, b: Any, debugInfo?: DebugInfo): boolean {
   return false
 }
 
-export function toNonNegativeInteger(number: number): number {
-  return Math.max(0, Math.ceil(number))
+export function toNonNegativeInteger(num: number): number {
+  return Math.max(0, Math.ceil(num))
 }
 
 export function toAny(value: unknown): Any {
@@ -154,14 +153,14 @@ export function toAny(value: unknown): Any {
 }
 
 function clone<T>(value: T): T {
-  if (object.is(value)) {
+  if (isObj(value)) {
     return Object.entries(value).reduce((result: Obj, entry) => {
       const [key, val] = entry
       result[key] = clone(val)
       return result
     }, {}) as T
   }
-  if (array.is(value)) {
+  if (Array.isArray(value)) {
     return value.map(item => clone(item)) as unknown as T
   }
   return value

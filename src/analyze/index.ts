@@ -1,9 +1,9 @@
-import { Builtin } from '../builtin/interface'
-import { ContextStack } from '../evaluator/ContextStack'
-import { AstNodeType } from '../parser/AstNodeType'
-import { AstNode } from '../parser/interface'
+import type { Builtin } from '../builtin/interface'
+import type { ContextStack } from '../evaluator/ContextStack'
+import { AstNodeType } from '../constants/constants'
+import type { AstNode } from '../parser/interface'
 import { asValue } from '../utils/assertion'
-import { AnalyzeAst, AnalyzeResult, UndefinedSymbolEntry } from './interface'
+import type { AnalyzeAst, AnalyzeResult, UndefinedSymbolEntry } from './interface'
 
 export const analyzeAst: AnalyzeAst = (astNode, contextStack, builtin: Builtin) => {
   const astNodes = Array.isArray(astNode) ? astNode : [astNode]

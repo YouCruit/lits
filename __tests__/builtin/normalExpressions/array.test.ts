@@ -1,5 +1,6 @@
-import { Arr } from '../../../src/interface'
-import { checkTestData, createTestData, getLitsVariants, TestData } from '../../testUtils'
+import type { Arr } from '../../../src/interface'
+import type { TestData } from '../../testUtils'
+import { checkTestData, createTestData, getLitsVariants } from '../../testUtils'
 
 let testData: TestData
 const lits = getLitsVariants()

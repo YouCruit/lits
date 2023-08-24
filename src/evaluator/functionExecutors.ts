@@ -1,8 +1,8 @@
-import { ContextStack } from './ContextStack'
+import type { ContextStack } from './ContextStack'
 import { normalExpressions } from '../builtin/normalExpressions'
 import { LitsError, RecurSignal } from '../errors'
-import { Any, Arr } from '../interface'
-import {
+import type { Any, Arr } from '../interface'
+import type {
   BuiltinFunction,
   CompFunction,
   ComplementFunction,
@@ -10,18 +10,18 @@ import {
   EvaluatedFunctionOverload,
   EveryPredFunction,
   FNilFunction,
-  FunctionType,
   JuxtFunction,
   LitsFunctionType,
   PartialFunction,
   SomePredFunction,
   UserDefinedFunction,
 } from '../parser/interface'
-import { DebugInfo } from '../tokenizer/interface'
+import type { DebugInfo } from '../tokenizer/interface'
 import { toAny } from '../utils'
-import { any, asValue, string } from '../utils/assertion'
-import { valueToString } from '../utils/helpers'
-import { Context, EvaluateAstNode, ExecuteFunction } from './interface'
+import type { Context, EvaluateAstNode, ExecuteFunction } from './interface'
+import { asAny, asString, asValue } from '../utils/assertion'
+import { valueToString } from '../utils/debugTools'
+import { FunctionType } from '../constants/constants'
 
 type FunctionExecutors = Record<
   LitsFunctionType,
@@ -68,7 +68,7 @@ export const functionExecutors: FunctionExecutors = {
       for (let i = 0; i < length; i += 1) {
         if (i < nbrOfMandatoryArgs) {
           const param = toAny(params[i])
-          const key = string.as(args.mandatoryArguments[i], debugInfo)
+          const key = asString(args.mandatoryArguments[i], debugInfo)
           newContext[key] = { value: param }
         } else {
           rest.push(toAny(params[i]))
@@ -103,11 +103,11 @@ export const functionExecutors: FunctionExecutors = {
       if (params.length !== 1) {
         throw new LitsError(`(comp) expects one argument, got ${valueToString(params.length)}.`, debugInfo)
       }
-      return any.as(params[0], debugInfo)
+      return asAny(params[0], debugInfo)
     }
-    return any.as(
-      f.reduceRight((result: Arr, fn) => {
-        return [executeFunction(toAny(fn), result, contextStack, debugInfo)]
+    return asAny(
+      f.reduceRight((result: Arr, fun) => {
+        return [executeFunction(toAny(fun), result, contextStack, debugInfo)]
       }, params)[0],
       debugInfo,
     )
@@ -116,7 +116,7 @@ export const functionExecutors: FunctionExecutors = {
     return fn.v
   },
   [FunctionType.Juxt]: (fn: JuxtFunction, params, debugInfo, contextStack, { executeFunction }) => {
-    return fn.f.map(fn => executeFunction(toAny(fn), params, contextStack, debugInfo))
+    return fn.f.map(fun => executeFunction(toAny(fun), params, contextStack, debugInfo))
   },
   [FunctionType.Complement]: (fn: ComplementFunction, params, debugInfo, contextStack, { executeFunction }) => {
     return !executeFunction(fn.f, params, contextStack, debugInfo)

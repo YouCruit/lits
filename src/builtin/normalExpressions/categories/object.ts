@@ -1,9 +1,9 @@
 import type { Any, Arr, Obj } from '../../../interface'
-import { assertNumberOfParams, collHasKey, toAny } from '../../../utils'
-import { assertLitsFunction } from '../../../typeGuards/function'
+import { collHasKey, toAny } from '../../../utils'
+import { assertLitsFunction } from '../../../typeGuards/litsFunction'
 import type { BuiltinNormalExpressions } from '../../interface'
 import { asString, assertString } from '../../../typeGuards/string'
-import { assertEventNumberOfParams } from '../../../typeGuards'
+import { assertEventNumberOfParams, assertNumberOfParams } from '../../../typeGuards'
 import { assertStringArray, assertArray } from '../../../typeGuards/array'
 import { assertObj } from '../../../typeGuards/lits'
 

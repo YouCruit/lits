@@ -9,7 +9,7 @@ import { valueToString } from '../../utils/debug/debugTools'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { asNonUndefined } from '../../typeGuards'
-import { assertNumberOfParams } from '../../utils'
+import { assertNumberOfParams } from '../../typeGuards'
 
 type IfLetNode = SpecialExpressionNode & {
   b: BindingNode

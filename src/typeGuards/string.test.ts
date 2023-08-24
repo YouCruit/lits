@@ -1,0 +1,83 @@
+import type { DebugInfo } from '../tokenizer/interface'
+import { asString, assertString } from './string'
+
+const debugInfo: DebugInfo = `EOF`
+describe(`string type guards`, () => {
+  test(`asNonEmptyString`, () => {
+    expect(asString(`1`, debugInfo, { nonEmpty: true })).toBe(`1`)
+    expect(() => asString(``, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(0, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(1, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(true, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(false, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(null, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString(undefined, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString([], debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => asString({}, debugInfo, { nonEmpty: true })).toThrow()
+  })
+
+  test(`assertString`, () => {
+    expect(() => assertString(``, debugInfo)).not.toThrow()
+    expect(() => assertString(`1`, debugInfo)).not.toThrow()
+    expect(() => assertString(0, debugInfo)).toThrow()
+    expect(() => assertString(1, debugInfo)).toThrow()
+    expect(() => assertString(true, debugInfo)).toThrow()
+    expect(() => assertString(false, debugInfo)).toThrow()
+    expect(() => assertString(null, debugInfo)).toThrow()
+    expect(() => assertString(undefined, debugInfo)).toThrow()
+    expect(() => assertString([], debugInfo)).toThrow()
+    expect(() => assertString({}, debugInfo)).toThrow()
+  })
+  test(`asString`, () => {
+    expect(() => asString(``, debugInfo)).not.toThrow()
+    expect(() => asString(`1`, debugInfo)).not.toThrow()
+    expect(() => asString(0, debugInfo)).toThrow()
+    expect(() => asString(1, debugInfo)).toThrow()
+    expect(() => asString(true, debugInfo)).toThrow()
+    expect(() => asString(false, debugInfo)).toThrow()
+    expect(() => asString(null, debugInfo)).toThrow()
+    expect(() => asString(undefined, debugInfo)).toThrow()
+    expect(() => asString([], debugInfo)).toThrow()
+    expect(() => asString({}, debugInfo)).toThrow()
+  })
+  test(`assertNonEmptyString`, () => {
+    expect(() => assertString(`1`, debugInfo, { nonEmpty: true })).not.toThrow()
+    expect(() => assertString(`abc`, debugInfo, { nonEmpty: true })).not.toThrow()
+    expect(() => assertString(``, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(0, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(1, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(true, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(false, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(null, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString(undefined, debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString([], debugInfo, { nonEmpty: true })).toThrow()
+    expect(() => assertString({}, debugInfo, { nonEmpty: true })).toThrow()
+  })
+
+  test(`assertChar`, () => {
+    expect(() => assertString(`2`, debugInfo, { char: true })).not.toThrow()
+    expect(() => assertString(`Albert`, debugInfo, { char: true })).toThrow()
+    expect(() => assertString(0, debugInfo, { char: true })).toThrow()
+    expect(() => assertString(null, debugInfo, { char: true })).toThrow()
+    expect(() => assertString(true, debugInfo, { char: true })).toThrow()
+    expect(() => assertString(false, debugInfo, { char: true })).toThrow()
+    expect(() => assertString([`a`], debugInfo, { char: true })).toThrow()
+    expect(() => assertString({ a: `a` }, debugInfo, { char: true })).toThrow()
+  })
+  test(`asChar`, () => {
+    expect(asString(`2`, debugInfo, { char: true })).toBe(`2`)
+    expect(() => asString(`Albert`, debugInfo, { char: true })).toThrow()
+    expect(() => asString(0, debugInfo, { char: true })).toThrow()
+    expect(() => asString(null, debugInfo, { char: true })).toThrow()
+    expect(() => asString(true, debugInfo, { char: true })).toThrow()
+    expect(() => asString(false, debugInfo, { char: true })).toThrow()
+    expect(() => asString([`a`], debugInfo, { char: true })).toThrow()
+    expect(() => asString({ a: `a` }, debugInfo, { char: true })).toThrow()
+  })
+
+  test(`character`, () => {
+    expect(() => assertString(`k`, `EOF`, { char: true })).not.toThrow()
+    expect(() => assertString(`k1`, `EOF`, { char: true })).toThrow()
+    expect(() => assertString(1, `EOF`, { char: true })).toThrow()
+  })
+})

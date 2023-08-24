@@ -5,7 +5,7 @@ import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { assertNameNotDefined } from '../utils'
 import { assertString } from '../../typeGuards/string'
-import { assertNumberOfParams } from '../../utils'
+import { assertNumberOfParams } from '../../typeGuards'
 
 export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens }) => {

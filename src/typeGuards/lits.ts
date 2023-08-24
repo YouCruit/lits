@@ -3,7 +3,7 @@ import type { RegularExpression } from '../parser/interface'
 import type { DebugInfo } from '../tokenizer/interface'
 import { getAssertionError } from '../utils/getAssertionError'
 import { REGEXP_SYMBOL } from '../utils/symbols'
-import { isLitsFunction } from './function'
+import { isLitsFunction } from './litsFunction'
 
 export function isAny(value: unknown): value is Any {
   // TODO weak test

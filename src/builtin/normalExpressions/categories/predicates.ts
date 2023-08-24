@@ -1,8 +1,8 @@
 import type { NormalExpressionNode } from '../../../parser/interface'
-import { isLitsFunction } from '../../../typeGuards/function'
+import { isLitsFunction } from '../../../typeGuards/litsFunction'
 import { isColl, isSeq, isObj, isRegularExpression, assertColl } from '../../../typeGuards/lits'
 import { isNumber, assertNumber } from '../../../typeGuards/number'
-import { assertNumberOfParams } from '../../../utils'
+import { assertNumberOfParams } from '../../../typeGuards'
 import type { BuiltinNormalExpressions } from '../../interface'
 
 export const predicatesNormalExpression: BuiltinNormalExpressions = {

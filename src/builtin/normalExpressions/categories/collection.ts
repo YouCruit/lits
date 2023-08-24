@@ -3,15 +3,16 @@ import type { ContextStack } from '../../../evaluator/ContextStack'
 import type { ExecuteFunction } from '../../../evaluator/interface'
 import type { Any, Arr, Coll, Obj } from '../../../interface'
 import type { DebugInfo } from '../../../tokenizer/interface'
-import { toNonNegativeInteger, toAny, collHasKey, cloneColl, assertNumberOfParams } from '../../../utils'
+import { toNonNegativeInteger, toAny, collHasKey, cloneColl } from '../../../utils'
 
-import { assertLitsFunction } from '../../../typeGuards/function'
+import { assertLitsFunction } from '../../../typeGuards/litsFunction'
 
 import type { BuiltinNormalExpressions } from '../../interface'
 import { assertArray } from '../../../typeGuards/array'
 import { asColl, assertObj, isObj, assertColl, isColl, isSeq, assertSeq, assertAny } from '../../../typeGuards/lits'
 import { assertNumber, isNumber } from '../../../typeGuards/number'
 import { assertString, asString, assertStringOrNumber, isString, asStringOrNumber } from '../../../typeGuards/string'
+import { assertNumberOfParams } from '../../../typeGuards'
 
 type CollMeta = {
   coll: Coll

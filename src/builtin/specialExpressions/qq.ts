@@ -5,7 +5,7 @@ import { isNameNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { assertAny } from '../../typeGuards/lits'
-import { assertNumberOfParams } from '../../utils'
+import { assertNumberOfParams } from '../../typeGuards'
 
 export const qqSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens }) => {

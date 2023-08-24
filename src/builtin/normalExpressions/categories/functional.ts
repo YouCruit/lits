@@ -10,11 +10,12 @@ import type {
   SomePredFunction,
   FNilFunction,
 } from '../../../parser/interface'
-import { assertNumberOfParams, toAny } from '../../../utils'
-import { assertLitsFunction } from '../../../typeGuards/function'
+import { toAny } from '../../../utils'
+import { assertLitsFunction } from '../../../typeGuards/litsFunction'
 import { FUNCTION_SYMBOL } from '../../../utils/symbols'
 import type { BuiltinNormalExpressions } from '../../interface'
 import { assertArray } from '../../../typeGuards/array'
+import { assertNumberOfParams } from '../../../typeGuards'
 export const functionalNormalExpression: BuiltinNormalExpressions = {
   apply: {
     evaluate: ([func, ...params]: Arr, debugInfo, contextStack, { executeFunction }): Any => {

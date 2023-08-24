@@ -971,169 +971,6 @@ var Lits = (function (exports) {
       return [position, args];
   }
 
-  function isAny(value) {
-      // TODO weak test
-      return value !== undefined;
-  }
-  function asAny(value, debugInfo) {
-      assertAny(value, debugInfo);
-      return value;
-  }
-  function assertAny(value, debugInfo) {
-      if (!isAny(value)) {
-          throw getAssertionError("not undefined", value, debugInfo);
-      }
-  }
-  function isSeq(value) {
-      return Array.isArray(value) || typeof value === "string";
-  }
-  function asSeq(value, debugInfo) {
-      assertSeq(value, debugInfo);
-      return value;
-  }
-  function assertSeq(value, debugInfo) {
-      if (!isSeq(value)) {
-          throw getAssertionError("string or array", value, debugInfo);
-      }
-  }
-  function isObj(value) {
-      return !(value === null ||
-          typeof value !== "object" ||
-          Array.isArray(value) ||
-          value instanceof RegExp ||
-          isLitsFunction(value) ||
-          isRegularExpression(value));
-  }
-  function assertObj(value, debugInfo) {
-      if (!isObj(value)) {
-          throw getAssertionError("object", value, debugInfo);
-      }
-  }
-  function isColl(value) {
-      return isSeq(value) || isObj(value);
-  }
-  function asColl(value, debugInfo) {
-      assertColl(value, debugInfo);
-      return value;
-  }
-  function assertColl(value, debugInfo) {
-      if (!isColl(value)) {
-          throw getAssertionError("string, array or object", value, debugInfo);
-      }
-  }
-  function isRegularExpression(regexp) {
-      if (regexp === null || typeof regexp !== "object") {
-          return false;
-      }
-      return !!regexp[REGEXP_SYMBOL];
-  }
-  function assertRegularExpression(value, debugInfo) {
-      if (!isRegularExpression(value)) {
-          throw getAssertionError("RegularExpression", value, debugInfo);
-      }
-  }
-  function isStringOrRegularExpression(value) {
-      return isRegularExpression(value) || typeof value === "string";
-  }
-  function assertStringOrRegularExpression(value, debugInfo) {
-      if (!isStringOrRegularExpression(value)) {
-          throw getAssertionError("string or RegularExpression", value, debugInfo);
-      }
-  }
-
-  function getRangeString(options) {
-      var hasUpperAndLowerBound = (typeof options.gt === "number" || typeof options.gte === "number") &&
-          (typeof options.lt === "number" || typeof options.lte === "number");
-      if (hasUpperAndLowerBound) {
-          return "".concat(typeof options.gt === "number" ? "".concat(options.gt, " < n ") : "".concat(options.gte, " <= n ")).concat(typeof options.lt === "number" ? "< ".concat(options.lt) : "<= ".concat(options.lte));
-      }
-      else if (typeof options.gt === "number" || typeof options.gte === "number") {
-          return "".concat(typeof options.gt === "number" ? "n > ".concat(options.gt) : "n >= ".concat(options.gte));
-      }
-      else if (typeof options.lt === "number" || typeof options.lte === "number") {
-          return "".concat(typeof options.lt === "number" ? "n < ".concat(options.lt) : "n <= ".concat(options.lte));
-      }
-      else
-          return "";
-  }
-  function getSignString(options) {
-      return options.positive
-          ? "positive"
-          : options.negative
-              ? "negative"
-              : options.nonNegative
-                  ? "non negative"
-                  : options.nonPositive
-                      ? "non positive"
-                      : options.nonZero
-                          ? "non zero"
-                          : "";
-  }
-  function getNumberTypeName(options) {
-      if (options.zero) {
-          return "zero";
-      }
-      var sign = getSignString(options);
-      var numberType = options.integer ? "integer" : "number";
-      var finite = options.finite ? "finite" : "";
-      var range = getRangeString(options);
-      return [sign, finite, numberType, range].filter(function (x) { return !!x; }).join(" ");
-  }
-  function isNumber(value, options) {
-      if (options === void 0) { options = {}; }
-      if (typeof value !== "number") {
-          return false;
-      }
-      if (options.integer && !Number.isInteger(value)) {
-          return false;
-      }
-      if (options.finite && !Number.isFinite(value)) {
-          return false;
-      }
-      if (options.zero && value !== 0) {
-          return false;
-      }
-      if (options.nonZero && value === 0) {
-          return false;
-      }
-      if (options.positive && value <= 0) {
-          return false;
-      }
-      if (options.negative && value >= 0) {
-          return false;
-      }
-      if (options.nonPositive && value > 0) {
-          return false;
-      }
-      if (options.nonNegative && value < 0) {
-          return false;
-      }
-      if (typeof options.gt === "number" && value <= options.gt) {
-          return false;
-      }
-      if (typeof options.gte === "number" && value < options.gte) {
-          return false;
-      }
-      if (typeof options.lt === "number" && value >= options.lt) {
-          return false;
-      }
-      if (typeof options.lte === "number" && value > options.lte) {
-          return false;
-      }
-      return true;
-  }
-  function assertNumber(value, debugInfo, options) {
-      if (options === void 0) { options = {}; }
-      if (!isNumber(value, options)) {
-          throw new LitsError("Expected ".concat(getNumberTypeName(options), ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
-      }
-  }
-  function asNumber(value, debugInfo, options) {
-      if (options === void 0) { options = {}; }
-      assertNumber(value, debugInfo, options);
-      return value;
-  }
-
   function assertEventNumberOfParams(node) {
       var _a;
       var length = node.p.length;
@@ -1159,166 +996,6 @@ var Lits = (function (exports) {
   }
   function isUnknownRecord(value) {
       return value !== null && typeof value === "object" && !Array.isArray(value);
-  }
-
-  function collHasKey(coll, key) {
-      if (!isColl(coll)) {
-          return false;
-      }
-      if (typeof coll === "string" || Array.isArray(coll)) {
-          if (!isNumber(key, { integer: true })) {
-              return false;
-          }
-          return key >= 0 && key < coll.length;
-      }
-      return !!Object.getOwnPropertyDescriptor(coll, key);
-  }
-  var sortOrderByType = {
-      boolean: 0,
-      number: 1,
-      string: 2,
-      array: 3,
-      object: 4,
-      regexp: 5,
-      unknown: 6,
-      null: 7,
-  };
-  function getType(value) {
-      if (value === null) {
-          return "null";
-      }
-      else if (typeof value === "boolean") {
-          return "boolean";
-      }
-      else if (typeof value === "number") {
-          return "number";
-      }
-      else if (typeof value === "string") {
-          return "string";
-      }
-      else if (Array.isArray(value)) {
-          return "array";
-      }
-      else if (isObj(value)) {
-          return "object";
-      }
-      else if (isRegularExpression(value)) {
-          return "regexp";
-      }
-      else {
-          return "unknown";
-      }
-  }
-  function compare(a, b) {
-      var aType = getType(a);
-      var bType = getType(b);
-      if (aType !== bType) {
-          return Math.sign(sortOrderByType[aType] - sortOrderByType[bType]);
-      }
-      switch (aType) {
-          case "null":
-              return 0;
-          case "boolean":
-              if (a === b) {
-                  return 0;
-              }
-              return a === false ? -1 : 1;
-          case "number":
-              return Math.sign(a - b);
-          case "string": {
-              var aString = a;
-              var bString = b;
-              return aString < bString ? -1 : aString > bString ? 1 : 0;
-          }
-          case "array": {
-              var aArray = a;
-              var bArray = b;
-              if (aArray.length < bArray.length) {
-                  return -1;
-              }
-              else if (aArray.length > bArray.length) {
-                  return 1;
-              }
-              for (var i = 0; i < aArray.length; i += 1) {
-                  var innerComp = compare(aArray[i], bArray[i]);
-                  if (innerComp !== 0) {
-                      return innerComp;
-                  }
-              }
-              return 0;
-          }
-          case "object": {
-              var aObj = a;
-              var bObj = b;
-              return Math.sign(Object.keys(aObj).length - Object.keys(bObj).length);
-          }
-          case "regexp": {
-              var aString = a.s;
-              var bString = b.s;
-              return aString < bString ? -1 : aString > bString ? 1 : 0;
-          }
-          case "unknown":
-              return 0;
-      }
-  }
-  function deepEqual(a, b, debugInfo) {
-      if (a === b) {
-          return true;
-      }
-      if (typeof a === "number" && typeof b === "number") {
-          return Math.abs(a - b) < Number.EPSILON;
-      }
-      if (Array.isArray(a) && Array.isArray(b)) {
-          if (a.length !== b.length) {
-              return false;
-          }
-          for (var i = 0; i < a.length; i += 1) {
-              if (!deepEqual(asAny(a[i], debugInfo), asAny(b[i], debugInfo), debugInfo)) {
-                  return false;
-              }
-          }
-          return true;
-      }
-      if (isRegularExpression(a) && isRegularExpression(b)) {
-          return a.s === b.s && a.f === b.f;
-      }
-      if (isUnknownRecord(a) && isUnknownRecord(b)) {
-          var aKeys = Object.keys(a);
-          var bKeys = Object.keys(b);
-          if (aKeys.length !== bKeys.length) {
-              return false;
-          }
-          for (var i = 0; i < aKeys.length; i += 1) {
-              var key = asString(aKeys[i], debugInfo);
-              if (!deepEqual(toAny(a[key]), toAny(b[key]), debugInfo)) {
-                  return false;
-              }
-          }
-          return true;
-      }
-      return false;
-  }
-  function toNonNegativeInteger(num) {
-      return Math.max(0, Math.ceil(num));
-  }
-  function toAny(value) {
-      return (value !== null && value !== void 0 ? value : null);
-  }
-  function clone(value) {
-      if (isObj(value)) {
-          return Object.entries(value).reduce(function (result, entry) {
-              var _a = __read(entry, 2), key = _a[0], val = _a[1];
-              result[key] = clone(val);
-              return result;
-          }, {});
-      }
-      if (Array.isArray(value)) {
-          return value.map(function (item) { return clone(item); });
-      }
-      return value;
-  }
-  function cloneColl(value) {
-      return clone(value);
   }
   function assertNumberOfParams(count, node) {
       var _a, _b;
@@ -1463,6 +1140,76 @@ var Lits = (function (exports) {
           return analyzeAst(node.p, contextStack, builtin);
       },
   };
+
+  function isAny(value) {
+      // TODO weak test
+      return value !== undefined;
+  }
+  function asAny(value, debugInfo) {
+      assertAny(value, debugInfo);
+      return value;
+  }
+  function assertAny(value, debugInfo) {
+      if (!isAny(value)) {
+          throw getAssertionError("not undefined", value, debugInfo);
+      }
+  }
+  function isSeq(value) {
+      return Array.isArray(value) || typeof value === "string";
+  }
+  function asSeq(value, debugInfo) {
+      assertSeq(value, debugInfo);
+      return value;
+  }
+  function assertSeq(value, debugInfo) {
+      if (!isSeq(value)) {
+          throw getAssertionError("string or array", value, debugInfo);
+      }
+  }
+  function isObj(value) {
+      return !(value === null ||
+          typeof value !== "object" ||
+          Array.isArray(value) ||
+          value instanceof RegExp ||
+          isLitsFunction(value) ||
+          isRegularExpression(value));
+  }
+  function assertObj(value, debugInfo) {
+      if (!isObj(value)) {
+          throw getAssertionError("object", value, debugInfo);
+      }
+  }
+  function isColl(value) {
+      return isSeq(value) || isObj(value);
+  }
+  function asColl(value, debugInfo) {
+      assertColl(value, debugInfo);
+      return value;
+  }
+  function assertColl(value, debugInfo) {
+      if (!isColl(value)) {
+          throw getAssertionError("string, array or object", value, debugInfo);
+      }
+  }
+  function isRegularExpression(regexp) {
+      if (regexp === null || typeof regexp !== "object") {
+          return false;
+      }
+      return !!regexp[REGEXP_SYMBOL];
+  }
+  function assertRegularExpression(value, debugInfo) {
+      if (!isRegularExpression(value)) {
+          throw getAssertionError("RegularExpression", value, debugInfo);
+      }
+  }
+  function isStringOrRegularExpression(value) {
+      return isRegularExpression(value) || typeof value === "string";
+  }
+  function assertStringOrRegularExpression(value, debugInfo) {
+      if (!isStringOrRegularExpression(value)) {
+          throw getAssertionError("string or RegularExpression", value, debugInfo);
+      }
+  }
 
   function parseLoopBinding(tokens, position, _a) {
       var _b, _c, _d, _e;
@@ -2186,6 +1933,259 @@ var Lits = (function (exports) {
           return joinAnalyzeResults(tryResult, catchResult);
       },
   };
+
+  function getRangeString(options) {
+      var hasUpperAndLowerBound = (typeof options.gt === "number" || typeof options.gte === "number") &&
+          (typeof options.lt === "number" || typeof options.lte === "number");
+      if (hasUpperAndLowerBound) {
+          return "".concat(typeof options.gt === "number" ? "".concat(options.gt, " < n ") : "".concat(options.gte, " <= n ")).concat(typeof options.lt === "number" ? "< ".concat(options.lt) : "<= ".concat(options.lte));
+      }
+      else if (typeof options.gt === "number" || typeof options.gte === "number") {
+          return "".concat(typeof options.gt === "number" ? "n > ".concat(options.gt) : "n >= ".concat(options.gte));
+      }
+      else if (typeof options.lt === "number" || typeof options.lte === "number") {
+          return "".concat(typeof options.lt === "number" ? "n < ".concat(options.lt) : "n <= ".concat(options.lte));
+      }
+      else
+          return "";
+  }
+  function getSignString(options) {
+      return options.positive
+          ? "positive"
+          : options.negative
+              ? "negative"
+              : options.nonNegative
+                  ? "non negative"
+                  : options.nonPositive
+                      ? "non positive"
+                      : options.nonZero
+                          ? "non zero"
+                          : "";
+  }
+  function getNumberTypeName(options) {
+      if (options.zero) {
+          return "zero";
+      }
+      var sign = getSignString(options);
+      var numberType = options.integer ? "integer" : "number";
+      var finite = options.finite ? "finite" : "";
+      var range = getRangeString(options);
+      return [sign, finite, numberType, range].filter(function (x) { return !!x; }).join(" ");
+  }
+  function isNumber(value, options) {
+      if (options === void 0) { options = {}; }
+      if (typeof value !== "number") {
+          return false;
+      }
+      if (options.integer && !Number.isInteger(value)) {
+          return false;
+      }
+      if (options.finite && !Number.isFinite(value)) {
+          return false;
+      }
+      if (options.zero && value !== 0) {
+          return false;
+      }
+      if (options.nonZero && value === 0) {
+          return false;
+      }
+      if (options.positive && value <= 0) {
+          return false;
+      }
+      if (options.negative && value >= 0) {
+          return false;
+      }
+      if (options.nonPositive && value > 0) {
+          return false;
+      }
+      if (options.nonNegative && value < 0) {
+          return false;
+      }
+      if (typeof options.gt === "number" && value <= options.gt) {
+          return false;
+      }
+      if (typeof options.gte === "number" && value < options.gte) {
+          return false;
+      }
+      if (typeof options.lt === "number" && value >= options.lt) {
+          return false;
+      }
+      if (typeof options.lte === "number" && value > options.lte) {
+          return false;
+      }
+      return true;
+  }
+  function assertNumber(value, debugInfo, options) {
+      if (options === void 0) { options = {}; }
+      if (!isNumber(value, options)) {
+          throw new LitsError("Expected ".concat(getNumberTypeName(options), ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
+      }
+  }
+  function asNumber(value, debugInfo, options) {
+      if (options === void 0) { options = {}; }
+      assertNumber(value, debugInfo, options);
+      return value;
+  }
+
+  function collHasKey(coll, key) {
+      if (!isColl(coll)) {
+          return false;
+      }
+      if (typeof coll === "string" || Array.isArray(coll)) {
+          if (!isNumber(key, { integer: true })) {
+              return false;
+          }
+          return key >= 0 && key < coll.length;
+      }
+      return !!Object.getOwnPropertyDescriptor(coll, key);
+  }
+  var sortOrderByType = {
+      boolean: 0,
+      number: 1,
+      string: 2,
+      array: 3,
+      object: 4,
+      regexp: 5,
+      unknown: 6,
+      null: 7,
+  };
+  function getType(value) {
+      if (value === null) {
+          return "null";
+      }
+      else if (typeof value === "boolean") {
+          return "boolean";
+      }
+      else if (typeof value === "number") {
+          return "number";
+      }
+      else if (typeof value === "string") {
+          return "string";
+      }
+      else if (Array.isArray(value)) {
+          return "array";
+      }
+      else if (isObj(value)) {
+          return "object";
+      }
+      else if (isRegularExpression(value)) {
+          return "regexp";
+      }
+      else {
+          return "unknown";
+      }
+  }
+  function compare(a, b) {
+      var aType = getType(a);
+      var bType = getType(b);
+      if (aType !== bType) {
+          return Math.sign(sortOrderByType[aType] - sortOrderByType[bType]);
+      }
+      switch (aType) {
+          case "null":
+              return 0;
+          case "boolean":
+              if (a === b) {
+                  return 0;
+              }
+              return a === false ? -1 : 1;
+          case "number":
+              return Math.sign(a - b);
+          case "string": {
+              var aString = a;
+              var bString = b;
+              return aString < bString ? -1 : aString > bString ? 1 : 0;
+          }
+          case "array": {
+              var aArray = a;
+              var bArray = b;
+              if (aArray.length < bArray.length) {
+                  return -1;
+              }
+              else if (aArray.length > bArray.length) {
+                  return 1;
+              }
+              for (var i = 0; i < aArray.length; i += 1) {
+                  var innerComp = compare(aArray[i], bArray[i]);
+                  if (innerComp !== 0) {
+                      return innerComp;
+                  }
+              }
+              return 0;
+          }
+          case "object": {
+              var aObj = a;
+              var bObj = b;
+              return Math.sign(Object.keys(aObj).length - Object.keys(bObj).length);
+          }
+          case "regexp": {
+              var aString = a.s;
+              var bString = b.s;
+              return aString < bString ? -1 : aString > bString ? 1 : 0;
+          }
+          case "unknown":
+              return 0;
+      }
+  }
+  function deepEqual(a, b, debugInfo) {
+      if (a === b) {
+          return true;
+      }
+      if (typeof a === "number" && typeof b === "number") {
+          return Math.abs(a - b) < Number.EPSILON;
+      }
+      if (Array.isArray(a) && Array.isArray(b)) {
+          if (a.length !== b.length) {
+              return false;
+          }
+          for (var i = 0; i < a.length; i += 1) {
+              if (!deepEqual(asAny(a[i], debugInfo), asAny(b[i], debugInfo), debugInfo)) {
+                  return false;
+              }
+          }
+          return true;
+      }
+      if (isRegularExpression(a) && isRegularExpression(b)) {
+          return a.s === b.s && a.f === b.f;
+      }
+      if (isUnknownRecord(a) && isUnknownRecord(b)) {
+          var aKeys = Object.keys(a);
+          var bKeys = Object.keys(b);
+          if (aKeys.length !== bKeys.length) {
+              return false;
+          }
+          for (var i = 0; i < aKeys.length; i += 1) {
+              var key = asString(aKeys[i], debugInfo);
+              if (!deepEqual(toAny(a[key]), toAny(b[key]), debugInfo)) {
+                  return false;
+              }
+          }
+          return true;
+      }
+      return false;
+  }
+  function toNonNegativeInteger(num) {
+      return Math.max(0, Math.ceil(num));
+  }
+  function toAny(value) {
+      return (value !== null && value !== void 0 ? value : null);
+  }
+  function clone(value) {
+      if (isObj(value)) {
+          return Object.entries(value).reduce(function (result, entry) {
+              var _a = __read(entry, 2), key = _a[0], val = _a[1];
+              result[key] = clone(val);
+              return result;
+          }, {});
+      }
+      if (Array.isArray(value)) {
+          return value.map(function (item) { return clone(item); });
+      }
+      return value;
+  }
+  function cloneColl(value) {
+      return clone(value);
+  }
 
   var whenFirstSpecialExpression = {
       parse: function (tokens, position, _a) {
@@ -4427,7 +4427,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.56-alpha.1";
+  var version = "1.0.56-alpha.2";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;

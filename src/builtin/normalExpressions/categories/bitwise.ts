@@ -1,5 +1,5 @@
 import { assertNumber } from '../../../typeGuards/number'
-import { assertNumberOfParams } from '../../../utils'
+import { assertNumberOfParams } from '../../../typeGuards'
 import type { BuiltinNormalExpressions } from '../../interface'
 
 export const bitwiseNormalExpression: BuiltinNormalExpressions = {

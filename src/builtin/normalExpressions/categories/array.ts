@@ -1,7 +1,7 @@
 import type { Arr } from '../../../interface'
 import { assertArray } from '../../../typeGuards/array'
 import { assertNumber } from '../../../typeGuards/number'
-import { assertNumberOfParams } from '../../../utils'
+import { assertNumberOfParams } from '../../../typeGuards'
 import type { BuiltinNormalExpressions } from '../../interface'
 import { evaluateMap } from './sequence'
 export const arrayNormalExpression: BuiltinNormalExpressions = {

@@ -6,9 +6,39 @@ import type { AnalyzeResult } from '../src/analyze/interface'
 import type { LitsError } from '../src/errors'
 import { ContextStack } from '../src/evaluator/ContextStack'
 import type { Obj } from '../src/interface'
+import type { DebugInfo } from '../src/tokenizer/interface'
 import { isUnknownRecord } from '../src/typeGuards'
-import { isLitsFunction } from '../src/typeGuards/function'
+import { isLitsFunction } from '../src/typeGuards/litsFunction'
 import { isRegularExpression } from '../src/typeGuards/lits'
+
+export type TypeGuardTestData = {
+  valid: unknown[]
+  invalid: unknown[]
+}
+
+export function testTypeGuars(
+  testData: TypeGuardTestData,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  { is, as, assert }: { is: Function | undefined; as: Function; assert: Function },
+) {
+  const debugInfos: [DebugInfo, undefined] = [`EOF`, undefined]
+  for (const debugInfo of debugInfos) {
+    testData.valid.forEach(validData => {
+      if (is) {
+        expect(is(validData)).toBe(true)
+      }
+      expect(() => assert(validData, debugInfo)).not.toThrow()
+      expect(as(validData, debugInfo)).toBe(validData)
+    })
+    testData.invalid.forEach(validData => {
+      if (is) {
+        expect(is(validData)).toBe(false)
+      }
+      expect(() => assert(validData, debugInfo)).toThrow()
+      expect(() => as(validData, debugInfo)).toThrow()
+    })
+  }
+}
 
 interface Primitives extends Obj {
   string: string

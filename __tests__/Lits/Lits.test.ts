@@ -5,7 +5,7 @@ import { Cache } from '../../src/Lits/Cache'
 import type { LazyValue } from '../../src/Lits/Lits'
 import { AstNodeType } from '../../src/constants/constants'
 import { TokenType } from '../../src/constants/constants'
-import { assertLitsFunction } from '../../src/typeGuards/function'
+import { assertLitsFunction } from '../../src/typeGuards/litsFunction'
 
 describe(`TEST`, () => {
   let lits: Lits

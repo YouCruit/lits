@@ -1,8 +1,6 @@
-import { LitsError } from '../errors'
 import type { Any, Arr, Coll, Obj } from '../interface'
-import type { NormalExpressionNode, RegularExpression, SpecialExpressionNode } from '../parser/interface'
+import type { RegularExpression } from '../parser/interface'
 import type { DebugInfo } from '../tokenizer/interface'
-import { valueToString } from './debug/debugTools'
 import { asAny, isColl, isObj, isRegularExpression } from '../typeGuards/lits'
 import { isNumber } from '../typeGuards/number'
 import { asString } from '../typeGuards/string'
@@ -171,39 +169,4 @@ function clone<T>(value: T): T {
 
 export function cloneColl<T extends Coll>(value: T): T {
   return clone(value)
-}
-
-export function assertNumberOfParams(
-  count: number | { min?: number; max?: number },
-  node: NormalExpressionNode | SpecialExpressionNode,
-): void {
-  const length = node.p.length
-  const debugInfo = node.tkn?.d
-  if (typeof count === `number`) {
-    if (length !== count) {
-      throw new LitsError(
-        `Wrong number of arguments to "${node.n}", expected ${count}, got ${valueToString(length)}.`,
-        node.tkn?.d,
-      )
-    }
-  } else {
-    const { min, max } = count
-    if (min === undefined && max === undefined) {
-      throw new LitsError(`Min or max must be specified.`, debugInfo)
-    }
-
-    if (typeof min === `number` && length < min) {
-      throw new LitsError(
-        `Wrong number of arguments to "${node.n}", expected at least ${min}, got ${valueToString(length)}.`,
-        debugInfo,
-      )
-    }
-
-    if (typeof max === `number` && length > max) {
-      throw new LitsError(
-        `Wrong number of arguments to "${node.n}", expected at most ${max}, got ${valueToString(length)}.`,
-        debugInfo,
-      )
-    }
-  }
 }

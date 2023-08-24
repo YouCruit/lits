@@ -1,5 +1,5 @@
 export { AstNodeType, TokenType, FunctionType } from './constants/constants'
-export { isLitsFunction } from './typeGuards/function'
+export { isLitsFunction } from './typeGuards/litsFunction'
 export { type LitsFunction } from './parser/interface'
 export type { Context } from './evaluator/interface'
 export type { Ast } from './parser/interface'

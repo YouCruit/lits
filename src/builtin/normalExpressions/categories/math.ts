@@ -1,6 +1,6 @@
 import type { NormalExpressionNode } from '../../../parser/interface'
 import { assertNumber, asNumber } from '../../../typeGuards/number'
-import { assertNumberOfParams } from '../../../utils'
+import { assertNumberOfParams } from '../../../typeGuards'
 import type { BuiltinNormalExpressions } from '../../interface'
 
 export const mathNormalExpression: BuiltinNormalExpressions = {

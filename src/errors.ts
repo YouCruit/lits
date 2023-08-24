@@ -1,6 +1,6 @@
 import type { Arr } from './interface'
 import type { DebugInfo } from './tokenizer/interface'
-import { getCodeMarker, valueToString } from './utils/debugTools'
+import { getCodeMarker, valueToString } from './utils/debug/debugTools'
 
 function getLitsErrorMessage(message: string, debugInfo?: DebugInfo) {
   return `${message}${

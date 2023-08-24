@@ -3,7 +3,7 @@ import type { LazyValue } from '../Lits/Lits'
 import type { Any, Arr } from '../interface'
 import type { AstNode, BuiltinFunction } from '../parser/interface'
 import type { DebugInfo } from '../tokenizer/interface'
-import { isUnknownRecord } from '../utils/assertion'
+import { isUnknownRecord } from '../typeGuards'
 
 export type ContextEntry = { value: Any }
 export type Context = Record<string, ContextEntry>

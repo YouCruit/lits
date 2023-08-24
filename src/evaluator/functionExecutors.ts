@@ -19,9 +19,11 @@ import type {
 import type { DebugInfo } from '../tokenizer/interface'
 import { toAny } from '../utils'
 import type { Context, EvaluateAstNode, ExecuteFunction } from './interface'
-import { asAny, asString, asValue } from '../utils/assertion'
-import { valueToString } from '../utils/debugTools'
+import { valueToString } from '../utils/debug/debugTools'
 import { FunctionType } from '../constants/constants'
+import { asString } from '../typeGuards/string'
+import { asNonUndefined } from '../typeGuards'
+import { asAny } from '../typeGuards/lits'
 
 type FunctionExecutors = Record<
   LitsFunctionType,
@@ -148,7 +150,7 @@ export const functionExecutors: FunctionExecutors = {
     return executeFunction(toAny(fn.f), fniledParams, contextStack, debugInfo)
   },
   [FunctionType.Builtin]: (fn: BuiltinFunction, params, debugInfo, contextStack, { executeFunction }) => {
-    const normalExpression = asValue(normalExpressions[fn.n], debugInfo)
+    const normalExpression = asNonUndefined(normalExpressions[fn.n], debugInfo)
     return normalExpression.evaluate(params, debugInfo, contextStack, { executeFunction })
   },
 }

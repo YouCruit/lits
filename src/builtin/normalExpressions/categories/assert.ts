@@ -1,10 +1,11 @@
 import type { LitsError } from '../../../errors'
 import { AssertionError } from '../../../errors'
 import type { Any } from '../../../interface'
-import { compare, deepEqual } from '../../../utils'
+import { assertNumberOfParams, compare, deepEqual } from '../../../utils'
 import type { BuiltinNormalExpressions } from '../../interface'
-import { asAny, assertNumberOfParams, assertString } from '../../../utils/assertion'
-import { assertLitsFunction } from '../../../utils/functionAsserter'
+import { assertLitsFunction } from '../../../typeGuards/function'
+import { assertString } from '../../../typeGuards/string'
+import { asAny } from '../../../typeGuards/lits'
 
 export const assertNormalExpression: BuiltinNormalExpressions = {
   assert: {

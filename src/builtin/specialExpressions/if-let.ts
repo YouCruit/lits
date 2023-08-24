@@ -4,11 +4,12 @@ import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
-import { asValue, assertNumberOfParams } from '../../utils/assertion'
-import { asAstNode } from '../../utils/astNodeAsserter'
-import { valueToString } from '../../utils/debugTools'
-import { asToken } from '../../utils/tokenAsserter'
+import { asAstNode } from '../../typeGuards/astNode'
+import { valueToString } from '../../utils/debug/debugTools'
+import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import { asNonUndefined } from '../../typeGuards'
+import { assertNumberOfParams } from '../../utils'
 
 type IfLetNode = SpecialExpressionNode & {
   b: BindingNode
@@ -30,7 +31,7 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     const node: IfLetNode = {
       t: AstNodeType.SpecialExpression,
       n: `if-let`,
-      b: asValue(bindings[0], firstToken.d),
+      b: asNonUndefined(bindings[0], firstToken.d),
       p: params,
       tkn: firstToken.d ? firstToken : undefined,
     }

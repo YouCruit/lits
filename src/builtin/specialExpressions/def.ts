@@ -1,8 +1,8 @@
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
-import { assertNumberOfParams } from '../../utils/assertion'
-import { assertNameNode, asNameNode, asAstNode } from '../../utils/astNodeAsserter'
-import { asToken } from '../../utils/tokenAsserter'
+import { assertNumberOfParams } from '../../utils'
+import { assertNameNode, asNameNode, asAstNode } from '../../typeGuards/astNode'
+import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { assertNameNotDefined } from '../utils'
 

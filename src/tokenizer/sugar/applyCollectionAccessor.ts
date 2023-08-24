@@ -1,7 +1,8 @@
 import type { SugarFunction } from '.'
 import { TokenType } from '../../constants/constants'
 import { LitsError } from '../../errors'
-import { asValue, assertNumber } from '../../utils/assertion'
+import { asNonUndefined } from '../../typeGuards'
+import { assertNumber } from '../../typeGuards/number'
 import type { DebugInfo, Token } from '../interface'
 
 export const applyCollectionAccessors: SugarFunction = tokens => {
@@ -14,7 +15,7 @@ export const applyCollectionAccessors: SugarFunction = tokens => {
 }
 
 function applyCollectionAccessor(tokens: Token[], position: number) {
-  const dotTkn = asValue(tokens[position])
+  const dotTkn = asNonUndefined(tokens[position])
   const debugInfo = dotTkn.d
   const backPosition = getPositionBackwards(tokens, position, debugInfo)
   checkForward(tokens, position, dotTkn, debugInfo)
@@ -25,7 +26,7 @@ function applyCollectionAccessor(tokens: Token[], position: number) {
     v: `(`,
     d: debugInfo,
   })
-  const nextTkn = asValue(tokens[position + 1])
+  const nextTkn = asNonUndefined(tokens[position + 1])
   if (dotTkn.v === `.`) {
     tokens[position + 1] = {
       t: TokenType.String,
@@ -52,7 +53,7 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
   if (position <= 0) {
     throw new LitsError(`Array accessor # must come after a sequence`, debugInfo)
   }
-  const prevToken = asValue(tokens[position - 1])
+  const prevToken = asNonUndefined(tokens[position - 1])
   let openBracket: null | `(` | `[` | `{` = null
   let closeBracket: null | `)` | `]` | `}` = null
 
@@ -78,7 +79,7 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
   while (bracketCount !== 0) {
     bracketCount = bracketCount === null ? 0 : bracketCount
     position -= 1
-    const tkn = asValue(tokens[position], debugInfo)
+    const tkn = asNonUndefined(tokens[position], debugInfo)
     if (tkn.t === TokenType.Bracket) {
       if (tkn.v === openBracket) {
         bracketCount += 1
@@ -89,7 +90,7 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
     }
   }
   if (openBracket === `(` && position > 0) {
-    const tokenBeforeBracket = asValue(tokens[position - 1])
+    const tokenBeforeBracket = asNonUndefined(tokens[position - 1])
     if (tokenBeforeBracket.t === TokenType.FnShorthand) {
       throw new LitsError(`# or . must NOT be preceeded by shorthand lambda function`, debugInfo)
     }
@@ -98,7 +99,7 @@ function getPositionBackwards(tokens: Token[], position: number, debugInfo: Debu
 }
 
 function checkForward(tokens: Token[], position: number, dotTkn: Token, debugInfo: DebugInfo | undefined) {
-  const tkn = asValue(tokens[position + 1], debugInfo)
+  const tkn = asNonUndefined(tokens[position + 1], debugInfo)
 
   if (dotTkn.v === `.` && tkn.t !== TokenType.Name) {
     throw new LitsError(`# as a collection accessor must be followed by an name`, debugInfo)

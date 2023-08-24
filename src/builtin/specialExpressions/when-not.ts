@@ -1,9 +1,9 @@
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import type { SpecialExpressionNode } from '../../parser/interface'
-import { assertNumberOfParams } from '../../utils/assertion'
-import { assertAstNode } from '../../utils/astNodeAsserter'
-import { asToken } from '../../utils/tokenAsserter'
+import { assertNumberOfParams } from '../../utils'
+import { assertAstNode } from '../../typeGuards/astNode'
+import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
 export const whenNotSpecialExpression: BuiltinSpecialExpression<Any> = {

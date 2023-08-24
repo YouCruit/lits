@@ -1,5 +1,7 @@
 import type { RegularExpression } from '../../../parser/interface'
-import { assertString, assertNumberOfParams, assertRegularExpression } from '../../../utils/assertion'
+import { assertRegularExpression } from '../../../typeGuards/lits'
+import { assertString } from '../../../typeGuards/string'
+import { assertNumberOfParams } from '../../../utils'
 import { REGEXP_SYMBOL } from '../../../utils/symbols'
 import type { BuiltinNormalExpressions } from '../../interface'
 

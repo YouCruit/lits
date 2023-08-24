@@ -1,10 +1,11 @@
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
-import { assertString, assertNumberOfParams } from '../../utils/assertion'
-import { asAstNode } from '../../utils/astNodeAsserter'
-import { asToken } from '../../utils/tokenAsserter'
+import { asAstNode } from '../../typeGuards/astNode'
+import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { assertNameNotDefined } from '../utils'
+import { assertString } from '../../typeGuards/string'
+import { assertNumberOfParams } from '../../utils'
 
 export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens }) => {

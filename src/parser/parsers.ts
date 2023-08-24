@@ -25,16 +25,10 @@ import { LitsError } from '../errors'
 import type { FnNode } from '../builtin/specialExpressions/functions'
 import type { FunctionArguments } from '../builtin/utils'
 import { AstNodeType } from '../constants/constants'
-import {
-  assertEventNumberOfParams,
-  assertValue,
-  isExpressionNode,
-  asValue,
-  assertUnreachable,
-} from '../utils/assertion'
-import { assertNameNode } from '../utils/astNodeAsserter'
-import { valueToString } from '../utils/debugTools'
-import { asToken } from '../utils/tokenAsserter'
+import { assertNameNode, isExpressionNode } from '../typeGuards/astNode'
+import { valueToString } from '../utils/debug/debugTools'
+import { asToken } from '../typeGuards/token'
+import { assertEventNumberOfParams, assertNonUndefined, asNonUndefined, assertUnreachable } from '../typeGuards'
 
 type ParseNumber = (tokens: Token[], position: number) => [number, NumberNode]
 export const parseNumber: ParseNumber = (tokens: Token[], position: number) => {
@@ -145,7 +139,7 @@ const parseRegexpShorthand: ParseRegexpShorthand = (tokens, position) => {
     tkn: tkn.d ? tkn : undefined,
   }
 
-  assertValue(tkn.o, tkn.d)
+  assertNonUndefined(tkn.o, tkn.d)
 
   const optionsNode: StringNode = {
     t: AstNodeType.String,
@@ -300,7 +294,7 @@ const parseSpecialExpression: ParseSpecialExpression = (tokens, position) => {
   const { v: expressionName, d: debugInfo } = asToken(tokens[position], `EOF`)
   position += 1
 
-  const { parse, validate } = asValue(builtin.specialExpressions[expressionName], debugInfo)
+  const { parse, validate } = asNonUndefined(builtin.specialExpressions[expressionName], debugInfo)
 
   const [positionAfterParse, node] = parse(tokens, position, {
     parseExpression,

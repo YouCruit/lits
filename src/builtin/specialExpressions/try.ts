@@ -5,11 +5,11 @@ import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import type { AstNode, NameNode, SpecialExpressionNode } from '../../parser/interface'
 import { TokenType } from '../../constants/constants'
-import { asAny } from '../../utils/assertion'
-import { assertNameNode } from '../../utils/astNodeAsserter'
-import { getDebugInfo } from '../../utils/getDebugInfo'
-import { asToken, assertToken } from '../../utils/tokenAsserter'
+import { assertNameNode } from '../../typeGuards/astNode'
+import { asToken, assertToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import { asAny } from '../../typeGuards/lits'
+import { getDebugInfo } from '../../utils/debug/getDebugInfo'
 
 type TryNode = SpecialExpressionNode & {
   te: AstNode

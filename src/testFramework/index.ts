@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { AbstractLitsError } from '../errors'
 import { Lits } from '../Lits/Lits'
-import { getCodeMarker } from '../utils/debugTools'
+import { getCodeMarker } from '../utils/debug/debugTools'
 
 const fs = require(`fs`)
 const path = require(`path`)

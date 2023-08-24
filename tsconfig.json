@@ -35,5 +35,6 @@
   ],
   "exclude": [
     "cli",
+    "**/*.test.ts"
   ]
 }

@@ -1,8 +1,8 @@
 import { AstNodeType } from '../../constants/constants'
 import type { SpecialExpressionNode } from '../../parser/interface'
-import { assertNumberOfParams } from '../../utils/assertion'
-import { assertNameNode } from '../../utils/astNodeAsserter'
-import { asToken } from '../../utils/tokenAsserter'
+import { assertNumberOfParams } from '../../utils'
+import { assertNameNode } from '../../typeGuards/astNode'
+import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
 export const declaredSpecialExpression: BuiltinSpecialExpression<boolean> = {

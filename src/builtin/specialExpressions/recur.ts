@@ -1,7 +1,7 @@
 import { RecurSignal } from '../../errors'
 import { AstNodeType } from '../../constants/constants'
 import type { SpecialExpressionNode } from '../../parser/interface'
-import { asToken } from '../../utils/tokenAsserter'
+import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
 export const recurSpecialExpression: BuiltinSpecialExpression<null> = {

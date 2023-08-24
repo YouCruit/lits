@@ -2,7 +2,7 @@ import { TokenType } from '../constants/constants'
 import { LitsError } from '../errors'
 import type { ModifierName } from '../parser/interface'
 import { reservedNamesRecord } from '../reservedNames'
-import { asString } from '../utils/assertion'
+import { asString } from '../typeGuards/string'
 import type { TokenDescriptor, Tokenizer, DebugInfo } from './interface'
 
 const NO_MATCH: TokenDescriptor = [0, undefined]

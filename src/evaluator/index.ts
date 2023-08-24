@@ -17,10 +17,13 @@ import type { DebugInfo } from '../tokenizer/interface'
 import { LitsError, NotAFunctionError, UndefinedSymbolError } from '../errors'
 import { AstNodeType } from '../constants/constants'
 import type { ContextStack } from './ContextStack'
-import { asAny, asValue, assertNumber, assertSeq, assertString, isNumber, isObj } from '../utils/assertion'
-import { isNormalExpressionNodeWithName } from '../utils/astNodeAsserter'
-import { valueToString } from '../utils/debugTools'
-import { isLitsFunction } from '../utils/functionAsserter'
+import { isNormalExpressionNodeWithName } from '../typeGuards/astNode'
+import { valueToString } from '../utils/debug/debugTools'
+import { isLitsFunction } from '../typeGuards/function'
+import { assertNumber, isNumber } from '../typeGuards/number'
+import { asNonUndefined } from '../typeGuards'
+import { asAny, isObj, assertSeq } from '../typeGuards/lits'
+import { assertString } from '../typeGuards/string'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null
@@ -58,7 +61,7 @@ function evaluateString(node: StringNode): string {
 }
 
 function evaluateReservedName(node: ReservedNameNode): Any {
-  return asValue(reservedNamesRecord[node.v], node.tkn?.d).value
+  return asNonUndefined(reservedNamesRecord[node.v], node.tkn?.d).value
 }
 
 function evaluateNormalExpression(node: NormalExpressionNode, contextStack: ContextStack): Any {
@@ -109,7 +112,7 @@ function evaluateBuiltinNormalExpression(
 }
 
 function evaluateSpecialExpression(node: SpecialExpressionNode, contextStack: ContextStack): Any {
-  const specialExpression = asValue(builtin.specialExpressions[node.n], node.tkn?.d)
+  const specialExpression = asNonUndefined(builtin.specialExpressions[node.n], node.tkn?.d)
 
   return specialExpression.evaluate(node, contextStack, { evaluateAstNode, builtin })
 }

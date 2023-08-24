@@ -1,6 +1,6 @@
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
-import { asToken } from '../../utils/tokenAsserter'
+import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
 export const orSpecialExpression: BuiltinSpecialExpression<Any> = {

@@ -6,9 +6,9 @@ import type { Context } from '../evaluator/interface'
 import type { Any, Arr } from '../interface'
 import type { ReservedName } from '../reservedNames'
 import type { DebugInfo, Token } from '../tokenizer/interface'
-import { isUnknownRecord } from '../utils/assertion'
 import type { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
 import { type AstNodeType, FunctionType } from '../constants/constants'
+import { isUnknownRecord } from '../typeGuards'
 
 export type EvaluatedFunctionArguments = {
   mandatoryArguments: string[]

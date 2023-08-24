@@ -4,11 +4,12 @@ import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
-import { toAny } from '../../utils'
-import { asValue, isSeq, assertNumberOfParams } from '../../utils/assertion'
-import { valueToString } from '../../utils/debugTools'
-import { asToken } from '../../utils/tokenAsserter'
+import { assertNumberOfParams, toAny } from '../../utils'
+import { valueToString } from '../../utils/debug/debugTools'
+import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import { asNonUndefined } from '../../typeGuards'
+import { isSeq } from '../../typeGuards/lits'
 
 type WhenFirstNode = SpecialExpressionNode & {
   b: BindingNode
@@ -30,7 +31,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
     const node: WhenFirstNode = {
       t: AstNodeType.SpecialExpression,
       n: `when-first`,
-      b: asValue(bindings[0], firstToken.d),
+      b: asNonUndefined(bindings[0], firstToken.d),
       p: params,
       tkn: firstToken.d ? firstToken : undefined,
     }

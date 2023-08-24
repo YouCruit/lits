@@ -2,17 +2,12 @@ import { LitsError } from '../../../errors'
 import type { Any, Arr } from '../../../interface'
 import type { NormalExpressionNode } from '../../../parser/interface'
 import type { DebugInfo } from '../../../tokenizer/interface'
-import { toNonNegativeInteger } from '../../../utils'
-import {
-  asStringOrNumber,
-  asValue,
-  assertArray,
-  assertNumber,
-  assertNumberOfParams,
-  assertString,
-  assertStringOrRegularExpression,
-  isObj,
-} from '../../../utils/assertion'
+import { asNonUndefined } from '../../../typeGuards'
+import { assertArray } from '../../../typeGuards/array'
+import { isObj, assertStringOrRegularExpression } from '../../../typeGuards/lits'
+import { assertNumber } from '../../../typeGuards/number'
+import { assertString, asStringOrNumber } from '../../../typeGuards/string'
+import { assertNumberOfParams, toNonNegativeInteger } from '../../../utils'
 import type { BuiltinNormalExpressions } from '../../interface'
 
 export const stringNormalExpression: BuiltinNormalExpressions = {
@@ -106,7 +101,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   'to-char-code': {
     evaluate: ([str], debugInfo): number => {
       assertString(str, debugInfo, { nonEmpty: true })
-      return asValue(str.codePointAt(0), debugInfo)
+      return asNonUndefined(str.codePointAt(0), debugInfo)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },

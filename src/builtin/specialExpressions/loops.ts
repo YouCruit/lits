@@ -7,10 +7,11 @@ import { AstNodeType } from '../../constants/constants'
 import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
 import type { Token, DebugInfo } from '../../tokenizer/interface'
 import { TokenType } from '../../constants/constants'
-import { asValue, asColl, isSeq, asAny } from '../../utils/assertion'
-import { asAstNode } from '../../utils/astNodeAsserter'
-import { asToken, assertToken, isToken } from '../../utils/tokenAsserter'
+import { asAstNode } from '../../typeGuards/astNode'
+import { asToken, assertToken, isToken } from '../../typeGuards/token'
 import type { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
+import { asAny, asColl, isSeq } from '../../typeGuards/lits'
+import { asNonUndefined } from '../../typeGuards'
 
 type LoopNode = SpecialExpressionNode & {
   l: LoopBindingNode[]
@@ -124,7 +125,7 @@ function evaluateLoop(
         wn: whenNode,
         we: whileNode,
         m: modifiers,
-      } = asValue(loopBindings[bindingIndex], debugInfo)
+      } = asNonUndefined(loopBindings[bindingIndex], debugInfo)
       const coll = asColl(evaluateAstNode(binding.v, newContextStack), debugInfo)
       const seq = isSeq(coll) ? coll : Object.entries(coll)
       if (seq.length === 0) {
@@ -132,7 +133,7 @@ function evaluateLoop(
         abort = true
         break
       }
-      const index = asValue(bindingIndices[bindingIndex], debugInfo)
+      const index = asNonUndefined(bindingIndices[bindingIndex], debugInfo)
       if (index >= seq.length) {
         skip = true
         if (bindingIndex === 0) {
@@ -140,7 +141,7 @@ function evaluateLoop(
           break
         }
         bindingIndices[bindingIndex] = 0
-        bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], debugInfo) + 1
+        bindingIndices[bindingIndex - 1] = asNonUndefined(bindingIndices[bindingIndex - 1], debugInfo) + 1
         break
       }
       if (context[binding.n]) {
@@ -152,11 +153,11 @@ function evaluateLoop(
       for (const modifier of modifiers) {
         switch (modifier) {
           case `&let`:
-            addToContext(asValue(letBindings, debugInfo), context, newContextStack, evaluateAstNode, debugInfo)
+            addToContext(asNonUndefined(letBindings, debugInfo), context, newContextStack, evaluateAstNode, debugInfo)
             break
           case `&when`:
             if (!evaluateAstNode(asAstNode(whenNode, debugInfo), newContextStack)) {
-              bindingIndices[bindingIndex] = asValue(bindingIndices[bindingIndex], debugInfo) + 1
+              bindingIndices[bindingIndex] = asNonUndefined(bindingIndices[bindingIndex], debugInfo) + 1
               skip = true
               break bindingsLoop
             }

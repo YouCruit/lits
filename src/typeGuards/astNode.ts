@@ -1,7 +1,13 @@
-import { getAssertionError } from './getAssertionError'
 import { isAstNodeType, AstNodeType } from '../constants/constants'
-import type { AstNode, NameNode, NormalExpressionNode, NormalExpressionNodeWithName } from '../parser/interface'
+import type {
+  AstNode,
+  ExpressionNode,
+  NameNode,
+  NormalExpressionNode,
+  NormalExpressionNodeWithName,
+} from '../parser/interface'
 import type { DebugInfo } from '../tokenizer/interface'
+import { getAssertionError } from '../utils/getAssertionError'
 
 export function isAstNode(value: unknown): value is AstNode {
   if (value === null || typeof value !== `object`) {
@@ -73,5 +79,26 @@ export function assertNormalExpressionNodeWithName(
 ): asserts value is NormalExpressionNodeWithName {
   if (!isNormalExpressionNodeWithName(value)) {
     throw getAssertionError(`NormalExpressionNodeWithName`, value, debugInfo)
+  }
+}
+
+export function isExpressionNode(value: unknown): value is ExpressionNode {
+  if (!isAstNode(value)) {
+    return false
+  }
+  return (
+    value.t === AstNodeType.NormalExpression ||
+    value.t === AstNodeType.SpecialExpression ||
+    value.t === AstNodeType.Number ||
+    value.t === AstNodeType.String
+  )
+}
+export function asExpressionNode(value: unknown, debugInfo?: DebugInfo): ExpressionNode {
+  assertExpressionNode(value, debugInfo)
+  return value
+}
+export function assertExpressionNode(value: unknown, debugInfo?: DebugInfo): asserts value is ExpressionNode {
+  if (!isExpressionNode(value)) {
+    throw getAssertionError(`ExpressionNode`, value, debugInfo)
   }
 }

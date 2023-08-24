@@ -1,8 +1,10 @@
 import type { Any } from '../../../interface'
-import { compare, deepEqual } from '../../../utils'
+import { assertNumberOfParams, compare, deepEqual } from '../../../utils'
 import type { BuiltinNormalExpressions } from '../../interface'
 import { version } from '../../../version'
-import { asAny, assertNumber, assertNumberOfParams, assertString } from '../../../utils/assertion'
+import { asAny } from '../../../typeGuards/lits'
+import { assertNumber } from '../../../typeGuards/number'
+import { assertString } from '../../../typeGuards/string'
 const uuidTemplate = `xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx`
 const xyRegexp = /[xy]/g
 

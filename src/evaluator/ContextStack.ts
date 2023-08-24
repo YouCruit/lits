@@ -6,11 +6,11 @@ import type { Context, LookUpResult } from './interface'
 import { isContextEntry } from './interface'
 import type { Any } from '../interface'
 import { UndefinedSymbolError } from '../errors'
-import { asValue } from '../utils/assertion'
 import type { LazyValue } from '../Lits/Lits'
 import { FUNCTION_SYMBOL } from '../utils/symbols'
 import { contextToString } from '.'
 import { FunctionType } from '../constants/constants'
+import { asNonUndefined } from '../typeGuards'
 
 export class ContextStack {
   private contexts: Context[]
@@ -27,7 +27,7 @@ export class ContextStack {
     lazyValues?: Record<string, LazyValue>
   }) {
     this.contexts = contexts
-    this.globalContext = asValue(contexts[0])
+    this.globalContext = asNonUndefined(contexts[0])
     this.values = hostValues
     this.lazyValues = lazyHostValues
   }

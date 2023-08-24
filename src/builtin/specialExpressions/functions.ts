@@ -14,14 +14,14 @@ import type {
 } from '../../parser/interface'
 import type { Token } from '../../tokenizer/interface'
 import { TokenType } from '../../constants/constants'
-import { assertString } from '../../utils/assertion'
-import { assertNameNode } from '../../utils/astNodeAsserter'
-import { valueToString } from '../../utils/debugTools'
+import { assertNameNode } from '../../typeGuards/astNode'
+import { valueToString } from '../../utils/debug/debugTools'
 import { FUNCTION_SYMBOL } from '../../utils/symbols'
-import { asToken } from '../../utils/tokenAsserter'
+import { asToken } from '../../typeGuards/token'
 import type { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
 import type { Arity, FunctionArguments, FunctionOverload } from '../utils'
 import { assertNameNotDefined } from '../utils'
+import { asString } from '../../typeGuards/string'
 
 type DefnNode = SpecialExpressionNode & {
   f: NameNode
@@ -176,8 +176,7 @@ function getFunctionName(
   }
 
   const name = evaluateAstNode((node as DefnsNode).f, contextStack)
-  assertString(name, debugInfo)
-  return name
+  return asString(name, debugInfo)
 }
 
 function evaluateFunctionOverloades(

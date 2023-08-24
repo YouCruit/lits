@@ -1,7 +1,7 @@
-import { astNodeTypeName, isAstNodeType, isFunctionType, isTokenType, tokenTypeName } from '../constants/constants'
-import type { AstNode, LitsFunction } from '../parser/interface'
-import type { SourceCodeInfo, Token } from '../tokenizer/interface'
-import { FUNCTION_SYMBOL } from './symbols'
+import { astNodeTypeName, isAstNodeType, isFunctionType, isTokenType, tokenTypeName } from '../../constants/constants'
+import type { AstNode, LitsFunction } from '../../parser/interface'
+import type { SourceCodeInfo, Token } from '../../tokenizer/interface'
+import { FUNCTION_SYMBOL } from '../symbols'
 
 function isLitsFunction(func: unknown): func is LitsFunction {
   if (!isUnknownRecord(func)) {

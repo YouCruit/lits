@@ -1,7 +1,7 @@
 import { LitsError } from '../errors'
 import type { DebugInfo } from '../tokenizer/interface'
-import { valueToString } from './debugTools'
-import { getDebugInfo } from './getDebugInfo'
+import { valueToString } from '../utils/debug/debugTools'
+import { getDebugInfo } from '../utils/debug/getDebugInfo'
 
 type SignOptions =
   | {
@@ -95,11 +95,8 @@ function getRangeString(options: NumberOptions): string {
   } else return ``
 }
 
-function getNumberTypeName(options: NumberOptions): string {
-  if (options.zero) {
-    return `zero`
-  }
-  const sign = options.positive
+function getSignString(options: NumberOptions): string {
+  return options.positive
     ? `positive`
     : options.negative
     ? `negative`
@@ -110,6 +107,13 @@ function getNumberTypeName(options: NumberOptions): string {
     : options.nonZero
     ? `non zero`
     : ``
+}
+
+function getNumberTypeName(options: NumberOptions): string {
+  if (options.zero) {
+    return `zero`
+  }
+  const sign = getSignString(options)
   const numberType = options.integer ? `integer` : `number`
   const finite = options.finite ? `finite` : ``
   const range = getRangeString(options)

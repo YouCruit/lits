@@ -1,7 +1,7 @@
-import { getAssertionError } from './getAssertionError'
+import { getAssertionError } from '../utils/getAssertionError'
 import type { LitsFunction } from '../parser/interface'
 import type { DebugInfo } from '../tokenizer/interface'
-import { FUNCTION_SYMBOL } from './symbols'
+import { FUNCTION_SYMBOL } from '../utils/symbols'
 
 export function isLitsFunction(func: unknown): func is LitsFunction {
   if (func === null || typeof func !== `object`) {

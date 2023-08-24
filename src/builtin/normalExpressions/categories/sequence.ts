@@ -1,22 +1,13 @@
 import { LitsError } from '../../../errors'
 import type { Any, Arr, Obj, Seq } from '../../../interface'
 import type { DebugInfo } from '../../../tokenizer/interface'
-import { compare, toAny, toNonNegativeInteger, collHasKey } from '../../../utils'
-import {
-  asAny,
-  asArray,
-  asNumber,
-  asSeq,
-  assertAny,
-  assertArray,
-  assertCharArray,
-  assertNumber,
-  assertNumberOfParams,
-  assertSeq,
-  assertString,
-} from '../../../utils/assertion'
-import { assertLitsFunction } from '../../../utils/functionAsserter'
+import { compare, toAny, toNonNegativeInteger, collHasKey, assertNumberOfParams } from '../../../utils'
+import { assertLitsFunction } from '../../../typeGuards/function'
 import type { BuiltinNormalExpressions, NormalExpressionEvaluator } from '../../interface'
+import { assertArray, assertCharArray, asArray } from '../../../typeGuards/array'
+import { assertSeq, assertAny, asAny, asSeq } from '../../../typeGuards/lits'
+import { assertNumber, asNumber } from '../../../typeGuards/number'
+import { assertString } from '../../../typeGuards/string'
 
 export const evaluateMap: NormalExpressionEvaluator<Arr | string> = (
   params: Arr,

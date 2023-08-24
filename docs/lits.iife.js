@@ -68,7 +68,7 @@ var Lits = (function (exports) {
       FunctionType[FunctionType["Fnil"] = 309] = "Fnil";
       FunctionType[FunctionType["Builtin"] = 310] = "Builtin";
   })(exports.FunctionType || (exports.FunctionType = {}));
-  new Map([
+  var functionTypeName = new Map([
       [exports.FunctionType.UserDefined, "UserDefined"],
       [exports.FunctionType.Partial, "Partial"],
       [exports.FunctionType.Comp, "Comp"],
@@ -80,6 +80,9 @@ var Lits = (function (exports) {
       [exports.FunctionType.Fnil, "Fnil"],
       [exports.FunctionType.Builtin, "Builtin"],
   ]);
+  function isFunctionType(type) {
+      return typeof type === "number" && functionTypeName.has(type);
+  }
 
   /******************************************************************************
   Copyright (c) Microsoft Corporation.
@@ -171,19 +174,19 @@ var Lits = (function (exports) {
   var REGEXP_SYMBOL = "\u01A6";
 
   function isLitsFunction$1(func) {
-      if (func === null || typeof func !== "object") {
+      if (!isUnknownRecord$1(func)) {
           return false;
       }
-      return !!func[FUNCTION_SYMBOL];
+      return !!func[FUNCTION_SYMBOL] && isFunctionType(func.t);
   }
   function isUnknownRecord$1(value) {
       return typeof value === "object" && value !== null;
   }
   function isToken$1(value) {
-      return isUnknownRecord$1(value) && typeof value.t === "number" && typeof value.v === "string";
+      return isUnknownRecord$1(value) && isTokenType(value.t) && typeof value.v === "string";
   }
   function isAstNode$1(value) {
-      return isUnknownRecord$1(value) && value.t === "number";
+      return isUnknownRecord$1(value) && isAstNodeType(value.t);
   }
   function valueToString(value) {
       if (isLitsFunction$1(value)) {
@@ -191,13 +194,13 @@ var Lits = (function (exports) {
           return "<function ".concat(value.name || "\u03BB", ">");
       }
       if (isToken$1(value)) {
-          return "".concat(value.t, "-token \"").concat(value.v, "\"");
+          return "".concat(tokenTypeName.get(value.t), "-token \"").concat(value.v, "\"");
       }
       if (isAstNode$1(value)) {
-          return "".concat(value.t, "-node");
+          return "".concat(astNodeTypeName.get(value.t), "-node");
       }
       if (value === null) {
-          return "null";
+          return "nil";
       }
       if (typeof value === "object" && value instanceof RegExp) {
           return "".concat(value);
@@ -527,113 +530,6 @@ var Lits = (function (exports) {
       }
       return value.t === exports.AstNodeType.NormalExpression && typeof value.n === "string";
   }
-
-  function isStringOrNumber(value) {
-      return typeof value === "string" || typeof value === "number";
-  }
-  function asStringOrNumber(value, debugInfo) {
-      assertStringOrNumber(value, debugInfo);
-      return value;
-  }
-  function assertStringOrNumber(value, debugInfo) {
-      if (!isStringOrNumber(value)) {
-          throw getAssertionError("string or number", value, debugInfo);
-      }
-  }
-  function asArray(value, debugInfo) {
-      assertArray(value, debugInfo);
-      return value;
-  }
-  function assertArray(value, debugInfo) {
-      if (!Array.isArray(value)) {
-          throw getAssertionError("array", value, debugInfo);
-      }
-  }
-  function isAny(value) {
-      // TODO weak test
-      return value !== undefined;
-  }
-  function asAny(value, debugInfo) {
-      assertAny(value, debugInfo);
-      return value;
-  }
-  function assertAny(value, debugInfo) {
-      if (!isAny(value)) {
-          throw getAssertionError("not undefined", value, debugInfo);
-      }
-  }
-  function isSeq(value) {
-      return Array.isArray(value) || typeof value === "string";
-  }
-  function asSeq(value, debugInfo) {
-      assertSeq(value, debugInfo);
-      return value;
-  }
-  function assertSeq(value, debugInfo) {
-      if (!isSeq(value)) {
-          throw getAssertionError("string or array", value, debugInfo);
-      }
-  }
-  function isObj(value) {
-      return !(value === null ||
-          typeof value !== "object" ||
-          Array.isArray(value) ||
-          value instanceof RegExp ||
-          isLitsFunction(value) ||
-          isRegularExpression(value));
-  }
-  function assertObj(value, debugInfo) {
-      if (!isObj(value)) {
-          throw getAssertionError("object", value, debugInfo);
-      }
-  }
-  function isColl(value) {
-      return isSeq(value) || isObj(value);
-  }
-  function asColl(value, debugInfo) {
-      assertColl(value, debugInfo);
-      return value;
-  }
-  function assertColl(value, debugInfo) {
-      if (!isColl(value)) {
-          throw getAssertionError("string, array or object", value, debugInfo);
-      }
-  }
-  function isStringArray(value) {
-      return Array.isArray(value) && value.every(function (v) { return typeof v === "string"; });
-  }
-  function assertStringArray(value, debugInfo) {
-      if (!isStringArray(value)) {
-          throw getAssertionError("array of strings", value, debugInfo);
-      }
-  }
-  function isCharArray(value) {
-      return Array.isArray(value) && value.every(function (v) { return typeof v === "string" && v.length === 1; });
-  }
-  function assertCharArray(value, debugInfo) {
-      if (!isCharArray(value)) {
-          throw getAssertionError("array of strings", value, debugInfo);
-      }
-  }
-  function isRegularExpression(regexp) {
-      if (regexp === null || typeof regexp !== "object") {
-          return false;
-      }
-      return !!regexp[REGEXP_SYMBOL];
-  }
-  function assertRegularExpression(value, debugInfo) {
-      if (!isRegularExpression(value)) {
-          throw getAssertionError("RegularExpression", value, debugInfo);
-      }
-  }
-  function isStringOrRegularExpression(value) {
-      return isRegularExpression(value) || typeof value === "string";
-  }
-  function assertStringOrRegularExpression(value, debugInfo) {
-      if (!isStringOrRegularExpression(value)) {
-          throw getAssertionError("string or RegularExpression", value, debugInfo);
-      }
-  }
   function isExpressionNode(value) {
       if (!isAstNode(value)) {
           return false;
@@ -642,167 +538,6 @@ var Lits = (function (exports) {
           value.t === exports.AstNodeType.SpecialExpression ||
           value.t === exports.AstNodeType.Number ||
           value.t === exports.AstNodeType.String);
-  }
-  function assertNumberOfParams(count, node) {
-      var _a, _b;
-      var length = node.p.length;
-      var debugInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d;
-      if (typeof count === "number") {
-          if (length !== count) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected ").concat(count, ", got ").concat(valueToString(length), "."), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
-          }
-      }
-      else {
-          var min = count.min, max = count.max;
-          if (min === undefined && max === undefined) {
-              throw new LitsError("Min or max must be specified.", debugInfo);
-          }
-          if (typeof min === "number" && length < min) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at least ").concat(min, ", got ").concat(valueToString(length), "."), debugInfo);
-          }
-          if (typeof max === "number" && length > max) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at most ").concat(max, ", got ").concat(valueToString(length), "."), debugInfo);
-          }
-      }
-  }
-  function assertEventNumberOfParams(node) {
-      var _a;
-      var length = node.p.length;
-      if (length % 2 !== 0) {
-          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString(length), "."), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
-      }
-  }
-  function asValue(value, debugInfo) {
-      if (value === undefined) {
-          throw new LitsError("Unexpected undefined", getDebugInfo(value, debugInfo));
-      }
-      return value;
-  }
-  function assertValue(value, debugInfo) {
-      if (value === undefined) {
-          throw new LitsError("Unexpected undefined.", getDebugInfo(value, debugInfo));
-      }
-  }
-  /* istanbul ignore next */
-  function assertUnreachable(_) {
-      throw new Error("This should not be reached");
-  }
-  function isLazyValue(value) {
-      return isUnknownRecord(value) && !!value.read;
-  }
-  function isUnknownRecord(value) {
-      return value !== null && typeof value === "object" && !Array.isArray(value);
-  }
-  function isString(value, options) {
-      if (options === void 0) { options = {}; }
-      if (typeof value !== "string") {
-          return false;
-      }
-      if (options.nonEmpty && value.length === 0) {
-          return false;
-      }
-      if (options.char && value.length !== 1) {
-          return false;
-      }
-      return true;
-  }
-  function assertString(value, debugInfo, options) {
-      if (options === void 0) { options = {}; }
-      if (!isString(value, options)) {
-          throw new LitsError("Expected ".concat(options.nonEmpty ? "non empty string" : options.char ? "character" : "string", ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
-      }
-  }
-  function asString(value, debugInfo, options) {
-      if (options === void 0) { options = {}; }
-      assertString(value, debugInfo, options);
-      return value;
-  }
-  function getRangeString(options) {
-      if ((typeof options.gt === "number" || typeof options.gte === "number") &&
-          (typeof options.lt === "number" || typeof options.lte === "number")) {
-          return "".concat(typeof options.gt === "number" ? "".concat(options.gt, " < n ") : "".concat(options.gte, " <= n ")).concat(typeof options.lt === "number" ? "< ".concat(options.lt) : "<= ".concat(options.lte));
-      }
-      if (typeof options.gt === "number" || typeof options.gte === "number") {
-          return "".concat(typeof options.gt === "number" ? "n > ".concat(options.gt) : "n >= ".concat(options.gte));
-      }
-      if (typeof options.lt === "number" || typeof options.lte === "number") {
-          return "".concat(typeof options.lt === "number" ? "n < ".concat(options.lt) : "n <= ".concat(options.lte));
-      }
-      return "";
-  }
-  function getNumberTypeName(options) {
-      if (options.zero) {
-          return "zero";
-      }
-      var sign = options.positive
-          ? "positive"
-          : options.negative
-              ? "negative"
-              : options.nonNegative
-                  ? "non negative"
-                  : options.nonPositive
-                      ? "non positive"
-                      : options.nonZero
-                          ? "non zero"
-                          : "";
-      var numberType = options.integer ? "integer" : "number";
-      var finite = options.finite ? "finite" : "";
-      var range = getRangeString(options);
-      return [sign, finite, numberType, range].filter(function (x) { return !!x; }).join(" ");
-  }
-  function isNumber(value, options) {
-      if (options === void 0) { options = {}; }
-      if (typeof value !== "number") {
-          return false;
-      }
-      if (options.integer && !Number.isInteger(value)) {
-          return false;
-      }
-      if (options.finite && !Number.isFinite(value)) {
-          return false;
-      }
-      if (options.zero && value !== 0) {
-          return false;
-      }
-      if (options.nonZero && value === 0) {
-          return false;
-      }
-      if (options.positive && value <= 0) {
-          return false;
-      }
-      if (options.negative && value >= 0) {
-          return false;
-      }
-      if (options.nonPositive && value > 0) {
-          return false;
-      }
-      if (options.nonNegative && value < 0) {
-          return false;
-      }
-      if (typeof options.gt === "number" && value <= options.gt) {
-          return false;
-      }
-      if (typeof options.gte === "number" && value < options.gte) {
-          return false;
-      }
-      if (typeof options.lt === "number" && value >= options.lt) {
-          return false;
-      }
-      if (typeof options.lte === "number" && value > options.lte) {
-          return false;
-      }
-      return true;
-  }
-  function assertNumber(value, debugInfo, options) {
-      if (options === void 0) { options = {}; }
-      if (!isNumber(value, options)) {
-          throw new LitsError("Expected ".concat(getNumberTypeName(options), ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
-      }
-  }
-  function asNumber(value, debugInfo, options) {
-      if (options === void 0) { options = {}; }
-      assertNumber(value, debugInfo, options);
-      return value;
   }
 
   var reservedNamesRecord = {
@@ -834,6 +569,43 @@ var Lits = (function (exports) {
       }
       if (contextStack.globalContext[name]) {
           throw new LitsError("Name already defined \"".concat(name, "\"."), debugInfo);
+      }
+  }
+
+  function isString(value, options) {
+      if (options === void 0) { options = {}; }
+      if (typeof value !== "string") {
+          return false;
+      }
+      if (options.nonEmpty && value.length === 0) {
+          return false;
+      }
+      if (options.char && value.length !== 1) {
+          return false;
+      }
+      return true;
+  }
+  function assertString(value, debugInfo, options) {
+      if (options === void 0) { options = {}; }
+      if (!isString(value, options)) {
+          throw new LitsError(getAssertionError("".concat(options.nonEmpty ? "non empty string" : options.char ? "character" : "string"), value, debugInfo));
+      }
+  }
+  function asString(value, debugInfo, options) {
+      if (options === void 0) { options = {}; }
+      assertString(value, debugInfo, options);
+      return value;
+  }
+  function isStringOrNumber(value) {
+      return typeof value === "string" || typeof value === "number";
+  }
+  function asStringOrNumber(value, debugInfo) {
+      assertStringOrNumber(value, debugInfo);
+      return value;
+  }
+  function assertStringOrNumber(value, debugInfo) {
+      if (!isStringOrNumber(value)) {
+          throw getAssertionError("string or number", value, debugInfo);
       }
   }
 
@@ -971,8 +743,7 @@ var Lits = (function (exports) {
           return node.f.v;
       }
       var name = evaluateAstNode(node.f, contextStack);
-      assertString(name, debugInfo);
-      return name;
+      return asString(name, debugInfo);
   }
   function evaluateFunctionOverloades(node, contextStack, evaluateAstNode) {
       var e_1, _a, e_2, _b;
@@ -1200,6 +971,378 @@ var Lits = (function (exports) {
       return [position, args];
   }
 
+  function isAny(value) {
+      // TODO weak test
+      return value !== undefined;
+  }
+  function asAny(value, debugInfo) {
+      assertAny(value, debugInfo);
+      return value;
+  }
+  function assertAny(value, debugInfo) {
+      if (!isAny(value)) {
+          throw getAssertionError("not undefined", value, debugInfo);
+      }
+  }
+  function isSeq(value) {
+      return Array.isArray(value) || typeof value === "string";
+  }
+  function asSeq(value, debugInfo) {
+      assertSeq(value, debugInfo);
+      return value;
+  }
+  function assertSeq(value, debugInfo) {
+      if (!isSeq(value)) {
+          throw getAssertionError("string or array", value, debugInfo);
+      }
+  }
+  function isObj(value) {
+      return !(value === null ||
+          typeof value !== "object" ||
+          Array.isArray(value) ||
+          value instanceof RegExp ||
+          isLitsFunction(value) ||
+          isRegularExpression(value));
+  }
+  function assertObj(value, debugInfo) {
+      if (!isObj(value)) {
+          throw getAssertionError("object", value, debugInfo);
+      }
+  }
+  function isColl(value) {
+      return isSeq(value) || isObj(value);
+  }
+  function asColl(value, debugInfo) {
+      assertColl(value, debugInfo);
+      return value;
+  }
+  function assertColl(value, debugInfo) {
+      if (!isColl(value)) {
+          throw getAssertionError("string, array or object", value, debugInfo);
+      }
+  }
+  function isRegularExpression(regexp) {
+      if (regexp === null || typeof regexp !== "object") {
+          return false;
+      }
+      return !!regexp[REGEXP_SYMBOL];
+  }
+  function assertRegularExpression(value, debugInfo) {
+      if (!isRegularExpression(value)) {
+          throw getAssertionError("RegularExpression", value, debugInfo);
+      }
+  }
+  function isStringOrRegularExpression(value) {
+      return isRegularExpression(value) || typeof value === "string";
+  }
+  function assertStringOrRegularExpression(value, debugInfo) {
+      if (!isStringOrRegularExpression(value)) {
+          throw getAssertionError("string or RegularExpression", value, debugInfo);
+      }
+  }
+
+  function getRangeString(options) {
+      var hasUpperAndLowerBound = (typeof options.gt === "number" || typeof options.gte === "number") &&
+          (typeof options.lt === "number" || typeof options.lte === "number");
+      if (hasUpperAndLowerBound) {
+          return "".concat(typeof options.gt === "number" ? "".concat(options.gt, " < n ") : "".concat(options.gte, " <= n ")).concat(typeof options.lt === "number" ? "< ".concat(options.lt) : "<= ".concat(options.lte));
+      }
+      else if (typeof options.gt === "number" || typeof options.gte === "number") {
+          return "".concat(typeof options.gt === "number" ? "n > ".concat(options.gt) : "n >= ".concat(options.gte));
+      }
+      else if (typeof options.lt === "number" || typeof options.lte === "number") {
+          return "".concat(typeof options.lt === "number" ? "n < ".concat(options.lt) : "n <= ".concat(options.lte));
+      }
+      else
+          return "";
+  }
+  function getSignString(options) {
+      return options.positive
+          ? "positive"
+          : options.negative
+              ? "negative"
+              : options.nonNegative
+                  ? "non negative"
+                  : options.nonPositive
+                      ? "non positive"
+                      : options.nonZero
+                          ? "non zero"
+                          : "";
+  }
+  function getNumberTypeName(options) {
+      if (options.zero) {
+          return "zero";
+      }
+      var sign = getSignString(options);
+      var numberType = options.integer ? "integer" : "number";
+      var finite = options.finite ? "finite" : "";
+      var range = getRangeString(options);
+      return [sign, finite, numberType, range].filter(function (x) { return !!x; }).join(" ");
+  }
+  function isNumber(value, options) {
+      if (options === void 0) { options = {}; }
+      if (typeof value !== "number") {
+          return false;
+      }
+      if (options.integer && !Number.isInteger(value)) {
+          return false;
+      }
+      if (options.finite && !Number.isFinite(value)) {
+          return false;
+      }
+      if (options.zero && value !== 0) {
+          return false;
+      }
+      if (options.nonZero && value === 0) {
+          return false;
+      }
+      if (options.positive && value <= 0) {
+          return false;
+      }
+      if (options.negative && value >= 0) {
+          return false;
+      }
+      if (options.nonPositive && value > 0) {
+          return false;
+      }
+      if (options.nonNegative && value < 0) {
+          return false;
+      }
+      if (typeof options.gt === "number" && value <= options.gt) {
+          return false;
+      }
+      if (typeof options.gte === "number" && value < options.gte) {
+          return false;
+      }
+      if (typeof options.lt === "number" && value >= options.lt) {
+          return false;
+      }
+      if (typeof options.lte === "number" && value > options.lte) {
+          return false;
+      }
+      return true;
+  }
+  function assertNumber(value, debugInfo, options) {
+      if (options === void 0) { options = {}; }
+      if (!isNumber(value, options)) {
+          throw new LitsError("Expected ".concat(getNumberTypeName(options), ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
+      }
+  }
+  function asNumber(value, debugInfo, options) {
+      if (options === void 0) { options = {}; }
+      assertNumber(value, debugInfo, options);
+      return value;
+  }
+
+  function assertEventNumberOfParams(node) {
+      var _a;
+      var length = node.p.length;
+      if (length % 2 !== 0) {
+          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString(length), "."), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
+      }
+  }
+  function isNonUndefined(value) {
+      return value !== undefined;
+  }
+  function asNonUndefined(value, debugInfo) {
+      assertNonUndefined(value, debugInfo);
+      return value;
+  }
+  function assertNonUndefined(value, debugInfo) {
+      if (!isNonUndefined(value)) {
+          throw new LitsError("Unexpected undefined", getDebugInfo(value, debugInfo));
+      }
+  }
+  /* istanbul ignore next */
+  function assertUnreachable(_) {
+      throw new Error("This should not be reached");
+  }
+  function isUnknownRecord(value) {
+      return value !== null && typeof value === "object" && !Array.isArray(value);
+  }
+
+  function collHasKey(coll, key) {
+      if (!isColl(coll)) {
+          return false;
+      }
+      if (typeof coll === "string" || Array.isArray(coll)) {
+          if (!isNumber(key, { integer: true })) {
+              return false;
+          }
+          return key >= 0 && key < coll.length;
+      }
+      return !!Object.getOwnPropertyDescriptor(coll, key);
+  }
+  var sortOrderByType = {
+      boolean: 0,
+      number: 1,
+      string: 2,
+      array: 3,
+      object: 4,
+      regexp: 5,
+      unknown: 6,
+      null: 7,
+  };
+  function getType(value) {
+      if (value === null) {
+          return "null";
+      }
+      else if (typeof value === "boolean") {
+          return "boolean";
+      }
+      else if (typeof value === "number") {
+          return "number";
+      }
+      else if (typeof value === "string") {
+          return "string";
+      }
+      else if (Array.isArray(value)) {
+          return "array";
+      }
+      else if (isObj(value)) {
+          return "object";
+      }
+      else if (isRegularExpression(value)) {
+          return "regexp";
+      }
+      else {
+          return "unknown";
+      }
+  }
+  function compare(a, b) {
+      var aType = getType(a);
+      var bType = getType(b);
+      if (aType !== bType) {
+          return Math.sign(sortOrderByType[aType] - sortOrderByType[bType]);
+      }
+      switch (aType) {
+          case "null":
+              return 0;
+          case "boolean":
+              if (a === b) {
+                  return 0;
+              }
+              return a === false ? -1 : 1;
+          case "number":
+              return Math.sign(a - b);
+          case "string": {
+              var aString = a;
+              var bString = b;
+              return aString < bString ? -1 : aString > bString ? 1 : 0;
+          }
+          case "array": {
+              var aArray = a;
+              var bArray = b;
+              if (aArray.length < bArray.length) {
+                  return -1;
+              }
+              else if (aArray.length > bArray.length) {
+                  return 1;
+              }
+              for (var i = 0; i < aArray.length; i += 1) {
+                  var innerComp = compare(aArray[i], bArray[i]);
+                  if (innerComp !== 0) {
+                      return innerComp;
+                  }
+              }
+              return 0;
+          }
+          case "object": {
+              var aObj = a;
+              var bObj = b;
+              return Math.sign(Object.keys(aObj).length - Object.keys(bObj).length);
+          }
+          case "regexp": {
+              var aString = a.s;
+              var bString = b.s;
+              return aString < bString ? -1 : aString > bString ? 1 : 0;
+          }
+          case "unknown":
+              return 0;
+      }
+  }
+  function deepEqual(a, b, debugInfo) {
+      if (a === b) {
+          return true;
+      }
+      if (typeof a === "number" && typeof b === "number") {
+          return Math.abs(a - b) < Number.EPSILON;
+      }
+      if (Array.isArray(a) && Array.isArray(b)) {
+          if (a.length !== b.length) {
+              return false;
+          }
+          for (var i = 0; i < a.length; i += 1) {
+              if (!deepEqual(asAny(a[i], debugInfo), asAny(b[i], debugInfo), debugInfo)) {
+                  return false;
+              }
+          }
+          return true;
+      }
+      if (isRegularExpression(a) && isRegularExpression(b)) {
+          return a.s === b.s && a.f === b.f;
+      }
+      if (isUnknownRecord(a) && isUnknownRecord(b)) {
+          var aKeys = Object.keys(a);
+          var bKeys = Object.keys(b);
+          if (aKeys.length !== bKeys.length) {
+              return false;
+          }
+          for (var i = 0; i < aKeys.length; i += 1) {
+              var key = asString(aKeys[i], debugInfo);
+              if (!deepEqual(toAny(a[key]), toAny(b[key]), debugInfo)) {
+                  return false;
+              }
+          }
+          return true;
+      }
+      return false;
+  }
+  function toNonNegativeInteger(num) {
+      return Math.max(0, Math.ceil(num));
+  }
+  function toAny(value) {
+      return (value !== null && value !== void 0 ? value : null);
+  }
+  function clone(value) {
+      if (isObj(value)) {
+          return Object.entries(value).reduce(function (result, entry) {
+              var _a = __read(entry, 2), key = _a[0], val = _a[1];
+              result[key] = clone(val);
+              return result;
+          }, {});
+      }
+      if (Array.isArray(value)) {
+          return value.map(function (item) { return clone(item); });
+      }
+      return value;
+  }
+  function cloneColl(value) {
+      return clone(value);
+  }
+  function assertNumberOfParams(count, node) {
+      var _a, _b;
+      var length = node.p.length;
+      var debugInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d;
+      if (typeof count === "number") {
+          if (length !== count) {
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected ").concat(count, ", got ").concat(valueToString(length), "."), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
+          }
+      }
+      else {
+          var min = count.min, max = count.max;
+          if (min === undefined && max === undefined) {
+              throw new LitsError("Min or max must be specified.", debugInfo);
+          }
+          if (typeof min === "number" && length < min) {
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at least ").concat(min, ", got ").concat(valueToString(length), "."), debugInfo);
+          }
+          if (typeof max === "number" && length > max) {
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at most ").concat(max, ", got ").concat(valueToString(length), "."), debugInfo);
+          }
+      }
+  }
+
   var defSpecialExpression = {
       parse: function (tokens, position, _a) {
           var parseTokens = _a.parseTokens;
@@ -1408,7 +1551,7 @@ var Lits = (function (exports) {
           var newContextStack = contextStack.withContext(context);
           var skip = false;
           bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
-              var _d = asValue(loopBindings[bindingIndex], debugInfo), binding = _d.b, letBindings = _d.l, whenNode = _d.wn, whileNode = _d.we, modifiers = _d.m;
+              var _d = asNonUndefined(loopBindings[bindingIndex], debugInfo), binding = _d.b, letBindings = _d.l, whenNode = _d.wn, whileNode = _d.we, modifiers = _d.m;
               var coll = asColl(evaluateAstNode(binding.v, newContextStack), debugInfo);
               var seq = isSeq(coll) ? coll : Object.entries(coll);
               if (seq.length === 0) {
@@ -1416,7 +1559,7 @@ var Lits = (function (exports) {
                   abort = true;
                   break;
               }
-              var index = asValue(bindingIndices[bindingIndex], debugInfo);
+              var index = asNonUndefined(bindingIndices[bindingIndex], debugInfo);
               if (index >= seq.length) {
                   skip = true;
                   if (bindingIndex === 0) {
@@ -1424,7 +1567,7 @@ var Lits = (function (exports) {
                       break;
                   }
                   bindingIndices[bindingIndex] = 0;
-                  bindingIndices[bindingIndex - 1] = asValue(bindingIndices[bindingIndex - 1], debugInfo) + 1;
+                  bindingIndices[bindingIndex - 1] = asNonUndefined(bindingIndices[bindingIndex - 1], debugInfo) + 1;
                   break;
               }
               if (context[binding.n]) {
@@ -1438,11 +1581,11 @@ var Lits = (function (exports) {
                       var modifier = modifiers_1_1.value;
                       switch (modifier) {
                           case "&let":
-                              addToContext(asValue(letBindings, debugInfo), context, newContextStack, evaluateAstNode, debugInfo);
+                              addToContext(asNonUndefined(letBindings, debugInfo), context, newContextStack, evaluateAstNode, debugInfo);
                               break;
                           case "&when":
                               if (!evaluateAstNode(asAstNode(whenNode, debugInfo), newContextStack)) {
-                                  bindingIndices[bindingIndex] = asValue(bindingIndices[bindingIndex], debugInfo) + 1;
+                                  bindingIndices[bindingIndex] = asNonUndefined(bindingIndices[bindingIndex], debugInfo) + 1;
                                   skip = true;
                                   break bindingsLoop;
                               }
@@ -1580,7 +1723,7 @@ var Lits = (function (exports) {
           var node = {
               t: exports.AstNodeType.SpecialExpression,
               n: "if-let",
-              b: asValue(bindings[0], firstToken.d),
+              b: asNonUndefined(bindings[0], firstToken.d),
               p: params,
               tkn: firstToken.d ? firstToken : undefined,
           };
@@ -1819,7 +1962,7 @@ var Lits = (function (exports) {
                           throw new LitsError("recur expected ".concat(node.bs.length, " parameters, got ").concat(valueToString(params_1.length)), debugInfo);
                       }
                       node.bs.forEach(function (binding, index) {
-                          asValue(bindingContext[binding.n], debugInfo).value = asAny(params_1[index], debugInfo);
+                          asNonUndefined(bindingContext[binding.n], debugInfo).value = asAny(params_1[index], debugInfo);
                       });
                       return "continue";
                   }
@@ -2044,168 +2187,6 @@ var Lits = (function (exports) {
       },
   };
 
-  function collHasKey(coll, key) {
-      if (!isColl(coll)) {
-          return false;
-      }
-      if (typeof coll === "string" || Array.isArray(coll)) {
-          if (!isNumber(key, { integer: true })) {
-              return false;
-          }
-          return key >= 0 && key < coll.length;
-      }
-      return !!Object.getOwnPropertyDescriptor(coll, key);
-  }
-  var sortOrderByType = {
-      boolean: 0,
-      number: 1,
-      string: 2,
-      array: 3,
-      object: 4,
-      regexp: 5,
-      unknown: 6,
-      null: 7,
-  };
-  function getType(value) {
-      if (value === null) {
-          return "null";
-      }
-      else if (typeof value === "boolean") {
-          return "boolean";
-      }
-      else if (typeof value === "number") {
-          return "number";
-      }
-      else if (typeof value === "string") {
-          return "string";
-      }
-      else if (Array.isArray(value)) {
-          return "array";
-      }
-      else if (isObj(value)) {
-          return "object";
-      }
-      else if (isRegularExpression(value)) {
-          return "regexp";
-      }
-      else {
-          return "unknown";
-      }
-  }
-  function compare(a, b) {
-      var aType = getType(a);
-      var bType = getType(b);
-      if (aType !== bType) {
-          return Math.sign(sortOrderByType[aType] - sortOrderByType[bType]);
-      }
-      switch (aType) {
-          case "null":
-              return 0;
-          case "boolean":
-              if (a === b) {
-                  return 0;
-              }
-              return a === false ? -1 : 1;
-          case "number":
-              return Math.sign(a - b);
-          case "string": {
-              var aString = a;
-              var bString = b;
-              return aString < bString ? -1 : aString > bString ? 1 : 0;
-          }
-          case "array": {
-              var aArray = a;
-              var bArray = b;
-              if (aArray.length < bArray.length) {
-                  return -1;
-              }
-              else if (aArray.length > bArray.length) {
-                  return 1;
-              }
-              for (var i = 0; i < aArray.length; i += 1) {
-                  var innerComp = compare(aArray[i], bArray[i]);
-                  if (innerComp !== 0) {
-                      return innerComp;
-                  }
-              }
-              return 0;
-          }
-          case "object": {
-              var aObj = a;
-              var bObj = b;
-              return Math.sign(Object.keys(aObj).length - Object.keys(bObj).length);
-          }
-          case "regexp": {
-              var aString = a.s;
-              var bString = b.s;
-              return aString < bString ? -1 : aString > bString ? 1 : 0;
-          }
-          case "unknown":
-              return 0;
-      }
-  }
-  function deepEqual(a, b, debugInfo) {
-      if (a === b) {
-          return true;
-      }
-      if (typeof a === "number" && typeof b === "number") {
-          return Math.abs(a - b) < Number.EPSILON;
-      }
-      if (Array.isArray(a) && Array.isArray(b)) {
-          if (a.length !== b.length) {
-              return false;
-          }
-          for (var i = 0; i < a.length; i += 1) {
-              if (!deepEqual(asAny(a[i], debugInfo), asAny(b[i], debugInfo), debugInfo)) {
-                  return false;
-              }
-          }
-          return true;
-      }
-      if (isRegularExpression(a) && isRegularExpression(b)) {
-          return a.s === b.s && a.f === b.f;
-      }
-      if (typeof a === "object" && a !== null && typeof b === "object" && b !== null) {
-          var aObj = a;
-          var bObj = b;
-          var aKeys = Object.keys(aObj);
-          var bKeys = Object.keys(bObj);
-          if (aKeys.length !== bKeys.length) {
-              return false;
-          }
-          for (var i = 0; i < aKeys.length; i += 1) {
-              var key = asString(aKeys[i], debugInfo);
-              if (!deepEqual(toAny(aObj[key]), toAny(bObj[key]), debugInfo)) {
-                  return false;
-              }
-          }
-          return true;
-      }
-      return false;
-  }
-  function toNonNegativeInteger(num) {
-      return Math.max(0, Math.ceil(num));
-  }
-  function toAny(value) {
-      return (value !== null && value !== void 0 ? value : null);
-  }
-  function clone(value) {
-      if (isObj(value)) {
-          return Object.entries(value).reduce(function (result, entry) {
-              var _a = __read(entry, 2), key = _a[0], val = _a[1];
-              result[key] = clone(val);
-              return result;
-          }, {});
-      }
-      if (Array.isArray(value)) {
-          return value.map(function (item) { return clone(item); });
-      }
-      return value;
-  }
-  function cloneColl(value) {
-      return clone(value);
-  }
-
   var whenFirstSpecialExpression = {
       parse: function (tokens, position, _a) {
           var _b, _c;
@@ -2221,7 +2202,7 @@ var Lits = (function (exports) {
           var node = {
               t: exports.AstNodeType.SpecialExpression,
               n: "when-first",
-              b: asValue(bindings[0], firstToken.d),
+              b: asNonUndefined(bindings[0], firstToken.d),
               p: params,
               tkn: firstToken.d ? firstToken : undefined,
           };
@@ -2286,7 +2267,7 @@ var Lits = (function (exports) {
           var node = {
               t: exports.AstNodeType.SpecialExpression,
               n: "when-let",
-              b: asValue(bindings[0], firstToken.d),
+              b: asNonUndefined(bindings[0], firstToken.d),
               p: params,
               tkn: firstToken.d ? firstToken : undefined,
           };
@@ -2533,6 +2514,33 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
   };
+
+  // isArray not needed, use Array.isArary
+  function asArray(value, debugInfo) {
+      assertArray(value, debugInfo);
+      return value;
+  }
+  function assertArray(value, debugInfo) {
+      if (!Array.isArray(value)) {
+          throw getAssertionError("array", value, debugInfo);
+      }
+  }
+  function isStringArray(value) {
+      return Array.isArray(value) && value.every(function (v) { return typeof v === "string"; });
+  }
+  function assertStringArray(value, debugInfo) {
+      if (!isStringArray(value)) {
+          throw getAssertionError("array of strings", value, debugInfo);
+      }
+  }
+  function isCharArray(value) {
+      return Array.isArray(value) && value.every(function (v) { return typeof v === "string" && v.length === 1; });
+  }
+  function assertCharArray(value, debugInfo) {
+      if (!isCharArray(value)) {
+          throw getAssertionError("array of strings", value, debugInfo);
+      }
+  }
 
   function cloneAndGetMeta(originalColl, keys, debugInfo) {
       var coll = cloneColl(originalColl);
@@ -5322,7 +5330,7 @@ var Lits = (function (exports) {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), str = _b[0];
               assertString(str, debugInfo, { nonEmpty: true });
-              return asValue(str.codePointAt(0), debugInfo);
+              return asNonUndefined(str.codePointAt(0), debugInfo);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
@@ -5846,7 +5854,7 @@ var Lits = (function (exports) {
               return { undefinedSymbols: undefinedSymbols_1 };
           }
           case exports.AstNodeType.SpecialExpression: {
-              var specialExpression = asValue(builtin.specialExpressions[astNode.n], (_b = astNode.tkn) === null || _b === void 0 ? void 0 : _b.d);
+              var specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], (_b = astNode.tkn) === null || _b === void 0 ? void 0 : _b.d);
               var result = specialExpression.analyze(astNode, contextStack, {
                   analyzeAst: analyzeAst,
                   builtin: builtin,
@@ -6023,7 +6031,7 @@ var Lits = (function (exports) {
       },
       _a[exports.FunctionType.Builtin] = function (fn, params, debugInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          var normalExpression = asValue(normalExpressions[fn.n], debugInfo);
+          var normalExpression = asNonUndefined(normalExpressions[fn.n], debugInfo);
           return normalExpression.evaluate(params, debugInfo, contextStack, { executeFunction: executeFunction });
       },
       _a);
@@ -6073,7 +6081,7 @@ var Lits = (function (exports) {
   }
   function evaluateReservedName(node) {
       var _a;
-      return asValue(reservedNamesRecord[node.v], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d).value;
+      return asNonUndefined(reservedNamesRecord[node.v], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d).value;
   }
   function evaluateNormalExpression(node, contextStack) {
       var _a;
@@ -6119,7 +6127,7 @@ var Lits = (function (exports) {
   }
   function evaluateSpecialExpression(node, contextStack) {
       var _a;
-      var specialExpression = asValue(builtin.specialExpressions[node.n], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
+      var specialExpression = asNonUndefined(builtin.specialExpressions[node.n], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
       return specialExpression.evaluate(node, contextStack, { evaluateAstNode: evaluateAstNode, builtin: builtin });
   }
   function evalueateObjectAsFunction(fn, params, debugInfo) {
@@ -6198,7 +6206,7 @@ var Lits = (function (exports) {
       function ContextStack(_a) {
           var contexts = _a.contexts, hostValues = _a.values, lazyHostValues = _a.lazyValues;
           this.contexts = contexts;
-          this.globalContext = asValue(contexts[0]);
+          this.globalContext = asNonUndefined(contexts[0]);
           this.values = hostValues;
           this.lazyValues = lazyHostValues;
       }
@@ -6299,9 +6307,6 @@ var Lits = (function (exports) {
           else if (isBuiltinFunction(lookUpResult)) {
               return lookUpResult;
           }
-          else if (isLazyValue(lookUpResult)) {
-              return toAny(lookUpResult.read());
-          }
           throw new UndefinedSymbolError(node.v, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
       };
       return ContextStack;
@@ -6393,7 +6398,7 @@ var Lits = (function (exports) {
           v: tkn.v,
           tkn: tkn.d ? tkn : undefined,
       };
-      assertValue(tkn.o, tkn.d);
+      assertNonUndefined(tkn.o, tkn.d);
       var optionsNode = {
           t: exports.AstNodeType.String,
           v: "".concat(tkn.o.g ? "g" : "").concat(tkn.o.i ? "i" : ""),
@@ -6526,7 +6531,7 @@ var Lits = (function (exports) {
   var parseSpecialExpression = function (tokens, position) {
       var _a = asToken(tokens[position], "EOF"), expressionName = _a.v, debugInfo = _a.d;
       position += 1;
-      var _b = asValue(builtin.specialExpressions[expressionName], debugInfo), parse = _b.parse, validate = _b.validate;
+      var _b = asNonUndefined(builtin.specialExpressions[expressionName], debugInfo), parse = _b.parse, validate = _b.validate;
       var _c = __read(parse(tokens, position, {
           parseExpression: parseExpression,
           parseTokens: parseTokens,
@@ -6597,7 +6602,7 @@ var Lits = (function (exports) {
       return tokens;
   };
   function applyCollectionAccessor(tokens, position) {
-      var dotTkn = asValue(tokens[position]);
+      var dotTkn = asNonUndefined(tokens[position]);
       var debugInfo = dotTkn.d;
       var backPosition = getPositionBackwards(tokens, position, debugInfo);
       checkForward(tokens, position, dotTkn, debugInfo);
@@ -6607,7 +6612,7 @@ var Lits = (function (exports) {
           v: "(",
           d: debugInfo,
       });
-      var nextTkn = asValue(tokens[position + 1]);
+      var nextTkn = asNonUndefined(tokens[position + 1]);
       if (dotTkn.v === ".") {
           tokens[position + 1] = {
               t: exports.TokenType.String,
@@ -6634,7 +6639,7 @@ var Lits = (function (exports) {
       if (position <= 0) {
           throw new LitsError("Array accessor # must come after a sequence", debugInfo);
       }
-      var prevToken = asValue(tokens[position - 1]);
+      var prevToken = asNonUndefined(tokens[position - 1]);
       var openBracket = null;
       var closeBracket = null;
       if (prevToken.t === exports.TokenType.Bracket) {
@@ -6658,7 +6663,7 @@ var Lits = (function (exports) {
       while (bracketCount !== 0) {
           bracketCount = bracketCount === null ? 0 : bracketCount;
           position -= 1;
-          var tkn = asValue(tokens[position], debugInfo);
+          var tkn = asNonUndefined(tokens[position], debugInfo);
           if (tkn.t === exports.TokenType.Bracket) {
               if (tkn.v === openBracket) {
                   bracketCount += 1;
@@ -6669,7 +6674,7 @@ var Lits = (function (exports) {
           }
       }
       if (openBracket === "(" && position > 0) {
-          var tokenBeforeBracket = asValue(tokens[position - 1]);
+          var tokenBeforeBracket = asNonUndefined(tokens[position - 1]);
           if (tokenBeforeBracket.t === exports.TokenType.FnShorthand) {
               throw new LitsError("# or . must NOT be preceeded by shorthand lambda function", debugInfo);
           }
@@ -6677,7 +6682,7 @@ var Lits = (function (exports) {
       return position;
   }
   function checkForward(tokens, position, dotTkn, debugInfo) {
-      var tkn = asValue(tokens[position + 1], debugInfo);
+      var tkn = asNonUndefined(tokens[position + 1], debugInfo);
       if (dotTkn.v === "." && tkn.t !== exports.TokenType.Name) {
           throw new LitsError("# as a collection accessor must be followed by an name", debugInfo);
       }

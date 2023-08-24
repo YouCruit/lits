@@ -2,8 +2,8 @@ import type { Builtin } from '../builtin/interface'
 import type { ContextStack } from '../evaluator/ContextStack'
 import { AstNodeType } from '../constants/constants'
 import type { AstNode } from '../parser/interface'
-import { asValue } from '../utils/assertion'
 import type { AnalyzeAst, AnalyzeResult, UndefinedSymbolEntry } from './interface'
+import { asNonUndefined } from '../typeGuards'
 
 export const analyzeAst: AnalyzeAst = (astNode, contextStack, builtin: Builtin) => {
   const astNodes = Array.isArray(astNode) ? astNode : [astNode]
@@ -65,7 +65,7 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack, builtin: B
       return { undefinedSymbols }
     }
     case AstNodeType.SpecialExpression: {
-      const specialExpression = asValue(builtin.specialExpressions[astNode.n], astNode.tkn?.d)
+      const specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], astNode.tkn?.d)
       const result = specialExpression.analyze(astNode, contextStack, {
         analyzeAst,
         builtin,

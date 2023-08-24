@@ -4,10 +4,11 @@ import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
-import { asValue, asAny } from '../../utils/assertion'
-import { valueToString } from '../../utils/debugTools'
-import { asToken } from '../../utils/tokenAsserter'
+import { valueToString } from '../../utils/debug/debugTools'
+import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import { asNonUndefined } from '../../typeGuards'
+import { asAny } from '../../typeGuards/lits'
 
 type LoopNode = SpecialExpressionNode & { bs: BindingNode[] }
 
@@ -53,7 +54,7 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
             )
           }
           ;(node as LoopNode).bs.forEach((binding, index) => {
-            asValue(bindingContext[binding.n], debugInfo).value = asAny(params[index], debugInfo)
+            asNonUndefined(bindingContext[binding.n], debugInfo).value = asAny(params[index], debugInfo)
           })
           continue
         }

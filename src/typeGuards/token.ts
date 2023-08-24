@@ -1,8 +1,8 @@
 import { isTokenType, type TokenType } from '../constants/constants'
 import { LitsError } from '../errors'
 import type { Token, DebugInfo } from '../tokenizer/interface'
-import { valueToString } from './debugTools'
-import { getDebugInfo } from './getDebugInfo'
+import { valueToString } from '../utils/debug/debugTools'
+import { getDebugInfo } from '../utils/debug/getDebugInfo'
 
 type TokenAssertionOptions =
   | {

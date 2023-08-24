@@ -1,35 +1,25 @@
-import { isLitsFunction } from '../src'
-import type { LazyValue } from '../src/Lits/Lits'
-import { AstNodeType, FunctionType, TokenType } from '../src/constants/constants'
-import type { AstNode, LitsFunction, NameNode, NormalExpressionNode, RegularExpression } from '../src/parser/interface'
-import type { DebugInfo, Token } from '../src/tokenizer/interface'
+import { isLitsFunction } from '..'
+import { AstNodeType, FunctionType, TokenType } from '../constants/constants'
+import type { AstNode, LitsFunction, NameNode, NormalExpressionNode, RegularExpression } from '../parser/interface'
+import type { DebugInfo, Token } from '../tokenizer/interface'
+import { asNameNode, assertNameNode, isNormalExpressionNodeWithName, isAstNode, isExpressionNode } from './astNode'
+import { asLitsFunction, assertLitsFunction } from './function'
+import { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
+import { assertToken, isToken } from './token'
+import { asNonUndefined, assertNonUndefined, assertEventNumberOfParams } from '.'
 import {
   asAny,
   assertAny,
-  asValue,
-  assertValue,
-  asString,
-  assertArray,
   assertObj,
-  assertNumber,
   assertRegularExpression,
-  assertEventNumberOfParams,
-  assertNumberOfParams,
-  asNumber,
-  assertString,
   assertSeq,
   assertStringOrRegularExpression,
-  isNumber,
   isRegularExpression,
   asColl,
-  isExpressionNode,
-  isLazyValue,
-} from '../src/utils/assertion'
-import { asNameNode, assertNameNode, isNormalExpressionNodeWithName, isAstNode } from '../src/utils/astNodeAsserter'
-import { asLitsFunction, assertLitsFunction } from '../src/utils/functionAsserter'
-
-import { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../src/utils/symbols'
-import { assertToken, isToken } from '../src/utils/tokenAsserter'
+} from './lits'
+import { assertNumber, asNumber, isNumber } from './number'
+import { asString, assertString } from './string'
+import { assertNumberOfParams } from '../utils'
 
 const debugInfo: DebugInfo = `EOF`
 describe(`utils`, () => {
@@ -111,22 +101,22 @@ describe(`utils`, () => {
     asNameNode(node, node.tkn?.d)
   })
   test(`asNotUndefined`, () => {
-    expect(() => asValue(undefined, `EOF`)).toThrow()
-    expect(asValue(null, `EOF`)).toBe(null)
-    expect(asValue(false, `EOF`)).toBe(false)
-    expect(asValue(true, `EOF`)).toBe(true)
-    expect(asValue(0, `EOF`)).toBe(0)
+    expect(() => asNonUndefined(undefined, `EOF`)).toThrow()
+    expect(asNonUndefined(null, `EOF`)).toBe(null)
+    expect(asNonUndefined(false, `EOF`)).toBe(false)
+    expect(asNonUndefined(true, `EOF`)).toBe(true)
+    expect(asNonUndefined(0, `EOF`)).toBe(0)
     const obj = {}
-    expect(asValue(obj, `EOF`)).toBe(obj)
+    expect(asNonUndefined(obj, `EOF`)).toBe(obj)
   })
   test(`assertNotUndefined`, () => {
-    expect(() => assertValue(undefined, `EOF`)).toThrow()
-    expect(() => assertValue(undefined, `EOF`)).toThrow()
-    expect(() => assertValue(null, `EOF`)).not.toThrow()
-    expect(() => assertValue(false, `EOF`)).not.toThrow()
-    expect(() => assertValue(true, `EOF`)).not.toThrow()
-    expect(() => assertValue(0, `EOF`)).not.toThrow()
-    expect(() => assertValue({}, `EOF`)).not.toThrow()
+    expect(() => assertNonUndefined(undefined, `EOF`)).toThrow()
+    expect(() => assertNonUndefined(undefined, `EOF`)).toThrow()
+    expect(() => assertNonUndefined(null, `EOF`)).not.toThrow()
+    expect(() => assertNonUndefined(false, `EOF`)).not.toThrow()
+    expect(() => assertNonUndefined(true, `EOF`)).not.toThrow()
+    expect(() => assertNonUndefined(0, `EOF`)).not.toThrow()
+    expect(() => assertNonUndefined({}, `EOF`)).not.toThrow()
   })
   test(`asNonEmptyString`, () => {
     expect(asString(`1`, debugInfo, { nonEmpty: true })).toBe(`1`)
@@ -141,15 +131,6 @@ describe(`utils`, () => {
     expect(() => asString({}, debugInfo, { nonEmpty: true })).toThrow()
   })
 
-  test(`assertArr`, () => {
-    expect(() => assertArray(0, debugInfo)).toThrow()
-    expect(() => assertArray({}, debugInfo)).toThrow()
-    expect(() => assertArray([], debugInfo)).not.toThrow()
-    expect(() => assertArray([1], debugInfo)).not.toThrow()
-    expect(() => assertArray(true, debugInfo)).toThrow()
-    expect(() => assertArray(null, debugInfo)).toThrow()
-    expect(() => assertArray(undefined, debugInfo)).toThrow()
-  })
   test(`assertObj`, () => {
     expect(() => assertObj(0, debugInfo)).toThrow()
     expect(() => assertObj({}, debugInfo)).not.toThrow()
@@ -747,17 +728,5 @@ describe(`utils`, () => {
     expect(() => assertToken(tkn, `EOF`, { type: TokenType.Number })).toThrow()
     expect(() => assertToken(tkn, `EOF`, { type: TokenType.Name, value: `Albert` })).not.toThrow()
     expect(() => assertToken(tkn, `EOF`, { type: TokenType.Name, value: `Mojir` })).toThrow()
-  })
-
-  test(`isLazyValue`, () => {
-    expect(isLazyValue(null)).toBe(false)
-    const lazyValue: LazyValue = {
-      a: 1,
-      read() {
-        return 1
-      },
-    }
-    expect(isLazyValue(lazyValue)).toBe(true)
-    expect(isLazyValue({})).toBe(false)
   })
 })

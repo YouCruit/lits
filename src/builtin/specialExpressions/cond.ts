@@ -3,7 +3,7 @@ import { AstNodeType } from '../../constants/constants'
 import type { AstNode, ParseToken, SpecialExpressionNode } from '../../parser/interface'
 import type { Token } from '../../tokenizer/interface'
 import { TokenType } from '../../constants/constants'
-import { asToken, isToken } from '../../utils/tokenAsserter'
+import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
 export type Condition = {

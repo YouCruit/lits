@@ -6,8 +6,9 @@ import type { AnalyzeResult } from '../src/analyze/interface'
 import type { LitsError } from '../src/errors'
 import { ContextStack } from '../src/evaluator/ContextStack'
 import type { Obj } from '../src/interface'
-import { isRegularExpression, isUnknownRecord } from '../src/utils/assertion'
-import { isLitsFunction } from '../src/utils/functionAsserter'
+import { isUnknownRecord } from '../src/typeGuards'
+import { isLitsFunction } from '../src/typeGuards/function'
+import { isRegularExpression } from '../src/typeGuards/lits'
 
 interface Primitives extends Obj {
   string: string

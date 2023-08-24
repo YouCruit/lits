@@ -1,7 +1,12 @@
+import { LitsError } from '../errors'
 import type { Any, Arr, Coll, Obj } from '../interface'
-import type { RegularExpression } from '../parser/interface'
+import type { NormalExpressionNode, RegularExpression, SpecialExpressionNode } from '../parser/interface'
 import type { DebugInfo } from '../tokenizer/interface'
-import { asAny, asString, isColl, isNumber, isObj, isRegularExpression } from './assertion'
+import { valueToString } from './debug/debugTools'
+import { asAny, isColl, isObj, isRegularExpression } from '../typeGuards/lits'
+import { isNumber } from '../typeGuards/number'
+import { asString } from '../typeGuards/string'
+import { isUnknownRecord } from '../typeGuards'
 
 export function collHasKey(coll: unknown, key: string | number): boolean {
   if (!isColl(coll)) {
@@ -125,17 +130,15 @@ export function deepEqual(a: Any, b: Any, debugInfo?: DebugInfo): boolean {
   if (isRegularExpression(a) && isRegularExpression(b)) {
     return a.s === b.s && a.f === b.f
   }
-  if (typeof a === `object` && a !== null && typeof b === `object` && b !== null) {
-    const aObj = a as Record<string, unknown>
-    const bObj = b as Record<string, unknown>
-    const aKeys = Object.keys(aObj)
-    const bKeys = Object.keys(bObj)
+  if (isUnknownRecord(a) && isUnknownRecord(b)) {
+    const aKeys = Object.keys(a)
+    const bKeys = Object.keys(b)
     if (aKeys.length !== bKeys.length) {
       return false
     }
     for (let i = 0; i < aKeys.length; i += 1) {
       const key = asString(aKeys[i], debugInfo)
-      if (!deepEqual(toAny(aObj[key]), toAny(bObj[key]), debugInfo)) {
+      if (!deepEqual(toAny(a[key]), toAny(b[key]), debugInfo)) {
         return false
       }
     }
@@ -168,4 +171,39 @@ function clone<T>(value: T): T {
 
 export function cloneColl<T extends Coll>(value: T): T {
   return clone(value)
+}
+
+export function assertNumberOfParams(
+  count: number | { min?: number; max?: number },
+  node: NormalExpressionNode | SpecialExpressionNode,
+): void {
+  const length = node.p.length
+  const debugInfo = node.tkn?.d
+  if (typeof count === `number`) {
+    if (length !== count) {
+      throw new LitsError(
+        `Wrong number of arguments to "${node.n}", expected ${count}, got ${valueToString(length)}.`,
+        node.tkn?.d,
+      )
+    }
+  } else {
+    const { min, max } = count
+    if (min === undefined && max === undefined) {
+      throw new LitsError(`Min or max must be specified.`, debugInfo)
+    }
+
+    if (typeof min === `number` && length < min) {
+      throw new LitsError(
+        `Wrong number of arguments to "${node.n}", expected at least ${min}, got ${valueToString(length)}.`,
+        debugInfo,
+      )
+    }
+
+    if (typeof max === `number` && length > max) {
+      throw new LitsError(
+        `Wrong number of arguments to "${node.n}", expected at most ${max}, got ${valueToString(length)}.`,
+        debugInfo,
+      )
+    }
+  }
 }

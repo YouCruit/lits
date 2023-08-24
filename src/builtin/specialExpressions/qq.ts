@@ -1,10 +1,11 @@
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import type { SpecialExpressionNode } from '../../parser/interface'
-import { assertAny, assertNumberOfParams } from '../../utils/assertion'
-import { isNameNode } from '../../utils/astNodeAsserter'
-import { asToken } from '../../utils/tokenAsserter'
+import { isNameNode } from '../../typeGuards/astNode'
+import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import { assertAny } from '../../typeGuards/lits'
+import { assertNumberOfParams } from '../../utils'
 
 export const qqSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokens, position, { parseTokens }) => {

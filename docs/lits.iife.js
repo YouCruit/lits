@@ -67,6 +67,7 @@ var Lits = (function (exports) {
       FunctionType[FunctionType["SomePred"] = 308] = "SomePred";
       FunctionType[FunctionType["Fnil"] = 309] = "Fnil";
       FunctionType[FunctionType["Builtin"] = 310] = "Builtin";
+      FunctionType[FunctionType["NativeJsFunction"] = 399] = "NativeJsFunction";
   })(exports.FunctionType || (exports.FunctionType = {}));
   var functionTypeName = new Map([
       [exports.FunctionType.UserDefined, "UserDefined"],
@@ -407,11 +408,11 @@ var Lits = (function (exports) {
       var conditions = [];
       var tkn = asToken(tokens[position], "EOF");
       while (!isToken(tkn, { type: exports.TokenType.Bracket, value: ")" })) {
-          var test = void 0;
-          _a = __read(parseToken(tokens, position), 2), position = _a[0], test = _a[1];
+          var test_1 = void 0;
+          _a = __read(parseToken(tokens, position), 2), position = _a[0], test_1 = _a[1];
           var form = void 0;
           _b = __read(parseToken(tokens, position), 2), position = _b[0], form = _b[1];
-          conditions.push({ t: test, f: form });
+          conditions.push({ t: test_1, f: form });
           tkn = asToken(tokens[position], "EOF");
       }
       return [position, conditions];
@@ -4427,7 +4428,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.56-alpha.2";
+  var version = "1.0.56-alpha.4";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -5817,11 +5818,11 @@ var Lits = (function (exports) {
               return { undefinedSymbols: emptySet };
           case exports.AstNodeType.NormalExpression: {
               var undefinedSymbols_1 = new Set();
-              var expression = astNode.e, name = astNode.n, token = astNode.tkn;
-              if (typeof name === "string") {
-                  var lookUpResult = contextStack.lookUp({ t: exports.AstNodeType.Name, v: name, tkn: token });
+              var expression = astNode.e, name_1 = astNode.n, token = astNode.tkn;
+              if (typeof name_1 === "string") {
+                  var lookUpResult = contextStack.lookUp({ t: exports.AstNodeType.Name, v: name_1, tkn: token });
                   if (lookUpResult === null) {
-                      undefinedSymbols_1.add({ symbol: name, token: astNode.tkn });
+                      undefinedSymbols_1.add({ symbol: name_1, token: astNode.tkn });
                   }
               }
               if (expression) {
@@ -5881,6 +5882,21 @@ var Lits = (function (exports) {
       return overloadFunction;
   }
   var functionExecutors = (_a = {},
+      _a[exports.FunctionType.NativeJsFunction] = function (fn, params, debugInfo) {
+          var _a;
+          try {
+              var clonedParams = JSON.parse(JSON.stringify(params));
+              return toAny((_a = fn.f).fn.apply(_a, __spreadArray([], __read(clonedParams), false)));
+          }
+          catch (error) {
+              var message = typeof error === "string"
+                  ? error
+                  : isUnknownRecord(error) && typeof error.message === "string"
+                      ? error.message
+                      : "<no message>";
+              throw new LitsError("Native function throwed: \"".concat(message, "\""), debugInfo);
+          }
+      },
       _a[exports.FunctionType.UserDefined] = function (fn, params, debugInfo, contextStack, _a) {
           var e_1, _b;
           var evaluateAstNode = _a.evaluateAstNode;
@@ -5889,9 +5905,9 @@ var Lits = (function (exports) {
               var args = overloadFunction.as;
               var nbrOfMandatoryArgs = args.mandatoryArguments.length;
               var newContext = __assign({}, overloadFunction.f);
-              var length = Math.max(params.length, args.mandatoryArguments.length);
+              var length_1 = Math.max(params.length, args.mandatoryArguments.length);
               var rest = [];
-              for (var i = 0; i < length; i += 1) {
+              for (var i = 0; i < length_1; i += 1) {
                   if (i < nbrOfMandatoryArgs) {
                       var param = toAny(params[i]);
                       var key = asString(args.mandatoryArguments[i], debugInfo);
@@ -6182,10 +6198,10 @@ var Lits = (function (exports) {
       var value = contextEntry.value;
       if (isLitsFunction(value)) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          var name = value.n;
+          var name_1 = value.n;
           //TODO value.t makes littl sence, should be mapped to a type name
-          if (name) {
-              return "<".concat(value.t, " function ").concat(name, ">");
+          if (name_1) {
+              return "<".concat(value.t, " function ").concat(name_1, ">");
           }
           else {
               return "<".concat(value.t, " function \u03BB>");
@@ -6204,11 +6220,12 @@ var Lits = (function (exports) {
 
   var ContextStack = /** @class */ (function () {
       function ContextStack(_a) {
-          var contexts = _a.contexts, hostValues = _a.values, lazyHostValues = _a.lazyValues;
+          var contexts = _a.contexts, hostValues = _a.values, lazyHostValues = _a.lazyValues, nativeJsFunctions = _a.nativeJsFunctions;
           this.contexts = contexts;
           this.globalContext = asNonUndefined(contexts[0]);
           this.values = hostValues;
           this.lazyValues = lazyHostValues;
+          this.nativeJsFunctions = nativeJsFunctions;
       }
       ContextStack.prototype.toString = function () {
           var _this = this;
@@ -6222,16 +6239,17 @@ var Lits = (function (exports) {
               contexts: __spreadArray([context], __read(this.contexts), false),
               values: this.values,
               lazyValues: this.lazyValues,
+              nativeJsFunctions: this.nativeJsFunctions,
           });
           contextStack.globalContext = globalContext;
           return contextStack;
       };
       ContextStack.prototype.getValue = function (name) {
           var e_1, _a;
-          var _b, _c;
+          var _b, _c, _d;
           try {
-              for (var _d = __values(this.contexts), _e = _d.next(); !_e.done; _e = _d.next()) {
-                  var context = _e.value;
+              for (var _e = __values(this.contexts), _f = _e.next(); !_f.done; _f = _e.next()) {
+                  var context = _f.value;
                   var contextEntry = context[name];
                   if (contextEntry) {
                       return contextEntry.value;
@@ -6241,7 +6259,7 @@ var Lits = (function (exports) {
           catch (e_1_1) { e_1 = { error: e_1_1 }; }
           finally {
               try {
-                  if (_e && !_e.done && (_a = _d.return)) _a.call(_d);
+                  if (_f && !_f.done && (_a = _e.return)) _a.call(_e);
               }
               finally { if (e_1) throw e_1.error; }
           }
@@ -6249,26 +6267,30 @@ var Lits = (function (exports) {
           if (lazyHostValue) {
               return lazyHostValue.read();
           }
-          return (_c = this.values) === null || _c === void 0 ? void 0 : _c[name];
+          var nativeJsFunction = (_c = this.nativeJsFunctions) === null || _c === void 0 ? void 0 : _c[name];
+          if (nativeJsFunction) {
+              return nativeJsFunction;
+          }
+          return (_d = this.values) === null || _d === void 0 ? void 0 : _d[name];
       };
       ContextStack.prototype.lookUp = function (node) {
           var e_2, _a, _b;
-          var _c, _d, _e;
+          var _c, _d, _e, _f;
           var value = node.v;
           var debugInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d;
           try {
-              for (var _f = __values(this.contexts), _g = _f.next(); !_g.done; _g = _f.next()) {
-                  var context = _g.value;
-                  var variable = context[value];
-                  if (variable) {
-                      return variable;
+              for (var _g = __values(this.contexts), _h = _g.next(); !_h.done; _h = _g.next()) {
+                  var context = _h.value;
+                  var contextEntry = context[value];
+                  if (contextEntry) {
+                      return contextEntry;
                   }
               }
           }
           catch (e_2_1) { e_2 = { error: e_2_1 }; }
           finally {
               try {
-                  if (_g && !_g.done && (_a = _f.return)) _a.call(_f);
+                  if (_h && !_h.done && (_a = _g.return)) _a.call(_g);
               }
               finally { if (e_2) throw e_2.error; }
           }
@@ -6295,6 +6317,12 @@ var Lits = (function (exports) {
           }
           if (builtin.specialExpressions[value]) {
               return "specialExpression";
+          }
+          var nativeJsFunction = (_f = this.nativeJsFunctions) === null || _f === void 0 ? void 0 : _f[value];
+          if (nativeJsFunction) {
+              return {
+                  value: nativeJsFunction,
+              };
           }
           return null;
       };
@@ -6704,14 +6732,14 @@ var Lits = (function (exports) {
   };
   var skipComment = function (input, current) {
       if (input[current] === ";") {
-          var length = 1;
-          while (input[current + length] !== "\n" && current + length < input.length) {
-              length += 1;
+          var length_1 = 1;
+          while (input[current + length_1] !== "\n" && current + length_1 < input.length) {
+              length_1 += 1;
           }
-          if (input[current + length] === "\n" && current + length < input.length) {
-              length += 1;
+          if (input[current + length_1] === "\n" && current + length_1 < input.length) {
+              length_1 += 1;
           }
-          return [length, undefined];
+          return [length_1, undefined];
       }
       return NO_MATCH;
   };
@@ -6935,17 +6963,17 @@ var Lits = (function (exports) {
       try {
           for (var _b = __values(Object.entries(reservedNamesRecord)), _c = _b.next(); !_c.done; _c = _b.next()) {
               var _d = __read(_c.value, 2), reservedName = _d[0], forbidden = _d[1].forbidden;
-              var length = reservedName.length;
-              var nextChar = input[position + length];
+              var length_2 = reservedName.length;
+              var nextChar = input[position + length_2];
               if (nextChar && nameRegExp.test(nextChar)) {
                   continue;
               }
-              var name = input.substr(position, length);
-              if (name === reservedName) {
+              var name_1 = input.substr(position, length_2);
+              if (name_1 === reservedName) {
                   if (forbidden) {
-                      throw new LitsError("".concat(name, " is forbidden!"), debugInfo);
+                      throw new LitsError("".concat(name_1, " is forbidden!"), debugInfo);
                   }
-                  return [length, { t: exports.TokenType.ReservedName, v: reservedName, d: debugInfo }];
+                  return [length_2, { t: exports.TokenType.ReservedName, v: reservedName, d: debugInfo }];
               }
           }
       }
@@ -6967,11 +6995,11 @@ var Lits = (function (exports) {
       try {
           for (var modifiers_1 = __values(modifiers), modifiers_1_1 = modifiers_1.next(); !modifiers_1_1.done; modifiers_1_1 = modifiers_1.next()) {
               var modifier = modifiers_1_1.value;
-              var length = modifier.length;
-              var charAfterModifier = input[position + length];
-              if (input.substr(position, length) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
+              var length_3 = modifier.length;
+              var charAfterModifier = input[position + length_3];
+              if (input.substr(position, length_3) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
                   var value = modifier;
-                  return [length, { t: exports.TokenType.Modifier, v: value, d: debugInfo }];
+                  return [length_3, { t: exports.TokenType.Modifier, v: value, d: debugInfo }];
               }
           }
       }
@@ -7260,6 +7288,27 @@ var Lits = (function (exports) {
           contexts: contexts,
           values: params.values,
           lazyValues: params.lazyValues,
+          nativeJsFunctions: params.jsFunctions &&
+              Object.entries(params.jsFunctions).reduce(function (acc, _a) {
+                  var _b = __read(_a, 2), name = _b[0], jsFunction = _b[1];
+                  if (specialExpressionKeys.includes(name)) {
+                      // eslint-disable-next-line no-console
+                      console.warn("Cannot shadow special expression \"".concat(name, "\", ignoring."));
+                      return acc;
+                  }
+                  if (normalExpressionKeys.includes(name)) {
+                      // eslint-disable-next-line no-console
+                      console.warn("Cannot shadow builtin function \"".concat(name, "\", ignoring."));
+                      return acc;
+                  }
+                  acc[name] = {
+                      t: exports.FunctionType.NativeJsFunction,
+                      f: jsFunction,
+                      n: name,
+                      λ: true,
+                  };
+                  return acc;
+              }, {}),
       });
       return contextStack;
   }

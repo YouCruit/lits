@@ -297,7 +297,12 @@ function run() {
   output.value = ''
   var params
   try {
-    params = paramsString.trim().length > 0 ? JSON.parse(paramsString) : {}
+    params =
+      paramsString.trim().length > 0
+        ? JSON.parse(paramsString, (_, val) =>
+            typeof val === 'string' && val.startsWith('EVAL:') ? eval(val.substring(5)) : val,
+          )
+        : {}
   } catch (e) {
     output.value = `Error: Could not parse params: ${paramsString}`
     output.classList.add('error')

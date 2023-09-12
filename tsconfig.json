@@ -35,6 +35,7 @@
   ],
   "exclude": [
     "cli",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "__tests__"
   ]
 }

@@ -9,6 +9,7 @@ import type { DebugInfo, Token } from '../tokenizer/interface'
 import type { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
 import { type AstNodeType, FunctionType } from '../constants/constants'
 import { isUnknownRecord } from '../typeGuards'
+import type { JsFunction } from '../Lits/Lits'
 
 export type EvaluatedFunctionArguments = {
   mandatoryArguments: string[]
@@ -33,6 +34,12 @@ export interface RegularExpression {
   d?: DebugInfo
   s: string
   f: string
+}
+
+export interface NativeJsFunction extends GenericLitsFunction {
+  t: FunctionType.NativeJsFunction
+  n: string | undefined // name
+  f: JsFunction
 }
 
 export interface UserDefinedFunction extends GenericLitsFunction {
@@ -93,6 +100,7 @@ export function isBuiltinFunction(value: unknown): value is BuiltinFunction {
 }
 
 export type LitsFunction =
+  | NativeJsFunction
   | UserDefinedFunction
   | BuiltinFunction
   | PartialFunction

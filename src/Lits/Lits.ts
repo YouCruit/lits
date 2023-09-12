@@ -1,13 +1,14 @@
-import type { LitsFunction } from '..'
 import { analyzeAst } from '../analyze'
 import type { AnalyzeResult } from '../analyze/interface'
-import { builtin } from '../builtin'
+import { builtin, normalExpressionKeys, specialExpressionKeys } from '../builtin'
+import { FunctionType } from '../constants/constants'
 import { evaluate } from '../evaluator'
 import { ContextStack } from '../evaluator/ContextStack'
 import type { Context } from '../evaluator/interface'
 import type { Any, Obj } from '../interface'
 import { parse } from '../parser'
-import type { Ast } from '../parser/interface'
+import type { LitsFunction } from '../parser/interface'
+import { type Ast, type NativeJsFunction } from '../parser/interface'
 import { tokenize } from '../tokenizer'
 import type { Token } from '../tokenizer/interface'
 import { Cache } from './Cache'
@@ -25,10 +26,17 @@ export type LazyValue = {
   [key: string]: unknown
 }
 
+export type JsFunction = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  fn: (...args: any[]) => unknown
+  [key: string]: unknown
+}
+
 export type LitsParams = {
   contexts?: Context[]
   values?: Record<string, unknown>
   lazyValues?: Record<string, LazyValue>
+  jsFunctions?: Record<string, JsFunction>
   getLocation?: LocationGetter
 }
 
@@ -146,6 +154,27 @@ export function createContextStack(params: LitsParams = {}): ContextStack {
     contexts,
     values: params.values,
     lazyValues: params.lazyValues,
+    nativeJsFunctions:
+      params.jsFunctions &&
+      Object.entries(params.jsFunctions).reduce((acc: Record<string, NativeJsFunction>, [name, jsFunction]) => {
+        if (specialExpressionKeys.includes(name)) {
+          // eslint-disable-next-line no-console
+          console.warn(`Cannot shadow special expression "${name}", ignoring.`)
+          return acc
+        }
+        if (normalExpressionKeys.includes(name)) {
+          // eslint-disable-next-line no-console
+          console.warn(`Cannot shadow builtin function "${name}", ignoring.`)
+          return acc
+        }
+        acc[name] = {
+          t: FunctionType.NativeJsFunction,
+          f: jsFunction,
+          n: name,
+          λ: true,
+        }
+        return acc
+      }, {}),
   })
   return contextStack
 }

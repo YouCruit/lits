@@ -67,6 +67,7 @@ export enum FunctionType {
   SomePred = 308,
   Fnil = 309,
   Builtin = 310,
+  NativeJsFunction = 399,
 }
 
 export const functionTypeName = new Map([

@@ -1,4 +1,4 @@
-import type { NameNode, BuiltinFunction } from '../parser/interface'
+import type { NameNode, BuiltinFunction, NativeJsFunction } from '../parser/interface'
 import { isBuiltinFunction } from '../parser/interface'
 import { builtin } from '../builtin'
 import { toAny } from '../utils'
@@ -17,19 +17,23 @@ export class ContextStack {
   public globalContext: Context
   private values?: Record<string, unknown>
   private lazyValues?: Record<string, LazyValue>
+  private nativeJsFunctions?: Record<string, NativeJsFunction>
   constructor({
     contexts,
     values: hostValues,
     lazyValues: lazyHostValues,
+    nativeJsFunctions,
   }: {
     contexts: Context[]
     values?: Record<string, unknown>
     lazyValues?: Record<string, LazyValue>
+    nativeJsFunctions?: Record<string, NativeJsFunction>
   }) {
     this.contexts = contexts
     this.globalContext = asNonUndefined(contexts[0])
     this.values = hostValues
     this.lazyValues = lazyHostValues
+    this.nativeJsFunctions = nativeJsFunctions
   }
 
   public toString() {
@@ -46,6 +50,7 @@ export class ContextStack {
       contexts: [context, ...this.contexts],
       values: this.values,
       lazyValues: this.lazyValues,
+      nativeJsFunctions: this.nativeJsFunctions,
     })
     contextStack.globalContext = globalContext
     return contextStack
@@ -62,6 +67,10 @@ export class ContextStack {
     if (lazyHostValue) {
       return lazyHostValue.read()
     }
+    const nativeJsFunction = this.nativeJsFunctions?.[name]
+    if (nativeJsFunction) {
+      return nativeJsFunction
+    }
 
     return this.values?.[name]
   }
@@ -71,9 +80,9 @@ export class ContextStack {
     const debugInfo = node.tkn?.d
 
     for (const context of this.contexts) {
-      const variable = context[value]
-      if (variable) {
-        return variable
+      const contextEntry = context[value]
+      if (contextEntry) {
+        return contextEntry
       }
     }
     const lazyHostValue = this.lazyValues?.[value]
@@ -100,6 +109,13 @@ export class ContextStack {
 
     if (builtin.specialExpressions[value]) {
       return `specialExpression`
+    }
+
+    const nativeJsFunction = this.nativeJsFunctions?.[value]
+    if (nativeJsFunction) {
+      return {
+        value: nativeJsFunction,
+      }
     }
 
     return null

@@ -12,6 +12,7 @@ import type {
   FNilFunction,
   JuxtFunction,
   LitsFunctionType,
+  NativeJsFunction,
   PartialFunction,
   SomePredFunction,
   UserDefinedFunction,
@@ -22,7 +23,7 @@ import type { Context, EvaluateAstNode, ExecuteFunction } from './interface'
 import { valueToString } from '../utils/debug/debugTools'
 import { FunctionType } from '../constants/constants'
 import { asString } from '../typeGuards/string'
-import { asNonUndefined } from '../typeGuards'
+import { asNonUndefined, isUnknownRecord } from '../typeGuards'
 import { asAny } from '../typeGuards/lits'
 
 type FunctionExecutors = Record<
@@ -57,6 +58,20 @@ function findOverloadFunction(
 }
 
 export const functionExecutors: FunctionExecutors = {
+  [FunctionType.NativeJsFunction]: (fn: NativeJsFunction, params, debugInfo) => {
+    try {
+      const clonedParams = JSON.parse(JSON.stringify(params))
+      return toAny(fn.f.fn(...clonedParams))
+    } catch (error) {
+      const message =
+        typeof error === `string`
+          ? error
+          : isUnknownRecord(error) && typeof error.message === `string`
+          ? error.message
+          : `<no message>`
+      throw new LitsError(`Native function throwed: "${message}"`, debugInfo)
+    }
+  },
   [FunctionType.UserDefined]: (fn: UserDefinedFunction, params, debugInfo, contextStack, { evaluateAstNode }) => {
     for (;;) {
       const overloadFunction = findOverloadFunction(fn.o, params.length, debugInfo)

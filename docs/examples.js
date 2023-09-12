@@ -30,9 +30,13 @@ var examples = [
     id: 'simple-params-example',
     name: 'Params in use',
     description: 'Simple example using params.',
-    params: { values: { x: 15, y: 97 } },
+    params: {
+      values: { x: 15 },
+      lazyValues: { y: { read: 'EVAL:() => 42' } },
+      jsFunctions: { plus: { fn: 'EVAL:(a, b) => a + b' } },
+    },
     code: `
-(+ x y)
+(plus x y)
     `.trim(),
   },
   {

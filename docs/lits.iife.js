@@ -4428,7 +4428,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.56-alpha.4";
+  var version = "1.0.56-alpha.5";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -6440,18 +6440,28 @@ var Lits = (function (exports) {
       };
       return [position + 1, node];
   };
-  var placeholderRegexp = /^%([1-9][0-9]?$)/;
+  var placeholderRegexp = /^%([1-9][0-9]?)?$/;
   var parseFnShorthand = function (tokens, position) {
+      var _a;
       var firstToken = asToken(tokens[position], "EOF");
       position += 1;
-      var _a = __read(parseExpression(tokens, position), 2), newPosition = _a[0], exprNode = _a[1];
+      var _b = __read(parseExpression(tokens, position), 2), newPosition = _b[0], exprNode = _b[1];
       var arity = 0;
+      var percent1 = "NOT_SET";
       for (var pos = position + 1; pos < newPosition - 1; pos += 1) {
           var tkn = asToken(tokens[pos], "EOF");
           if (tkn.t === exports.TokenType.Name) {
               var match = placeholderRegexp.exec(tkn.v);
               if (match) {
-                  arity = Math.max(arity, Number(match[1]));
+                  var number = (_a = match[1]) !== null && _a !== void 0 ? _a : "1";
+                  if (number === "1") {
+                      var mixedPercent1 = (!match[1] && percent1 === "WITH_1") || (match[1] && percent1 === "NAKED");
+                      if (mixedPercent1) {
+                          throw new LitsError("Please make up your mind, either use % or %1", firstToken.d);
+                      }
+                      percent1 = match[1] ? "WITH_1" : "NAKED";
+                  }
+                  arity = Math.max(arity, Number(number));
                   if (arity > 20) {
                       throw new LitsError("Can't specify more than 20 arguments", firstToken.d);
                   }
@@ -6463,7 +6473,12 @@ var Lits = (function (exports) {
       }
       var mandatoryArguments = [];
       for (var i = 1; i <= arity; i += 1) {
-          mandatoryArguments.push("%".concat(i));
+          if (i === 1 && percent1 === "NAKED") {
+              mandatoryArguments.push("%");
+          }
+          else {
+              mandatoryArguments.push("%".concat(i));
+          }
       }
       var args = {
           b: [],

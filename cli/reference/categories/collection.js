@@ -325,8 +325,8 @@ module.exports = {
       `(every? number? [])`,
       `(every? number? "")`,
       `(every? number? {})`,
-      `(every? #(even? (second %1)) {:a 2 :b 4})`,
-      `(every? #(even? (second %1)) {:a 2 :b 3})`,
+      `(every? #(even? (second %)) {:a 2 :b 4})`,
+      `(every? #(even? (second %)) {:a 2 :b 3})`,
     ],
   },
   'not-every?': {
@@ -353,8 +353,8 @@ module.exports = {
       `(not-every? number? [])`,
       `(not-every? number? "")`,
       `(not-every? number? {})`,
-      `(not-every? #(even? (second %1)) {:a 2 :b 4})`,
-      `(not-every? #(even? (second %1)) {:a 2 :b 3})`,
+      `(not-every? #(even? (second %)) {:a 2 :b 4})`,
+      `(not-every? #(even? (second %)) {:a 2 :b 3})`,
     ],
   },
   'any?': {
@@ -381,8 +381,8 @@ module.exports = {
       `(any? number? [])`,
       `(any? number? "")`,
       `(any? number? {})`,
-      `(any? #(even? (second %1)) {:a 2 :b 3})`,
-      `(any? #(even? (second %1)) {:a 1 :b 3})`,
+      `(any? #(even? (second %)) {:a 2 :b 3})`,
+      `(any? #(even? (second %)) {:a 1 :b 3})`,
     ],
   },
   'not-any?': {
@@ -409,8 +409,8 @@ module.exports = {
       `(not-any? number? [])`,
       `(not-any? number? "")`,
       `(not-any? number? {})`,
-      `(not-any? #(even? (second %1)) {:a 2 :b 3})`,
-      `(not-any? #(even? (second %1)) {:a 1 :b 3})`,
+      `(not-any? #(even? (second %)) {:a 2 :b 3})`,
+      `(not-any? #(even? (second %)) {:a 1 :b 3})`,
     ],
   },
   update: {

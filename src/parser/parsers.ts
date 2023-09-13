@@ -157,7 +157,7 @@ const parseRegexpShorthand: ParseRegexpShorthand = (tokens, position) => {
   return [position + 1, node]
 }
 
-const placeholderRegexp = /^%([1-9][0-9]?$)/
+const placeholderRegexp = /^%([1-9][0-9]?)?$/
 type ParseFnShorthand = (tokens: Token[], position: number) => [number, FnNode]
 const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
   const firstToken = asToken(tokens[position], `EOF`)
@@ -166,12 +166,22 @@ const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
   const [newPosition, exprNode] = parseExpression(tokens, position)
 
   let arity = 0
+  let percent1: `NOT_SET` | `WITH_1` | `NAKED` = `NOT_SET`
   for (let pos = position + 1; pos < newPosition - 1; pos += 1) {
     const tkn = asToken(tokens[pos], `EOF`)
     if (tkn.t === TokenType.Name) {
       const match = placeholderRegexp.exec(tkn.v)
       if (match) {
-        arity = Math.max(arity, Number(match[1]))
+        const number = match[1] ?? `1`
+        if (number === `1`) {
+          const mixedPercent1 = (!match[1] && percent1 === `WITH_1`) || (match[1] && percent1 === `NAKED`)
+          if (mixedPercent1) {
+            throw new LitsError(`Please make up your mind, either use % or %1`, firstToken.d)
+          }
+          percent1 = match[1] ? `WITH_1` : `NAKED`
+        }
+
+        arity = Math.max(arity, Number(number))
         if (arity > 20) {
           throw new LitsError(`Can't specify more than 20 arguments`, firstToken.d)
         }
@@ -185,7 +195,11 @@ const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
   const mandatoryArguments: string[] = []
 
   for (let i = 1; i <= arity; i += 1) {
-    mandatoryArguments.push(`%${i}`)
+    if (i === 1 && percent1 === `NAKED`) {
+      mandatoryArguments.push(`%`)
+    } else {
+      mandatoryArguments.push(`%${i}`)
+    }
   }
 
   const args: FunctionArguments = {

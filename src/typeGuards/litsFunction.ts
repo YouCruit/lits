@@ -20,17 +20,14 @@ export function assertLitsFunction(value: unknown, debugInfo?: DebugInfo): asser
   }
 }
 
-export function isUserDefinedFunction(value: LitsFunction): value is UserDefinedFunction {
-  return value.t === FunctionType.UserDefined
+export function isUserDefinedFunction(value: unknown): value is UserDefinedFunction {
+  return isLitsFunction(value) && value.t === FunctionType.UserDefined
 }
-export function asUserDefinedFunction(value: LitsFunction, debugInfo?: DebugInfo): UserDefinedFunction {
+export function asUserDefinedFunction(value: unknown, debugInfo?: DebugInfo): UserDefinedFunction {
   assertUserDefinedFunction(value, debugInfo)
   return value
 }
-export function assertUserDefinedFunction(
-  value: LitsFunction,
-  debugInfo?: DebugInfo,
-): asserts value is UserDefinedFunction {
+export function assertUserDefinedFunction(value: unknown, debugInfo?: DebugInfo): asserts value is UserDefinedFunction {
   if (!isUserDefinedFunction(value)) {
     throw getAssertionError(`UserDefinedFunction`, value, debugInfo)
   }

@@ -69,7 +69,8 @@ describe(`litsFunction type guards`, () => {
 
   test(`isUserDefinedFunction`, () => {
     const valid = [lf1]
-    const invalid = [lf2, lf3, lf4, lf5]
+    const invalid = [lf2, lf3, lf4, lf5, ``, `1`, 0, 1, true, false, null, undefined, [], {}]
+
     testTypeGuars(
       {
         valid,

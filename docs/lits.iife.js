@@ -329,7 +329,7 @@ var Lits = (function (exports) {
       }
   }
   function isUserDefinedFunction(value) {
-      return value.t === exports.FunctionType.UserDefined;
+      return isLitsFunction(value) && value.t === exports.FunctionType.UserDefined;
   }
   function asUserDefinedFunction(value, debugInfo) {
       assertUserDefinedFunction(value, debugInfo);
@@ -4442,7 +4442,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.56-alpha.13";
+  var version = "1.0.56-alpha.14";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;

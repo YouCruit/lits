@@ -51,7 +51,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const bindingValue = toAny(evaluatedBindingForm[0])
     locals[binding.n] = { value: bindingValue }
-    const newContextStack = contextStack.withContext(locals)
+    const newContextStack = contextStack.create(locals)
 
     let result: Any = null
     for (const form of node.p) {
@@ -64,7 +64,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
     const { b: binding } = node as WhenFirstNode
     const newContext: Context = { [binding.n]: { value: true } }
     const bindingResult = analyzeAst(binding.v, contextStack, builtin)
-    const paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin)
+    const paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin)
     return joinAnalyzeResults(bindingResult, paramsResult)
   },
 }

@@ -43,7 +43,7 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     const bindingValue = evaluateAstNode((node as IfLetNode).b.v, contextStack)
     if (bindingValue) {
       locals[(node as IfLetNode).b.n] = { value: bindingValue }
-      const newContextStack = contextStack.withContext(locals)
+      const newContextStack = contextStack.create(locals)
       const thenForm = asAstNode(node.p[0], debugInfo)
       return evaluateAstNode(thenForm, newContextStack)
     }
@@ -57,7 +57,7 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
     const newContext: Context = { [(node as IfLetNode).b.n]: { value: true } }
     const bindingResult = analyzeAst((node as IfLetNode).b.v, contextStack, builtin)
-    const paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin)
+    const paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin)
     return joinAnalyzeResults(bindingResult, paramsResult)
   },
 }

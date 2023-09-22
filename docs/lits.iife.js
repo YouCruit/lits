@@ -792,9 +792,7 @@ var Lits = (function (exports) {
   function addOverloadsUndefinedSymbols(overloads, contextStack, analyzeAst, builtin, functionNameContext) {
       var e_3, _a;
       var result = { undefinedSymbols: new Set() };
-      var contextStackWithFunctionName = functionNameContext
-          ? contextStack.withContext(functionNameContext)
-          : contextStack;
+      var contextStackWithFunctionName = functionNameContext ? contextStack.create(functionNameContext) : contextStack;
       var _loop_1 = function (overload) {
           var newContext = {};
           overload.as.b.forEach(function (binding) {
@@ -808,7 +806,7 @@ var Lits = (function (exports) {
           if (typeof overload.as.r === "string") {
               newContext[overload.as.r] = { value: true };
           }
-          var newContextStack = contextStackWithFunctionName.withContext(newContext);
+          var newContextStack = contextStackWithFunctionName.create(newContext);
           var overloadResult = analyzeAst(overload.b, newContextStack, builtin);
           addAnalyzeResults(result, overloadResult);
       };
@@ -1119,7 +1117,7 @@ var Lits = (function (exports) {
           var e_1, _b;
           var evaluateAstNode = _a.evaluateAstNode;
           var newContext = {};
-          var newContextStack = contextStack.withContext(newContext);
+          var newContextStack = contextStack.create(newContext);
           var result = null;
           try {
               for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
@@ -1296,7 +1294,7 @@ var Lits = (function (exports) {
       var abort = false;
       while (!abort) {
           var context = {};
-          var newContextStack = contextStack.withContext(context);
+          var newContextStack = contextStack.create(context);
           var skip = false;
           bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
               var _d = asNonUndefined(loopBindings[bindingIndex], debugInfo), binding = _d.b, letBindings = _d.l, whenNode = _d.wn, whileNode = _d.we, modifiers = _d.m;
@@ -1374,30 +1372,30 @@ var Lits = (function (exports) {
       var loopBindings = node.l;
       loopBindings.forEach(function (loopBinding) {
           var binding = loopBinding.b, letBindings = loopBinding.l, whenNode = loopBinding.wn, whileNode = loopBinding.we;
-          analyzeAst(binding.v, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
+          analyzeAst(binding.v, contextStack.create(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
               return result.undefinedSymbols.add(symbol);
           });
           newContext[binding.n] = { value: true };
           if (letBindings) {
               letBindings.forEach(function (letBinding) {
-                  analyzeAst(letBinding.v, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
+                  analyzeAst(letBinding.v, contextStack.create(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
                       return result.undefinedSymbols.add(symbol);
                   });
                   newContext[letBinding.n] = { value: true };
               });
           }
           if (whenNode) {
-              analyzeAst(whenNode, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
+              analyzeAst(whenNode, contextStack.create(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
                   return result.undefinedSymbols.add(symbol);
               });
           }
           if (whileNode) {
-              analyzeAst(whileNode, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
+              analyzeAst(whileNode, contextStack.create(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
                   return result.undefinedSymbols.add(symbol);
               });
           }
       });
-      analyzeAst(node.p, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
+      analyzeAst(node.p, contextStack.create(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
           return result.undefinedSymbols.add(symbol);
       });
       return result;
@@ -1485,7 +1483,7 @@ var Lits = (function (exports) {
           var bindingValue = evaluateAstNode(node.b.v, contextStack);
           if (bindingValue) {
               locals[node.b.n] = { value: bindingValue };
-              var newContextStack = contextStack.withContext(locals);
+              var newContextStack = contextStack.create(locals);
               var thenForm = asAstNode(node.p[0], debugInfo);
               return evaluateAstNode(thenForm, newContextStack);
           }
@@ -1501,7 +1499,7 @@ var Lits = (function (exports) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
           var newContext = (_b = {}, _b[node.b.n] = { value: true }, _b);
           var bindingResult = analyzeAst(node.b.v, contextStack, builtin);
-          var paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin);
+          var paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin);
           return joinAnalyzeResults(bindingResult, paramsResult);
       },
   };
@@ -1606,7 +1604,7 @@ var Lits = (function (exports) {
           var e_1, _b, e_2, _c;
           var evaluateAstNode = _a.evaluateAstNode;
           var locals = {};
-          var newContextStack = contextStack.withContext(locals);
+          var newContextStack = contextStack.create(locals);
           try {
               for (var _d = __values(node.bs), _e = _d.next(); !_e.done; _e = _d.next()) {
                   var binding = _e.value;
@@ -1649,11 +1647,11 @@ var Lits = (function (exports) {
           var bindingContext = {};
           var bindingResults = node.bs.map(function (bindingNode) {
               var valueNode = bindingNode.v;
-              var bindingsResult = analyzeAst(valueNode, contextStack.withContext(bindingContext), builtin);
+              var bindingsResult = analyzeAst(valueNode, contextStack.create(bindingContext), builtin);
               bindingContext[bindingNode.n] = { value: true };
               return bindingsResult;
           });
-          var paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin);
+          var paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin);
           return joinAnalyzeResults.apply(void 0, __spreadArray(__spreadArray([], __read(bindingResults), false), [paramsResult], false));
       },
   };
@@ -1684,7 +1682,7 @@ var Lits = (function (exports) {
               result[binding.n] = { value: evaluateAstNode(binding.v, contextStack) };
               return result;
           }, {});
-          var newContextStack = contextStack.withContext(bindingContext);
+          var newContextStack = contextStack.create(bindingContext);
           var _loop_1 = function () {
               var e_1, _c;
               var result = null;
@@ -1734,7 +1732,7 @@ var Lits = (function (exports) {
           }, {});
           var bindingValueNodes = node.bs.map(function (binding) { return binding.v; });
           var bindingsResult = analyzeAst(bindingValueNodes, contextStack, builtin);
-          var paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin);
+          var paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin);
           return joinAnalyzeResults(bindingsResult, paramsResult);
       },
   };
@@ -1919,7 +1917,7 @@ var Lits = (function (exports) {
               var newContext = (_b = {},
                   _b[errorNode.v] = { value: asAny(error, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d) },
                   _b);
-              return evaluateAstNode(catchExpression, contextStack.withContext(newContext));
+              return evaluateAstNode(catchExpression, contextStack.create(newContext));
           }
       },
       analyze: function (node, contextStack, _a) {
@@ -1930,7 +1928,7 @@ var Lits = (function (exports) {
           var newContext = (_b = {},
               _b[errorNode.v] = { value: true },
               _b);
-          var catchResult = analyzeAst(catchExpression, contextStack.withContext(newContext), builtin);
+          var catchResult = analyzeAst(catchExpression, contextStack.create(newContext), builtin);
           return joinAnalyzeResults(tryResult, catchResult);
       },
   };
@@ -2224,7 +2222,7 @@ var Lits = (function (exports) {
           }
           var bindingValue = toAny(evaluatedBindingForm[0]);
           locals[binding.n] = { value: bindingValue };
-          var newContextStack = contextStack.withContext(locals);
+          var newContextStack = contextStack.create(locals);
           var result = null;
           try {
               for (var _d = __values(node.p), _e = _d.next(); !_e.done; _e = _d.next()) {
@@ -2248,7 +2246,7 @@ var Lits = (function (exports) {
           var binding = node.b;
           var newContext = (_b = {}, _b[binding.n] = { value: true }, _b);
           var bindingResult = analyzeAst(binding.v, contextStack, builtin);
-          var paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin);
+          var paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin);
           return joinAnalyzeResults(bindingResult, paramsResult);
       },
   };
@@ -2284,7 +2282,7 @@ var Lits = (function (exports) {
               return null;
           }
           locals[binding.n] = { value: bindingValue };
-          var newContextStack = contextStack.withContext(locals);
+          var newContextStack = contextStack.create(locals);
           var result = null;
           try {
               for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
@@ -2308,7 +2306,7 @@ var Lits = (function (exports) {
           var binding = node.b;
           var newContext = (_b = {}, _b[binding.n] = { value: true }, _b);
           var bindingResult = analyzeAst(binding.v, contextStack, builtin);
-          var paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin);
+          var paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin);
           return joinAnalyzeResults(bindingResult, paramsResult);
       },
   };
@@ -5922,7 +5920,7 @@ var Lits = (function (exports) {
               }
               try {
                   var result = null;
-                  var newContextStack = contextStack.withContext(newContext, fn.x);
+                  var newContextStack = contextStack.create(newContext, fn.x);
                   try {
                       for (var _c = (e_1 = void 0, __values(overloadFunction.b)), _d = _c.next(); !_d.done; _d = _c.next()) {
                           var node = _d.value;
@@ -6234,7 +6232,7 @@ var Lits = (function (exports) {
               return "".concat(result, "Context ").concat(index).concat(index === _this.contexts.length - 1 ? " - Global context" : "", "\n").concat(contextToString(context), "\n");
           }, "");
       };
-      ContextStack.prototype.withContext = function (context, extraData) {
+      ContextStack.prototype.create = function (context, extraData) {
           var globalContext = this.globalContext;
           var contextStack = new ContextStack({
               contexts: __spreadArray([context], __read(this.contexts), false),

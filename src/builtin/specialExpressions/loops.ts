@@ -116,7 +116,7 @@ function evaluateLoop(
   let abort = false
   while (!abort) {
     const context: Context = {}
-    const newContextStack = contextStack.withContext(context)
+    const newContextStack = contextStack.create(context)
     let skip = false
     bindingsLoop: for (let bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
       const {
@@ -196,30 +196,30 @@ function analyze(
   const { l: loopBindings } = node as LoopNode
   loopBindings.forEach(loopBinding => {
     const { b: binding, l: letBindings, wn: whenNode, we: whileNode } = loopBinding
-    analyzeAst(binding.v, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
+    analyzeAst(binding.v, contextStack.create(newContext), builtin).undefinedSymbols.forEach(symbol =>
       result.undefinedSymbols.add(symbol),
     )
     newContext[binding.n] = { value: true }
     if (letBindings) {
       letBindings.forEach(letBinding => {
-        analyzeAst(letBinding.v, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
+        analyzeAst(letBinding.v, contextStack.create(newContext), builtin).undefinedSymbols.forEach(symbol =>
           result.undefinedSymbols.add(symbol),
         )
         newContext[letBinding.n] = { value: true }
       })
     }
     if (whenNode) {
-      analyzeAst(whenNode, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
+      analyzeAst(whenNode, contextStack.create(newContext), builtin).undefinedSymbols.forEach(symbol =>
         result.undefinedSymbols.add(symbol),
       )
     }
     if (whileNode) {
-      analyzeAst(whileNode, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
+      analyzeAst(whileNode, contextStack.create(newContext), builtin).undefinedSymbols.forEach(symbol =>
         result.undefinedSymbols.add(symbol),
       )
     }
   })
-  analyzeAst(node.p, contextStack.withContext(newContext), builtin).undefinedSymbols.forEach(symbol =>
+  analyzeAst(node.p, contextStack.create(newContext), builtin).undefinedSymbols.forEach(symbol =>
     result.undefinedSymbols.add(symbol),
   )
   return result

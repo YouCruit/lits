@@ -28,7 +28,7 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const newContext: Context = {}
 
-    const newContextStack = contextStack.withContext(newContext)
+    const newContextStack = contextStack.create(newContext)
     let result: Any = null
     for (const form of node.p) {
       result = evaluateAstNode(form, newContextStack)

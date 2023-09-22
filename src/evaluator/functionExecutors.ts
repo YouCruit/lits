@@ -98,7 +98,7 @@ export const functionExecutors: FunctionExecutors = {
 
       try {
         let result: Any = null
-        const newContextStack = contextStack.withContext(newContext, fn.x)
+        const newContextStack = contextStack.create(newContext, fn.x)
         for (const node of overloadFunction.b) {
           result = evaluateAstNode(node, newContextStack)
         }

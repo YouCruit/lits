@@ -19,7 +19,7 @@ describe(`ContextStack`, () => {
       },
     })
 
-    const contextStack2 = contextStack.withContext({}, { foo: { read: () => `xxx` } })
+    const contextStack2 = contextStack.create({}, { foo: { read: () => `xxx` } })
 
     expect(contextStack2.lookUp(getNameNode(`foo`))).toEqual({ value: `xxx` })
     expect(contextStack2.lookUp(getNameNode(`bar`))).toEqual({ value: `bar` })

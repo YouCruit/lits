@@ -36,7 +36,7 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
       result[binding.n] = { value: evaluateAstNode(binding.v, contextStack) }
       return result
     }, {})
-    const newContextStack = contextStack.withContext(bindingContext)
+    const newContextStack = contextStack.create(bindingContext)
 
     for (;;) {
       let result: Any = null
@@ -73,7 +73,7 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const bindingValueNodes = (node as LoopNode).bs.map(binding => binding.v)
     const bindingsResult = analyzeAst(bindingValueNodes, contextStack, builtin)
-    const paramsResult = analyzeAst(node.p, contextStack.withContext(newContext), builtin)
+    const paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin)
     return joinAnalyzeResults(bindingsResult, paramsResult)
   },
 }

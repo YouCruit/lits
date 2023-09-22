@@ -216,9 +216,7 @@ function addOverloadsUndefinedSymbols(
   functionNameContext?: Context,
 ): AnalyzeResult {
   const result: AnalyzeResult = { undefinedSymbols: new Set() }
-  const contextStackWithFunctionName = functionNameContext
-    ? contextStack.withContext(functionNameContext)
-    : contextStack
+  const contextStackWithFunctionName = functionNameContext ? contextStack.create(functionNameContext) : contextStack
   for (const overload of overloads) {
     const newContext: Context = {}
     overload.as.b.forEach(binding => {
@@ -232,7 +230,7 @@ function addOverloadsUndefinedSymbols(
     if (typeof overload.as.r === `string`) {
       newContext[overload.as.r] = { value: true }
     }
-    const newContextStack = contextStackWithFunctionName.withContext(newContext)
+    const newContextStack = contextStackWithFunctionName.create(newContext)
     const overloadResult = analyzeAst(overload.b, newContextStack, builtin)
     addAnalyzeResults(result, overloadResult)
   }

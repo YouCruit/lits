@@ -66,7 +66,7 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
       const newContext: Context = {
         [errorNode.v]: { value: asAny(error, node.tkn?.d) },
       }
-      return evaluateAstNode(catchExpression, contextStack.withContext(newContext))
+      return evaluateAstNode(catchExpression, contextStack.create(newContext))
     }
   },
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
@@ -75,7 +75,7 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
     const newContext: Context = {
       [errorNode.v]: { value: true },
     }
-    const catchResult = analyzeAst(catchExpression, contextStack.withContext(newContext), builtin)
+    const catchResult = analyzeAst(catchExpression, contextStack.create(newContext), builtin)
     return joinAnalyzeResults(tryResult, catchResult)
   },
 }

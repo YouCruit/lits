@@ -44,7 +44,7 @@ export class ContextStack {
     }, ``)
   }
 
-  public withContext(context: Context, extraData?: ExtraData): ContextStack {
+  public create(context: Context, extraData?: ExtraData): ContextStack {
     const globalContext = this.globalContext
     const contextStack = new ContextStack({
       contexts: [context, ...this.contexts],

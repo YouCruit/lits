@@ -313,15 +313,31 @@ var Lits = (function (exports) {
       return new LitsError("Expected ".concat(typeName, ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
   }
 
-  function isLitsFunction(func) {
-      if (func === null || typeof func !== "object") {
+  function isLitsFunction(value) {
+      if (value === null || typeof value !== "object") {
           return false;
       }
-      return !!func[FUNCTION_SYMBOL];
+      return !!value[FUNCTION_SYMBOL];
+  }
+  function asLitsFunction(value, debugInfo) {
+      assertLitsFunction(value, debugInfo);
+      return value;
   }
   function assertLitsFunction(value, debugInfo) {
       if (!isLitsFunction(value)) {
           throw getAssertionError("LitsFunction", value, debugInfo);
+      }
+  }
+  function isUserDefinedFunction(value) {
+      return value.t === exports.FunctionType.UserDefined;
+  }
+  function asUserDefinedFunction(value, debugInfo) {
+      assertUserDefinedFunction(value, debugInfo);
+      return value;
+  }
+  function assertUserDefinedFunction(value, debugInfo) {
+      if (!isUserDefinedFunction(value)) {
+          throw getAssertionError("UserDefinedFunction", value, debugInfo);
       }
   }
 
@@ -4426,7 +4442,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.56-alpha.12";
+  var version = "1.0.56-alpha.13";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -7328,7 +7344,12 @@ var Lits = (function (exports) {
   }
 
   exports.Lits = Lits;
+  exports.asLitsFunction = asLitsFunction;
+  exports.asUserDefinedFunction = asUserDefinedFunction;
+  exports.assertLitsFunction = assertLitsFunction;
+  exports.assertUserDefinedFunction = assertUserDefinedFunction;
   exports.isLitsFunction = isLitsFunction;
+  exports.isUserDefinedFunction = isUserDefinedFunction;
   exports.normalExpressionKeys = normalExpressionKeys;
   exports.reservedNames = reservedNames;
   exports.specialExpressionKeys = specialExpressionKeys;

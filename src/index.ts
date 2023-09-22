@@ -1,5 +1,12 @@
 export { AstNodeType, TokenType, FunctionType } from './constants/constants'
-export { isLitsFunction } from './typeGuards/litsFunction'
+export {
+  isLitsFunction,
+  asLitsFunction,
+  assertLitsFunction,
+  isUserDefinedFunction,
+  asUserDefinedFunction,
+  assertUserDefinedFunction,
+} from './typeGuards/litsFunction'
 export { type LitsFunction, type NativeJsFunction, type ExtraData as ScopedValues } from './parser/interface'
 export type { Context } from './evaluator/interface'
 export type { Ast } from './parser/interface'

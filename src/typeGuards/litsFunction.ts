@@ -1,13 +1,14 @@
 import { getAssertionError } from '../utils/getAssertionError'
-import type { LitsFunction } from '../parser/interface'
+import type { LitsFunction, UserDefinedFunction } from '../parser/interface'
 import type { DebugInfo } from '../tokenizer/interface'
 import { FUNCTION_SYMBOL } from '../utils/symbols'
+import { FunctionType } from '../constants/constants'
 
-export function isLitsFunction(func: unknown): func is LitsFunction {
-  if (func === null || typeof func !== `object`) {
+export function isLitsFunction(value: unknown): value is LitsFunction {
+  if (value === null || typeof value !== `object`) {
     return false
   }
-  return !!(func as LitsFunction)[FUNCTION_SYMBOL]
+  return !!(value as LitsFunction)[FUNCTION_SYMBOL]
 }
 export function asLitsFunction(value: unknown, debugInfo?: DebugInfo): LitsFunction {
   assertLitsFunction(value, debugInfo)
@@ -16,5 +17,21 @@ export function asLitsFunction(value: unknown, debugInfo?: DebugInfo): LitsFunct
 export function assertLitsFunction(value: unknown, debugInfo?: DebugInfo): asserts value is LitsFunction {
   if (!isLitsFunction(value)) {
     throw getAssertionError(`LitsFunction`, value, debugInfo)
+  }
+}
+
+export function isUserDefinedFunction(value: LitsFunction): value is UserDefinedFunction {
+  return value.t === FunctionType.UserDefined
+}
+export function asUserDefinedFunction(value: LitsFunction, debugInfo?: DebugInfo): UserDefinedFunction {
+  assertUserDefinedFunction(value, debugInfo)
+  return value
+}
+export function assertUserDefinedFunction(
+  value: LitsFunction,
+  debugInfo?: DebugInfo,
+): asserts value is UserDefinedFunction {
+  if (!isUserDefinedFunction(value)) {
+    throw getAssertionError(`UserDefinedFunction`, value, debugInfo)
   }
 }

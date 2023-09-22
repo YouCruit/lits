@@ -1,4 +1,4 @@
-import type { NameNode, BuiltinFunction, NativeJsFunction } from '../parser/interface'
+import type { NameNode, BuiltinFunction, NativeJsFunction, ExtraData } from '../parser/interface'
 import { isBuiltinFunction } from '../parser/interface'
 import { builtin } from '../builtin'
 import { toAny } from '../utils'
@@ -44,12 +44,12 @@ export class ContextStack {
     }, ``)
   }
 
-  public withContext(context: Context): ContextStack {
+  public withContext(context: Context, extraData?: ExtraData): ContextStack {
     const globalContext = this.globalContext
     const contextStack = new ContextStack({
       contexts: [context, ...this.contexts],
       values: this.values,
-      lazyValues: this.lazyValues,
+      lazyValues: extraData ? { ...this.lazyValues, ...extraData } : this.lazyValues,
       nativeJsFunctions: this.nativeJsFunctions,
     })
     contextStack.globalContext = globalContext

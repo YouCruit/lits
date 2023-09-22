@@ -98,8 +98,9 @@ export const functionExecutors: FunctionExecutors = {
 
       try {
         let result: Any = null
+        const newContextStack = contextStack.withContext(newContext, fn.x)
         for (const node of overloadFunction.b) {
-          result = evaluateAstNode(node, contextStack.withContext(newContext))
+          result = evaluateAstNode(node, newContextStack)
         }
         return result
       } catch (error) {

@@ -9,7 +9,7 @@ import type { DebugInfo, Token } from '../tokenizer/interface'
 import type { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
 import { type AstNodeType, FunctionType } from '../constants/constants'
 import { isUnknownRecord } from '../typeGuards'
-import type { JsFunction } from '../Lits/Lits'
+import type { JsFunction, LazyValue } from '../Lits/Lits'
 
 export type EvaluatedFunctionArguments = {
   mandatoryArguments: string[]
@@ -22,6 +22,8 @@ export type EvaluatedFunctionOverload = {
   a: Arity
   f: Context
 }
+
+export type ExtraData = Record<string, LazyValue>
 
 type GenericLitsFunction = {
   [FUNCTION_SYMBOL]: true
@@ -46,6 +48,7 @@ export interface UserDefinedFunction extends GenericLitsFunction {
   t: FunctionType.UserDefined
   n: string | undefined // name
   o: EvaluatedFunctionOverload[]
+  x?: ExtraData
 }
 
 export interface PartialFunction extends GenericLitsFunction {

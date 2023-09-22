@@ -4428,7 +4428,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.56-alpha.5";
+  var version = "1.0.56-alpha.12";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -5922,10 +5922,11 @@ var Lits = (function (exports) {
               }
               try {
                   var result = null;
+                  var newContextStack = contextStack.withContext(newContext, fn.x);
                   try {
                       for (var _c = (e_1 = void 0, __values(overloadFunction.b)), _d = _c.next(); !_d.done; _d = _c.next()) {
                           var node = _d.value;
-                          result = evaluateAstNode(node, contextStack.withContext(newContext));
+                          result = evaluateAstNode(node, newContextStack);
                       }
                   }
                   catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -6233,12 +6234,12 @@ var Lits = (function (exports) {
               return "".concat(result, "Context ").concat(index).concat(index === _this.contexts.length - 1 ? " - Global context" : "", "\n").concat(contextToString(context), "\n");
           }, "");
       };
-      ContextStack.prototype.withContext = function (context) {
+      ContextStack.prototype.withContext = function (context, extraData) {
           var globalContext = this.globalContext;
           var contextStack = new ContextStack({
               contexts: __spreadArray([context], __read(this.contexts), false),
               values: this.values,
-              lazyValues: this.lazyValues,
+              lazyValues: extraData ? __assign(__assign({}, this.lazyValues), extraData) : this.lazyValues,
               nativeJsFunctions: this.nativeJsFunctions,
           });
           contextStack.globalContext = globalContext;

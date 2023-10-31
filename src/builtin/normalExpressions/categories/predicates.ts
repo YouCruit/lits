@@ -155,6 +155,9 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'empty?': {
     evaluate: ([coll], debugInfo): boolean => {
+      if (coll === null) {
+        return true
+      }
       assertColl(coll, debugInfo)
       if (typeof coll === `string`) {
         return coll.length === 0
@@ -168,6 +171,9 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
   },
   'not-empty?': {
     evaluate: ([coll], debugInfo): boolean => {
+      if (coll === null) {
+        return false
+      }
       assertColl(coll, debugInfo)
       if (typeof coll === `string`) {
         return coll.length > 0

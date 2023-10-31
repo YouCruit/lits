@@ -9,11 +9,18 @@ module.exports = {
     arguments: [
       {
         name: `coll`,
-        type: `collection | string`,
+        type: `collection | string | nil`,
       },
     ],
     description: `Returns number of elements in \`coll\`.`,
-    examples: [`(count [1 2 3])`, `(count [])`, `(count (object :a 1))`, `(count "")`, `(count "Albert")`],
+    examples: [
+      `(count [1 2 3])`,
+      `(count [])`,
+      `(count (object :a 1))`,
+      `(count "")`,
+      `(count "Albert")`,
+      `(count nil)`,
+    ],
   },
   get: {
     name: `get`,
@@ -88,7 +95,7 @@ module.exports = {
     arguments: [
       {
         name: `coll`,
-        type: `collection`,
+        type: `collection | nil`,
       },
       {
         name: `key`,
@@ -115,11 +122,11 @@ module.exports = {
     arguments: [
       {
         name: `coll`,
-        type: `collection`,
+        type: `collection | nil`,
       },
       {
         name: `key`,
-        type: `string or number`,
+        type: `string | number`,
       },
     ],
     description: `Returns \`true\` if \`collection\` has \`value\`, otherwise returns \`false\`.`,
@@ -130,6 +137,7 @@ module.exports = {
       `(has? {:a 1 :b 2} 0)`,
       `(has? "Albert" :A)`,
       `(has? "Albert" :a)`,
+      `(has? nil :a)`,
     ],
   },
   'has-some?': {
@@ -162,6 +170,8 @@ module.exports = {
       `(has-some? "Albert" "xyzl")`,
       `(has-some? [:a :b :c :d] "xyz")`,
       `(has-some? [:a :b :c :d] "xyzc")`,
+      `(has-some? nil [1])`,
+      `(has-some? nil "")`,
     ],
   },
   'has-every?': {
@@ -174,7 +184,7 @@ module.exports = {
     },
     arguments: [
       {
-        name: `coll`,
+        name: `coll | nil`,
         type: `collection`,
       },
       {
@@ -194,6 +204,10 @@ module.exports = {
       `(has-every? "Albert" "treblA")`,
       `(has-every? [:a :b :c :d] "xyz")`,
       `(has-every? [:a :b :c :d] "dcba")`,
+      `(has-every? nil "abc")`,
+      `(has-every? nil [0, 1, nil])`,
+      `(has-every? nil nil)`,
+      `(has-every? [1, 2, 3] nil)`,
     ],
   },
   assoc: {
@@ -210,7 +224,7 @@ module.exports = {
       },
       {
         name: `key`,
-        type: `string or number`,
+        type: `string | number`,
       },
       {
         name: `value`,
@@ -288,7 +302,7 @@ module.exports = {
     arguments: [
       {
         name: `coll`,
-        type: `collection or string`,
+        type: `collection | string | nil`,
       },
     ],
     description: `Returns \`null\` if \`coll\` is empty, otherwise \`coll\`.`,
@@ -299,6 +313,7 @@ module.exports = {
       `(not-empty {:a 2})`,
       `(not-empty "")`,
       `(not-empty "Albert")`,
+      `(not-empty nil)`,
     ],
   },
   'every?': {

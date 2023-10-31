@@ -287,8 +287,8 @@ module.exports = {
     },
     arguments: [
       {
-        name: `array`,
-        type: `array`,
+        name: `seq`,
+        type: `array | string | nil`,
       },
       {
         name: `finder`,
@@ -300,6 +300,7 @@ module.exports = {
       `(position string? ["Albert" "Mojir" 160 [1 2]])`,
       `(position (fn [x] (> x 10)) [5 10 15 20])`,
       `(position (fn [x] (> x 100)) [5 10 15 20])`,
+      `(position (fn [x] (> x 100)) nil)`,
     ],
   },
   'index-of': {
@@ -312,19 +313,20 @@ module.exports = {
     },
     arguments: [
       {
-        name: `array`,
-        type: `array`,
+        name: `seq`,
+        type: `array | string | nil`,
       },
       {
         name: `value`,
         type: `any`,
       },
     ],
-    description: `Returns the index of \`value\` in array. If element is not present in \`array\` \`nil\` is returned.`,
+    description: `Returns the index of \`value\` in \`seq\`. If element is not present in \`seq\` \`nil\` is returned.`,
     examples: [
       `(index-of ["Albert" "Mojir" 160 [1 2]] "Mojir")`,
       `(index-of [5 10 15 20] 15)`,
       `(index-of [5 10 15 20] 1)`,
+      `(index-of nil 1)`,
     ],
   },
   some: {
@@ -332,12 +334,12 @@ module.exports = {
     category: `Sequence`,
     linkName: `some`,
     returns: {
-      type: `array`,
+      type: `array | string | nil`,
     },
     arguments: [
       {
-        name: `array`,
-        type: `array`,
+        name: `seq`,
+        type: `array | string | nil`,
       },
       {
         name: `finder`,
@@ -350,6 +352,7 @@ module.exports = {
       `(some (fn [x] (> x 10)) [5 10 15 20])`,
       `(some (fn [x] (> x 10)) [1 2 3 4])`,
       `(some (fn [x] (> x 10)) [])`,
+      `(some (fn [x] (> x 10)) nil)`,
     ],
   },
   reverse: {
@@ -357,16 +360,16 @@ module.exports = {
     category: `Sequence`,
     linkName: `reverse`,
     returns: {
-      type: `array or string`,
+      type: `array | string | nil`,
     },
     arguments: [
       {
         name: `input`,
-        type: `input or string`,
+        type: `input | string | nil`,
       },
     ],
     description: `If \`input\` is an array, creates a new array with the elements from \`input\` in reversed order. If \`input\` is a string, returns new reversed string.`,
-    examples: [`(reverse ["Albert" "Mojir" 160 [1 2]])`, `(reverse [])`, `(reverse "Albert")`],
+    examples: [`(reverse ["Albert" "Mojir" 160 [1 2]])`, `(reverse [])`, `(reverse "Albert")`, `(reverse nil)`],
   },
   first: {
     name: `first`,
@@ -377,12 +380,12 @@ module.exports = {
     },
     arguments: [
       {
-        name: `array`,
-        type: `array`,
+        name: `seq`,
+        type: `array | string | nil`,
       },
     ],
-    description: `Returns the first element of \`array\`. If \`array\` is empty, \`nil\` is returned.`,
-    examples: [`(first ["Albert" "Mojir" 160 [1 2]])`, `(first [])`],
+    description: `Returns the first element of \`seq\`. If \`seq\` is empty or \`nil\`, \`nil\` is returned.`,
+    examples: [`(first ["Albert" "Mojir" 160 [1 2]])`, `(first [])`, `(first nil)`],
   },
   second: {
     name: `second`,
@@ -393,12 +396,12 @@ module.exports = {
     },
     arguments: [
       {
-        name: `array`,
-        type: `array`,
+        name: `seq`,
+        type: `array | string | nil`,
       },
     ],
-    description: `Returns the second element of \`array\`. If \`array\` has less than two elements, \`nil\` is returned.`,
-    examples: [`(second ["Albert" "Mojir" 160 [1 2]])`, `(second [1])`, `(second [])`],
+    description: `Returns the second element of \`seq\`. If \`seq\` has less than two elements or is \`nil\`, \`nil\` is returned.`,
+    examples: [`(second ["Albert" "Mojir" 160 [1 2]])`, `(second [1])`, `(second [])`, `(second nil)`],
   },
   last: {
     name: `last`,
@@ -409,12 +412,12 @@ module.exports = {
     },
     arguments: [
       {
-        name: `array`,
-        type: `array`,
+        name: `seq`,
+        type: `array | string | nil`,
       },
     ],
-    description: `Returns the last element of \`array\`. If \`array\` is empty, \`nil\` is returned.`,
-    examples: [`(last ["Albert" "Mojir" 160 [1 2]])`, `(last [1 2])`, `(last [1])`, `(last [])`],
+    description: `Returns the last element of \`seq\`. If \`seq\` is empty, \`nil\` is returned.`,
+    examples: [`(last ["Albert" "Mojir" 160 [1 2]])`, `(last [1 2])`, `(last [1])`, `(last [])`, `(last nil)`],
   },
   rest: {
     name: `rest`,

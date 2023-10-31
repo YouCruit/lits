@@ -38,11 +38,14 @@ module.exports = {
         type: `string`,
       },
     ],
-    description: `Matches \`string\` against \`pattern\`. If \`string\` matches, a *match*-array is returned, otherwise \`nil\`.`,
+    description: `Matches \`string\` against \`pattern\`. If \`string\` is a string and matches the regular expression, a *match*-array is returned, otherwise \`nil\`.`,
     examples: [
       `(match (regexp "^\\s*(.*)$") "  A string")`,
       `(match #"albert"i "My name is Albert")`,
       `(match #"albert"i "My name is Ben")`,
+      `(match #"albert"i nil)`,
+      `(match #"albert"i 1)`,
+      `(match #"albert"i {})`,
     ],
   },
   replace: {

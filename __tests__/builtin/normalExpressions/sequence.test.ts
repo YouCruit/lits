@@ -7,6 +7,7 @@ describe(`sequence functions`, () => {
     test(`array samples`, () => {
       for (const lits2 of litsInstances) {
         expect(lits2.run(`(nth [1 2 3] 1)`)).toBe(2)
+        expect(lits2.run(`(nth [] 0)`)).toBeNull()
         expect(lits2.run(`(nth [1 2 3] 3)`)).toBeNull()
         expect(lits2.run(`(nth [1 2 3] -1)`)).toBeNull()
         expect(lits2.run(`(nth [1 2 3] -4)`)).toBeNull()
@@ -115,6 +116,7 @@ describe(`sequence functions`, () => {
       ])
       expect(lits.run(`(reductions (fn [x y] (concat x "-" y)) ">" "")`)).toEqual([`>`])
 
+      expect(() => lits.run(`(reductions + nil)`)).toThrow()
       expect(() => lits.run(`(reductions +)`)).toThrow()
       expect(() => lits.run(`(reductions)`)).toThrow()
       expect(() => lits.run(`(reductions + 1 2)`)).toThrow()
@@ -213,6 +215,7 @@ describe(`sequence functions`, () => {
       expect(lits.run(`(position number? [:1 :2 3])`)).toEqual(2)
       expect(lits.run(`(position number? [:1 :2 :3])`)).toBeNull()
       expect(lits.run(`(position number? [])`)).toBeNull()
+      expect(lits.run(`(position number? nil)`)).toBeNull()
       expect(lits.run(`(position (fn [x] (zero? (mod x 3))) [1 2 3 4 5 6 7])`)).toEqual(2)
       expect(lits.run(`(position (fn [x] (>= x :a)) "Aa")`)).toBe(1)
       expect(lits.run(`(position (fn [x] (= x :z)) "Aa")`)).toBeNull()
@@ -227,6 +230,7 @@ describe(`sequence functions`, () => {
       expect(lits.run(`(index-of [:1 :2 3] :2)`)).toEqual(1)
       expect(lits.run(`(index-of [:1 :2 :3] :4)`)).toBeNull()
       expect(lits.run(`(index-of [] 1)`)).toBeNull()
+      expect(lits.run(`(index-of nil 1)`)).toBeNull()
       expect(lits.run(`(index-of "Albert" :l)`)).toBe(1)
       expect(lits.run(`(index-of "Albert" "ert")`)).toBe(3)
       expect(lits.run(`(index-of "Albert" :z)`)).toBeNull()
@@ -238,6 +242,9 @@ describe(`sequence functions`, () => {
 
   describe(`some`, () => {
     test(`samples`, () => {
+      expect(lits.run(`(some #(= :l %) :Albert)`)).toBe(`l`)
+
+      expect(lits.run(`(some number? nil)`)).toBeNull()
       expect(lits.run(`(some number? [:1 :2 3])`)).toBe(3)
       expect(lits.run(`(some number? [:1 :2 :3])`)).toBeNull()
       expect(lits.run(`(some number? [])`)).toBeNull()
@@ -306,11 +313,11 @@ describe(`sequence functions`, () => {
       expect(lits.run(`(first "AB")`)).toBe(`A`)
       expect(lits.run(`(first :A)`)).toBe(`A`)
       expect(lits.run(`(first "")`)).toBeNull()
+      expect(lits.run(`(first nil)`)).toBeNull()
 
       expect(() => lits.run(`(first`)).toThrow()
       expect(() => lits.run(`(first true)`)).toThrow()
       expect(() => lits.run(`(first false)`)).toThrow()
-      expect(() => lits.run(`(first nil)`)).toThrow()
       expect(() => lits.run(`(first (object))`)).toThrow()
       expect(() => lits.run(`(first 10)`)).toThrow()
     })
@@ -327,10 +334,11 @@ describe(`sequence functions`, () => {
       expect(lits.run(`(second :A)`)).toBeNull()
       expect(lits.run(`(second "")`)).toBeNull()
 
+      expect(lits.run(`(second nil)`)).toBeNull()
+
       expect(() => lits.run(`(second`)).toThrow()
       expect(() => lits.run(`(second true)`)).toThrow()
       expect(() => lits.run(`(second false)`)).toThrow()
-      expect(() => lits.run(`(second nil)`)).toThrow()
       expect(() => lits.run(`(second (object))`)).toThrow()
       expect(() => lits.run(`(second 10)`)).toThrow()
     })
@@ -345,12 +353,13 @@ describe(`sequence functions`, () => {
       expect(lits.run(`(reverse "A 1")`)).toBe(`1 A`)
       expect(lits.run(`(reverse "")`)).toBe(``)
 
+      expect(lits.run(`(reverse nil)`)).toBeNull()
+
       expect(() => lits.run(`(reverse)`)).toThrow()
       expect(() => lits.run(`(reverse "word1" "word2")`)).toThrow()
       expect(() => lits.run(`(reverse`)).toThrow()
       expect(() => lits.run(`(reverse true)`)).toThrow()
       expect(() => lits.run(`(reverse false)`)).toThrow()
-      expect(() => lits.run(`(reverse nil)`)).toThrow()
       expect(() => lits.run(`(reverse (object))`)).toThrow()
       expect(() => lits.run(`(reverse 10)`)).toThrow()
     })
@@ -372,10 +381,11 @@ describe(`sequence functions`, () => {
       expect(lits.run(`(last :1)`)).toBe(`1`)
       expect(lits.run(`(last "")`)).toBeNull()
 
+      expect(lits.run(`(last nil)`)).toBeNull()
+
       expect(() => lits.run(`(last`)).toThrow()
       expect(() => lits.run(`(last true)`)).toThrow()
       expect(() => lits.run(`(last false)`)).toThrow()
-      expect(() => lits.run(`(last nil)`)).toThrow()
       expect(() => lits.run(`(last (object))`)).toThrow()
       expect(() => lits.run(`(last 10)`)).toThrow()
     })
@@ -571,6 +581,7 @@ describe(`sequence functions`, () => {
   describe(`take`, () => {
     test(`samples`, () => {
       expect(lits.run(`(take 2 [1 2 3])`)).toEqual([1, 2])
+      expect(lits.run(`(take 2 [])`)).toEqual([])
       expect(lits.run(`(take 20 [1 2 3])`)).toEqual([1, 2, 3])
       expect(lits.run(`(take 0 [1 2 3])`)).toEqual([])
       expect(lits.run(`(take 2 "Albert")`)).toEqual(`Al`)

@@ -14,7 +14,7 @@ describe(`predicates`, () => {
         expect(lits.run(`(function? true)`)).toBe(false)
         expect(lits.run(`(function? false)`)).toBe(false)
         expect(lits.run(`(function? +)`)).toBe(true)
-        expect(lits.run(`(function? +)`)).toBe(true)
+        expect(lits.run(`(function? #(- % 1))`)).toBe(true)
         expect(() => lits.run(`(function?)`)).toThrow()
         expect(() => lits.run(`(function? :k :k)`)).toThrow()
       })
@@ -126,6 +126,7 @@ describe(`predicates`, () => {
       test(`samples`, () => {
         expect(lits.run(`(zero? 1)`)).toBe(false)
         expect(lits.run(`(zero? 0)`)).toBe(true)
+        expect(lits.run(`(zero? 0.0)`)).toBe(true)
         expect(lits.run(`(zero? -0)`)).toBe(true)
         expect(lits.run(`(zero? (/ 0 -1))`)).toBe(true)
         expect(lits.run(`(zero? -1)`)).toBe(false)
@@ -142,6 +143,7 @@ describe(`predicates`, () => {
     describe(`pos?`, () => {
       test(`samples`, () => {
         expect(lits.run(`(pos? 1)`)).toBe(true)
+        expect(lits.run(`(pos? 0.1)`)).toBe(true)
         expect(lits.run(`(pos? 0)`)).toBe(false)
         expect(lits.run(`(pos? -0)`)).toBe(false)
         expect(lits.run(`(pos? (/ 0 -1))`)).toBe(false)
@@ -394,11 +396,12 @@ describe(`predicates`, () => {
         expect(lits.run(`(empty? {:a 2})`)).toBe(false)
         expect(lits.run(`(empty? "")`)).toBe(true)
         expect(lits.run(`(empty? "Albert")`)).toBe(false)
+        expect(lits.run(`(empty? nil)`)).toBe(true)
+
         expect(() => lits.run(`(empty?)`)).toThrow()
         expect(() => lits.run(`(empty?)`)).toThrow()
         expect(() => lits.run(`(empty? true)`)).toThrow()
         expect(() => lits.run(`(empty? false)`)).toThrow()
-        expect(() => lits.run(`(empty? nil)`)).toThrow()
         expect(() => lits.run(`(empty? undefined)`)).toThrow()
         expect(() => lits.run(`(empty? 10)`)).toThrow()
         expect(() => lits.run(`(empty? (regexp "^start"))`)).toThrow()
@@ -413,11 +416,12 @@ describe(`predicates`, () => {
         expect(lits.run(`(not-empty? {:a 2})`)).toBe(true)
         expect(lits.run(`(not-empty? "")`)).toBe(false)
         expect(lits.run(`(not-empty? "Albert")`)).toBe(true)
+        expect(lits.run(`(not-empty? nil)`)).toBe(false)
+
         expect(() => lits.run(`(not-empty?)`)).toThrow()
         expect(() => lits.run(`(not-empty?)`)).toThrow()
         expect(() => lits.run(`(not-empty? true)`)).toThrow()
         expect(() => lits.run(`(not-empty? false)`)).toThrow()
-        expect(() => lits.run(`(not-empty? nil)`)).toThrow()
         expect(() => lits.run(`(not-empty? undefined)`)).toThrow()
         expect(() => lits.run(`(not-empty? 10)`)).toThrow()
         expect(() => lits.run(`(not-empty? (regexp "^start"))`)).toThrow()

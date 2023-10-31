@@ -1,5 +1,5 @@
 import { getAssertionError } from '../utils/getAssertionError'
-import type { LitsFunction, UserDefinedFunction } from '../parser/interface'
+import type { LitsFunction, NativeJsFunction, UserDefinedFunction } from '../parser/interface'
 import type { DebugInfo } from '../tokenizer/interface'
 import { FUNCTION_SYMBOL } from '../utils/symbols'
 import { FunctionType } from '../constants/constants'
@@ -29,6 +29,19 @@ export function asUserDefinedFunction(value: unknown, debugInfo?: DebugInfo): Us
 }
 export function assertUserDefinedFunction(value: unknown, debugInfo?: DebugInfo): asserts value is UserDefinedFunction {
   if (!isUserDefinedFunction(value)) {
-    throw getAssertionError(`UserDefinedFunction`, value, debugInfo)
+    throw getAssertionError(`NativeJsFunction`, value, debugInfo)
+  }
+}
+
+export function isNativeJsFunction(value: unknown): value is NativeJsFunction {
+  return isLitsFunction(value) && value.t === FunctionType.NativeJsFunction
+}
+export function asNativeJsFunction(value: unknown, debugInfo?: DebugInfo): NativeJsFunction {
+  assertNativeJsFunction(value, debugInfo)
+  return value
+}
+export function assertNativeJsFunction(value: unknown, debugInfo?: DebugInfo): asserts value is NativeJsFunction {
+  if (!isNativeJsFunction(value)) {
+    throw getAssertionError(`NativeJsFunction`, value, debugInfo)
   }
 }

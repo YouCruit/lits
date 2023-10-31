@@ -1,6 +1,6 @@
 import type { RegularExpression } from '../../../parser/interface'
 import { assertRegularExpression } from '../../../typeGuards/lits'
-import { assertString } from '../../../typeGuards/string'
+import { assertString, isString } from '../../../typeGuards/string'
 import { assertNumberOfParams } from '../../../typeGuards'
 import { REGEXP_SYMBOL } from '../../../utils/symbols'
 import type { BuiltinNormalExpressions } from '../../interface'
@@ -24,7 +24,9 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
   match: {
     evaluate: ([regexp, text], debugInfo): string[] | null => {
       assertRegularExpression(regexp, debugInfo)
-      assertString(text, debugInfo)
+      if (!isString(text)) {
+        return null
+      }
       const regExp = new RegExp(regexp.s, regexp.f)
 
       const match = regExp.exec(text)

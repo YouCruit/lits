@@ -453,11 +453,19 @@ module.exports = {
     arguments: [
       {
         name: `coll`,
-        type: `collection or string`,
+        type: `collection | string | nil`,
       },
     ],
     description: `Returns \`true\` if \`coll\` is empty, otherwise \`false\`.`,
-    examples: [`(empty? [])`, `(empty? [1 2 3])`, `(empty? {})`, `(empty? {:a 2})`, `(empty? "")`, `(empty? "Albert")`],
+    examples: [
+      `(empty? [])`,
+      `(empty? [1 2 3])`,
+      `(empty? {})`,
+      `(empty? {:a 2})`,
+      `(empty? "")`,
+      `(empty? "Albert")`,
+      `(empty? nil)`,
+    ],
   },
   'not-empty?': {
     name: `not-empty?`,
@@ -470,7 +478,7 @@ module.exports = {
     arguments: [
       {
         name: `coll`,
-        type: `collection or string`,
+        type: `collection | string | nil`,
       },
     ],
     description: `Returns \`false\` if \`coll\` is empty, otherwise \`true\`.`,
@@ -481,6 +489,7 @@ module.exports = {
       `(not-empty? {:a 2})`,
       `(not-empty? "")`,
       `(not-empty? "Albert")`,
+      `(not-empty? nil)`,
     ],
   },
 }

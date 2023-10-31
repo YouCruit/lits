@@ -16,7 +16,7 @@
   <div class="row">
     <div class="column"></div>
     <div class="column header">Lits</div>
-    <div class="column right version"><span>v1.0.56-alpha.15</span></div>
+    <div class="column right version"><span>v1.0.56</span></div>
   </div>
 </header>
     <main id="main-panel" class="fancy-scroll">
@@ -211,7 +211,7 @@
     <pre>count coll => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>coll: collection | string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>coll: collection | string | nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -220,6 +220,7 @@
 <pre><span class="example" onclick="addToPlayground('(count (object :a 1))')"> <span class="icon-button">▶</span> (count (object :a 1)) <span class="gray">=> 1 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(count ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (count "") <span class="gray">=> 0 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(count ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (count "Albert") <span class="gray">=> 6 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(count nil)')"> <span class="icon-button">▶</span> (count nil) <span class="gray">=> 0 </span> </span></pre>
   </div>
 </div>
 
@@ -297,7 +298,7 @@
     <pre>contains? coll key => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>coll: collection</pre>
+  <label>Arguments</label><div class="indent"><pre>coll: collection | nil</pre>
 <pre>key: string or number</pre></div>
 
   <label>Examples</label>
@@ -325,8 +326,8 @@
     <pre>has? coll key => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>coll: collection</pre>
-<pre>key: string or number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>coll: collection | nil</pre>
+<pre>key: string | number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -336,6 +337,7 @@
 <pre><span class="example" onclick="addToPlayground('(has? {:a 1 :b 2} 0)')"> <span class="icon-button">▶</span> (has? {:a 1 :b 2} 0) <span class="gray">=> false </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(has? ___double_quote___Albert___double_quote___ :A)')"> <span class="icon-button">▶</span> (has? "Albert" :A) <span class="gray">=> true </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(has? ___double_quote___Albert___double_quote___ :a)')"> <span class="icon-button">▶</span> (has? "Albert" :a) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(has? nil :a)')"> <span class="icon-button">▶</span> (has? nil :a) <span class="gray">=> false </span> </span></pre>
   </div>
 </div>
 
@@ -369,6 +371,8 @@
 <pre><span class="example" onclick="addToPlayground('(has-some? ___double_quote___Albert___double_quote___ ___double_quote___xyzl___double_quote___)')"> <span class="icon-button">▶</span> (has-some? "Albert" "xyzl") <span class="gray">=> true </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(has-some? [:a :b :c :d] ___double_quote___xyz___double_quote___)')"> <span class="icon-button">▶</span> (has-some? [:a :b :c :d] "xyz") <span class="gray">=> false </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(has-some? [:a :b :c :d] ___double_quote___xyzc___double_quote___)')"> <span class="icon-button">▶</span> (has-some? [:a :b :c :d] "xyzc") <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(has-some? nil [1])')"> <span class="icon-button">▶</span> (has-some? nil [1]) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(has-some? nil ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (has-some? nil "") <span class="gray">=> false </span> </span></pre>
   </div>
 </div>
 
@@ -384,10 +388,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">collection</span> has all of the elements in <span class="pre">keys</span>, otherwise returns <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>has-every? coll keys => boolean</pre>
+    <pre>has-every? coll | nil keys => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>coll: collection</pre>
+  <label>Arguments</label><div class="indent"><pre>coll | nil: collection</pre>
 <pre>keys: Seq</pre></div>
 
   <label>Examples</label>
@@ -402,6 +406,10 @@
 <pre><span class="example" onclick="addToPlayground('(has-every? ___double_quote___Albert___double_quote___ ___double_quote___treblA___double_quote___)')"> <span class="icon-button">▶</span> (has-every? "Albert" "treblA") <span class="gray">=> true </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(has-every? [:a :b :c :d] ___double_quote___xyz___double_quote___)')"> <span class="icon-button">▶</span> (has-every? [:a :b :c :d] "xyz") <span class="gray">=> false </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(has-every? [:a :b :c :d] ___double_quote___dcba___double_quote___)')"> <span class="icon-button">▶</span> (has-every? [:a :b :c :d] "dcba") <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(has-every? nil ___double_quote___abc___double_quote___)')"> <span class="icon-button">▶</span> (has-every? nil "abc") <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(has-every? nil [0, 1, nil])')"> <span class="icon-button">▶</span> (has-every? nil [0, 1, nil]) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(has-every? nil nil)')"> <span class="icon-button">▶</span> (has-every? nil nil) <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(has-every? [1, 2, 3] nil)')"> <span class="icon-button">▶</span> (has-every? [1, 2, 3] nil) <span class="gray">=> true </span> </span></pre>
   </div>
 </div>
 
@@ -421,7 +429,7 @@
   </div>
 
   <label>Arguments</label><div class="indent"><pre>coll: collection</pre>
-<pre>key: string or number</pre>
+<pre>key: string | number</pre>
 <pre>value: any</pre></div>
 
   <label>Examples</label>
@@ -504,7 +512,7 @@
     <pre>not-empty coll => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>coll: collection or string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>coll: collection | string | nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -514,6 +522,7 @@
 <pre><span class="example" onclick="addToPlayground('(not-empty {:a 2})')"> <span class="icon-button">▶</span> (not-empty {:a 2}) <span class="gray">=> {"a":2} </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(not-empty ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (not-empty "") <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(not-empty ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (not-empty "Albert") <span class="gray">=> "Albert" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty nil)')"> <span class="icon-button">▶</span> (not-empty nil) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
@@ -1134,10 +1143,10 @@
   <p>Returns the index of the first elements that pass the test implemented by <span class="pre">finder</span>. If no element was found, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>position array finder => number</pre>
+    <pre>position seq finder => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>array: array</pre>
+  <label>Arguments</label><div class="indent"><pre>seq: array | string | nil</pre>
 <pre>finder: function</pre></div>
 
   <label>Examples</label>
@@ -1145,6 +1154,7 @@
     <pre><span class="example" onclick="addToPlayground('(position string? [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (position string? ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> 0 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(position (fn [x] (> x 10)) [5 10 15 20])')"> <span class="icon-button">▶</span> (position (fn [x] (> x 10)) [5 10 15 20]) <span class="gray">=> 2 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(position (fn [x] (> x 100)) [5 10 15 20])')"> <span class="icon-button">▶</span> (position (fn [x] (> x 100)) [5 10 15 20]) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(position (fn [x] (> x 100)) nil)')"> <span class="icon-button">▶</span> (position (fn [x] (> x 100)) nil) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
@@ -1157,13 +1167,13 @@
   </div>
 
   
-  <p>Returns the index of <span class="pre">value</span> in array. If element is not present in <span class="pre">array</span> <span class="pre">nil</span> is returned.</p>
+  <p>Returns the index of <span class="pre">value</span> in <span class="pre">seq</span>. If element is not present in <span class="pre">seq</span> <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>index-of array value => number</pre>
+    <pre>index-of seq value => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>array: array</pre>
+  <label>Arguments</label><div class="indent"><pre>seq: array | string | nil</pre>
 <pre>value: any</pre></div>
 
   <label>Examples</label>
@@ -1171,6 +1181,7 @@
     <pre><span class="example" onclick="addToPlayground('(index-of [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]] ___double_quote___Mojir___double_quote___)')"> <span class="icon-button">▶</span> (index-of ["Albert" "Mojir" 160 [1 2]] "Mojir") <span class="gray">=> 1 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(index-of [5 10 15 20] 15)')"> <span class="icon-button">▶</span> (index-of [5 10 15 20] 15) <span class="gray">=> 2 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(index-of [5 10 15 20] 1)')"> <span class="icon-button">▶</span> (index-of [5 10 15 20] 1) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(index-of nil 1)')"> <span class="icon-button">▶</span> (index-of nil 1) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
@@ -1186,10 +1197,10 @@
   <p>Returns the first elements that pass the test implemented by <span class="pre">finder</span>. I no element was found, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>some array finder => array</pre>
+    <pre>some seq finder => array | string | nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>array: array</pre>
+  <label>Arguments</label><div class="indent"><pre>seq: array | string | nil</pre>
 <pre>finder: function</pre></div>
 
   <label>Examples</label>
@@ -1198,6 +1209,7 @@
 <pre><span class="example" onclick="addToPlayground('(some (fn [x] (> x 10)) [5 10 15 20])')"> <span class="icon-button">▶</span> (some (fn [x] (> x 10)) [5 10 15 20]) <span class="gray">=> 15 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(some (fn [x] (> x 10)) [1 2 3 4])')"> <span class="icon-button">▶</span> (some (fn [x] (> x 10)) [1 2 3 4]) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(some (fn [x] (> x 10)) [])')"> <span class="icon-button">▶</span> (some (fn [x] (> x 10)) []) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(some (fn [x] (> x 10)) nil)')"> <span class="icon-button">▶</span> (some (fn [x] (> x 10)) nil) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
@@ -1213,16 +1225,17 @@
   <p>If <span class="pre">input</span> is an array, creates a new array with the elements from <span class="pre">input</span> in reversed order. If <span class="pre">input</span> is a string, returns new reversed string.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>reverse input => array or string</pre>
+    <pre>reverse input => array | string | nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>input: input or string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>input: input | string | nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(reverse [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (reverse ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> [[1,2],160,"Mojir","Albert"] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(reverse [])')"> <span class="icon-button">▶</span> (reverse []) <span class="gray">=> [] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(reverse ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (reverse "Albert") <span class="gray">=> "treblA" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(reverse nil)')"> <span class="icon-button">▶</span> (reverse nil) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
@@ -1235,18 +1248,19 @@
   </div>
 
   
-  <p>Returns the first element of <span class="pre">array</span>. If <span class="pre">array</span> is empty, <span class="pre">nil</span> is returned.</p>
+  <p>Returns the first element of <span class="pre">seq</span>. If <span class="pre">seq</span> is empty or <span class="pre">nil</span>, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>first array => any</pre>
+    <pre>first seq => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>array: array</pre></div>
+  <label>Arguments</label><div class="indent"><pre>seq: array | string | nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(first [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (first ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> "Albert" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(first [])')"> <span class="icon-button">▶</span> (first []) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(first nil)')"> <span class="icon-button">▶</span> (first nil) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
@@ -1259,19 +1273,20 @@
   </div>
 
   
-  <p>Returns the second element of <span class="pre">array</span>. If <span class="pre">array</span> has less than two elements, <span class="pre">nil</span> is returned.</p>
+  <p>Returns the second element of <span class="pre">seq</span>. If <span class="pre">seq</span> has less than two elements or is <span class="pre">nil</span>, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>second array => any</pre>
+    <pre>second seq => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>array: array</pre></div>
+  <label>Arguments</label><div class="indent"><pre>seq: array | string | nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(second [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (second ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> "Mojir" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(second [1])')"> <span class="icon-button">▶</span> (second [1]) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(second [])')"> <span class="icon-button">▶</span> (second []) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(second nil)')"> <span class="icon-button">▶</span> (second nil) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
@@ -1284,13 +1299,13 @@
   </div>
 
   
-  <p>Returns the last element of <span class="pre">array</span>. If <span class="pre">array</span> is empty, <span class="pre">nil</span> is returned.</p>
+  <p>Returns the last element of <span class="pre">seq</span>. If <span class="pre">seq</span> is empty, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>last array => any</pre>
+    <pre>last seq => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>array: array</pre></div>
+  <label>Arguments</label><div class="indent"><pre>seq: array | string | nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1298,6 +1313,7 @@
 <pre><span class="example" onclick="addToPlayground('(last [1 2])')"> <span class="icon-button">▶</span> (last [1 2]) <span class="gray">=> 2 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(last [1])')"> <span class="icon-button">▶</span> (last [1]) <span class="gray">=> 1 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(last [])')"> <span class="icon-button">▶</span> (last []) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(last nil)')"> <span class="icon-button">▶</span> (last nil) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 
@@ -1686,8 +1702,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [1,4,6,8,9,10] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> "le" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [2,3,4,5,6,7,9] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> "ert" </span> </span></pre>
   </div>
 </div>
 
@@ -1710,8 +1726,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 7 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-nth! ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rand-nth! "Albert") <span class="gray">=> "l" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 10 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-nth! ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rand-nth! "Albert") <span class="gray">=> "A" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-nth! [])')"> <span class="icon-button">▶</span> (rand-nth! []) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -1735,8 +1751,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [6,3,4,7,8,10,1,2,5,9] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> "rMibl ojreAt" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [5,3,4,10,2,7,8,1,6,9] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> "jrrMlAei bto" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2])')"> <span class="icon-button">▶</span> (shuffle! [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1])')"> <span class="icon-button">▶</span> (shuffle! [1]) <span class="gray">=> [1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [])')"> <span class="icon-button">▶</span> (shuffle! []) <span class="gray">=> [] </span> </span></pre>
@@ -2895,9 +2911,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.6991496094371612 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.003393806751223201 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 0.5260478912017302 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rand! 1)')"> <span class="icon-button">▶</span> (rand! 1) <span class="gray">=> 0.8511474112990529 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 0.01)')"> <span class="icon-button">▶</span> (rand! 0.01) <span class="gray">=> 0.007828029991931955 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand! 2.5)')"> <span class="icon-button">▶</span> (rand! 2.5) <span class="gray">=> 1.9902303376043606 </span> </span></pre>
   </div>
 </div>
 
@@ -2921,8 +2937,8 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(rand-int! 1)')"> <span class="icon-button">▶</span> (rand-int! 1) <span class="gray">=> 0 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 4 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 97 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 10.12)')"> <span class="icon-button">▶</span> (rand-int! 10.12) <span class="gray">=> 8 </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-int! 123)')"> <span class="icon-button">▶</span> (rand-int! 123) <span class="gray">=> 116 </span> </span></pre>
   </div>
 </div>
 
@@ -3726,7 +3742,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1695366469726 </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(inst-ms!)')"> <span class="icon-button">▶</span> (inst-ms!) <span class="gray">=> 1698751137452 </span> </span></pre>
   </div>
 </div>
 
@@ -3878,7 +3894,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.56-alpha.15" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.56" </span> </span></pre>
   </div>
 </div>
 
@@ -3901,7 +3917,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "d07b0a1d-7890-450b-bffd-ee294548ed44" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "d35f313a-4928-47e1-87bd-c2f355951985" </span> </span></pre>
   </div>
 </div>
 
@@ -4800,7 +4816,7 @@
     <pre>empty? coll => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>coll: collection or string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>coll: collection | string | nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4810,6 +4826,7 @@
 <pre><span class="example" onclick="addToPlayground('(empty? {:a 2})')"> <span class="icon-button">▶</span> (empty? {:a 2}) <span class="gray">=> false </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(empty? ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (empty? "") <span class="gray">=> true </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(empty? ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (empty? "Albert") <span class="gray">=> false </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(empty? nil)')"> <span class="icon-button">▶</span> (empty? nil) <span class="gray">=> true </span> </span></pre>
   </div>
 </div>
 
@@ -4828,7 +4845,7 @@
     <pre>not-empty? coll => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>coll: collection or string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>coll: collection | string | nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4838,6 +4855,7 @@
 <pre><span class="example" onclick="addToPlayground('(not-empty? {:a 2})')"> <span class="icon-button">▶</span> (not-empty? {:a 2}) <span class="gray">=> true </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(not-empty? ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (not-empty? "") <span class="gray">=> false </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(not-empty? ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (not-empty? "Albert") <span class="gray">=> true </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty? nil)')"> <span class="icon-button">▶</span> (not-empty? nil) <span class="gray">=> false </span> </span></pre>
   </div>
 </div>
 
@@ -4877,7 +4895,7 @@
   </div>
 
   
-  <p>Matches <span class="pre">string</span> against <span class="pre">pattern</span>. If <span class="pre">string</span> matches, a <em>match</em>-array is returned, otherwise <span class="pre">nil</span>.</p>
+  <p>Matches <span class="pre">string</span> against <span class="pre">pattern</span>. If <span class="pre">string</span> is a string and matches the regular expression, a <em>match</em>-array is returned, otherwise <span class="pre">nil</span>.</p>
   <label>Syntax</label>
   <div class="indent">
     <pre>match pattern string => array</pre>
@@ -4891,6 +4909,9 @@
     <pre><span class="example" onclick="addToPlayground('(match (regexp ___double_quote___^\s*(.*)$___double_quote___) ___double_quote___  A string___double_quote___)')"> <span class="icon-button">▶</span> (match (regexp "^\s*(.*)$") "  A string") <span class="gray">=> ["  A string","A string"] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(match #___double_quote___albert___double_quote___i ___double_quote___My name is Albert___double_quote___)')"> <span class="icon-button">▶</span> (match #"albert"i "My name is Albert") <span class="gray">=> ["Albert"] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(match #___double_quote___albert___double_quote___i ___double_quote___My name is Ben___double_quote___)')"> <span class="icon-button">▶</span> (match #"albert"i "My name is Ben") <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(match #___double_quote___albert___double_quote___i nil)')"> <span class="icon-button">▶</span> (match #"albert"i nil) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(match #___double_quote___albert___double_quote___i 1)')"> <span class="icon-button">▶</span> (match #"albert"i 1) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(match #___double_quote___albert___double_quote___i {})')"> <span class="icon-button">▶</span> (match #"albert"i {}) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
 

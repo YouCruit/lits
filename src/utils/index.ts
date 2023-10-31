@@ -1,10 +1,11 @@
 import type { Any, Arr, Coll, Obj } from '../interface'
-import type { RegularExpression } from '../parser/interface'
+import type { NativeJsFunction, RegularExpression } from '../parser/interface'
 import type { DebugInfo } from '../tokenizer/interface'
 import { asAny, isColl, isObj, isRegularExpression } from '../typeGuards/lits'
 import { isNumber } from '../typeGuards/number'
 import { asString } from '../typeGuards/string'
 import { isUnknownRecord } from '../typeGuards'
+import { FunctionType } from '../constants/constants'
 
 export function collHasKey(coll: unknown, key: string | number): boolean {
   if (!isColl(coll)) {
@@ -169,4 +170,16 @@ function clone<T>(value: T): T {
 
 export function cloneColl<T extends Coll>(value: T): T {
   return clone(value)
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createNativeJsFunction(fn: (...args: any[]) => unknown, name?: string): NativeJsFunction {
+  return {
+    λ: true,
+    f: {
+      fn,
+    },
+    n: name,
+    t: FunctionType.NativeJsFunction,
+  }
 }

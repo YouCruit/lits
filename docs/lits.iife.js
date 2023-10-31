@@ -337,7 +337,19 @@ var Lits = (function (exports) {
   }
   function assertUserDefinedFunction(value, debugInfo) {
       if (!isUserDefinedFunction(value)) {
-          throw getAssertionError("UserDefinedFunction", value, debugInfo);
+          throw getAssertionError("NativeJsFunction", value, debugInfo);
+      }
+  }
+  function isNativeJsFunction(value) {
+      return isLitsFunction(value) && value.t === exports.FunctionType.NativeJsFunction;
+  }
+  function asNativeJsFunction(value, debugInfo) {
+      assertNativeJsFunction(value, debugInfo);
+      return value;
+  }
+  function assertNativeJsFunction(value, debugInfo) {
+      if (!isNativeJsFunction(value)) {
+          throw getAssertionError("NativeJsFunction", value, debugInfo);
       }
   }
 
@@ -2201,6 +2213,17 @@ var Lits = (function (exports) {
   function cloneColl(value) {
       return clone(value);
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function createNativeJsFunction(fn, name) {
+      return {
+          λ: true,
+          f: {
+              fn: fn,
+          },
+          n: name,
+          t: exports.FunctionType.NativeJsFunction,
+      };
+  }
 
   var whenFirstSpecialExpression = {
       parse: function (tokens, position, _a) {
@@ -2709,6 +2732,9 @@ var Lits = (function (exports) {
       count: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), coll = _b[0];
+              if (coll === null) {
+                  return 0;
+              }
               if (typeof coll === "string") {
                   return coll.length;
               }
@@ -2723,8 +2749,11 @@ var Lits = (function (exports) {
       'contains?': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), coll = _b[0], key = _b[1];
-              assertColl(coll, debugInfo);
               assertStringOrNumber(key, debugInfo);
+              if (coll === null) {
+                  return false;
+              }
+              assertColl(coll, debugInfo);
               if (isSeq(coll)) {
                   if (!isNumber(key, { integer: true })) {
                       return false;
@@ -2739,6 +2768,9 @@ var Lits = (function (exports) {
       'has?': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), coll = _b[0], value = _b[1];
+              if (coll === null) {
+                  return false;
+              }
               assertColl(coll, debugInfo);
               if (Array.isArray(coll)) {
                   return coll.includes(value);
@@ -2754,6 +2786,9 @@ var Lits = (function (exports) {
           evaluate: function (_a, debugInfo) {
               var e_2, _b, e_3, _c, e_4, _d;
               var _e = __read(_a, 2), coll = _e[0], seq = _e[1];
+              if (coll === null || seq === null) {
+                  return false;
+              }
               assertColl(coll, debugInfo);
               assertSeq(seq, debugInfo);
               if (Array.isArray(coll)) {
@@ -2815,7 +2850,13 @@ var Lits = (function (exports) {
           evaluate: function (_a, debugInfo) {
               var e_5, _b, e_6, _c, e_7, _d;
               var _e = __read(_a, 2), coll = _e[0], seq = _e[1];
+              if (coll === null) {
+                  return false;
+              }
               assertColl(coll, debugInfo);
+              if (seq === null) {
+                  return true;
+              }
               assertSeq(seq, debugInfo);
               if (Array.isArray(coll)) {
                   try {
@@ -2971,6 +3012,9 @@ var Lits = (function (exports) {
       'not-empty': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), coll = _b[0];
+              if (coll === null) {
+                  return null;
+              }
               assertColl(coll, debugInfo);
               if (typeof coll === "string") {
                   return coll.length > 0 ? coll : null;
@@ -3154,6 +3198,9 @@ var Lits = (function (exports) {
       first: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), array = _b[0];
+              if (array === null) {
+                  return null;
+              }
               assertSeq(array, debugInfo);
               return toAny(array[0]);
           },
@@ -3161,9 +3208,12 @@ var Lits = (function (exports) {
       },
       last: {
           evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 1), first = _b[0];
-              assertSeq(first, debugInfo);
-              return toAny(first[first.length - 1]);
+              var _b = __read(_a, 1), array = _b[0];
+              if (array === null) {
+                  return null;
+              }
+              assertSeq(array, debugInfo);
+              return toAny(array[array.length - 1]);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
@@ -3189,6 +3239,9 @@ var Lits = (function (exports) {
               var _c = __read(_a, 2), fn = _c[0], seq = _c[1];
               var executeFunction = _b.executeFunction;
               assertLitsFunction(fn, debugInfo);
+              if (seq === null) {
+                  return null;
+              }
               assertSeq(seq, debugInfo);
               if (typeof seq === "string") {
                   var index = seq.split("").findIndex(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
@@ -3205,6 +3258,9 @@ var Lits = (function (exports) {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), seq = _b[0], value = _b[1];
               assertAny(value, debugInfo);
+              if (seq === null) {
+                  return null;
+              }
               assertSeq(seq, debugInfo);
               if (typeof seq === "string") {
                   assertString(value, debugInfo);
@@ -3467,18 +3523,24 @@ var Lits = (function (exports) {
       },
       reverse: {
           evaluate: function (_a, debugInfo) {
-              var _b = __read(_a, 1), first = _b[0];
-              assertSeq(first, debugInfo);
-              if (Array.isArray(first)) {
-                  return __spreadArray([], __read(first), false).reverse();
+              var _b = __read(_a, 1), seq = _b[0];
+              if (seq === null) {
+                  return null;
               }
-              return first.split("").reverse().join("");
+              assertSeq(seq, debugInfo);
+              if (Array.isArray(seq)) {
+                  return __spreadArray([], __read(seq), false).reverse();
+              }
+              return seq.split("").reverse().join("");
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       second: {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), array = _b[0];
+              if (array === null) {
+                  return null;
+              }
               assertSeq(array, debugInfo);
               return toAny(array[1]);
           },
@@ -3519,6 +3581,9 @@ var Lits = (function (exports) {
               var _d = __read(_a, 2), fn = _d[0], seq = _d[1];
               var executeFunction = _b.executeFunction;
               assertLitsFunction(fn, debugInfo);
+              if (seq === null) {
+                  return null;
+              }
               assertSeq(seq, debugInfo);
               if (seq.length === 0) {
                   return null;
@@ -4442,7 +4507,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.56-alpha.15";
+  var version = "1.0.56";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -5186,6 +5251,9 @@ var Lits = (function (exports) {
       'empty?': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), coll = _b[0];
+              if (coll === null) {
+                  return true;
+              }
               assertColl(coll, debugInfo);
               if (typeof coll === "string") {
                   return coll.length === 0;
@@ -5200,6 +5268,9 @@ var Lits = (function (exports) {
       'not-empty?': {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 1), coll = _b[0];
+              if (coll === null) {
+                  return false;
+              }
               assertColl(coll, debugInfo);
               if (typeof coll === "string") {
                   return coll.length > 0;
@@ -5234,7 +5305,9 @@ var Lits = (function (exports) {
           evaluate: function (_a, debugInfo) {
               var _b = __read(_a, 2), regexp = _b[0], text = _b[1];
               assertRegularExpression(regexp, debugInfo);
-              assertString(text, debugInfo);
+              if (!isString(text)) {
+                  return null;
+              }
               var regExp = new RegExp(regexp.s, regexp.f);
               var match = regExp.exec(text);
               if (match) {
@@ -7345,10 +7418,14 @@ var Lits = (function (exports) {
 
   exports.Lits = Lits;
   exports.asLitsFunction = asLitsFunction;
+  exports.asNativeJsFunction = asNativeJsFunction;
   exports.asUserDefinedFunction = asUserDefinedFunction;
   exports.assertLitsFunction = assertLitsFunction;
+  exports.assertNativeJsFunction = assertNativeJsFunction;
   exports.assertUserDefinedFunction = assertUserDefinedFunction;
+  exports.createNativeJsFunction = createNativeJsFunction;
   exports.isLitsFunction = isLitsFunction;
+  exports.isNativeJsFunction = isNativeJsFunction;
   exports.isUserDefinedFunction = isUserDefinedFunction;
   exports.normalExpressionKeys = normalExpressionKeys;
   exports.reservedNames = reservedNames;

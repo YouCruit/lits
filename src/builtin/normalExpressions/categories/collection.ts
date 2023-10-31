@@ -175,6 +175,9 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   },
   count: {
     evaluate: ([coll], debugInfo): number => {
+      if (coll === null) {
+        return 0
+      }
       if (typeof coll === `string`) {
         return coll.length
       }
@@ -188,8 +191,11 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   },
   'contains?': {
     evaluate: ([coll, key], debugInfo): boolean => {
-      assertColl(coll, debugInfo)
       assertStringOrNumber(key, debugInfo)
+      if (coll === null) {
+        return false
+      }
+      assertColl(coll, debugInfo)
       if (isSeq(coll)) {
         if (!isNumber(key, { integer: true })) {
           return false
@@ -203,6 +209,9 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   },
   'has?': {
     evaluate: ([coll, value], debugInfo): boolean => {
+      if (coll === null) {
+        return false
+      }
       assertColl(coll, debugInfo)
       if (Array.isArray(coll)) {
         return coll.includes(value)
@@ -216,6 +225,9 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   },
   'has-some?': {
     evaluate: ([coll, seq], debugInfo): boolean => {
+      if (coll === null || seq === null) {
+        return false
+      }
       assertColl(coll, debugInfo)
       assertSeq(seq, debugInfo)
       if (Array.isArray(coll)) {
@@ -245,7 +257,13 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   },
   'has-every?': {
     evaluate: ([coll, seq], debugInfo): boolean => {
+      if (coll === null) {
+        return false
+      }
       assertColl(coll, debugInfo)
+      if (seq === null) {
+        return true
+      }
       assertSeq(seq, debugInfo)
       if (Array.isArray(coll)) {
         for (const value of seq) {
@@ -386,6 +404,9 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
   },
   'not-empty': {
     evaluate: ([coll], debugInfo): Coll | null => {
+      if (coll === null) {
+        return null
+      }
       assertColl(coll, debugInfo)
       if (typeof coll === `string`) {
         return coll.length > 0 ? coll : null

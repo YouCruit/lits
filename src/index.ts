@@ -6,6 +6,9 @@ export {
   isUserDefinedFunction,
   asUserDefinedFunction,
   assertUserDefinedFunction,
+  isNativeJsFunction,
+  asNativeJsFunction,
+  assertNativeJsFunction,
 } from './typeGuards/litsFunction'
 export { type LitsFunction, type NativeJsFunction, type ExtraData } from './parser/interface'
 export type { Context } from './evaluator/interface'
@@ -16,3 +19,4 @@ export { reservedNames } from './reservedNames'
 export { Lits } from './Lits/Lits'
 export type { LitsParams, LitsRuntimeInfo, LazyValue } from './Lits/Lits'
 export type { TestResult } from './testFramework'
+export { createNativeJsFunction } from './utils'

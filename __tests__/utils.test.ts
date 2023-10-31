@@ -1,12 +1,27 @@
 import type { DebugInfo } from '../src/tokenizer/interface'
 import type { NameNode, RegularExpression } from '../src/parser/interface'
-import { collHasKey, deepEqual, toNonNegativeInteger, cloneColl } from '../src/utils'
+import { collHasKey, deepEqual, toNonNegativeInteger, cloneColl, createNativeJsFunction } from '../src/utils'
 import { REGEXP_SYMBOL } from '../src/utils/symbols'
 import { valueToString } from '../src/utils/debug/debugTools'
-import { AstNodeType } from '../src'
+import { AstNodeType, FunctionType } from '../src'
 
 const debugInfo: DebugInfo = `EOF`
 describe(`utils`, () => {
+  test(`createNativeJsFunction`, () => {
+    const fnWithName = createNativeJsFunction(() => undefined, `foo`)
+    expect(fnWithName.d).toBeUndefined()
+    expect(fnWithName.n).toBe(`foo`)
+    expect(typeof fnWithName.f.fn).toBe(`function`)
+    expect(fnWithName.t).toBe(FunctionType.NativeJsFunction)
+    expect(fnWithName.λ).toBe(true)
+
+    const fnWithoutName = createNativeJsFunction(() => undefined)
+    expect(fnWithoutName.d).toBeUndefined()
+    expect(fnWithoutName.n).toBeUndefined()
+    expect(typeof fnWithoutName.f.fn).toBe(`function`)
+    expect(fnWithoutName.t).toBe(FunctionType.NativeJsFunction)
+    expect(fnWithoutName.λ).toBe(true)
+  })
   test(`collHasKey`, () => {
     expect(collHasKey(10, 1)).toBe(false)
 

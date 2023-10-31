@@ -1,4 +1,4 @@
-import { Lits } from '../src/'
+import { Lits } from '../src'
 import { TokenType } from '../src/constants/constants'
 import { tokenizeNumber } from '../src/tokenizer/tokenizers'
 

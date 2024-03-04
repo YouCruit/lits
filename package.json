@@ -1,6 +1,6 @@
 {
   "name": "@youcruit/lits",
-  "version": "1.0.56",
+  "version": "1.0.57",
   "description": "A lisp implementation in Typescript",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -39,9 +39,6 @@
       "src/errors.ts",
       "src/index.ts"
     ]
-  },
-  "engines": {
-    "node": "18.15.0"
   },
   "devDependencies": {
     "@types/jest": "29.5.4",

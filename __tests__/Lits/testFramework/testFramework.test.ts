@@ -173,12 +173,13 @@ not ok 1 equals
       code: `x`,
       column: 1,
       line: 1,
+      filePath: `file.lits`,
     })
     expect(getErrorYaml(error)).toBe(`
   ---
   error: "LitsError"
   message: "Error"
-  location: "(1:1)"
+  location: "file.lits:1:1"
   code:
     - "x"
     - "^"

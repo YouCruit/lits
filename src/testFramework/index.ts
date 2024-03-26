@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { AbstractLitsError } from '../errors'
 import { Lits } from '../Lits/Lits'
+import { SourceCodeInfo } from '../tokenizer/interface'
 import { getCodeMarker } from '../utils/debug/debugTools'
 
 const fs = require(`fs`)
@@ -174,8 +175,11 @@ export function getErrorYaml(error: unknown): string {
 `
   }
 
-  const getLocation = debugInfo.getLocation ?? ((line: number, column: number) => `(${line}:${column})`)
-  const location = getLocation(debugInfo.line, debugInfo.column)
+  const location =
+    debugInfo.getLocation && typeof debugInfo.line === `number` && typeof debugInfo.column === `number`
+      ? debugInfo.getLocation(debugInfo.line, debugInfo.column)
+      : getLocation(debugInfo)
+
   const formattedMessage = message.includes(`\n`)
     ? `|\n    ${message.split(/\r?\n/).join(`\n    `)}`
     : JSON.stringify(message)
@@ -189,6 +193,23 @@ export function getErrorYaml(error: unknown): string {
     - "${getCodeMarker(debugInfo)}"
   ...
 `
+}
+
+function getLocation(sourceCodeInfo: SourceCodeInfo): string {
+  const terms: string[] = []
+  if (sourceCodeInfo.filePath) {
+    terms.push(sourceCodeInfo.filePath)
+  }
+
+  if (typeof sourceCodeInfo.line === `number`) {
+    terms.push(`${sourceCodeInfo.line}`)
+  }
+
+  if (typeof sourceCodeInfo.column === `number`) {
+    terms.push(`${sourceCodeInfo.column}`)
+  }
+
+  return terms.join(`:`)
 }
 
 function getErrorMessage(error: unknown): string {

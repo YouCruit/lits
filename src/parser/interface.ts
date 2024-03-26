@@ -5,7 +5,7 @@ import type { Arity, FunctionOverload } from '../builtin/utils'
 import type { Context } from '../evaluator/interface'
 import type { Any, Arr } from '../interface'
 import type { ReservedName } from '../reservedNames'
-import type { DebugInfo, Token } from '../tokenizer/interface'
+import type { DebugInfo, Token, TokenStream } from '../tokenizer/interface'
 import type { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
 import { type AstNodeType, FunctionType } from '../constants/constants'
 import { isUnknownRecord } from '../typeGuards'
@@ -125,14 +125,14 @@ interface GenericNode {
 }
 
 export type ExpressionNode = NormalExpressionNode | SpecialExpressionNode | NumberNode | StringNode
-export type ParseBinding = (tokens: Token[], position: number) => [number, BindingNode]
-export type ParseBindings = (tokens: Token[], position: number) => [number, BindingNode[]]
-export type ParseArgument = (tokens: Token[], position: number) => [number, ArgumentNode | ModifierNode]
-export type ParseExpression = (tokens: Token[], position: number) => [number, ExpressionNode]
-export type ParseNormalExpression = (tokens: Token[], position: number) => [number, NormalExpressionNode]
-export type ParseSpecialExpression = (tokens: Token[], position: number) => [number, SpecialExpressionNode]
-export type ParseTokens = (tokens: Token[], position: number) => [number, AstNode[]]
-export type ParseToken = (tokens: Token[], position: number) => [number, AstNode]
+export type ParseBinding = (tokens: TokenStream, position: number) => [number, BindingNode]
+export type ParseBindings = (tokens: TokenStream, position: number) => [number, BindingNode[]]
+export type ParseArgument = (tokens: TokenStream, position: number) => [number, ArgumentNode | ModifierNode]
+export type ParseExpression = (tokens: TokenStream, position: number) => [number, ExpressionNode]
+export type ParseNormalExpression = (tokens: TokenStream, position: number) => [number, NormalExpressionNode]
+export type ParseSpecialExpression = (tokens: TokenStream, position: number) => [number, SpecialExpressionNode]
+export type ParseTokens = (tokens: TokenStream, position: number) => [number, AstNode[]]
+export type ParseToken = (tokens: TokenStream, position: number) => [number, AstNode]
 
 export interface NumberNode extends GenericNode {
   t: AstNodeType.Number // type

@@ -1,25 +1,28 @@
 import { testTypeGuars } from '../../__tests__/testUtils'
 import { FunctionType } from '../constants/constants'
 import type { LitsFunction } from '../parser/interface'
+import type { DebugInfo } from '../tokenizer/interface'
 import { createNativeJsFunction } from '../utils'
 import { FUNCTION_SYMBOL } from '../utils/symbols'
 
 import {
   asLitsFunction,
-  assertLitsFunction,
-  isLitsFunction,
-  isUserDefinedFunction,
-  asUserDefinedFunction,
-  assertUserDefinedFunction,
-  isNativeJsFunction,
   asNativeJsFunction,
+  asUserDefinedFunction,
+  assertLitsFunction,
   assertNativeJsFunction,
+  assertUserDefinedFunction,
+  isLitsFunction,
+  isNativeJsFunction,
+  isUserDefinedFunction,
 } from './litsFunction'
+
+const debugInfo: DebugInfo = { code: `` }
 
 describe(`litsFunction type guards`, () => {
   const lf1: LitsFunction = {
     [FUNCTION_SYMBOL]: true,
-    d: `EOF`,
+    d: debugInfo,
     t: FunctionType.UserDefined,
     n: undefined,
     o: [
@@ -35,26 +38,26 @@ describe(`litsFunction type guards`, () => {
   }
   const lf2: LitsFunction = {
     [FUNCTION_SYMBOL]: true,
-    d: `EOF`,
+    d: debugInfo,
     t: FunctionType.Builtin,
     n: `+`,
   }
   const lf3: LitsFunction = {
     [FUNCTION_SYMBOL]: true,
-    d: `EOF`,
+    d: debugInfo,
     t: FunctionType.Partial,
     f: { a: 10, b: 20 },
     p: [],
   }
   const lf4: LitsFunction = {
     [FUNCTION_SYMBOL]: true,
-    d: `EOF`,
+    d: debugInfo,
     t: FunctionType.Comp,
     f: [`x`],
   }
   const lf5: LitsFunction = {
     [FUNCTION_SYMBOL]: true,
-    d: `EOF`,
+    d: debugInfo,
     t: FunctionType.Constantly,
     v: 10,
   }

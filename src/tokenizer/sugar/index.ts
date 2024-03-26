@@ -1,7 +1,7 @@
-import type { Token } from '../interface'
+import type { TokenStream } from '../interface'
 import { applyCollectionAccessors } from './applyCollectionAccessor'
 
-export type SugarFunction = (tokens: Token[]) => Token[]
+export type SugarFunction = (tokenStream: TokenStream) => TokenStream
 
 export function getSugar(): SugarFunction[] {
   return [applyCollectionAccessors]

@@ -5,7 +5,7 @@ import { REGEXP_SYMBOL } from '../src/utils/symbols'
 import { valueToString } from '../src/utils/debug/debugTools'
 import { AstNodeType, FunctionType } from '../src'
 
-const debugInfo: DebugInfo = `EOF`
+const debugInfo: DebugInfo = { code: `` }
 describe(`utils`, () => {
   test(`createNativeJsFunction`, () => {
     const fnWithName = createNativeJsFunction(() => undefined, `foo`)

@@ -21,7 +21,7 @@ export function testTypeGuars(
   // eslint-disable-next-line @typescript-eslint/ban-types
   { is, as, assert }: { is: Function | undefined; as: Function; assert: Function },
 ) {
-  const debugInfos: [DebugInfo, undefined] = [`EOF`, undefined]
+  const debugInfos: [DebugInfo, undefined] = [{ code: `` }, undefined]
   for (const debugInfo of debugInfos) {
     testData.valid.forEach(validData => {
       if (is) {

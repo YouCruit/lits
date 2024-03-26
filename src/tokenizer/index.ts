@@ -1,6 +1,6 @@
 import { LitsError } from '../errors'
 import type { LocationGetter } from '../Lits/Lits'
-import type { Token, Tokenizer, DebugInfo, TokenizeParams } from './interface'
+import type { Token, Tokenizer, DebugInfo, TokenizeParams, TokenStream } from './interface'
 import { getSugar } from './sugar'
 import {
   skipComment,
@@ -47,7 +47,7 @@ function getSourceCodeLine(input: string, lineNbr: number): string {
   return input.split(/\r\n|\r|\n/)[lineNbr] as string
 }
 
-function createDebugInfo(input: string, position: number, getLocation?: LocationGetter): DebugInfo {
+function createDebugInfo(input: string, position: number, filePath: string, getLocation?: LocationGetter): DebugInfo {
   const lines = input.substr(0, position + 1).split(/\r\n|\r|\n/)
   const lastLine = lines[lines.length - 1] as string
 
@@ -58,11 +58,12 @@ function createDebugInfo(input: string, position: number, getLocation?: Location
     code,
     line,
     column,
+    filePath,
     getLocation,
   }
 }
 
-export function tokenize(input: string, params: TokenizeParams): Token[] {
+export function tokenize(input: string, params: TokenizeParams): TokenStream {
   const tokens: Token[] = []
   let position = 0
   let tokenized = false
@@ -71,7 +72,7 @@ export function tokenize(input: string, params: TokenizeParams): Token[] {
 
     // Loop through all tokenizer until one matches
     const debugInfo: DebugInfo | undefined = params.debug
-      ? createDebugInfo(input, position, params.getLocation)
+      ? createDebugInfo(input, position, params.filePath ?? ``)
       : undefined
     for (const tokenizer of tokenizers) {
       const [nbrOfCharacters, token] = tokenizer(input, position, debugInfo)
@@ -91,12 +92,17 @@ export function tokenize(input: string, params: TokenizeParams): Token[] {
     }
   }
 
-  applySugar(tokens)
+  const tokenStream = {
+    tokens,
+    filePath: params.filePath,
+  }
 
-  return tokens
+  applySugar(tokenStream)
+
+  return tokenStream
 }
 
-function applySugar(tokens: Token[]) {
+function applySugar(tokenStream: TokenStream) {
   const sugar = getSugar()
-  sugar.forEach(sugarFn => sugarFn(tokens))
+  sugar.forEach(sugarFn => sugarFn(tokenStream))
 }

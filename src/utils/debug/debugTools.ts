@@ -46,6 +46,10 @@ export function valueToString(value: unknown): string {
 }
 
 export function getCodeMarker(sourceCodeInfo: SourceCodeInfo): string {
+  if (sourceCodeInfo.line === undefined || sourceCodeInfo.column === undefined) {
+    return ``
+  }
+
   const leftPadding = sourceCodeInfo.column - 1
   const rightPadding = sourceCodeInfo.code.length - leftPadding - 1
   return `${` `.repeat(Math.max(leftPadding, 0))}^${` `.repeat(Math.max(rightPadding, 0))}`

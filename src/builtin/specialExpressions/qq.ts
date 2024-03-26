@@ -8,9 +8,9 @@ import { assertAny } from '../../typeGuards/lits'
 import { assertNumberOfParams } from '../../typeGuards'
 
 export const qqSpecialExpression: BuiltinSpecialExpression<Any> = {
-  parse: (tokens, position, { parseTokens }) => {
-    const firstToken = asToken(tokens[position], `EOF`)
-    const [newPosition, params] = parseTokens(tokens, position)
+  parse: (tokenStream, position, { parseTokens }) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+    const [newPosition, params] = parseTokens(tokenStream, position)
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
       n: `??`,

@@ -1,7 +1,7 @@
 import type { DebugInfo } from '../tokenizer/interface'
 import { asString, assertString } from './string'
 
-const debugInfo: DebugInfo = `EOF`
+const debugInfo: DebugInfo = { code: `` }
 describe(`string type guards`, () => {
   test(`asNonEmptyString`, () => {
     expect(asString(`1`, debugInfo, { nonEmpty: true })).toBe(`1`)
@@ -76,8 +76,8 @@ describe(`string type guards`, () => {
   })
 
   test(`character`, () => {
-    expect(() => assertString(`k`, `EOF`, { char: true })).not.toThrow()
-    expect(() => assertString(`k1`, `EOF`, { char: true })).toThrow()
-    expect(() => assertString(1, `EOF`, { char: true })).toThrow()
+    expect(() => assertString(`k`, debugInfo, { char: true })).not.toThrow()
+    expect(() => assertString(`k1`, debugInfo, { char: true })).toThrow()
+    expect(() => assertString(1, debugInfo, { char: true })).toThrow()
   })
 })

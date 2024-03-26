@@ -11,12 +11,12 @@ type ThrowNode = SpecialExpressionNode & {
 }
 
 export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
-  parse: (tokens, position, { parseToken }) => {
-    const firstToken = asToken(tokens[position], `EOF`)
-    const [newPosition, messageNode] = parseToken(tokens, position)
+  parse: (tokenStream, position, { parseToken }) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+    const [newPosition, messageNode] = parseToken(tokenStream, position)
     position = newPosition
 
-    assertToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `)` })
+    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `)` })
     position += 1
 
     const node: ThrowNode = {

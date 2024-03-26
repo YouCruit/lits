@@ -8,7 +8,7 @@ import type {
   ParseBinding,
   SpecialExpressionNode,
 } from '../parser/interface'
-import type { Token, DebugInfo } from '../tokenizer/interface'
+import type { DebugInfo, TokenStream } from '../tokenizer/interface'
 import type { NormalExpressionNode } from '../parser/interface'
 import type { Any, Arr } from '../interface'
 import type { AnalyzeAst, AnalyzeResult } from '../analyze/interface'
@@ -44,7 +44,7 @@ type EvaluateHelpers = {
   builtin: Builtin
 }
 export type BuiltinSpecialExpression<T> = {
-  parse: (tokens: Token[], position: number, parsers: ParserHelpers) => [number, SpecialExpressionNode]
+  parse: (tokenStream: TokenStream, position: number, parsers: ParserHelpers) => [number, SpecialExpressionNode]
   evaluate: (node: SpecialExpressionNode, contextStack: ContextStack, helpers: EvaluateHelpers) => T
   validate?: (node: SpecialExpressionNode) => void
   analyze(

@@ -2,7 +2,9 @@ import type { DebugInfo } from '../tokenizer/interface'
 import { assertNumber, asNumber, isNumber } from './number'
 
 describe(`number type guards`, () => {
-  const debugInfo: DebugInfo = `EOF`
+  const debugInfo: DebugInfo = {
+    code: ``,
+  }
 
   test(`assertInteger`, () => {
     expect(() => assertNumber(-0, debugInfo, { integer: true })).not.toThrow()
@@ -175,12 +177,12 @@ describe(`number type guards`, () => {
   })
 
   test(`asInteger`, () => {
-    expect(() => asNumber(1 / 0, `EOF`, { integer: true })).toThrow()
-    expect(() => asNumber(Number(`abc`), `EOF`, { integer: true })).toThrow()
-    expect(() => asNumber(12, `EOF`, { integer: true })).not.toThrow()
-    expect(() => asNumber(undefined, `EOF`, { integer: true })).toThrow()
-    expect(() => asNumber(`undefined`, `EOF`, { integer: true })).toThrow()
-    expect(() => asNumber([], `EOF`, { integer: true })).toThrow()
+    expect(() => asNumber(1 / 0, debugInfo, { integer: true })).toThrow()
+    expect(() => asNumber(Number(`abc`), debugInfo, { integer: true })).toThrow()
+    expect(() => asNumber(12, debugInfo, { integer: true })).not.toThrow()
+    expect(() => asNumber(undefined, debugInfo, { integer: true })).toThrow()
+    expect(() => asNumber(`undefined`, debugInfo, { integer: true })).toThrow()
+    expect(() => asNumber([], debugInfo, { integer: true })).toThrow()
   })
 
   test(`isInteger`, () => {
@@ -213,13 +215,13 @@ describe(`number type guards`, () => {
   })
 
   test(`number`, () => {
-    expect(() => assertNumber(0, `EOF`, { zero: true })).not.toThrow()
-    expect(() => assertNumber(1, `EOF`, { zero: true })).toThrow()
-    expect(() => assertNumber(1.5, `EOF`, { gt: 1, lt: 2 })).not.toThrow()
-    expect(() => assertNumber(1, `EOF`, { gt: 1, lt: 2 })).toThrow()
-    expect(() => assertNumber(2, `EOF`, { gt: 1, lt: 2 })).toThrow()
-    expect(() => assertNumber(1.5, `EOF`, { gte: 1, lte: 2 })).not.toThrow()
-    expect(() => assertNumber(1, `EOF`, { gte: 1, lte: 2 })).not.toThrow()
-    expect(() => assertNumber(2.5, `EOF`, { gte: 1, lte: 2 })).toThrow()
+    expect(() => assertNumber(0, debugInfo, { zero: true })).not.toThrow()
+    expect(() => assertNumber(1, debugInfo, { zero: true })).toThrow()
+    expect(() => assertNumber(1.5, debugInfo, { gt: 1, lt: 2 })).not.toThrow()
+    expect(() => assertNumber(1, debugInfo, { gt: 1, lt: 2 })).toThrow()
+    expect(() => assertNumber(2, debugInfo, { gt: 1, lt: 2 })).toThrow()
+    expect(() => assertNumber(1.5, debugInfo, { gte: 1, lte: 2 })).not.toThrow()
+    expect(() => assertNumber(1, debugInfo, { gte: 1, lte: 2 })).not.toThrow()
+    expect(() => assertNumber(2.5, debugInfo, { gte: 1, lte: 2 })).toThrow()
   })
 })

@@ -43,7 +43,8 @@ exports[`misc functions debug! debug value. 2`] = `
   "d": {
     "code": "(debug! #(> %1 2))",
     "line": 1,
-    "column": 9
+    "column": 9,
+    "filePath": ""
   },
   "t": 301,
   "o": [
@@ -68,7 +69,8 @@ exports[`misc functions debug! debug value. 2`] = `
                 "d": {
                   "code": "(debug! #(> %1 2))",
                   "line": 1,
-                  "column": 13
+                  "column": 13,
+                  "filePath": ""
                 }
               }
             },
@@ -81,7 +83,8 @@ exports[`misc functions debug! debug value. 2`] = `
                 "d": {
                   "code": "(debug! #(> %1 2))",
                   "line": 1,
-                  "column": 16
+                  "column": 16,
+                  "filePath": ""
                 }
               }
             }
@@ -92,7 +95,8 @@ exports[`misc functions debug! debug value. 2`] = `
             "d": {
               "code": "(debug! #(> %1 2))",
               "line": 1,
-              "column": 11
+              "column": 11,
+              "filePath": ""
             }
           }
         }

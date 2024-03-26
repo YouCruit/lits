@@ -11,13 +11,13 @@ type LetNode = SpecialExpressionNode & {
 }
 
 export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
-  parse: (tokens, position, { parseBindings, parseTokens }) => {
-    const firstToken = asToken(tokens[position], `EOF`)
+  parse: (tokenStream, position, { parseBindings, parseTokens }) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let bindings: BindingNode[]
-    ;[position, bindings] = parseBindings(tokens, position)
+    ;[position, bindings] = parseBindings(tokenStream, position)
 
     let params: AstNode[]
-    ;[position, params] = parseTokens(tokens, position)
+    ;[position, params] = parseTokens(tokenStream, position)
 
     const node: LetNode = {
       t: AstNodeType.SpecialExpression,

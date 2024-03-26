@@ -15,17 +15,17 @@ type WhenLetNode = SpecialExpressionNode & {
 }
 
 export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
-  parse: (tokens, position, { parseBindings, parseTokens }) => {
-    const firstToken = asToken(tokens[position], `EOF`)
+  parse: (tokenStream, position, { parseBindings, parseTokens }) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let bindings: BindingNode[]
-    ;[position, bindings] = parseBindings(tokens, position)
+    ;[position, bindings] = parseBindings(tokenStream, position)
 
     if (bindings.length !== 1) {
       throw new LitsError(`Expected exactly one binding, got ${valueToString(bindings.length)}`, firstToken.d)
     }
 
     let params: AstNode[]
-    ;[position, params] = parseTokens(tokens, position)
+    ;[position, params] = parseTokens(tokenStream, position)
 
     const node: WhenLetNode = {
       t: AstNodeType.SpecialExpression,

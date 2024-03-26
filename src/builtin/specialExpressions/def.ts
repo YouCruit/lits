@@ -7,9 +7,9 @@ import type { BuiltinSpecialExpression } from '../interface'
 import { assertNameNotDefined } from '../utils'
 
 export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
-  parse: (tokens, position, { parseTokens }) => {
-    const firstToken = asToken(tokens[position], `EOF`)
-    const [newPosition, params] = parseTokens(tokens, position)
+  parse: (tokenStream, position, { parseTokens }) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+    const [newPosition, params] = parseTokens(tokenStream, position)
     assertNameNode(params[0], firstToken.d)
     return [
       newPosition + 1,

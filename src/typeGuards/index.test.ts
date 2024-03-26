@@ -1,15 +1,16 @@
 import {
   asNonUndefined,
-  assertNonUndefined,
-  assertEventNumberOfParams,
-  assertNumberOfParams,
-  isUnknownRecord,
   asUnknownRecord,
+  assertEventNumberOfParams,
+  assertNonUndefined,
+  assertNumberOfParams,
   assertUnknownRecord,
+  isUnknownRecord,
 } from '.'
 import { testTypeGuars } from '../../__tests__/testUtils'
 import { AstNodeType, TokenType } from '../constants/constants'
 import type { AstNode, NormalExpressionNode } from '../parser/interface'
+import type { DebugInfo } from '../tokenizer/interface'
 
 function toNormalExpressionNode(arr: number[]): NormalExpressionNode {
   const astNodes: AstNode[] = arr.map(n => ({
@@ -25,24 +26,28 @@ function toNormalExpressionNode(arr: number[]): NormalExpressionNode {
   }
 }
 
+const debugInfo: DebugInfo = {
+  code: ``,
+}
+
 describe(`typeGuards index file`, () => {
   test(`asNotUndefined`, () => {
-    expect(() => asNonUndefined(undefined, `EOF`)).toThrow()
-    expect(asNonUndefined(null, `EOF`)).toBe(null)
-    expect(asNonUndefined(false, `EOF`)).toBe(false)
-    expect(asNonUndefined(true, `EOF`)).toBe(true)
-    expect(asNonUndefined(0, `EOF`)).toBe(0)
+    expect(() => asNonUndefined(undefined, debugInfo)).toThrow()
+    expect(asNonUndefined(null, debugInfo)).toBe(null)
+    expect(asNonUndefined(false, debugInfo)).toBe(false)
+    expect(asNonUndefined(true, debugInfo)).toBe(true)
+    expect(asNonUndefined(0, debugInfo)).toBe(0)
     const obj = {}
-    expect(asNonUndefined(obj, `EOF`)).toBe(obj)
+    expect(asNonUndefined(obj, debugInfo)).toBe(obj)
   })
   test(`assertNotUndefined`, () => {
-    expect(() => assertNonUndefined(undefined, `EOF`)).toThrow()
-    expect(() => assertNonUndefined(undefined, `EOF`)).toThrow()
-    expect(() => assertNonUndefined(null, `EOF`)).not.toThrow()
-    expect(() => assertNonUndefined(false, `EOF`)).not.toThrow()
-    expect(() => assertNonUndefined(true, `EOF`)).not.toThrow()
-    expect(() => assertNonUndefined(0, `EOF`)).not.toThrow()
-    expect(() => assertNonUndefined({}, `EOF`)).not.toThrow()
+    expect(() => assertNonUndefined(undefined, debugInfo)).toThrow()
+    expect(() => assertNonUndefined(undefined, debugInfo)).toThrow()
+    expect(() => assertNonUndefined(null, debugInfo)).not.toThrow()
+    expect(() => assertNonUndefined(false, debugInfo)).not.toThrow()
+    expect(() => assertNonUndefined(true, debugInfo)).not.toThrow()
+    expect(() => assertNonUndefined(0, debugInfo)).not.toThrow()
+    expect(() => assertNonUndefined({}, debugInfo)).not.toThrow()
   })
   test(`assertLengthEven`, () => {
     expect(() => assertEventNumberOfParams(toNormalExpressionNode([]))).not.toThrow()

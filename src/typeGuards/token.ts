@@ -41,13 +41,15 @@ export function isToken(value: unknown, options: TokenAssertionOptions = {}): va
 
 export function assertToken(
   value: unknown,
-  debugInfo: DebugInfo | undefined,
+  filePath: string | undefined,
   options: TokenAssertionOptions = {},
 ): asserts value is Token {
   if (!isToken(value, options)) {
-    if (isToken(value)) {
-      debugInfo = value.d
-    }
+    const debugInfo: DebugInfo | undefined = isToken(value)
+      ? value.d
+      : typeof filePath === `string`
+      ? { code: ``, filePath }
+      : undefined
 
     throw new LitsError(
       `Expected ${options.type ? `${options.type}-` : ``}token${
@@ -58,7 +60,7 @@ export function assertToken(
   }
 }
 
-export function asToken(value: unknown, debugInfo: DebugInfo, options: TokenAssertionOptions = {}): Token {
-  assertToken(value, debugInfo, options)
+export function asToken(value: unknown, filePath: string | undefined, options: TokenAssertionOptions = {}): Token {
+  assertToken(value, filePath, options)
   return value
 }

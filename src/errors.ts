@@ -3,9 +3,10 @@ import type { DebugInfo } from './tokenizer/interface'
 import { getCodeMarker, valueToString } from './utils/debug/debugTools'
 
 function getLitsErrorMessage(message: string, debugInfo?: DebugInfo) {
-  return `${message}${
-    debugInfo ? `\n${debugInfo === `EOF` ? `EOF` : `${debugInfo.code}\n${getCodeMarker(debugInfo)}`}` : ``
-  }`
+  const filePathLine = debugInfo?.filePath ? `\n${debugInfo.filePath}` : ``
+  const codeLine = debugInfo?.code ? `\n${debugInfo.code}` : ``
+  const codeMarker = debugInfo && codeLine ? `\n${getCodeMarker(debugInfo)}` : ``
+  return `${message}${filePathLine}${codeLine}${codeMarker}`
 }
 
 export class RecurSignal extends Error {

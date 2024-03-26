@@ -12,7 +12,7 @@ import type {
   NameNode,
   SpecialExpressionNode,
 } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { TokenStream } from '../../tokenizer/interface'
 import { TokenType } from '../../constants/constants'
 import { assertNameNode } from '../../typeGuards/astNode'
 import { valueToString } from '../../utils/debug/debugTools'
@@ -38,15 +38,15 @@ export type FnNode = SpecialExpressionNode & {
 }
 
 export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
-  parse: (tokens, position, parsers) => {
-    const firstToken = asToken(tokens[position], `EOF`)
+  parse: (tokenStream, position, parsers) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const { parseToken } = parsers
     let functionName = undefined
-    ;[position, functionName] = parseToken(tokens, position)
+    ;[position, functionName] = parseToken(tokenStream, position)
     assertNameNode(functionName, functionName.tkn?.d)
 
     let functionOverloades: FunctionOverload[]
-    ;[position, functionOverloades] = parseFunctionOverloades(tokens, position, parsers)
+    ;[position, functionOverloades] = parseFunctionOverloades(tokenStream, position, parsers)
 
     return [
       position,
@@ -86,14 +86,14 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
 }
 
 export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
-  parse: (tokens, position, parsers) => {
-    const firstToken = asToken(tokens[position], `EOF`)
+  parse: (tokenStream, position, parsers) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const { parseToken } = parsers
     let functionName: AstNode
-    ;[position, functionName] = parseToken(tokens, position)
+    ;[position, functionName] = parseToken(tokenStream, position)
 
     let functionOverloades: FunctionOverload[]
-    ;[position, functionOverloades] = parseFunctionOverloades(tokens, position, parsers)
+    ;[position, functionOverloades] = parseFunctionOverloades(tokenStream, position, parsers)
 
     return [
       position,
@@ -130,11 +130,11 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
 }
 
 export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
-  parse: (tokens, position, parsers) => {
-    const firstToken = asToken(tokens[position], `EOF`)
+  parse: (tokenStream, position, parsers) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
 
     let functionOverloades: FunctionOverload[]
-    ;[position, functionOverloades] = parseFunctionOverloades(tokens, position, parsers)
+    ;[position, functionOverloades] = parseFunctionOverloades(tokenStream, position, parsers)
 
     return [
       position,
@@ -254,14 +254,18 @@ function arityOk(overloadedFunctions: FunctionOverload[], arity: Arity) {
   })
 }
 
-function parseFunctionBody(tokens: Token[], position: number, { parseToken }: ParserHelpers): [number, AstNode[]] {
-  let tkn = asToken(tokens[position], `EOF`)
+function parseFunctionBody(
+  tokenStream: TokenStream,
+  position: number,
+  { parseToken }: ParserHelpers,
+): [number, AstNode[]] {
+  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const body: AstNode[] = []
   while (!(tkn.t === TokenType.Bracket && tkn.v === `)`)) {
     let bodyNode: AstNode
-    ;[position, bodyNode] = parseToken(tokens, position)
+    ;[position, bodyNode] = parseToken(tokenStream, position)
     body.push(bodyNode)
-    tkn = asToken(tokens[position], `EOF`)
+    tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   }
   if (body.length === 0) {
     throw new LitsError(`Missing body in function`, tkn.d)
@@ -270,18 +274,18 @@ function parseFunctionBody(tokens: Token[], position: number, { parseToken }: Pa
 }
 
 function parseFunctionOverloades(
-  tokens: Token[],
+  tokenStream: TokenStream,
   position: number,
   parsers: ParserHelpers,
 ): [number, FunctionOverload[]] {
-  let tkn = asToken(tokens[position], `EOF`, { type: TokenType.Bracket })
+  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket })
   if (tkn.v === `(`) {
     const functionOverloades: FunctionOverload[] = []
     while (!(tkn.t === TokenType.Bracket && tkn.v === `)`)) {
       position += 1
-      tkn = asToken(tokens[position], `EOF`)
+      tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
       let functionArguments: FunctionArguments
-      ;[position, functionArguments] = parseFunctionArguments(tokens, position, parsers)
+      ;[position, functionArguments] = parseFunctionArguments(tokenStream, position, parsers)
       const arity: Arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length
 
       if (!arityOk(functionOverloades, arity)) {
@@ -289,14 +293,14 @@ function parseFunctionOverloades(
       }
 
       let functionBody: AstNode[]
-      ;[position, functionBody] = parseFunctionBody(tokens, position, parsers)
+      ;[position, functionBody] = parseFunctionBody(tokenStream, position, parsers)
       functionOverloades.push({
         as: functionArguments,
         b: functionBody,
         a: arity,
       })
 
-      tkn = asToken(tokens[position], `EOF`, { type: TokenType.Bracket })
+      tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket })
       if (tkn.v !== `)` && tkn.v !== `(`) {
         throw new LitsError(`Expected ( or ) token, got ${valueToString(tkn)}.`, tkn.d)
       }
@@ -305,10 +309,10 @@ function parseFunctionOverloades(
     return [position + 1, functionOverloades]
   } else if (tkn.v === `[`) {
     let functionArguments: FunctionArguments
-    ;[position, functionArguments] = parseFunctionArguments(tokens, position, parsers)
+    ;[position, functionArguments] = parseFunctionArguments(tokenStream, position, parsers)
     const arity: Arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length
     let functionBody: AstNode[]
-    ;[position, functionBody] = parseFunctionBody(tokens, position, parsers)
+    ;[position, functionBody] = parseFunctionBody(tokenStream, position, parsers)
     return [
       position,
       [
@@ -325,7 +329,7 @@ function parseFunctionOverloades(
 }
 
 function parseFunctionArguments(
-  tokens: Token[],
+  tokenStream: TokenStream,
   position: number,
   parsers: ParserHelpers,
 ): [number, FunctionArguments] {
@@ -335,18 +339,18 @@ function parseFunctionArguments(
   let restArgument: string | undefined = undefined
   const mandatoryArguments: string[] = []
   let state: `mandatory` | `rest` | `let` = `mandatory`
-  let tkn = asToken(tokens[position], `EOF`)
+  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
 
   position += 1
-  tkn = asToken(tokens[position], `EOF`)
+  tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   while (!(tkn.t === TokenType.Bracket && tkn.v === `]`)) {
     if (state === `let`) {
-      ;[position, bindings] = parseBindings(tokens, position)
+      ;[position, bindings] = parseBindings(tokenStream, position)
       break
     } else {
-      const [newPosition, node] = parseArgument(tokens, position)
+      const [newPosition, node] = parseArgument(tokenStream, position)
       position = newPosition
-      tkn = asToken(tokens[position], `EOF`)
+      tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
 
       if (node.t === AstNodeType.Modifier) {
         switch (node.v) {

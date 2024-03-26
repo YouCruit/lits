@@ -5,10 +5,10 @@ import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
 export const recurSpecialExpression: BuiltinSpecialExpression<null> = {
-  parse: (tokens, position, { parseTokens }) => {
-    const firstToken = asToken(tokens[position], `EOF`)
+  parse: (tokenStream, position, { parseTokens }) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let params
-    ;[position, params] = parseTokens(tokens, position)
+    ;[position, params] = parseTokens(tokenStream, position)
 
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,

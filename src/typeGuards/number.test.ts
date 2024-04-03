@@ -1,7 +1,6 @@
 import { assertNumber, asNumber, isNumber } from './number'
 
 describe(`number type guards`, () => {
-
   test(`assertInteger`, () => {
     expect(() => assertNumber(-0, undefined, { integer: true })).not.toThrow()
     expect(() => assertNumber(-1, undefined, { integer: true })).not.toThrow()

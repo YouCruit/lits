@@ -69,7 +69,10 @@ export function isNormalExpressionNodeWithName(value: unknown): value is NormalE
   }
   return value.t === AstNodeType.NormalExpression && typeof value.n === `string`
 }
-export function asNormalExpressionNodeWithName(value: unknown, sourceCodeInfo?: SourceCodeInfo): NormalExpressionNodeWithName {
+export function asNormalExpressionNodeWithName(
+  value: unknown,
+  sourceCodeInfo?: SourceCodeInfo,
+): NormalExpressionNodeWithName {
   assertNormalExpressionNodeWithName(value, sourceCodeInfo)
   return value
 }

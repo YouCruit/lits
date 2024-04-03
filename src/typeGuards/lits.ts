@@ -75,7 +75,10 @@ export function asRegularExpression(value: unknown, sourceCodeInfo?: SourceCodeI
   assertRegularExpression(value, sourceCodeInfo)
   return value
 }
-export function assertRegularExpression(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is RegularExpression {
+export function assertRegularExpression(
+  value: unknown,
+  sourceCodeInfo?: SourceCodeInfo,
+): asserts value is RegularExpression {
   if (!isRegularExpression(value)) {
     throw getAssertionError(`RegularExpression`, value, sourceCodeInfo)
   }
@@ -84,7 +87,10 @@ export function assertRegularExpression(value: unknown, sourceCodeInfo?: SourceC
 export function isStringOrRegularExpression(value: unknown): value is string | RegularExpression {
   return isRegularExpression(value) || typeof value === `string`
 }
-export function asStringOrRegularExpression(value: unknown, sourceCodeInfo?: SourceCodeInfo): string | RegularExpression {
+export function asStringOrRegularExpression(
+  value: unknown,
+  sourceCodeInfo?: SourceCodeInfo,
+): string | RegularExpression {
   assertStringOrRegularExpression(value, sourceCodeInfo)
   return value
 }

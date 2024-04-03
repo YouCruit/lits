@@ -837,7 +837,11 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
       const len = params.length
       const n = toNonNegativeInteger(asNumber(params[0], sourceCodeInfo))
       const seq =
-        len === 2 ? asSeq(params[1], sourceCodeInfo) : len === 3 ? asSeq(params[2], sourceCodeInfo) : asSeq(params[3], sourceCodeInfo)
+        len === 2
+          ? asSeq(params[1], sourceCodeInfo)
+          : len === 3
+          ? asSeq(params[2], sourceCodeInfo)
+          : asSeq(params[3], sourceCodeInfo)
       const step = len >= 3 ? toNonNegativeInteger(asNumber(params[1], sourceCodeInfo)) : n
       const pad = len === 4 ? (params[2] === null ? [] : asArray(params[2], sourceCodeInfo)) : undefined
 

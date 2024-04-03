@@ -60,7 +60,10 @@ export function asStringOrNumber(value: unknown, sourceCodeInfo?: SourceCodeInfo
   assertStringOrNumber(value, sourceCodeInfo)
   return value
 }
-export function assertStringOrNumber(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is string | number {
+export function assertStringOrNumber(
+  value: unknown,
+  sourceCodeInfo?: SourceCodeInfo,
+): asserts value is string | number {
   if (!isStringOrNumber(value)) {
     throw getAssertionError(`string or number`, value, sourceCodeInfo)
   }

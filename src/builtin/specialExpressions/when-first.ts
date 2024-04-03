@@ -22,7 +22,10 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
     ;[position, bindings] = parseBindings(tokenStream, position)
 
     if (bindings.length !== 1) {
-      throw new LitsError(`Expected exactly one binding, got ${valueToString(bindings.length)}`, firstToken.sourceCodeInfo)
+      throw new LitsError(
+        `Expected exactly one binding, got ${valueToString(bindings.length)}`,
+        firstToken.sourceCodeInfo,
+      )
     }
 
     let params: AstNode[]
@@ -42,7 +45,10 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
     const { b: binding } = node as WhenFirstNode
     const evaluatedBindingForm = evaluateAstNode(binding.v, contextStack)
     if (!isSeq(evaluatedBindingForm)) {
-      throw new LitsError(`Expected undefined or a sequence, got ${valueToString(evaluatedBindingForm)}`, node.tkn?.sourceCodeInfo)
+      throw new LitsError(
+        `Expected undefined or a sequence, got ${valueToString(evaluatedBindingForm)}`,
+        node.tkn?.sourceCodeInfo,
+      )
     }
 
     if (evaluatedBindingForm.length === 0) {

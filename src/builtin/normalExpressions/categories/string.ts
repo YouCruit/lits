@@ -73,7 +73,10 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       } else {
         assertNumber(base, sourceCodeInfo, { finite: true })
         if (base !== 2 && base !== 8 && base !== 10 && base !== 16) {
-          throw new LitsError(`Expected "number-to-string" base argument to be 2, 8, 10 or 16, got: ${base}`, sourceCodeInfo)
+          throw new LitsError(
+            `Expected "number-to-string" base argument to be 2, 8, 10 or 16, got: ${base}`,
+            sourceCodeInfo,
+          )
         }
         if (base === 10) {
           return `${num}`

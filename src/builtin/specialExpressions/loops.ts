@@ -157,7 +157,13 @@ function evaluateLoop(
       for (const modifier of modifiers) {
         switch (modifier) {
           case `&let`:
-            addToContext(asNonUndefined(letBindings, sourceCodeInfo), context, newContextStack, evaluateAstNode, sourceCodeInfo)
+            addToContext(
+              asNonUndefined(letBindings, sourceCodeInfo),
+              context,
+              newContextStack,
+              evaluateAstNode,
+              sourceCodeInfo,
+            )
             break
           case `&when`:
             if (!evaluateAstNode(asAstNode(whenNode, sourceCodeInfo), newContextStack)) {

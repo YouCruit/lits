@@ -24,7 +24,7 @@ function applyCollectionAccessor(tokenStream: TokenStream, position: number) {
   tokenStream.tokens.splice(backPosition, 0, {
     t: TokenType.Bracket,
     v: `(`,
-    sourceCodeInfo: sourceCodeInfo,
+    sourceCodeInfo,
   })
   const nextTkn = asNonUndefined(tokenStream.tokens[position + 1])
   if (dotTkn.v === `.`) {
@@ -44,7 +44,7 @@ function applyCollectionAccessor(tokenStream: TokenStream, position: number) {
   tokenStream.tokens.splice(position + 2, 0, {
     t: TokenType.Bracket,
     v: `)`,
-    sourceCodeInfo: sourceCodeInfo,
+    sourceCodeInfo,
   })
 }
 
@@ -98,7 +98,12 @@ function getPositionBackwards(tokenStream: TokenStream, position: number, source
   return position
 }
 
-function checkForward(tokenStream: TokenStream, position: number, dotTkn: Token, sourceCodeInfo: SourceCodeInfo | undefined) {
+function checkForward(
+  tokenStream: TokenStream,
+  position: number,
+  dotTkn: Token,
+  sourceCodeInfo: SourceCodeInfo | undefined,
+) {
   const tkn = asNonUndefined(tokenStream.tokens[position + 1], sourceCodeInfo)
 
   if (dotTkn.v === `.` && tkn.t !== TokenType.Name) {

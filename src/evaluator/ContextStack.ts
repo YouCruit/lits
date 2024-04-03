@@ -100,7 +100,7 @@ export class ContextStack {
     if (builtin.normalExpressions[value]) {
       const builtinFunction: BuiltinFunction = {
         [FUNCTION_SYMBOL]: true,
-        sourceCodeInfo: sourceCodeInfo,
+        sourceCodeInfo,
         t: FunctionType.Builtin,
         n: value,
       }

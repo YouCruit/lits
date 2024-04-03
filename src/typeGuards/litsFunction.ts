@@ -27,7 +27,10 @@ export function asUserDefinedFunction(value: unknown, sourceCodeInfo?: SourceCod
   assertUserDefinedFunction(value, sourceCodeInfo)
   return value
 }
-export function assertUserDefinedFunction(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is UserDefinedFunction {
+export function assertUserDefinedFunction(
+  value: unknown,
+  sourceCodeInfo?: SourceCodeInfo,
+): asserts value is UserDefinedFunction {
   if (!isUserDefinedFunction(value)) {
     throw getAssertionError(`NativeJsFunction`, value, sourceCodeInfo)
   }
@@ -40,7 +43,10 @@ export function asNativeJsFunction(value: unknown, sourceCodeInfo?: SourceCodeIn
   assertNativeJsFunction(value, sourceCodeInfo)
   return value
 }
-export function assertNativeJsFunction(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is NativeJsFunction {
+export function assertNativeJsFunction(
+  value: unknown,
+  sourceCodeInfo?: SourceCodeInfo,
+): asserts value is NativeJsFunction {
   if (!isNativeJsFunction(value)) {
     throw getAssertionError(`NativeJsFunction`, value, sourceCodeInfo)
   }

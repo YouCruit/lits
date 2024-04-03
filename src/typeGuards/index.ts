@@ -41,7 +41,10 @@ export function isUnknownRecord(value: unknown): value is Record<string, unknown
 
 export function assertUnknownRecord(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is UnknownRecord {
   if (!isUnknownRecord(value)) {
-    throw new LitsError(`Expected ${`UnknownRecord`}, got ${valueToString(value)}.`, getSourceCodeInfo(value, sourceCodeInfo))
+    throw new LitsError(
+      `Expected ${`UnknownRecord`}, got ${valueToString(value)}.`,
+      getSourceCodeInfo(value, sourceCodeInfo),
+    )
   }
 }
 

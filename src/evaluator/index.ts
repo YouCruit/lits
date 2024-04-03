@@ -146,7 +146,10 @@ function evaluateStringAsFunction(fn: string, params: Arr, sourceCodeInfo?: Sour
   if (isNumber(param, { integer: true })) {
     return toAny(fn[param])
   }
-  throw new LitsError(`string as function expects Obj or integer parameter, got ${valueToString(param)}`, sourceCodeInfo)
+  throw new LitsError(
+    `string as function expects Obj or integer parameter, got ${valueToString(param)}`,
+    sourceCodeInfo,
+  )
 }
 
 function evaluateNumberAsFunction(fn: number, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {

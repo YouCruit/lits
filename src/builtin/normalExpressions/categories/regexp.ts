@@ -14,7 +14,7 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
       new RegExp(source, flags) // Throws if invalid regexp
       return {
         [REGEXP_SYMBOL]: true,
-        sourceCodeInfo: sourceCodeInfo,
+        sourceCodeInfo,
         s: source,
         f: flags,
       }

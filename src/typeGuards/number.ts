@@ -177,7 +177,11 @@ export function assertNumber(
   }
 }
 
-export function asNumber(value: unknown, sourceCodeInfo: SourceCodeInfo | undefined, options: NumberOptions = {}): number {
+export function asNumber(
+  value: unknown,
+  sourceCodeInfo: SourceCodeInfo | undefined,
+  options: NumberOptions = {},
+): number {
   assertNumber(value, sourceCodeInfo, options)
   return value
 }

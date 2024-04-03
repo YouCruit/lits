@@ -30,7 +30,10 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
     ;[position, catchNode] = parseToken(tokenStream, position)
     assertNameNode(catchNode, catchNode.tkn?.sourceCodeInfo)
     if (catchNode.v !== `catch`) {
-      throw new LitsError(`Expected 'catch', got '${catchNode.v}'.`, getSourceCodeInfo(catchNode, catchNode.tkn?.sourceCodeInfo))
+      throw new LitsError(
+        `Expected 'catch', got '${catchNode.v}'.`,
+        getSourceCodeInfo(catchNode, catchNode.tkn?.sourceCodeInfo),
+      )
     }
 
     let error: AstNode

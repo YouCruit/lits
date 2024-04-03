@@ -105,9 +105,13 @@ function update(
         return elem
       })
       if (intKey === coll.length) {
-        result[intKey] = asString(executeFunction(fn, [undefined, ...params], contextStack, sourceCodeInfo), sourceCodeInfo, {
-          char: true,
-        })
+        result[intKey] = asString(
+          executeFunction(fn, [undefined, ...params], contextStack, sourceCodeInfo),
+          sourceCodeInfo,
+          {
+            char: true,
+          },
+        )
       }
       return result.join(``)
     }

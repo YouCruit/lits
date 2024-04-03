@@ -51,7 +51,10 @@ export const parseName: ParseName = (tokenStream: TokenStream, position: number)
 type ParseReservedName = (tokenStream: TokenStream, position: number) => [number, ReservedNameNode]
 export const parseReservedName: ParseReservedName = (tokenStream: TokenStream, position: number) => {
   const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
-  return [position + 1, { t: AstNodeType.ReservedName, v: tkn.v as ReservedName, tkn: tkn.sourceCodeInfo ? tkn : undefined }]
+  return [
+    position + 1,
+    { t: AstNodeType.ReservedName, v: tkn.v as ReservedName, tkn: tkn.sourceCodeInfo ? tkn : undefined },
+  ]
 }
 
 const parseTokens: ParseTokens = (tokenStream, position) => {
@@ -305,7 +308,10 @@ const parseNormalExpression: ParseNormalExpression = (tokenStream, position) => 
 }
 
 const parseSpecialExpression: ParseSpecialExpression = (tokenStream, position) => {
-  const { v: expressionName, sourceCodeInfo: sourceCodeInfo } = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  const { v: expressionName, sourceCodeInfo: sourceCodeInfo } = asToken(
+    tokenStream.tokens[position],
+    tokenStream.filePath,
+  )
   position += 1
 
   const { parse, validate } = asNonUndefined(builtin.specialExpressions[expressionName], sourceCodeInfo)

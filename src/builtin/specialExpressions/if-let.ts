@@ -22,7 +22,10 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     ;[position, bindings] = parseBindings(tokenStream, position)
 
     if (bindings.length !== 1) {
-      throw new LitsError(`Expected exactly one binding, got ${valueToString(bindings.length)}`, firstToken.sourceCodeInfo)
+      throw new LitsError(
+        `Expected exactly one binding, got ${valueToString(bindings.length)}`,
+        firstToken.sourceCodeInfo,
+      )
     }
 
     let params: AstNode[]

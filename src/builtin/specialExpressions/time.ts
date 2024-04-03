@@ -14,14 +14,14 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
       t: AstNodeType.SpecialExpression,
       n: `time!`,
       p: [astNode],
-      tkn: firstToken.d ? firstToken : undefined,
+      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
 
     return [newPosition + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const [param] = node.p
-    assertAstNode(param, node.tkn?.d)
+    assertAstNode(param, node.tkn?.sourceCodeInfo)
 
     const startTime = Date.now()
     const result = evaluateAstNode(param, contextStack)

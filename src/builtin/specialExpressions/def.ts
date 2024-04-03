@@ -10,19 +10,19 @@ export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokenStream, position, { parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)
-    assertNameNode(params[0], firstToken.d)
+    assertNameNode(params[0], firstToken.sourceCodeInfo)
     return [
       newPosition + 1,
       {
         t: AstNodeType.SpecialExpression,
         n: `def`,
         p: params,
-        tkn: firstToken.d ? firstToken : undefined,
+        tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       },
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode, builtin }) => {
-    const sourceCodeInfo = node.tkn?.d
+    const sourceCodeInfo = node.tkn?.sourceCodeInfo
     const name = asNameNode(node.p[0], sourceCodeInfo).v
 
     assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo)
@@ -35,7 +35,7 @@ export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   validate: node => assertNumberOfParams(2, node),
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    const sourceCodeInfo = node.tkn?.d
+    const sourceCodeInfo = node.tkn?.sourceCodeInfo
     const subNode = asAstNode(node.p[1], sourceCodeInfo)
     const result = analyzeAst(subNode, contextStack, builtin)
     const name = asNameNode(node.p[0], sourceCodeInfo).v

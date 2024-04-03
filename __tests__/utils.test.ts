@@ -7,14 +7,14 @@ import { AstNodeType, FunctionType } from '../src'
 describe(`utils`, () => {
   test(`createNativeJsFunction`, () => {
     const fnWithName = createNativeJsFunction(() => undefined, `foo`)
-    expect(fnWithName.d).toBeUndefined()
+    expect(fnWithName.sourceCodeInfo).toBeUndefined()
     expect(fnWithName.n).toBe(`foo`)
     expect(typeof fnWithName.f.fn).toBe(`function`)
     expect(fnWithName.t).toBe(FunctionType.NativeJsFunction)
     expect(fnWithName.λ).toBe(true)
 
     const fnWithoutName = createNativeJsFunction(() => undefined)
-    expect(fnWithoutName.d).toBeUndefined()
+    expect(fnWithoutName.sourceCodeInfo).toBeUndefined()
     expect(fnWithoutName.n).toBeUndefined()
     expect(typeof fnWithoutName.f.fn).toBe(`function`)
     expect(fnWithoutName.t).toBe(FunctionType.NativeJsFunction)

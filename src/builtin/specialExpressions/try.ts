@@ -28,14 +28,14 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
 
     let catchNode: AstNode
     ;[position, catchNode] = parseToken(tokenStream, position)
-    assertNameNode(catchNode, catchNode.tkn?.d)
+    assertNameNode(catchNode, catchNode.tkn?.sourceCodeInfo)
     if (catchNode.v !== `catch`) {
-      throw new LitsError(`Expected 'catch', got '${catchNode.v}'.`, getDebugInfo(catchNode, catchNode.tkn?.d))
+      throw new LitsError(`Expected 'catch', got '${catchNode.v}'.`, getDebugInfo(catchNode, catchNode.tkn?.sourceCodeInfo))
     }
 
     let error: AstNode
     ;[position, error] = parseToken(tokenStream, position)
-    assertNameNode(error, error.tkn?.d)
+    assertNameNode(error, error.tkn?.sourceCodeInfo)
 
     let catchExpression: AstNode
     ;[position, catchExpression] = parseToken(tokenStream, position)
@@ -53,7 +53,7 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
       te: tryExpression,
       ce: catchExpression,
       e: error,
-      tkn: firstToken.d ? firstToken : undefined,
+      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
 
     return [position, node]
@@ -64,7 +64,7 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
       return evaluateAstNode(tryExpression, contextStack)
     } catch (error) {
       const newContext: Context = {
-        [errorNode.v]: { value: asAny(error, node.tkn?.d) },
+        [errorNode.v]: { value: asAny(error, node.tkn?.sourceCodeInfo) },
       }
       return evaluateAstNode(catchExpression, contextStack.create(newContext))
     }

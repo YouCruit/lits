@@ -31,15 +31,15 @@ exports[`sequence functions sort samples 1`] = `
     "a": 1,
   },
   {
-    "d": undefined,
     "f": "",
     "s": "ABC",
+    "sourceCodeInfo": undefined,
     "Ʀ": true,
   },
   {
-    "d": undefined,
     "f": "",
     "s": "abc",
+    "sourceCodeInfo": undefined,
     "Ʀ": true,
   },
   null,

@@ -14,7 +14,7 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
       t: AstNodeType.SpecialExpression,
       n: `do`,
       p: [],
-      tkn: tkn.d ? tkn : undefined,
+      tkn: tkn.sourceCodeInfo ? tkn : undefined,
     }
 
     while (!isToken(tkn, { type: TokenType.Bracket, value: `)` })) {

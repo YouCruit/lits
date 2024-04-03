@@ -13,7 +13,7 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
         t: AstNodeType.SpecialExpression,
         n: `or`,
         p: params,
-        tkn: firstToken.d ? firstToken : undefined,
+        tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       },
     ]
   },

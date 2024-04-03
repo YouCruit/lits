@@ -24,15 +24,15 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
       n: `throw`,
       p: [],
       m: messageNode,
-      tkn: firstToken.d ? firstToken : undefined,
+      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
     return [position, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const message = asString(evaluateAstNode((node as ThrowNode).m, contextStack), node.tkn?.d, {
+    const message = asString(evaluateAstNode((node as ThrowNode).m, contextStack), node.tkn?.sourceCodeInfo, {
       nonEmpty: true,
     })
-    throw new UserDefinedError(message, node.tkn?.d)
+    throw new UserDefinedError(message, node.tkn?.sourceCodeInfo)
   },
   analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst((node as ThrowNode).m, contextStack, builtin),
 }

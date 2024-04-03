@@ -16,7 +16,7 @@ export const applyCollectionAccessors: SugarFunction = tokenStream => {
 
 function applyCollectionAccessor(tokenStream: TokenStream, position: number) {
   const dotTkn = asNonUndefined(tokenStream.tokens[position])
-  const sourceCodeInfo = dotTkn.d
+  const sourceCodeInfo = dotTkn.sourceCodeInfo
   const backPosition = getPositionBackwards(tokenStream, position, sourceCodeInfo)
   checkForward(tokenStream, position, dotTkn, sourceCodeInfo)
 
@@ -24,27 +24,27 @@ function applyCollectionAccessor(tokenStream: TokenStream, position: number) {
   tokenStream.tokens.splice(backPosition, 0, {
     t: TokenType.Bracket,
     v: `(`,
-    d: sourceCodeInfo,
+    sourceCodeInfo: sourceCodeInfo,
   })
   const nextTkn = asNonUndefined(tokenStream.tokens[position + 1])
   if (dotTkn.v === `.`) {
     tokenStream.tokens[position + 1] = {
       t: TokenType.String,
       v: nextTkn.v,
-      d: nextTkn.d,
+      sourceCodeInfo: nextTkn.sourceCodeInfo,
     }
   } else {
     assertNumber(Number(nextTkn.v), sourceCodeInfo, { integer: true, nonNegative: true })
     tokenStream.tokens[position + 1] = {
       t: TokenType.Number,
       v: nextTkn.v,
-      d: nextTkn.d,
+      sourceCodeInfo: nextTkn.sourceCodeInfo,
     }
   }
   tokenStream.tokens.splice(position + 2, 0, {
     t: TokenType.Bracket,
     v: `)`,
-    d: sourceCodeInfo,
+    sourceCodeInfo: sourceCodeInfo,
   })
 }
 

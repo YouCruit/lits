@@ -27,13 +27,13 @@ export type ExtraData = Record<string, LazyValue>
 
 type GenericLitsFunction = {
   [FUNCTION_SYMBOL]: true
-  d?: SourceCodeInfo
+  sourceCodeInfo?: SourceCodeInfo
   t: FunctionType
 }
 
 export interface RegularExpression {
   [REGEXP_SYMBOL]: true
-  d?: SourceCodeInfo
+  sourceCodeInfo?: SourceCodeInfo
   s: string
   f: string
 }

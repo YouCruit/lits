@@ -13,14 +13,14 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<boolean> = {
       t: AstNodeType.SpecialExpression,
       n: `declared?`,
       p: params,
-      tkn: firstToken.d ? firstToken : undefined,
+      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
 
     return [newPosition + 1, node]
   },
   evaluate: (node, contextStack) => {
     const [astNode] = node.p
-    assertNameNode(astNode, node.tkn?.d)
+    assertNameNode(astNode, node.tkn?.sourceCodeInfo)
 
     const lookUpResult = contextStack.lookUp(astNode)
     return lookUpResult !== null

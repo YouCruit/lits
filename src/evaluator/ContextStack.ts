@@ -77,7 +77,7 @@ export class ContextStack {
 
   public lookUp(node: NameNode): LookUpResult {
     const value = node.v
-    const sourceCodeInfo = node.tkn?.d
+    const sourceCodeInfo = node.tkn?.sourceCodeInfo
 
     for (const context of this.contexts) {
       const contextEntry = context[value]
@@ -100,7 +100,7 @@ export class ContextStack {
     if (builtin.normalExpressions[value]) {
       const builtinFunction: BuiltinFunction = {
         [FUNCTION_SYMBOL]: true,
-        d: sourceCodeInfo,
+        sourceCodeInfo: sourceCodeInfo,
         t: FunctionType.Builtin,
         n: value,
       }
@@ -129,6 +129,6 @@ export class ContextStack {
     } else if (isBuiltinFunction(lookUpResult)) {
       return lookUpResult
     }
-    throw new UndefinedSymbolError(node.v, node.tkn?.d)
+    throw new UndefinedSymbolError(node.v, node.tkn?.sourceCodeInfo)
   }
 }

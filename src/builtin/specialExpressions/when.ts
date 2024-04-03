@@ -14,14 +14,14 @@ export const whenSpecialExpression: BuiltinSpecialExpression<Any> = {
       t: AstNodeType.SpecialExpression,
       n: `when`,
       p: params,
-      tkn: firstToken.d ? firstToken : undefined,
+      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
 
     return [newPosition + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const [whenExpression, ...body] = node.p
-    assertAstNode(whenExpression, node.tkn?.d)
+    assertAstNode(whenExpression, node.tkn?.sourceCodeInfo)
 
     if (!evaluateAstNode(whenExpression, contextStack)) {
       return null

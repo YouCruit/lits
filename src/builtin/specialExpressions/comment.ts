@@ -12,7 +12,7 @@ export const commentSpecialExpression: BuiltinSpecialExpression<null> = {
       t: AstNodeType.SpecialExpression,
       n: `comment`,
       p: [],
-      tkn: tkn.d ? tkn : undefined,
+      tkn: tkn.sourceCodeInfo ? tkn : undefined,
     }
 
     while (!isToken(tkn, { type: TokenType.Bracket, value: `)` })) {

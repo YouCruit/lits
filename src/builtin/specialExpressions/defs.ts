@@ -17,16 +17,16 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
         t: AstNodeType.SpecialExpression,
         n: `defs`,
         p: params,
-        tkn: firstToken.d ? firstToken : undefined,
+        tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       },
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode, builtin }) => {
-    const sourceCodeInfo = node.tkn?.d
+    const sourceCodeInfo = node.tkn?.sourceCodeInfo
     const name = evaluateAstNode(asAstNode(node.p[0], sourceCodeInfo), contextStack)
     assertString(name, sourceCodeInfo)
 
-    assertNameNotDefined(name, contextStack, builtin, node.tkn?.d)
+    assertNameNotDefined(name, contextStack, builtin, node.tkn?.sourceCodeInfo)
 
     const value = evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack)
 
@@ -36,7 +36,7 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   validate: node => assertNumberOfParams(2, node),
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    const subNode = asAstNode(node.p[1], node.tkn?.d)
+    const subNode = asAstNode(node.p[1], node.tkn?.sourceCodeInfo)
     return analyzeAst(subNode, contextStack, builtin)
   },
 }

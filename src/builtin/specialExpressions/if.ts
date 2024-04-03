@@ -15,12 +15,12 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
         t: AstNodeType.SpecialExpression,
         n: `if`,
         p: params,
-        tkn: firstToken.d ? firstToken : undefined,
+        tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       },
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const sourceCodeInfo = node.tkn?.d
+    const sourceCodeInfo = node.tkn?.sourceCodeInfo
 
     const [conditionNode, trueNode, falseNode] = node.p
     if (evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {

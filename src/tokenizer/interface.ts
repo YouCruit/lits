@@ -13,7 +13,7 @@ export type Token = {
   t: TokenType // type
   v: string // value
   o?: Record<string, boolean> // options
-  d?: SourceCodeInfo // sourceCodeInfo
+  sourceCodeInfo?: SourceCodeInfo // sourceCodeInfo
 }
 export type TokenDescriptor = [length: number, token: Token | undefined]
 export type Tokenizer = (input: string, position: number, sourceCodeInfo?: SourceCodeInfo) => TokenDescriptor

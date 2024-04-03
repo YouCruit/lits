@@ -46,7 +46,7 @@ export function assertToken(
 ): asserts value is Token {
   if (!isToken(value, options)) {
     const sourceCodeInfo: SourceCodeInfo | undefined = isToken(value)
-      ? value.d
+      ? value.sourceCodeInfo
       : typeof filePath === `string`
       ? { filePath }
       : undefined

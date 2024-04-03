@@ -24,7 +24,7 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
       n: `let`,
       p: params,
       bs: bindings,
-      tkn: firstToken.d ? firstToken : undefined,
+      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
     return [position + 1, node]
   },

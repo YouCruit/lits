@@ -67,7 +67,7 @@ describe(`Tokenizer`, () => {
             t: TokenType.RegexpShorthand,
             v: `Hej`,
             o: {},
-            d: { position: { line: 1, column: 1 }, code: `#"Hej"`, filePath: `foo.lits` },
+            sourceCodeInfo: { position: { line: 1, column: 1 }, code: `#"Hej"`, filePath: `foo.lits` },
           },
         ],
         filePath: `foo.lits`,
@@ -78,7 +78,7 @@ describe(`Tokenizer`, () => {
             t: TokenType.RegexpShorthand,
             v: `Hej`,
             o: { g: true },
-            d: { position: { line: 1, column: 1 }, code: `#"Hej"g`, getLocation: undefined },
+            sourceCodeInfo: { position: { line: 1, column: 1 }, code: `#"Hej"g`, getLocation: undefined },
           },
         ],
       })
@@ -88,7 +88,7 @@ describe(`Tokenizer`, () => {
             t: TokenType.RegexpShorthand,
             v: `Hej`,
             o: { i: true },
-            d: { position: { line: 1, column: 1 }, code: `#"Hej"i`, getLocation: undefined },
+            sourceCodeInfo: { position: { line: 1, column: 1 }, code: `#"Hej"i`, getLocation: undefined },
           },
         ],
       })
@@ -98,7 +98,7 @@ describe(`Tokenizer`, () => {
             t: TokenType.RegexpShorthand,
             v: `Hej`,
             o: { i: true, g: true },
-            d: { position: { line: 1, column: 1 }, code: `#"Hej"gi`, getLocation: undefined },
+            sourceCodeInfo: { position: { line: 1, column: 1 }, code: `#"Hej"gi`, getLocation: undefined },
           },
         ],
       })
@@ -108,7 +108,7 @@ describe(`Tokenizer`, () => {
             t: TokenType.RegexpShorthand,
             v: `Hej`,
             o: { i: true, g: true },
-            d: { position: { line: 1, column: 1 }, code: `#"Hej"ig`, getLocation: undefined },
+            sourceCodeInfo: { position: { line: 1, column: 1 }, code: `#"Hej"ig`, getLocation: undefined },
           },
         ],
       })
@@ -125,12 +125,12 @@ describe(`Tokenizer`, () => {
           {
             t: TokenType.FnShorthand,
             v: `#`,
-            d: { position: { line: 1, column: 1 }, code: `#(` },
+            sourceCodeInfo: { position: { line: 1, column: 1 }, code: `#(` },
           },
           {
             t: TokenType.Bracket,
             v: `(`,
-            d: { position: { line: 1, column: 2 }, code: `#(` },
+            sourceCodeInfo: { position: { line: 1, column: 2 }, code: `#(` },
           },
         ],
       })

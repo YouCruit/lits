@@ -74,7 +74,7 @@ export const tokenizeString: Tokenizer = (input, position, sourceCodeInfo) => {
     }
     char = input[position + length]
   }
-  return [length + 1, { t: TokenType.String, v: value, d: sourceCodeInfo }]
+  return [length + 1, { t: TokenType.String, v: value, sourceCodeInfo: sourceCodeInfo }]
 }
 
 export const tokenizeCollectionAccessor: Tokenizer = (input, position, sourceCodeInfo) => {
@@ -87,7 +87,7 @@ export const tokenizeCollectionAccessor: Tokenizer = (input, position, sourceCod
     {
       t: TokenType.CollectionAccessor,
       v: char,
-      d: sourceCodeInfo,
+      sourceCodeInfo: sourceCodeInfo,
     },
   ]
 }
@@ -108,7 +108,7 @@ export const tokenizeSymbolString: Tokenizer = (input, position, sourceCodeInfo)
   if (length === 1) {
     return NO_MATCH
   }
-  return [length, { t: TokenType.String, v: value, d: sourceCodeInfo }]
+  return [length, { t: TokenType.String, v: value, sourceCodeInfo: sourceCodeInfo }]
 }
 
 export const tokenizeRegexpShorthand: Tokenizer = (input, position, sourceCodeInfo) => {
@@ -150,7 +150,7 @@ export const tokenizeRegexpShorthand: Tokenizer = (input, position, sourceCodeIn
       t: TokenType.RegexpShorthand,
       v: token.v,
       o: options,
-      d: sourceCodeInfo,
+      sourceCodeInfo: sourceCodeInfo,
     },
   ]
 }
@@ -164,7 +164,7 @@ export const tokenizeFnShorthand: Tokenizer = (input, position, sourceCodeInfo) 
     {
       t: TokenType.FnShorthand,
       v: `#`,
-      d: sourceCodeInfo,
+      sourceCodeInfo: sourceCodeInfo,
     },
   ]
 }
@@ -243,7 +243,7 @@ export const tokenizeNumber: Tokenizer = (input, position, sourceCodeInfo) => {
     return NO_MATCH
   }
 
-  return [length, { t: TokenType.Number, v: value, d: sourceCodeInfo }]
+  return [length, { t: TokenType.Number, v: value, sourceCodeInfo: sourceCodeInfo }]
 }
 
 export const tokenizeReservedName: Tokenizer = (input, position, sourceCodeInfo) => {
@@ -258,7 +258,7 @@ export const tokenizeReservedName: Tokenizer = (input, position, sourceCodeInfo)
       if (forbidden) {
         throw new LitsError(`${name} is forbidden!`, sourceCodeInfo)
       }
-      return [length, { t: TokenType.ReservedName, v: reservedName, d: sourceCodeInfo }]
+      return [length, { t: TokenType.ReservedName, v: reservedName, sourceCodeInfo: sourceCodeInfo }]
     }
   }
   return NO_MATCH
@@ -274,7 +274,7 @@ export const tokenizeModifier: Tokenizer = (input, position, sourceCodeInfo) => 
     const charAfterModifier = input[position + length]
     if (input.substr(position, length) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
       const value: ModifierName = modifier
-      return [length, { t: TokenType.Modifier, v: value, d: sourceCodeInfo }]
+      return [length, { t: TokenType.Modifier, v: value, sourceCodeInfo: sourceCodeInfo }]
     }
   }
   return NO_MATCH
@@ -288,7 +288,7 @@ function tokenizeCharacter(
   sourceCodeInfo?: SourceCodeInfo,
 ): TokenDescriptor {
   if (value === input[position]) {
-    return [1, { t: type, v: value, d: sourceCodeInfo }]
+    return [1, { t: type, v: value, sourceCodeInfo: sourceCodeInfo }]
   } else {
     return NO_MATCH
   }
@@ -315,5 +315,5 @@ function tokenizePattern(
     char = input[position + length]
   }
 
-  return [length, { t: type, v: value, d: sourceCodeInfo }]
+  return [length, { t: type, v: value, sourceCodeInfo: sourceCodeInfo }]
 }

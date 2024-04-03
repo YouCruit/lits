@@ -40,7 +40,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([fn, ...params], sourceCodeInfo): PartialFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: sourceCodeInfo,
+        sourceCodeInfo: sourceCodeInfo,
         t: FunctionType.Partial,
         f: toAny(fn),
         p: params,
@@ -59,7 +59,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
       }
       return {
         [FUNCTION_SYMBOL]: true,
-        d: sourceCodeInfo,
+        sourceCodeInfo: sourceCodeInfo,
         t: FunctionType.Comp,
         f: fns,
       }
@@ -70,7 +70,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([value], sourceCodeInfo): ConstantlyFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: sourceCodeInfo,
+        sourceCodeInfo: sourceCodeInfo,
         t: FunctionType.Constantly,
         v: toAny(value),
       }
@@ -82,7 +82,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: (fns, sourceCodeInfo): JuxtFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: sourceCodeInfo,
+        sourceCodeInfo: sourceCodeInfo,
         t: FunctionType.Juxt,
         f: fns,
       }
@@ -94,7 +94,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([fn], sourceCodeInfo): ComplementFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: sourceCodeInfo,
+        sourceCodeInfo: sourceCodeInfo,
         t: FunctionType.Complement,
         f: toAny(fn),
       }
@@ -106,7 +106,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: (fns, sourceCodeInfo): EveryPredFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: sourceCodeInfo,
+        sourceCodeInfo: sourceCodeInfo,
         t: FunctionType.EveryPred,
         f: fns,
       }
@@ -118,7 +118,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: (fns, sourceCodeInfo): SomePredFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: sourceCodeInfo,
+        sourceCodeInfo: sourceCodeInfo,
         t: FunctionType.SomePred,
         f: fns,
       }
@@ -130,7 +130,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([fn, ...params], sourceCodeInfo): FNilFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: sourceCodeInfo,
+        sourceCodeInfo: sourceCodeInfo,
         t: FunctionType.Fnil,
         f: toAny(fn),
         p: params,

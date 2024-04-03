@@ -43,27 +43,27 @@ function parseLoopBinding(
     switch (tkn.v) {
       case `&let`:
         if (loopBinding.l) {
-          throw new LitsError(`Only one &let modifier allowed`, tkn.d)
+          throw new LitsError(`Only one &let modifier allowed`, tkn.sourceCodeInfo)
         }
         ;[position, loopBinding.l] = parseBindings(tokenStream, position + 1)
         loopBinding.m.push(`&let`)
         break
       case `&when`:
         if (loopBinding.wn) {
-          throw new LitsError(`Only one &when modifier allowed`, tkn.d)
+          throw new LitsError(`Only one &when modifier allowed`, tkn.sourceCodeInfo)
         }
         ;[position, loopBinding.wn] = parseToken(tokenStream, position + 1)
         loopBinding.m.push(`&when`)
         break
       case `&while`:
         if (loopBinding.we) {
-          throw new LitsError(`Only one &while modifier allowed`, tkn.d)
+          throw new LitsError(`Only one &while modifier allowed`, tkn.sourceCodeInfo)
         }
         ;[position, loopBinding.we] = parseToken(tokenStream, position + 1)
         loopBinding.m.push(`&while`)
         break
       default:
-        throw new LitsError(`Illegal modifier: ${tkn.v}`, tkn.d)
+        throw new LitsError(`Illegal modifier: ${tkn.v}`, tkn.sourceCodeInfo)
     }
     tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   }
@@ -110,7 +110,7 @@ function evaluateLoop(
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
 ) {
-  const sourceCodeInfo = node.tkn?.d
+  const sourceCodeInfo = node.tkn?.sourceCodeInfo
   const { l: loopBindings, p: params } = node as LoopNode
   const expression = asAstNode(params[0], sourceCodeInfo)
 
@@ -246,7 +246,7 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any> = {
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
       p: [expression],
-      tkn: firstToken.d ? firstToken : undefined,
+      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
 
     return [position + 1, node]
@@ -272,7 +272,7 @@ export const doseqSpecialExpression: BuiltinSpecialExpression<null> = {
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
       p: [expression],
-      tkn: firstToken.d ? firstToken : undefined,
+      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
 
     return [position + 1, node]

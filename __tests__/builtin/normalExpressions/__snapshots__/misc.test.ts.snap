@@ -40,7 +40,7 @@ exports[`misc functions debug! debug value. 2`] = `
 "*** LITS DEBUG ***
 {
   "λ": true,
-  "d": {
+  "sourceCodeInfo": {
     "code": "(debug! #(> %1 2))",
     "position": {
       "line": 1,
@@ -67,7 +67,7 @@ exports[`misc functions debug! debug value. 2`] = `
               "tkn": {
                 "t": 103,
                 "v": "%1",
-                "d": {
+                "sourceCodeInfo": {
                   "code": "(debug! #(> %1 2))",
                   "position": {
                     "line": 1,
@@ -82,7 +82,7 @@ exports[`misc functions debug! debug value. 2`] = `
               "tkn": {
                 "t": 102,
                 "v": "2",
-                "d": {
+                "sourceCodeInfo": {
                   "code": "(debug! #(> %1 2))",
                   "position": {
                     "line": 1,
@@ -95,7 +95,7 @@ exports[`misc functions debug! debug value. 2`] = `
           "tkn": {
             "t": 103,
             "v": ">",
-            "d": {
+            "sourceCodeInfo": {
               "code": "(debug! #(> %1 2))",
               "position": {
                 "line": 1,

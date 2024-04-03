@@ -65,7 +65,7 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack, builtin: B
       return { undefinedSymbols }
     }
     case AstNodeType.SpecialExpression: {
-      const specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], astNode.tkn?.d)
+      const specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], astNode.tkn?.sourceCodeInfo)
       const result = specialExpression.analyze(astNode, contextStack, {
         analyzeAst,
         builtin,

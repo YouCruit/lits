@@ -46,7 +46,7 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
         n: `cond`,
         c: conditions,
         p: [],
-        tkn: firstToken.d ? firstToken : undefined,
+        tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       },
     ]
   },

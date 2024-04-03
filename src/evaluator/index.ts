@@ -48,7 +48,7 @@ export const evaluateAstNode: EvaluateAstNode = (node, contextStack) => {
     case AstNodeType.SpecialExpression:
       return evaluateSpecialExpression(node, contextStack)
     default:
-      throw new LitsError(`${node.t}-node cannot be evaluated`, node.tkn?.d)
+      throw new LitsError(`${node.t}-node cannot be evaluated`, node.tkn?.sourceCodeInfo)
   }
 }
 
@@ -61,12 +61,12 @@ function evaluateString(node: StringNode): string {
 }
 
 function evaluateReservedName(node: ReservedNameNode): Any {
-  return asNonUndefined(reservedNamesRecord[node.v], node.tkn?.d).value
+  return asNonUndefined(reservedNamesRecord[node.v], node.tkn?.sourceCodeInfo).value
 }
 
 function evaluateNormalExpression(node: NormalExpressionNode, contextStack: ContextStack): Any {
   const params = node.p.map(paramNode => evaluateAstNode(paramNode, contextStack))
-  const sourceCodeInfo = node.tkn?.d
+  const sourceCodeInfo = node.tkn?.sourceCodeInfo
   if (isNormalExpressionNodeWithName(node)) {
     const value = contextStack.getValue(node.n)
     if (value !== undefined) {
@@ -105,14 +105,14 @@ function evaluateBuiltinNormalExpression(
 ): Any {
   const normalExpression = builtin.normalExpressions[node.n]
   if (!normalExpression) {
-    throw new UndefinedSymbolError(node.n, node.tkn?.d)
+    throw new UndefinedSymbolError(node.n, node.tkn?.sourceCodeInfo)
   }
 
-  return normalExpression.evaluate(params, node.tkn?.d, contextStack, { executeFunction })
+  return normalExpression.evaluate(params, node.tkn?.sourceCodeInfo, contextStack, { executeFunction })
 }
 
 function evaluateSpecialExpression(node: SpecialExpressionNode, contextStack: ContextStack): Any {
-  const specialExpression = asNonUndefined(builtin.specialExpressions[node.n], node.tkn?.d)
+  const specialExpression = asNonUndefined(builtin.specialExpressions[node.n], node.tkn?.sourceCodeInfo)
 
   return specialExpression.evaluate(node, contextStack, { evaluateAstNode, builtin })
 }

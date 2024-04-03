@@ -212,18 +212,18 @@ var Lits = (function (exports) {
       return JSON.stringify(value);
   }
   function getCodeMarker(sourceCodeInfo) {
-      if (sourceCodeInfo.line === undefined || sourceCodeInfo.column === undefined) {
+      if (!sourceCodeInfo.position || !sourceCodeInfo.code) {
           return "";
       }
-      var leftPadding = sourceCodeInfo.column - 1;
+      var leftPadding = sourceCodeInfo.position.column - 1;
       var rightPadding = sourceCodeInfo.code.length - leftPadding - 1;
       return "".concat(" ".repeat(Math.max(leftPadding, 0)), "^").concat(" ".repeat(Math.max(rightPadding, 0)));
   }
 
-  function getLitsErrorMessage(message, debugInfo) {
-      var filePathLine = (debugInfo === null || debugInfo === void 0 ? void 0 : debugInfo.filePath) ? "\n".concat(debugInfo.filePath) : "";
-      var codeLine = (debugInfo === null || debugInfo === void 0 ? void 0 : debugInfo.code) ? "\n".concat(debugInfo.code) : "";
-      var codeMarker = debugInfo && codeLine ? "\n".concat(getCodeMarker(debugInfo)) : "";
+  function getLitsErrorMessage(message, sourceCodeInfo) {
+      var filePathLine = (sourceCodeInfo === null || sourceCodeInfo === void 0 ? void 0 : sourceCodeInfo.filePath) ? "\n".concat(sourceCodeInfo.filePath) : "";
+      var codeLine = (sourceCodeInfo === null || sourceCodeInfo === void 0 ? void 0 : sourceCodeInfo.code) ? "\n".concat(sourceCodeInfo.code) : "";
+      var codeMarker = sourceCodeInfo && codeLine ? "\n".concat(getCodeMarker(sourceCodeInfo)) : "";
       return "".concat(message).concat(filePathLine).concat(codeLine).concat(codeMarker);
   }
   var RecurSignal = /** @class */ (function (_super) {
@@ -239,14 +239,14 @@ var Lits = (function (exports) {
   }(Error));
   var AbstractLitsError = /** @class */ (function (_super) {
       __extends(AbstractLitsError, _super);
-      function AbstractLitsError(message, debugInfo) {
+      function AbstractLitsError(message, sourceCodeInfo) {
           var _this = this;
           if (message instanceof Error) {
               message = "".concat(message.name).concat(message.message ? ": ".concat(message.message) : "");
           }
-          _this = _super.call(this, getLitsErrorMessage(message, debugInfo)) || this;
+          _this = _super.call(this, getLitsErrorMessage(message, sourceCodeInfo)) || this;
           _this.shortMessage = message;
-          _this.debugInfo = debugInfo;
+          _this.sourceCodeInfo = sourceCodeInfo;
           Object.setPrototypeOf(_this, AbstractLitsError.prototype);
           _this.name = "AbstractLitsError";
           return _this;
@@ -255,8 +255,8 @@ var Lits = (function (exports) {
   }(Error));
   var LitsError = /** @class */ (function (_super) {
       __extends(LitsError, _super);
-      function LitsError(message, debugInfo) {
-          var _this = _super.call(this, message, debugInfo) || this;
+      function LitsError(message, sourceCodeInfo) {
+          var _this = _super.call(this, message, sourceCodeInfo) || this;
           Object.setPrototypeOf(_this, LitsError.prototype);
           _this.name = "LitsError";
           return _this;
@@ -265,10 +265,10 @@ var Lits = (function (exports) {
   }(AbstractLitsError));
   var NotAFunctionError = /** @class */ (function (_super) {
       __extends(NotAFunctionError, _super);
-      function NotAFunctionError(fn, debugInfo) {
+      function NotAFunctionError(fn, sourceCodeInfo) {
           var _this = this;
           var message = "Expected function, got ".concat(valueToString(fn), ".");
-          _this = _super.call(this, message, debugInfo) || this;
+          _this = _super.call(this, message, sourceCodeInfo) || this;
           Object.setPrototypeOf(_this, NotAFunctionError.prototype);
           _this.name = "NotAFunctionError";
           return _this;
@@ -277,8 +277,8 @@ var Lits = (function (exports) {
   }(AbstractLitsError));
   var UserDefinedError = /** @class */ (function (_super) {
       __extends(UserDefinedError, _super);
-      function UserDefinedError(message, debugInfo) {
-          var _this = _super.call(this, message, debugInfo) || this;
+      function UserDefinedError(message, sourceCodeInfo) {
+          var _this = _super.call(this, message, sourceCodeInfo) || this;
           Object.setPrototypeOf(_this, UserDefinedError.prototype);
           _this.name = "UserDefinedError";
           return _this;
@@ -287,8 +287,8 @@ var Lits = (function (exports) {
   }(AbstractLitsError));
   var AssertionError = /** @class */ (function (_super) {
       __extends(AssertionError, _super);
-      function AssertionError(message, debugInfo) {
-          var _this = _super.call(this, message, debugInfo) || this;
+      function AssertionError(message, sourceCodeInfo) {
+          var _this = _super.call(this, message, sourceCodeInfo) || this;
           Object.setPrototypeOf(_this, AssertionError.prototype);
           _this.name = "AssertionError";
           return _this;
@@ -297,10 +297,10 @@ var Lits = (function (exports) {
   }(AbstractLitsError));
   var UndefinedSymbolError = /** @class */ (function (_super) {
       __extends(UndefinedSymbolError, _super);
-      function UndefinedSymbolError(symbolName, debugInfo) {
+      function UndefinedSymbolError(symbolName, sourceCodeInfo) {
           var _this = this;
           var message = "Undefined symbol '".concat(symbolName, "'.");
-          _this = _super.call(this, message, debugInfo) || this;
+          _this = _super.call(this, message, sourceCodeInfo) || this;
           _this.symbol = symbolName;
           Object.setPrototypeOf(_this, UndefinedSymbolError.prototype);
           _this.name = "UndefinedSymbolError";
@@ -310,13 +310,13 @@ var Lits = (function (exports) {
   }(AbstractLitsError));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function getDebugInfo(anyValue, debugInfo) {
+  function getSourceCodeInfo(anyValue, sourceCodeInfo) {
       var _a;
-      return (_a = anyValue === null || anyValue === void 0 ? void 0 : anyValue.d) !== null && _a !== void 0 ? _a : debugInfo;
+      return (_a = anyValue === null || anyValue === void 0 ? void 0 : anyValue.sourceCodeInfo) !== null && _a !== void 0 ? _a : sourceCodeInfo;
   }
 
-  function getAssertionError(typeName, value, debugInfo) {
-      return new LitsError("Expected ".concat(typeName, ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
+  function getAssertionError(typeName, value, sourceCodeInfo) {
+      return new LitsError("Expected ".concat(typeName, ", got ").concat(valueToString(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
   }
 
   function isLitsFunction(value) {
@@ -325,37 +325,37 @@ var Lits = (function (exports) {
       }
       return !!value[FUNCTION_SYMBOL];
   }
-  function asLitsFunction(value, debugInfo) {
-      assertLitsFunction(value, debugInfo);
+  function asLitsFunction(value, sourceCodeInfo) {
+      assertLitsFunction(value, sourceCodeInfo);
       return value;
   }
-  function assertLitsFunction(value, debugInfo) {
+  function assertLitsFunction(value, sourceCodeInfo) {
       if (!isLitsFunction(value)) {
-          throw getAssertionError("LitsFunction", value, debugInfo);
+          throw getAssertionError("LitsFunction", value, sourceCodeInfo);
       }
   }
   function isUserDefinedFunction(value) {
       return isLitsFunction(value) && value.t === exports.FunctionType.UserDefined;
   }
-  function asUserDefinedFunction(value, debugInfo) {
-      assertUserDefinedFunction(value, debugInfo);
+  function asUserDefinedFunction(value, sourceCodeInfo) {
+      assertUserDefinedFunction(value, sourceCodeInfo);
       return value;
   }
-  function assertUserDefinedFunction(value, debugInfo) {
+  function assertUserDefinedFunction(value, sourceCodeInfo) {
       if (!isUserDefinedFunction(value)) {
-          throw getAssertionError("NativeJsFunction", value, debugInfo);
+          throw getAssertionError("NativeJsFunction", value, sourceCodeInfo);
       }
   }
   function isNativeJsFunction(value) {
       return isLitsFunction(value) && value.t === exports.FunctionType.NativeJsFunction;
   }
-  function asNativeJsFunction(value, debugInfo) {
-      assertNativeJsFunction(value, debugInfo);
+  function asNativeJsFunction(value, sourceCodeInfo) {
+      assertNativeJsFunction(value, sourceCodeInfo);
       return value;
   }
-  function assertNativeJsFunction(value, debugInfo) {
+  function assertNativeJsFunction(value, sourceCodeInfo) {
       if (!isNativeJsFunction(value)) {
-          throw getAssertionError("NativeJsFunction", value, debugInfo);
+          throw getAssertionError("NativeJsFunction", value, sourceCodeInfo);
       }
   }
 
@@ -382,12 +382,12 @@ var Lits = (function (exports) {
   function assertToken(value, filePath, options) {
       if (options === void 0) { options = {}; }
       if (!isToken(value, options)) {
-          var debugInfo = isToken(value)
-              ? value.d
+          var sourceCodeInfo = isToken(value)
+              ? value.sourceCodeInfo
               : typeof filePath === "string"
-                  ? { code: "", filePath: filePath }
+                  ? { filePath: filePath }
                   : undefined;
-          throw new LitsError("Expected ".concat(options.type ? "".concat(options.type, "-") : "", "token").concat(typeof options.value === "string" ? " value='".concat(options.value, "'") : "", ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
+          throw new LitsError("Expected ".concat(options.type ? "".concat(options.type, "-") : "", "token").concat(typeof options.value === "string" ? " value='".concat(options.value, "'") : "", ", got ").concat(valueToString(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
       }
   }
   function asToken(value, filePath, options) {
@@ -407,7 +407,7 @@ var Lits = (function (exports) {
                   t: exports.AstNodeType.SpecialExpression,
                   n: "and",
                   p: params,
-                  tkn: firstToken.d ? firstToken : undefined,
+                  tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
               },
           ];
       },
@@ -467,7 +467,7 @@ var Lits = (function (exports) {
                   n: "cond",
                   c: conditions,
                   p: [],
-                  tkn: firstToken.d ? firstToken : undefined,
+                  tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
               },
           ];
       },
@@ -537,13 +537,13 @@ var Lits = (function (exports) {
       }
       return true;
   }
-  function asAstNode(value, debugInfo) {
-      assertAstNode(value, debugInfo);
+  function asAstNode(value, sourceCodeInfo) {
+      assertAstNode(value, sourceCodeInfo);
       return value;
   }
-  function assertAstNode(value, debugInfo) {
+  function assertAstNode(value, sourceCodeInfo) {
       if (!isAstNode(value)) {
-          throw getAssertionError("AstNode", value, debugInfo);
+          throw getAssertionError("AstNode", value, sourceCodeInfo);
       }
   }
   function isNameNode(value) {
@@ -552,13 +552,13 @@ var Lits = (function (exports) {
       }
       return value.t === exports.AstNodeType.Name;
   }
-  function asNameNode(value, debugInfo) {
-      assertNameNode(value, debugInfo);
+  function asNameNode(value, sourceCodeInfo) {
+      assertNameNode(value, sourceCodeInfo);
       return value;
   }
-  function assertNameNode(value, debugInfo) {
+  function assertNameNode(value, sourceCodeInfo) {
       if (!isNameNode(value)) {
-          throw getAssertionError("NameNode", value, debugInfo);
+          throw getAssertionError("NameNode", value, sourceCodeInfo);
       }
   }
   function isNormalExpressionNodeWithName(value) {
@@ -590,22 +590,22 @@ var Lits = (function (exports) {
   };
   var reservedNames = Object.keys(reservedNamesRecord);
 
-  function assertNameNotDefined(name, contextStack, builtin, debugInfo) {
+  function assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo) {
       if (typeof name !== "string") {
           return;
       }
       if (builtin.specialExpressions[name]) {
-          throw new LitsError("Cannot define variable ".concat(name, ", it's a special expression."), debugInfo);
+          throw new LitsError("Cannot define variable ".concat(name, ", it's a special expression."), sourceCodeInfo);
       }
       if (builtin.normalExpressions[name]) {
-          throw new LitsError("Cannot define variable ".concat(name, ", it's a builtin function."), debugInfo);
+          throw new LitsError("Cannot define variable ".concat(name, ", it's a builtin function."), sourceCodeInfo);
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (reservedNamesRecord[name]) {
-          throw new LitsError("Cannot define variable ".concat(name, ", it's a reserved name."), debugInfo);
+          throw new LitsError("Cannot define variable ".concat(name, ", it's a reserved name."), sourceCodeInfo);
       }
       if (contextStack.globalContext[name]) {
-          throw new LitsError("Name already defined \"".concat(name, "\"."), debugInfo);
+          throw new LitsError("Name already defined \"".concat(name, "\"."), sourceCodeInfo);
       }
   }
 
@@ -622,27 +622,27 @@ var Lits = (function (exports) {
       }
       return true;
   }
-  function assertString(value, debugInfo, options) {
+  function assertString(value, sourceCodeInfo, options) {
       if (options === void 0) { options = {}; }
       if (!isString(value, options)) {
-          throw new LitsError(getAssertionError("".concat(options.nonEmpty ? "non empty string" : options.char ? "character" : "string"), value, debugInfo));
+          throw new LitsError(getAssertionError("".concat(options.nonEmpty ? "non empty string" : options.char ? "character" : "string"), value, sourceCodeInfo));
       }
   }
-  function asString(value, debugInfo, options) {
+  function asString(value, sourceCodeInfo, options) {
       if (options === void 0) { options = {}; }
-      assertString(value, debugInfo, options);
+      assertString(value, sourceCodeInfo, options);
       return value;
   }
   function isStringOrNumber(value) {
       return typeof value === "string" || typeof value === "number";
   }
-  function asStringOrNumber(value, debugInfo) {
-      assertStringOrNumber(value, debugInfo);
+  function asStringOrNumber(value, sourceCodeInfo) {
+      assertStringOrNumber(value, sourceCodeInfo);
       return value;
   }
-  function assertStringOrNumber(value, debugInfo) {
+  function assertStringOrNumber(value, sourceCodeInfo) {
       if (!isStringOrNumber(value)) {
-          throw getAssertionError("string or number", value, debugInfo);
+          throw getAssertionError("string or number", value, sourceCodeInfo);
       }
   }
 
@@ -654,7 +654,7 @@ var Lits = (function (exports) {
           var parseToken = parsers.parseToken;
           var functionName = undefined;
           _a = __read(parseToken(tokenStream, position), 2), position = _a[0], functionName = _a[1];
-          assertNameNode(functionName, (_c = functionName.tkn) === null || _c === void 0 ? void 0 : _c.d);
+          assertNameNode(functionName, (_c = functionName.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
           var functionOverloades;
           _b = __read(parseFunctionOverloades(tokenStream, position, parsers), 2), position = _b[0], functionOverloades = _b[1];
           return [
@@ -665,7 +665,7 @@ var Lits = (function (exports) {
                   f: functionName,
                   p: [],
                   o: functionOverloades,
-                  tkn: firstToken.d ? firstToken : undefined,
+                  tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
               },
           ];
       },
@@ -674,11 +674,11 @@ var Lits = (function (exports) {
           var _c, _d;
           var builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
           var name = getFunctionName("defn", node, contextStack, evaluateAstNode);
-          assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
+          assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
           var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
           var litsFunction = (_b = {},
               _b[FUNCTION_SYMBOL] = true,
-              _b.d = (_d = node.tkn) === null || _d === void 0 ? void 0 : _d.d,
+              _b.sourceCodeInfo = (_d = node.tkn) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo,
               _b.t = exports.FunctionType.UserDefined,
               _b.n = name,
               _b.o = evaluatedFunctionOverloades,
@@ -711,7 +711,7 @@ var Lits = (function (exports) {
                   f: functionName,
                   p: [],
                   o: functionOverloades,
-                  tkn: firstToken.d ? firstToken : undefined,
+                  tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
               },
           ];
       },
@@ -720,11 +720,11 @@ var Lits = (function (exports) {
           var _c, _d;
           var builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
           var name = getFunctionName("defns", node, contextStack, evaluateAstNode);
-          assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
+          assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
           var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
           var litsFunction = (_b = {},
               _b[FUNCTION_SYMBOL] = true,
-              _b.d = (_d = node.tkn) === null || _d === void 0 ? void 0 : _d.d,
+              _b.sourceCodeInfo = (_d = node.tkn) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo,
               _b.t = exports.FunctionType.UserDefined,
               _b.n = name,
               _b.o = evaluatedFunctionOverloades,
@@ -750,7 +750,7 @@ var Lits = (function (exports) {
                   n: "fn",
                   p: [],
                   o: functionOverloades,
-                  tkn: firstToken.d ? firstToken : undefined,
+                  tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
               },
           ];
       },
@@ -761,7 +761,7 @@ var Lits = (function (exports) {
           var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
           var litsFunction = (_b = {},
               _b[FUNCTION_SYMBOL] = true,
-              _b.d = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d,
+              _b.sourceCodeInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo,
               _b.t = exports.FunctionType.UserDefined,
               _b.n = undefined,
               _b.o = evaluatedFunctionOverloades,
@@ -775,12 +775,12 @@ var Lits = (function (exports) {
   };
   function getFunctionName(expressionName, node, contextStack, evaluateAstNode) {
       var _a;
-      var debugInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d;
+      var sourceCodeInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo;
       if (expressionName === "defn") {
           return node.f.v;
       }
       var name = evaluateAstNode(node.f, contextStack);
-      return asString(name, debugInfo);
+      return asString(name, sourceCodeInfo);
   }
   function evaluateFunctionOverloades(node, contextStack, evaluateAstNode) {
       var e_1, _a, e_2, _b;
@@ -889,7 +889,7 @@ var Lits = (function (exports) {
           tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
       }
       if (body.length === 0) {
-          throw new LitsError("Missing body in function", tkn.d);
+          throw new LitsError("Missing body in function", tkn.sourceCodeInfo);
       }
       return [position + 1, body];
   }
@@ -905,7 +905,7 @@ var Lits = (function (exports) {
               _a = __read(parseFunctionArguments(tokenStream, position, parsers), 2), position = _a[0], functionArguments = _a[1];
               var arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length;
               if (!arityOk(functionOverloades, arity)) {
-                  throw new LitsError("All overloaded functions must have different arity", tkn.d);
+                  throw new LitsError("All overloaded functions must have different arity", tkn.sourceCodeInfo);
               }
               var functionBody = void 0;
               _b = __read(parseFunctionBody(tokenStream, position, parsers), 2), position = _b[0], functionBody = _b[1];
@@ -916,7 +916,7 @@ var Lits = (function (exports) {
               });
               tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: exports.TokenType.Bracket });
               if (tkn.v !== ")" && tkn.v !== "(") {
-                  throw new LitsError("Expected ( or ) token, got ".concat(valueToString(tkn), "."), tkn.d);
+                  throw new LitsError("Expected ( or ) token, got ".concat(valueToString(tkn), "."), tkn.sourceCodeInfo);
               }
           }
           return [position + 1, functionOverloades];
@@ -939,7 +939,7 @@ var Lits = (function (exports) {
           ];
       }
       else {
-          throw new LitsError("Expected [ or ( token, got ".concat(valueToString(tkn)), tkn.d);
+          throw new LitsError("Expected [ or ( token, got ".concat(valueToString(tkn)), tkn.sourceCodeInfo);
       }
   }
   function parseFunctionArguments(tokenStream, position, parsers) {
@@ -965,18 +965,18 @@ var Lits = (function (exports) {
                   switch (node.v) {
                       case "&":
                           if (state === "rest") {
-                              throw new LitsError("& can only appear once", tkn.d);
+                              throw new LitsError("& can only appear once", tkn.sourceCodeInfo);
                           }
                           state = "rest";
                           break;
                       case "&let":
                           if (state === "rest" && !restArgument) {
-                              throw new LitsError("No rest argument was specified", tkn.d);
+                              throw new LitsError("No rest argument was specified", tkn.sourceCodeInfo);
                           }
                           state = "let";
                           break;
                       default:
-                          throw new LitsError("Illegal modifier: ".concat(node.v), tkn.d);
+                          throw new LitsError("Illegal modifier: ".concat(node.v), tkn.sourceCodeInfo);
                   }
               }
               else {
@@ -986,7 +986,7 @@ var Lits = (function (exports) {
                           break;
                       case "rest":
                           if (restArgument !== undefined) {
-                              throw new LitsError("Can only specify one rest argument", tkn.d);
+                              throw new LitsError("Can only specify one rest argument", tkn.sourceCodeInfo);
                           }
                           restArgument = node.n;
                           break;
@@ -995,7 +995,7 @@ var Lits = (function (exports) {
           }
       }
       if (state === "rest" && restArgument === undefined) {
-          throw new LitsError("Missing rest argument name", tkn.d);
+          throw new LitsError("Missing rest argument name", tkn.sourceCodeInfo);
       }
       position += 1;
       var args = {
@@ -1010,19 +1010,19 @@ var Lits = (function (exports) {
       var _a;
       var length = node.p.length;
       if (length % 2 !== 0) {
-          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString(length), "."), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
+          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString(length), "."), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
       }
   }
   function isNonUndefined(value) {
       return value !== undefined;
   }
-  function asNonUndefined(value, debugInfo) {
-      assertNonUndefined(value, debugInfo);
+  function asNonUndefined(value, sourceCodeInfo) {
+      assertNonUndefined(value, sourceCodeInfo);
       return value;
   }
-  function assertNonUndefined(value, debugInfo) {
+  function assertNonUndefined(value, sourceCodeInfo) {
       if (!isNonUndefined(value)) {
-          throw new LitsError("Unexpected undefined", getDebugInfo(value, debugInfo));
+          throw new LitsError("Unexpected undefined", getSourceCodeInfo(value, sourceCodeInfo));
       }
   }
   /* istanbul ignore next */
@@ -1035,22 +1035,22 @@ var Lits = (function (exports) {
   function assertNumberOfParams(count, node) {
       var _a, _b;
       var length = node.p.length;
-      var debugInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d;
+      var sourceCodeInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo;
       if (typeof count === "number") {
           if (length !== count) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected ").concat(count, ", got ").concat(valueToString(length), "."), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected ").concat(count, ", got ").concat(valueToString(length), "."), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
           }
       }
       else {
           var min = count.min, max = count.max;
           if (min === undefined && max === undefined) {
-              throw new LitsError("Min or max must be specified.", debugInfo);
+              throw new LitsError("Min or max must be specified.", sourceCodeInfo);
           }
           if (typeof min === "number" && length < min) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at least ").concat(min, ", got ").concat(valueToString(length), "."), debugInfo);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at least ").concat(min, ", got ").concat(valueToString(length), "."), sourceCodeInfo);
           }
           if (typeof max === "number" && length > max) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at most ").concat(max, ", got ").concat(valueToString(length), "."), debugInfo);
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at most ").concat(max, ", got ").concat(valueToString(length), "."), sourceCodeInfo);
           }
       }
   }
@@ -1060,24 +1060,24 @@ var Lits = (function (exports) {
           var parseTokens = _a.parseTokens;
           var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
           var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
-          assertNameNode(params[0], firstToken.d);
+          assertNameNode(params[0], firstToken.sourceCodeInfo);
           return [
               newPosition + 1,
               {
                   t: exports.AstNodeType.SpecialExpression,
                   n: "def",
                   p: params,
-                  tkn: firstToken.d ? firstToken : undefined,
+                  tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
               },
           ];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
-          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
-          var name = asNameNode(node.p[0], debugInfo).v;
-          assertNameNotDefined(name, contextStack, builtin, debugInfo);
-          var value = evaluateAstNode(asAstNode(node.p[1], debugInfo), contextStack);
+          var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+          var name = asNameNode(node.p[0], sourceCodeInfo).v;
+          assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
+          var value = evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack);
           contextStack.globalContext[name] = { value: value };
           return value;
       },
@@ -1085,11 +1085,11 @@ var Lits = (function (exports) {
       analyze: function (node, contextStack, _a) {
           var _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
-          var subNode = asAstNode(node.p[1], debugInfo);
+          var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+          var subNode = asAstNode(node.p[1], sourceCodeInfo);
           var result = analyzeAst(subNode, contextStack, builtin);
-          var name = asNameNode(node.p[0], debugInfo).v;
-          assertNameNotDefined(name, contextStack, builtin, debugInfo);
+          var name = asNameNode(node.p[0], sourceCodeInfo).v;
+          assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
           contextStack.globalContext[name] = { value: true };
           return result;
       },
@@ -1106,18 +1106,18 @@ var Lits = (function (exports) {
                   t: exports.AstNodeType.SpecialExpression,
                   n: "defs",
                   p: params,
-                  tkn: firstToken.d ? firstToken : undefined,
+                  tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
               },
           ];
       },
       evaluate: function (node, contextStack, _a) {
           var _b, _c;
           var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
-          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
-          var name = evaluateAstNode(asAstNode(node.p[0], debugInfo), contextStack);
-          assertString(name, debugInfo);
-          assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
-          var value = evaluateAstNode(asAstNode(node.p[1], debugInfo), contextStack);
+          var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+          var name = evaluateAstNode(asAstNode(node.p[0], sourceCodeInfo), contextStack);
+          assertString(name, sourceCodeInfo);
+          assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
+          var value = evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack);
           contextStack.globalContext[name] = { value: value };
           return value;
       },
@@ -1125,7 +1125,7 @@ var Lits = (function (exports) {
       analyze: function (node, contextStack, _a) {
           var _b;
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-          var subNode = asAstNode(node.p[1], (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
+          var subNode = asAstNode(node.p[1], (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
           return analyzeAst(subNode, contextStack, builtin);
       },
   };
@@ -1139,7 +1139,7 @@ var Lits = (function (exports) {
               t: exports.AstNodeType.SpecialExpression,
               n: "do",
               p: [],
-              tkn: tkn.d ? tkn : undefined,
+              tkn: tkn.sourceCodeInfo ? tkn : undefined,
           };
           while (!isToken(tkn, { type: exports.TokenType.Bracket, value: ")" })) {
               var bodyNode = void 0;
@@ -1180,25 +1180,25 @@ var Lits = (function (exports) {
       // TODO weak test
       return value !== undefined;
   }
-  function asAny(value, debugInfo) {
-      assertAny(value, debugInfo);
+  function asAny(value, sourceCodeInfo) {
+      assertAny(value, sourceCodeInfo);
       return value;
   }
-  function assertAny(value, debugInfo) {
+  function assertAny(value, sourceCodeInfo) {
       if (!isAny(value)) {
-          throw getAssertionError("not undefined", value, debugInfo);
+          throw getAssertionError("not undefined", value, sourceCodeInfo);
       }
   }
   function isSeq(value) {
       return Array.isArray(value) || typeof value === "string";
   }
-  function asSeq(value, debugInfo) {
-      assertSeq(value, debugInfo);
+  function asSeq(value, sourceCodeInfo) {
+      assertSeq(value, sourceCodeInfo);
       return value;
   }
-  function assertSeq(value, debugInfo) {
+  function assertSeq(value, sourceCodeInfo) {
       if (!isSeq(value)) {
-          throw getAssertionError("string or array", value, debugInfo);
+          throw getAssertionError("string or array", value, sourceCodeInfo);
       }
   }
   function isObj(value) {
@@ -1209,21 +1209,21 @@ var Lits = (function (exports) {
           isLitsFunction(value) ||
           isRegularExpression(value));
   }
-  function assertObj(value, debugInfo) {
+  function assertObj(value, sourceCodeInfo) {
       if (!isObj(value)) {
-          throw getAssertionError("object", value, debugInfo);
+          throw getAssertionError("object", value, sourceCodeInfo);
       }
   }
   function isColl(value) {
       return isSeq(value) || isObj(value);
   }
-  function asColl(value, debugInfo) {
-      assertColl(value, debugInfo);
+  function asColl(value, sourceCodeInfo) {
+      assertColl(value, sourceCodeInfo);
       return value;
   }
-  function assertColl(value, debugInfo) {
+  function assertColl(value, sourceCodeInfo) {
       if (!isColl(value)) {
-          throw getAssertionError("string, array or object", value, debugInfo);
+          throw getAssertionError("string, array or object", value, sourceCodeInfo);
       }
   }
   function isRegularExpression(regexp) {
@@ -1232,17 +1232,17 @@ var Lits = (function (exports) {
       }
       return !!regexp[REGEXP_SYMBOL];
   }
-  function assertRegularExpression(value, debugInfo) {
+  function assertRegularExpression(value, sourceCodeInfo) {
       if (!isRegularExpression(value)) {
-          throw getAssertionError("RegularExpression", value, debugInfo);
+          throw getAssertionError("RegularExpression", value, sourceCodeInfo);
       }
   }
   function isStringOrRegularExpression(value) {
       return isRegularExpression(value) || typeof value === "string";
   }
-  function assertStringOrRegularExpression(value, debugInfo) {
+  function assertStringOrRegularExpression(value, sourceCodeInfo) {
       if (!isStringOrRegularExpression(value)) {
-          throw getAssertionError("string or RegularExpression", value, debugInfo);
+          throw getAssertionError("string or RegularExpression", value, sourceCodeInfo);
       }
   }
 
@@ -1260,39 +1260,39 @@ var Lits = (function (exports) {
           switch (tkn.v) {
               case "&let":
                   if (loopBinding.l) {
-                      throw new LitsError("Only one &let modifier allowed", tkn.d);
+                      throw new LitsError("Only one &let modifier allowed", tkn.sourceCodeInfo);
                   }
                   _c = __read(parseBindings(tokenStream, position + 1), 2), position = _c[0], loopBinding.l = _c[1];
                   loopBinding.m.push("&let");
                   break;
               case "&when":
                   if (loopBinding.wn) {
-                      throw new LitsError("Only one &when modifier allowed", tkn.d);
+                      throw new LitsError("Only one &when modifier allowed", tkn.sourceCodeInfo);
                   }
                   _d = __read(parseToken(tokenStream, position + 1), 2), position = _d[0], loopBinding.wn = _d[1];
                   loopBinding.m.push("&when");
                   break;
               case "&while":
                   if (loopBinding.we) {
-                      throw new LitsError("Only one &while modifier allowed", tkn.d);
+                      throw new LitsError("Only one &while modifier allowed", tkn.sourceCodeInfo);
                   }
                   _e = __read(parseToken(tokenStream, position + 1), 2), position = _e[0], loopBinding.we = _e[1];
                   loopBinding.m.push("&while");
                   break;
               default:
-                  throw new LitsError("Illegal modifier: ".concat(tkn.v), tkn.d);
+                  throw new LitsError("Illegal modifier: ".concat(tkn.v), tkn.sourceCodeInfo);
           }
           tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
       }
       return [position, loopBinding];
   }
-  function addToContext(bindings, context, contextStack, evaluateAstNode, debugInfo) {
+  function addToContext(bindings, context, contextStack, evaluateAstNode, sourceCodeInfo) {
       var e_1, _a;
       try {
           for (var bindings_1 = __values(bindings), bindings_1_1 = bindings_1.next(); !bindings_1_1.done; bindings_1_1 = bindings_1.next()) {
               var binding = bindings_1_1.value;
               if (context[binding.n]) {
-                  throw new LitsError("Variable already defined: ".concat(binding.n, "."), debugInfo);
+                  throw new LitsError("Variable already defined: ".concat(binding.n, "."), sourceCodeInfo);
               }
               context[binding.n] = { value: evaluateAstNode(binding.v, contextStack) };
           }
@@ -1322,9 +1322,9 @@ var Lits = (function (exports) {
   function evaluateLoop(returnResult, node, contextStack, evaluateAstNode) {
       var e_2, _a;
       var _b;
-      var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+      var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
       var _c = node, loopBindings = _c.l, params = _c.p;
-      var expression = asAstNode(params[0], debugInfo);
+      var expression = asAstNode(params[0], sourceCodeInfo);
       var result = [];
       var bindingIndices = loopBindings.map(function () { return 0; });
       var abort = false;
@@ -1333,15 +1333,15 @@ var Lits = (function (exports) {
           var newContextStack = contextStack.create(context);
           var skip = false;
           bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
-              var _d = asNonUndefined(loopBindings[bindingIndex], debugInfo), binding = _d.b, letBindings = _d.l, whenNode = _d.wn, whileNode = _d.we, modifiers = _d.m;
-              var coll = asColl(evaluateAstNode(binding.v, newContextStack), debugInfo);
+              var _d = asNonUndefined(loopBindings[bindingIndex], sourceCodeInfo), binding = _d.b, letBindings = _d.l, whenNode = _d.wn, whileNode = _d.we, modifiers = _d.m;
+              var coll = asColl(evaluateAstNode(binding.v, newContextStack), sourceCodeInfo);
               var seq = isSeq(coll) ? coll : Object.entries(coll);
               if (seq.length === 0) {
                   skip = true;
                   abort = true;
                   break;
               }
-              var index = asNonUndefined(bindingIndices[bindingIndex], debugInfo);
+              var index = asNonUndefined(bindingIndices[bindingIndex], sourceCodeInfo);
               if (index >= seq.length) {
                   skip = true;
                   if (bindingIndex === 0) {
@@ -1349,31 +1349,31 @@ var Lits = (function (exports) {
                       break;
                   }
                   bindingIndices[bindingIndex] = 0;
-                  bindingIndices[bindingIndex - 1] = asNonUndefined(bindingIndices[bindingIndex - 1], debugInfo) + 1;
+                  bindingIndices[bindingIndex - 1] = asNonUndefined(bindingIndices[bindingIndex - 1], sourceCodeInfo) + 1;
                   break;
               }
               if (context[binding.n]) {
-                  throw new LitsError("Variable already defined: ".concat(binding.n, "."), debugInfo);
+                  throw new LitsError("Variable already defined: ".concat(binding.n, "."), sourceCodeInfo);
               }
               context[binding.n] = {
-                  value: asAny(seq[index], debugInfo),
+                  value: asAny(seq[index], sourceCodeInfo),
               };
               try {
                   for (var modifiers_1 = (e_2 = void 0, __values(modifiers)), modifiers_1_1 = modifiers_1.next(); !modifiers_1_1.done; modifiers_1_1 = modifiers_1.next()) {
                       var modifier = modifiers_1_1.value;
                       switch (modifier) {
                           case "&let":
-                              addToContext(asNonUndefined(letBindings, debugInfo), context, newContextStack, evaluateAstNode, debugInfo);
+                              addToContext(asNonUndefined(letBindings, sourceCodeInfo), context, newContextStack, evaluateAstNode, sourceCodeInfo);
                               break;
                           case "&when":
-                              if (!evaluateAstNode(asAstNode(whenNode, debugInfo), newContextStack)) {
-                                  bindingIndices[bindingIndex] = asNonUndefined(bindingIndices[bindingIndex], debugInfo) + 1;
+                              if (!evaluateAstNode(asAstNode(whenNode, sourceCodeInfo), newContextStack)) {
+                                  bindingIndices[bindingIndex] = asNonUndefined(bindingIndices[bindingIndex], sourceCodeInfo) + 1;
                                   skip = true;
                                   break bindingsLoop;
                               }
                               break;
                           case "&while":
-                              if (!evaluateAstNode(asAstNode(whileNode, debugInfo), newContextStack)) {
+                              if (!evaluateAstNode(asAstNode(whileNode, sourceCodeInfo), newContextStack)) {
                                   bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY;
                                   skip = true;
                                   break bindingsLoop;
@@ -1451,7 +1451,7 @@ var Lits = (function (exports) {
               t: exports.AstNodeType.SpecialExpression,
               l: loopBindings,
               p: [expression],
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [position + 1, node];
       },
@@ -1476,7 +1476,7 @@ var Lits = (function (exports) {
               t: exports.AstNodeType.SpecialExpression,
               l: loopBindings,
               p: [expression],
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [position + 1, node];
       },
@@ -1498,33 +1498,33 @@ var Lits = (function (exports) {
           var bindings;
           _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.d);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
           }
           var params;
           _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
           var node = {
               t: exports.AstNodeType.SpecialExpression,
               n: "if-let",
-              b: asNonUndefined(bindings[0], firstToken.d),
+              b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
               p: params,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [position + 1, node];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+          var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
           var locals = {};
           var bindingValue = evaluateAstNode(node.b.v, contextStack);
           if (bindingValue) {
               locals[node.b.n] = { value: bindingValue };
               var newContextStack = contextStack.create(locals);
-              var thenForm = asAstNode(node.p[0], debugInfo);
+              var thenForm = asAstNode(node.p[0], sourceCodeInfo);
               return evaluateAstNode(thenForm, newContextStack);
           }
           if (node.p.length === 2) {
-              var elseForm = asAstNode(node.p[1], debugInfo);
+              var elseForm = asAstNode(node.p[1], sourceCodeInfo);
               return evaluateAstNode(elseForm, contextStack);
           }
           return null;
@@ -1551,21 +1551,21 @@ var Lits = (function (exports) {
                   t: exports.AstNodeType.SpecialExpression,
                   n: "if-not",
                   p: params,
-                  tkn: firstToken.d ? firstToken : undefined,
+                  tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
               },
           ];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+          var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
           var _c = __read(node.p, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
-          if (!evaluateAstNode(asAstNode(conditionNode, debugInfo), contextStack)) {
-              return evaluateAstNode(asAstNode(trueNode, debugInfo), contextStack);
+          if (!evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {
+              return evaluateAstNode(asAstNode(trueNode, sourceCodeInfo), contextStack);
           }
           else {
               if (node.p.length === 3) {
-                  return evaluateAstNode(asAstNode(falseNode, debugInfo), contextStack);
+                  return evaluateAstNode(asAstNode(falseNode, sourceCodeInfo), contextStack);
               }
               else {
                   return null;
@@ -1590,21 +1590,21 @@ var Lits = (function (exports) {
                   t: exports.AstNodeType.SpecialExpression,
                   n: "if",
                   p: params,
-                  tkn: firstToken.d ? firstToken : undefined,
+                  tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
               },
           ];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+          var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
           var _c = __read(node.p, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
-          if (evaluateAstNode(asAstNode(conditionNode, debugInfo), contextStack)) {
-              return evaluateAstNode(asAstNode(trueNode, debugInfo), contextStack);
+          if (evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {
+              return evaluateAstNode(asAstNode(trueNode, sourceCodeInfo), contextStack);
           }
           else {
               if (node.p.length === 3) {
-                  return evaluateAstNode(asAstNode(falseNode, debugInfo), contextStack);
+                  return evaluateAstNode(asAstNode(falseNode, sourceCodeInfo), contextStack);
               }
               else {
                   return null;
@@ -1632,7 +1632,7 @@ var Lits = (function (exports) {
               n: "let",
               p: params,
               bs: bindings,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [position + 1, node];
       },
@@ -1706,14 +1706,14 @@ var Lits = (function (exports) {
               n: "loop",
               p: params,
               bs: bindings,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [position + 1, node];
       },
       evaluate: function (node, contextStack, _a) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode;
-          var debugInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d;
+          var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
           var bindingContext = node.bs.reduce(function (result, binding) {
               result[binding.n] = { value: evaluateAstNode(binding.v, contextStack) };
               return result;
@@ -1741,10 +1741,10 @@ var Lits = (function (exports) {
                   if (error instanceof RecurSignal) {
                       var params_1 = error.params;
                       if (params_1.length !== node.bs.length) {
-                          throw new LitsError("recur expected ".concat(node.bs.length, " parameters, got ").concat(valueToString(params_1.length)), debugInfo);
+                          throw new LitsError("recur expected ".concat(node.bs.length, " parameters, got ").concat(valueToString(params_1.length)), sourceCodeInfo);
                       }
                       node.bs.forEach(function (binding, index) {
-                          asNonUndefined(bindingContext[binding.n], debugInfo).value = asAny(params_1[index], debugInfo);
+                          asNonUndefined(bindingContext[binding.n], sourceCodeInfo).value = asAny(params_1[index], sourceCodeInfo);
                       });
                       return "continue";
                   }
@@ -1784,7 +1784,7 @@ var Lits = (function (exports) {
                   t: exports.AstNodeType.SpecialExpression,
                   n: "or",
                   p: params,
-                  tkn: firstToken.d ? firstToken : undefined,
+                  tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
               },
           ];
       },
@@ -1827,7 +1827,7 @@ var Lits = (function (exports) {
               t: exports.AstNodeType.SpecialExpression,
               n: "recur",
               p: params,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [position + 1, node];
       },
@@ -1855,17 +1855,17 @@ var Lits = (function (exports) {
               n: "throw",
               p: [],
               m: messageNode,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [position, node];
       },
       evaluate: function (node, contextStack, _a) {
           var _b, _c;
           var evaluateAstNode = _a.evaluateAstNode;
-          var message = asString(evaluateAstNode(node.m, contextStack), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d, {
+          var message = asString(evaluateAstNode(node.m, contextStack), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo, {
               nonEmpty: true,
           });
-          throw new UserDefinedError(message, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
+          throw new UserDefinedError(message, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
       },
       analyze: function (node, contextStack, _a) {
           var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
@@ -1882,7 +1882,7 @@ var Lits = (function (exports) {
               t: exports.AstNodeType.SpecialExpression,
               n: "time!",
               p: [astNode],
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [newPosition + 1, node];
       },
@@ -1890,7 +1890,7 @@ var Lits = (function (exports) {
           var _b;
           var evaluateAstNode = _a.evaluateAstNode;
           var _c = __read(node.p, 1), param = _c[0];
-          assertAstNode(param, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
+          assertAstNode(param, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
           var startTime = Date.now();
           var result = evaluateAstNode(param, contextStack);
           var totalTime = Date.now() - startTime;
@@ -1917,13 +1917,13 @@ var Lits = (function (exports) {
           position += 1;
           var catchNode;
           _c = __read(parseToken(tokenStream, position), 2), position = _c[0], catchNode = _c[1];
-          assertNameNode(catchNode, (_f = catchNode.tkn) === null || _f === void 0 ? void 0 : _f.d);
+          assertNameNode(catchNode, (_f = catchNode.tkn) === null || _f === void 0 ? void 0 : _f.sourceCodeInfo);
           if (catchNode.v !== "catch") {
-              throw new LitsError("Expected 'catch', got '".concat(catchNode.v, "'."), getDebugInfo(catchNode, (_g = catchNode.tkn) === null || _g === void 0 ? void 0 : _g.d));
+              throw new LitsError("Expected 'catch', got '".concat(catchNode.v, "'."), getSourceCodeInfo(catchNode, (_g = catchNode.tkn) === null || _g === void 0 ? void 0 : _g.sourceCodeInfo));
           }
           var error;
           _d = __read(parseToken(tokenStream, position), 2), position = _d[0], error = _d[1];
-          assertNameNode(error, (_h = error.tkn) === null || _h === void 0 ? void 0 : _h.d);
+          assertNameNode(error, (_h = error.tkn) === null || _h === void 0 ? void 0 : _h.sourceCodeInfo);
           var catchExpression;
           _e = __read(parseToken(tokenStream, position), 2), position = _e[0], catchExpression = _e[1];
           assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: exports.TokenType.Bracket, value: ")" });
@@ -1937,7 +1937,7 @@ var Lits = (function (exports) {
               te: tryExpression,
               ce: catchExpression,
               e: error,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [position, node];
       },
@@ -1951,7 +1951,7 @@ var Lits = (function (exports) {
           }
           catch (error) {
               var newContext = (_b = {},
-                  _b[errorNode.v] = { value: asAny(error, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d) },
+                  _b[errorNode.v] = { value: asAny(error, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo) },
                   _b);
               return evaluateAstNode(catchExpression, contextStack.create(newContext));
           }
@@ -2050,15 +2050,15 @@ var Lits = (function (exports) {
       }
       return true;
   }
-  function assertNumber(value, debugInfo, options) {
+  function assertNumber(value, sourceCodeInfo, options) {
       if (options === void 0) { options = {}; }
       if (!isNumber(value, options)) {
-          throw new LitsError("Expected ".concat(getNumberTypeName(options), ", got ").concat(valueToString(value), "."), getDebugInfo(value, debugInfo));
+          throw new LitsError("Expected ".concat(getNumberTypeName(options), ", got ").concat(valueToString(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
       }
   }
-  function asNumber(value, debugInfo, options) {
+  function asNumber(value, sourceCodeInfo, options) {
       if (options === void 0) { options = {}; }
-      assertNumber(value, debugInfo, options);
+      assertNumber(value, sourceCodeInfo, options);
       return value;
   }
 
@@ -2162,7 +2162,7 @@ var Lits = (function (exports) {
               return 0;
       }
   }
-  function deepEqual(a, b, debugInfo) {
+  function deepEqual(a, b, sourceCodeInfo) {
       if (a === b) {
           return true;
       }
@@ -2174,7 +2174,7 @@ var Lits = (function (exports) {
               return false;
           }
           for (var i = 0; i < a.length; i += 1) {
-              if (!deepEqual(asAny(a[i], debugInfo), asAny(b[i], debugInfo), debugInfo)) {
+              if (!deepEqual(asAny(a[i], sourceCodeInfo), asAny(b[i], sourceCodeInfo), sourceCodeInfo)) {
                   return false;
               }
           }
@@ -2190,8 +2190,8 @@ var Lits = (function (exports) {
               return false;
           }
           for (var i = 0; i < aKeys.length; i += 1) {
-              var key = asString(aKeys[i], debugInfo);
-              if (!deepEqual(toAny(a[key]), toAny(b[key]), debugInfo)) {
+              var key = asString(aKeys[i], sourceCodeInfo);
+              if (!deepEqual(toAny(a[key]), toAny(b[key]), sourceCodeInfo)) {
                   return false;
               }
           }
@@ -2241,16 +2241,16 @@ var Lits = (function (exports) {
           var bindings;
           _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.d);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
           }
           var params;
           _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
           var node = {
               t: exports.AstNodeType.SpecialExpression,
               n: "when-first",
-              b: asNonUndefined(bindings[0], firstToken.d),
+              b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
               p: params,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [position + 1, node];
       },
@@ -2262,7 +2262,7 @@ var Lits = (function (exports) {
           var binding = node.b;
           var evaluatedBindingForm = evaluateAstNode(binding.v, contextStack);
           if (!isSeq(evaluatedBindingForm)) {
-              throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString(evaluatedBindingForm)), (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
+              throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString(evaluatedBindingForm)), (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
           }
           if (evaluatedBindingForm.length === 0) {
               return null;
@@ -2306,16 +2306,16 @@ var Lits = (function (exports) {
           var bindings;
           _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
           if (bindings.length !== 1) {
-              throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.d);
+              throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
           }
           var params;
           _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
           var node = {
               t: exports.AstNodeType.SpecialExpression,
               n: "when-let",
-              b: asNonUndefined(bindings[0], firstToken.d),
+              b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
               p: params,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [position + 1, node];
       },
@@ -2367,7 +2367,7 @@ var Lits = (function (exports) {
               t: exports.AstNodeType.SpecialExpression,
               n: "when-not",
               p: params,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [newPosition + 1, node];
       },
@@ -2376,7 +2376,7 @@ var Lits = (function (exports) {
           var _c;
           var evaluateAstNode = _a.evaluateAstNode;
           var _d = __read(node.p), whenExpression = _d[0], body = _d.slice(1);
-          assertAstNode(whenExpression, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
+          assertAstNode(whenExpression, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
           if (evaluateAstNode(whenExpression, contextStack)) {
               return null;
           }
@@ -2412,7 +2412,7 @@ var Lits = (function (exports) {
               t: exports.AstNodeType.SpecialExpression,
               n: "when",
               p: params,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [newPosition + 1, node];
       },
@@ -2421,7 +2421,7 @@ var Lits = (function (exports) {
           var _c;
           var evaluateAstNode = _a.evaluateAstNode;
           var _d = __read(node.p), whenExpression = _d[0], body = _d.slice(1);
-          assertAstNode(whenExpression, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d);
+          assertAstNode(whenExpression, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
           if (!evaluateAstNode(whenExpression, contextStack)) {
               return null;
           }
@@ -2450,110 +2450,110 @@ var Lits = (function (exports) {
 
   var bitwiseNormalExpression = {
       'bit-shift-left': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), num = _b[0], count = _b[1];
-              assertNumber(num, debugInfo, { integer: true });
-              assertNumber(count, debugInfo, { integer: true, nonNegative: true });
+              assertNumber(num, sourceCodeInfo, { integer: true });
+              assertNumber(count, sourceCodeInfo, { integer: true, nonNegative: true });
               return num << count;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'bit-shift-right': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), num = _b[0], count = _b[1];
-              assertNumber(num, debugInfo, { integer: true });
-              assertNumber(count, debugInfo, { integer: true, nonNegative: true });
+              assertNumber(num, sourceCodeInfo, { integer: true });
+              assertNumber(count, sourceCodeInfo, { integer: true, nonNegative: true });
               return num >> count;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'bit-not': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), num = _b[0];
-              assertNumber(num, debugInfo, { integer: true });
+              assertNumber(num, sourceCodeInfo, { integer: true });
               return ~num;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'bit-and': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-              assertNumber(first, debugInfo, { integer: true });
+              assertNumber(first, sourceCodeInfo, { integer: true });
               return rest.reduce(function (result, value) {
-                  assertNumber(value, debugInfo, { integer: true });
+                  assertNumber(value, sourceCodeInfo, { integer: true });
                   return result & value;
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
       },
       'bit-and-not': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-              assertNumber(first, debugInfo, { integer: true });
+              assertNumber(first, sourceCodeInfo, { integer: true });
               return rest.reduce(function (result, value) {
-                  assertNumber(value, debugInfo, { integer: true });
+                  assertNumber(value, sourceCodeInfo, { integer: true });
                   return result & ~value;
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
       },
       'bit-or': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-              assertNumber(first, debugInfo, { integer: true });
+              assertNumber(first, sourceCodeInfo, { integer: true });
               return rest.reduce(function (result, value) {
-                  assertNumber(value, debugInfo, { integer: true });
+                  assertNumber(value, sourceCodeInfo, { integer: true });
                   return result | value;
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
       },
       'bit-xor': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-              assertNumber(first, debugInfo, { integer: true });
+              assertNumber(first, sourceCodeInfo, { integer: true });
               return rest.reduce(function (result, value) {
-                  assertNumber(value, debugInfo, { integer: true });
+                  assertNumber(value, sourceCodeInfo, { integer: true });
                   return result ^ value;
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
       },
       'bit-flip': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), num = _b[0], index = _b[1];
-              assertNumber(num, debugInfo, { integer: true });
-              assertNumber(index, debugInfo, { integer: true, nonNegative: true });
+              assertNumber(num, sourceCodeInfo, { integer: true });
+              assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
               var mask = 1 << index;
               return (num ^= mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'bit-set': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), num = _b[0], index = _b[1];
-              assertNumber(num, debugInfo, { integer: true });
-              assertNumber(index, debugInfo, { integer: true, nonNegative: true });
+              assertNumber(num, sourceCodeInfo, { integer: true });
+              assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
               var mask = 1 << index;
               return (num |= mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'bit-clear': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), num = _b[0], index = _b[1];
-              assertNumber(num, debugInfo, { integer: true });
-              assertNumber(index, debugInfo, { integer: true, nonNegative: true });
+              assertNumber(num, sourceCodeInfo, { integer: true });
+              assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
               var mask = 1 << index;
               return (num &= ~mask);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'bit-test': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), num = _b[0], index = _b[1];
-              assertNumber(num, debugInfo, { integer: true });
-              assertNumber(index, debugInfo, { integer: true, nonNegative: true });
+              assertNumber(num, sourceCodeInfo, { integer: true });
+              assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
               var mask = 1 << index;
               return !!(num & mask);
           },
@@ -2562,50 +2562,50 @@ var Lits = (function (exports) {
   };
 
   // isArray not needed, use Array.isArary
-  function asArray(value, debugInfo) {
-      assertArray(value, debugInfo);
+  function asArray(value, sourceCodeInfo) {
+      assertArray(value, sourceCodeInfo);
       return value;
   }
-  function assertArray(value, debugInfo) {
+  function assertArray(value, sourceCodeInfo) {
       if (!Array.isArray(value)) {
-          throw getAssertionError("array", value, debugInfo);
+          throw getAssertionError("array", value, sourceCodeInfo);
       }
   }
   function isStringArray(value) {
       return Array.isArray(value) && value.every(function (v) { return typeof v === "string"; });
   }
-  function assertStringArray(value, debugInfo) {
+  function assertStringArray(value, sourceCodeInfo) {
       if (!isStringArray(value)) {
-          throw getAssertionError("array of strings", value, debugInfo);
+          throw getAssertionError("array of strings", value, sourceCodeInfo);
       }
   }
   function isCharArray(value) {
       return Array.isArray(value) && value.every(function (v) { return typeof v === "string" && v.length === 1; });
   }
-  function assertCharArray(value, debugInfo) {
+  function assertCharArray(value, sourceCodeInfo) {
       if (!isCharArray(value)) {
-          throw getAssertionError("array of strings", value, debugInfo);
+          throw getAssertionError("array of strings", value, sourceCodeInfo);
       }
   }
 
-  function cloneAndGetMeta(originalColl, keys, debugInfo) {
+  function cloneAndGetMeta(originalColl, keys, sourceCodeInfo) {
       var coll = cloneColl(originalColl);
       var butLastKeys = keys.slice(0, keys.length - 1);
       var innerCollMeta = butLastKeys.reduce(function (result, key) {
           var resultColl = result.coll;
           var newResultColl;
           if (Array.isArray(resultColl)) {
-              assertNumber(key, debugInfo);
+              assertNumber(key, sourceCodeInfo);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              newResultColl = asColl(resultColl[key], debugInfo);
+              newResultColl = asColl(resultColl[key], sourceCodeInfo);
           }
           else {
-              assertObj(resultColl, debugInfo);
-              assertString(key, debugInfo);
+              assertObj(resultColl, sourceCodeInfo);
+              assertString(key, sourceCodeInfo);
               if (!collHasKey(result.coll, key)) {
                   resultColl[key] = {};
               }
-              newResultColl = asColl(resultColl[key], debugInfo);
+              newResultColl = asColl(resultColl[key], sourceCodeInfo);
           }
           return { coll: newResultColl, parent: resultColl };
       }, { coll: coll, parent: {} });
@@ -2624,40 +2624,40 @@ var Lits = (function (exports) {
       }
       return undefined;
   }
-  function update(coll, key, fn, params, contextStack, executeFunction, debugInfo) {
+  function update(coll, key, fn, params, contextStack, executeFunction, sourceCodeInfo) {
       if (isObj(coll)) {
-          assertString(key, debugInfo);
+          assertString(key, sourceCodeInfo);
           var result = __assign({}, coll);
-          result[key] = executeFunction(fn, __spreadArray([result[key]], __read(params), false), contextStack, debugInfo);
+          result[key] = executeFunction(fn, __spreadArray([result[key]], __read(params), false), contextStack, sourceCodeInfo);
           return result;
       }
       else {
-          assertNumber(key, debugInfo);
+          assertNumber(key, sourceCodeInfo);
           var intKey_1 = toNonNegativeInteger(key);
-          assertNumber(intKey_1, debugInfo, { lte: coll.length });
+          assertNumber(intKey_1, sourceCodeInfo, { lte: coll.length });
           if (Array.isArray(coll)) {
               var result = coll.map(function (elem, index) {
                   if (intKey_1 === index) {
-                      return executeFunction(fn, __spreadArray([elem], __read(params), false), contextStack, debugInfo);
+                      return executeFunction(fn, __spreadArray([elem], __read(params), false), contextStack, sourceCodeInfo);
                   }
                   return elem;
               });
               if (intKey_1 === coll.length) {
-                  result[intKey_1] = executeFunction(fn, __spreadArray([undefined], __read(params), false), contextStack, debugInfo);
+                  result[intKey_1] = executeFunction(fn, __spreadArray([undefined], __read(params), false), contextStack, sourceCodeInfo);
               }
               return result;
           }
           else {
               var result = coll.split("").map(function (elem, index) {
                   if (intKey_1 === index) {
-                      return asString(executeFunction(fn, __spreadArray([elem], __read(params), false), contextStack, debugInfo), debugInfo, {
+                      return asString(executeFunction(fn, __spreadArray([elem], __read(params), false), contextStack, sourceCodeInfo), sourceCodeInfo, {
                           char: true,
                       });
                   }
                   return elem;
               });
               if (intKey_1 === coll.length) {
-                  result[intKey_1] = asString(executeFunction(fn, __spreadArray([undefined], __read(params), false), contextStack, debugInfo), debugInfo, {
+                  result[intKey_1] = asString(executeFunction(fn, __spreadArray([undefined], __read(params), false), contextStack, sourceCodeInfo), sourceCodeInfo, {
                       char: true,
                   });
               }
@@ -2665,53 +2665,53 @@ var Lits = (function (exports) {
           }
       }
   }
-  function assoc(coll, key, value, debugInfo) {
-      assertColl(coll, debugInfo);
-      assertStringOrNumber(key, debugInfo);
+  function assoc(coll, key, value, sourceCodeInfo) {
+      assertColl(coll, sourceCodeInfo);
+      assertStringOrNumber(key, sourceCodeInfo);
       if (Array.isArray(coll) || typeof coll === "string") {
-          assertNumber(key, debugInfo, { integer: true });
-          assertNumber(key, debugInfo, { gte: 0 });
-          assertNumber(key, debugInfo, { lte: coll.length });
+          assertNumber(key, sourceCodeInfo, { integer: true });
+          assertNumber(key, sourceCodeInfo, { gte: 0 });
+          assertNumber(key, sourceCodeInfo, { lte: coll.length });
           if (typeof coll === "string") {
-              assertString(value, debugInfo, { char: true });
+              assertString(value, sourceCodeInfo, { char: true });
               return "".concat(coll.slice(0, key)).concat(value).concat(coll.slice(key + 1));
           }
           var copy_1 = __spreadArray([], __read(coll), false);
           copy_1[key] = value;
           return copy_1;
       }
-      assertString(key, debugInfo);
+      assertString(key, sourceCodeInfo);
       var copy = __assign({}, coll);
       copy[key] = value;
       return copy;
   }
   var collectionNormalExpression = {
       get: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               var _a = __read(params, 2), coll = _a[0], key = _a[1];
               var defaultValue = toAny(params[2]);
-              assertStringOrNumber(key, debugInfo);
+              assertStringOrNumber(key, sourceCodeInfo);
               if (coll === null) {
                   return defaultValue;
               }
-              assertColl(coll, debugInfo);
+              assertColl(coll, sourceCodeInfo);
               var result = get(coll, key);
               return result === undefined ? defaultValue : result;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'get-in': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               var e_1, _a;
               var _b;
               var coll = toAny(params[0]);
               var keys = (_b = params[1]) !== null && _b !== void 0 ? _b : []; // nil behaves as empty array
               var defaultValue = toAny(params[2]);
-              assertArray(keys, debugInfo);
+              assertArray(keys, sourceCodeInfo);
               try {
                   for (var keys_1 = __values(keys), keys_1_1 = keys_1.next(); !keys_1_1.done; keys_1_1 = keys_1.next()) {
                       var key = keys_1_1.value;
-                      assertStringOrNumber(key, debugInfo);
+                      assertStringOrNumber(key, sourceCodeInfo);
                       if (isColl(coll)) {
                           var nextValue = get(coll, key);
                           if (nextValue !== undefined) {
@@ -2738,7 +2738,7 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       count: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), coll = _b[0];
               if (coll === null) {
                   return 0;
@@ -2746,7 +2746,7 @@ var Lits = (function (exports) {
               if (typeof coll === "string") {
                   return coll.length;
               }
-              assertColl(coll, debugInfo);
+              assertColl(coll, sourceCodeInfo);
               if (Array.isArray(coll)) {
                   return coll.length;
               }
@@ -2755,18 +2755,18 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'contains?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), coll = _b[0], key = _b[1];
-              assertStringOrNumber(key, debugInfo);
+              assertStringOrNumber(key, sourceCodeInfo);
               if (coll === null) {
                   return false;
               }
-              assertColl(coll, debugInfo);
+              assertColl(coll, sourceCodeInfo);
               if (isSeq(coll)) {
                   if (!isNumber(key, { integer: true })) {
                       return false;
                   }
-                  assertNumber(key, debugInfo, { integer: true });
+                  assertNumber(key, sourceCodeInfo, { integer: true });
                   return key >= 0 && key < coll.length;
               }
               return !!Object.getOwnPropertyDescriptor(coll, key);
@@ -2774,12 +2774,12 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'has?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), coll = _b[0], value = _b[1];
               if (coll === null) {
                   return false;
               }
-              assertColl(coll, debugInfo);
+              assertColl(coll, sourceCodeInfo);
               if (Array.isArray(coll)) {
                   return coll.includes(value);
               }
@@ -2791,14 +2791,14 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'has-some?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var e_2, _b, e_3, _c, e_4, _d;
               var _e = __read(_a, 2), coll = _e[0], seq = _e[1];
               if (coll === null || seq === null) {
                   return false;
               }
-              assertColl(coll, debugInfo);
-              assertSeq(seq, debugInfo);
+              assertColl(coll, sourceCodeInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (Array.isArray(coll)) {
                   try {
                       for (var seq_1 = __values(seq), seq_1_1 = seq_1.next(); !seq_1_1.done; seq_1_1 = seq_1.next()) {
@@ -2855,17 +2855,17 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'has-every?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var e_5, _b, e_6, _c, e_7, _d;
               var _e = __read(_a, 2), coll = _e[0], seq = _e[1];
               if (coll === null) {
                   return false;
               }
-              assertColl(coll, debugInfo);
+              assertColl(coll, sourceCodeInfo);
               if (seq === null) {
                   return true;
               }
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (Array.isArray(coll)) {
                   try {
                       for (var seq_4 = __values(seq), seq_4_1 = seq_4.next(); !seq_4_1.done; seq_4_1 = seq_4.next()) {
@@ -2922,95 +2922,95 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       assoc: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), coll = _b[0], key = _b[1], value = _b[2];
-              assertColl(coll, debugInfo);
-              assertStringOrNumber(key, debugInfo);
-              assertAny(value, debugInfo);
-              return assoc(coll, key, value, debugInfo);
+              assertColl(coll, sourceCodeInfo);
+              assertStringOrNumber(key, sourceCodeInfo);
+              assertAny(value, sourceCodeInfo);
+              return assoc(coll, key, value, sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams(3, node); },
       },
       'assoc-in': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), originalColl = _b[0], keys = _b[1], value = _b[2];
-              assertColl(originalColl, debugInfo);
-              assertArray(keys, debugInfo);
-              assertAny(value, debugInfo);
+              assertColl(originalColl, sourceCodeInfo);
+              assertArray(keys, sourceCodeInfo);
+              assertAny(value, sourceCodeInfo);
               if (keys.length === 1) {
-                  assertStringOrNumber(keys[0], debugInfo);
-                  return assoc(originalColl, keys[0], value, debugInfo);
+                  assertStringOrNumber(keys[0], sourceCodeInfo);
+                  return assoc(originalColl, keys[0], value, sourceCodeInfo);
               }
-              var _c = cloneAndGetMeta(originalColl, keys, debugInfo), coll = _c.coll, innerCollMeta = _c.innerCollMeta;
-              var lastKey = asStringOrNumber(keys[keys.length - 1], debugInfo);
-              var parentKey = asStringOrNumber(keys[keys.length - 2], debugInfo);
+              var _c = cloneAndGetMeta(originalColl, keys, sourceCodeInfo), coll = _c.coll, innerCollMeta = _c.innerCollMeta;
+              var lastKey = asStringOrNumber(keys[keys.length - 1], sourceCodeInfo);
+              var parentKey = asStringOrNumber(keys[keys.length - 2], sourceCodeInfo);
               if (Array.isArray(innerCollMeta.parent)) {
-                  assertNumber(parentKey, debugInfo);
-                  innerCollMeta.parent[parentKey] = assoc(innerCollMeta.coll, lastKey, value, debugInfo);
+                  assertNumber(parentKey, sourceCodeInfo);
+                  innerCollMeta.parent[parentKey] = assoc(innerCollMeta.coll, lastKey, value, sourceCodeInfo);
               }
               else {
-                  assertString(parentKey, debugInfo);
-                  innerCollMeta.parent[parentKey] = assoc(innerCollMeta.coll, lastKey, value, debugInfo);
+                  assertString(parentKey, sourceCodeInfo);
+                  innerCollMeta.parent[parentKey] = assoc(innerCollMeta.coll, lastKey, value, sourceCodeInfo);
               }
               return coll;
           },
           validate: function (node) { return assertNumberOfParams(3, node); },
       },
       update: {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a), coll = _c[0], key = _c[1], fn = _c[2], params = _c.slice(3);
               var executeFunction = _b.executeFunction;
-              assertColl(coll, debugInfo);
-              assertStringOrNumber(key, debugInfo);
-              assertLitsFunction(fn, debugInfo);
-              return update(coll, key, fn, params, contextStack, executeFunction, debugInfo);
+              assertColl(coll, sourceCodeInfo);
+              assertStringOrNumber(key, sourceCodeInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
+              return update(coll, key, fn, params, contextStack, executeFunction, sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 3 }, node); },
       },
       'update-in': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a), originalColl = _c[0], keys = _c[1], fn = _c[2], params = _c.slice(3);
               var executeFunction = _b.executeFunction;
-              assertColl(originalColl, debugInfo);
-              assertArray(keys, debugInfo);
-              assertLitsFunction(fn, debugInfo);
+              assertColl(originalColl, sourceCodeInfo);
+              assertArray(keys, sourceCodeInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
               if (keys.length === 1) {
-                  assertStringOrNumber(keys[0], debugInfo);
-                  return update(originalColl, keys[0], fn, params, contextStack, executeFunction, debugInfo);
+                  assertStringOrNumber(keys[0], sourceCodeInfo);
+                  return update(originalColl, keys[0], fn, params, contextStack, executeFunction, sourceCodeInfo);
               }
-              var _d = cloneAndGetMeta(originalColl, keys, debugInfo), coll = _d.coll, innerCollMeta = _d.innerCollMeta;
-              var lastKey = asStringOrNumber(keys[keys.length - 1], debugInfo);
-              var parentKey = asStringOrNumber(keys[keys.length - 2], debugInfo);
+              var _d = cloneAndGetMeta(originalColl, keys, sourceCodeInfo), coll = _d.coll, innerCollMeta = _d.innerCollMeta;
+              var lastKey = asStringOrNumber(keys[keys.length - 1], sourceCodeInfo);
+              var parentKey = asStringOrNumber(keys[keys.length - 2], sourceCodeInfo);
               if (Array.isArray(innerCollMeta.parent)) {
-                  assertNumber(parentKey, debugInfo);
-                  innerCollMeta.parent[parentKey] = update(innerCollMeta.coll, lastKey, fn, params, contextStack, executeFunction, debugInfo);
+                  assertNumber(parentKey, sourceCodeInfo);
+                  innerCollMeta.parent[parentKey] = update(innerCollMeta.coll, lastKey, fn, params, contextStack, executeFunction, sourceCodeInfo);
               }
               else {
-                  assertString(parentKey, debugInfo);
-                  innerCollMeta.parent[parentKey] = update(innerCollMeta.coll, lastKey, fn, params, contextStack, executeFunction, debugInfo);
+                  assertString(parentKey, sourceCodeInfo);
+                  innerCollMeta.parent[parentKey] = update(innerCollMeta.coll, lastKey, fn, params, contextStack, executeFunction, sourceCodeInfo);
               }
               return coll;
           },
           validate: function (node) { return assertNumberOfParams({ min: 3 }, node); },
       },
       concat: {
-          evaluate: function (params, debugInfo) {
-              assertColl(params[0], debugInfo);
+          evaluate: function (params, sourceCodeInfo) {
+              assertColl(params[0], sourceCodeInfo);
               if (Array.isArray(params[0])) {
                   return params.reduce(function (result, arr) {
-                      assertArray(arr, debugInfo);
+                      assertArray(arr, sourceCodeInfo);
                       return result.concat(arr);
                   }, []);
               }
               else if (isString(params[0])) {
                   return params.reduce(function (result, s) {
-                      assertString(s, debugInfo);
+                      assertString(s, sourceCodeInfo);
                       return "".concat(result).concat(s);
                   }, "");
               }
               else {
                   return params.reduce(function (result, obj) {
-                      assertObj(obj, debugInfo);
+                      assertObj(obj, sourceCodeInfo);
                       return Object.assign(result, obj);
                   }, {});
               }
@@ -3018,12 +3018,12 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
       'not-empty': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), coll = _b[0];
               if (coll === null) {
                   return null;
               }
-              assertColl(coll, debugInfo);
+              assertColl(coll, sourceCodeInfo);
               if (typeof coll === "string") {
                   return coll.length > 0 ? coll : null;
               }
@@ -3035,88 +3035,88 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'every?': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), fn = _c[0], coll = _c[1];
               var executeFunction = _b.executeFunction;
-              assertLitsFunction(fn, debugInfo);
-              assertColl(coll, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
+              assertColl(coll, sourceCodeInfo);
               if (Array.isArray(coll)) {
-                  return coll.every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+                  return coll.every(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               }
               if (typeof coll === "string") {
-                  return coll.split("").every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+                  return coll.split("").every(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               }
-              return Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+              return Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'any?': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), fn = _c[0], coll = _c[1];
               var executeFunction = _b.executeFunction;
-              assertLitsFunction(fn, debugInfo);
-              assertColl(coll, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
+              assertColl(coll, sourceCodeInfo);
               if (Array.isArray(coll)) {
-                  return coll.some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+                  return coll.some(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               }
               if (typeof coll === "string") {
-                  return coll.split("").some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+                  return coll.split("").some(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               }
-              return Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+              return Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'not-any?': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), fn = _c[0], coll = _c[1];
               var executeFunction = _b.executeFunction;
-              assertLitsFunction(fn, debugInfo);
-              assertColl(coll, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
+              assertColl(coll, sourceCodeInfo);
               if (Array.isArray(coll)) {
-                  return !coll.some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+                  return !coll.some(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               }
               if (typeof coll === "string") {
-                  return !coll.split("").some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+                  return !coll.split("").some(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               }
-              return !Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+              return !Object.entries(coll).some(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'not-every?': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), fn = _c[0], coll = _c[1];
               var executeFunction = _b.executeFunction;
-              assertLitsFunction(fn, debugInfo);
-              assertColl(coll, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
+              assertColl(coll, sourceCodeInfo);
               if (Array.isArray(coll)) {
-                  return !coll.every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+                  return !coll.every(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               }
               if (typeof coll === "string") {
-                  return !coll.split("").every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+                  return !coll.split("").every(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               }
-              return !Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+              return !Object.entries(coll).every(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
   };
 
-  var evaluateMap = function (params, debugInfo, contextStack, _a) {
+  var evaluateMap = function (params, sourceCodeInfo, contextStack, _a) {
       var executeFunction = _a.executeFunction;
       var _b = __read(params, 2), fn = _b[0], firstList = _b[1];
-      assertLitsFunction(fn, debugInfo);
-      assertSeq(firstList, debugInfo);
+      assertLitsFunction(fn, sourceCodeInfo);
+      assertSeq(firstList, sourceCodeInfo);
       var isStringSeq = typeof firstList === "string";
       var length = firstList.length;
       if (params.length === 2) {
           if (Array.isArray(firstList)) {
-              return firstList.map(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+              return firstList.map(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
           }
           else {
               return firstList
                   .split("")
                   .map(function (elem) {
-                  var newVal = executeFunction(fn, [elem], contextStack, debugInfo);
-                  assertString(newVal, debugInfo, { char: true });
+                  var newVal = executeFunction(fn, [elem], contextStack, sourceCodeInfo);
+                  assertString(newVal, sourceCodeInfo, { char: true });
                   return newVal;
               })
                   .join("");
@@ -3125,21 +3125,21 @@ var Lits = (function (exports) {
       else {
           params.slice(2).forEach(function (collParam) {
               if (isStringSeq) {
-                  assertString(collParam, debugInfo);
+                  assertString(collParam, sourceCodeInfo);
               }
               else {
-                  assertArray(collParam, debugInfo);
+                  assertArray(collParam, sourceCodeInfo);
               }
               if (length !== collParam.length) {
-                  throw new LitsError("All arguments to \"map\" must have the same length.", debugInfo);
+                  throw new LitsError("All arguments to \"map\" must have the same length.", sourceCodeInfo);
               }
           });
           if (isStringSeq) {
               var result = "";
               var _loop_1 = function (i) {
                   var fnParams = params.slice(1).map(function (l) { return l[i]; });
-                  var newValue = executeFunction(fn, fnParams, contextStack, debugInfo);
-                  assertString(newValue, debugInfo, { char: true });
+                  var newValue = executeFunction(fn, fnParams, contextStack, sourceCodeInfo);
+                  assertString(newValue, sourceCodeInfo, { char: true });
                   result += newValue;
               };
               for (var i = 0; i < length; i += 1) {
@@ -3151,7 +3151,7 @@ var Lits = (function (exports) {
               var result = [];
               var _loop_2 = function (i) {
                   var fnParams = params.slice(1).map(function (l) { return toAny(l[i]); });
-                  result.push(executeFunction(fn, fnParams, contextStack, debugInfo));
+                  result.push(executeFunction(fn, fnParams, contextStack, sourceCodeInfo));
               };
               for (var i = 0; i < length; i += 1) {
                   _loop_2(i);
@@ -3162,65 +3162,65 @@ var Lits = (function (exports) {
   };
   var sequenceNormalExpression = {
       cons: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), elem = _b[0], seq = _b[1];
-              assertAny(elem, debugInfo);
-              assertSeq(seq, debugInfo);
+              assertAny(elem, sourceCodeInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (Array.isArray(seq)) {
                   return __spreadArray([elem], __read(seq), false);
               }
-              assertString(elem, debugInfo, { char: true });
+              assertString(elem, sourceCodeInfo, { char: true });
               return "".concat(elem).concat(seq);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       nth: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               var _a = __read(params, 2), seq = _a[0], i = _a[1];
               var defaultValue = toAny(params[2]);
-              assertNumber(i, debugInfo, { integer: true });
+              assertNumber(i, sourceCodeInfo, { integer: true });
               if (seq === null) {
                   return defaultValue;
               }
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               return i >= 0 && i < seq.length ? toAny(seq[i]) : defaultValue;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       filter: {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), fn = _c[0], seq = _c[1];
               var executeFunction = _b.executeFunction;
-              assertLitsFunction(fn, debugInfo);
-              assertSeq(seq, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (Array.isArray(seq)) {
-                  return seq.filter(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+                  return seq.filter(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               }
               return seq
                   .split("")
-                  .filter(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); })
+                  .filter(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); })
                   .join("");
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       first: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), array = _b[0];
               if (array === null) {
                   return null;
               }
-              assertSeq(array, debugInfo);
+              assertSeq(array, sourceCodeInfo);
               return toAny(array[0]);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       last: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), array = _b[0];
               if (array === null) {
                   return null;
               }
-              assertSeq(array, debugInfo);
+              assertSeq(array, sourceCodeInfo);
               return toAny(array[array.length - 1]);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
@@ -3230,9 +3230,9 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
       },
       pop: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), seq = _b[0];
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (typeof seq === "string") {
                   return seq.substr(0, seq.length - 1);
               }
@@ -3243,35 +3243,35 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       position: {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), fn = _c[0], seq = _c[1];
               var executeFunction = _b.executeFunction;
-              assertLitsFunction(fn, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
               if (seq === null) {
                   return null;
               }
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (typeof seq === "string") {
-                  var index = seq.split("").findIndex(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+                  var index = seq.split("").findIndex(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
                   return index !== -1 ? index : null;
               }
               else {
-                  var index = seq.findIndex(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); });
+                  var index = seq.findIndex(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
                   return index !== -1 ? index : null;
               }
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'index-of': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), seq = _b[0], value = _b[1];
-              assertAny(value, debugInfo);
+              assertAny(value, sourceCodeInfo);
               if (seq === null) {
                   return null;
               }
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (typeof seq === "string") {
-                  assertString(value, debugInfo);
+                  assertString(value, sourceCodeInfo);
                   var index = seq.indexOf(value);
                   return index !== -1 ? index : null;
               }
@@ -3283,11 +3283,11 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       push: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a), seq = _b[0], values = _b.slice(1);
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (typeof seq === "string") {
-                  assertCharArray(values, debugInfo);
+                  assertCharArray(values, sourceCodeInfo);
                   return __spreadArray([seq], __read(values), false).join("");
               }
               else {
@@ -3297,33 +3297,33 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
       },
       reductions: {
-          evaluate: function (params, debugInfo, contextStack, _a) {
+          evaluate: function (params, sourceCodeInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
               var fn = params[0];
-              assertLitsFunction(fn, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
               if (params.length === 2) {
                   var _b = __read(params, 2), arr = _b[1];
-                  assertSeq(arr, debugInfo);
+                  assertSeq(arr, sourceCodeInfo);
                   if (arr.length === 0) {
-                      return [executeFunction(fn, [], contextStack, debugInfo)];
+                      return [executeFunction(fn, [], contextStack, sourceCodeInfo)];
                   }
                   else if (arr.length === 1) {
                       return [toAny(arr[0])];
                   }
                   if (typeof arr === "string") {
                       var chars = arr.split("");
-                      var resultArray_1 = [asAny(chars[0], debugInfo)];
+                      var resultArray_1 = [asAny(chars[0], sourceCodeInfo)];
                       chars.slice(1).reduce(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
                           resultArray_1.push(newVal);
                           return newVal;
-                      }, asAny(chars[0], debugInfo));
+                      }, asAny(chars[0], sourceCodeInfo));
                       return resultArray_1;
                   }
                   else {
                       var resultArray_2 = [toAny(arr[0])];
                       arr.slice(1).reduce(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
                           resultArray_2.push(newVal);
                           return newVal;
                       }, toAny(arr[0]));
@@ -3332,16 +3332,16 @@ var Lits = (function (exports) {
               }
               else {
                   var _c = __read(params, 3), val = _c[1], seq = _c[2];
-                  assertAny(val, debugInfo);
-                  assertSeq(seq, debugInfo);
+                  assertAny(val, sourceCodeInfo);
+                  assertSeq(seq, sourceCodeInfo);
                   if (typeof seq === "string") {
-                      assertString(val, debugInfo);
+                      assertString(val, sourceCodeInfo);
                       if (seq.length === 0) {
                           return [val];
                       }
                       var resultArray_3 = [val];
                       seq.split("").reduce(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
                           resultArray_3.push(newVal);
                           return newVal;
                       }, val);
@@ -3353,7 +3353,7 @@ var Lits = (function (exports) {
                       }
                       var resultArray_4 = [val];
                       seq.reduce(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
                           resultArray_4.push(newVal);
                           return newVal;
                       }, val);
@@ -3364,15 +3364,15 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       reduce: {
-          evaluate: function (params, debugInfo, contextStack, _a) {
+          evaluate: function (params, sourceCodeInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
               var fn = params[0];
-              assertLitsFunction(fn, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
               if (params.length === 2) {
                   var _b = __read(params, 2), arr = _b[1];
-                  assertSeq(arr, debugInfo);
+                  assertSeq(arr, sourceCodeInfo);
                   if (arr.length === 0) {
-                      return executeFunction(fn, [], contextStack, debugInfo);
+                      return executeFunction(fn, [], contextStack, sourceCodeInfo);
                   }
                   else if (arr.length === 1) {
                       return toAny(arr[0]);
@@ -3380,27 +3380,27 @@ var Lits = (function (exports) {
                   if (typeof arr === "string") {
                       var chars = arr.split("");
                       return chars.slice(1).reduce(function (result, elem) {
-                          var val = executeFunction(fn, [result, elem], contextStack, debugInfo);
+                          var val = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
                           return val;
-                      }, asAny(chars[0], debugInfo));
+                      }, asAny(chars[0], sourceCodeInfo));
                   }
                   else {
                       return arr.slice(1).reduce(function (result, elem) {
-                          return executeFunction(fn, [result, elem], contextStack, debugInfo);
+                          return executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
                       }, toAny(arr[0]));
                   }
               }
               else {
                   var _c = __read(params, 3), val = _c[1], seq = _c[2];
-                  assertAny(val, debugInfo);
-                  assertSeq(seq, debugInfo);
+                  assertAny(val, sourceCodeInfo);
+                  assertSeq(seq, sourceCodeInfo);
                   if (typeof seq === "string") {
-                      assertString(val, debugInfo);
+                      assertString(val, sourceCodeInfo);
                       if (seq.length === 0) {
                           return val;
                       }
                       return seq.split("").reduce(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
                           return newVal;
                       }, val);
                   }
@@ -3409,7 +3409,7 @@ var Lits = (function (exports) {
                           return val;
                       }
                       return seq.reduce(function (result, elem) {
-                          return executeFunction(fn, [result, elem], contextStack, debugInfo);
+                          return executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
                       }, val);
                   }
               }
@@ -3417,15 +3417,15 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'reduce-right': {
-          evaluate: function (params, debugInfo, contextStack, _a) {
+          evaluate: function (params, sourceCodeInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
               var fn = params[0];
-              assertLitsFunction(fn, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
               if (params.length === 2) {
                   var _b = __read(params, 2), seq = _b[1];
-                  assertSeq(seq, debugInfo);
+                  assertSeq(seq, sourceCodeInfo);
                   if (seq.length === 0) {
-                      return executeFunction(fn, [], contextStack, debugInfo);
+                      return executeFunction(fn, [], contextStack, sourceCodeInfo);
                   }
                   else if (seq.length === 1) {
                       return toAny(seq[0]);
@@ -3433,27 +3433,27 @@ var Lits = (function (exports) {
                   if (typeof seq === "string") {
                       var chars = seq.split("");
                       return chars.slice(0, chars.length - 1).reduceRight(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
-                          assertString(newVal, debugInfo);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
+                          assertString(newVal, sourceCodeInfo);
                           return newVal;
                       }, chars[chars.length - 1]);
                   }
                   else {
                       return seq.slice(0, seq.length - 1).reduceRight(function (result, elem) {
-                          return executeFunction(fn, [result, elem], contextStack, debugInfo);
-                      }, asAny(seq[seq.length - 1], debugInfo));
+                          return executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
+                      }, asAny(seq[seq.length - 1], sourceCodeInfo));
                   }
               }
               else {
                   var _c = __read(params, 3), val = _c[1], seq = _c[2];
-                  assertAny(val, debugInfo);
-                  assertSeq(seq, debugInfo);
+                  assertAny(val, sourceCodeInfo);
+                  assertSeq(seq, sourceCodeInfo);
                   if (typeof seq === "string") {
                       if (seq.length === 0) {
                           return val;
                       }
                       return seq.split("").reduceRight(function (result, elem) {
-                          var newVal = executeFunction(fn, [result, elem], contextStack, debugInfo);
+                          var newVal = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
                           return newVal;
                       }, val);
                   }
@@ -3462,7 +3462,7 @@ var Lits = (function (exports) {
                           return val;
                       }
                       return seq.reduceRight(function (result, elem) {
-                          return executeFunction(fn, [result, elem], contextStack, debugInfo);
+                          return executeFunction(fn, [result, elem], contextStack, sourceCodeInfo);
                       }, val);
                   }
               }
@@ -3470,9 +3470,9 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       rest: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertSeq(first, debugInfo);
+              assertSeq(first, sourceCodeInfo);
               if (Array.isArray(first)) {
                   if (first.length <= 1) {
                       return [];
@@ -3484,10 +3484,10 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       nthrest: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), seq = _b[0], count = _b[1];
-              assertSeq(seq, debugInfo);
-              assertNumber(count, debugInfo, { finite: true });
+              assertSeq(seq, sourceCodeInfo);
+              assertNumber(count, sourceCodeInfo, { finite: true });
               var integerCount = Math.max(Math.ceil(count), 0);
               if (Array.isArray(seq)) {
                   return seq.slice(integerCount);
@@ -3497,9 +3497,9 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       next: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertSeq(first, debugInfo);
+              assertSeq(first, sourceCodeInfo);
               if (Array.isArray(first)) {
                   if (first.length <= 1) {
                       return null;
@@ -3514,10 +3514,10 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       nthnext: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), seq = _b[0], count = _b[1];
-              assertSeq(seq, debugInfo);
-              assertNumber(count, debugInfo, { finite: true });
+              assertSeq(seq, sourceCodeInfo);
+              assertNumber(count, sourceCodeInfo, { finite: true });
               var integerCount = Math.max(Math.ceil(count), 0);
               if (seq.length <= count) {
                   return null;
@@ -3530,12 +3530,12 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       reverse: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), seq = _b[0];
               if (seq === null) {
                   return null;
               }
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (Array.isArray(seq)) {
                   return __spreadArray([], __read(seq), false).reverse();
               }
@@ -3544,20 +3544,20 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       second: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), array = _b[0];
               if (array === null) {
                   return null;
               }
-              assertSeq(array, debugInfo);
+              assertSeq(array, sourceCodeInfo);
               return toAny(array[1]);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       shift: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), seq = _b[0];
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (typeof seq === "string") {
                   return seq.substr(1);
               }
@@ -3568,58 +3568,58 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       slice: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               var _a = __read(params, 3), seq = _a[0], from = _a[1], to = _a[2];
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (params.length === 1) {
                   return seq;
               }
-              assertNumber(from, debugInfo, { integer: true });
+              assertNumber(from, sourceCodeInfo, { integer: true });
               if (params.length === 2) {
                   return seq.slice(from);
               }
-              assertNumber(to, debugInfo, { integer: true });
+              assertNumber(to, sourceCodeInfo, { integer: true });
               return seq.slice(from, to);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 3 }, node); },
       },
       some: {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c;
               var _d = __read(_a, 2), fn = _d[0], seq = _d[1];
               var executeFunction = _b.executeFunction;
-              assertLitsFunction(fn, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
               if (seq === null) {
                   return null;
               }
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (seq.length === 0) {
                   return null;
               }
               if (typeof seq === "string") {
-                  return (_c = seq.split("").find(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); })) !== null && _c !== void 0 ? _c : null;
+                  return (_c = seq.split("").find(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); })) !== null && _c !== void 0 ? _c : null;
               }
-              return toAny(seq.find(function (elem) { return executeFunction(fn, [elem], contextStack, debugInfo); }));
+              return toAny(seq.find(function (elem) { return executeFunction(fn, [elem], contextStack, sourceCodeInfo); }));
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       sort: {
-          evaluate: function (params, debugInfo, contextStack, _a) {
+          evaluate: function (params, sourceCodeInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
               var defaultComparer = params.length === 1;
               var seq = defaultComparer ? params[0] : params[1];
               var comparer = defaultComparer ? null : params[0];
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (typeof seq === "string") {
                   var result_1 = seq.split("");
                   if (defaultComparer) {
                       result_1.sort(compare);
                   }
                   else {
-                      assertLitsFunction(comparer, debugInfo);
+                      assertLitsFunction(comparer, sourceCodeInfo);
                       result_1.sort(function (a, b) {
-                          var compareValue = executeFunction(comparer, [a, b], contextStack, debugInfo);
-                          assertNumber(compareValue, debugInfo, { finite: true });
+                          var compareValue = executeFunction(comparer, [a, b], contextStack, sourceCodeInfo);
+                          assertNumber(compareValue, sourceCodeInfo, { finite: true });
                           return compareValue;
                       });
                   }
@@ -3631,9 +3631,9 @@ var Lits = (function (exports) {
               }
               else {
                   result.sort(function (a, b) {
-                      assertLitsFunction(comparer, debugInfo);
-                      var compareValue = executeFunction(comparer, [a, b], contextStack, debugInfo);
-                      assertNumber(compareValue, debugInfo, { finite: true });
+                      assertLitsFunction(comparer, sourceCodeInfo);
+                      var compareValue = executeFunction(comparer, [a, b], contextStack, sourceCodeInfo);
+                      assertNumber(compareValue, sourceCodeInfo, { finite: true });
                       return compareValue;
                   });
               }
@@ -3642,28 +3642,28 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       'sort-by': {
-          evaluate: function (params, debugInfo, contextStack, _a) {
+          evaluate: function (params, sourceCodeInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
               var defaultComparer = params.length === 2;
-              var keyfn = asAny(params[0], debugInfo);
+              var keyfn = asAny(params[0], sourceCodeInfo);
               var comparer = defaultComparer ? null : params[1];
-              var seq = asSeq(defaultComparer ? params[1] : params[2], debugInfo);
+              var seq = asSeq(defaultComparer ? params[1] : params[2], sourceCodeInfo);
               if (typeof seq === "string") {
                   var result_2 = seq.split("");
                   if (defaultComparer) {
                       result_2.sort(function (a, b) {
-                          var aKey = executeFunction(keyfn, [a], contextStack, debugInfo);
-                          var bKey = executeFunction(keyfn, [b], contextStack, debugInfo);
+                          var aKey = executeFunction(keyfn, [a], contextStack, sourceCodeInfo);
+                          var bKey = executeFunction(keyfn, [b], contextStack, sourceCodeInfo);
                           return compare(aKey, bKey);
                       });
                   }
                   else {
-                      assertLitsFunction(comparer, debugInfo);
+                      assertLitsFunction(comparer, sourceCodeInfo);
                       result_2.sort(function (a, b) {
-                          var aKey = executeFunction(keyfn, [a], contextStack, debugInfo);
-                          var bKey = executeFunction(keyfn, [b], contextStack, debugInfo);
-                          var compareValue = executeFunction(comparer, [aKey, bKey], contextStack, debugInfo);
-                          assertNumber(compareValue, debugInfo, { finite: true });
+                          var aKey = executeFunction(keyfn, [a], contextStack, sourceCodeInfo);
+                          var bKey = executeFunction(keyfn, [b], contextStack, sourceCodeInfo);
+                          var compareValue = executeFunction(comparer, [aKey, bKey], contextStack, sourceCodeInfo);
+                          assertNumber(compareValue, sourceCodeInfo, { finite: true });
                           return compareValue;
                       });
                   }
@@ -3672,18 +3672,18 @@ var Lits = (function (exports) {
               var result = __spreadArray([], __read(seq), false);
               if (defaultComparer) {
                   result.sort(function (a, b) {
-                      var aKey = executeFunction(keyfn, [a], contextStack, debugInfo);
-                      var bKey = executeFunction(keyfn, [b], contextStack, debugInfo);
+                      var aKey = executeFunction(keyfn, [a], contextStack, sourceCodeInfo);
+                      var bKey = executeFunction(keyfn, [b], contextStack, sourceCodeInfo);
                       return compare(aKey, bKey);
                   });
               }
               else {
-                  assertLitsFunction(comparer, debugInfo);
+                  assertLitsFunction(comparer, sourceCodeInfo);
                   result.sort(function (a, b) {
-                      var aKey = executeFunction(keyfn, [a], contextStack, debugInfo);
-                      var bKey = executeFunction(keyfn, [b], contextStack, debugInfo);
-                      var compareValue = executeFunction(comparer, [aKey, bKey], contextStack, debugInfo);
-                      assertNumber(compareValue, debugInfo, { finite: true });
+                      var aKey = executeFunction(keyfn, [a], contextStack, sourceCodeInfo);
+                      var bKey = executeFunction(keyfn, [b], contextStack, sourceCodeInfo);
+                      var compareValue = executeFunction(comparer, [aKey, bKey], contextStack, sourceCodeInfo);
+                      assertNumber(compareValue, sourceCodeInfo, { finite: true });
                       return compareValue;
                   });
               }
@@ -3692,20 +3692,20 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       take: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), n = _b[0], input = _b[1];
-              assertNumber(n, debugInfo);
-              assertSeq(input, debugInfo);
+              assertNumber(n, sourceCodeInfo);
+              assertSeq(input, sourceCodeInfo);
               var num = Math.max(Math.ceil(n), 0);
               return input.slice(0, num);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'take-last': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), n = _b[0], array = _b[1];
-              assertSeq(array, debugInfo);
-              assertNumber(n, debugInfo);
+              assertSeq(array, sourceCodeInfo);
+              assertNumber(n, sourceCodeInfo);
               var num = Math.max(Math.ceil(n), 0);
               var from = array.length - num;
               return array.slice(from);
@@ -3713,17 +3713,17 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'take-while': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var e_1, _c;
               var _d = __read(_a, 2), fn = _d[0], seq = _d[1];
               var executeFunction = _b.executeFunction;
-              assertSeq(seq, debugInfo);
-              assertLitsFunction(fn, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
               var result = [];
               try {
                   for (var seq_1 = __values(seq), seq_1_1 = seq_1.next(); !seq_1_1.done; seq_1_1 = seq_1.next()) {
                       var item = seq_1_1.value;
-                      if (executeFunction(fn, [item], contextStack, debugInfo)) {
+                      if (executeFunction(fn, [item], contextStack, sourceCodeInfo)) {
                           result.push(item);
                       }
                       else {
@@ -3743,20 +3743,20 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       drop: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), n = _b[0], input = _b[1];
-              assertNumber(n, debugInfo);
+              assertNumber(n, sourceCodeInfo);
               var num = Math.max(Math.ceil(n), 0);
-              assertSeq(input, debugInfo);
+              assertSeq(input, sourceCodeInfo);
               return input.slice(num);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'drop-last': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), n = _b[0], array = _b[1];
-              assertSeq(array, debugInfo);
-              assertNumber(n, debugInfo);
+              assertSeq(array, sourceCodeInfo);
+              assertNumber(n, sourceCodeInfo);
               var num = Math.max(Math.ceil(n), 0);
               var from = array.length - num;
               return array.slice(0, from);
@@ -3764,27 +3764,27 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'drop-while': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), fn = _c[0], seq = _c[1];
               var executeFunction = _b.executeFunction;
-              assertSeq(seq, debugInfo);
-              assertLitsFunction(fn, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
               if (Array.isArray(seq)) {
-                  var from_1 = seq.findIndex(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); });
+                  var from_1 = seq.findIndex(function (elem) { return !executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
                   return seq.slice(from_1);
               }
               var charArray = seq.split("");
-              var from = charArray.findIndex(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); });
+              var from = charArray.findIndex(function (elem) { return !executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               return charArray.slice(from).join("");
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       unshift: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a), seq = _b[0], values = _b.slice(1);
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (typeof seq === "string") {
-                  assertCharArray(values, debugInfo);
+                  assertCharArray(values, sourceCodeInfo);
                   return __spreadArray(__spreadArray([], __read(values), false), [seq], false).join("");
               }
               var copy = __spreadArray([], __read(seq), false);
@@ -3794,10 +3794,10 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
       },
       'random-sample!': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), prob = _b[0], seq = _b[1];
-              assertNumber(prob, debugInfo, { finite: true });
-              assertSeq(seq, debugInfo);
+              assertNumber(prob, sourceCodeInfo, { finite: true });
+              assertSeq(seq, sourceCodeInfo);
               if (typeof seq === "string") {
                   return seq
                       .split("")
@@ -3811,9 +3811,9 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'rand-nth!': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), seq = _b[0];
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               if (seq.length === 0) {
                   return null;
               }
@@ -3826,9 +3826,9 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'shuffle!': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), input = _b[0];
-              assertSeq(input, debugInfo);
+              assertSeq(input, sourceCodeInfo);
               var array = typeof input === "string" ? __spreadArray([], __read(input.split("")), false) : __spreadArray([], __read(input), false);
               var remainingLength = array.length;
               var arrayElement;
@@ -3848,9 +3848,9 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       distinct: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), input = _b[0];
-              assertSeq(input, debugInfo);
+              assertSeq(input, sourceCodeInfo);
               if (Array.isArray(input)) {
                   return Array.from(new Set(input));
               }
@@ -3859,26 +3859,26 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       remove: {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), fn = _c[0], input = _c[1];
               var executeFunction = _b.executeFunction;
-              assertLitsFunction(fn, debugInfo);
-              assertSeq(input, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
+              assertSeq(input, sourceCodeInfo);
               if (Array.isArray(input)) {
-                  return input.filter(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); });
+                  return input.filter(function (elem) { return !executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               }
               return input
                   .split("")
-                  .filter(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); })
+                  .filter(function (elem) { return !executeFunction(fn, [elem], contextStack, sourceCodeInfo); })
                   .join("");
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'remove-at': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), index = _b[0], input = _b[1];
-              assertNumber(index, debugInfo);
-              assertSeq(input, debugInfo);
+              assertNumber(index, sourceCodeInfo);
+              assertSeq(input, sourceCodeInfo);
               var intIndex = Math.ceil(index);
               if (intIndex < 0 || intIndex >= input.length) {
                   return input;
@@ -3893,24 +3893,24 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'split-at': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), pos = _b[0], seq = _b[1];
-              assertNumber(pos, debugInfo, { finite: true });
+              assertNumber(pos, sourceCodeInfo, { finite: true });
               var intPos = toNonNegativeInteger(pos);
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               return [seq.slice(0, intPos), seq.slice(intPos)];
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'split-with': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), fn = _c[0], seq = _c[1];
               var executeFunction = _b.executeFunction;
-              assertLitsFunction(fn, debugInfo);
-              assertSeq(seq, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
+              assertSeq(seq, sourceCodeInfo);
               var seqIsArray = Array.isArray(seq);
               var arr = seqIsArray ? seq : seq.split("");
-              var index = arr.findIndex(function (elem) { return !executeFunction(fn, [elem], contextStack, debugInfo); });
+              var index = arr.findIndex(function (elem) { return !executeFunction(fn, [elem], contextStack, sourceCodeInfo); });
               if (index === -1) {
                   return [seq, seqIsArray ? [] : ""];
               }
@@ -3919,12 +3919,12 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       frequencies: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), seq = _b[0];
-              assertSeq(seq, debugInfo);
+              assertSeq(seq, sourceCodeInfo);
               var arr = typeof seq === "string" ? seq.split("") : seq;
               return arr.reduce(function (result, val) {
-                  assertString(val, debugInfo);
+                  assertString(val, sourceCodeInfo);
                   if (collHasKey(result, val)) {
                       result[val] = result[val] + 1;
                   }
@@ -3937,15 +3937,15 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'group-by': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), fn = _c[0], seq = _c[1];
               var executeFunction = _b.executeFunction;
-              assertAny(fn, debugInfo);
-              assertSeq(seq, debugInfo);
+              assertAny(fn, sourceCodeInfo);
+              assertSeq(seq, sourceCodeInfo);
               var arr = Array.isArray(seq) ? seq : seq.split("");
               return arr.reduce(function (result, val) {
-                  var key = executeFunction(fn, [val], contextStack, debugInfo);
-                  assertString(key, debugInfo);
+                  var key = executeFunction(fn, [val], contextStack, sourceCodeInfo);
+                  assertString(key, sourceCodeInfo);
                   if (!collHasKey(result, key)) {
                       result[key] = [];
                   }
@@ -3956,36 +3956,40 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       partition: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               var len = params.length;
-              var n = toNonNegativeInteger(asNumber(params[0], debugInfo));
-              var seq = len === 2 ? asSeq(params[1], debugInfo) : len === 3 ? asSeq(params[2], debugInfo) : asSeq(params[3], debugInfo);
-              var step = len >= 3 ? toNonNegativeInteger(asNumber(params[1], debugInfo)) : n;
-              var pad = len === 4 ? (params[2] === null ? [] : asArray(params[2], debugInfo)) : undefined;
-              return partition(n, step, seq, pad, debugInfo);
+              var n = toNonNegativeInteger(asNumber(params[0], sourceCodeInfo));
+              var seq = len === 2
+                  ? asSeq(params[1], sourceCodeInfo)
+                  : len === 3
+                      ? asSeq(params[2], sourceCodeInfo)
+                      : asSeq(params[3], sourceCodeInfo);
+              var step = len >= 3 ? toNonNegativeInteger(asNumber(params[1], sourceCodeInfo)) : n;
+              var pad = len === 4 ? (params[2] === null ? [] : asArray(params[2], sourceCodeInfo)) : undefined;
+              return partition(n, step, seq, pad, sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 4 }, node); },
       },
       'partition-all': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               var len = params.length;
-              var n = toNonNegativeInteger(asNumber(params[0], debugInfo));
-              var seq = len === 2 ? asSeq(params[1], debugInfo) : asSeq(params[2], debugInfo);
-              var step = len >= 3 ? toNonNegativeInteger(asNumber(params[1], debugInfo)) : n;
-              return partition(n, step, seq, [], debugInfo);
+              var n = toNonNegativeInteger(asNumber(params[0], sourceCodeInfo));
+              var seq = len === 2 ? asSeq(params[1], sourceCodeInfo) : asSeq(params[2], sourceCodeInfo);
+              var step = len >= 3 ? toNonNegativeInteger(asNumber(params[1], sourceCodeInfo)) : n;
+              return partition(n, step, seq, [], sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'partition-by': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), fn = _c[0], seq = _c[1];
               var executeFunction = _b.executeFunction;
-              assertLitsFunction(fn, debugInfo);
-              assertSeq(seq, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
+              assertSeq(seq, sourceCodeInfo);
               var isStringSeq = typeof seq === "string";
               var oldValue = undefined;
               var result = (isStringSeq ? seq.split("") : seq).reduce(function (acc, elem) {
-                  var value = executeFunction(fn, [elem], contextStack, debugInfo);
+                  var value = executeFunction(fn, [elem], contextStack, sourceCodeInfo);
                   if (value !== oldValue) {
                       acc.push([]);
                       oldValue = value;
@@ -3998,8 +4002,8 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
   };
-  function partition(n, step, seq, pad, debugInfo) {
-      assertNumber(step, debugInfo, { positive: true });
+  function partition(n, step, seq, pad, sourceCodeInfo) {
+      assertNumber(step, sourceCodeInfo, { positive: true });
       var isStringSeq = typeof seq === "string";
       var result = [];
       var start = 0;
@@ -4032,37 +4036,37 @@ var Lits = (function (exports) {
           evaluate: function (params) { return params; },
       },
       range: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               var _a = __read(params, 3), first = _a[0], second = _a[1], third = _a[2];
               var from;
               var to;
               var step;
-              assertNumber(first, debugInfo, { finite: true });
+              assertNumber(first, sourceCodeInfo, { finite: true });
               if (params.length === 1) {
                   from = 0;
                   to = first;
                   step = to >= 0 ? 1 : -1;
               }
               else if (params.length === 2) {
-                  assertNumber(second, debugInfo, { finite: true });
+                  assertNumber(second, sourceCodeInfo, { finite: true });
                   from = first;
                   to = second;
                   step = to >= from ? 1 : -1;
               }
               else {
-                  assertNumber(second, debugInfo, { finite: true });
-                  assertNumber(third, debugInfo, { finite: true });
+                  assertNumber(second, sourceCodeInfo, { finite: true });
+                  assertNumber(third, sourceCodeInfo, { finite: true });
                   from = first;
                   to = second;
                   step = third;
                   if (to > from) {
-                      assertNumber(step, debugInfo, { positive: true });
+                      assertNumber(step, sourceCodeInfo, { positive: true });
                   }
                   else if (to < from) {
-                      assertNumber(step, debugInfo, { negative: true });
+                      assertNumber(step, sourceCodeInfo, { negative: true });
                   }
                   else {
-                      assertNumber(step, debugInfo, { nonZero: true });
+                      assertNumber(step, sourceCodeInfo, { nonZero: true });
                   }
               }
               var result = [];
@@ -4074,9 +4078,9 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 3 }, node); },
       },
       repeat: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), count = _b[0], value = _b[1];
-              assertNumber(count, debugInfo, { integer: true, nonNegative: true });
+              assertNumber(count, sourceCodeInfo, { integer: true, nonNegative: true });
               var result = [];
               for (var i = 0; i < count; i += 1) {
                   result.push(value);
@@ -4096,12 +4100,12 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       mapcat: {
-          evaluate: function (params, debugInfo, contextStack, helpers) {
+          evaluate: function (params, sourceCodeInfo, contextStack, helpers) {
               params.slice(1).forEach(function (arr) {
-                  assertArray(arr, debugInfo);
+                  assertArray(arr, sourceCodeInfo);
               });
-              var mapResult = evaluateMap(params, debugInfo, contextStack, helpers);
-              assertArray(mapResult, debugInfo);
+              var mapResult = evaluateMap(params, sourceCodeInfo, contextStack, helpers);
+              assertArray(mapResult, sourceCodeInfo);
               return mapResult.flat(1);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
@@ -4110,217 +4114,217 @@ var Lits = (function (exports) {
 
   var mathNormalExpression = {
       inc: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               return first + 1;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       dec: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               return first - 1;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       '+': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               return params.reduce(function (result, param) {
-                  assertNumber(param, debugInfo);
+                  assertNumber(param, sourceCodeInfo);
                   return result + param;
               }, 0);
           },
       },
       '*': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               return params.reduce(function (result, param) {
-                  assertNumber(param, debugInfo);
+                  assertNumber(param, sourceCodeInfo);
                   return result * param;
               }, 1);
           },
       },
       '/': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               if (params.length === 0) {
                   return 1;
               }
               var _a = __read(params), first = _a[0], rest = _a.slice(1);
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               if (rest.length === 0) {
-                  assertNumber(first, debugInfo);
+                  assertNumber(first, sourceCodeInfo);
                   return 1 / first;
               }
               return rest.reduce(function (result, param) {
-                  assertNumber(param, debugInfo);
+                  assertNumber(param, sourceCodeInfo);
                   return result / param;
               }, first);
           },
       },
       '-': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               if (params.length === 0) {
                   return 0;
               }
               var _a = __read(params), first = _a[0], rest = _a.slice(1);
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               if (rest.length === 0) {
                   return -first;
               }
               return rest.reduce(function (result, param) {
-                  assertNumber(param, debugInfo);
+                  assertNumber(param, sourceCodeInfo);
                   return result - param;
               }, first);
           },
       },
       quot: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), dividend = _b[0], divisor = _b[1];
-              assertNumber(dividend, debugInfo);
-              assertNumber(divisor, debugInfo);
+              assertNumber(dividend, sourceCodeInfo);
+              assertNumber(divisor, sourceCodeInfo);
               var quotient = Math.trunc(dividend / divisor);
               return quotient;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       mod: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), dividend = _b[0], divisor = _b[1];
-              assertNumber(dividend, debugInfo);
-              assertNumber(divisor, debugInfo);
+              assertNumber(dividend, sourceCodeInfo);
+              assertNumber(divisor, sourceCodeInfo);
               var quotient = Math.floor(dividend / divisor);
               return dividend - divisor * quotient;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       rem: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), dividend = _b[0], divisor = _b[1];
-              assertNumber(dividend, debugInfo);
-              assertNumber(divisor, debugInfo);
+              assertNumber(dividend, sourceCodeInfo);
+              assertNumber(divisor, sourceCodeInfo);
               var quotient = Math.trunc(dividend / divisor);
               return dividend - divisor * quotient;
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       sqrt: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               return Math.sqrt(first);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       cbrt: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               return Math.cbrt(first);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       pow: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), first = _b[0], second = _b[1];
-              assertNumber(first, debugInfo);
-              assertNumber(second, debugInfo);
+              assertNumber(first, sourceCodeInfo);
+              assertNumber(second, sourceCodeInfo);
               return Math.pow(first, second);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       round: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               var _a = __read(params, 2), value = _a[0], decimals = _a[1];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               if (params.length === 1 || decimals === 0) {
                   return Math.round(value);
               }
-              assertNumber(decimals, debugInfo, { integer: true, nonNegative: true });
+              assertNumber(decimals, sourceCodeInfo, { integer: true, nonNegative: true });
               var factor = Math.pow(10, decimals);
               return Math.round(value * factor) / factor;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       trunc: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               return Math.trunc(first);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       floor: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               return Math.floor(first);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       ceil: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               return Math.ceil(first);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'rand!': {
-          evaluate: function (parameters, debugInfo) {
-              var num = asNumber(parameters.length === 1 ? parameters[0] : 1, debugInfo);
+          evaluate: function (parameters, sourceCodeInfo) {
+              var num = asNumber(parameters.length === 1 ? parameters[0] : 1, sourceCodeInfo);
               return Math.random() * num;
           },
           validate: function (node) { return assertNumberOfParams({ min: 0, max: 1 }, node); },
       },
       'rand-int!': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               return Math.floor(Math.random() * Math.abs(first)) * Math.sign(first);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       min: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               if (rest.length === 0) {
                   return first;
               }
               return rest.reduce(function (min, value) {
-                  assertNumber(value, debugInfo);
+                  assertNumber(value, sourceCodeInfo);
                   return Math.min(min, value);
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
       max: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-              assertNumber(first, debugInfo);
+              assertNumber(first, sourceCodeInfo);
               if (rest.length === 0) {
                   return first;
               }
               return rest.reduce(function (min, value) {
-                  assertNumber(value, debugInfo);
+                  assertNumber(value, sourceCodeInfo);
                   return Math.max(min, value);
               }, first);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
       abs: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.abs(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       sign: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.sign(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
@@ -4386,129 +4390,129 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(0, node); },
       },
       exp: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.exp(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       log: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.log(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       log2: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.log2(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       log10: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.log10(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       sin: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.sin(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       asin: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.asin(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       sinh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.sinh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       asinh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.asinh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       cos: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.cos(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       acos: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.acos(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       cosh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.cosh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       acosh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.acosh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       tan: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.tan(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       atan: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.atan(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       tanh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.tanh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       atanh: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Math.atanh(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
@@ -4557,9 +4561,9 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
       'equal?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), a = _b[0], b = _b[1];
-              return deepEqual(asAny(a, debugInfo), asAny(b, debugInfo), debugInfo);
+              return deepEqual(asAny(a, sourceCodeInfo), asAny(b, sourceCodeInfo), sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
@@ -4677,35 +4681,35 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(0, node); },
       },
       'inst-ms->iso-date-time': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), ms = _b[0];
-              assertNumber(ms, debugInfo);
+              assertNumber(ms, sourceCodeInfo);
               return new Date(ms).toISOString();
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'iso-date-time->inst-ms': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), dateTime = _b[0];
-              assertString(dateTime, debugInfo);
+              assertString(dateTime, sourceCodeInfo);
               var ms = new Date(dateTime).valueOf();
-              assertNumber(ms, debugInfo, { finite: true });
+              assertNumber(ms, sourceCodeInfo, { finite: true });
               return ms;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'write!': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               // eslint-disable-next-line no-console
               console.log.apply(console, __spreadArray([], __read(params), false));
               if (params.length > 0) {
-                  return asAny(params[params.length - 1], debugInfo);
+                  return asAny(params[params.length - 1], sourceCodeInfo);
               }
               return null;
           },
       },
       'debug!': {
-          evaluate: function (params, debugInfo, contextStack) {
+          evaluate: function (params, sourceCodeInfo, contextStack) {
               if (params.length === 0) {
                   // eslint-disable-next-line no-console
                   console.warn("*** LITS DEBUG ***\n".concat(contextStack.toString(), "\n"));
@@ -4713,7 +4717,7 @@ var Lits = (function (exports) {
               }
               // eslint-disable-next-line no-console
               console.warn("*** LITS DEBUG ***\n".concat(JSON.stringify(params[0], null, 2), "\n"));
-              return asAny(params[0], debugInfo);
+              return asAny(params[0], sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams({ max: 1 }, node); },
       },
@@ -4751,208 +4755,208 @@ var Lits = (function (exports) {
 
   var assertNormalExpression = {
       assert: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               var value = params[0];
               var message = params.length === 2 ? params[1] : "".concat(value);
-              assertString(message, debugInfo);
+              assertString(message, sourceCodeInfo);
               if (!value) {
-                  throw new AssertionError(message, debugInfo);
+                  throw new AssertionError(message, sourceCodeInfo);
               }
-              return asAny(value, debugInfo);
+              return asAny(value, sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       'assert=': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (first !== second) {
-                  throw new AssertionError("Expected ".concat(first, " to be ").concat(second, ".").concat(message), debugInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'assert-not=': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (first === second) {
-                  throw new AssertionError("Expected ".concat(first, " not to be ").concat(second, ".").concat(message), debugInfo);
+                  throw new AssertionError("Expected ".concat(first, " not to be ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'assert-equal': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (!deepEqual(asAny(first, debugInfo), asAny(second, debugInfo), debugInfo)) {
-                  throw new AssertionError("Expected\n".concat(JSON.stringify(first, null, 2), "\nto deep equal\n").concat(JSON.stringify(second, null, 2), ".").concat(message), debugInfo);
+              if (!deepEqual(asAny(first, sourceCodeInfo), asAny(second, sourceCodeInfo), sourceCodeInfo)) {
+                  throw new AssertionError("Expected\n".concat(JSON.stringify(first, null, 2), "\nto deep equal\n").concat(JSON.stringify(second, null, 2), ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'assert-not-equal': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              if (deepEqual(asAny(first, debugInfo), asAny(second, debugInfo), debugInfo)) {
-                  throw new AssertionError("Expected ".concat(JSON.stringify(first), " not to deep equal ").concat(JSON.stringify(second), ".").concat(message), debugInfo);
+              if (deepEqual(asAny(first, sourceCodeInfo), asAny(second, sourceCodeInfo), sourceCodeInfo)) {
+                  throw new AssertionError("Expected ".concat(JSON.stringify(first), " not to deep equal ").concat(JSON.stringify(second), ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'assert>': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (compare(first, second) <= 0) {
-                  throw new AssertionError("Expected ".concat(first, " to be grater than ").concat(second, ".").concat(message), debugInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be grater than ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'assert>=': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (compare(first, second) < 0) {
-                  throw new AssertionError("Expected ".concat(first, " to be grater than or equal to ").concat(second, ".").concat(message), debugInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be grater than or equal to ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'assert<': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (compare(first, second) >= 0) {
-                  throw new AssertionError("Expected ".concat(first, " to be less than ").concat(second, ".").concat(message), debugInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be less than ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'assert<=': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], message = _b[2];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (compare(first, second) > 0) {
-                  throw new AssertionError("Expected ".concat(first, " to be less than or equal to ").concat(second, ".").concat(message), debugInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be less than or equal to ").concat(second, ".").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'assert-true': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), first = _b[0], message = _b[1];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (first !== true) {
-                  throw new AssertionError("Expected ".concat(first, " to be true.").concat(message), debugInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be true.").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       'assert-false': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), first = _b[0], message = _b[1];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (first !== false) {
-                  throw new AssertionError("Expected ".concat(first, " to be false.").concat(message), debugInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be false.").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       'assert-truthy': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), first = _b[0], message = _b[1];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (!first) {
-                  throw new AssertionError("Expected ".concat(first, " to be truthy.").concat(message), debugInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be truthy.").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       'assert-falsy': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), first = _b[0], message = _b[1];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (first) {
-                  throw new AssertionError("Expected ".concat(first, " to be falsy.").concat(message), debugInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be falsy.").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       'assert-nil': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), first = _b[0], message = _b[1];
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
               if (first !== null) {
-                  throw new AssertionError("Expected ".concat(first, " to be nil.").concat(message), debugInfo);
+                  throw new AssertionError("Expected ".concat(first, " to be nil.").concat(message), sourceCodeInfo);
               }
               return null;
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       'assert-throws': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), func = _c[0], message = _c[1];
               var executeFunction = _b.executeFunction;
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              assertLitsFunction(func, debugInfo);
+              assertLitsFunction(func, sourceCodeInfo);
               try {
-                  executeFunction(func, [], contextStack, debugInfo);
+                  executeFunction(func, [], contextStack, sourceCodeInfo);
               }
               catch (_d) {
                   return null;
               }
-              throw new AssertionError("Expected function to throw.".concat(message), debugInfo);
+              throw new AssertionError("Expected function to throw.".concat(message), sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       'assert-throws-error': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 3), func = _c[0], throwMessage = _c[1], message = _c[2];
               var executeFunction = _b.executeFunction;
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              assertString(throwMessage, debugInfo);
-              assertLitsFunction(func, debugInfo);
+              assertString(throwMessage, sourceCodeInfo);
+              assertLitsFunction(func, sourceCodeInfo);
               try {
-                  executeFunction(func, [], contextStack, debugInfo);
+                  executeFunction(func, [], contextStack, sourceCodeInfo);
               }
               catch (error) {
                   var errorMessage = error.shortMessage;
                   if (errorMessage !== throwMessage) {
-                      throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\", but thrown \"").concat(errorMessage, "\".").concat(message), debugInfo);
+                      throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\", but thrown \"").concat(errorMessage, "\".").concat(message), sourceCodeInfo);
                   }
                   return null;
               }
-              throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\".").concat(message), debugInfo);
+              throw new AssertionError("Expected function to throw \"".concat(throwMessage, "\".").concat(message), sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'assert-not-throws': {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a, 2), func = _c[0], message = _c[1];
               var executeFunction = _b.executeFunction;
               message = typeof message === "string" && message ? " \"".concat(message, "\"") : "";
-              assertLitsFunction(func, debugInfo);
+              assertLitsFunction(func, sourceCodeInfo);
               try {
-                  executeFunction(func, [], contextStack, debugInfo);
+                  executeFunction(func, [], contextStack, sourceCodeInfo);
               }
               catch (_d) {
-                  throw new AssertionError("Expected function not to throw.".concat(message), debugInfo);
+                  throw new AssertionError("Expected function not to throw.".concat(message), sourceCodeInfo);
               }
               return null;
           },
@@ -4962,12 +4966,12 @@ var Lits = (function (exports) {
 
   var objectNormalExpression = {
       object: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               var result = {};
               for (var i = 0; i < params.length; i += 2) {
                   var key = params[i];
                   var value = params[i + 1];
-                  assertString(key, debugInfo);
+                  assertString(key, sourceCodeInfo);
                   result[key] = value;
               }
               return result;
@@ -4975,34 +4979,34 @@ var Lits = (function (exports) {
           validate: function (node) { return assertEventNumberOfParams(node); },
       },
       keys: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertObj(first, debugInfo);
+              assertObj(first, sourceCodeInfo);
               return Object.keys(first);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       vals: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertObj(first, debugInfo);
+              assertObj(first, sourceCodeInfo);
               return Object.values(first);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       entries: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertObj(first, debugInfo);
+              assertObj(first, sourceCodeInfo);
               return Object.entries(first);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       find: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), obj = _b[0], key = _b[1];
-              assertObj(obj, debugInfo);
-              assertString(key, debugInfo);
+              assertObj(obj, sourceCodeInfo);
+              assertString(key, sourceCodeInfo);
               if (collHasKey(obj, key)) {
                   return [key, obj[key]];
               }
@@ -5011,10 +5015,10 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       dissoc: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), obj = _b[0], key = _b[1];
-              assertObj(obj, debugInfo);
-              assertString(key, debugInfo);
+              assertObj(obj, sourceCodeInfo);
+              assertString(key, sourceCodeInfo);
               var newObj = __assign({}, obj);
               delete newObj[key];
               return newObj;
@@ -5022,35 +5026,35 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       merge: {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               if (params.length === 0) {
                   return null;
               }
               var _a = __read(params), first = _a[0], rest = _a.slice(1);
-              assertObj(first, debugInfo);
+              assertObj(first, sourceCodeInfo);
               return rest.reduce(function (result, obj) {
-                  assertObj(obj, debugInfo);
+                  assertObj(obj, sourceCodeInfo);
                   return __assign(__assign({}, result), obj);
               }, __assign({}, first));
           },
           validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
       },
       'merge-with': {
-          evaluate: function (params, debugInfo, contextStack, _a) {
+          evaluate: function (params, sourceCodeInfo, contextStack, _a) {
               var executeFunction = _a.executeFunction;
               var _b = __read(params), fn = _b[0], first = _b[1], rest = _b.slice(2);
-              assertLitsFunction(fn, debugInfo);
+              assertLitsFunction(fn, sourceCodeInfo);
               if (params.length === 1) {
                   return null;
               }
-              assertObj(first, debugInfo);
+              assertObj(first, sourceCodeInfo);
               return rest.reduce(function (result, obj) {
-                  assertObj(obj, debugInfo);
+                  assertObj(obj, sourceCodeInfo);
                   Object.entries(obj).forEach(function (entry) {
-                      var key = asString(entry[0], debugInfo);
+                      var key = asString(entry[0], sourceCodeInfo);
                       var val = toAny(entry[1]);
                       if (collHasKey(result, key)) {
-                          result[key] = executeFunction(fn, [result[key], val], contextStack, debugInfo);
+                          result[key] = executeFunction(fn, [result[key], val], contextStack, sourceCodeInfo);
                       }
                       else {
                           result[key] = val;
@@ -5062,14 +5066,14 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
       zipmap: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), keys = _b[0], values = _b[1];
-              assertStringArray(keys, debugInfo);
-              assertArray(values, debugInfo);
+              assertStringArray(keys, sourceCodeInfo);
+              assertArray(values, sourceCodeInfo);
               var length = Math.min(keys.length, values.length);
               var result = {};
               for (var i = 0; i < length; i += 1) {
-                  var key = asString(keys[i], debugInfo);
+                  var key = asString(keys[i], sourceCodeInfo);
                   result[key] = toAny(values[i]);
               }
               return result;
@@ -5077,10 +5081,10 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       'select-keys': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), obj = _b[0], keys = _b[1];
-              assertStringArray(keys, debugInfo);
-              assertObj(obj, debugInfo);
+              assertStringArray(keys, sourceCodeInfo);
+              assertObj(obj, sourceCodeInfo);
               return keys.reduce(function (result, key) {
                   if (collHasKey(obj, key)) {
                       result[key] = toAny(obj[key]);
@@ -5136,41 +5140,41 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'zero?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo, { finite: true });
+              assertNumber(first, sourceCodeInfo, { finite: true });
               return first === 0;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'pos?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo, { finite: true });
+              assertNumber(first, sourceCodeInfo, { finite: true });
               return first > 0;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'neg?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo, { finite: true });
+              assertNumber(first, sourceCodeInfo, { finite: true });
               return first < 0;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'even?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo, { finite: true });
+              assertNumber(first, sourceCodeInfo, { finite: true });
               return first % 2 === 0;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'odd?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), first = _b[0];
-              assertNumber(first, debugInfo, { finite: true });
+              assertNumber(first, sourceCodeInfo, { finite: true });
               return isNumber(first, { integer: true }) && first % 2 !== 0;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
@@ -5211,33 +5215,33 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'finite?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Number.isFinite(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'nan?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return Number.isNaN(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'positive-infinity?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return value === Number.POSITIVE_INFINITY;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'negative-infinity?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertNumber(value, debugInfo);
+              assertNumber(value, sourceCodeInfo);
               return value === Number.NEGATIVE_INFINITY;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
@@ -5257,12 +5261,12 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'empty?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), coll = _b[0];
               if (coll === null) {
                   return true;
               }
-              assertColl(coll, debugInfo);
+              assertColl(coll, sourceCodeInfo);
               if (typeof coll === "string") {
                   return coll.length === 0;
               }
@@ -5274,12 +5278,12 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'not-empty?': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), coll = _b[0];
               if (coll === null) {
                   return false;
               }
-              assertColl(coll, debugInfo);
+              assertColl(coll, sourceCodeInfo);
               if (typeof coll === "string") {
                   return coll.length > 0;
               }
@@ -5294,15 +5298,15 @@ var Lits = (function (exports) {
 
   var regexpNormalExpression = {
       regexp: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b;
               var _c = __read(_a, 2), sourceArg = _c[0], flagsArg = _c[1];
-              assertString(sourceArg, debugInfo);
+              assertString(sourceArg, sourceCodeInfo);
               var source = sourceArg || "(?:)";
               var flags = typeof flagsArg === "string" ? flagsArg : "";
               return _b = {},
                   _b[REGEXP_SYMBOL] = true,
-                  _b.d = debugInfo,
+                  _b.sourceCodeInfo = sourceCodeInfo,
                   _b.s = source,
                   _b.f = flags,
                   _b;
@@ -5310,9 +5314,9 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       match: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), regexp = _b[0], text = _b[1];
-              assertRegularExpression(regexp, debugInfo);
+              assertRegularExpression(regexp, sourceCodeInfo);
               if (!isString(text)) {
                   return null;
               }
@@ -5326,11 +5330,11 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       replace: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), str = _b[0], regexp = _b[1], value = _b[2];
-              assertString(str, debugInfo);
-              assertRegularExpression(regexp, debugInfo);
-              assertString(value, debugInfo);
+              assertString(str, sourceCodeInfo);
+              assertRegularExpression(regexp, sourceCodeInfo);
+              assertString(value, sourceCodeInfo);
               var regExp = new RegExp(regexp.s, regexp.f);
               return str.replace(regExp, value);
           },
@@ -5340,23 +5344,23 @@ var Lits = (function (exports) {
 
   var stringNormalExpression = {
       subs: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), first = _b[0], second = _b[1], third = _b[2];
-              assertString(first, debugInfo);
-              assertNumber(second, debugInfo, { integer: true, nonNegative: true });
+              assertString(first, sourceCodeInfo);
+              assertNumber(second, sourceCodeInfo, { integer: true, nonNegative: true });
               if (third === undefined) {
                   return first.substring(second);
               }
-              assertNumber(third, debugInfo, { gte: second });
+              assertNumber(third, sourceCodeInfo, { gte: second });
               return first.substring(second, third);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'string-repeat': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), str = _b[0], count = _b[1];
-              assertString(str, debugInfo);
-              assertNumber(count, debugInfo, { integer: true, nonNegative: true });
+              assertString(str, sourceCodeInfo);
+              assertNumber(count, sourceCodeInfo, { integer: true, nonNegative: true });
               return str.repeat(count);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
@@ -5376,117 +5380,117 @@ var Lits = (function (exports) {
           },
       },
       number: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), str = _b[0];
-              assertString(str, debugInfo);
+              assertString(str, sourceCodeInfo);
               var number = Number(str);
               if (Number.isNaN(number)) {
-                  throw new LitsError("Could not convert '".concat(str, "' to a number."), debugInfo);
+                  throw new LitsError("Could not convert '".concat(str, "' to a number."), sourceCodeInfo);
               }
               return number;
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'number-to-string': {
-          evaluate: function (params, debugInfo) {
+          evaluate: function (params, sourceCodeInfo) {
               var _a = __read(params, 2), num = _a[0], base = _a[1];
-              assertNumber(num, debugInfo, { finite: true });
+              assertNumber(num, sourceCodeInfo, { finite: true });
               if (params.length === 1) {
                   return "".concat(num);
               }
               else {
-                  assertNumber(base, debugInfo, { finite: true });
+                  assertNumber(base, sourceCodeInfo, { finite: true });
                   if (base !== 2 && base !== 8 && base !== 10 && base !== 16) {
-                      throw new LitsError("Expected \"number-to-string\" base argument to be 2, 8, 10 or 16, got: ".concat(base), debugInfo);
+                      throw new LitsError("Expected \"number-to-string\" base argument to be 2, 8, 10 or 16, got: ".concat(base), sourceCodeInfo);
                   }
                   if (base === 10) {
                       return "".concat(num);
                   }
-                  assertNumber(num, debugInfo, { integer: true, nonNegative: true });
+                  assertNumber(num, sourceCodeInfo, { integer: true, nonNegative: true });
                   return Number(num).toString(base);
               }
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
       'from-char-code': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), num = _b[0];
-              assertNumber(num, debugInfo, { finite: true });
+              assertNumber(num, sourceCodeInfo, { finite: true });
               var int = toNonNegativeInteger(num);
               try {
                   return String.fromCodePoint(int);
               }
               catch (error) {
-                  throw new LitsError(error, debugInfo);
+                  throw new LitsError(error, sourceCodeInfo);
               }
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'to-char-code': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), str = _b[0];
-              assertString(str, debugInfo, { nonEmpty: true });
-              return asNonUndefined(str.codePointAt(0), debugInfo);
+              assertString(str, sourceCodeInfo, { nonEmpty: true });
+              return asNonUndefined(str.codePointAt(0), sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'lower-case': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), str = _b[0];
-              assertString(str, debugInfo);
+              assertString(str, sourceCodeInfo);
               return str.toLowerCase();
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'upper-case': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), str = _b[0];
-              assertString(str, debugInfo);
+              assertString(str, sourceCodeInfo);
               return str.toUpperCase();
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       trim: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), str = _b[0];
-              assertString(str, debugInfo);
+              assertString(str, sourceCodeInfo);
               return str.trim();
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'trim-left': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), str = _b[0];
-              assertString(str, debugInfo);
+              assertString(str, sourceCodeInfo);
               return str.replace(/^\s+/, "");
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'trim-right': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), str = _b[0];
-              assertString(str, debugInfo);
+              assertString(str, sourceCodeInfo);
               return str.replace(/\s+$/, "");
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       join: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 2), stringList = _b[0], delimiter = _b[1];
-              assertArray(stringList, debugInfo);
-              stringList.forEach(function (str) { return assertString(str, debugInfo); });
-              assertString(delimiter, debugInfo);
+              assertArray(stringList, sourceCodeInfo);
+              stringList.forEach(function (str) { return assertString(str, sourceCodeInfo); });
+              assertString(delimiter, sourceCodeInfo);
               return stringList.join(delimiter);
           },
           validate: function (node) { return assertNumberOfParams(2, node); },
       },
       split: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), str = _b[0], stringOrRegExpValue = _b[1], limit = _b[2];
-              assertString(str, debugInfo);
-              assertStringOrRegularExpression(stringOrRegExpValue, debugInfo);
+              assertString(str, sourceCodeInfo);
+              assertStringOrRegularExpression(stringOrRegExpValue, sourceCodeInfo);
               if (limit !== undefined) {
-                  assertNumber(limit, debugInfo, { integer: true, nonNegative: true });
+                  assertNumber(limit, sourceCodeInfo, { integer: true, nonNegative: true });
               }
               var delimiter = typeof stringOrRegExpValue === "string"
                   ? stringOrRegExpValue
@@ -5496,64 +5500,64 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'pad-left': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), str = _b[0], length = _b[1], padString = _b[2];
-              assertString(str, debugInfo);
-              assertNumber(length, debugInfo, { integer: true });
+              assertString(str, sourceCodeInfo);
+              assertNumber(length, sourceCodeInfo, { integer: true });
               if (padString !== undefined) {
-                  assertString(padString, debugInfo);
+                  assertString(padString, sourceCodeInfo);
               }
               return str.padStart(length, padString);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       'pad-right': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 3), str = _b[0], length = _b[1], padString = _b[2];
-              assertString(str, debugInfo);
-              assertNumber(length, debugInfo, { integer: true });
+              assertString(str, sourceCodeInfo);
+              assertNumber(length, sourceCodeInfo, { integer: true });
               if (padString !== undefined) {
-                  assertString(padString, debugInfo);
+                  assertString(padString, sourceCodeInfo);
               }
               return str.padEnd(length, padString);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
       },
       template: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a), templateString = _b[0], placeholders = _b.slice(1);
-              assertString(templateString, debugInfo);
-              assertArray(placeholders, debugInfo);
+              assertString(templateString, sourceCodeInfo);
+              assertArray(placeholders, sourceCodeInfo);
               var templateStrings = templateString.split("||||");
               if (templateStrings.length <= 1) {
-                  return applyPlaceholders(templateStrings[0], placeholders, debugInfo);
+                  return applyPlaceholders(templateStrings[0], placeholders, sourceCodeInfo);
               }
               else {
                   // Pluralisation
                   var count = placeholders[0];
-                  assertNumber(count, debugInfo, { integer: true, nonNegative: true });
+                  assertNumber(count, sourceCodeInfo, { integer: true, nonNegative: true });
                   var stringPlaceholders = __spreadArray(["".concat(count)], __read(placeholders.slice(1)), false);
                   if (templateStrings.length === 2) {
                       // Exactly two valiants.
                       // First variant (singular) for count = 1, Second variant (plural) for count = 0 or count > 1
                       var placehoder = templateStrings[count === 1 ? 0 : 1];
-                      return applyPlaceholders(placehoder, stringPlaceholders, debugInfo);
+                      return applyPlaceholders(placehoder, stringPlaceholders, sourceCodeInfo);
                   }
                   else {
                       // More than two variant:
                       // Use count as index
                       // If count >= number of variants, use last variant
                       var placehoder = templateStrings[Math.min(count, templateStrings.length - 1)];
-                      return applyPlaceholders(placehoder, stringPlaceholders, debugInfo);
+                      return applyPlaceholders(placehoder, stringPlaceholders, sourceCodeInfo);
                   }
               }
           },
           validate: function (node) { return assertNumberOfParams({ min: 1, max: 10 }, node); },
       },
       'encode-base64': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertString(value, debugInfo);
+              assertString(value, sourceCodeInfo);
               return btoa(encodeURIComponent(value).replace(/%([0-9A-F]{2})/g, function (_match, p1) {
                   return String.fromCharCode(parseInt(p1, 16));
               }));
@@ -5561,9 +5565,9 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'decode-base64': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertString(value, debugInfo);
+              assertString(value, sourceCodeInfo);
               try {
                   return decodeURIComponent(Array.prototype.map
                       .call(atob(value), function (c) {
@@ -5572,42 +5576,42 @@ var Lits = (function (exports) {
                       .join(""));
               }
               catch (error) {
-                  throw new LitsError(error, debugInfo);
+                  throw new LitsError(error, sourceCodeInfo);
               }
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'encode-uri-component': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertString(value, debugInfo);
+              assertString(value, sourceCodeInfo);
               return encodeURIComponent(value);
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'decode-uri-component': {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b = __read(_a, 1), value = _b[0];
-              assertString(value, debugInfo);
+              assertString(value, sourceCodeInfo);
               try {
                   return decodeURIComponent(value);
               }
               catch (error) {
-                  throw new LitsError(error, debugInfo);
+                  throw new LitsError(error, sourceCodeInfo);
               }
           },
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
   };
   var doubleDollarRegexp = /\$\$/g;
-  function applyPlaceholders(templateString, placeholders, debugInfo) {
+  function applyPlaceholders(templateString, placeholders, sourceCodeInfo) {
       for (var i = 0; i < 9; i += 1) {
           // Matches $1, $2, ..., $9
           // Does not match $$1
           // But does match $$$1, (since the two first '$' will later be raplaced with a single '$'
           var re = new RegExp("(\\$\\$|[^$]|^)\\$".concat(i + 1), "g");
           if (re.test(templateString)) {
-              var placeHolder = asStringOrNumber(placeholders[i], debugInfo);
+              var placeHolder = asStringOrNumber(placeholders[i], sourceCodeInfo);
               templateString = templateString.replace(re, "$1".concat(placeHolder));
           }
       }
@@ -5617,15 +5621,15 @@ var Lits = (function (exports) {
 
   var functionalNormalExpression = {
       apply: {
-          evaluate: function (_a, debugInfo, contextStack, _b) {
+          evaluate: function (_a, sourceCodeInfo, contextStack, _b) {
               var _c = __read(_a), func = _c[0], params = _c.slice(1);
               var executeFunction = _b.executeFunction;
-              assertLitsFunction(func, debugInfo);
+              assertLitsFunction(func, sourceCodeInfo);
               var paramsLength = params.length;
               var last = params[paramsLength - 1];
-              assertArray(last, debugInfo);
+              assertArray(last, sourceCodeInfo);
               var applyArray = __spreadArray(__spreadArray([], __read(params.slice(0, -1)), false), __read(last), false);
-              return executeFunction(func, applyArray, contextStack, debugInfo);
+              return executeFunction(func, applyArray, contextStack, sourceCodeInfo);
           },
           validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
       },
@@ -5637,12 +5641,12 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       partial: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b;
               var _c = __read(_a), fn = _c[0], params = _c.slice(1);
               return _b = {},
                   _b[FUNCTION_SYMBOL] = true,
-                  _b.d = debugInfo,
+                  _b.sourceCodeInfo = sourceCodeInfo,
                   _b.t = exports.FunctionType.Partial,
                   _b.f = toAny(fn),
                   _b.p = params,
@@ -5651,7 +5655,7 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
       comp: {
-          evaluate: function (fns, debugInfo) {
+          evaluate: function (fns, sourceCodeInfo) {
               var _a;
               if (fns.length > 1) {
                   var last = fns[fns.length - 1];
@@ -5661,19 +5665,19 @@ var Lits = (function (exports) {
               }
               return _a = {},
                   _a[FUNCTION_SYMBOL] = true,
-                  _a.d = debugInfo,
+                  _a.sourceCodeInfo = sourceCodeInfo,
                   _a.t = exports.FunctionType.Comp,
                   _a.f = fns,
                   _a;
           },
       },
       constantly: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b;
               var _c = __read(_a, 1), value = _c[0];
               return _b = {},
                   _b[FUNCTION_SYMBOL] = true,
-                  _b.d = debugInfo,
+                  _b.sourceCodeInfo = sourceCodeInfo,
                   _b.t = exports.FunctionType.Constantly,
                   _b.v = toAny(value),
                   _b;
@@ -5681,11 +5685,11 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       juxt: {
-          evaluate: function (fns, debugInfo) {
+          evaluate: function (fns, sourceCodeInfo) {
               var _a;
               return _a = {},
                   _a[FUNCTION_SYMBOL] = true,
-                  _a.d = debugInfo,
+                  _a.sourceCodeInfo = sourceCodeInfo,
                   _a.t = exports.FunctionType.Juxt,
                   _a.f = fns,
                   _a;
@@ -5693,12 +5697,12 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
       complement: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b;
               var _c = __read(_a, 1), fn = _c[0];
               return _b = {},
                   _b[FUNCTION_SYMBOL] = true,
-                  _b.d = debugInfo,
+                  _b.sourceCodeInfo = sourceCodeInfo,
                   _b.t = exports.FunctionType.Complement,
                   _b.f = toAny(fn),
                   _b;
@@ -5706,11 +5710,11 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams(1, node); },
       },
       'every-pred': {
-          evaluate: function (fns, debugInfo) {
+          evaluate: function (fns, sourceCodeInfo) {
               var _a;
               return _a = {},
                   _a[FUNCTION_SYMBOL] = true,
-                  _a.d = debugInfo,
+                  _a.sourceCodeInfo = sourceCodeInfo,
                   _a.t = exports.FunctionType.EveryPred,
                   _a.f = fns,
                   _a;
@@ -5718,11 +5722,11 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
       'some-pred': {
-          evaluate: function (fns, debugInfo) {
+          evaluate: function (fns, sourceCodeInfo) {
               var _a;
               return _a = {},
                   _a[FUNCTION_SYMBOL] = true,
-                  _a.d = debugInfo,
+                  _a.sourceCodeInfo = sourceCodeInfo,
                   _a.t = exports.FunctionType.SomePred,
                   _a.f = fns,
                   _a;
@@ -5730,12 +5734,12 @@ var Lits = (function (exports) {
           validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
       },
       fnil: {
-          evaluate: function (_a, debugInfo) {
+          evaluate: function (_a, sourceCodeInfo) {
               var _b;
               var _c = __read(_a), fn = _c[0], params = _c.slice(1);
               return _b = {},
                   _b[FUNCTION_SYMBOL] = true,
-                  _b.d = debugInfo,
+                  _b.sourceCodeInfo = sourceCodeInfo,
                   _b.t = exports.FunctionType.Fnil,
                   _b.f = toAny(fn),
                   _b.p = params,
@@ -5756,7 +5760,7 @@ var Lits = (function (exports) {
               t: exports.AstNodeType.SpecialExpression,
               n: "comment",
               p: [],
-              tkn: tkn.d ? tkn : undefined,
+              tkn: tkn.sourceCodeInfo ? tkn : undefined,
           };
           while (!isToken(tkn, { type: exports.TokenType.Bracket, value: ")" })) {
               var bodyNode = void 0;
@@ -5779,14 +5783,14 @@ var Lits = (function (exports) {
               t: exports.AstNodeType.SpecialExpression,
               n: "declared?",
               p: params,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [newPosition + 1, node];
       },
       evaluate: function (node, contextStack) {
           var _a;
           var _b = __read(node.p, 1), astNode = _b[0];
-          assertNameNode(astNode, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
+          assertNameNode(astNode, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
           var lookUpResult = contextStack.lookUp(astNode);
           return lookUpResult !== null;
       },
@@ -5806,7 +5810,7 @@ var Lits = (function (exports) {
               t: exports.AstNodeType.SpecialExpression,
               n: "??",
               p: params,
-              tkn: firstToken.d ? firstToken : undefined,
+              tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
           };
           return [newPosition + 1, node];
       },
@@ -5819,7 +5823,7 @@ var Lits = (function (exports) {
                   return secondNode ? evaluateAstNode(secondNode, contextStack) : null;
               }
           }
-          assertAny(firstNode, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d);
+          assertAny(firstNode, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
           var firstResult = evaluateAstNode(firstNode, contextStack);
           return firstResult ? firstResult : secondNode ? evaluateAstNode(secondNode, contextStack) : firstResult;
       },
@@ -5950,7 +5954,7 @@ var Lits = (function (exports) {
               return { undefinedSymbols: undefinedSymbols_1 };
           }
           case exports.AstNodeType.SpecialExpression: {
-              var specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], (_b = astNode.tkn) === null || _b === void 0 ? void 0 : _b.d);
+              var specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], (_b = astNode.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
               var result = specialExpression.analyze(astNode, contextStack, {
                   analyzeAst: analyzeAst,
                   builtin: builtin,
@@ -5961,7 +5965,7 @@ var Lits = (function (exports) {
   }
 
   var _a;
-  function findOverloadFunction(overloads, nbrOfParams, debugInfo) {
+  function findOverloadFunction(overloads, nbrOfParams, sourceCodeInfo) {
       var overloadFunction = overloads.find(function (overload) {
           var arity = overload.a;
           if (typeof arity === "number") {
@@ -5972,12 +5976,12 @@ var Lits = (function (exports) {
           }
       });
       if (!overloadFunction) {
-          throw new LitsError("Unexpected number of arguments, got ".concat(valueToString(nbrOfParams), "."), debugInfo);
+          throw new LitsError("Unexpected number of arguments, got ".concat(valueToString(nbrOfParams), "."), sourceCodeInfo);
       }
       return overloadFunction;
   }
   var functionExecutors = (_a = {},
-      _a[exports.FunctionType.NativeJsFunction] = function (fn, params, debugInfo) {
+      _a[exports.FunctionType.NativeJsFunction] = function (fn, params, sourceCodeInfo) {
           var _a;
           try {
               var clonedParams = JSON.parse(JSON.stringify(params));
@@ -5989,14 +5993,14 @@ var Lits = (function (exports) {
                   : isUnknownRecord(error) && typeof error.message === "string"
                       ? error.message
                       : "<no message>";
-              throw new LitsError("Native function throwed: \"".concat(message, "\""), debugInfo);
+              throw new LitsError("Native function throwed: \"".concat(message, "\""), sourceCodeInfo);
           }
       },
-      _a[exports.FunctionType.UserDefined] = function (fn, params, debugInfo, contextStack, _a) {
+      _a[exports.FunctionType.UserDefined] = function (fn, params, sourceCodeInfo, contextStack, _a) {
           var e_1, _b;
           var evaluateAstNode = _a.evaluateAstNode;
           for (;;) {
-              var overloadFunction = findOverloadFunction(fn.o, params.length, debugInfo);
+              var overloadFunction = findOverloadFunction(fn.o, params.length, sourceCodeInfo);
               var args = overloadFunction.as;
               var nbrOfMandatoryArgs = args.mandatoryArguments.length;
               var newContext = __assign({}, overloadFunction.f);
@@ -6005,7 +6009,7 @@ var Lits = (function (exports) {
               for (var i = 0; i < length_1; i += 1) {
                   if (i < nbrOfMandatoryArgs) {
                       var param = toAny(params[i]);
-                      var key = asString(args.mandatoryArguments[i], debugInfo);
+                      var key = asString(args.mandatoryArguments[i], sourceCodeInfo);
                       newContext[key] = { value: param };
                   }
                   else {
@@ -6042,35 +6046,35 @@ var Lits = (function (exports) {
               }
           }
       },
-      _a[exports.FunctionType.Partial] = function (fn, params, debugInfo, contextStack, _a) {
+      _a[exports.FunctionType.Partial] = function (fn, params, sourceCodeInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          return executeFunction(fn.f, __spreadArray(__spreadArray([], __read(fn.p), false), __read(params), false), contextStack, debugInfo);
+          return executeFunction(fn.f, __spreadArray(__spreadArray([], __read(fn.p), false), __read(params), false), contextStack, sourceCodeInfo);
       },
-      _a[exports.FunctionType.Comp] = function (fn, params, debugInfo, contextStack, _a) {
+      _a[exports.FunctionType.Comp] = function (fn, params, sourceCodeInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
           var f = fn.f;
           if (f.length === 0) {
               if (params.length !== 1) {
-                  throw new LitsError("(comp) expects one argument, got ".concat(valueToString(params.length), "."), debugInfo);
+                  throw new LitsError("(comp) expects one argument, got ".concat(valueToString(params.length), "."), sourceCodeInfo);
               }
-              return asAny(params[0], debugInfo);
+              return asAny(params[0], sourceCodeInfo);
           }
           return asAny(f.reduceRight(function (result, fun) {
-              return [executeFunction(toAny(fun), result, contextStack, debugInfo)];
-          }, params)[0], debugInfo);
+              return [executeFunction(toAny(fun), result, contextStack, sourceCodeInfo)];
+          }, params)[0], sourceCodeInfo);
       },
       _a[exports.FunctionType.Constantly] = function (fn) {
           return fn.v;
       },
-      _a[exports.FunctionType.Juxt] = function (fn, params, debugInfo, contextStack, _a) {
+      _a[exports.FunctionType.Juxt] = function (fn, params, sourceCodeInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          return fn.f.map(function (fun) { return executeFunction(toAny(fun), params, contextStack, debugInfo); });
+          return fn.f.map(function (fun) { return executeFunction(toAny(fun), params, contextStack, sourceCodeInfo); });
       },
-      _a[exports.FunctionType.Complement] = function (fn, params, debugInfo, contextStack, _a) {
+      _a[exports.FunctionType.Complement] = function (fn, params, sourceCodeInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          return !executeFunction(fn.f, params, contextStack, debugInfo);
+          return !executeFunction(fn.f, params, contextStack, sourceCodeInfo);
       },
-      _a[exports.FunctionType.EveryPred] = function (fn, params, debugInfo, contextStack, _a) {
+      _a[exports.FunctionType.EveryPred] = function (fn, params, sourceCodeInfo, contextStack, _a) {
           var e_2, _b, e_3, _c;
           var executeFunction = _a.executeFunction;
           try {
@@ -6079,7 +6083,7 @@ var Lits = (function (exports) {
                   try {
                       for (var params_1 = (e_3 = void 0, __values(params)), params_1_1 = params_1.next(); !params_1_1.done; params_1_1 = params_1.next()) {
                           var param = params_1_1.value;
-                          var result = executeFunction(toAny(f), [param], contextStack, debugInfo);
+                          var result = executeFunction(toAny(f), [param], contextStack, sourceCodeInfo);
                           if (!result) {
                               return false;
                           }
@@ -6103,7 +6107,7 @@ var Lits = (function (exports) {
           }
           return true;
       },
-      _a[exports.FunctionType.SomePred] = function (fn, params, debugInfo, contextStack, _a) {
+      _a[exports.FunctionType.SomePred] = function (fn, params, sourceCodeInfo, contextStack, _a) {
           var e_4, _b, e_5, _c;
           var executeFunction = _a.executeFunction;
           try {
@@ -6112,7 +6116,7 @@ var Lits = (function (exports) {
                   try {
                       for (var params_2 = (e_5 = void 0, __values(params)), params_2_1 = params_2.next(); !params_2_1.done; params_2_1 = params_2.next()) {
                           var param = params_2_1.value;
-                          var result = executeFunction(toAny(f), [param], contextStack, debugInfo);
+                          var result = executeFunction(toAny(f), [param], contextStack, sourceCodeInfo);
                           if (result) {
                               return true;
                           }
@@ -6136,15 +6140,15 @@ var Lits = (function (exports) {
           }
           return false;
       },
-      _a[exports.FunctionType.Fnil] = function (fn, params, debugInfo, contextStack, _a) {
+      _a[exports.FunctionType.Fnil] = function (fn, params, sourceCodeInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
           var fniledParams = params.map(function (param, index) { return (param === null ? toAny(fn.p[index]) : param); });
-          return executeFunction(toAny(fn.f), fniledParams, contextStack, debugInfo);
+          return executeFunction(toAny(fn.f), fniledParams, contextStack, sourceCodeInfo);
       },
-      _a[exports.FunctionType.Builtin] = function (fn, params, debugInfo, contextStack, _a) {
+      _a[exports.FunctionType.Builtin] = function (fn, params, sourceCodeInfo, contextStack, _a) {
           var executeFunction = _a.executeFunction;
-          var normalExpression = asNonUndefined(normalExpressions[fn.n], debugInfo);
-          return normalExpression.evaluate(params, debugInfo, contextStack, { executeFunction: executeFunction });
+          var normalExpression = asNonUndefined(normalExpressions[fn.n], sourceCodeInfo);
+          return normalExpression.evaluate(params, sourceCodeInfo, contextStack, { executeFunction: executeFunction });
       },
       _a);
 
@@ -6182,7 +6186,7 @@ var Lits = (function (exports) {
           case exports.AstNodeType.SpecialExpression:
               return evaluateSpecialExpression(node, contextStack);
           default:
-              throw new LitsError("".concat(node.t, "-node cannot be evaluated"), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
+              throw new LitsError("".concat(node.t, "-node cannot be evaluated"), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
       }
   };
   function evaluateNumber(node) {
@@ -6193,74 +6197,74 @@ var Lits = (function (exports) {
   }
   function evaluateReservedName(node) {
       var _a;
-      return asNonUndefined(reservedNamesRecord[node.v], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d).value;
+      return asNonUndefined(reservedNamesRecord[node.v], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo).value;
   }
   function evaluateNormalExpression(node, contextStack) {
       var _a;
       var params = node.p.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
-      var debugInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d;
+      var sourceCodeInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo;
       if (isNormalExpressionNodeWithName(node)) {
           var value = contextStack.getValue(node.n);
           if (value !== undefined) {
-              return executeFunction(asAny(value), params, contextStack, debugInfo);
+              return executeFunction(asAny(value), params, contextStack, sourceCodeInfo);
           }
           return evaluateBuiltinNormalExpression(node, params, contextStack);
       }
       else {
           var fn = evaluateAstNode(node.e, contextStack);
-          return executeFunction(fn, params, contextStack, debugInfo);
+          return executeFunction(fn, params, contextStack, sourceCodeInfo);
       }
   }
-  var executeFunction = function (fn, params, contextStack, debugInfo) {
+  var executeFunction = function (fn, params, contextStack, sourceCodeInfo) {
       if (isLitsFunction(fn)) {
-          return functionExecutors[fn.t](fn, params, debugInfo, contextStack, { evaluateAstNode: evaluateAstNode, executeFunction: executeFunction });
+          return functionExecutors[fn.t](fn, params, sourceCodeInfo, contextStack, { evaluateAstNode: evaluateAstNode, executeFunction: executeFunction });
       }
       if (Array.isArray(fn)) {
-          return evaluateArrayAsFunction(fn, params, debugInfo);
+          return evaluateArrayAsFunction(fn, params, sourceCodeInfo);
       }
       if (isObj(fn)) {
-          return evalueateObjectAsFunction(fn, params, debugInfo);
+          return evalueateObjectAsFunction(fn, params, sourceCodeInfo);
       }
       if (typeof fn === "string") {
-          return evaluateStringAsFunction(fn, params, debugInfo);
+          return evaluateStringAsFunction(fn, params, sourceCodeInfo);
       }
       if (isNumber(fn)) {
-          return evaluateNumberAsFunction(fn, params, debugInfo);
+          return evaluateNumberAsFunction(fn, params, sourceCodeInfo);
       }
-      throw new NotAFunctionError(fn, debugInfo);
+      throw new NotAFunctionError(fn, sourceCodeInfo);
   };
   function evaluateBuiltinNormalExpression(node, params, contextStack) {
       var _a, _b;
       var normalExpression = builtin.normalExpressions[node.n];
       if (!normalExpression) {
-          throw new UndefinedSymbolError(node.n, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
+          throw new UndefinedSymbolError(node.n, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
       }
-      return normalExpression.evaluate(params, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.d, contextStack, { executeFunction: executeFunction });
+      return normalExpression.evaluate(params, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo, contextStack, { executeFunction: executeFunction });
   }
   function evaluateSpecialExpression(node, contextStack) {
       var _a;
-      var specialExpression = asNonUndefined(builtin.specialExpressions[node.n], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
+      var specialExpression = asNonUndefined(builtin.specialExpressions[node.n], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
       return specialExpression.evaluate(node, contextStack, { evaluateAstNode: evaluateAstNode, builtin: builtin });
   }
-  function evalueateObjectAsFunction(fn, params, debugInfo) {
+  function evalueateObjectAsFunction(fn, params, sourceCodeInfo) {
       if (params.length !== 1) {
-          throw new LitsError("Object as function requires one string parameter.", debugInfo);
+          throw new LitsError("Object as function requires one string parameter.", sourceCodeInfo);
       }
       var key = params[0];
-      assertString(key, debugInfo);
+      assertString(key, sourceCodeInfo);
       return toAny(fn[key]);
   }
-  function evaluateArrayAsFunction(fn, params, debugInfo) {
+  function evaluateArrayAsFunction(fn, params, sourceCodeInfo) {
       if (params.length !== 1) {
-          throw new LitsError("Array as function requires one non negative integer parameter.", debugInfo);
+          throw new LitsError("Array as function requires one non negative integer parameter.", sourceCodeInfo);
       }
       var index = params[0];
-      assertNumber(index, debugInfo, { integer: true, nonNegative: true });
+      assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
       return toAny(fn[index]);
   }
-  function evaluateStringAsFunction(fn, params, debugInfo) {
+  function evaluateStringAsFunction(fn, params, sourceCodeInfo) {
       if (params.length !== 1) {
-          throw new LitsError("String as function requires one Obj parameter.", debugInfo);
+          throw new LitsError("String as function requires one Obj parameter.", sourceCodeInfo);
       }
       var param = toAny(params[0]);
       if (isObj(param)) {
@@ -6269,15 +6273,15 @@ var Lits = (function (exports) {
       if (isNumber(param, { integer: true })) {
           return toAny(fn[param]);
       }
-      throw new LitsError("string as function expects Obj or integer parameter, got ".concat(valueToString(param)), debugInfo);
+      throw new LitsError("string as function expects Obj or integer parameter, got ".concat(valueToString(param)), sourceCodeInfo);
   }
-  function evaluateNumberAsFunction(fn, params, debugInfo) {
-      assertNumber(fn, debugInfo, { integer: true });
+  function evaluateNumberAsFunction(fn, params, sourceCodeInfo) {
+      assertNumber(fn, sourceCodeInfo, { integer: true });
       if (params.length !== 1) {
-          throw new LitsError("Number as function requires one Arr parameter.", debugInfo);
+          throw new LitsError("Number as function requires one Arr parameter.", sourceCodeInfo);
       }
       var param = params[0];
-      assertSeq(param, debugInfo);
+      assertSeq(param, sourceCodeInfo);
       return toAny(param[fn]);
   }
   function contextToString(context) {
@@ -6373,7 +6377,7 @@ var Lits = (function (exports) {
           var e_2, _a, _b;
           var _c, _d, _e, _f;
           var value = node.v;
-          var debugInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.d;
+          var sourceCodeInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
           try {
               for (var _g = __values(this.contexts), _h = _g.next(); !_h.done; _h = _g.next()) {
                   var context = _h.value;
@@ -6405,7 +6409,7 @@ var Lits = (function (exports) {
           if (builtin.normalExpressions[value]) {
               var builtinFunction = (_b = {},
                   _b[FUNCTION_SYMBOL] = true,
-                  _b.d = debugInfo,
+                  _b.sourceCodeInfo = sourceCodeInfo,
                   _b.t = exports.FunctionType.Builtin,
                   _b.n = value,
                   _b);
@@ -6431,26 +6435,29 @@ var Lits = (function (exports) {
           else if (isBuiltinFunction(lookUpResult)) {
               return lookUpResult;
           }
-          throw new UndefinedSymbolError(node.v, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.d);
+          throw new UndefinedSymbolError(node.v, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
       };
       return ContextStack;
   }());
 
   var parseNumber = function (tokenStream, position) {
       var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-      return [position + 1, { t: exports.AstNodeType.Number, v: Number(tkn.v), tkn: tkn.d ? tkn : undefined }];
+      return [position + 1, { t: exports.AstNodeType.Number, v: Number(tkn.v), tkn: tkn.sourceCodeInfo ? tkn : undefined }];
   };
   var parseString = function (tokenStream, position) {
       var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-      return [position + 1, { t: exports.AstNodeType.String, v: tkn.v, tkn: tkn.d ? tkn : undefined }];
+      return [position + 1, { t: exports.AstNodeType.String, v: tkn.v, tkn: tkn.sourceCodeInfo ? tkn : undefined }];
   };
   var parseName = function (tokenStream, position) {
       var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-      return [position + 1, { t: exports.AstNodeType.Name, v: tkn.v, tkn: tkn.d ? tkn : undefined }];
+      return [position + 1, { t: exports.AstNodeType.Name, v: tkn.v, tkn: tkn.sourceCodeInfo ? tkn : undefined }];
   };
   var parseReservedName = function (tokenStream, position) {
       var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-      return [position + 1, { t: exports.AstNodeType.ReservedName, v: tkn.v, tkn: tkn.d ? tkn : undefined }];
+      return [
+          position + 1,
+          { t: exports.AstNodeType.ReservedName, v: tkn.v, tkn: tkn.sourceCodeInfo ? tkn : undefined },
+      ];
   };
   var parseTokens = function (tokenStream, position) {
       var _a;
@@ -6489,7 +6496,7 @@ var Lits = (function (exports) {
           t: exports.AstNodeType.NormalExpression,
           n: "array",
           p: params,
-          tkn: firstToken.d ? firstToken : undefined,
+          tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       };
       return [position, node];
   };
@@ -6510,7 +6517,7 @@ var Lits = (function (exports) {
           t: exports.AstNodeType.NormalExpression,
           n: "object",
           p: params,
-          tkn: firstToken.d ? firstToken : undefined,
+          tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       };
       assertEventNumberOfParams(node);
       return [position, node];
@@ -6520,19 +6527,19 @@ var Lits = (function (exports) {
       var stringNode = {
           t: exports.AstNodeType.String,
           v: tkn.v,
-          tkn: tkn.d ? tkn : undefined,
+          tkn: tkn.sourceCodeInfo ? tkn : undefined,
       };
-      assertNonUndefined(tkn.o, tkn.d);
+      assertNonUndefined(tkn.o, tkn.sourceCodeInfo);
       var optionsNode = {
           t: exports.AstNodeType.String,
           v: "".concat(tkn.o.g ? "g" : "").concat(tkn.o.i ? "i" : ""),
-          tkn: tkn.d ? tkn : undefined,
+          tkn: tkn.sourceCodeInfo ? tkn : undefined,
       };
       var node = {
           t: exports.AstNodeType.NormalExpression,
           n: "regexp",
           p: [stringNode, optionsNode],
-          tkn: tkn.d ? tkn : undefined,
+          tkn: tkn.sourceCodeInfo ? tkn : undefined,
       };
       return [position + 1, node];
   };
@@ -6553,18 +6560,18 @@ var Lits = (function (exports) {
                   if (number === "1") {
                       var mixedPercent1 = (!match[1] && percent1 === "WITH_1") || (match[1] && percent1 === "NAKED");
                       if (mixedPercent1) {
-                          throw new LitsError("Please make up your mind, either use % or %1", firstToken.d);
+                          throw new LitsError("Please make up your mind, either use % or %1", firstToken.sourceCodeInfo);
                       }
                       percent1 = match[1] ? "WITH_1" : "NAKED";
                   }
                   arity = Math.max(arity, Number(number));
                   if (arity > 20) {
-                      throw new LitsError("Can't specify more than 20 arguments", firstToken.d);
+                      throw new LitsError("Can't specify more than 20 arguments", firstToken.sourceCodeInfo);
                   }
               }
           }
           if (tkn.t === exports.TokenType.FnShorthand) {
-              throw new LitsError("Nested shortcut functions are not allowed", firstToken.d);
+              throw new LitsError("Nested shortcut functions are not allowed", firstToken.sourceCodeInfo);
           }
       }
       var mandatoryArguments = [];
@@ -6591,7 +6598,7 @@ var Lits = (function (exports) {
                   a: args.m.length,
               },
           ],
-          tkn: firstToken.d ? firstToken : undefined,
+          tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       };
       return [newPosition, node];
   };
@@ -6602,10 +6609,10 @@ var Lits = (function (exports) {
       }
       else if (tkn.t === exports.TokenType.Modifier) {
           var value = tkn.v;
-          return [position + 1, { t: exports.AstNodeType.Modifier, v: value, tkn: tkn.d ? tkn : undefined }];
+          return [position + 1, { t: exports.AstNodeType.Modifier, v: value, tkn: tkn.sourceCodeInfo ? tkn : undefined }];
       }
       else {
-          throw new LitsError("Expected name or modifier token, got ".concat(valueToString(tkn), "."), tkn.d);
+          throw new LitsError("Expected name or modifier token, got ".concat(valueToString(tkn), "."), tkn.sourceCodeInfo);
       }
   };
   var parseBindings = function (tokenStream, position) {
@@ -6634,7 +6641,7 @@ var Lits = (function (exports) {
           t: exports.AstNodeType.Binding,
           n: name,
           v: value,
-          tkn: firstToken.d ? firstToken : undefined,
+          tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       };
       return [position, node];
   };
@@ -6654,7 +6661,7 @@ var Lits = (function (exports) {
           };
           return [position, node_1];
       }
-      assertNameNode(fnNode, (_b = fnNode.tkn) === null || _b === void 0 ? void 0 : _b.d);
+      assertNameNode(fnNode, (_b = fnNode.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
       var node = {
           t: exports.AstNodeType.NormalExpression,
           n: fnNode.v,
@@ -6668,9 +6675,9 @@ var Lits = (function (exports) {
       return [position, node];
   };
   var parseSpecialExpression = function (tokenStream, position) {
-      var _a = asToken(tokenStream.tokens[position], tokenStream.filePath), expressionName = _a.v, debugInfo = _a.d;
+      var _a = asToken(tokenStream.tokens[position], tokenStream.filePath), expressionName = _a.v, sourceCodeInfo = _a.sourceCodeInfo;
       position += 1;
-      var _b = asNonUndefined(builtin.specialExpressions[expressionName], debugInfo), parse = _b.parse, validate = _b.validate;
+      var _b = asNonUndefined(builtin.specialExpressions[expressionName], sourceCodeInfo), parse = _b.parse, validate = _b.validate;
       var _c = __read(parse(tokenStream, position, {
           parseExpression: parseExpression,
           parseTokens: parseTokens,
@@ -6715,7 +6722,7 @@ var Lits = (function (exports) {
           default:
               assertUnreachable(tkn.t);
       }
-      throw new LitsError("Unrecognized token: ".concat(tkn.t, " value=").concat(tkn.v), tkn.d);
+      throw new LitsError("Unrecognized token: ".concat(tkn.t, " value=").concat(tkn.v), tkn.sourceCodeInfo);
   };
 
   function parse(tokenStream) {
@@ -6742,41 +6749,41 @@ var Lits = (function (exports) {
   };
   function applyCollectionAccessor(tokenStream, position) {
       var dotTkn = asNonUndefined(tokenStream.tokens[position]);
-      var debugInfo = dotTkn.d;
-      var backPosition = getPositionBackwards(tokenStream, position, debugInfo);
-      checkForward(tokenStream, position, dotTkn, debugInfo);
+      var sourceCodeInfo = dotTkn.sourceCodeInfo;
+      var backPosition = getPositionBackwards(tokenStream, position, sourceCodeInfo);
+      checkForward(tokenStream, position, dotTkn, sourceCodeInfo);
       tokenStream.tokens.splice(position, 1);
       tokenStream.tokens.splice(backPosition, 0, {
           t: exports.TokenType.Bracket,
           v: "(",
-          d: debugInfo,
+          sourceCodeInfo: sourceCodeInfo,
       });
       var nextTkn = asNonUndefined(tokenStream.tokens[position + 1]);
       if (dotTkn.v === ".") {
           tokenStream.tokens[position + 1] = {
               t: exports.TokenType.String,
               v: nextTkn.v,
-              d: nextTkn.d,
+              sourceCodeInfo: nextTkn.sourceCodeInfo,
           };
       }
       else {
-          assertNumber(Number(nextTkn.v), debugInfo, { integer: true, nonNegative: true });
+          assertNumber(Number(nextTkn.v), sourceCodeInfo, { integer: true, nonNegative: true });
           tokenStream.tokens[position + 1] = {
               t: exports.TokenType.Number,
               v: nextTkn.v,
-              d: nextTkn.d,
+              sourceCodeInfo: nextTkn.sourceCodeInfo,
           };
       }
       tokenStream.tokens.splice(position + 2, 0, {
           t: exports.TokenType.Bracket,
           v: ")",
-          d: debugInfo,
+          sourceCodeInfo: sourceCodeInfo,
       });
   }
-  function getPositionBackwards(tokenStream, position, debugInfo) {
+  function getPositionBackwards(tokenStream, position, sourceCodeInfo) {
       var bracketCount = null;
       if (position <= 0) {
-          throw new LitsError("Array accessor # must come after a sequence", debugInfo);
+          throw new LitsError("Array accessor # must come after a sequence", sourceCodeInfo);
       }
       var prevToken = asNonUndefined(tokenStream.tokens[position - 1]);
       var openBracket = null;
@@ -6796,13 +6803,13 @@ var Lits = (function (exports) {
                   closeBracket = "}";
                   break;
               default:
-                  throw new LitsError("# or . must be preceeded by a collection", debugInfo);
+                  throw new LitsError("# or . must be preceeded by a collection", sourceCodeInfo);
           }
       }
       while (bracketCount !== 0) {
           bracketCount = bracketCount === null ? 0 : bracketCount;
           position -= 1;
-          var tkn = asNonUndefined(tokenStream.tokens[position], debugInfo);
+          var tkn = asNonUndefined(tokenStream.tokens[position], sourceCodeInfo);
           if (tkn.t === exports.TokenType.Bracket) {
               if (tkn.v === openBracket) {
                   bracketCount += 1;
@@ -6815,18 +6822,18 @@ var Lits = (function (exports) {
       if (openBracket === "(" && position > 0) {
           var tokenBeforeBracket = asNonUndefined(tokenStream.tokens[position - 1]);
           if (tokenBeforeBracket.t === exports.TokenType.FnShorthand) {
-              throw new LitsError("# or . must NOT be preceeded by shorthand lambda function", debugInfo);
+              throw new LitsError("# or . must NOT be preceeded by shorthand lambda function", sourceCodeInfo);
           }
       }
       return position;
   }
-  function checkForward(tokenStream, position, dotTkn, debugInfo) {
-      var tkn = asNonUndefined(tokenStream.tokens[position + 1], debugInfo);
+  function checkForward(tokenStream, position, dotTkn, sourceCodeInfo) {
+      var tkn = asNonUndefined(tokenStream.tokens[position + 1], sourceCodeInfo);
       if (dotTkn.v === "." && tkn.t !== exports.TokenType.Name) {
-          throw new LitsError("# as a collection accessor must be followed by an name", debugInfo);
+          throw new LitsError("# as a collection accessor must be followed by an name", sourceCodeInfo);
       }
       if (dotTkn.v === "#" && tkn.t !== exports.TokenType.Number) {
-          throw new LitsError("# as a collection accessor must be followed by an integer", debugInfo);
+          throw new LitsError("# as a collection accessor must be followed by an integer", sourceCodeInfo);
       }
   }
 
@@ -6854,25 +6861,25 @@ var Lits = (function (exports) {
       }
       return NO_MATCH;
   };
-  var tokenizeLeftParen = function (input, position, debugInfo) {
-      return tokenizeCharacter(exports.TokenType.Bracket, "(", input, position, debugInfo);
+  var tokenizeLeftParen = function (input, position, sourceCodeInfo) {
+      return tokenizeCharacter(exports.TokenType.Bracket, "(", input, position, sourceCodeInfo);
   };
-  var tokenizeRightParen = function (input, position, debugInfo) {
-      return tokenizeCharacter(exports.TokenType.Bracket, ")", input, position, debugInfo);
+  var tokenizeRightParen = function (input, position, sourceCodeInfo) {
+      return tokenizeCharacter(exports.TokenType.Bracket, ")", input, position, sourceCodeInfo);
   };
-  var tokenizeLeftBracket = function (input, position, debugInfo) {
-      return tokenizeCharacter(exports.TokenType.Bracket, "[", input, position, debugInfo);
+  var tokenizeLeftBracket = function (input, position, sourceCodeInfo) {
+      return tokenizeCharacter(exports.TokenType.Bracket, "[", input, position, sourceCodeInfo);
   };
-  var tokenizeRightBracket = function (input, position, debugInfo) {
-      return tokenizeCharacter(exports.TokenType.Bracket, "]", input, position, debugInfo);
+  var tokenizeRightBracket = function (input, position, sourceCodeInfo) {
+      return tokenizeCharacter(exports.TokenType.Bracket, "]", input, position, sourceCodeInfo);
   };
-  var tokenizeLeftCurly = function (input, position, debugInfo) {
-      return tokenizeCharacter(exports.TokenType.Bracket, "{", input, position, debugInfo);
+  var tokenizeLeftCurly = function (input, position, sourceCodeInfo) {
+      return tokenizeCharacter(exports.TokenType.Bracket, "{", input, position, sourceCodeInfo);
   };
-  var tokenizeRightCurly = function (input, position, debugInfo) {
-      return tokenizeCharacter(exports.TokenType.Bracket, "}", input, position, debugInfo);
+  var tokenizeRightCurly = function (input, position, sourceCodeInfo) {
+      return tokenizeCharacter(exports.TokenType.Bracket, "}", input, position, sourceCodeInfo);
   };
-  var tokenizeString = function (input, position, debugInfo) {
+  var tokenizeString = function (input, position, sourceCodeInfo) {
       if (input[position] !== "\"") {
           return NO_MATCH;
       }
@@ -6882,7 +6889,7 @@ var Lits = (function (exports) {
       var escape = false;
       while (char !== "\"" || escape) {
           if (char === undefined) {
-              throw new LitsError("Unclosed string at position ".concat(position, "."), debugInfo);
+              throw new LitsError("Unclosed string at position ".concat(position, "."), sourceCodeInfo);
           }
           length += 1;
           if (escape) {
@@ -6905,9 +6912,9 @@ var Lits = (function (exports) {
           }
           char = input[position + length];
       }
-      return [length + 1, { t: exports.TokenType.String, v: value, d: debugInfo }];
+      return [length + 1, { t: exports.TokenType.String, v: value, sourceCodeInfo: sourceCodeInfo }];
   };
-  var tokenizeCollectionAccessor = function (input, position, debugInfo) {
+  var tokenizeCollectionAccessor = function (input, position, sourceCodeInfo) {
       var char = input[position];
       if (char !== "." && char !== "#") {
           return NO_MATCH;
@@ -6917,11 +6924,11 @@ var Lits = (function (exports) {
           {
               t: exports.TokenType.CollectionAccessor,
               v: char,
-              d: debugInfo,
+              sourceCodeInfo: sourceCodeInfo,
           },
       ];
   };
-  var tokenizeSymbolString = function (input, position, debugInfo) {
+  var tokenizeSymbolString = function (input, position, sourceCodeInfo) {
       if (input[position] !== ":") {
           return NO_MATCH;
       }
@@ -6936,14 +6943,14 @@ var Lits = (function (exports) {
       if (length === 1) {
           return NO_MATCH;
       }
-      return [length, { t: exports.TokenType.String, v: value, d: debugInfo }];
+      return [length, { t: exports.TokenType.String, v: value, sourceCodeInfo: sourceCodeInfo }];
   };
-  var tokenizeRegexpShorthand = function (input, position, debugInfo) {
+  var tokenizeRegexpShorthand = function (input, position, sourceCodeInfo) {
       var _a;
       if (input[position] !== "#") {
           return NO_MATCH;
       }
-      var _b = __read(tokenizeString(input, position + 1, debugInfo), 2), stringLength = _b[0], token = _b[1];
+      var _b = __read(tokenizeString(input, position + 1, sourceCodeInfo), 2), stringLength = _b[0], token = _b[1];
       if (!token) {
           return NO_MATCH;
       }
@@ -6953,14 +6960,14 @@ var Lits = (function (exports) {
       while (input[position] === "g" || input[position] === "i") {
           if (input[position] === "g") {
               if (options.g) {
-                  throw new LitsError("Duplicated regexp option \"".concat(input[position], "\" at position ").concat(position, "."), debugInfo);
+                  throw new LitsError("Duplicated regexp option \"".concat(input[position], "\" at position ").concat(position, "."), sourceCodeInfo);
               }
               length += 1;
               options.g = true;
           }
           else {
               if (options.i) {
-                  throw new LitsError("Duplicated regexp option \"".concat(input[position], "\" at position ").concat(position, "."), debugInfo);
+                  throw new LitsError("Duplicated regexp option \"".concat(input[position], "\" at position ").concat(position, "."), sourceCodeInfo);
               }
               length += 1;
               options.i = true;
@@ -6968,7 +6975,7 @@ var Lits = (function (exports) {
           position += 1;
       }
       if (nameRegExp.test((_a = input[position]) !== null && _a !== void 0 ? _a : "")) {
-          throw new LitsError("Unexpected regexp option \"".concat(input[position], "\" at position ").concat(position, "."), debugInfo);
+          throw new LitsError("Unexpected regexp option \"".concat(input[position], "\" at position ").concat(position, "."), sourceCodeInfo);
       }
       return [
           length,
@@ -6976,11 +6983,11 @@ var Lits = (function (exports) {
               t: exports.TokenType.RegexpShorthand,
               v: token.v,
               o: options,
-              d: debugInfo,
+              sourceCodeInfo: sourceCodeInfo,
           },
       ];
   };
-  var tokenizeFnShorthand = function (input, position, debugInfo) {
+  var tokenizeFnShorthand = function (input, position, sourceCodeInfo) {
       if (input.slice(position, position + 2) !== "#(") {
           return NO_MATCH;
       }
@@ -6989,7 +6996,7 @@ var Lits = (function (exports) {
           {
               t: exports.TokenType.FnShorthand,
               v: "#",
-              d: debugInfo,
+              sourceCodeInfo: sourceCodeInfo,
           },
       ];
   };
@@ -6999,7 +7006,7 @@ var Lits = (function (exports) {
   var hexNumberRegExp = /[0-9a-fA-F]/;
   var binaryNumberRegExp = /[0-1]/;
   var firstCharRegExp = /[0-9.-]/;
-  var tokenizeNumber = function (input, position, debugInfo) {
+  var tokenizeNumber = function (input, position, sourceCodeInfo) {
       var type = "decimal";
       var firstChar = input[position];
       if (!firstCharRegExp.test(firstChar)) {
@@ -7008,7 +7015,7 @@ var Lits = (function (exports) {
       var hasDecimals = firstChar === ".";
       var i;
       for (i = position + 1; i < input.length; i += 1) {
-          var char = asString(input[i], debugInfo, { char: true });
+          var char = asString(input[i], sourceCodeInfo, { char: true });
           if (endOfNumberRegExp.test(char)) {
               break;
           }
@@ -7067,9 +7074,9 @@ var Lits = (function (exports) {
       if ((type !== "decimal" && length <= 2) || value === "." || value === "-") {
           return NO_MATCH;
       }
-      return [length, { t: exports.TokenType.Number, v: value, d: debugInfo }];
+      return [length, { t: exports.TokenType.Number, v: value, sourceCodeInfo: sourceCodeInfo }];
   };
-  var tokenizeReservedName = function (input, position, debugInfo) {
+  var tokenizeReservedName = function (input, position, sourceCodeInfo) {
       var e_1, _a;
       try {
           for (var _b = __values(Object.entries(reservedNamesRecord)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -7082,9 +7089,9 @@ var Lits = (function (exports) {
               var name_1 = input.substr(position, length_2);
               if (name_1 === reservedName) {
                   if (forbidden) {
-                      throw new LitsError("".concat(name_1, " is forbidden!"), debugInfo);
+                      throw new LitsError("".concat(name_1, " is forbidden!"), sourceCodeInfo);
                   }
-                  return [length_2, { t: exports.TokenType.ReservedName, v: reservedName, d: debugInfo }];
+                  return [length_2, { t: exports.TokenType.ReservedName, v: reservedName, sourceCodeInfo: sourceCodeInfo }];
               }
           }
       }
@@ -7097,10 +7104,10 @@ var Lits = (function (exports) {
       }
       return NO_MATCH;
   };
-  var tokenizeName = function (input, position, debugInfo) {
-      return tokenizePattern(exports.TokenType.Name, nameRegExp, input, position, debugInfo);
+  var tokenizeName = function (input, position, sourceCodeInfo) {
+      return tokenizePattern(exports.TokenType.Name, nameRegExp, input, position, sourceCodeInfo);
   };
-  var tokenizeModifier = function (input, position, debugInfo) {
+  var tokenizeModifier = function (input, position, sourceCodeInfo) {
       var e_2, _a;
       var modifiers = ["&", "&let", "&when", "&while"];
       try {
@@ -7110,7 +7117,7 @@ var Lits = (function (exports) {
               var charAfterModifier = input[position + length_3];
               if (input.substr(position, length_3) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
                   var value = modifier;
-                  return [length_3, { t: exports.TokenType.Modifier, v: value, d: debugInfo }];
+                  return [length_3, { t: exports.TokenType.Modifier, v: value, sourceCodeInfo: sourceCodeInfo }];
               }
           }
       }
@@ -7123,15 +7130,15 @@ var Lits = (function (exports) {
       }
       return NO_MATCH;
   };
-  function tokenizeCharacter(type, value, input, position, debugInfo) {
+  function tokenizeCharacter(type, value, input, position, sourceCodeInfo) {
       if (value === input[position]) {
-          return [1, { t: type, v: value, d: debugInfo }];
+          return [1, { t: type, v: value, sourceCodeInfo: sourceCodeInfo }];
       }
       else {
           return NO_MATCH;
       }
   }
-  function tokenizePattern(type, pattern, input, position, debugInfo) {
+  function tokenizePattern(type, pattern, input, position, sourceCodeInfo) {
       var char = input[position];
       var length = 0;
       var value = "";
@@ -7143,7 +7150,7 @@ var Lits = (function (exports) {
           length += 1;
           char = input[position + length];
       }
-      return [length, { t: type, v: value, d: debugInfo }];
+      return [length, { t: type, v: value, sourceCodeInfo: sourceCodeInfo }];
   }
 
   // All tokenizers, order matters!
@@ -7169,7 +7176,7 @@ var Lits = (function (exports) {
   function getSourceCodeLine(input, lineNbr) {
       return input.split(/\r\n|\r|\n/)[lineNbr];
   }
-  function createDebugInfo(input, position, filePath, getLocation) {
+  function createSourceCodeInfo(input, position, filePath) {
       var lines = input.substr(0, position + 1).split(/\r\n|\r|\n/);
       var lastLine = lines[lines.length - 1];
       var code = getSourceCodeLine(input, lines.length - 1);
@@ -7177,28 +7184,28 @@ var Lits = (function (exports) {
       var column = lastLine.length;
       return {
           code: code,
-          line: line,
-          column: column,
+          position: {
+              line: line,
+              column: column,
+          },
           filePath: filePath,
-          getLocation: getLocation,
       };
   }
   function tokenize(input, params) {
       var e_1, _a;
-      var _b;
       var tokens = [];
       var position = 0;
       var tokenized = false;
       while (position < input.length) {
           tokenized = false;
           // Loop through all tokenizer until one matches
-          var debugInfo = params.debug
-              ? createDebugInfo(input, position, (_b = params.filePath) !== null && _b !== void 0 ? _b : "")
+          var sourceCodeInfo = params.debug
+              ? createSourceCodeInfo(input, position, params.filePath)
               : undefined;
           try {
               for (var tokenizers_1 = (e_1 = void 0, __values(tokenizers)), tokenizers_1_1 = tokenizers_1.next(); !tokenizers_1_1.done; tokenizers_1_1 = tokenizers_1.next()) {
                   var tokenizer = tokenizers_1_1.value;
-                  var _c = __read(tokenizer(input, position, debugInfo), 2), nbrOfCharacters = _c[0], token = _c[1];
+                  var _b = __read(tokenizer(input, position, sourceCodeInfo), 2), nbrOfCharacters = _b[0], token = _b[1];
                   // tokenizer matched
                   if (nbrOfCharacters > 0) {
                       tokenized = true;
@@ -7218,7 +7225,7 @@ var Lits = (function (exports) {
               finally { if (e_1) throw e_1.error; }
           }
           if (!tokenized) {
-              throw new LitsError("Unrecognized character '".concat(input[position], "'."), debugInfo);
+              throw new LitsError("Unrecognized character '".concat(input[position], "'."), sourceCodeInfo);
           }
       }
       var tokenStream = {

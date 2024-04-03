@@ -46,7 +46,7 @@ function getSourceCodeLine(input: string, lineNbr: number): string {
   return input.split(/\r\n|\r|\n/)[lineNbr] as string
 }
 
-function createDebugInfo(input: string, position: number, filePath?: string): SourceCodeInfo {
+function createSourceCodeInfo(input: string, position: number, filePath?: string): SourceCodeInfo {
   const lines = input.substr(0, position + 1).split(/\r\n|\r|\n/)
   const lastLine = lines[lines.length - 1] as string
 
@@ -72,7 +72,7 @@ export function tokenize(input: string, params: TokenizeParams): TokenStream {
 
     // Loop through all tokenizer until one matches
     const sourceCodeInfo: SourceCodeInfo | undefined = params.debug
-      ? createDebugInfo(input, position, params.filePath)
+      ? createSourceCodeInfo(input, position, params.filePath)
       : undefined
     for (const tokenizer of tokenizers) {
       const [nbrOfCharacters, token] = tokenizer(input, position, sourceCodeInfo)

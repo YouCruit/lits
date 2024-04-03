@@ -1,7 +1,7 @@
 import { LitsError } from '../../../errors'
 import type { Any, Arr } from '../../../interface'
 import type { NormalExpressionNode } from '../../../parser/interface'
-import type { DebugInfo } from '../../../tokenizer/interface'
+import type { SourceCodeInfo } from '../../../tokenizer/interface'
 import { asNonUndefined, assertNumberOfParams } from '../../../typeGuards'
 import { assertArray } from '../../../typeGuards/array'
 import { isObj, assertStringOrRegularExpression } from '../../../typeGuards/lits'
@@ -12,24 +12,24 @@ import type { BuiltinNormalExpressions } from '../../interface'
 
 export const stringNormalExpression: BuiltinNormalExpressions = {
   subs: {
-    evaluate: ([first, second, third], debugInfo): Any => {
-      assertString(first, debugInfo)
-      assertNumber(second, debugInfo, { integer: true, nonNegative: true })
+    evaluate: ([first, second, third], sourceCodeInfo): Any => {
+      assertString(first, sourceCodeInfo)
+      assertNumber(second, sourceCodeInfo, { integer: true, nonNegative: true })
 
       if (third === undefined) {
         return (first as string).substring(second)
       }
 
-      assertNumber(third, debugInfo, { gte: second })
+      assertNumber(third, sourceCodeInfo, { gte: second })
       return (first as string).substring(second, third)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams({ min: 2, max: 3 }, node),
   },
 
   'string-repeat': {
-    evaluate: ([str, count], debugInfo): string => {
-      assertString(str, debugInfo)
-      assertNumber(count, debugInfo, { integer: true, nonNegative: true })
+    evaluate: ([str, count], sourceCodeInfo): string => {
+      assertString(str, sourceCodeInfo)
+      assertNumber(count, sourceCodeInfo, { integer: true, nonNegative: true })
 
       return str.repeat(count)
     },
@@ -53,11 +53,11 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   },
 
   number: {
-    evaluate: ([str], debugInfo): number => {
-      assertString(str, debugInfo)
+    evaluate: ([str], sourceCodeInfo): number => {
+      assertString(str, sourceCodeInfo)
       const number = Number(str)
       if (Number.isNaN(number)) {
-        throw new LitsError(`Could not convert '${str}' to a number.`, debugInfo)
+        throw new LitsError(`Could not convert '${str}' to a number.`, sourceCodeInfo)
       }
       return number
     },
@@ -65,20 +65,20 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   },
 
   'number-to-string': {
-    evaluate: (params, debugInfo): string => {
+    evaluate: (params, sourceCodeInfo): string => {
       const [num, base] = params
-      assertNumber(num, debugInfo, { finite: true })
+      assertNumber(num, sourceCodeInfo, { finite: true })
       if (params.length === 1) {
         return `${num}`
       } else {
-        assertNumber(base, debugInfo, { finite: true })
+        assertNumber(base, sourceCodeInfo, { finite: true })
         if (base !== 2 && base !== 8 && base !== 10 && base !== 16) {
-          throw new LitsError(`Expected "number-to-string" base argument to be 2, 8, 10 or 16, got: ${base}`, debugInfo)
+          throw new LitsError(`Expected "number-to-string" base argument to be 2, 8, 10 or 16, got: ${base}`, sourceCodeInfo)
         }
         if (base === 10) {
           return `${num}`
         }
-        assertNumber(num, debugInfo, { integer: true, nonNegative: true })
+        assertNumber(num, sourceCodeInfo, { integer: true, nonNegative: true })
         return Number(num).toString(base)
       }
     },
@@ -86,82 +86,82 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   },
 
   'from-char-code': {
-    evaluate: ([num], debugInfo): string => {
-      assertNumber(num, debugInfo, { finite: true })
+    evaluate: ([num], sourceCodeInfo): string => {
+      assertNumber(num, sourceCodeInfo, { finite: true })
       const int = toNonNegativeInteger(num)
       try {
         return String.fromCodePoint(int)
       } catch (error) {
-        throw new LitsError(error as Error, debugInfo)
+        throw new LitsError(error as Error, sourceCodeInfo)
       }
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'to-char-code': {
-    evaluate: ([str], debugInfo): number => {
-      assertString(str, debugInfo, { nonEmpty: true })
-      return asNonUndefined(str.codePointAt(0), debugInfo)
+    evaluate: ([str], sourceCodeInfo): number => {
+      assertString(str, sourceCodeInfo, { nonEmpty: true })
+      return asNonUndefined(str.codePointAt(0), sourceCodeInfo)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'lower-case': {
-    evaluate: ([str], debugInfo): string => {
-      assertString(str, debugInfo)
+    evaluate: ([str], sourceCodeInfo): string => {
+      assertString(str, sourceCodeInfo)
       return str.toLowerCase()
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'upper-case': {
-    evaluate: ([str], debugInfo): string => {
-      assertString(str, debugInfo)
+    evaluate: ([str], sourceCodeInfo): string => {
+      assertString(str, sourceCodeInfo)
       return str.toUpperCase()
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   trim: {
-    evaluate: ([str], debugInfo): string => {
-      assertString(str, debugInfo)
+    evaluate: ([str], sourceCodeInfo): string => {
+      assertString(str, sourceCodeInfo)
       return str.trim()
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'trim-left': {
-    evaluate: ([str], debugInfo): string => {
-      assertString(str, debugInfo)
+    evaluate: ([str], sourceCodeInfo): string => {
+      assertString(str, sourceCodeInfo)
       return str.replace(/^\s+/, ``)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'trim-right': {
-    evaluate: ([str], debugInfo): string => {
-      assertString(str, debugInfo)
+    evaluate: ([str], sourceCodeInfo): string => {
+      assertString(str, sourceCodeInfo)
       return str.replace(/\s+$/, ``)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   join: {
-    evaluate: ([stringList, delimiter], debugInfo): string => {
-      assertArray(stringList, debugInfo)
-      stringList.forEach(str => assertString(str, debugInfo))
-      assertString(delimiter, debugInfo)
+    evaluate: ([stringList, delimiter], sourceCodeInfo): string => {
+      assertArray(stringList, sourceCodeInfo)
+      stringList.forEach(str => assertString(str, sourceCodeInfo))
+      assertString(delimiter, sourceCodeInfo)
       return stringList.join(delimiter)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(2, node),
   },
 
   split: {
-    evaluate: ([str, stringOrRegExpValue, limit], debugInfo): string[] => {
-      assertString(str, debugInfo)
-      assertStringOrRegularExpression(stringOrRegExpValue, debugInfo)
+    evaluate: ([str, stringOrRegExpValue, limit], sourceCodeInfo): string[] => {
+      assertString(str, sourceCodeInfo)
+      assertStringOrRegularExpression(stringOrRegExpValue, sourceCodeInfo)
       if (limit !== undefined) {
-        assertNumber(limit, debugInfo, { integer: true, nonNegative: true })
+        assertNumber(limit, sourceCodeInfo, { integer: true, nonNegative: true })
       }
       const delimiter =
         typeof stringOrRegExpValue === `string`
@@ -173,12 +173,12 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   },
 
   'pad-left': {
-    evaluate: ([str, length, padString], debugInfo): string => {
-      assertString(str, debugInfo)
-      assertNumber(length, debugInfo, { integer: true })
+    evaluate: ([str, length, padString], sourceCodeInfo): string => {
+      assertString(str, sourceCodeInfo)
+      assertNumber(length, sourceCodeInfo, { integer: true })
 
       if (padString !== undefined) {
-        assertString(padString, debugInfo)
+        assertString(padString, sourceCodeInfo)
       }
 
       return str.padStart(length, padString)
@@ -187,12 +187,12 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   },
 
   'pad-right': {
-    evaluate: ([str, length, padString], debugInfo): string => {
-      assertString(str, debugInfo)
-      assertNumber(length, debugInfo, { integer: true })
+    evaluate: ([str, length, padString], sourceCodeInfo): string => {
+      assertString(str, sourceCodeInfo)
+      assertNumber(length, sourceCodeInfo, { integer: true })
 
       if (padString !== undefined) {
-        assertString(padString, debugInfo)
+        assertString(padString, sourceCodeInfo)
       }
 
       return str.padEnd(length, padString)
@@ -201,30 +201,30 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   },
 
   template: {
-    evaluate: ([templateString, ...placeholders], debugInfo): string => {
-      assertString(templateString, debugInfo)
-      assertArray(placeholders, debugInfo)
+    evaluate: ([templateString, ...placeholders], sourceCodeInfo): string => {
+      assertString(templateString, sourceCodeInfo)
+      assertArray(placeholders, sourceCodeInfo)
       const templateStrings = templateString.split(`||||`)
       if (templateStrings.length <= 1) {
-        return applyPlaceholders(templateStrings[0] as string, placeholders, debugInfo)
+        return applyPlaceholders(templateStrings[0] as string, placeholders, sourceCodeInfo)
       } else {
         // Pluralisation
         const count = placeholders[0]
-        assertNumber(count, debugInfo, { integer: true, nonNegative: true })
+        assertNumber(count, sourceCodeInfo, { integer: true, nonNegative: true })
         const stringPlaceholders = [`${count}`, ...placeholders.slice(1)] as string[]
         if (templateStrings.length === 2) {
           // Exactly two valiants.
           // First variant (singular) for count = 1, Second variant (plural) for count = 0 or count > 1
 
           const placehoder = templateStrings[count === 1 ? 0 : 1] as string
-          return applyPlaceholders(placehoder, stringPlaceholders, debugInfo)
+          return applyPlaceholders(placehoder, stringPlaceholders, sourceCodeInfo)
         } else {
           // More than two variant:
           // Use count as index
           // If count >= number of variants, use last variant
 
           const placehoder = templateStrings[Math.min(count, templateStrings.length - 1)] as string
-          return applyPlaceholders(placehoder, stringPlaceholders, debugInfo)
+          return applyPlaceholders(placehoder, stringPlaceholders, sourceCodeInfo)
         }
       }
     },
@@ -232,8 +232,8 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   },
 
   'encode-base64': {
-    evaluate: ([value], debugInfo): string => {
-      assertString(value, debugInfo)
+    evaluate: ([value], sourceCodeInfo): string => {
+      assertString(value, sourceCodeInfo)
       return btoa(
         encodeURIComponent(value).replace(/%([0-9A-F]{2})/g, (_match, p1) => {
           return String.fromCharCode(parseInt(p1, 16))
@@ -244,8 +244,8 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   },
 
   'decode-base64': {
-    evaluate: ([value], debugInfo): string => {
-      assertString(value, debugInfo)
+    evaluate: ([value], sourceCodeInfo): string => {
+      assertString(value, sourceCodeInfo)
       try {
         return decodeURIComponent(
           Array.prototype.map
@@ -255,27 +255,27 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
             .join(``),
         )
       } catch (error) {
-        throw new LitsError(error as Error, debugInfo)
+        throw new LitsError(error as Error, sourceCodeInfo)
       }
     },
     validate: node => assertNumberOfParams(1, node),
   },
 
   'encode-uri-component': {
-    evaluate: ([value], debugInfo): string => {
-      assertString(value, debugInfo)
+    evaluate: ([value], sourceCodeInfo): string => {
+      assertString(value, sourceCodeInfo)
       return encodeURIComponent(value)
     },
     validate: node => assertNumberOfParams(1, node),
   },
 
   'decode-uri-component': {
-    evaluate: ([value], debugInfo): string => {
-      assertString(value, debugInfo)
+    evaluate: ([value], sourceCodeInfo): string => {
+      assertString(value, sourceCodeInfo)
       try {
         return decodeURIComponent(value)
       } catch (error) {
-        throw new LitsError(error as Error, debugInfo)
+        throw new LitsError(error as Error, sourceCodeInfo)
       }
     },
     validate: node => assertNumberOfParams(1, node),
@@ -283,14 +283,14 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
 }
 
 const doubleDollarRegexp = /\$\$/g
-function applyPlaceholders(templateString: string, placeholders: unknown[], debugInfo?: DebugInfo): string {
+function applyPlaceholders(templateString: string, placeholders: unknown[], sourceCodeInfo?: SourceCodeInfo): string {
   for (let i = 0; i < 9; i += 1) {
     // Matches $1, $2, ..., $9
     // Does not match $$1
     // But does match $$$1, (since the two first '$' will later be raplaced with a single '$'
     const re = new RegExp(`(\\$\\$|[^$]|^)\\$${i + 1}`, `g`)
     if (re.test(templateString)) {
-      const placeHolder = asStringOrNumber(placeholders[i], debugInfo)
+      const placeHolder = asStringOrNumber(placeholders[i], sourceCodeInfo)
       templateString = templateString.replace(re, `$1${placeHolder}`)
     }
   }

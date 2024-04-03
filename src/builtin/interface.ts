@@ -8,7 +8,7 @@ import type {
   ParseBinding,
   SpecialExpressionNode,
 } from '../parser/interface'
-import type { DebugInfo, TokenStream } from '../tokenizer/interface'
+import type { SourceCodeInfo, TokenStream } from '../tokenizer/interface'
 import type { NormalExpressionNode } from '../parser/interface'
 import type { Any, Arr } from '../interface'
 import type { AnalyzeAst, AnalyzeResult } from '../analyze/interface'
@@ -16,7 +16,7 @@ import type { ContextStack } from '../evaluator/ContextStack'
 
 export type NormalExpressionEvaluator<T> = (
   params: Arr,
-  debugInfo: DebugInfo | undefined,
+  sourceCodeInfo: SourceCodeInfo | undefined,
   contextStack: ContextStack,
   { executeFunction }: { executeFunction: ExecuteFunction },
 ) => T

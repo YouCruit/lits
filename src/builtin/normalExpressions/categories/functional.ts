@@ -18,13 +18,13 @@ import { assertArray } from '../../../typeGuards/array'
 import { assertNumberOfParams } from '../../../typeGuards'
 export const functionalNormalExpression: BuiltinNormalExpressions = {
   apply: {
-    evaluate: ([func, ...params]: Arr, debugInfo, contextStack, { executeFunction }): Any => {
-      assertLitsFunction(func, debugInfo)
+    evaluate: ([func, ...params]: Arr, sourceCodeInfo, contextStack, { executeFunction }): Any => {
+      assertLitsFunction(func, sourceCodeInfo)
       const paramsLength = params.length
       const last = params[paramsLength - 1]
-      assertArray(last, debugInfo)
+      assertArray(last, sourceCodeInfo)
       const applyArray = [...params.slice(0, -1), ...last]
-      return executeFunction(func, applyArray, contextStack, debugInfo)
+      return executeFunction(func, applyArray, contextStack, sourceCodeInfo)
     },
     validate: node => assertNumberOfParams({ min: 2 }, node),
   },
@@ -37,10 +37,10 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
   },
 
   partial: {
-    evaluate: ([fn, ...params], debugInfo): PartialFunction => {
+    evaluate: ([fn, ...params], sourceCodeInfo): PartialFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: debugInfo,
+        d: sourceCodeInfo,
         t: FunctionType.Partial,
         f: toAny(fn),
         p: params,
@@ -50,7 +50,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
   },
 
   comp: {
-    evaluate: (fns, debugInfo): CompFunction => {
+    evaluate: (fns, sourceCodeInfo): CompFunction => {
       if (fns.length > 1) {
         const last = fns[fns.length - 1]
         if (Array.isArray(last)) {
@@ -59,7 +59,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
       }
       return {
         [FUNCTION_SYMBOL]: true,
-        d: debugInfo,
+        d: sourceCodeInfo,
         t: FunctionType.Comp,
         f: fns,
       }
@@ -67,10 +67,10 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
   },
 
   constantly: {
-    evaluate: ([value], debugInfo): ConstantlyFunction => {
+    evaluate: ([value], sourceCodeInfo): ConstantlyFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: debugInfo,
+        d: sourceCodeInfo,
         t: FunctionType.Constantly,
         v: toAny(value),
       }
@@ -79,10 +79,10 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
   },
 
   juxt: {
-    evaluate: (fns, debugInfo): JuxtFunction => {
+    evaluate: (fns, sourceCodeInfo): JuxtFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: debugInfo,
+        d: sourceCodeInfo,
         t: FunctionType.Juxt,
         f: fns,
       }
@@ -91,10 +91,10 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
   },
 
   complement: {
-    evaluate: ([fn], debugInfo): ComplementFunction => {
+    evaluate: ([fn], sourceCodeInfo): ComplementFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: debugInfo,
+        d: sourceCodeInfo,
         t: FunctionType.Complement,
         f: toAny(fn),
       }
@@ -103,10 +103,10 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
   },
 
   'every-pred': {
-    evaluate: (fns, debugInfo): EveryPredFunction => {
+    evaluate: (fns, sourceCodeInfo): EveryPredFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: debugInfo,
+        d: sourceCodeInfo,
         t: FunctionType.EveryPred,
         f: fns,
       }
@@ -115,10 +115,10 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
   },
 
   'some-pred': {
-    evaluate: (fns, debugInfo): SomePredFunction => {
+    evaluate: (fns, sourceCodeInfo): SomePredFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: debugInfo,
+        d: sourceCodeInfo,
         t: FunctionType.SomePred,
         f: fns,
       }
@@ -127,10 +127,10 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
   },
 
   fnil: {
-    evaluate: ([fn, ...params], debugInfo): FNilFunction => {
+    evaluate: ([fn, ...params], sourceCodeInfo): FNilFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
-        d: debugInfo,
+        d: sourceCodeInfo,
         t: FunctionType.Fnil,
         f: toAny(fn),
         p: params,

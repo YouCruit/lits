@@ -305,10 +305,10 @@ const parseNormalExpression: ParseNormalExpression = (tokenStream, position) => 
 }
 
 const parseSpecialExpression: ParseSpecialExpression = (tokenStream, position) => {
-  const { v: expressionName, d: debugInfo } = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  const { v: expressionName, d: sourceCodeInfo } = asToken(tokenStream.tokens[position], tokenStream.filePath)
   position += 1
 
-  const { parse, validate } = asNonUndefined(builtin.specialExpressions[expressionName], debugInfo)
+  const { parse, validate } = asNonUndefined(builtin.specialExpressions[expressionName], sourceCodeInfo)
 
   const [positionAfterParse, node] = parse(tokenStream, position, {
     parseExpression,

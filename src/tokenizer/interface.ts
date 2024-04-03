@@ -9,16 +9,14 @@ export type SourceCodeInfo = {
   filePath?: string
 }
 
-export type DebugInfo = SourceCodeInfo
-
 export type Token = {
   t: TokenType // type
   v: string // value
   o?: Record<string, boolean> // options
-  d?: DebugInfo // debugInfo
+  d?: SourceCodeInfo // sourceCodeInfo
 }
 export type TokenDescriptor = [length: number, token: Token | undefined]
-export type Tokenizer = (input: string, position: number, debugInfo?: DebugInfo) => TokenDescriptor
+export type Tokenizer = (input: string, position: number, sourceCodeInfo?: SourceCodeInfo) => TokenDescriptor
 export type TokenStream = {
   tokens: Token[]
   filePath?: string

@@ -1,5 +1,5 @@
 import { LitsError } from '../errors'
-import type { DebugInfo } from '../tokenizer/interface'
+import type { SourceCodeInfo } from '../tokenizer/interface'
 import { valueToString } from '../utils/debug/debugTools'
 import { getDebugInfo } from '../utils/debug/getDebugInfo'
 
@@ -166,18 +166,18 @@ export function isNumber(value: unknown, options: NumberOptions = {}): value is 
 
 export function assertNumber(
   value: unknown,
-  debugInfo?: DebugInfo,
+  sourceCodeInfo?: SourceCodeInfo,
   options: NumberOptions = {},
 ): asserts value is number {
   if (!isNumber(value, options)) {
     throw new LitsError(
       `Expected ${getNumberTypeName(options)}, got ${valueToString(value)}.`,
-      getDebugInfo(value, debugInfo),
+      getDebugInfo(value, sourceCodeInfo),
     )
   }
 }
 
-export function asNumber(value: unknown, debugInfo: DebugInfo | undefined, options: NumberOptions = {}): number {
-  assertNumber(value, debugInfo, options)
+export function asNumber(value: unknown, sourceCodeInfo: SourceCodeInfo | undefined, options: NumberOptions = {}): number {
+  assertNumber(value, sourceCodeInfo, options)
   return value
 }

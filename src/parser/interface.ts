@@ -5,7 +5,7 @@ import type { Arity, FunctionOverload } from '../builtin/utils'
 import type { Context } from '../evaluator/interface'
 import type { Any, Arr } from '../interface'
 import type { ReservedName } from '../reservedNames'
-import type { DebugInfo, Token, TokenStream } from '../tokenizer/interface'
+import type { SourceCodeInfo, Token, TokenStream } from '../tokenizer/interface'
 import type { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
 import { type AstNodeType, FunctionType } from '../constants/constants'
 import { isUnknownRecord } from '../typeGuards'
@@ -27,13 +27,13 @@ export type ExtraData = Record<string, LazyValue>
 
 type GenericLitsFunction = {
   [FUNCTION_SYMBOL]: true
-  d?: DebugInfo
+  d?: SourceCodeInfo
   t: FunctionType
 }
 
 export interface RegularExpression {
   [REGEXP_SYMBOL]: true
-  d?: DebugInfo
+  d?: SourceCodeInfo
   s: string
   f: string
 }

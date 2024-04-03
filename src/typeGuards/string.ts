@@ -1,5 +1,5 @@
 import { LitsError } from '../errors'
-import type { DebugInfo } from '../tokenizer/interface'
+import type { SourceCodeInfo } from '../tokenizer/interface'
 import { getAssertionError } from '../utils/getAssertionError'
 
 type StringAssertionOptions =
@@ -30,7 +30,7 @@ export function isString(value: unknown, options: StringAssertionOptions = {}): 
 
 export function assertString(
   value: unknown,
-  debugInfo: DebugInfo | undefined,
+  sourceCodeInfo: SourceCodeInfo | undefined,
   options: StringAssertionOptions = {},
 ): asserts value is string {
   if (!isString(value, options)) {
@@ -38,7 +38,7 @@ export function assertString(
       getAssertionError(
         `${options.nonEmpty ? `non empty string` : options.char ? `character` : `string`}`,
         value,
-        debugInfo,
+        sourceCodeInfo,
       ),
     )
   }
@@ -46,22 +46,22 @@ export function assertString(
 
 export function asString(
   value: unknown,
-  debugInfo: DebugInfo | undefined,
+  sourceCodeInfo: SourceCodeInfo | undefined,
   options: StringAssertionOptions = {},
 ): string {
-  assertString(value, debugInfo, options)
+  assertString(value, sourceCodeInfo, options)
   return value
 }
 
 export function isStringOrNumber(value: unknown): value is string | number {
   return typeof value === `string` || typeof value === `number`
 }
-export function asStringOrNumber(value: unknown, debugInfo?: DebugInfo): string | number {
-  assertStringOrNumber(value, debugInfo)
+export function asStringOrNumber(value: unknown, sourceCodeInfo?: SourceCodeInfo): string | number {
+  assertStringOrNumber(value, sourceCodeInfo)
   return value
 }
-export function assertStringOrNumber(value: unknown, debugInfo?: DebugInfo): asserts value is string | number {
+export function assertStringOrNumber(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is string | number {
   if (!isStringOrNumber(value)) {
-    throw getAssertionError(`string or number`, value, debugInfo)
+    throw getAssertionError(`string or number`, value, sourceCodeInfo)
   }
 }

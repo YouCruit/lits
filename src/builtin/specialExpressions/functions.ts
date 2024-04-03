@@ -170,13 +170,13 @@ function getFunctionName(
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
 ): string {
-  const debugInfo = node.tkn?.d
+  const sourceCodeInfo = node.tkn?.d
   if (expressionName === `defn`) {
     return ((node as DefnNode).f as NameNode).v
   }
 
   const name = evaluateAstNode((node as DefnsNode).f, contextStack)
-  return asString(name, debugInfo)
+  return asString(name, sourceCodeInfo)
 }
 
 function evaluateFunctionOverloades(

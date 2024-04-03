@@ -31,7 +31,7 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const debugInfo = node.tkn?.d
+    const sourceCodeInfo = node.tkn?.d
     const bindingContext: Context = (node as LoopNode).bs.reduce((result: Context, binding) => {
       result[binding.n] = { value: evaluateAstNode(binding.v, contextStack) }
       return result
@@ -50,11 +50,11 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
           if (params.length !== (node as LoopNode).bs.length) {
             throw new LitsError(
               `recur expected ${(node as LoopNode).bs.length} parameters, got ${valueToString(params.length)}`,
-              debugInfo,
+              sourceCodeInfo,
             )
           }
           ;(node as LoopNode).bs.forEach((binding, index) => {
-            asNonUndefined(bindingContext[binding.n], debugInfo).value = asAny(params[index], debugInfo)
+            asNonUndefined(bindingContext[binding.n], sourceCodeInfo).value = asAny(params[index], sourceCodeInfo)
           })
           continue
         }

@@ -22,12 +22,12 @@ export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode, builtin }) => {
-    const debugInfo = node.tkn?.d
-    const name = asNameNode(node.p[0], debugInfo).v
+    const sourceCodeInfo = node.tkn?.d
+    const name = asNameNode(node.p[0], sourceCodeInfo).v
 
-    assertNameNotDefined(name, contextStack, builtin, debugInfo)
+    assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo)
 
-    const value = evaluateAstNode(asAstNode(node.p[1], debugInfo), contextStack)
+    const value = evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack)
 
     contextStack.globalContext[name] = { value }
 
@@ -35,11 +35,11 @@ export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   validate: node => assertNumberOfParams(2, node),
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
-    const debugInfo = node.tkn?.d
-    const subNode = asAstNode(node.p[1], debugInfo)
+    const sourceCodeInfo = node.tkn?.d
+    const subNode = asAstNode(node.p[1], sourceCodeInfo)
     const result = analyzeAst(subNode, contextStack, builtin)
-    const name = asNameNode(node.p[0], debugInfo).v
-    assertNameNotDefined(name, contextStack, builtin, debugInfo)
+    const name = asNameNode(node.p[0], sourceCodeInfo).v
+    assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo)
     contextStack.globalContext[name] = { value: true }
     return result
   },

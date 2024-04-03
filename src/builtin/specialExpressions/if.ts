@@ -20,14 +20,14 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const debugInfo = node.tkn?.d
+    const sourceCodeInfo = node.tkn?.d
 
     const [conditionNode, trueNode, falseNode] = node.p
-    if (evaluateAstNode(asAstNode(conditionNode, debugInfo), contextStack)) {
-      return evaluateAstNode(asAstNode(trueNode, debugInfo), contextStack)
+    if (evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {
+      return evaluateAstNode(asAstNode(trueNode, sourceCodeInfo), contextStack)
     } else {
       if (node.p.length === 3) {
-        return evaluateAstNode(asAstNode(falseNode, debugInfo), contextStack)
+        return evaluateAstNode(asAstNode(falseNode, sourceCodeInfo), contextStack)
       } else {
         return null
       }

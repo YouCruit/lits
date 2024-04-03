@@ -1,6 +1,6 @@
 import { isTokenType, type TokenType } from '../constants/constants'
 import { LitsError } from '../errors'
-import type { Token, DebugInfo } from '../tokenizer/interface'
+import type { Token, SourceCodeInfo } from '../tokenizer/interface'
 import { valueToString } from '../utils/debug/debugTools'
 import { getDebugInfo } from '../utils/debug/getDebugInfo'
 
@@ -45,7 +45,7 @@ export function assertToken(
   options: TokenAssertionOptions = {},
 ): asserts value is Token {
   if (!isToken(value, options)) {
-    const debugInfo: DebugInfo | undefined = isToken(value)
+    const sourceCodeInfo: SourceCodeInfo | undefined = isToken(value)
       ? value.d
       : typeof filePath === `string`
       ? { filePath }
@@ -55,7 +55,7 @@ export function assertToken(
       `Expected ${options.type ? `${options.type}-` : ``}token${
         typeof options.value === `string` ? ` value='${options.value}'` : ``
       }, got ${valueToString(value)}.`,
-      getDebugInfo(value, debugInfo),
+      getDebugInfo(value, sourceCodeInfo),
     )
   }
 }

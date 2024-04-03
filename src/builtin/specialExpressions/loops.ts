@@ -5,7 +5,7 @@ import type { Context, EvaluateAstNode } from '../../evaluator/interface'
 import type { Any, Arr } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
-import type { DebugInfo, TokenStream } from '../../tokenizer/interface'
+import type { SourceCodeInfo, TokenStream } from '../../tokenizer/interface'
 import { TokenType } from '../../constants/constants'
 import { asAstNode } from '../../typeGuards/astNode'
 import { asToken, assertToken, isToken } from '../../typeGuards/token'
@@ -75,11 +75,11 @@ function addToContext(
   context: Context,
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
-  debugInfo?: DebugInfo,
+  sourceCodeInfo?: SourceCodeInfo,
 ) {
   for (const binding of bindings) {
     if (context[binding.n]) {
-      throw new LitsError(`Variable already defined: ${binding.n}.`, debugInfo)
+      throw new LitsError(`Variable already defined: ${binding.n}.`, sourceCodeInfo)
     }
     context[binding.n] = { value: evaluateAstNode(binding.v, contextStack) }
   }
@@ -110,9 +110,9 @@ function evaluateLoop(
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
 ) {
-  const debugInfo = node.tkn?.d
+  const sourceCodeInfo = node.tkn?.d
   const { l: loopBindings, p: params } = node as LoopNode
-  const expression = asAstNode(params[0], debugInfo)
+  const expression = asAstNode(params[0], sourceCodeInfo)
 
   const result: Arr = []
 
@@ -129,15 +129,15 @@ function evaluateLoop(
         wn: whenNode,
         we: whileNode,
         m: modifiers,
-      } = asNonUndefined(loopBindings[bindingIndex], debugInfo)
-      const coll = asColl(evaluateAstNode(binding.v, newContextStack), debugInfo)
+      } = asNonUndefined(loopBindings[bindingIndex], sourceCodeInfo)
+      const coll = asColl(evaluateAstNode(binding.v, newContextStack), sourceCodeInfo)
       const seq = isSeq(coll) ? coll : Object.entries(coll)
       if (seq.length === 0) {
         skip = true
         abort = true
         break
       }
-      const index = asNonUndefined(bindingIndices[bindingIndex], debugInfo)
+      const index = asNonUndefined(bindingIndices[bindingIndex], sourceCodeInfo)
       if (index >= seq.length) {
         skip = true
         if (bindingIndex === 0) {
@@ -145,29 +145,29 @@ function evaluateLoop(
           break
         }
         bindingIndices[bindingIndex] = 0
-        bindingIndices[bindingIndex - 1] = asNonUndefined(bindingIndices[bindingIndex - 1], debugInfo) + 1
+        bindingIndices[bindingIndex - 1] = asNonUndefined(bindingIndices[bindingIndex - 1], sourceCodeInfo) + 1
         break
       }
       if (context[binding.n]) {
-        throw new LitsError(`Variable already defined: ${binding.n}.`, debugInfo)
+        throw new LitsError(`Variable already defined: ${binding.n}.`, sourceCodeInfo)
       }
       context[binding.n] = {
-        value: asAny(seq[index], debugInfo),
+        value: asAny(seq[index], sourceCodeInfo),
       }
       for (const modifier of modifiers) {
         switch (modifier) {
           case `&let`:
-            addToContext(asNonUndefined(letBindings, debugInfo), context, newContextStack, evaluateAstNode, debugInfo)
+            addToContext(asNonUndefined(letBindings, sourceCodeInfo), context, newContextStack, evaluateAstNode, sourceCodeInfo)
             break
           case `&when`:
-            if (!evaluateAstNode(asAstNode(whenNode, debugInfo), newContextStack)) {
-              bindingIndices[bindingIndex] = asNonUndefined(bindingIndices[bindingIndex], debugInfo) + 1
+            if (!evaluateAstNode(asAstNode(whenNode, sourceCodeInfo), newContextStack)) {
+              bindingIndices[bindingIndex] = asNonUndefined(bindingIndices[bindingIndex], sourceCodeInfo) + 1
               skip = true
               break bindingsLoop
             }
             break
           case `&while`:
-            if (!evaluateAstNode(asAstNode(whileNode, debugInfo), newContextStack)) {
+            if (!evaluateAstNode(asAstNode(whileNode, sourceCodeInfo), newContextStack)) {
               bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY
               skip = true
               break bindingsLoop

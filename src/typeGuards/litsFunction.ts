@@ -1,6 +1,6 @@
 import { getAssertionError } from '../utils/getAssertionError'
 import type { LitsFunction, NativeJsFunction, UserDefinedFunction } from '../parser/interface'
-import type { DebugInfo } from '../tokenizer/interface'
+import type { SourceCodeInfo } from '../tokenizer/interface'
 import { FUNCTION_SYMBOL } from '../utils/symbols'
 import { FunctionType } from '../constants/constants'
 
@@ -10,38 +10,38 @@ export function isLitsFunction(value: unknown): value is LitsFunction {
   }
   return !!(value as LitsFunction)[FUNCTION_SYMBOL]
 }
-export function asLitsFunction(value: unknown, debugInfo?: DebugInfo): LitsFunction {
-  assertLitsFunction(value, debugInfo)
+export function asLitsFunction(value: unknown, sourceCodeInfo?: SourceCodeInfo): LitsFunction {
+  assertLitsFunction(value, sourceCodeInfo)
   return value
 }
-export function assertLitsFunction(value: unknown, debugInfo?: DebugInfo): asserts value is LitsFunction {
+export function assertLitsFunction(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is LitsFunction {
   if (!isLitsFunction(value)) {
-    throw getAssertionError(`LitsFunction`, value, debugInfo)
+    throw getAssertionError(`LitsFunction`, value, sourceCodeInfo)
   }
 }
 
 export function isUserDefinedFunction(value: unknown): value is UserDefinedFunction {
   return isLitsFunction(value) && value.t === FunctionType.UserDefined
 }
-export function asUserDefinedFunction(value: unknown, debugInfo?: DebugInfo): UserDefinedFunction {
-  assertUserDefinedFunction(value, debugInfo)
+export function asUserDefinedFunction(value: unknown, sourceCodeInfo?: SourceCodeInfo): UserDefinedFunction {
+  assertUserDefinedFunction(value, sourceCodeInfo)
   return value
 }
-export function assertUserDefinedFunction(value: unknown, debugInfo?: DebugInfo): asserts value is UserDefinedFunction {
+export function assertUserDefinedFunction(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is UserDefinedFunction {
   if (!isUserDefinedFunction(value)) {
-    throw getAssertionError(`NativeJsFunction`, value, debugInfo)
+    throw getAssertionError(`NativeJsFunction`, value, sourceCodeInfo)
   }
 }
 
 export function isNativeJsFunction(value: unknown): value is NativeJsFunction {
   return isLitsFunction(value) && value.t === FunctionType.NativeJsFunction
 }
-export function asNativeJsFunction(value: unknown, debugInfo?: DebugInfo): NativeJsFunction {
-  assertNativeJsFunction(value, debugInfo)
+export function asNativeJsFunction(value: unknown, sourceCodeInfo?: SourceCodeInfo): NativeJsFunction {
+  assertNativeJsFunction(value, sourceCodeInfo)
   return value
 }
-export function assertNativeJsFunction(value: unknown, debugInfo?: DebugInfo): asserts value is NativeJsFunction {
+export function assertNativeJsFunction(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is NativeJsFunction {
   if (!isNativeJsFunction(value)) {
-    throw getAssertionError(`NativeJsFunction`, value, debugInfo)
+    throw getAssertionError(`NativeJsFunction`, value, sourceCodeInfo)
   }
 }

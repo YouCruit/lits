@@ -6,7 +6,7 @@ import type {
   NormalExpressionNode,
   NormalExpressionNodeWithName,
 } from '../parser/interface'
-import type { DebugInfo } from '../tokenizer/interface'
+import type { SourceCodeInfo } from '../tokenizer/interface'
 import { getAssertionError } from '../utils/getAssertionError'
 
 export function isAstNode(value: unknown): value is AstNode {
@@ -18,13 +18,13 @@ export function isAstNode(value: unknown): value is AstNode {
   }
   return true
 }
-export function asAstNode(value: unknown, debugInfo?: DebugInfo): AstNode {
-  assertAstNode(value, debugInfo)
+export function asAstNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): AstNode {
+  assertAstNode(value, sourceCodeInfo)
   return value
 }
-export function assertAstNode(value: unknown, debugInfo?: DebugInfo): asserts value is AstNode {
+export function assertAstNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is AstNode {
   if (!isAstNode(value)) {
-    throw getAssertionError(`AstNode`, value, debugInfo)
+    throw getAssertionError(`AstNode`, value, sourceCodeInfo)
   }
 }
 
@@ -34,13 +34,13 @@ export function isNameNode(value: unknown): value is NameNode {
   }
   return value.t === AstNodeType.Name
 }
-export function asNameNode(value: unknown, debugInfo?: DebugInfo): NameNode {
-  assertNameNode(value, debugInfo)
+export function asNameNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): NameNode {
+  assertNameNode(value, sourceCodeInfo)
   return value
 }
-export function assertNameNode(value: unknown, debugInfo?: DebugInfo): asserts value is NameNode {
+export function assertNameNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is NameNode {
   if (!isNameNode(value)) {
-    throw getAssertionError(`NameNode`, value, debugInfo)
+    throw getAssertionError(`NameNode`, value, sourceCodeInfo)
   }
 }
 
@@ -50,16 +50,16 @@ export function isNormalExpressionNode(value: unknown): value is NormalExpressio
   }
   return value.t === AstNodeType.NormalExpression
 }
-export function asNormalExpressionNode(value: unknown, debugInfo?: DebugInfo): NormalExpressionNode {
-  assertNormalExpressionNode(value, debugInfo)
+export function asNormalExpressionNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): NormalExpressionNode {
+  assertNormalExpressionNode(value, sourceCodeInfo)
   return value
 }
 export function assertNormalExpressionNode(
   value: unknown,
-  debugInfo?: DebugInfo,
+  sourceCodeInfo?: SourceCodeInfo,
 ): asserts value is NormalExpressionNode {
   if (!isNormalExpressionNode(value)) {
-    throw getAssertionError(`NormalExpressionNode`, value, debugInfo)
+    throw getAssertionError(`NormalExpressionNode`, value, sourceCodeInfo)
   }
 }
 
@@ -69,16 +69,16 @@ export function isNormalExpressionNodeWithName(value: unknown): value is NormalE
   }
   return value.t === AstNodeType.NormalExpression && typeof value.n === `string`
 }
-export function asNormalExpressionNodeWithName(value: unknown, debugInfo?: DebugInfo): NormalExpressionNodeWithName {
-  assertNormalExpressionNodeWithName(value, debugInfo)
+export function asNormalExpressionNodeWithName(value: unknown, sourceCodeInfo?: SourceCodeInfo): NormalExpressionNodeWithName {
+  assertNormalExpressionNodeWithName(value, sourceCodeInfo)
   return value
 }
 export function assertNormalExpressionNodeWithName(
   value: unknown,
-  debugInfo?: DebugInfo,
+  sourceCodeInfo?: SourceCodeInfo,
 ): asserts value is NormalExpressionNodeWithName {
   if (!isNormalExpressionNodeWithName(value)) {
-    throw getAssertionError(`NormalExpressionNodeWithName`, value, debugInfo)
+    throw getAssertionError(`NormalExpressionNodeWithName`, value, sourceCodeInfo)
   }
 }
 
@@ -93,12 +93,12 @@ export function isExpressionNode(value: unknown): value is ExpressionNode {
     value.t === AstNodeType.String
   )
 }
-export function asExpressionNode(value: unknown, debugInfo?: DebugInfo): ExpressionNode {
-  assertExpressionNode(value, debugInfo)
+export function asExpressionNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): ExpressionNode {
+  assertExpressionNode(value, sourceCodeInfo)
   return value
 }
-export function assertExpressionNode(value: unknown, debugInfo?: DebugInfo): asserts value is ExpressionNode {
+export function assertExpressionNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is ExpressionNode {
   if (!isExpressionNode(value)) {
-    throw getAssertionError(`ExpressionNode`, value, debugInfo)
+    throw getAssertionError(`ExpressionNode`, value, sourceCodeInfo)
   }
 }

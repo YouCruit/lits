@@ -13,7 +13,7 @@ import { toAny } from '../utils'
 import type { Context, ContextEntry, EvaluateAstNode, ExecuteFunction } from './interface'
 import type { Any, Arr, Obj } from '../interface'
 import { functionExecutors } from './functionExecutors'
-import type { DebugInfo } from '../tokenizer/interface'
+import type { SourceCodeInfo } from '../tokenizer/interface'
 import { LitsError, NotAFunctionError, UndefinedSymbolError } from '../errors'
 import { AstNodeType } from '../constants/constants'
 import type { ContextStack } from './ContextStack'
@@ -66,36 +66,36 @@ function evaluateReservedName(node: ReservedNameNode): Any {
 
 function evaluateNormalExpression(node: NormalExpressionNode, contextStack: ContextStack): Any {
   const params = node.p.map(paramNode => evaluateAstNode(paramNode, contextStack))
-  const debugInfo = node.tkn?.d
+  const sourceCodeInfo = node.tkn?.d
   if (isNormalExpressionNodeWithName(node)) {
     const value = contextStack.getValue(node.n)
     if (value !== undefined) {
-      return executeFunction(asAny(value), params, contextStack, debugInfo)
+      return executeFunction(asAny(value), params, contextStack, sourceCodeInfo)
     }
     return evaluateBuiltinNormalExpression(node, params, contextStack)
   } else {
     const fn = evaluateAstNode(node.e, contextStack)
-    return executeFunction(fn, params, contextStack, debugInfo)
+    return executeFunction(fn, params, contextStack, sourceCodeInfo)
   }
 }
 
-const executeFunction: ExecuteFunction = (fn, params, contextStack, debugInfo) => {
+const executeFunction: ExecuteFunction = (fn, params, contextStack, sourceCodeInfo) => {
   if (isLitsFunction(fn)) {
-    return functionExecutors[fn.t](fn, params, debugInfo, contextStack, { evaluateAstNode, executeFunction })
+    return functionExecutors[fn.t](fn, params, sourceCodeInfo, contextStack, { evaluateAstNode, executeFunction })
   }
   if (Array.isArray(fn)) {
-    return evaluateArrayAsFunction(fn, params, debugInfo)
+    return evaluateArrayAsFunction(fn, params, sourceCodeInfo)
   }
   if (isObj(fn)) {
-    return evalueateObjectAsFunction(fn, params, debugInfo)
+    return evalueateObjectAsFunction(fn, params, sourceCodeInfo)
   }
   if (typeof fn === `string`) {
-    return evaluateStringAsFunction(fn, params, debugInfo)
+    return evaluateStringAsFunction(fn, params, sourceCodeInfo)
   }
   if (isNumber(fn)) {
-    return evaluateNumberAsFunction(fn, params, debugInfo)
+    return evaluateNumberAsFunction(fn, params, sourceCodeInfo)
   }
-  throw new NotAFunctionError(fn, debugInfo)
+  throw new NotAFunctionError(fn, sourceCodeInfo)
 }
 
 function evaluateBuiltinNormalExpression(
@@ -117,27 +117,27 @@ function evaluateSpecialExpression(node: SpecialExpressionNode, contextStack: Co
   return specialExpression.evaluate(node, contextStack, { evaluateAstNode, builtin })
 }
 
-function evalueateObjectAsFunction(fn: Obj, params: Arr, debugInfo?: DebugInfo): Any {
+function evalueateObjectAsFunction(fn: Obj, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
   if (params.length !== 1) {
-    throw new LitsError(`Object as function requires one string parameter.`, debugInfo)
+    throw new LitsError(`Object as function requires one string parameter.`, sourceCodeInfo)
   }
   const key = params[0]
-  assertString(key, debugInfo)
+  assertString(key, sourceCodeInfo)
   return toAny(fn[key])
 }
 
-function evaluateArrayAsFunction(fn: Arr, params: Arr, debugInfo?: DebugInfo): Any {
+function evaluateArrayAsFunction(fn: Arr, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
   if (params.length !== 1) {
-    throw new LitsError(`Array as function requires one non negative integer parameter.`, debugInfo)
+    throw new LitsError(`Array as function requires one non negative integer parameter.`, sourceCodeInfo)
   }
   const index = params[0]
-  assertNumber(index, debugInfo, { integer: true, nonNegative: true })
+  assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true })
   return toAny(fn[index])
 }
 
-function evaluateStringAsFunction(fn: string, params: Arr, debugInfo?: DebugInfo): Any {
+function evaluateStringAsFunction(fn: string, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
   if (params.length !== 1) {
-    throw new LitsError(`String as function requires one Obj parameter.`, debugInfo)
+    throw new LitsError(`String as function requires one Obj parameter.`, sourceCodeInfo)
   }
   const param = toAny(params[0])
   if (isObj(param)) {
@@ -146,16 +146,16 @@ function evaluateStringAsFunction(fn: string, params: Arr, debugInfo?: DebugInfo
   if (isNumber(param, { integer: true })) {
     return toAny(fn[param])
   }
-  throw new LitsError(`string as function expects Obj or integer parameter, got ${valueToString(param)}`, debugInfo)
+  throw new LitsError(`string as function expects Obj or integer parameter, got ${valueToString(param)}`, sourceCodeInfo)
 }
 
-function evaluateNumberAsFunction(fn: number, params: Arr, debugInfo?: DebugInfo): Any {
-  assertNumber(fn, debugInfo, { integer: true })
+function evaluateNumberAsFunction(fn: number, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
+  assertNumber(fn, sourceCodeInfo, { integer: true })
   if (params.length !== 1) {
-    throw new LitsError(`Number as function requires one Arr parameter.`, debugInfo)
+    throw new LitsError(`Number as function requires one Arr parameter.`, sourceCodeInfo)
   }
   const param = params[0]
-  assertSeq(param, debugInfo)
+  assertSeq(param, sourceCodeInfo)
   return toAny(param[fn])
 }
 

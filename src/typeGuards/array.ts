@@ -1,39 +1,39 @@
-import type { DebugInfo } from '../tokenizer/interface'
+import type { SourceCodeInfo } from '../tokenizer/interface'
 import { getAssertionError } from '../utils/getAssertionError'
 
 // isArray not needed, use Array.isArary
-export function asArray(value: unknown, debugInfo?: DebugInfo): unknown[] {
-  assertArray(value, debugInfo)
+export function asArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): unknown[] {
+  assertArray(value, sourceCodeInfo)
   return value
 }
-export function assertArray(value: unknown, debugInfo?: DebugInfo): asserts value is unknown[] {
+export function assertArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is unknown[] {
   if (!Array.isArray(value)) {
-    throw getAssertionError(`array`, value, debugInfo)
+    throw getAssertionError(`array`, value, sourceCodeInfo)
   }
 }
 
 export function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(v => typeof v === `string`)
 }
-export function asStringArray(value: unknown, debugInfo?: DebugInfo): string[] {
-  assertStringArray(value, debugInfo)
+export function asStringArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): string[] {
+  assertStringArray(value, sourceCodeInfo)
   return value
 }
-export function assertStringArray(value: unknown, debugInfo?: DebugInfo): asserts value is string[] {
+export function assertStringArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is string[] {
   if (!isStringArray(value)) {
-    throw getAssertionError(`array of strings`, value, debugInfo)
+    throw getAssertionError(`array of strings`, value, sourceCodeInfo)
   }
 }
 
 export function isCharArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(v => typeof v === `string` && v.length === 1)
 }
-export function asCharArray(value: unknown, debugInfo?: DebugInfo): string[] {
-  assertCharArray(value, debugInfo)
+export function asCharArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): string[] {
+  assertCharArray(value, sourceCodeInfo)
   return value
 }
-export function assertCharArray(value: unknown, debugInfo?: DebugInfo): asserts value is string[] {
+export function assertCharArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is string[] {
   if (!isCharArray(value)) {
-    throw getAssertionError(`array of strings`, value, debugInfo)
+    throw getAssertionError(`array of strings`, value, sourceCodeInfo)
   }
 }

@@ -1,6 +1,6 @@
 import type { Any, Arr, Coll, Obj } from '../interface'
 import type { NativeJsFunction, RegularExpression } from '../parser/interface'
-import type { DebugInfo } from '../tokenizer/interface'
+import type { SourceCodeInfo } from '../tokenizer/interface'
 import { asAny, isColl, isObj, isRegularExpression } from '../typeGuards/lits'
 import { isNumber } from '../typeGuards/number'
 import { asString } from '../typeGuards/string'
@@ -106,7 +106,7 @@ export function compare(a: unknown, b: unknown): number {
   }
 }
 
-export function deepEqual(a: Any, b: Any, debugInfo?: DebugInfo): boolean {
+export function deepEqual(a: Any, b: Any, sourceCodeInfo?: SourceCodeInfo): boolean {
   if (a === b) {
     return true
   }
@@ -120,7 +120,7 @@ export function deepEqual(a: Any, b: Any, debugInfo?: DebugInfo): boolean {
       return false
     }
     for (let i = 0; i < a.length; i += 1) {
-      if (!deepEqual(asAny(a[i], debugInfo), asAny(b[i], debugInfo), debugInfo)) {
+      if (!deepEqual(asAny(a[i], sourceCodeInfo), asAny(b[i], sourceCodeInfo), sourceCodeInfo)) {
         return false
       }
     }
@@ -136,8 +136,8 @@ export function deepEqual(a: Any, b: Any, debugInfo?: DebugInfo): boolean {
       return false
     }
     for (let i = 0; i < aKeys.length; i += 1) {
-      const key = asString(aKeys[i], debugInfo)
-      if (!deepEqual(toAny(a[key]), toAny(b[key]), debugInfo)) {
+      const key = asString(aKeys[i], sourceCodeInfo)
+      if (!deepEqual(toAny(a[key]), toAny(b[key]), sourceCodeInfo)) {
         return false
       }
     }

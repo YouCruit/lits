@@ -37,40 +37,40 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
   },
 
   'zero?': {
-    evaluate: ([first], debugInfo): boolean => {
-      assertNumber(first, debugInfo, { finite: true })
+    evaluate: ([first], sourceCodeInfo): boolean => {
+      assertNumber(first, sourceCodeInfo, { finite: true })
       return first === 0
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'pos?': {
-    evaluate: ([first], debugInfo): boolean => {
-      assertNumber(first, debugInfo, { finite: true })
+    evaluate: ([first], sourceCodeInfo): boolean => {
+      assertNumber(first, sourceCodeInfo, { finite: true })
       return first > 0
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'neg?': {
-    evaluate: ([first], debugInfo): boolean => {
-      assertNumber(first, debugInfo, { finite: true })
+    evaluate: ([first], sourceCodeInfo): boolean => {
+      assertNumber(first, sourceCodeInfo, { finite: true })
       return first < 0
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'even?': {
-    evaluate: ([first], debugInfo): boolean => {
-      assertNumber(first, debugInfo, { finite: true })
+    evaluate: ([first], sourceCodeInfo): boolean => {
+      assertNumber(first, sourceCodeInfo, { finite: true })
       return first % 2 === 0
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'odd?': {
-    evaluate: ([first], debugInfo): boolean => {
-      assertNumber(first, debugInfo, { finite: true })
+    evaluate: ([first], sourceCodeInfo): boolean => {
+      assertNumber(first, sourceCodeInfo, { finite: true })
       return isNumber(first, { integer: true }) && first % 2 !== 0
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -108,32 +108,32 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
   },
 
   'finite?': {
-    evaluate: ([value], debugInfo): boolean => {
-      assertNumber(value, debugInfo)
+    evaluate: ([value], sourceCodeInfo): boolean => {
+      assertNumber(value, sourceCodeInfo)
       return Number.isFinite(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'nan?': {
-    evaluate: ([value], debugInfo): boolean => {
-      assertNumber(value, debugInfo)
+    evaluate: ([value], sourceCodeInfo): boolean => {
+      assertNumber(value, sourceCodeInfo)
       return Number.isNaN(value)
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'positive-infinity?': {
-    evaluate: ([value], debugInfo): boolean => {
-      assertNumber(value, debugInfo)
+    evaluate: ([value], sourceCodeInfo): boolean => {
+      assertNumber(value, sourceCodeInfo)
       return value === Number.POSITIVE_INFINITY
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'negative-infinity?': {
-    evaluate: ([value], debugInfo): boolean => {
-      assertNumber(value, debugInfo)
+    evaluate: ([value], sourceCodeInfo): boolean => {
+      assertNumber(value, sourceCodeInfo)
       return value === Number.NEGATIVE_INFINITY
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
@@ -154,11 +154,11 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
   },
 
   'empty?': {
-    evaluate: ([coll], debugInfo): boolean => {
+    evaluate: ([coll], sourceCodeInfo): boolean => {
       if (coll === null) {
         return true
       }
-      assertColl(coll, debugInfo)
+      assertColl(coll, sourceCodeInfo)
       if (typeof coll === `string`) {
         return coll.length === 0
       }
@@ -170,11 +170,11 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams(1, node),
   },
   'not-empty?': {
-    evaluate: ([coll], debugInfo): boolean => {
+    evaluate: ([coll], sourceCodeInfo): boolean => {
       if (coll === null) {
         return false
       }
-      assertColl(coll, debugInfo)
+      assertColl(coll, sourceCodeInfo)
       if (typeof coll === `string`) {
         return coll.length > 0
       }

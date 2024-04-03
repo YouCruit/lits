@@ -1,14 +1,14 @@
 import type { ContextStack } from './ContextStack'
 import type { Any, Arr } from '../interface'
 import type { AstNode, BuiltinFunction } from '../parser/interface'
-import type { DebugInfo } from '../tokenizer/interface'
+import type { SourceCodeInfo } from '../tokenizer/interface'
 import { isUnknownRecord } from '../typeGuards'
 
 export type ContextEntry = { value: Any }
 export type Context = Record<string, ContextEntry>
 
 export type EvaluateAstNode = (node: AstNode, contextStack: ContextStack) => Any
-export type ExecuteFunction = (fn: Any, params: Arr, contextStack: ContextStack, debugInfo?: DebugInfo) => Any
+export type ExecuteFunction = (fn: Any, params: Arr, contextStack: ContextStack, sourceCodeInfo?: SourceCodeInfo) => Any
 
 export type LookUpResult = ContextEntry | BuiltinFunction | `specialExpression` | null
 

@@ -38,17 +38,17 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const debugInfo = node.tkn?.d
+    const sourceCodeInfo = node.tkn?.d
     const locals: Context = {}
     const bindingValue = evaluateAstNode((node as IfLetNode).b.v, contextStack)
     if (bindingValue) {
       locals[(node as IfLetNode).b.n] = { value: bindingValue }
       const newContextStack = contextStack.create(locals)
-      const thenForm = asAstNode(node.p[0], debugInfo)
+      const thenForm = asAstNode(node.p[0], sourceCodeInfo)
       return evaluateAstNode(thenForm, newContextStack)
     }
     if (node.p.length === 2) {
-      const elseForm = asAstNode(node.p[1], debugInfo)
+      const elseForm = asAstNode(node.p[1], sourceCodeInfo)
       return evaluateAstNode(elseForm, contextStack)
     }
     return null

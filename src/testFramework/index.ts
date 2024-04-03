@@ -167,9 +167,9 @@ export function getErrorYaml(error: unknown): string {
 `
   }
 
-  const debugInfo = error.debugInfo
+  const sourceCodeInfo = error.sourceCodeInfo
   /* istanbul ignore next */
-  if (!debugInfo || typeof debugInfo === `string`) {
+  if (!sourceCodeInfo || typeof sourceCodeInfo === `string`) {
     return `
   ---
   message: ${JSON.stringify(message)}
@@ -185,10 +185,10 @@ export function getErrorYaml(error: unknown): string {
   ---
   error: ${JSON.stringify(error.name)}
   message: ${formattedMessage}
-  location: ${JSON.stringify(getLocation(debugInfo))}
+  location: ${JSON.stringify(getLocation(sourceCodeInfo))}
   code:
-    - "${debugInfo.code}"
-    - "${getCodeMarker(debugInfo)}"
+    - "${sourceCodeInfo.code}"
+    - "${getCodeMarker(sourceCodeInfo)}"
   ...
 `
 }

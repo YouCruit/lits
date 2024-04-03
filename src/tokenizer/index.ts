@@ -1,5 +1,5 @@
 import { LitsError } from '../errors'
-import type { Token, Tokenizer, DebugInfo, TokenizeParams, TokenStream } from './interface'
+import type { Token, Tokenizer, SourceCodeInfo, TokenizeParams, TokenStream } from './interface'
 import { getSugar } from './sugar'
 import {
   skipComment,
@@ -46,7 +46,7 @@ function getSourceCodeLine(input: string, lineNbr: number): string {
   return input.split(/\r\n|\r|\n/)[lineNbr] as string
 }
 
-function createDebugInfo(input: string, position: number, filePath?: string): DebugInfo {
+function createDebugInfo(input: string, position: number, filePath?: string): SourceCodeInfo {
   const lines = input.substr(0, position + 1).split(/\r\n|\r|\n/)
   const lastLine = lines[lines.length - 1] as string
 
@@ -71,11 +71,11 @@ export function tokenize(input: string, params: TokenizeParams): TokenStream {
     tokenized = false
 
     // Loop through all tokenizer until one matches
-    const debugInfo: DebugInfo | undefined = params.debug
+    const sourceCodeInfo: SourceCodeInfo | undefined = params.debug
       ? createDebugInfo(input, position, params.filePath)
       : undefined
     for (const tokenizer of tokenizers) {
-      const [nbrOfCharacters, token] = tokenizer(input, position, debugInfo)
+      const [nbrOfCharacters, token] = tokenizer(input, position, sourceCodeInfo)
 
       // tokenizer matched
       if (nbrOfCharacters > 0) {
@@ -88,7 +88,7 @@ export function tokenize(input: string, params: TokenizeParams): TokenStream {
       }
     }
     if (!tokenized) {
-      throw new LitsError(`Unrecognized character '${input[position]}'.`, debugInfo)
+      throw new LitsError(`Unrecognized character '${input[position]}'.`, sourceCodeInfo)
     }
   }
 

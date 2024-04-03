@@ -37,8 +37,8 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams({ min: 1 }, node),
   },
   'equal?': {
-    evaluate: ([a, b], debugInfo): boolean => {
-      return deepEqual(asAny(a, debugInfo), asAny(b, debugInfo), debugInfo)
+    evaluate: ([a, b], sourceCodeInfo): boolean => {
+      return deepEqual(asAny(a, sourceCodeInfo), asAny(b, sourceCodeInfo), sourceCodeInfo)
     },
     validate: node => assertNumberOfParams({ min: 1 }, node),
   },
@@ -108,35 +108,35 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams(0, node),
   },
   'inst-ms->iso-date-time': {
-    evaluate: ([ms], debugInfo): string => {
-      assertNumber(ms, debugInfo)
+    evaluate: ([ms], sourceCodeInfo): string => {
+      assertNumber(ms, sourceCodeInfo)
       return new Date(ms).toISOString()
     },
     validate: node => assertNumberOfParams(1, node),
   },
   'iso-date-time->inst-ms': {
-    evaluate: ([dateTime], debugInfo): number => {
-      assertString(dateTime, debugInfo)
+    evaluate: ([dateTime], sourceCodeInfo): number => {
+      assertString(dateTime, sourceCodeInfo)
       const ms = new Date(dateTime).valueOf()
-      assertNumber(ms, debugInfo, { finite: true })
+      assertNumber(ms, sourceCodeInfo, { finite: true })
       return ms
     },
     validate: node => assertNumberOfParams(1, node),
   },
   'write!': {
-    evaluate: (params, debugInfo): Any => {
+    evaluate: (params, sourceCodeInfo): Any => {
       // eslint-disable-next-line no-console
       console.log(...params)
 
       if (params.length > 0) {
-        return asAny(params[params.length - 1], debugInfo)
+        return asAny(params[params.length - 1], sourceCodeInfo)
       }
 
       return null
     },
   },
   'debug!': {
-    evaluate: (params, debugInfo, contextStack): Any => {
+    evaluate: (params, sourceCodeInfo, contextStack): Any => {
       if (params.length === 0) {
         // eslint-disable-next-line no-console
         console.warn(`*** LITS DEBUG ***\n${contextStack.toString()}\n`)
@@ -144,7 +144,7 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
       }
       // eslint-disable-next-line no-console
       console.warn(`*** LITS DEBUG ***\n${JSON.stringify(params[0], null, 2)}\n`)
-      return asAny(params[0], debugInfo)
+      return asAny(params[0], sourceCodeInfo)
     },
     validate: node => assertNumberOfParams({ max: 1 }, node),
   },

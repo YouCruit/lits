@@ -279,7 +279,7 @@ describe(`regressions`, () => {
   beforeEach(() => {
     lits = new Lits({ debug: true })
   })
-  test(`debugInfo`, () => {
+  test(`sourceCodeInfo`, () => {
     try {
       lits.run(`(loop [n 3]
   (write! n)
@@ -289,9 +289,9 @@ describe(`regressions`, () => {
 )`)
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((error as any).debugInfo.position.line).toBe(3)
+      expect((error as any).sourceCodeInfo.position.line).toBe(3)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((error as any).debugInfo.position.column).toBe(10)
+      expect((error as any).sourceCodeInfo.position.column).toBe(10)
     }
   })
   test(`name not recognized`, () => {
@@ -334,9 +334,9 @@ describe(`regressions`, () => {
       fail()
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((error as any).debugInfo.position.line).toBe(6)
+      expect((error as any).sourceCodeInfo.position.line).toBe(6)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((error as any).debugInfo.position.column).toBe(12)
+      expect((error as any).sourceCodeInfo.position.column).toBe(12)
     }
   })
   test(`unexpected argument`, () => {
@@ -345,8 +345,8 @@ describe(`regressions`, () => {
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const anyError = error as any
-      expect(anyError.debugInfo.position.line).toBe(1)
-      expect(anyError.debugInfo.position.column).toBe(6)
+      expect(anyError.sourceCodeInfo.position.line).toBe(1)
+      expect(anyError.sourceCodeInfo.position.column).toBe(6)
     }
   })
 })

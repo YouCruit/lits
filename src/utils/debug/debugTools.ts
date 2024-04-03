@@ -1,7 +1,6 @@
 import { astNodeTypeName, isAstNodeType, isFunctionType, isTokenType, tokenTypeName } from '../../constants/constants'
 import type { AstNode, LitsFunction } from '../../parser/interface'
 import type { SourceCodeInfo, Token } from '../../tokenizer/interface'
-import { assertNonUndefined } from '../../typeGuards'
 import { FUNCTION_SYMBOL } from '../symbols'
 
 function isLitsFunction(func: unknown): func is LitsFunction {
@@ -47,9 +46,9 @@ export function valueToString(value: unknown): string {
 }
 
 export function getCodeMarker(sourceCodeInfo: SourceCodeInfo): string {
-  assertNonUndefined(sourceCodeInfo.position)
-  assertNonUndefined(sourceCodeInfo.code)
-
+  if (!sourceCodeInfo.position || !sourceCodeInfo.code) {
+    return ``
+  }
   const leftPadding = sourceCodeInfo.position.column - 1
   const rightPadding = sourceCodeInfo.code.length - leftPadding - 1
   return `${` `.repeat(Math.max(leftPadding, 0))}^${` `.repeat(Math.max(rightPadding, 0))}`

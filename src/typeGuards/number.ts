@@ -1,7 +1,7 @@
 import { LitsError } from '../errors'
 import type { SourceCodeInfo } from '../tokenizer/interface'
 import { valueToString } from '../utils/debug/debugTools'
-import { getDebugInfo } from '../utils/debug/getDebugInfo'
+import { getSourceCodeInfo } from '../utils/debug/getSourceCodeInfo'
 
 type SignOptions =
   | {
@@ -172,7 +172,7 @@ export function assertNumber(
   if (!isNumber(value, options)) {
     throw new LitsError(
       `Expected ${getNumberTypeName(options)}, got ${valueToString(value)}.`,
-      getDebugInfo(value, sourceCodeInfo),
+      getSourceCodeInfo(value, sourceCodeInfo),
     )
   }
 }

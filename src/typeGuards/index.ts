@@ -3,7 +3,7 @@ import type { UnknownRecord } from '../interface'
 import type { NormalExpressionNode, SpecialExpressionNode } from '../parser/interface'
 import type { SourceCodeInfo } from '../tokenizer/interface'
 import { valueToString } from '../utils/debug/debugTools'
-import { getDebugInfo } from '../utils/debug/getDebugInfo'
+import { getSourceCodeInfo } from '../utils/debug/getSourceCodeInfo'
 
 export function assertEventNumberOfParams(node: NormalExpressionNode): void {
   const length = node.p.length
@@ -26,7 +26,7 @@ export function asNonUndefined<T>(value: T | undefined, sourceCodeInfo?: SourceC
 
 export function assertNonUndefined<T>(value: T | undefined, sourceCodeInfo?: SourceCodeInfo): asserts value is T {
   if (!isNonUndefined(value)) {
-    throw new LitsError(`Unexpected undefined`, getDebugInfo(value, sourceCodeInfo))
+    throw new LitsError(`Unexpected undefined`, getSourceCodeInfo(value, sourceCodeInfo))
   }
 }
 
@@ -41,7 +41,7 @@ export function isUnknownRecord(value: unknown): value is Record<string, unknown
 
 export function assertUnknownRecord(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is UnknownRecord {
   if (!isUnknownRecord(value)) {
-    throw new LitsError(`Expected ${`UnknownRecord`}, got ${valueToString(value)}.`, getDebugInfo(value, sourceCodeInfo))
+    throw new LitsError(`Expected ${`UnknownRecord`}, got ${valueToString(value)}.`, getSourceCodeInfo(value, sourceCodeInfo))
   }
 }
 

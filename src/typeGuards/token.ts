@@ -2,7 +2,7 @@ import { isTokenType, type TokenType } from '../constants/constants'
 import { LitsError } from '../errors'
 import type { Token, SourceCodeInfo } from '../tokenizer/interface'
 import { valueToString } from '../utils/debug/debugTools'
-import { getDebugInfo } from '../utils/debug/getDebugInfo'
+import { getSourceCodeInfo } from '../utils/debug/getSourceCodeInfo'
 
 type TokenAssertionOptions =
   | {
@@ -55,7 +55,7 @@ export function assertToken(
       `Expected ${options.type ? `${options.type}-` : ``}token${
         typeof options.value === `string` ? ` value='${options.value}'` : ``
       }, got ${valueToString(value)}.`,
-      getDebugInfo(value, sourceCodeInfo),
+      getSourceCodeInfo(value, sourceCodeInfo),
     )
   }
 }

@@ -9,7 +9,7 @@ import { assertNameNode } from '../../typeGuards/astNode'
 import { asToken, assertToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { asAny } from '../../typeGuards/lits'
-import { getDebugInfo } from '../../utils/debug/getDebugInfo'
+import { getSourceCodeInfo } from '../../utils/debug/getSourceCodeInfo'
 
 type TryNode = SpecialExpressionNode & {
   te: AstNode
@@ -30,7 +30,7 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
     ;[position, catchNode] = parseToken(tokenStream, position)
     assertNameNode(catchNode, catchNode.tkn?.sourceCodeInfo)
     if (catchNode.v !== `catch`) {
-      throw new LitsError(`Expected 'catch', got '${catchNode.v}'.`, getDebugInfo(catchNode, catchNode.tkn?.sourceCodeInfo))
+      throw new LitsError(`Expected 'catch', got '${catchNode.v}'.`, getSourceCodeInfo(catchNode, catchNode.tkn?.sourceCodeInfo))
     }
 
     let error: AstNode

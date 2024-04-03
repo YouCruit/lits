@@ -1,8 +1,8 @@
 import { LitsError } from '../errors'
 import type { SourceCodeInfo } from '../tokenizer/interface'
 import { valueToString } from './debug/debugTools'
-import { getDebugInfo } from './debug/getDebugInfo'
+import { getSourceCodeInfo } from './debug/getSourceCodeInfo'
 
 export function getAssertionError(typeName: string, value: unknown, sourceCodeInfo?: SourceCodeInfo): LitsError {
-  return new LitsError(`Expected ${typeName}, got ${valueToString(value)}.`, getDebugInfo(value, sourceCodeInfo))
+  return new LitsError(`Expected ${typeName}, got ${valueToString(value)}.`, getSourceCodeInfo(value, sourceCodeInfo))
 }

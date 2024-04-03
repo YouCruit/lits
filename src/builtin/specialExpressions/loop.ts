@@ -13,13 +13,13 @@ import { asAny } from '../../typeGuards/lits'
 type LoopNode = SpecialExpressionNode & { bs: BindingNode[] }
 
 export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
-  parse: (tokens, position, { parseTokens, parseBindings }) => {
-    const firstToken = asToken(tokens[position], `EOF`)
+  parse: (tokenStream, position, { parseTokens, parseBindings }) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let bindings: BindingNode[]
-    ;[position, bindings] = parseBindings(tokens, position)
+    ;[position, bindings] = parseBindings(tokenStream, position)
 
     let params: AstNode[]
-    ;[position, params] = parseTokens(tokens, position)
+    ;[position, params] = parseTokens(tokenStream, position)
 
     const node: LoopNode = {
       t: AstNodeType.SpecialExpression,

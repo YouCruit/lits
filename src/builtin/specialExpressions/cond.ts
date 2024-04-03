@@ -1,7 +1,7 @@
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import type { AstNode, ParseToken, SpecialExpressionNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { TokenStream } from '../../tokenizer/interface'
 import { TokenType } from '../../constants/constants'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
@@ -15,29 +15,29 @@ type CondNode = SpecialExpressionNode & {
   c: Condition[]
 }
 
-function parseConditions(tokens: Token[], position: number, parseToken: ParseToken): [number, Condition[]] {
+function parseConditions(tokenStream: TokenStream, position: number, parseToken: ParseToken): [number, Condition[]] {
   const conditions: Condition[] = []
 
-  let tkn = asToken(tokens[position], `EOF`)
+  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   while (!isToken(tkn, { type: TokenType.Bracket, value: `)` })) {
     let test: AstNode
-    ;[position, test] = parseToken(tokens, position)
+    ;[position, test] = parseToken(tokenStream, position)
 
     let form: AstNode
-    ;[position, form] = parseToken(tokens, position)
+    ;[position, form] = parseToken(tokenStream, position)
 
     conditions.push({ t: test, f: form })
 
-    tkn = asToken(tokens[position], `EOF`)
+    tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   }
   return [position, conditions]
 }
 
 export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
-  parse: (tokens, position, { parseToken }) => {
-    const firstToken = asToken(tokens[position], `EOF`)
+  parse: (tokenStream, position, { parseToken }) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let conditions: Condition[]
-    ;[position, conditions] = parseConditions(tokens, position, parseToken)
+    ;[position, conditions] = parseConditions(tokenStream, position, parseToken)
 
     return [
       position + 1,

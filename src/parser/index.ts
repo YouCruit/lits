@@ -1,16 +1,16 @@
-import type { Token } from '../tokenizer/interface'
+import type { TokenStream } from '../tokenizer/interface'
 import type { Ast, AstNode } from './interface'
 import { parseToken } from './parsers'
 
-export function parse(tokens: Token[]): Ast {
+export function parse(tokenStream: TokenStream): Ast {
   const ast: Ast = {
     b: [],
   }
 
   let position = 0
   let node: AstNode
-  while (position < tokens.length) {
-    ;[position, node] = parseToken(tokens, position)
+  while (position < tokenStream.tokens.length) {
+    ;[position, node] = parseToken(tokenStream, position)
     ast.b.push(node)
   }
 

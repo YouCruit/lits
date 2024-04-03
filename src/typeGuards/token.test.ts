@@ -5,7 +5,6 @@ import { assertToken, isToken } from './token'
 describe(`token type guard`, () => {
   test(`token`, () => {
     const tkn: Token = {
-      d: `EOF`,
       t: TokenType.Name,
       v: `Albert`,
     }
@@ -21,12 +20,12 @@ describe(`token type guard`, () => {
     expect(isToken(tkn)).toBe(true)
     expect(isToken(nonTkn1)).toBe(false)
     expect(isToken(10)).toBe(false)
-    expect(() => assertToken(tkn, `EOF`)).not.toThrow()
-    expect(() => assertToken(nonTkn2, `EOF`)).toThrow()
-    expect(() => assertToken(nonTkn2, `EOF`)).toThrow()
-    expect(() => assertToken(tkn, `EOF`, { type: TokenType.Name })).not.toThrow()
-    expect(() => assertToken(tkn, `EOF`, { type: TokenType.Number })).toThrow()
-    expect(() => assertToken(tkn, `EOF`, { type: TokenType.Name, value: `Albert` })).not.toThrow()
-    expect(() => assertToken(tkn, `EOF`, { type: TokenType.Name, value: `Mojir` })).toThrow()
+    expect(() => assertToken(tkn, ``)).not.toThrow()
+    expect(() => assertToken(nonTkn2, ``)).toThrow()
+    expect(() => assertToken(nonTkn2, ``)).toThrow()
+    expect(() => assertToken(tkn, ``, { type: TokenType.Name })).not.toThrow()
+    expect(() => assertToken(tkn, ``, { type: TokenType.Number })).toThrow()
+    expect(() => assertToken(tkn, ``, { type: TokenType.Name, value: `Albert` })).not.toThrow()
+    expect(() => assertToken(tkn, ``, { type: TokenType.Name, value: `Mojir` })).toThrow()
   })
 })

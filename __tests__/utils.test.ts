@@ -1,11 +1,9 @@
-import type { DebugInfo } from '../src/tokenizer/interface'
 import type { NameNode, RegularExpression } from '../src/parser/interface'
 import { collHasKey, deepEqual, toNonNegativeInteger, cloneColl, createNativeJsFunction } from '../src/utils'
 import { REGEXP_SYMBOL } from '../src/utils/symbols'
 import { valueToString } from '../src/utils/debug/debugTools'
 import { AstNodeType, FunctionType } from '../src'
 
-const debugInfo: DebugInfo = `EOF`
 describe(`utils`, () => {
   test(`createNativeJsFunction`, () => {
     const fnWithName = createNativeJsFunction(() => undefined, `foo`)
@@ -47,7 +45,7 @@ describe(`utils`, () => {
     test(`primitives`, () => {
       for (const a of primitives) {
         for (const b of primitives) {
-          expect(deepEqual(a, b, debugInfo)).toBe(a === b)
+          expect(deepEqual(a, b)).toBe(a === b)
         }
       }
     })
@@ -72,20 +70,20 @@ describe(`utils`, () => {
         s: `^ab`,
         f: `g`,
       }
-      expect(deepEqual(a, a, debugInfo)).toBe(true)
-      expect(deepEqual(a, b, debugInfo)).toBe(true)
-      expect(deepEqual(a, c, debugInfo)).toBe(false)
-      expect(deepEqual(a, d, debugInfo)).toBe(false)
-      expect(deepEqual(b, b, debugInfo)).toBe(true)
-      expect(deepEqual(b, c, debugInfo)).toBe(false)
-      expect(deepEqual(b, d, debugInfo)).toBe(false)
-      expect(deepEqual(c, c, debugInfo)).toBe(true)
-      expect(deepEqual(c, d, debugInfo)).toBe(true)
+      expect(deepEqual(a, a)).toBe(true)
+      expect(deepEqual(a, b)).toBe(true)
+      expect(deepEqual(a, c)).toBe(false)
+      expect(deepEqual(a, d)).toBe(false)
+      expect(deepEqual(b, b)).toBe(true)
+      expect(deepEqual(b, c)).toBe(false)
+      expect(deepEqual(b, d)).toBe(false)
+      expect(deepEqual(c, c)).toBe(true)
+      expect(deepEqual(c, d)).toBe(true)
     })
     test(`nested structures`, () => {
-      expect(deepEqual([1, 2, 3], [1, 2, 3], debugInfo)).toBe(true)
-      expect(deepEqual({ a: 1, b: 2 }, { a: 1, b: 2 }, debugInfo)).toBe(true)
-      expect(deepEqual([1, 2, { a: 1, b: 2 }], [1, 2, { b: 2, a: 1 }], debugInfo)).toBe(true)
+      expect(deepEqual([1, 2, 3], [1, 2, 3])).toBe(true)
+      expect(deepEqual({ a: 1, b: 2 }, { a: 1, b: 2 })).toBe(true)
+      expect(deepEqual([1, 2, { a: 1, b: 2 }], [1, 2, { b: 2, a: 1 }])).toBe(true)
     })
   })
   test(`toNonNegativeInteger`, () => {

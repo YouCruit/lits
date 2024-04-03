@@ -28,10 +28,7 @@ describe(`parse numbers`, () => {
 
       numberSamples.forEach(sample => {
         test(`number sample: ${sample}`, () => {
-          expect(tokenizeNumber(sample, 0, { line: 0, column: 0, code: `` })).toEqual([
-            sample.length,
-            { t: TokenType.Number, v: sample, d: { line: 0, column: 0, code: `` } },
-          ])
+          expect(tokenizeNumber(sample, 0)).toEqual([sample.length, { t: TokenType.Number, v: sample }])
           expect(lits.run(sample)).toEqual(Number(sample))
         })
       })
@@ -59,7 +56,7 @@ describe(`parse numbers`, () => {
 
       numberSamples.forEach(sample => {
         test(`number sample: ${sample}`, () => {
-          expect(tokenizeNumber(sample, 0, { line: 0, column: 0, code: `` })).toEqual([0, undefined])
+          expect(tokenizeNumber(sample, 0)).toEqual([0, undefined])
         })
       })
     })

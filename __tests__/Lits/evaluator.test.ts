@@ -188,7 +188,7 @@ test(`evaluateAstNode`, () => {
       {
         t: AstNodeType.Modifier,
         v: `&`,
-        tkn: { t: TokenType.Name, d: { code: ``, column: 1, line: 1 }, v: `X` },
+        tkn: { t: TokenType.Name, d: { code: ``, position: { column: 1, line: 1 } }, v: `X` },
       },
       createContextStack(),
     ),

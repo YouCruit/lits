@@ -1,4 +1,4 @@
-import type { Token } from '../tokenizer/interface'
+import type { TokenStream } from '../tokenizer/interface'
 import { TokenType } from '../constants/constants'
 import type {
   AstNode,
@@ -30,64 +30,64 @@ import { valueToString } from '../utils/debug/debugTools'
 import { asToken } from '../typeGuards/token'
 import { assertEventNumberOfParams, assertNonUndefined, asNonUndefined, assertUnreachable } from '../typeGuards'
 
-type ParseNumber = (tokens: Token[], position: number) => [number, NumberNode]
-export const parseNumber: ParseNumber = (tokens: Token[], position: number) => {
-  const tkn = asToken(tokens[position], `EOF`)
+type ParseNumber = (tokenStream: TokenStream, position: number) => [number, NumberNode]
+export const parseNumber: ParseNumber = (tokenStream: TokenStream, position: number) => {
+  const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   return [position + 1, { t: AstNodeType.Number, v: Number(tkn.v), tkn: tkn.d ? tkn : undefined }]
 }
 
-type ParseString = (tokens: Token[], position: number) => [number, StringNode]
-export const parseString: ParseString = (tokens: Token[], position: number) => {
-  const tkn = asToken(tokens[position], `EOF`)
+type ParseString = (tokenStream: TokenStream, position: number) => [number, StringNode]
+export const parseString: ParseString = (tokenStream: TokenStream, position: number) => {
+  const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   return [position + 1, { t: AstNodeType.String, v: tkn.v, tkn: tkn.d ? tkn : undefined }]
 }
 
-type ParseName = (tokens: Token[], position: number) => [number, NameNode]
-export const parseName: ParseName = (tokens: Token[], position: number) => {
-  const tkn = asToken(tokens[position], `EOF`)
+type ParseName = (tokenStream: TokenStream, position: number) => [number, NameNode]
+export const parseName: ParseName = (tokenStream: TokenStream, position: number) => {
+  const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   return [position + 1, { t: AstNodeType.Name, v: tkn.v, tkn: tkn.d ? tkn : undefined }]
 }
 
-type ParseReservedName = (tokens: Token[], position: number) => [number, ReservedNameNode]
-export const parseReservedName: ParseReservedName = (tokens: Token[], position: number) => {
-  const tkn = asToken(tokens[position], `EOF`)
+type ParseReservedName = (tokenStream: TokenStream, position: number) => [number, ReservedNameNode]
+export const parseReservedName: ParseReservedName = (tokenStream: TokenStream, position: number) => {
+  const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   return [position + 1, { t: AstNodeType.ReservedName, v: tkn.v as ReservedName, tkn: tkn.d ? tkn : undefined }]
 }
 
-const parseTokens: ParseTokens = (tokens, position) => {
-  let tkn = asToken(tokens[position], `EOF`)
+const parseTokens: ParseTokens = (tokenStream, position) => {
+  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const astNodes: AstNode[] = []
   let astNode: AstNode
   while (!(tkn.t === TokenType.Bracket && (tkn.v === `)` || tkn.v === `]`))) {
-    ;[position, astNode] = parseToken(tokens, position)
+    ;[position, astNode] = parseToken(tokenStream, position)
     astNodes.push(astNode)
-    tkn = asToken(tokens[position], `EOF`)
+    tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   }
   return [position, astNodes]
 }
 
-const parseExpression: ParseExpression = (tokens, position) => {
+const parseExpression: ParseExpression = (tokenStream, position) => {
   position += 1 // Skip parenthesis
 
-  const tkn = asToken(tokens[position], `EOF`)
+  const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   if (tkn.t === TokenType.Name && builtin.specialExpressions[tkn.v]) {
-    return parseSpecialExpression(tokens, position)
+    return parseSpecialExpression(tokenStream, position)
   }
-  return parseNormalExpression(tokens, position)
+  return parseNormalExpression(tokenStream, position)
 }
 
-type ParseArrayLitteral = (tokens: Token[], position: number) => [number, AstNode]
-const parseArrayLitteral: ParseArrayLitteral = (tokens, position) => {
-  const firstToken = asToken(tokens[position], `EOF`)
+type ParseArrayLitteral = (tokenStream: TokenStream, position: number) => [number, AstNode]
+const parseArrayLitteral: ParseArrayLitteral = (tokenStream, position) => {
+  const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
   position = position + 1
 
-  let tkn = asToken(tokens[position], `EOF`)
+  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const params: AstNode[] = []
   let param: AstNode
   while (!(tkn.t === TokenType.Bracket && tkn.v === `]`)) {
-    ;[position, param] = parseToken(tokens, position)
+    ;[position, param] = parseToken(tokenStream, position)
     params.push(param)
-    tkn = asToken(tokens[position], `EOF`)
+    tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   }
 
   position = position + 1
@@ -102,18 +102,18 @@ const parseArrayLitteral: ParseArrayLitteral = (tokens, position) => {
   return [position, node]
 }
 
-type ParseObjectLitteral = (tokens: Token[], position: number) => [number, NormalExpressionNodeWithName]
-const parseObjectLitteral: ParseObjectLitteral = (tokens, position) => {
-  const firstToken = asToken(tokens[position], `EOF`)
+type ParseObjectLitteral = (tokenStream: TokenStream, position: number) => [number, NormalExpressionNodeWithName]
+const parseObjectLitteral: ParseObjectLitteral = (tokenStream, position) => {
+  const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
   position = position + 1
 
-  let tkn = asToken(tokens[position], `EOF`)
+  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const params: AstNode[] = []
   let param: AstNode
   while (!(tkn.t === TokenType.Bracket && tkn.v === `}`)) {
-    ;[position, param] = parseToken(tokens, position)
+    ;[position, param] = parseToken(tokenStream, position)
     params.push(param)
-    tkn = asToken(tokens[position], `EOF`)
+    tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   }
 
   position = position + 1
@@ -130,9 +130,9 @@ const parseObjectLitteral: ParseObjectLitteral = (tokens, position) => {
   return [position, node]
 }
 
-type ParseRegexpShorthand = (tokens: Token[], position: number) => [number, NormalExpressionNodeWithName]
-const parseRegexpShorthand: ParseRegexpShorthand = (tokens, position) => {
-  const tkn = asToken(tokens[position], `EOF`)
+type ParseRegexpShorthand = (tokenStream: TokenStream, position: number) => [number, NormalExpressionNodeWithName]
+const parseRegexpShorthand: ParseRegexpShorthand = (tokenStream, position) => {
+  const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const stringNode: StringNode = {
     t: AstNodeType.String,
     v: tkn.v,
@@ -158,17 +158,17 @@ const parseRegexpShorthand: ParseRegexpShorthand = (tokens, position) => {
 }
 
 const placeholderRegexp = /^%([1-9][0-9]?)?$/
-type ParseFnShorthand = (tokens: Token[], position: number) => [number, FnNode]
-const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
-  const firstToken = asToken(tokens[position], `EOF`)
+type ParseFnShorthand = (tokenStream: TokenStream, position: number) => [number, FnNode]
+const parseFnShorthand: ParseFnShorthand = (tokenStream, position) => {
+  const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
 
   position += 1
-  const [newPosition, exprNode] = parseExpression(tokens, position)
+  const [newPosition, exprNode] = parseExpression(tokenStream, position)
 
   let arity = 0
   let percent1: `NOT_SET` | `WITH_1` | `NAKED` = `NOT_SET`
   for (let pos = position + 1; pos < newPosition - 1; pos += 1) {
-    const tkn = asToken(tokens[pos], `EOF`)
+    const tkn = asToken(tokenStream.tokens[pos], tokenStream.filePath)
     if (tkn.t === TokenType.Name) {
       const match = placeholderRegexp.exec(tkn.v)
       if (match) {
@@ -224,8 +224,8 @@ const parseFnShorthand: ParseFnShorthand = (tokens, position) => {
   return [newPosition, node]
 }
 
-const parseArgument: ParseArgument = (tokens, position) => {
-  const tkn = asToken(tokens[position], `EOF`)
+const parseArgument: ParseArgument = (tokenStream, position) => {
+  const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   if (tkn.t === TokenType.Name) {
     return [position + 1, { t: AstNodeType.Argument, n: tkn.v, tkn }]
   } else if (tkn.t === TokenType.Modifier) {
@@ -236,29 +236,29 @@ const parseArgument: ParseArgument = (tokens, position) => {
   }
 }
 
-const parseBindings: ParseBindings = (tokens, position) => {
-  let tkn = asToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `[` })
+const parseBindings: ParseBindings = (tokenStream, position) => {
+  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `[` })
   position += 1
-  tkn = asToken(tokens[position], `EOF`)
+  tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const bindings: BindingNode[] = []
   let binding: BindingNode
   while (!(tkn.t === TokenType.Bracket && tkn.v === `]`)) {
-    ;[position, binding] = parseBinding(tokens, position)
+    ;[position, binding] = parseBinding(tokenStream, position)
     bindings.push(binding)
-    tkn = asToken(tokens[position], `EOF`)
+    tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   }
   position += 1
 
   return [position, bindings]
 }
 
-const parseBinding: ParseBinding = (tokens, position) => {
-  const firstToken = asToken(tokens[position], `EOF`, { type: TokenType.Name })
+const parseBinding: ParseBinding = (tokenStream, position) => {
+  const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Name })
   const name = firstToken.v
 
   position += 1
   let value: AstNode
-  ;[position, value] = parseToken(tokens, position)
+  ;[position, value] = parseToken(tokenStream, position)
 
   const node: BindingNode = {
     t: AstNodeType.Binding,
@@ -269,11 +269,11 @@ const parseBinding: ParseBinding = (tokens, position) => {
   return [position, node]
 }
 
-const parseNormalExpression: ParseNormalExpression = (tokens, position) => {
-  const [newPosition, fnNode] = parseToken(tokens, position)
+const parseNormalExpression: ParseNormalExpression = (tokenStream, position) => {
+  const [newPosition, fnNode] = parseToken(tokenStream, position)
 
   let params: AstNode[]
-  ;[position, params] = parseTokens(tokens, newPosition)
+  ;[position, params] = parseTokens(tokenStream, newPosition)
   position += 1
 
   if (isExpressionNode(fnNode)) {
@@ -304,13 +304,13 @@ const parseNormalExpression: ParseNormalExpression = (tokens, position) => {
   return [position, node]
 }
 
-const parseSpecialExpression: ParseSpecialExpression = (tokens, position) => {
-  const { v: expressionName, d: debugInfo } = asToken(tokens[position], `EOF`)
+const parseSpecialExpression: ParseSpecialExpression = (tokenStream, position) => {
+  const { v: expressionName, d: debugInfo } = asToken(tokenStream.tokens[position], tokenStream.filePath)
   position += 1
 
   const { parse, validate } = asNonUndefined(builtin.specialExpressions[expressionName], debugInfo)
 
-  const [positionAfterParse, node] = parse(tokens, position, {
+  const [positionAfterParse, node] = parse(tokenStream, position, {
     parseExpression,
     parseTokens,
     parseToken,
@@ -324,30 +324,30 @@ const parseSpecialExpression: ParseSpecialExpression = (tokens, position) => {
   return [positionAfterParse, node]
 }
 
-export const parseToken: ParseToken = (tokens, position) => {
-  const tkn = asToken(tokens[position], `EOF`)
+export const parseToken: ParseToken = (tokenStream, position) => {
+  const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   switch (tkn.t) {
     case TokenType.Number:
-      return parseNumber(tokens, position)
+      return parseNumber(tokenStream, position)
     case TokenType.String:
-      return parseString(tokens, position)
+      return parseString(tokenStream, position)
     case TokenType.Name:
-      return parseName(tokens, position)
+      return parseName(tokenStream, position)
     case TokenType.ReservedName:
-      return parseReservedName(tokens, position)
+      return parseReservedName(tokenStream, position)
     case TokenType.Bracket:
       if (tkn.v === `(`) {
-        return parseExpression(tokens, position)
+        return parseExpression(tokenStream, position)
       } else if (tkn.v === `[`) {
-        return parseArrayLitteral(tokens, position)
+        return parseArrayLitteral(tokenStream, position)
       } else if (tkn.v === `{`) {
-        return parseObjectLitteral(tokens, position)
+        return parseObjectLitteral(tokenStream, position)
       }
       break
     case TokenType.RegexpShorthand:
-      return parseRegexpShorthand(tokens, position)
+      return parseRegexpShorthand(tokenStream, position)
     case TokenType.FnShorthand:
-      return parseFnShorthand(tokens, position)
+      return parseFnShorthand(tokenStream, position)
     case TokenType.CollectionAccessor:
     case TokenType.Modifier:
       break

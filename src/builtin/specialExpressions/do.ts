@@ -7,8 +7,8 @@ import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
 export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
-  parse: (tokens, position, { parseToken }) => {
-    let tkn = asToken(tokens[position], `EOF`)
+  parse: (tokenStream, position, { parseToken }) => {
+    let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
 
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
@@ -19,9 +19,9 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     while (!isToken(tkn, { type: TokenType.Bracket, value: `)` })) {
       let bodyNode: AstNode
-      ;[position, bodyNode] = parseToken(tokens, position)
+      ;[position, bodyNode] = parseToken(tokenStream, position)
       node.p.push(bodyNode)
-      tkn = asToken(tokens[position], `EOF`)
+      tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
     }
     return [position + 1, node]
   },

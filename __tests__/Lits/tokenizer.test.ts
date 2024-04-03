@@ -3,18 +3,18 @@ import { TokenType } from '../../src/constants/constants'
 
 describe(`Tokenizer`, () => {
   test(`simple expressions`, () => {
-    const tokens = tokenize(
+    const tokenStream = tokenize(
       `
       (let ((day (* 24 60 60 1000)))
         (* days day)
       )`,
       { debug: false },
     )
-    expect(tokens.length).toBeGreaterThan(0)
+    expect(tokenStream.tokens.length).toBeGreaterThan(0)
   })
   test(`another simple expressions`, () => {
-    const tokens = tokenize(`(do-me)`, { debug: false })
-    expect(tokens.length).toBeGreaterThan(0)
+    const tokenStream = tokenize(`(do-me)`, { debug: false })
+    expect(tokenStream.tokens.length).toBeGreaterThan(0)
   })
 
   test(`forbidden reserved names`, () => {
@@ -30,11 +30,13 @@ describe(`Tokenizer`, () => {
   })
 
   test(`comments`, () => {
-    expect(tokenize(`"Hi" ;This is a string`, { debug: false })).toEqual([{ t: TokenType.String, v: `Hi` }])
-    expect(tokenize(`"Hi" ;This is a string\n"there"`, { debug: false })).toEqual([
-      { t: TokenType.String, v: `Hi` },
-      { t: TokenType.String, v: `there` },
-    ])
+    expect(tokenize(`"Hi" ;This is a string`, { debug: false })).toEqual({ tokens: [{ t: TokenType.String, v: `Hi` }] })
+    expect(tokenize(`"Hi" ;This is a string\n"there"`, { debug: false })).toEqual({
+      tokens: [
+        { t: TokenType.String, v: `Hi` },
+        { t: TokenType.String, v: `there` },
+      ],
+    })
   })
 
   describe(`strings`, () => {
@@ -42,15 +44,15 @@ describe(`Tokenizer`, () => {
       expect(() => tokenize(`"Hej`, { debug: false })).toThrow()
     })
     test(`Escaped string`, () => {
-      expect(tokenize(`"He\\"j"`, { debug: false })[0]).toEqual({
+      expect(tokenize(`"He\\"j"`, { debug: false }).tokens[0]).toEqual({
         t: TokenType.String,
         v: `He"j`,
       })
-      expect(tokenize(`"He\\\\j"`, { debug: false })[0]).toEqual({
+      expect(tokenize(`"He\\\\j"`, { debug: false }).tokens[0]).toEqual({
         t: TokenType.String,
         v: `He\\j`,
       })
-      expect(tokenize(`"H\\ej"`, { debug: false })[0]).toEqual({
+      expect(tokenize(`"H\\ej"`, { debug: false }).tokens[0]).toEqual({
         t: TokenType.String,
         v: `H\\ej`,
       })
@@ -59,46 +61,57 @@ describe(`Tokenizer`, () => {
 
   describe(`regexpShorthand`, () => {
     test(`samples`, () => {
-      expect(tokenize(`#"Hej"`, { debug: true })).toEqual([
-        {
-          t: TokenType.RegexpShorthand,
-          v: `Hej`,
-          o: {},
-          d: { line: 1, column: 1, code: `#"Hej"`, getLocation: undefined },
-        },
-      ])
-      expect(tokenize(`#"Hej"g`, { debug: true })).toEqual([
-        {
-          t: TokenType.RegexpShorthand,
-          v: `Hej`,
-          o: { g: true },
-          d: { line: 1, column: 1, code: `#"Hej"g`, getLocation: undefined },
-        },
-      ])
-      expect(tokenize(`#"Hej"i`, { debug: true })).toEqual([
-        {
-          t: TokenType.RegexpShorthand,
-          v: `Hej`,
-          o: { i: true },
-          d: { line: 1, column: 1, code: `#"Hej"i`, getLocation: undefined },
-        },
-      ])
-      expect(tokenize(`#"Hej"gi`, { debug: true })).toEqual([
-        {
-          t: TokenType.RegexpShorthand,
-          v: `Hej`,
-          o: { i: true, g: true },
-          d: { line: 1, column: 1, code: `#"Hej"gi`, getLocation: undefined },
-        },
-      ])
-      expect(tokenize(`#"Hej"ig`, { debug: true })).toEqual([
-        {
-          t: TokenType.RegexpShorthand,
-          v: `Hej`,
-          o: { i: true, g: true },
-          d: { line: 1, column: 1, code: `#"Hej"ig`, getLocation: undefined },
-        },
-      ])
+      expect(tokenize(`#"Hej"`, { debug: true, filePath: `foo.lits` })).toEqual({
+        tokens: [
+          {
+            t: TokenType.RegexpShorthand,
+            v: `Hej`,
+            o: {},
+            d: { position: { line: 1, column: 1 }, code: `#"Hej"`, filePath: `foo.lits` },
+          },
+        ],
+        filePath: `foo.lits`,
+      })
+      expect(tokenize(`#"Hej"g`, { debug: true })).toEqual({
+        tokens: [
+          {
+            t: TokenType.RegexpShorthand,
+            v: `Hej`,
+            o: { g: true },
+            d: { position: { line: 1, column: 1 }, code: `#"Hej"g`, getLocation: undefined },
+          },
+        ],
+      })
+      expect(tokenize(`#"Hej"i`, { debug: true })).toEqual({
+        tokens: [
+          {
+            t: TokenType.RegexpShorthand,
+            v: `Hej`,
+            o: { i: true },
+            d: { position: { line: 1, column: 1 }, code: `#"Hej"i`, getLocation: undefined },
+          },
+        ],
+      })
+      expect(tokenize(`#"Hej"gi`, { debug: true })).toEqual({
+        tokens: [
+          {
+            t: TokenType.RegexpShorthand,
+            v: `Hej`,
+            o: { i: true, g: true },
+            d: { position: { line: 1, column: 1 }, code: `#"Hej"gi`, getLocation: undefined },
+          },
+        ],
+      })
+      expect(tokenize(`#"Hej"ig`, { debug: true })).toEqual({
+        tokens: [
+          {
+            t: TokenType.RegexpShorthand,
+            v: `Hej`,
+            o: { i: true, g: true },
+            d: { position: { line: 1, column: 1 }, code: `#"Hej"ig`, getLocation: undefined },
+          },
+        ],
+      })
       expect(() => tokenize(`#"Hej"gg`, { debug: true })).toThrow()
       expect(() => tokenize(`#"Hej"ii`, { debug: true })).toThrow()
       expect(() => tokenize(`#1`, { debug: true })).toThrow()
@@ -107,18 +120,20 @@ describe(`Tokenizer`, () => {
 
   describe(`fnShorthand`, () => {
     test(`samples`, () => {
-      expect(tokenize(`#(`, { debug: true })).toEqual([
-        {
-          t: TokenType.FnShorthand,
-          v: `#`,
-          d: { line: 1, column: 1, code: `#(`, getLocation: undefined },
-        },
-        {
-          t: TokenType.Bracket,
-          v: `(`,
-          d: { line: 1, column: 2, code: `#(`, getLocation: undefined },
-        },
-      ])
+      expect(tokenize(`#(`, { debug: true })).toEqual({
+        tokens: [
+          {
+            t: TokenType.FnShorthand,
+            v: `#`,
+            d: { position: { line: 1, column: 1 }, code: `#(` },
+          },
+          {
+            t: TokenType.Bracket,
+            v: `(`,
+            d: { position: { line: 1, column: 2 }, code: `#(` },
+          },
+        ],
+      })
       expect(() => tokenize(`#`, { debug: true })).toThrow()
     })
   })

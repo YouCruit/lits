@@ -7,9 +7,9 @@ import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
 export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
-  parse: (tokens, position, { parseToken }) => {
-    const firstToken = asToken(tokens[position], `EOF`)
-    const [newPosition, astNode] = parseToken(tokens, position)
+  parse: (tokenStream, position, { parseToken }) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+    const [newPosition, astNode] = parseToken(tokenStream, position)
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
       n: `time!`,

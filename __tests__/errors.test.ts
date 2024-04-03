@@ -8,8 +8,10 @@ describe(`errors`, () => {
   })
   test(`UserDefinedError`, () => {
     const err = new UserDefinedError(`A message`, {
-      line: 1,
-      column: 1,
+      position: {
+        line: 1,
+        column: 1,
+      },
       code: `(+ 1 2)`,
     })
     expect(err).toBeInstanceOf(UserDefinedError)

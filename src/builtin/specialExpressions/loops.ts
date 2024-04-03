@@ -5,7 +5,7 @@ import type { Context, EvaluateAstNode } from '../../evaluator/interface'
 import type { Any, Arr } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
-import type { Token, DebugInfo } from '../../tokenizer/interface'
+import type { DebugInfo, TokenStream } from '../../tokenizer/interface'
 import { TokenType } from '../../constants/constants'
 import { asAstNode } from '../../typeGuards/astNode'
 import { asToken, assertToken, isToken } from '../../typeGuards/token'
@@ -26,46 +26,46 @@ export type LoopBindingNode = {
 }
 
 function parseLoopBinding(
-  tokens: Token[],
+  tokenStream: TokenStream,
   position: number,
   { parseBinding, parseBindings, parseToken }: ParserHelpers,
 ): [number, LoopBindingNode] {
   let bindingNode: BindingNode
-  ;[position, bindingNode] = parseBinding(tokens, position)
+  ;[position, bindingNode] = parseBinding(tokenStream, position)
 
   const loopBinding: LoopBindingNode = {
     b: bindingNode,
     m: [],
   }
 
-  let tkn = asToken(tokens[position], `EOF`)
+  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   while (tkn.t === TokenType.Modifier) {
     switch (tkn.v) {
       case `&let`:
         if (loopBinding.l) {
           throw new LitsError(`Only one &let modifier allowed`, tkn.d)
         }
-        ;[position, loopBinding.l] = parseBindings(tokens, position + 1)
+        ;[position, loopBinding.l] = parseBindings(tokenStream, position + 1)
         loopBinding.m.push(`&let`)
         break
       case `&when`:
         if (loopBinding.wn) {
           throw new LitsError(`Only one &when modifier allowed`, tkn.d)
         }
-        ;[position, loopBinding.wn] = parseToken(tokens, position + 1)
+        ;[position, loopBinding.wn] = parseToken(tokenStream, position + 1)
         loopBinding.m.push(`&when`)
         break
       case `&while`:
         if (loopBinding.we) {
           throw new LitsError(`Only one &while modifier allowed`, tkn.d)
         }
-        ;[position, loopBinding.we] = parseToken(tokens, position + 1)
+        ;[position, loopBinding.we] = parseToken(tokenStream, position + 1)
         loopBinding.m.push(`&while`)
         break
       default:
         throw new LitsError(`Illegal modifier: ${tkn.v}`, tkn.d)
     }
-    tkn = asToken(tokens[position], `EOF`)
+    tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   }
   return [position, loopBinding]
 }
@@ -85,18 +85,22 @@ function addToContext(
   }
 }
 
-function parseLoopBindings(tokens: Token[], position: number, parsers: ParserHelpers): [number, LoopBindingNode[]] {
-  assertToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `[` })
+function parseLoopBindings(
+  tokenStream: TokenStream,
+  position: number,
+  parsers: ParserHelpers,
+): [number, LoopBindingNode[]] {
+  assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `[` })
   position += 1
 
   const loopBindings: LoopBindingNode[] = []
 
-  let tkn = asToken(tokens[position], `EOF`)
+  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   while (!isToken(tkn, { type: TokenType.Bracket, value: `]` })) {
     let loopBinding: LoopBindingNode
-    ;[position, loopBinding] = parseLoopBinding(tokens, position, parsers)
+    ;[position, loopBinding] = parseLoopBinding(tokenStream, position, parsers)
     loopBindings.push(loopBinding)
-    tkn = asToken(tokens[position], `EOF`)
+    tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   }
   return [position + 1, loopBindings]
 }
@@ -226,16 +230,16 @@ function analyze(
 }
 
 export const forSpecialExpression: BuiltinSpecialExpression<Any> = {
-  parse: (tokens: Token[], position: number, parsers: ParserHelpers) => {
-    const firstToken = asToken(tokens[position], `EOF`)
+  parse: (tokenStream: TokenStream, position: number, parsers: ParserHelpers) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const { parseToken } = parsers
     let loopBindings: LoopBindingNode[]
-    ;[position, loopBindings] = parseLoopBindings(tokens, position, parsers)
+    ;[position, loopBindings] = parseLoopBindings(tokenStream, position, parsers)
 
     let expression: AstNode
-    ;[position, expression] = parseToken(tokens, position)
+    ;[position, expression] = parseToken(tokenStream, position)
 
-    assertToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `)` })
+    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `)` })
 
     const node: LoopNode = {
       n: `for`,
@@ -252,16 +256,16 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any> = {
 }
 
 export const doseqSpecialExpression: BuiltinSpecialExpression<null> = {
-  parse: (tokens: Token[], position: number, parsers: ParserHelpers) => {
-    const firstToken = asToken(tokens[position], `EOF`)
+  parse: (tokenStream: TokenStream, position: number, parsers: ParserHelpers) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const { parseToken } = parsers
     let loopBindings: LoopBindingNode[]
-    ;[position, loopBindings] = parseLoopBindings(tokens, position, parsers)
+    ;[position, loopBindings] = parseLoopBindings(tokenStream, position, parsers)
 
     let expression: AstNode
-    ;[position, expression] = parseToken(tokens, position)
+    ;[position, expression] = parseToken(tokenStream, position)
 
-    assertToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `)` })
+    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `)` })
 
     const node: LoopNode = {
       n: `doseq`,

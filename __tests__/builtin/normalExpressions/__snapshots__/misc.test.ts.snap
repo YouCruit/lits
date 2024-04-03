@@ -42,8 +42,10 @@ exports[`misc functions debug! debug value. 2`] = `
   "λ": true,
   "d": {
     "code": "(debug! #(> %1 2))",
-    "line": 1,
-    "column": 9
+    "position": {
+      "line": 1,
+      "column": 9
+    }
   },
   "t": 301,
   "o": [
@@ -67,8 +69,10 @@ exports[`misc functions debug! debug value. 2`] = `
                 "v": "%1",
                 "d": {
                   "code": "(debug! #(> %1 2))",
-                  "line": 1,
-                  "column": 13
+                  "position": {
+                    "line": 1,
+                    "column": 13
+                  }
                 }
               }
             },
@@ -80,8 +84,10 @@ exports[`misc functions debug! debug value. 2`] = `
                 "v": "2",
                 "d": {
                   "code": "(debug! #(> %1 2))",
-                  "line": 1,
-                  "column": 16
+                  "position": {
+                    "line": 1,
+                    "column": 16
+                  }
                 }
               }
             }
@@ -91,8 +97,10 @@ exports[`misc functions debug! debug value. 2`] = `
             "v": ">",
             "d": {
               "code": "(debug! #(> %1 2))",
-              "line": 1,
-              "column": 11
+              "position": {
+                "line": 1,
+                "column": 11
+              }
             }
           }
         }

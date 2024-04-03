@@ -18,32 +18,32 @@ type TryNode = SpecialExpressionNode & {
 }
 
 export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
-  parse: (tokens, position, { parseToken }) => {
-    const firstToken = asToken(tokens[position], `EOF`)
+  parse: (tokenStream, position, { parseToken }) => {
+    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let tryExpression: AstNode
-    ;[position, tryExpression] = parseToken(tokens, position)
+    ;[position, tryExpression] = parseToken(tokenStream, position)
 
-    assertToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `(` })
+    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `(` })
     position += 1
 
     let catchNode: AstNode
-    ;[position, catchNode] = parseToken(tokens, position)
+    ;[position, catchNode] = parseToken(tokenStream, position)
     assertNameNode(catchNode, catchNode.tkn?.d)
     if (catchNode.v !== `catch`) {
       throw new LitsError(`Expected 'catch', got '${catchNode.v}'.`, getDebugInfo(catchNode, catchNode.tkn?.d))
     }
 
     let error: AstNode
-    ;[position, error] = parseToken(tokens, position)
+    ;[position, error] = parseToken(tokenStream, position)
     assertNameNode(error, error.tkn?.d)
 
     let catchExpression: AstNode
-    ;[position, catchExpression] = parseToken(tokens, position)
+    ;[position, catchExpression] = parseToken(tokenStream, position)
 
-    assertToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `)` })
+    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `)` })
     position += 1
 
-    assertToken(tokens[position], `EOF`, { type: TokenType.Bracket, value: `)` })
+    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `)` })
     position += 1
 
     const node: TryNode = {

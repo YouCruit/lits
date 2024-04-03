@@ -1,9 +1,9 @@
-import type { Token } from '../../src'
 import { parse } from '../../src/parser'
 import { AstNodeType, TokenType } from '../../src/constants/constants'
 import type { Ast } from '../../src/parser/interface'
 import { parseToken } from '../../src/parser/parsers'
 import { tokenize } from '../../src/tokenizer'
+import type { TokenStream } from '../../src/tokenizer/interface'
 
 const program = `
 (let [day (* 24 60 60 1000)]
@@ -34,7 +34,7 @@ describe(`Parser`, () => {
   })
 
   test(`Unparsable expression`, () => {
-    const tokens = tokenize(`(`, { debug: true })
+    const tokens = tokenize(`(`, { debug: true, filePath: `test.lits` })
     expect(() => parse(tokens)).toThrow()
   })
 
@@ -153,17 +153,19 @@ describe(`Parser`, () => {
   })
 
   test(`parseToken unknown token`, () => {
-    const tokens: Token[] = [
-      {
-        t: TokenType.CollectionAccessor,
-        v: ``,
-      },
-      {
-        t: TokenType.Modifier,
-        v: ``,
-      },
-    ]
-    expect(() => parseToken(tokens, 0)).toThrow()
-    expect(() => parseToken(tokens, 1)).toThrow()
+    const tokenStream: TokenStream = {
+      tokens: [
+        {
+          t: TokenType.CollectionAccessor,
+          v: ``,
+        },
+        {
+          t: TokenType.Modifier,
+          v: ``,
+        },
+      ],
+    }
+    expect(() => parseToken(tokenStream, 0)).toThrow()
+    expect(() => parseToken(tokenStream, 1)).toThrow()
   })
 })

@@ -298,6 +298,9 @@ var Lits = (function (exports) {
       }
       return UndefinedSymbolError;
   }(LitsError));
+  function isLitsError(error) {
+      return error instanceof LitsError;
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function getSourceCodeInfo(anyValue, sourceCodeInfo) {
@@ -4509,7 +4512,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.59";
+  var version = "1.0.60";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -7435,6 +7438,7 @@ var Lits = (function (exports) {
   exports.assertNativeJsFunction = assertNativeJsFunction;
   exports.assertUserDefinedFunction = assertUserDefinedFunction;
   exports.createNativeJsFunction = createNativeJsFunction;
+  exports.isLitsError = isLitsError;
   exports.isLitsFunction = isLitsFunction;
   exports.isNativeJsFunction = isNativeJsFunction;
   exports.isUserDefinedFunction = isUserDefinedFunction;

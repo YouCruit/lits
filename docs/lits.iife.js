@@ -237,9 +237,9 @@ var Lits = (function (exports) {
       }
       return RecurSignal;
   }(Error));
-  var AbstractLitsError = /** @class */ (function (_super) {
-      __extends(AbstractLitsError, _super);
-      function AbstractLitsError(message, sourceCodeInfo) {
+  var LitsError = /** @class */ (function (_super) {
+      __extends(LitsError, _super);
+      function LitsError(message, sourceCodeInfo) {
           var _this = this;
           if (message instanceof Error) {
               message = "".concat(message.name).concat(message.message ? ": ".concat(message.message) : "");
@@ -247,22 +247,12 @@ var Lits = (function (exports) {
           _this = _super.call(this, getLitsErrorMessage(message, sourceCodeInfo)) || this;
           _this.shortMessage = message;
           _this.sourceCodeInfo = sourceCodeInfo;
-          Object.setPrototypeOf(_this, AbstractLitsError.prototype);
-          _this.name = "AbstractLitsError";
-          return _this;
-      }
-      return AbstractLitsError;
-  }(Error));
-  var LitsError = /** @class */ (function (_super) {
-      __extends(LitsError, _super);
-      function LitsError(message, sourceCodeInfo) {
-          var _this = _super.call(this, message, sourceCodeInfo) || this;
           Object.setPrototypeOf(_this, LitsError.prototype);
           _this.name = "LitsError";
           return _this;
       }
       return LitsError;
-  }(AbstractLitsError));
+  }(Error));
   var NotAFunctionError = /** @class */ (function (_super) {
       __extends(NotAFunctionError, _super);
       function NotAFunctionError(fn, sourceCodeInfo) {
@@ -274,7 +264,7 @@ var Lits = (function (exports) {
           return _this;
       }
       return NotAFunctionError;
-  }(AbstractLitsError));
+  }(LitsError));
   var UserDefinedError = /** @class */ (function (_super) {
       __extends(UserDefinedError, _super);
       function UserDefinedError(message, sourceCodeInfo) {
@@ -284,7 +274,7 @@ var Lits = (function (exports) {
           return _this;
       }
       return UserDefinedError;
-  }(AbstractLitsError));
+  }(LitsError));
   var AssertionError = /** @class */ (function (_super) {
       __extends(AssertionError, _super);
       function AssertionError(message, sourceCodeInfo) {
@@ -294,7 +284,7 @@ var Lits = (function (exports) {
           return _this;
       }
       return AssertionError;
-  }(AbstractLitsError));
+  }(LitsError));
   var UndefinedSymbolError = /** @class */ (function (_super) {
       __extends(UndefinedSymbolError, _super);
       function UndefinedSymbolError(symbolName, sourceCodeInfo) {
@@ -307,7 +297,7 @@ var Lits = (function (exports) {
           return _this;
       }
       return UndefinedSymbolError;
-  }(AbstractLitsError));
+  }(LitsError));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function getSourceCodeInfo(anyValue, sourceCodeInfo) {
@@ -4519,7 +4509,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.58";
+  var version = "1.0.59";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { AbstractLitsError } from '../errors'
+import { LitsError } from '../errors'
 import type { Context } from '../evaluator/interface'
 import { Lits } from '../Lits/Lits'
 import type { SourceCodeInfo } from '../tokenizer/interface'
@@ -216,6 +216,6 @@ function getErrorMessage(error: unknown): string {
   return error.shortMessage
 }
 
-function isAbstractLitsError(error: unknown): error is AbstractLitsError {
-  return error instanceof AbstractLitsError
+function isAbstractLitsError(error: unknown): error is LitsError {
+  return error instanceof LitsError
 }

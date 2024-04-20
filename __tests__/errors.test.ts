@@ -1,3 +1,4 @@
+import { LitsError, isLitsError } from '../src/errors'
 import { RecurSignal, UserDefinedError } from '../src/errors'
 describe(`errors`, () => {
   test(`RecurSignal`, () => {
@@ -17,5 +18,22 @@ describe(`errors`, () => {
     expect(err).toBeInstanceOf(UserDefinedError)
     expect(err.name).toBe(`UserDefinedError`)
     expect(err.message).toBe(`A message\n(+ 1 2)\n^      `)
+  })
+  describe(`isLitsError`, () => {
+    test(`isLitsError`, () => {
+      const error = new Error(`An error`)
+      const litsError = new LitsError(`An error`)
+      const recurSignal = new RecurSignal([100])
+      const userDefinedError = new UserDefinedError(`An error`)
+
+      expect(isLitsError(litsError)).toBe(true)
+      expect(isLitsError(userDefinedError)).toBe(true)
+
+      expect(isLitsError(error)).toBe(false)
+      expect(isLitsError(recurSignal)).toBe(false)
+      expect(isLitsError({})).toBe(false)
+      expect(isLitsError(null)).toBe(false)
+      expect(isLitsError(undefined)).toBe(false)
+    })
   })
 })

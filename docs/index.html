@@ -14,7 +14,10 @@
     
 <header id="top-bar">
   <div class="row">
-    <div class="column"></div>
+    <div class="column search-container">
+      <input placeholder="Search" autofocus id="search-input"/>
+      <a onclick="clearSearch()" id="search-clear">Clear</a>
+    </div>
     <div class="column header">Lits</div>
     <div class="column right version"><span>v1.0.60</span></div>
   </div>
@@ -36,11 +39,10 @@
       <li>No macros.</li>
       <li>No keyword symbols. <pre>:foo</pre> is just a shorthand for <pre>"foo"</pre>.</li>
       <li>Dynamic scoping, no lexical scoping</li>
-      <li>100% test coverage</li>
     </ul>
     <p>You can see some examples and find documentation of all built-in function to the left.</p>
     <p>For more instruction on how to install and use Lits as a cli or a typescript lib, checkout <a href="https://github.com/YouCruit/lits">https://github.com/YouCruit/lits</a></p>
-    <p/>
+    <p>
     <p>Happy coding!</p>
   </div>
 </div>
@@ -247,12 +249,12 @@
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(get [1 2 3] 1)')"> <span class="icon-button">▶</span> (get [1 2 3] 1) <span class="gray">=> 2 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(get [] 1)')"> <span class="icon-button">▶</span> (get [] 1) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(get [] 1 ___double_quote___default___double_quote___)')"> <span class="icon-button">▶</span> (get [] 1 "default") <span class="gray">=> "default" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(get [] 1 ___double_quote___default___double_quote___)')"> <span class="icon-button">▶</span> (get [] 1 "default") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(get (object :a 1) :a)')"> <span class="icon-button">▶</span> (get (object :a 1) :a) <span class="gray">=> 1 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(get (object :a 1) :b)')"> <span class="icon-button">▶</span> (get (object :a 1) :b) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(get (object :a 1) :b ___double_quote___default___double_quote___)')"> <span class="icon-button">▶</span> (get (object :a 1) :b "default") <span class="gray">=> "default" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(get (object :a 1) :b ___double_quote___default___double_quote___)')"> <span class="icon-button">▶</span> (get (object :a 1) :b "default") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(get nil :a)')"> <span class="icon-button">▶</span> (get nil :a) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(get nil :b ___double_quote___default___double_quote___)')"> <span class="icon-button">▶</span> (get nil :b "default") <span class="gray">=> "default" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(get nil :b ___double_quote___default___double_quote___)')"> <span class="icon-button">▶</span> (get nil :b "default") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -277,9 +279,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(get-in [[1 2 3] [4 {:a ___double_quote___Kalle___double_quote___} 6]] [1 1 :a 0])')"> <span class="icon-button">▶</span> (get-in [[1 2 3] [4 {:a "Kalle"} 6]] [1 1 :a 0]) <span class="gray">=> "K" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(get-in [[1 2 3] [4 {:a ___double_quote___Kalle___double_quote___} 6]] [1 1 :a 0])')"> <span class="icon-button">▶</span> (get-in [[1 2 3] [4 {:a "Kalle"} 6]] [1 1 :a 0]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(get-in [[1 2 3] [4 {:a ___double_quote___Kalle___double_quote___} 6]] [1 1 :b 0])')"> <span class="icon-button">▶</span> (get-in [[1 2 3] [4 {:a "Kalle"} 6]] [1 1 :b 0]) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(get-in [[1 2 3] [4 {:a ___double_quote___Kalle___double_quote___} 6]] [1 1 :b 0] ___double_quote___Lisa___double_quote___)')"> <span class="icon-button">▶</span> (get-in [[1 2 3] [4 {:a "Kalle"} 6]] [1 1 :b 0] "Lisa") <span class="gray">=> "Lisa" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(get-in [[1 2 3] [4 {:a ___double_quote___Kalle___double_quote___} 6]] [1 1 :b 0] ___double_quote___Lisa___double_quote___)')"> <span class="icon-button">▶</span> (get-in [[1 2 3] [4 {:a "Kalle"} 6]] [1 1 :b 0] "Lisa") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -434,10 +436,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(assoc [1 2 3] 1 ___double_quote___Two___double_quote___)')"> <span class="icon-button">▶</span> (assoc [1 2 3] 1 "Two") <span class="gray">=> [1,"Two",3] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assoc [1 2 3] 3 ___double_quote___Four___double_quote___)')"> <span class="icon-button">▶</span> (assoc [1 2 3] 3 "Four") <span class="gray">=> [1,2,3,"Four"] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assoc {:a 1 :b 2} :a ___double_quote___One___double_quote___)')"> <span class="icon-button">▶</span> (assoc {:a 1 :b 2} :a "One") <span class="gray">=> {"a":"One","b":2} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assoc {:a 1 :b 2} :c ___double_quote___Three___double_quote___)')"> <span class="icon-button">▶</span> (assoc {:a 1 :b 2} :c "Three") <span class="gray">=> {"a":1,"b":2,"c":"Three"} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(assoc [1 2 3] 1 ___double_quote___Two___double_quote___)')"> <span class="icon-button">▶</span> (assoc [1 2 3] 1 "Two") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assoc [1 2 3] 3 ___double_quote___Four___double_quote___)')"> <span class="icon-button">▶</span> (assoc [1 2 3] 3 "Four") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assoc {:a 1 :b 2} :a ___double_quote___One___double_quote___)')"> <span class="icon-button">▶</span> (assoc {:a 1 :b 2} :a "One") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assoc {:a 1 :b 2} :c ___double_quote___Three___double_quote___)')"> <span class="icon-button">▶</span> (assoc {:a 1 :b 2} :c "Three") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -462,9 +464,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(assoc-in {} [:a :b :c] ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (assoc-in {} [:a :b :c] "Albert") <span class="gray">=> {"a":{"b":{"c":"Albert"}}} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assoc-in [1 2 [1 2 3]] [2 1] ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (assoc-in [1 2 [1 2 3]] [2 1] "Albert") <span class="gray">=> [1,2,[1,"Albert",3]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(assoc-in [1 2 {___double_quote___name___double_quote___ ___double_quote___albert___double_quote___}] [2 ___double_quote___name___double_quote___ 0] :A)')"> <span class="icon-button">▶</span> (assoc-in [1 2 {"name" "albert"}] [2 "name" 0] :A) <span class="gray">=> [1,2,{"name":"Albert"}] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(assoc-in {} [:a :b :c] ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (assoc-in {} [:a :b :c] "Albert") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assoc-in [1 2 [1 2 3]] [2 1] ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (assoc-in [1 2 [1 2 3]] [2 1] "Albert") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(assoc-in [1 2 {___double_quote___name___double_quote___ ___double_quote___albert___double_quote___}] [2 ___double_quote___name___double_quote___ 0] :A)')"> <span class="icon-button">▶</span> (assoc-in [1 2 {"name" "albert"}] [2 "name" 0] :A) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -487,13 +489,13 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(concat [1 2] [3 4])')"> <span class="icon-button">▶</span> (concat [1 2] [3 4]) <span class="gray">=> [1,2,3,4] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(concat [] [3 4])')"> <span class="icon-button">▶</span> (concat [] [3 4]) <span class="gray">=> [3,4] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(concat [1 2] [])')"> <span class="icon-button">▶</span> (concat [1 2] []) <span class="gray">=> [1,2] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(concat [1 2] [3 4] [5 6])')"> <span class="icon-button">▶</span> (concat [1 2] [3 4] [5 6]) <span class="gray">=> [1,2,3,4,5,6] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(concat [1 2] [3 4])')"> <span class="icon-button">▶</span> (concat [1 2] [3 4]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(concat [] [3 4])')"> <span class="icon-button">▶</span> (concat [] [3 4]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(concat [1 2] [])')"> <span class="icon-button">▶</span> (concat [1 2] []) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(concat [1 2] [3 4] [5 6])')"> <span class="icon-button">▶</span> (concat [1 2] [3 4] [5 6]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(concat [])')"> <span class="icon-button">▶</span> (concat []) <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(concat {:a 1 :b 2} {:b 1 :c 2})')"> <span class="icon-button">▶</span> (concat {:a 1 :b 2} {:b 1 :c 2}) <span class="gray">=> {"a":1,"b":1,"c":2} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(concat {} {:a 1})')"> <span class="icon-button">▶</span> (concat {} {:a 1}) <span class="gray">=> {"a":1} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(concat {:a 1 :b 2} {:b 1 :c 2})')"> <span class="icon-button">▶</span> (concat {:a 1 :b 2} {:b 1 :c 2}) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(concat {} {:a 1})')"> <span class="icon-button">▶</span> (concat {} {:a 1}) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -517,11 +519,11 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(not-empty [])')"> <span class="icon-button">▶</span> (not-empty []) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty [1 2 3])')"> <span class="icon-button">▶</span> (not-empty [1 2 3]) <span class="gray">=> [1,2,3] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty [1 2 3])')"> <span class="icon-button">▶</span> (not-empty [1 2 3]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(not-empty {})')"> <span class="icon-button">▶</span> (not-empty {}) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty {:a 2})')"> <span class="icon-button">▶</span> (not-empty {:a 2}) <span class="gray">=> {"a":2} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty {:a 2})')"> <span class="icon-button">▶</span> (not-empty {:a 2}) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(not-empty ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (not-empty "") <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(not-empty ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (not-empty "Albert") <span class="gray">=> "Albert" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(not-empty ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (not-empty "Albert") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(not-empty nil)')"> <span class="icon-button">▶</span> (not-empty nil) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -668,8 +670,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(def x {:a 1 :b 2}) (update x :a inc)')"> <span class="icon-button">▶</span> (def x {:a 1 :b 2}) (update x :a inc) <span class="gray">=> {"a":2,"b":2} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(def x {:a 1 :b 2}) (update x :c (fn [val] (if (nil? val) 0 (inc val))))')"> <span class="icon-button">▶</span> (def x {:a 1 :b 2}) (update x :c (fn [val] (if (nil? val) 0 (inc val)))) <span class="gray">=> {"a":1,"b":2,"c":0} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(def x {:a 1 :b 2}) (update x :a inc)')"> <span class="icon-button">▶</span> (def x {:a 1 :b 2}) (update x :a inc) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(def x {:a 1 :b 2}) (update x :c (fn [val] (if (nil? val) 0 (inc val))))')"> <span class="icon-button">▶</span> (def x {:a 1 :b 2}) (update x :c (fn [val] (if (nil? val) 0 (inc val)))) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -695,8 +697,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(update-in {:a [1 2 3]} [:a 1] (fn [val] (when (nil? val) 0)))')"> <span class="icon-button">▶</span> (update-in {:a [1 2 3]} [:a 1] (fn [val] (when (nil? val) 0))) <span class="gray">=> {"a":[1,null,3]} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(update-in {:a [1 ___double_quote___Albert___double_quote___ 3]} [:a 1 0] (fn [val] (if (nil? val) ___double_quote___?___double_quote___ ___double_quote___!___double_quote___)))')"> <span class="icon-button">▶</span> (update-in {:a [1 "Albert" 3]} [:a 1 0] (fn [val] (if (nil? val) "?" "!"))) <span class="gray">=> {"a":[1,"!lbert",3]} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(update-in {:a [1 2 3]} [:a 1] (fn [val] (when (nil? val) 0)))')"> <span class="icon-button">▶</span> (update-in {:a [1 2 3]} [:a 1] (fn [val] (when (nil? val) 0))) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(update-in {:a [1 ___double_quote___Albert___double_quote___ 3]} [:a 1 0] (fn [val] (if (nil? val) ___double_quote___?___double_quote___ ___double_quote___!___double_quote___)))')"> <span class="icon-button">▶</span> (update-in {:a [1 "Albert" 3]} [:a 1 0] (fn [val] (if (nil? val) "?" "!"))) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -719,11 +721,11 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(array 1 2 3)')"> <span class="icon-button">▶</span> (array 1 2 3) <span class="gray">=> [1,2,3] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(array (array nil false true))')"> <span class="icon-button">▶</span> (array (array nil false true)) <span class="gray">=> [[null,false,true]] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(array 1 2 3)')"> <span class="icon-button">▶</span> (array 1 2 3) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(array (array nil false true))')"> <span class="icon-button">▶</span> (array (array nil false true)) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('[]')"> <span class="icon-button">▶</span> [] <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('[1 2 3]')"> <span class="icon-button">▶</span> [1 2 3] <span class="gray">=> [1,2,3] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('[[nil false true]]')"> <span class="icon-button">▶</span> [[nil false true]] <span class="gray">=> [[null,false,true]] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('[1 2 3]')"> <span class="icon-button">▶</span> [1 2 3] <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('[[nil false true]]')"> <span class="icon-button">▶</span> [[nil false true]] <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('[]')"> <span class="icon-button">▶</span> [] <span class="gray">=> [] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('([1 2 3] 1)')"> <span class="icon-button">▶</span> ([1 2 3] 1) <span class="gray">=> 2 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('([1 2 3 4 5 6 7 8 9] 3)')"> <span class="icon-button">▶</span> ([1 2 3 4 5 6 7 8 9] 3) <span class="gray">=> 4 </span> </span></pre>
@@ -751,10 +753,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(range 4)')"> <span class="icon-button">▶</span> (range 4) <span class="gray">=> [0,1,2,3] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(range 1 4)')"> <span class="icon-button">▶</span> (range 1 4) <span class="gray">=> [1,2,3] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(range 0.4 4.9)')"> <span class="icon-button">▶</span> (range 0.4 4.9) <span class="gray">=> [0.4,1.4,2.4,3.4,4.4] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(range 0.25 1 0.25)')"> <span class="icon-button">▶</span> (range 0.25 1 0.25) <span class="gray">=> [0.25,0.5,0.75] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(range 4)')"> <span class="icon-button">▶</span> (range 4) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(range 1 4)')"> <span class="icon-button">▶</span> (range 1 4) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(range 0.4 4.9)')"> <span class="icon-button">▶</span> (range 0.4 4.9) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(range 0.25 1 0.25)')"> <span class="icon-button">▶</span> (range 0.25 1 0.25) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -778,9 +780,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(repeat 3 10)')"> <span class="icon-button">▶</span> (repeat 3 10) <span class="gray">=> [10,10,10] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(repeat 3 10)')"> <span class="icon-button">▶</span> (repeat 3 10) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(repeat 0 10)')"> <span class="icon-button">▶</span> (repeat 0 10) <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(repeat 5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (repeat 5 "Albert") <span class="gray">=> ["Albert","Albert","Albert","Albert","Albert"] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(repeat 5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (repeat 5 "Albert") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -803,8 +805,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(flatten [1 2 [3 4] 5])')"> <span class="icon-button">▶</span> (flatten [1 2 [3 4] 5]) <span class="gray">=> [1,2,3,4,5] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(flatten [1 2 [3 [4 [5]]] 6])')"> <span class="icon-button">▶</span> (flatten [1 2 [3 [4 [5]]] 6]) <span class="gray">=> [1,2,3,4,5,6] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(flatten [1 2 [3 4] 5])')"> <span class="icon-button">▶</span> (flatten [1 2 [3 4] 5]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(flatten [1 2 [3 [4 [5]]] 6])')"> <span class="icon-button">▶</span> (flatten [1 2 [3 [4 [5]]] 6]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(flatten 12)')"> <span class="icon-button">▶</span> (flatten 12) <span class="gray">=> [] </span> </span></pre>
   </div>
 </div>
@@ -829,10 +831,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(mapcat reverse [[3 2 1 0] [6 5 4] [9 8 7]])')"> <span class="icon-button">▶</span> (mapcat reverse [[3 2 1 0] [6 5 4] [9 8 7]]) <span class="gray">=> [0,1,2,3,4,5,6,7,8,9] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(mapcat reverse [[3 2 1 0] [6 [5] 4] [9 8 7]])')"> <span class="icon-button">▶</span> (mapcat reverse [[3 2 1 0] [6 [5] 4] [9 8 7]]) <span class="gray">=> [0,1,2,3,4,[5],6,7,8,9] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(defn foo [n] [(- n 1) n (+ n 1)]) (mapcat foo [1 2 3])')"> <span class="icon-button">▶</span> (defn foo [n] [(- n 1) n (+ n 1)]) (mapcat foo [1 2 3]) <span class="gray">=> [0,1,2,1,2,3,2,3,4] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(mapcat #(remove even? %1) [[1 2] [2 2] [2 3]])')"> <span class="icon-button">▶</span> (mapcat #(remove even? %1) [[1 2] [2 2] [2 3]]) <span class="gray">=> [1,3] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(mapcat reverse [[3 2 1 0] [6 5 4] [9 8 7]])')"> <span class="icon-button">▶</span> (mapcat reverse [[3 2 1 0] [6 5 4] [9 8 7]]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(mapcat reverse [[3 2 1 0] [6 [5] 4] [9 8 7]])')"> <span class="icon-button">▶</span> (mapcat reverse [[3 2 1 0] [6 [5] 4] [9 8 7]]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(defn foo [n] [(- n 1) n (+ n 1)]) (mapcat foo [1 2 3])')"> <span class="icon-button">▶</span> (defn foo [n] [(- n 1) n (+ n 1)]) (mapcat foo [1 2 3]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(mapcat #(remove even? %1) [[1 2] [2 2] [2 3]])')"> <span class="icon-button">▶</span> (mapcat #(remove even? %1) [[1 2] [2 2] [2 3]]) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -862,11 +864,11 @@
 <pre><span class="example" onclick="addToPlayground('(nth [1 2 3] -1)')"> <span class="icon-button">▶</span> (nth [1 2 3] -1) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nth [1 2 3] 3 99)')"> <span class="icon-button">▶</span> (nth [1 2 3] 3 99) <span class="gray">=> 99 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nth ___double_quote___A string___double_quote___ 1)')"> <span class="icon-button">▶</span> (nth "A string" 1) <span class="gray">=> " " </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(nth ___double_quote___A string___double_quote___ 3)')"> <span class="icon-button">▶</span> (nth "A string" 3) <span class="gray">=> "t" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(nth ___double_quote___A string___double_quote___ 3)')"> <span class="icon-button">▶</span> (nth "A string" 3) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nth ___double_quote___A string___double_quote___ -3)')"> <span class="icon-button">▶</span> (nth "A string" -3) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(nth ___double_quote___A string___double_quote___ 30 :X)')"> <span class="icon-button">▶</span> (nth "A string" 30 :X) <span class="gray">=> "X" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(nth ___double_quote___A string___double_quote___ 30 :X)')"> <span class="icon-button">▶</span> (nth "A string" 30 :X) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nth nil 1)')"> <span class="icon-button">▶</span> (nth nil 1) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(nth nil 1 ___double_quote___Default value___double_quote___)')"> <span class="icon-button">▶</span> (nth nil 1 "Default value") <span class="gray">=> "Default value" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(nth nil 1 ___double_quote___Default value___double_quote___)')"> <span class="icon-button">▶</span> (nth nil 1 "Default value") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -890,9 +892,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(push [1 2 3] 4)')"> <span class="icon-button">▶</span> (push [1 2 3] 4) <span class="gray">=> [1,2,3,4] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(push [1 2 3] 4 5 6)')"> <span class="icon-button">▶</span> (push [1 2 3] 4 5 6) <span class="gray">=> [1,2,3,4,5,6] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(def l [1 2 3]) (push l 4) l')"> <span class="icon-button">▶</span> (def l [1 2 3]) (push l 4) l <span class="gray">=> [1,2,3] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(push [1 2 3] 4)')"> <span class="icon-button">▶</span> (push [1 2 3] 4) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(push [1 2 3] 4 5 6)')"> <span class="icon-button">▶</span> (push [1 2 3] 4 5 6) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(def l [1 2 3]) (push l 4) l')"> <span class="icon-button">▶</span> (def l [1 2 3]) (push l 4) l <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -916,7 +918,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(pop [1 2 3])')"> <span class="icon-button">▶</span> (pop [1 2 3]) <span class="gray">=> [1,2] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(pop [1 2 3])')"> <span class="icon-button">▶</span> (pop [1 2 3]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(pop [])')"> <span class="icon-button">▶</span> (pop []) <span class="gray">=> [] </span> </span></pre>
   </div>
 </div>
@@ -941,9 +943,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(unshift [1 2 3] 4)')"> <span class="icon-button">▶</span> (unshift [1 2 3] 4) <span class="gray">=> [4,1,2,3] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(unshift [1 2 3] 4 5 6)')"> <span class="icon-button">▶</span> (unshift [1 2 3] 4 5 6) <span class="gray">=> [4,5,6,1,2,3] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(def l [1 2 3]) (unshift l 4) l')"> <span class="icon-button">▶</span> (def l [1 2 3]) (unshift l 4) l <span class="gray">=> [1,2,3] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(unshift [1 2 3] 4)')"> <span class="icon-button">▶</span> (unshift [1 2 3] 4) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(unshift [1 2 3] 4 5 6)')"> <span class="icon-button">▶</span> (unshift [1 2 3] 4 5 6) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(def l [1 2 3]) (unshift l 4) l')"> <span class="icon-button">▶</span> (def l [1 2 3]) (unshift l 4) l <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -967,7 +969,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shift [1 2 3])')"> <span class="icon-button">▶</span> (shift [1 2 3]) <span class="gray">=> [2,3] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shift [1 2 3])')"> <span class="icon-button">▶</span> (shift [1 2 3]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shift [])')"> <span class="icon-button">▶</span> (shift []) <span class="gray">=> [] </span> </span></pre>
   </div>
 </div>
@@ -993,8 +995,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(slice [1 2 3 4 5] 2 4)')"> <span class="icon-button">▶</span> (slice [1 2 3 4 5] 2 4) <span class="gray">=> [3,4] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(slice [1 2 3 4 5] 2)')"> <span class="icon-button">▶</span> (slice [1 2 3 4 5] 2) <span class="gray">=> [3,4,5] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(slice [1 2 3 4 5] 2 4)')"> <span class="icon-button">▶</span> (slice [1 2 3 4 5] 2 4) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(slice [1 2 3 4 5] 2)')"> <span class="icon-button">▶</span> (slice [1 2 3 4 5] 2) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1019,10 +1021,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(reductions + [1 2 3])')"> <span class="icon-button">▶</span> (reductions + [1 2 3]) <span class="gray">=> [1,3,6] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(reductions + 0 [1 2 3])')"> <span class="icon-button">▶</span> (reductions + 0 [1 2 3]) <span class="gray">=> [0,1,3,6] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(reductions + [1 2 3])')"> <span class="icon-button">▶</span> (reductions + [1 2 3]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(reductions + 0 [1 2 3])')"> <span class="icon-button">▶</span> (reductions + 0 [1 2 3]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(reductions + 0 [])')"> <span class="icon-button">▶</span> (reductions + 0 []) <span class="gray">=> [0] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(reductions (fn [result value] (+ result (if (even? value) value 0))) 0 [1 2 3 4 5 6 7 8 9])')"> <span class="icon-button">▶</span> (reductions (fn [result value] (+ result (if (even? value) value 0))) 0 [1 2 3 4 5 6 7 8 9]) <span class="gray">=> [0,0,2,2,6,6,12,12,20,20] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(reductions (fn [result value] (+ result (if (even? value) value 0))) 0 [1 2 3 4 5 6 7 8 9])')"> <span class="icon-button">▶</span> (reductions (fn [result value] (+ result (if (even? value) value 0))) 0 [1 2 3 4 5 6 7 8 9]) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1075,7 +1077,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(reduce-right str [:A :B :C] ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (reduce-right str [:A :B :C] "") <span class="gray">=> ["A","B","C"] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(reduce-right str [:A :B :C] ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (reduce-right str [:A :B :C] "") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1099,10 +1101,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(map str [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 42])')"> <span class="icon-button">▶</span> (map str ["Albert" "Mojir" 42]) <span class="gray">=> ["Albert","Mojir","42"] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(map str [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 42])')"> <span class="icon-button">▶</span> (map str ["Albert" "Mojir" 42]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(map str [])')"> <span class="icon-button">▶</span> (map str []) <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(map + [1 2 3] [1 2 3])')"> <span class="icon-button">▶</span> (map + [1 2 3] [1 2 3]) <span class="gray">=> [2,4,6] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(map max [2 6 3] [2 4 7] [1 6 2])')"> <span class="icon-button">▶</span> (map max [2 6 3] [2 4 7] [1 6 2]) <span class="gray">=> [2,6,7] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(map + [1 2 3] [1 2 3])')"> <span class="icon-button">▶</span> (map + [1 2 3] [1 2 3]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(map max [2 6 3] [2 4 7] [1 6 2])')"> <span class="icon-button">▶</span> (map max [2 6 3] [2 4 7] [1 6 2]) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1126,8 +1128,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(filter string? [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (filter string? ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> ["Albert","Mojir"] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(filter (fn [x] (> x 10)) [5 10 15 20])')"> <span class="icon-button">▶</span> (filter (fn [x] (> x 10)) [5 10 15 20]) <span class="gray">=> [15,20] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(filter string? [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (filter string? ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(filter (fn [x] (> x 10)) [5 10 15 20])')"> <span class="icon-button">▶</span> (filter (fn [x] (> x 10)) [5 10 15 20]) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1205,7 +1207,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(some string? [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (some string? ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> "Albert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(some string? [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (some string? ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(some (fn [x] (> x 10)) [5 10 15 20])')"> <span class="icon-button">▶</span> (some (fn [x] (> x 10)) [5 10 15 20]) <span class="gray">=> 15 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(some (fn [x] (> x 10)) [1 2 3 4])')"> <span class="icon-button">▶</span> (some (fn [x] (> x 10)) [1 2 3 4]) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(some (fn [x] (> x 10)) [])')"> <span class="icon-button">▶</span> (some (fn [x] (> x 10)) []) <span class="gray">=> null </span> </span></pre>
@@ -1232,9 +1234,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(reverse [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (reverse ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> [[1,2],160,"Mojir","Albert"] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(reverse [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (reverse ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(reverse [])')"> <span class="icon-button">▶</span> (reverse []) <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(reverse ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (reverse "Albert") <span class="gray">=> "treblA" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(reverse ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (reverse "Albert") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(reverse nil)')"> <span class="icon-button">▶</span> (reverse nil) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -1258,7 +1260,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(first [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (first ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> "Albert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(first [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (first ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(first [])')"> <span class="icon-button">▶</span> (first []) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(first nil)')"> <span class="icon-button">▶</span> (first nil) <span class="gray">=> null </span> </span></pre>
   </div>
@@ -1283,7 +1285,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(second [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (second ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> "Mojir" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(second [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (second ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(second [1])')"> <span class="icon-button">▶</span> (second [1]) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(second [])')"> <span class="icon-button">▶</span> (second []) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(second nil)')"> <span class="icon-button">▶</span> (second nil) <span class="gray">=> null </span> </span></pre>
@@ -1309,7 +1311,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(last [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (last ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> [1,2] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(last [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (last ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(last [1 2])')"> <span class="icon-button">▶</span> (last [1 2]) <span class="gray">=> 2 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(last [1])')"> <span class="icon-button">▶</span> (last [1]) <span class="gray">=> 1 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(last [])')"> <span class="icon-button">▶</span> (last []) <span class="gray">=> null </span> </span></pre>
@@ -1336,10 +1338,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(rest [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (rest ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> ["Mojir",160,[1,2]] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(rest [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (rest ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rest [___double_quote___Albert___double_quote___])')"> <span class="icon-button">▶</span> (rest ["Albert"]) <span class="gray">=> [] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rest [])')"> <span class="icon-button">▶</span> (rest []) <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rest ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rest "Albert") <span class="gray">=> "lbert" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rest ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rest "Albert") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rest :A)')"> <span class="icon-button">▶</span> (rest :A) <span class="gray">=> "" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rest ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (rest "") <span class="gray">=> "" </span> </span></pre>
   </div>
@@ -1364,8 +1366,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(nthrest [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]] 2)')"> <span class="icon-button">▶</span> (nthrest ["Albert" "Mojir" 160 [1 2]] 2) <span class="gray">=> [160,[1,2]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(nthrest ___double_quote___Albert___double_quote___ 3)')"> <span class="icon-button">▶</span> (nthrest "Albert" 3) <span class="gray">=> "ert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(nthrest [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]] 2)')"> <span class="icon-button">▶</span> (nthrest ["Albert" "Mojir" 160 [1 2]] 2) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(nthrest ___double_quote___Albert___double_quote___ 3)')"> <span class="icon-button">▶</span> (nthrest "Albert" 3) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nthrest ___double_quote___Albert___double_quote___ 6)')"> <span class="icon-button">▶</span> (nthrest "Albert" 6) <span class="gray">=> "" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nthrest [] 0)')"> <span class="icon-button">▶</span> (nthrest [] 0) <span class="gray">=> [] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nthrest ___double_quote______double_quote___ 0)')"> <span class="icon-button">▶</span> (nthrest "" 0) <span class="gray">=> "" </span> </span></pre>
@@ -1391,10 +1393,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(next [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (next ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> ["Mojir",160,[1,2]] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(next [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (next ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(next [___double_quote___Albert___double_quote___])')"> <span class="icon-button">▶</span> (next ["Albert"]) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(next [])')"> <span class="icon-button">▶</span> (next []) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(next ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (next "Albert") <span class="gray">=> "lbert" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(next ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (next "Albert") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(next :A)')"> <span class="icon-button">▶</span> (next :A) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(next ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (next "") <span class="gray">=> null </span> </span></pre>
   </div>
@@ -1419,8 +1421,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(nthnext [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]] 2)')"> <span class="icon-button">▶</span> (nthnext ["Albert" "Mojir" 160 [1 2]] 2) <span class="gray">=> [160,[1,2]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(nthnext ___double_quote___Albert___double_quote___ 3)')"> <span class="icon-button">▶</span> (nthnext "Albert" 3) <span class="gray">=> "ert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(nthnext [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]] 2)')"> <span class="icon-button">▶</span> (nthnext ["Albert" "Mojir" 160 [1 2]] 2) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(nthnext ___double_quote___Albert___double_quote___ 3)')"> <span class="icon-button">▶</span> (nthnext "Albert" 3) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nthnext ___double_quote___Albert___double_quote___ 6)')"> <span class="icon-button">▶</span> (nthnext "Albert" 6) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nthnext [] 0)')"> <span class="icon-button">▶</span> (nthnext [] 0) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(nthnext ___double_quote______double_quote___ 0)')"> <span class="icon-button">▶</span> (nthnext "" 0) <span class="gray">=> null </span> </span></pre>
@@ -1446,8 +1448,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(cons ___double_quote___Hi___double_quote___ [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (cons "Hi" ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> ["Hi","Albert","Mojir",160,[1,2]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(cons ___double_quote___Hi___double_quote___ [])')"> <span class="icon-button">▶</span> (cons "Hi" []) <span class="gray">=> ["Hi"] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(cons ___double_quote___Hi___double_quote___ [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ 160 [1 2]])')"> <span class="icon-button">▶</span> (cons "Hi" ["Albert" "Mojir" 160 [1 2]]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(cons ___double_quote___Hi___double_quote___ [])')"> <span class="icon-button">▶</span> (cons "Hi" []) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1471,10 +1473,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(take 3 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (take 3 [1 2 3 4 5]) <span class="gray">=> [1,2,3] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(take 3 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (take 3 [1 2 3 4 5]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(take 0 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (take 0 [1 2 3 4 5]) <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(take 2 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (take 2 "Albert") <span class="gray">=> "Al" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(take 50 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (take 50 "Albert") <span class="gray">=> "Albert" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(take 2 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (take 2 "Albert") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(take 50 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (take 50 "Albert") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1498,7 +1500,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(take-last 3 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (take-last 3 [1 2 3 4 5]) <span class="gray">=> [3,4,5] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(take-last 3 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (take-last 3 [1 2 3 4 5]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(take-last 0 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (take-last 0 [1 2 3 4 5]) <span class="gray">=> [] </span> </span></pre>
   </div>
 </div>
@@ -1523,7 +1525,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(take-while (fn [x] (< x 3)) [1 2 3 2 1])')"> <span class="icon-button">▶</span> (take-while (fn [x] (< x 3)) [1 2 3 2 1]) <span class="gray">=> [1,2] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(take-while (fn [x] (< x 3)) [1 2 3 2 1])')"> <span class="icon-button">▶</span> (take-while (fn [x] (< x 3)) [1 2 3 2 1]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(take-while (fn [x] (> x 3)) [1 2 3 2 1])')"> <span class="icon-button">▶</span> (take-while (fn [x] (> x 3)) [1 2 3 2 1]) <span class="gray">=> [] </span> </span></pre>
   </div>
 </div>
@@ -1548,9 +1550,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(drop 3 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (drop 3 [1 2 3 4 5]) <span class="gray">=> [4,5] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(drop 0 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (drop 0 [1 2 3 4 5]) <span class="gray">=> [1,2,3,4,5] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(drop 2 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (drop 2 "Albert") <span class="gray">=> "bert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(drop 3 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (drop 3 [1 2 3 4 5]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(drop 0 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (drop 0 [1 2 3 4 5]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(drop 2 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (drop 2 "Albert") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(drop 50 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (drop 50 "Albert") <span class="gray">=> "" </span> </span></pre>
   </div>
 </div>
@@ -1575,8 +1577,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(drop-last 3 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (drop-last 3 [1 2 3 4 5]) <span class="gray">=> [1,2] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(drop-last 0 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (drop-last 0 [1 2 3 4 5]) <span class="gray">=> [1,2,3,4,5] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(drop-last 3 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (drop-last 3 [1 2 3 4 5]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(drop-last 0 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (drop-last 0 [1 2 3 4 5]) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1600,8 +1602,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(drop-while (fn [x] (< x 3)) [1 2 3 2 1])')"> <span class="icon-button">▶</span> (drop-while (fn [x] (< x 3)) [1 2 3 2 1]) <span class="gray">=> [3,2,1] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(drop-while (fn [x] (> x 3)) [1 2 3 2 1])')"> <span class="icon-button">▶</span> (drop-while (fn [x] (> x 3)) [1 2 3 2 1]) <span class="gray">=> [1,2,3,2,1] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(drop-while (fn [x] (< x 3)) [1 2 3 2 1])')"> <span class="icon-button">▶</span> (drop-while (fn [x] (< x 3)) [1 2 3 2 1]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(drop-while (fn [x] (> x 3)) [1 2 3 2 1])')"> <span class="icon-button">▶</span> (drop-while (fn [x] (> x 3)) [1 2 3 2 1]) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1625,9 +1627,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(sort [3 1 2])')"> <span class="icon-button">▶</span> (sort [3 1 2]) <span class="gray">=> [1,2,3] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(sort (fn [a b] (cond (< a b) -1 (> a b) 1 true -1)) [3 1 2])')"> <span class="icon-button">▶</span> (sort (fn [a b] (cond (< a b) -1 (> a b) 1 true -1)) [3 1 2]) <span class="gray">=> [1,2,3] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(sort (fn [a b] (cond (> a b) -1 (< a b) 1 true -1)) [3 1 2])')"> <span class="icon-button">▶</span> (sort (fn [a b] (cond (> a b) -1 (< a b) 1 true -1)) [3 1 2]) <span class="gray">=> [3,2,1] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(sort [3 1 2])')"> <span class="icon-button">▶</span> (sort [3 1 2]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(sort (fn [a b] (cond (< a b) -1 (> a b) 1 true -1)) [3 1 2])')"> <span class="icon-button">▶</span> (sort (fn [a b] (cond (< a b) -1 (> a b) 1 true -1)) [3 1 2]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(sort (fn [a b] (cond (> a b) -1 (< a b) 1 true -1)) [3 1 2])')"> <span class="icon-button">▶</span> (sort (fn [a b] (cond (> a b) -1 (< a b) 1 true -1)) [3 1 2]) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1652,8 +1654,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(sort-by count [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ ___double_quote___Nina___double_quote___])')"> <span class="icon-button">▶</span> (sort-by count ["Albert" "Mojir" "Nina"]) <span class="gray">=> ["Nina","Mojir","Albert"] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(sort-by lower-case ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (sort-by lower-case "Albert") <span class="gray">=> "Abelrt" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(sort-by count [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ ___double_quote___Nina___double_quote___])')"> <span class="icon-button">▶</span> (sort-by count ["Albert" "Mojir" "Nina"]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(sort-by lower-case ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (sort-by lower-case "Albert") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1677,8 +1679,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(join [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___] ___double_quote___ ___double_quote___)')"> <span class="icon-button">▶</span> (join ["Albert" "Mojir"] " ") <span class="gray">=> "Albert Mojir" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(join (map number-to-string [0 1 2 3 4 5 6 7 8 9]) ___double_quote___, ___double_quote___)')"> <span class="icon-button">▶</span> (join (map number-to-string [0 1 2 3 4 5 6 7 8 9]) ", ") <span class="gray">=> "0, 1, 2, 3, 4, 5, 6, 7, 8, 9" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(join [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___] ___double_quote___ ___double_quote___)')"> <span class="icon-button">▶</span> (join ["Albert" "Mojir"] " ") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(join (map number-to-string [0 1 2 3 4 5 6 7 8 9]) ___double_quote___, ___double_quote___)')"> <span class="icon-button">▶</span> (join (map number-to-string [0 1 2 3 4 5 6 7 8 9]) ", ") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1702,8 +1704,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [2,5,6,7,9] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> "lbe" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (random-sample! 0.5 [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(random-sample! 0.5 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (random-sample! 0.5 "Albert") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1727,7 +1729,7 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(rand-nth! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (rand-nth! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> 9 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(rand-nth! ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rand-nth! "Albert") <span class="gray">=> "r" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(rand-nth! ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (rand-nth! "Albert") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(rand-nth! [])')"> <span class="icon-button">▶</span> (rand-nth! []) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -1751,9 +1753,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> [6,4,8,5,7,10,1,9,2,3] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> "lbrrAMij oet" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(shuffle! [1 2])')"> <span class="icon-button">▶</span> (shuffle! [1 2]) <span class="gray">=> [2,1] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(shuffle! [1 2 3 4 5 6 7 8 9 10])')"> <span class="icon-button">▶</span> (shuffle! [1 2 3 4 5 6 7 8 9 10]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (shuffle! "Albert Mojir") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(shuffle! [1 2])')"> <span class="icon-button">▶</span> (shuffle! [1 2]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [1])')"> <span class="icon-button">▶</span> (shuffle! [1]) <span class="gray">=> [1] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(shuffle! [])')"> <span class="icon-button">▶</span> (shuffle! []) <span class="gray">=> [] </span> </span></pre>
   </div>
@@ -1778,8 +1780,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(distinct [1 2 3 1 3 5])')"> <span class="icon-button">▶</span> (distinct [1 2 3 1 3 5]) <span class="gray">=> [1,2,3,5] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(distinct ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (distinct "Albert Mojir") <span class="gray">=> "Albert Moji" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(distinct [1 2 3 1 3 5])')"> <span class="icon-button">▶</span> (distinct [1 2 3 1 3 5]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(distinct ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (distinct "Albert Mojir") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(distinct [])')"> <span class="icon-button">▶</span> (distinct []) <span class="gray">=> [] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(distinct ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (distinct "") <span class="gray">=> "" </span> </span></pre>
   </div>
@@ -1805,8 +1807,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(remove even? [1 2 3 1 3 5])')"> <span class="icon-button">▶</span> (remove even? [1 2 3 1 3 5]) <span class="gray">=> [1,3,1,3,5] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(remove #(has? ___double_quote___aoueiyAOUEIY___double_quote___ %1) ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (remove #(has? "aoueiyAOUEIY" %1) "Albert Mojir") <span class="gray">=> "lbrt Mjr" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(remove even? [1 2 3 1 3 5])')"> <span class="icon-button">▶</span> (remove even? [1 2 3 1 3 5]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(remove #(has? ___double_quote___aoueiyAOUEIY___double_quote___ %1) ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (remove #(has? "aoueiyAOUEIY" %1) "Albert Mojir") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1830,9 +1832,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(remove-at 0 [1 2 3 1 3 5])')"> <span class="icon-button">▶</span> (remove-at 0 [1 2 3 1 3 5]) <span class="gray">=> [2,3,1,3,5] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(remove-at -1 [1 2 3 1 3 5])')"> <span class="icon-button">▶</span> (remove-at -1 [1 2 3 1 3 5]) <span class="gray">=> [1,2,3,1,3,5] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(remove-at 6 ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (remove-at 6 "Albert Mojir") <span class="gray">=> "AlbertMojir" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(remove-at 0 [1 2 3 1 3 5])')"> <span class="icon-button">▶</span> (remove-at 0 [1 2 3 1 3 5]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(remove-at -1 [1 2 3 1 3 5])')"> <span class="icon-button">▶</span> (remove-at -1 [1 2 3 1 3 5]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(remove-at 6 ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (remove-at 6 "Albert Mojir") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1856,8 +1858,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(split-at 2 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (split-at 2 [1 2 3 4 5]) <span class="gray">=> [[1,2],[3,4,5]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(split-at 2 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (split-at 2 "Albert") <span class="gray">=> ["Al","bert"] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(split-at 2 [1 2 3 4 5])')"> <span class="icon-button">▶</span> (split-at 2 [1 2 3 4 5]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(split-at 2 ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (split-at 2 "Albert") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1881,8 +1883,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(split-with #(> %1 3) [1 2 3 4 5])')"> <span class="icon-button">▶</span> (split-with #(> %1 3) [1 2 3 4 5]) <span class="gray">=> [[],[1,2,3,4,5]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(split-with #(<= %1 :Z) ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (split-with #(<= %1 :Z) "Albert") <span class="gray">=> ["A","lbert"] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(split-with #(> %1 3) [1 2 3 4 5])')"> <span class="icon-button">▶</span> (split-with #(> %1 3) [1 2 3 4 5]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(split-with #(<= %1 :Z) ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (split-with #(<= %1 :Z) "Albert") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1905,8 +1907,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(frequencies [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ ___double_quote___Nina___double_quote___ ___double_quote___Mojir___double_quote___])')"> <span class="icon-button">▶</span> (frequencies ["Albert" "Mojir" "Nina" "Mojir"]) <span class="gray">=> {"Albert":1,"Mojir":2,"Nina":1} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(frequencies ___double_quote___Pneumonoultramicroscopicsilicovolcanoconiosis___double_quote___)')"> <span class="icon-button">▶</span> (frequencies "Pneumonoultramicroscopicsilicovolcanoconiosis") <span class="gray">=> {"P":1,"n":4,"e":1,"u":2,"m":2,"o":9,"l":3,"t":1,"r":2,"a":2,"i":6,"c":6,"s":4,"p":1,"v":1} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(frequencies [___double_quote___Albert___double_quote___ ___double_quote___Mojir___double_quote___ ___double_quote___Nina___double_quote___ ___double_quote___Mojir___double_quote___])')"> <span class="icon-button">▶</span> (frequencies ["Albert" "Mojir" "Nina" "Mojir"]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(frequencies ___double_quote___Pneumonoultramicroscopicsilicovolcanoconiosis___double_quote___)')"> <span class="icon-button">▶</span> (frequencies "Pneumonoultramicroscopicsilicovolcanoconiosis") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1930,8 +1932,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(group-by ___double_quote___name___double_quote___ [{___double_quote___name___double_quote___ ___double_quote___Albert___double_quote___} {___double_quote___name___double_quote___ ___double_quote___Albert___double_quote___} {___double_quote___name___double_quote___ ___double_quote___Mojir___double_quote___}])')"> <span class="icon-button">▶</span> (group-by "name" [{"name" "Albert"} {"name" "Albert"} {"name" "Mojir"}]) <span class="gray">=> {"Albert":[{"name":"Albert"},{"name":"Albert"}],"Mojir":[{"name":"Mojir"}]} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(group-by (fn [char] (if (has? ___double_quote___aoueiAOUEI___double_quote___ char) ___double_quote___vowel___double_quote___ ___double_quote___other___double_quote___)) ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (group-by (fn [char] (if (has? "aoueiAOUEI" char) "vowel" "other")) "Albert Mojir") <span class="gray">=> {"vowel":["A","e","o","i"],"other":["l","b","r","t"," ","M","j","r"]} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(group-by ___double_quote___name___double_quote___ [{___double_quote___name___double_quote___ ___double_quote___Albert___double_quote___} {___double_quote___name___double_quote___ ___double_quote___Albert___double_quote___} {___double_quote___name___double_quote___ ___double_quote___Mojir___double_quote___}])')"> <span class="icon-button">▶</span> (group-by "name" [{"name" "Albert"} {"name" "Albert"} {"name" "Mojir"}]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(group-by (fn [char] (if (has? ___double_quote___aoueiAOUEI___double_quote___ char) ___double_quote___vowel___double_quote___ ___double_quote___other___double_quote___)) ___double_quote___Albert Mojir___double_quote___)')"> <span class="icon-button">▶</span> (group-by (fn [char] (if (has? "aoueiAOUEI" char) "vowel" "other")) "Albert Mojir") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1957,21 +1959,21 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(partition 4 (range 20))')"> <span class="icon-button">▶</span> (partition 4 (range 20)) <span class="gray">=> [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],[16,17,18,19]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 4 (range 22))')"> <span class="icon-button">▶</span> (partition 4 (range 22)) <span class="gray">=> [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15],[16,17,18,19]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 4 6 (range 20))')"> <span class="icon-button">▶</span> (partition 4 6 (range 20)) <span class="gray">=> [[0,1,2,3],[6,7,8,9],[12,13,14,15]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 4 3 (range 20))')"> <span class="icon-button">▶</span> (partition 4 3 (range 20)) <span class="gray">=> [[0,1,2,3],[3,4,5,6],[6,7,8,9],[9,10,11,12],[12,13,14,15],[15,16,17,18]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 3 6 [:a] (range 20))')"> <span class="icon-button">▶</span> (partition 3 6 [:a] (range 20)) <span class="gray">=> [[0,1,2],[6,7,8],[12,13,14],[18,19,"a"]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 4 6 [:a] (range 20))')"> <span class="icon-button">▶</span> (partition 4 6 [:a] (range 20)) <span class="gray">=> [[0,1,2,3],[6,7,8,9],[12,13,14,15],[18,19,"a"]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 4 6 [:a :b :c :d] (range 20))')"> <span class="icon-button">▶</span> (partition 4 6 [:a :b :c :d] (range 20)) <span class="gray">=> [[0,1,2,3],[6,7,8,9],[12,13,14,15],[18,19,"a","b"]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 3 1 [:a :b :c :d :e :f])')"> <span class="icon-button">▶</span> (partition 3 1 [:a :b :c :d :e :f]) <span class="gray">=> [["a","b","c"],["b","c","d"],["c","d","e"],["d","e","f"]] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(partition 4 (range 20))')"> <span class="icon-button">▶</span> (partition 4 (range 20)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 4 (range 22))')"> <span class="icon-button">▶</span> (partition 4 (range 22)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 4 6 (range 20))')"> <span class="icon-button">▶</span> (partition 4 6 (range 20)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 4 3 (range 20))')"> <span class="icon-button">▶</span> (partition 4 3 (range 20)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 3 6 [:a] (range 20))')"> <span class="icon-button">▶</span> (partition 3 6 [:a] (range 20)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 4 6 [:a] (range 20))')"> <span class="icon-button">▶</span> (partition 4 6 [:a] (range 20)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 4 6 [:a :b :c :d] (range 20))')"> <span class="icon-button">▶</span> (partition 4 6 [:a :b :c :d] (range 20)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 3 1 [:a :b :c :d :e :f])')"> <span class="icon-button">▶</span> (partition 3 1 [:a :b :c :d :e :f]) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(partition 10 [1 2 3 4])')"> <span class="icon-button">▶</span> (partition 10 [1 2 3 4]) <span class="gray">=> [] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(partition 10 10 [1 2 3 4])')"> <span class="icon-button">▶</span> (partition 10 10 [1 2 3 4]) <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 10 10 [] [1 2 3 4])')"> <span class="icon-button">▶</span> (partition 10 10 [] [1 2 3 4]) <span class="gray">=> [[1,2,3,4]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 10 10 nil [1 2 3 4])')"> <span class="icon-button">▶</span> (partition 10 10 nil [1 2 3 4]) <span class="gray">=> [[1,2,3,4]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 5 ___double_quote___superfragilistic___double_quote___)')"> <span class="icon-button">▶</span> (partition 5 "superfragilistic") <span class="gray">=> ["super","fragi","listi"] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 5 5 nil ___double_quote___superfragilistic___double_quote___)')"> <span class="icon-button">▶</span> (partition 5 5 nil "superfragilistic") <span class="gray">=> ["super","fragi","listi","c"] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(def foo [5 6 7 8]) (partition 2 1 foo foo)')"> <span class="icon-button">▶</span> (def foo [5 6 7 8]) (partition 2 1 foo foo) <span class="gray">=> [[5,6],[6,7],[7,8],[8,5]] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 10 10 [] [1 2 3 4])')"> <span class="icon-button">▶</span> (partition 10 10 [] [1 2 3 4]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 10 10 nil [1 2 3 4])')"> <span class="icon-button">▶</span> (partition 10 10 nil [1 2 3 4]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 5 ___double_quote___superfragilistic___double_quote___)')"> <span class="icon-button">▶</span> (partition 5 "superfragilistic") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 5 5 nil ___double_quote___superfragilistic___double_quote___)')"> <span class="icon-button">▶</span> (partition 5 5 nil "superfragilistic") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(def foo [5 6 7 8]) (partition 2 1 foo foo)')"> <span class="icon-button">▶</span> (def foo [5 6 7 8]) (partition 2 1 foo foo) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -1996,9 +1998,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(partition-all 4 [0 1 2 3 4 5 6 7 8 9])')"> <span class="icon-button">▶</span> (partition-all 4 [0 1 2 3 4 5 6 7 8 9]) <span class="gray">=> [[0,1,2,3],[4,5,6,7],[8,9]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition 4 [0 1 2 3 4 5 6 7 8 9])')"> <span class="icon-button">▶</span> (partition 4 [0 1 2 3 4 5 6 7 8 9]) <span class="gray">=> [[0,1,2,3],[4,5,6,7]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition-all 2 4 [0 1 2 3 4 5 6 7 8 9])')"> <span class="icon-button">▶</span> (partition-all 2 4 [0 1 2 3 4 5 6 7 8 9]) <span class="gray">=> [[0,1],[4,5],[8,9]] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(partition-all 4 [0 1 2 3 4 5 6 7 8 9])')"> <span class="icon-button">▶</span> (partition-all 4 [0 1 2 3 4 5 6 7 8 9]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition 4 [0 1 2 3 4 5 6 7 8 9])')"> <span class="icon-button">▶</span> (partition 4 [0 1 2 3 4 5 6 7 8 9]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition-all 2 4 [0 1 2 3 4 5 6 7 8 9])')"> <span class="icon-button">▶</span> (partition-all 2 4 [0 1 2 3 4 5 6 7 8 9]) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -2022,9 +2024,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(partition-by #(= 3 %1) [1 2 3 4 5])')"> <span class="icon-button">▶</span> (partition-by #(= 3 %1) [1 2 3 4 5]) <span class="gray">=> [[1,2],[3],[4,5]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition-by odd? [1 1 1 2 2 3 3])')"> <span class="icon-button">▶</span> (partition-by odd? [1 1 1 2 2 3 3]) <span class="gray">=> [[1,1,1],[2,2],[3,3]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(partition-by identity ___double_quote___Leeeeeerrroyyy___double_quote___)')"> <span class="icon-button">▶</span> (partition-by identity "Leeeeeerrroyyy") <span class="gray">=> ["L","eeeeee","rrr","o","yyy"] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(partition-by #(= 3 %1) [1 2 3 4 5])')"> <span class="icon-button">▶</span> (partition-by #(= 3 %1) [1 2 3 4 5]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition-by odd? [1 1 1 2 2 3 3])')"> <span class="icon-button">▶</span> (partition-by odd? [1 1 1 2 2 3 3]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(partition-by identity ___double_quote___Leeeeeerrroyyy___double_quote___)')"> <span class="icon-button">▶</span> (partition-by identity "Leeeeeerrroyyy") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -2606,7 +2608,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(positive-infinity)')"> <span class="icon-button">▶</span> (positive-infinity) <span class="gray">=> null </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(positive-infinity)')"> <span class="icon-button">▶</span> (positive-infinity) <span class="gray">=> Infinity </span> </span></pre>
   </div>
 </div>
 
@@ -2629,7 +2631,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(negative-infinity)')"> <span class="icon-button">▶</span> (negative-infinity) <span class="gray">=> null </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(negative-infinity)')"> <span class="icon-button">▶</span> (negative-infinity) <span class="gray">=> -Infinity </span> </span></pre>
   </div>
 </div>
 
@@ -2767,7 +2769,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(nan)')"> <span class="icon-button">▶</span> (nan) <span class="gray">=> null </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(nan)')"> <span class="icon-button">▶</span> (nan) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -3291,8 +3293,8 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(identity 1)')"> <span class="icon-button">▶</span> (identity 1) <span class="gray">=> 1 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(identity ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (identity "Albert") <span class="gray">=> "Albert" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(identity {:a 1})')"> <span class="icon-button">▶</span> (identity {:a 1}) <span class="gray">=> {"a":1} </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(identity ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (identity "Albert") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(identity {:a 1})')"> <span class="icon-button">▶</span> (identity {:a 1}) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(identity nil)')"> <span class="icon-button">▶</span> (identity nil) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -3391,9 +3393,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('((juxt + * min max) 3 4 6)')"> <span class="icon-button">▶</span> ((juxt + * min max) 3 4 6) <span class="gray">=> [13,72,3,6] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('((juxt :a :b) {:a 1, :b 2, :c 3, :d 4})')"> <span class="icon-button">▶</span> ((juxt :a :b) {:a 1, :b 2, :c 3, :d 4}) <span class="gray">=> [1,2] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(apply (juxt + * min max) (range 1 11))')"> <span class="icon-button">▶</span> (apply (juxt + * min max) (range 1 11)) <span class="gray">=> [55,3628800,1,10] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('((juxt + * min max) 3 4 6)')"> <span class="icon-button">▶</span> ((juxt + * min max) 3 4 6) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('((juxt :a :b) {:a 1, :b 2, :c 3, :d 4})')"> <span class="icon-button">▶</span> ((juxt :a :b) {:a 1, :b 2, :c 3, :d 4}) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(apply (juxt + * min max) (range 1 11))')"> <span class="icon-button">▶</span> (apply (juxt + * min max) (range 1 11)) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -3714,11 +3716,11 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(write! ___double_quote___A string___double_quote___)')"> <span class="icon-button">▶</span> (write! "A string") <span class="gray">=> "A string" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(write! 100 ___double_quote___items___double_quote___)')"> <span class="icon-button">▶</span> (write! 100 "items") <span class="gray">=> "items" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(write! (object :a 10))')"> <span class="icon-button">▶</span> (write! (object :a 10)) <span class="gray">=> {"a":10} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(write! [:a :b :c])')"> <span class="icon-button">▶</span> (write! [:a :b :c]) <span class="gray">=> ["a","b","c"] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(write! #___double_quote___^start___double_quote___)')"> <span class="icon-button">▶</span> (write! #"^start") <span class="gray">=> {"Ʀ":true,"sourceCodeInfo":{"code":"(write! #\"^start\")","position":{"line":1,"column":9}},"s":"^start","f":""} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(write! ___double_quote___A string___double_quote___)')"> <span class="icon-button">▶</span> (write! "A string") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(write! 100 ___double_quote___items___double_quote___)')"> <span class="icon-button">▶</span> (write! 100 "items") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(write! (object :a 10))')"> <span class="icon-button">▶</span> (write! (object :a 10)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(write! [:a :b :c])')"> <span class="icon-button">▶</span> (write! [:a :b :c]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(write! #___double_quote___^start___double_quote___)')"> <span class="icon-button">▶</span> (write! #"^start") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(write! nil true false)')"> <span class="icon-button">▶</span> (write! nil true false) <span class="gray">=> false </span> </span></pre>
   </div>
 </div>
@@ -3789,8 +3791,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(inst-ms->iso-date-time 1649756230899)')"> <span class="icon-button">▶</span> (inst-ms->iso-date-time 1649756230899) <span class="gray">=> "2022-04-12T09:37:10.899Z" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(inst-ms->iso-date-time 0)')"> <span class="icon-button">▶</span> (inst-ms->iso-date-time 0) <span class="gray">=> "1970-01-01T00:00:00.000Z" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(inst-ms->iso-date-time 1649756230899)')"> <span class="icon-button">▶</span> (inst-ms->iso-date-time 1649756230899) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(inst-ms->iso-date-time 0)')"> <span class="icon-button">▶</span> (inst-ms->iso-date-time 0) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -3894,7 +3896,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> "1.0.60" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(lits-version!)')"> <span class="icon-button">▶</span> (lits-version!) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -3917,7 +3919,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> "a4cb0eb4-72a9-400c-b837-07300ca1483f" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(uuid!)')"> <span class="icon-button">▶</span> (uuid!) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -3970,9 +3972,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(dissoc (object :x 10 :y 20) :x)')"> <span class="icon-button">▶</span> (dissoc (object :x 10 :y 20) :x) <span class="gray">=> {"y":20} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(dissoc { :x 10 } :y)')"> <span class="icon-button">▶</span> (dissoc { :x 10 } :y) <span class="gray">=> {"x":10} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(def o { :a 5 }) (dissoc o :a) o')"> <span class="icon-button">▶</span> (def o { :a 5 }) (dissoc o :a) o <span class="gray">=> {"a":5} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(dissoc (object :x 10 :y 20) :x)')"> <span class="icon-button">▶</span> (dissoc (object :x 10 :y 20) :x) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(dissoc { :x 10 } :y)')"> <span class="icon-button">▶</span> (dissoc { :x 10 } :y) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(def o { :a 5 }) (dissoc o :a) o')"> <span class="icon-button">▶</span> (def o { :a 5 }) (dissoc o :a) o <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -3995,10 +3997,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(object)')"> <span class="icon-button">▶</span> (object) <span class="gray">=> {} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(object :x 10 :y true :z ___double_quote___A string___double_quote___)')"> <span class="icon-button">▶</span> (object :x 10 :y true :z "A string") <span class="gray">=> {"x":10,"y":true,"z":"A string"} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('{}')"> <span class="icon-button">▶</span> {} <span class="gray">=> {} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('{:a 1 :b 2}')"> <span class="icon-button">▶</span> {:a 1 :b 2} <span class="gray">=> {"a":1,"b":2} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(object)')"> <span class="icon-button">▶</span> (object) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(object :x 10 :y true :z ___double_quote___A string___double_quote___)')"> <span class="icon-button">▶</span> (object :x 10 :y true :z "A string") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('{}')"> <span class="icon-button">▶</span> {} <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('{:a 1 :b 2}')"> <span class="icon-button">▶</span> {:a 1 :b 2} <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -4022,7 +4024,7 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(keys (object))')"> <span class="icon-button">▶</span> (keys (object)) <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(keys (object :x 10 :y true :z ___double_quote___A string___double_quote___))')"> <span class="icon-button">▶</span> (keys (object :x 10 :y true :z "A string")) <span class="gray">=> ["x","y","z"] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(keys (object :x 10 :y true :z ___double_quote___A string___double_quote___))')"> <span class="icon-button">▶</span> (keys (object :x 10 :y true :z "A string")) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -4046,7 +4048,7 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(vals (object))')"> <span class="icon-button">▶</span> (vals (object)) <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(vals (object :x 10 :y true :z ___double_quote___A string___double_quote___))')"> <span class="icon-button">▶</span> (vals (object :x 10 :y true :z "A string")) <span class="gray">=> [10,true,"A string"] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(vals (object :x 10 :y true :z ___double_quote___A string___double_quote___))')"> <span class="icon-button">▶</span> (vals (object :x 10 :y true :z "A string")) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -4070,7 +4072,7 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(entries (object))')"> <span class="icon-button">▶</span> (entries (object)) <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(entries (object :x 10 :y true :z ___double_quote___A string___double_quote___))')"> <span class="icon-button">▶</span> (entries (object :x 10 :y true :z "A string")) <span class="gray">=> [["x",10],["y",true],["z","A string"]] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(entries (object :x 10 :y true :z ___double_quote___A string___double_quote___))')"> <span class="icon-button">▶</span> (entries (object :x 10 :y true :z "A string")) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -4094,7 +4096,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(find (object :a 1 :b 2) :b)')"> <span class="icon-button">▶</span> (find (object :a 1 :b 2) :b) <span class="gray">=> ["b",2] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(find (object :a 1 :b 2) :b)')"> <span class="icon-button">▶</span> (find (object :a 1 :b 2) :b) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(find (object :a 1 :b 2) :c)')"> <span class="icon-button">▶</span> (find (object :a 1 :b 2) :c) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -4118,8 +4120,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(merge (object :x 10) (object :y 20))')"> <span class="icon-button">▶</span> (merge (object :x 10) (object :y 20)) <span class="gray">=> {"x":10,"y":20} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(merge (object :x 10) (object :x 15 :y 20))')"> <span class="icon-button">▶</span> (merge (object :x 10) (object :x 15 :y 20)) <span class="gray">=> {"x":15,"y":20} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(merge (object :x 10) (object :y 20))')"> <span class="icon-button">▶</span> (merge (object :x 10) (object :y 20)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(merge (object :x 10) (object :x 15 :y 20))')"> <span class="icon-button">▶</span> (merge (object :x 10) (object :x 15 :y 20)) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -4143,9 +4145,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(merge-with + (object :x 10) (object :y 20))')"> <span class="icon-button">▶</span> (merge-with + (object :x 10) (object :y 20)) <span class="gray">=> {"x":10,"y":20} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(merge-with + (object :x 10) (object :x 15 :y 20))')"> <span class="icon-button">▶</span> (merge-with + (object :x 10) (object :x 15 :y 20)) <span class="gray">=> {"x":25,"y":20} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(merge-with - (object :x 10) (object :x 20) (object :x 30) (object :x 40))')"> <span class="icon-button">▶</span> (merge-with - (object :x 10) (object :x 20) (object :x 30) (object :x 40)) <span class="gray">=> {"x":-80} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(merge-with + (object :x 10) (object :y 20))')"> <span class="icon-button">▶</span> (merge-with + (object :x 10) (object :y 20)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(merge-with + (object :x 10) (object :x 15 :y 20))')"> <span class="icon-button">▶</span> (merge-with + (object :x 10) (object :x 15 :y 20)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(merge-with - (object :x 10) (object :x 20) (object :x 30) (object :x 40))')"> <span class="icon-button">▶</span> (merge-with - (object :x 10) (object :x 20) (object :x 30) (object :x 40)) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -4169,9 +4171,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(zipmap [:a :b :c] [10 nil [1 2 3]])')"> <span class="icon-button">▶</span> (zipmap [:a :b :c] [10 nil [1 2 3]]) <span class="gray">=> {"a":10,"b":null,"c":[1,2,3]} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(zipmap [:a :b :c] [1])')"> <span class="icon-button">▶</span> (zipmap [:a :b :c] [1]) <span class="gray">=> {"a":1} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(zipmap [] [10 nil [1 2 3]])')"> <span class="icon-button">▶</span> (zipmap [] [10 nil [1 2 3]]) <span class="gray">=> {} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(zipmap [:a :b :c] [10 nil [1 2 3]])')"> <span class="icon-button">▶</span> (zipmap [:a :b :c] [10 nil [1 2 3]]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(zipmap [:a :b :c] [1])')"> <span class="icon-button">▶</span> (zipmap [:a :b :c] [1]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(zipmap [] [10 nil [1 2 3]])')"> <span class="icon-button">▶</span> (zipmap [] [10 nil [1 2 3]]) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -4195,8 +4197,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(select-keys {:a 1 :b 2 :c 3} [:a :b])')"> <span class="icon-button">▶</span> (select-keys {:a 1 :b 2 :c 3} [:a :b]) <span class="gray">=> {"a":1,"b":2} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(select-keys {:a 1} [:a :b])')"> <span class="icon-button">▶</span> (select-keys {:a 1} [:a :b]) <span class="gray">=> {"a":1} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(select-keys {:a 1 :b 2 :c 3} [:a :b])')"> <span class="icon-button">▶</span> (select-keys {:a 1 :b 2 :c 3} [:a :b]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(select-keys {:a 1} [:a :b])')"> <span class="icon-button">▶</span> (select-keys {:a 1} [:a :b]) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -4879,10 +4881,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(regexp ___double_quote___^\s*(.*)$___double_quote___)')"> <span class="icon-button">▶</span> (regexp "^\s*(.*)$") <span class="gray">=> {"Ʀ":true,"sourceCodeInfo":{"code":"(regexp \"^\\s*(.*)$\")","position":{"line":1,"column":2}},"s":"^\\s*(.*)$","f":""} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('#___double_quote___^\s*(.*)$___double_quote___')"> <span class="icon-button">▶</span> #"^\s*(.*)$" <span class="gray">=> {"Ʀ":true,"sourceCodeInfo":{"code":"#\"^\\s*(.*)$\"","position":{"line":1,"column":1}},"s":"^\\s*(.*)$","f":""} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(regexp ___double_quote___albert___double_quote___ :i)')"> <span class="icon-button">▶</span> (regexp "albert" :i) <span class="gray">=> {"Ʀ":true,"sourceCodeInfo":{"code":"(regexp \"albert\" :i)","position":{"line":1,"column":2}},"s":"albert","f":"i"} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('#___double_quote___albert___double_quote___ig')"> <span class="icon-button">▶</span> #"albert"ig <span class="gray">=> {"Ʀ":true,"sourceCodeInfo":{"code":"#\"albert\"ig","position":{"line":1,"column":1}},"s":"albert","f":"gi"} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(regexp ___double_quote___^\s*(.*)$___double_quote___)')"> <span class="icon-button">▶</span> (regexp "^\s*(.*)$") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('#___double_quote___^\s*(.*)$___double_quote___')"> <span class="icon-button">▶</span> #"^\s*(.*)$" <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(regexp ___double_quote___albert___double_quote___ :i)')"> <span class="icon-button">▶</span> (regexp "albert" :i) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('#___double_quote___albert___double_quote___ig')"> <span class="icon-button">▶</span> #"albert"ig <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -4906,8 +4908,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(match (regexp ___double_quote___^\s*(.*)$___double_quote___) ___double_quote___  A string___double_quote___)')"> <span class="icon-button">▶</span> (match (regexp "^\s*(.*)$") "  A string") <span class="gray">=> ["  A string","A string"] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(match #___double_quote___albert___double_quote___i ___double_quote___My name is Albert___double_quote___)')"> <span class="icon-button">▶</span> (match #"albert"i "My name is Albert") <span class="gray">=> ["Albert"] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(match (regexp ___double_quote___^\s*(.*)$___double_quote___) ___double_quote___  A string___double_quote___)')"> <span class="icon-button">▶</span> (match (regexp "^\s*(.*)$") "  A string") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(match #___double_quote___albert___double_quote___i ___double_quote___My name is Albert___double_quote___)')"> <span class="icon-button">▶</span> (match #"albert"i "My name is Albert") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(match #___double_quote___albert___double_quote___i ___double_quote___My name is Ben___double_quote___)')"> <span class="icon-button">▶</span> (match #"albert"i "My name is Ben") <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(match #___double_quote___albert___double_quote___i nil)')"> <span class="icon-button">▶</span> (match #"albert"i nil) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(match #___double_quote___albert___double_quote___i 1)')"> <span class="icon-button">▶</span> (match #"albert"i 1) <span class="gray">=> null </span> </span></pre>
@@ -4936,9 +4938,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(replace ___double_quote___Duck___double_quote___ (regexp :u) :i)')"> <span class="icon-button">▶</span> (replace "Duck" (regexp :u) :i) <span class="gray">=> "Dick" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(replace ___double_quote___abcABC___double_quote___ (regexp :a ___double_quote___gi___double_quote___) ___double_quote___-___double_quote___)')"> <span class="icon-button">▶</span> (replace "abcABC" (regexp :a "gi") "-") <span class="gray">=> "-bc-BC" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(replace ___double_quote___abcABC___double_quote___ #___double_quote___a___double_quote___gi ___double_quote___-___double_quote___)')"> <span class="icon-button">▶</span> (replace "abcABC" #"a"gi "-") <span class="gray">=> "-bc-BC" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(replace ___double_quote___Duck___double_quote___ (regexp :u) :i)')"> <span class="icon-button">▶</span> (replace "Duck" (regexp :u) :i) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(replace ___double_quote___abcABC___double_quote___ (regexp :a ___double_quote___gi___double_quote___) ___double_quote___-___double_quote___)')"> <span class="icon-button">▶</span> (replace "abcABC" (regexp :a "gi") "-") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(replace ___double_quote___abcABC___double_quote___ #___double_quote___a___double_quote___gi ___double_quote___-___double_quote___)')"> <span class="icon-button">▶</span> (replace "abcABC" #"a"gi "-") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -4962,7 +4964,7 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(and 1 1)')"> <span class="icon-button">▶</span> (and 1 1) <span class="gray">=> 1 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(and (> 3 2) ___double_quote___string___double_quote___)')"> <span class="icon-button">▶</span> (and (> 3 2) "string") <span class="gray">=> "string" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(and (> 3 2) ___double_quote___string___double_quote___)')"> <span class="icon-button">▶</span> (and (> 3 2) "string") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(and (< 3 2) ___double_quote___string___double_quote___)')"> <span class="icon-button">▶</span> (and (< 3 2) "string") <span class="gray">=> false </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(and true true true true)')"> <span class="icon-button">▶</span> (and true true true true) <span class="gray">=> true </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(and true true 0 true)')"> <span class="icon-button">▶</span> (and true true 0 true) <span class="gray">=> 0 </span> </span></pre>
@@ -4990,7 +4992,7 @@
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(or 1 1)')"> <span class="icon-button">▶</span> (or 1 1) <span class="gray">=> 1 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(or (> 3 2) ___double_quote___string___double_quote___)')"> <span class="icon-button">▶</span> (or (> 3 2) "string") <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(or (< 3 2) ___double_quote___string___double_quote___)')"> <span class="icon-button">▶</span> (or (< 3 2) "string") <span class="gray">=> "string" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(or (< 3 2) ___double_quote___string___double_quote___)')"> <span class="icon-button">▶</span> (or (< 3 2) "string") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(or true true true true)')"> <span class="icon-button">▶</span> (or true true true true) <span class="gray">=> true </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(or 1 2 3 4)')"> <span class="icon-button">▶</span> (or 1 2 3 4) <span class="gray">=> 1 </span> </span></pre>
   </div>
@@ -5016,8 +5018,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(def a (object))')"> <span class="icon-button">▶</span> (def a (object)) <span class="gray">=> {} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(def a (object :x 10 :y true :z ___double_quote___A string___double_quote___))')"> <span class="icon-button">▶</span> (def a (object :x 10 :y true :z "A string")) <span class="gray">=> {"x":10,"y":true,"z":"A string"} </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(def a (object))')"> <span class="icon-button">▶</span> (def a (object)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(def a (object :x 10 :y true :z ___double_quote___A string___double_quote___))')"> <span class="icon-button">▶</span> (def a (object :x 10 :y true :z "A string")) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -5041,9 +5043,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(defs :a :b)')"> <span class="icon-button">▶</span> (defs :a :b) <span class="gray">=> "b" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(defs (str :a :1) (object :x 10 :y true :z ___double_quote___A string___double_quote___)) a1')"> <span class="icon-button">▶</span> (defs (str :a :1) (object :x 10 :y true :z "A string")) a1 <span class="gray">=> {"x":10,"y":true,"z":"A string"} </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(defs :a :b) (defs a :c) b')"> <span class="icon-button">▶</span> (defs :a :b) (defs a :c) b <span class="gray">=> "c" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(defs :a :b)')"> <span class="icon-button">▶</span> (defs :a :b) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(defs (str :a :1) (object :x 10 :y true :z ___double_quote___A string___double_quote___)) a1')"> <span class="icon-button">▶</span> (defs (str :a :1) (object :x 10 :y true :z "A string")) a1 <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(defs :a :b) (defs a :c) b')"> <span class="icon-button">▶</span> (defs :a :b) (defs a :c) b <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -5092,8 +5094,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(if-let [a (> (count ___double_quote___Albert___double_quote___) 4)] (write! (str a ___double_quote___is big enough___double_quote___)) (write! ___double_quote___Sorry, not big enough.___double_quote___))')"> <span class="icon-button">▶</span> (if-let [a (> (count "Albert") 4)] (write! (str a "is big enough")) (write! "Sorry, not big enough.")) <span class="gray">=> "trueis big enough" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(if-let [a (> (count ___double_quote___Albert___double_quote___) 10)] (write! (str a ___double_quote___is big enough___double_quote___)) (write! ___double_quote___Sorry, not big enough.___double_quote___))')"> <span class="icon-button">▶</span> (if-let [a (> (count "Albert") 10)] (write! (str a "is big enough")) (write! "Sorry, not big enough.")) <span class="gray">=> "Sorry, not big enough." </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(if-let [a (> (count ___double_quote___Albert___double_quote___) 4)] (write! (str a ___double_quote___is big enough___double_quote___)) (write! ___double_quote___Sorry, not big enough.___double_quote___))')"> <span class="icon-button">▶</span> (if-let [a (> (count "Albert") 4)] (write! (str a "is big enough")) (write! "Sorry, not big enough.")) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(if-let [a (> (count ___double_quote___Albert___double_quote___) 10)] (write! (str a ___double_quote___is big enough___double_quote___)) (write! ___double_quote___Sorry, not big enough.___double_quote___))')"> <span class="icon-button">▶</span> (if-let [a (> (count "Albert") 10)] (write! (str a "is big enough")) (write! "Sorry, not big enough.")) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -5117,7 +5119,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(when-let [a (> (count ___double_quote___Albert___double_quote___) 4)] (write! (str a ___double_quote___is big enough___double_quote___)) (write! ___double_quote___Sorry, not big enough.___double_quote___))')"> <span class="icon-button">▶</span> (when-let [a (> (count "Albert") 4)] (write! (str a "is big enough")) (write! "Sorry, not big enough.")) <span class="gray">=> "Sorry, not big enough." </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(when-let [a (> (count ___double_quote___Albert___double_quote___) 4)] (write! (str a ___double_quote___is big enough___double_quote___)) (write! ___double_quote___Sorry, not big enough.___double_quote___))')"> <span class="icon-button">▶</span> (when-let [a (> (count "Albert") 4)] (write! (str a "is big enough")) (write! "Sorry, not big enough.")) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(when-let [a (> (count ___double_quote___Albert___double_quote___) 10)] (write! (str a ___double_quote___is big enough___double_quote___)) (write! ___double_quote___Sorry, not big enough.___double_quote___))')"> <span class="icon-button">▶</span> (when-let [a (> (count "Albert") 10)] (write! (str a "is big enough")) (write! "Sorry, not big enough.")) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -5143,7 +5145,7 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(when-first [x [1 2 3]] (write! 10) (write! 20) x)')"> <span class="icon-button">▶</span> (when-first [x [1 2 3]] (write! 10) (write! 20) x) <span class="gray">=> 1 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(when-first [x ___double_quote___Albert___double_quote___] x)')"> <span class="icon-button">▶</span> (when-first [x "Albert"] x) <span class="gray">=> "A" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(when-first [x ___double_quote___Albert___double_quote___] x)')"> <span class="icon-button">▶</span> (when-first [x "Albert"] x) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(when-first [x ___double_quote______double_quote___] x)')"> <span class="icon-button">▶</span> (when-first [x ""] x) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(when-first [x []] x)')"> <span class="icon-button">▶</span> (when-first [x []] x) <span class="gray">=> null </span> </span></pre>
   </div>
@@ -5249,8 +5251,8 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(try (/ 2 4) (catch error (/ 2 1)))')"> <span class="icon-button">▶</span> (try (/ 2 4) (catch error (/ 2 1))) <span class="gray">=> 0.5 </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (/ 2 0) (catch error (/ 2 1)))')"> <span class="icon-button">▶</span> (try (/ 2 0) (catch error (/ 2 1))) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(try (/ 2 0) (catch error error))')"> <span class="icon-button">▶</span> (try (/ 2 0) (catch error error)) <span class="gray">=> null </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (/ 2 0) (catch error (/ 2 1)))')"> <span class="icon-button">▶</span> (try (/ 2 0) (catch error (/ 2 1))) <span class="gray">=> Infinity </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(try (/ 2 0) (catch error error))')"> <span class="icon-button">▶</span> (try (/ 2 0) (catch error error)) <span class="gray">=> Infinity </span> </span></pre>
   </div>
 </div>
 
@@ -5306,9 +5308,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(if true (write! ___double_quote___TRUE___double_quote___) (write! ___double_quote___FALSE___double_quote___))')"> <span class="icon-button">▶</span> (if true (write! "TRUE") (write! "FALSE")) <span class="gray">=> "TRUE" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(if false (write! ___double_quote___TRUE___double_quote___) (write! ___double_quote___FALSE___double_quote___))')"> <span class="icon-button">▶</span> (if false (write! "TRUE") (write! "FALSE")) <span class="gray">=> "FALSE" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(if true (write! ___double_quote___TRUE___double_quote___))')"> <span class="icon-button">▶</span> (if true (write! "TRUE")) <span class="gray">=> "TRUE" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(if true (write! ___double_quote___TRUE___double_quote___) (write! ___double_quote___FALSE___double_quote___))')"> <span class="icon-button">▶</span> (if true (write! "TRUE") (write! "FALSE")) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(if false (write! ___double_quote___TRUE___double_quote___) (write! ___double_quote___FALSE___double_quote___))')"> <span class="icon-button">▶</span> (if false (write! "TRUE") (write! "FALSE")) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(if true (write! ___double_quote___TRUE___double_quote___))')"> <span class="icon-button">▶</span> (if true (write! "TRUE")) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(if false (write! ___double_quote___TRUE___double_quote___))')"> <span class="icon-button">▶</span> (if false (write! "TRUE")) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -5334,10 +5336,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(if-not true (write! ___double_quote___TRUE___double_quote___) (write! ___double_quote___FALSE___double_quote___))')"> <span class="icon-button">▶</span> (if-not true (write! "TRUE") (write! "FALSE")) <span class="gray">=> "FALSE" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(if-not false (write! ___double_quote___TRUE___double_quote___) (write! ___double_quote___FALSE___double_quote___))')"> <span class="icon-button">▶</span> (if-not false (write! "TRUE") (write! "FALSE")) <span class="gray">=> "TRUE" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(if-not true (write! ___double_quote___TRUE___double_quote___) (write! ___double_quote___FALSE___double_quote___))')"> <span class="icon-button">▶</span> (if-not true (write! "TRUE") (write! "FALSE")) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(if-not false (write! ___double_quote___TRUE___double_quote___) (write! ___double_quote___FALSE___double_quote___))')"> <span class="icon-button">▶</span> (if-not false (write! "TRUE") (write! "FALSE")) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(if-not true (write! ___double_quote___TRUE___double_quote___))')"> <span class="icon-button">▶</span> (if-not true (write! "TRUE")) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(if-not false (write! ___double_quote___TRUE___double_quote___))')"> <span class="icon-button">▶</span> (if-not false (write! "TRUE")) <span class="gray">=> "TRUE" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(if-not false (write! ___double_quote___TRUE___double_quote___))')"> <span class="icon-button">▶</span> (if-not false (write! "TRUE")) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -5360,7 +5362,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(cond false (write! ___double_quote___FALSE___double_quote___) nil (write! ___double_quote___nil___double_quote___) true (write! ___double_quote___TRUE___double_quote___))')"> <span class="icon-button">▶</span> (cond false (write! "FALSE") nil (write! "nil") true (write! "TRUE")) <span class="gray">=> "TRUE" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(cond false (write! ___double_quote___FALSE___double_quote___) nil (write! ___double_quote___nil___double_quote___) true (write! ___double_quote___TRUE___double_quote___))')"> <span class="icon-button">▶</span> (cond false (write! "FALSE") nil (write! "nil") true (write! "TRUE")) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(cond false (write! ___double_quote___FALSE___double_quote___) nil (write! ___double_quote___nil___double_quote___))')"> <span class="icon-button">▶</span> (cond false (write! "FALSE") nil (write! "nil")) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -5385,7 +5387,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(when true (write! ___double_quote___Hi___double_quote___) (write! ___double_quote___There___double_quote___))')"> <span class="icon-button">▶</span> (when true (write! "Hi") (write! "There")) <span class="gray">=> "There" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(when true (write! ___double_quote___Hi___double_quote___) (write! ___double_quote___There___double_quote___))')"> <span class="icon-button">▶</span> (when true (write! "Hi") (write! "There")) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(when false (write! ___double_quote___Hi___double_quote___) (write! ___double_quote___There___double_quote___))')"> <span class="icon-button">▶</span> (when false (write! "Hi") (write! "There")) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(when true)')"> <span class="icon-button">▶</span> (when true) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(when false)')"> <span class="icon-button">▶</span> (when false) <span class="gray">=> null </span> </span></pre>
@@ -5413,7 +5415,7 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(when-not true (write! ___double_quote___Hi___double_quote___) (write! ___double_quote___There___double_quote___))')"> <span class="icon-button">▶</span> (when-not true (write! "Hi") (write! "There")) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(when-not false (write! ___double_quote___Hi___double_quote___) (write! ___double_quote___There___double_quote___))')"> <span class="icon-button">▶</span> (when-not false (write! "Hi") (write! "There")) <span class="gray">=> "There" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(when-not false (write! ___double_quote___Hi___double_quote___) (write! ___double_quote___There___double_quote___))')"> <span class="icon-button">▶</span> (when-not false (write! "Hi") (write! "There")) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(when-not true)')"> <span class="icon-button">▶</span> (when-not true) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(when-not false)')"> <span class="icon-button">▶</span> (when-not false) <span class="gray">=> null </span> </span></pre>
   </div>
@@ -5462,7 +5464,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(do (write! ___double_quote___Hi___double_quote___) (write! ___double_quote___Albert___double_quote___))')"> <span class="icon-button">▶</span> (do (write! "Hi") (write! "Albert")) <span class="gray">=> "Albert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(do (write! ___double_quote___Hi___double_quote___) (write! ___double_quote___Albert___double_quote___))')"> <span class="icon-button">▶</span> (do (write! "Hi") (write! "Albert")) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(do)')"> <span class="icon-button">▶</span> (do) <span class="gray">=> null </span> </span></pre>
   </div>
 </div>
@@ -5584,15 +5586,15 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(for [x ___double_quote___Al___double_quote___ y [1 2]] (repeat y x))')"> <span class="icon-button">▶</span> (for [x "Al" y [1 2]] (repeat y x)) <span class="gray">=> [["A"],["A","A"],["l"],["l","l"]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(for [x {:a 10 :b 20} y [1 2]] (repeat y x))')"> <span class="icon-button">▶</span> (for [x {:a 10 :b 20} y [1 2]] (repeat y x)) <span class="gray">=> [[["a",10]],[["a",10],["a",10]],[["b",20]],[["b",20],["b",20]]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(for [x [1 2] y [1 10]] (* x y))')"> <span class="icon-button">▶</span> (for [x [1 2] y [1 10]] (* x y)) <span class="gray">=> [1,10,2,20] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(for [x [1 2] &let [z (* x x x)]] z)')"> <span class="icon-button">▶</span> (for [x [1 2] &let [z (* x x x)]] z) <span class="gray">=> [1,8] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(for [x [0 1 2 3 4 5] &let [y (* x 3)] &when (even? y)] y)')"> <span class="icon-button">▶</span> (for [x [0 1 2 3 4 5] &let [y (* x 3)] &when (even? y)] y) <span class="gray">=> [0,6,12] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(for [x ___double_quote___Al___double_quote___ y [1 2]] (repeat y x))')"> <span class="icon-button">▶</span> (for [x "Al" y [1 2]] (repeat y x)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(for [x {:a 10 :b 20} y [1 2]] (repeat y x))')"> <span class="icon-button">▶</span> (for [x {:a 10 :b 20} y [1 2]] (repeat y x)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(for [x [1 2] y [1 10]] (* x y))')"> <span class="icon-button">▶</span> (for [x [1 2] y [1 10]] (* x y)) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(for [x [1 2] &let [z (* x x x)]] z)')"> <span class="icon-button">▶</span> (for [x [1 2] &let [z (* x x x)]] z) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(for [x [0 1 2 3 4 5] &let [y (* x 3)] &when (even? y)] y)')"> <span class="icon-button">▶</span> (for [x [0 1 2 3 4 5] &let [y (* x 3)] &when (even? y)] y) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(for [x [0 1 2 3 4 5] &let [y (* x 3)] &while (even? y)] y)')"> <span class="icon-button">▶</span> (for [x [0 1 2 3 4 5] &let [y (* x 3)] &while (even? y)] y) <span class="gray">=> [0] </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(for [x [0 1 2 3 4 5] &let [y (* x 3)] &while (odd? y)] y)')"> <span class="icon-button">▶</span> (for [x [0 1 2 3 4 5] &let [y (* x 3)] &while (odd? y)] y) <span class="gray">=> [] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(for [x [1 2 3] y [1 2 3] &while (<= x y) z [1 2 3]] [x y z])')"> <span class="icon-button">▶</span> (for [x [1 2 3] y [1 2 3] &while (<= x y) z [1 2 3]] [x y z]) <span class="gray">=> [[1,1,1],[1,1,2],[1,1,3],[1,2,1],[1,2,2],[1,2,3],[1,3,1],[1,3,2],[1,3,3]] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(for [x [1 2 3] y [1 2 3] z [1 2 3] &while (<= x y)] [x y z])')"> <span class="icon-button">▶</span> (for [x [1 2 3] y [1 2 3] z [1 2 3] &while (<= x y)] [x y z]) <span class="gray">=> [[1,1,1],[1,1,2],[1,1,3],[1,2,1],[1,2,2],[1,2,3],[1,3,1],[1,3,2],[1,3,3],[2,2,1],[2,2,2],[2,2,3],[2,3,1],[2,3,2],[2,3,3],[3,3,1],[3,3,2],[3,3,3]] </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(for [x [1 2 3] y [1 2 3] &while (<= x y) z [1 2 3]] [x y z])')"> <span class="icon-button">▶</span> (for [x [1 2 3] y [1 2 3] &while (<= x y) z [1 2 3]] [x y z]) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(for [x [1 2 3] y [1 2 3] z [1 2 3] &while (<= x y)] [x y z])')"> <span class="icon-button">▶</span> (for [x [1 2 3] y [1 2 3] z [1 2 3] &while (<= x y)] [x y z]) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -5644,7 +5646,7 @@
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(?? foo)')"> <span class="icon-button">▶</span> (?? foo) <span class="gray">=> null </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(def foo :foo) (?? foo)')"> <span class="icon-button">▶</span> (def foo :foo) (?? foo) <span class="gray">=> "foo" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(def foo :foo) (?? foo)')"> <span class="icon-button">▶</span> (def foo :foo) (?? foo) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(?? +)')"> <span class="icon-button">▶</span> (?? +) <span class="gray">=> &lt;function λ&gt; </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(def foo nil) (?? foo)')"> <span class="icon-button">▶</span> (def foo nil) (?? foo) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(?? foo 1)')"> <span class="icon-button">▶</span> (?? foo 1) <span class="gray">=> 1 </span> </span></pre>
@@ -5676,9 +5678,9 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(subs ___double_quote___A string___double_quote___ 2)')"> <span class="icon-button">▶</span> (subs "A string" 2) <span class="gray">=> "string" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(subs ___double_quote___A string___double_quote___ 2 5)')"> <span class="icon-button">▶</span> (subs "A string" 2 5) <span class="gray">=> "str" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(subs ___double_quote___A string___double_quote___ 2 100)')"> <span class="icon-button">▶</span> (subs "A string" 2 100) <span class="gray">=> "string" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(subs ___double_quote___A string___double_quote___ 2)')"> <span class="icon-button">▶</span> (subs "A string" 2) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(subs ___double_quote___A string___double_quote___ 2 5)')"> <span class="icon-button">▶</span> (subs "A string" 2 5) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(subs ___double_quote___A string___double_quote___ 2 100)')"> <span class="icon-button">▶</span> (subs "A string" 2 100) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(subs ___double_quote___A string___double_quote___ 100)')"> <span class="icon-button">▶</span> (subs "A string" 100) <span class="gray">=> "" </span> </span></pre>
   </div>
 </div>
@@ -5703,7 +5705,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(string-repeat ___double_quote___*___double_quote___ 10)')"> <span class="icon-button">▶</span> (string-repeat "*" 10) <span class="gray">=> "**********" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(string-repeat ___double_quote___*___double_quote___ 10)')"> <span class="icon-button">▶</span> (string-repeat "*" 10) <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(string-repeat ___double_quote___***___double_quote___ 0)')"> <span class="icon-button">▶</span> (string-repeat "***" 0) <span class="gray">=> "" </span> </span></pre>
   </div>
 </div>
@@ -5727,10 +5729,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(str ___double_quote___A string___double_quote___ ___double_quote___, and another string___double_quote___ ___double_quote___ ...and more___double_quote___)')"> <span class="icon-button">▶</span> (str "A string" ", and another string" " ...and more") <span class="gray">=> "A string, and another string ...and more" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(str ___double_quote___Just one string___double_quote___)')"> <span class="icon-button">▶</span> (str "Just one string") <span class="gray">=> "Just one string" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(str ___double_quote___A string___double_quote___ ___double_quote___, and another string___double_quote___ ___double_quote___ ...and more___double_quote___)')"> <span class="icon-button">▶</span> (str "A string" ", and another string" " ...and more") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(str ___double_quote___Just one string___double_quote___)')"> <span class="icon-button">▶</span> (str "Just one string") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(str)')"> <span class="icon-button">▶</span> (str) <span class="gray">=> "" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(str 0 false true nil #___double_quote___^kalle___double_quote___ [1 2 3] {:a :a})')"> <span class="icon-button">▶</span> (str 0 false true nil #"^kalle" [1 2 3] {:a :a}) <span class="gray">=> "0falsetrue[object Object][1,2,3]{\"a\":\"a\"}" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(str 0 false true nil #___double_quote___^kalle___double_quote___ [1 2 3] {:a :a})')"> <span class="icon-button">▶</span> (str 0 false true nil #"^kalle" [1 2 3] {:a :a}) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -5784,7 +5786,7 @@
 <pre><span class="example" onclick="addToPlayground('(number-to-string -.01)')"> <span class="icon-button">▶</span> (number-to-string -.01) <span class="gray">=> "-0.01" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(number-to-string 15 2)')"> <span class="icon-button">▶</span> (number-to-string 15 2) <span class="gray">=> "1111" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(number-to-string 15 8)')"> <span class="icon-button">▶</span> (number-to-string 15 8) <span class="gray">=> "17" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(number-to-string 15 16)')"> <span class="icon-button">▶</span> (number-to-string 15 16) <span class="gray">=> "f" </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(number-to-string 15 16)')"> <span class="icon-button">▶</span> (number-to-string 15 16) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -5807,7 +5809,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(lower-case ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (lower-case "Albert") <span class="gray">=> "albert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(lower-case ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (lower-case "Albert") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(lower-case ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (lower-case "") <span class="gray">=> "" </span> </span></pre>
   </div>
 </div>
@@ -5831,7 +5833,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(upper-case ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (upper-case "Albert") <span class="gray">=> "ALBERT" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(upper-case ___double_quote___Albert___double_quote___)')"> <span class="icon-button">▶</span> (upper-case "Albert") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(upper-case ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (upper-case "") <span class="gray">=> "" </span> </span></pre>
   </div>
 </div>
@@ -5855,7 +5857,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(trim ___double_quote___  Albert  ___double_quote___)')"> <span class="icon-button">▶</span> (trim "  Albert  ") <span class="gray">=> "Albert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(trim ___double_quote___  Albert  ___double_quote___)')"> <span class="icon-button">▶</span> (trim "  Albert  ") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(trim ___double_quote___   ___double_quote___)')"> <span class="icon-button">▶</span> (trim "   ") <span class="gray">=> "" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(trim ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (trim "") <span class="gray">=> "" </span> </span></pre>
   </div>
@@ -5880,7 +5882,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(trim-left ___double_quote___  Albert  ___double_quote___)')"> <span class="icon-button">▶</span> (trim-left "  Albert  ") <span class="gray">=> "Albert  " </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(trim-left ___double_quote___  Albert  ___double_quote___)')"> <span class="icon-button">▶</span> (trim-left "  Albert  ") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(trim-left ___double_quote___   ___double_quote___)')"> <span class="icon-button">▶</span> (trim-left "   ") <span class="gray">=> "" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(trim-left ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (trim-left "") <span class="gray">=> "" </span> </span></pre>
   </div>
@@ -5905,7 +5907,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(trim-right ___double_quote___  Albert  ___double_quote___)')"> <span class="icon-button">▶</span> (trim-right "  Albert  ") <span class="gray">=> "  Albert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(trim-right ___double_quote___  Albert  ___double_quote___)')"> <span class="icon-button">▶</span> (trim-right "  Albert  ") <span class="gray">=> NaN </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(trim-right ___double_quote___   ___double_quote___)')"> <span class="icon-button">▶</span> (trim-right "   ") <span class="gray">=> "" </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(trim-right ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (trim-right "") <span class="gray">=> "" </span> </span></pre>
   </div>
@@ -5932,10 +5934,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(pad-left ___double_quote___Albert___double_quote___ 20)')"> <span class="icon-button">▶</span> (pad-left "Albert" 20) <span class="gray">=> "              Albert" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(pad-left ___double_quote___Albert___double_quote___ 20 ___double_quote___-*-___double_quote___)')"> <span class="icon-button">▶</span> (pad-left "Albert" 20 "-*-") <span class="gray">=> "-*--*--*--*--*Albert" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(pad-left ___double_quote___Albert___double_quote___ 5)')"> <span class="icon-button">▶</span> (pad-left "Albert" 5) <span class="gray">=> "Albert" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(pad-left ___double_quote___Albert___double_quote___ -1)')"> <span class="icon-button">▶</span> (pad-left "Albert" -1) <span class="gray">=> "Albert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(pad-left ___double_quote___Albert___double_quote___ 20)')"> <span class="icon-button">▶</span> (pad-left "Albert" 20) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(pad-left ___double_quote___Albert___double_quote___ 20 ___double_quote___-*-___double_quote___)')"> <span class="icon-button">▶</span> (pad-left "Albert" 20 "-*-") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(pad-left ___double_quote___Albert___double_quote___ 5)')"> <span class="icon-button">▶</span> (pad-left "Albert" 5) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(pad-left ___double_quote___Albert___double_quote___ -1)')"> <span class="icon-button">▶</span> (pad-left "Albert" -1) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -5960,10 +5962,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(pad-right ___double_quote___Albert___double_quote___ 20)')"> <span class="icon-button">▶</span> (pad-right "Albert" 20) <span class="gray">=> "Albert              " </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(pad-right ___double_quote___Albert___double_quote___ 20 ___double_quote___-*-___double_quote___)')"> <span class="icon-button">▶</span> (pad-right "Albert" 20 "-*-") <span class="gray">=> "Albert-*--*--*--*--*" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(pad-right ___double_quote___Albert___double_quote___ 5)')"> <span class="icon-button">▶</span> (pad-right "Albert" 5) <span class="gray">=> "Albert" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(pad-right ___double_quote___Albert___double_quote___ -1)')"> <span class="icon-button">▶</span> (pad-right "Albert" -1) <span class="gray">=> "Albert" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(pad-right ___double_quote___Albert___double_quote___ 20)')"> <span class="icon-button">▶</span> (pad-right "Albert" 20) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(pad-right ___double_quote___Albert___double_quote___ 20 ___double_quote___-*-___double_quote___)')"> <span class="icon-button">▶</span> (pad-right "Albert" 20 "-*-") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(pad-right ___double_quote___Albert___double_quote___ 5)')"> <span class="icon-button">▶</span> (pad-right "Albert" 5) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(pad-right ___double_quote___Albert___double_quote___ -1)')"> <span class="icon-button">▶</span> (pad-right "Albert" -1) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -5988,10 +5990,10 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(split ___double_quote___Albert Mojir___double_quote___ ___double_quote___ ___double_quote___)')"> <span class="icon-button">▶</span> (split "Albert Mojir" " ") <span class="gray">=> ["Albert","Mojir"] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(split ___double_quote___abcdefghijklmnopqrstuvw___double_quote___ (regexp ___double_quote___[aoueiy]___double_quote___))')"> <span class="icon-button">▶</span> (split "abcdefghijklmnopqrstuvw" (regexp "[aoueiy]")) <span class="gray">=> ["","bcd","fgh","jklmn","pqrst","vw"] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(split ___double_quote___0123456789___double_quote___ ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (split "0123456789" "") <span class="gray">=> ["0","1","2","3","4","5","6","7","8","9"] </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(map number (split ___double_quote___0123456789___double_quote___ ___double_quote______double_quote___ 5))')"> <span class="icon-button">▶</span> (map number (split "0123456789" "" 5)) <span class="gray">=> [0,1,2,3,4] </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(split ___double_quote___Albert Mojir___double_quote___ ___double_quote___ ___double_quote___)')"> <span class="icon-button">▶</span> (split "Albert Mojir" " ") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(split ___double_quote___abcdefghijklmnopqrstuvw___double_quote___ (regexp ___double_quote___[aoueiy]___double_quote___))')"> <span class="icon-button">▶</span> (split "abcdefghijklmnopqrstuvw" (regexp "[aoueiy]")) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(split ___double_quote___0123456789___double_quote___ ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (split "0123456789" "") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(map number (split ___double_quote___0123456789___double_quote___ ___double_quote______double_quote___ 5))')"> <span class="icon-button">▶</span> (map number (split "0123456789" "" 5)) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -6015,19 +6017,19 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(template ___double_quote___Hi, $1 and $2___double_quote___ ___double_quote___Carl___double_quote___ ___double_quote___Larry___double_quote___)')"> <span class="icon-button">▶</span> (template "Hi, $1 and $2" "Carl" "Larry") <span class="gray">=> "Hi, Carl and Larry" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___Hi $1, $2, $3, $4, $5, $6, $7, $8 and $9___double_quote___ :A :B :C :D :E :F :G :H :I)')"> <span class="icon-button">▶</span> (template "Hi $1, $2, $3, $4, $5, $6, $7, $8 and $9" :A :B :C :D :E :F :G :H :I) <span class="gray">=> "Hi A, B, C, D, E, F, G, H and I" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___$1 book||||$1 books___double_quote___ 0)')"> <span class="icon-button">▶</span> (template "$1 book||||$1 books" 0) <span class="gray">=> "0 books" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___$1 book||||$1 books___double_quote___ 1)')"> <span class="icon-button">▶</span> (template "$1 book||||$1 books" 1) <span class="gray">=> "1 book" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___$1 book||||$1 books___double_quote___ 2)')"> <span class="icon-button">▶</span> (template "$1 book||||$1 books" 2) <span class="gray">=> "2 books" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||$1 book||||$1 books___double_quote___ 0)')"> <span class="icon-button">▶</span> (template "No book||||$1 book||||$1 books" 0) <span class="gray">=> "No book" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||$1 book||||$1 books___double_quote___ 1)')"> <span class="icon-button">▶</span> (template "No book||||$1 book||||$1 books" 1) <span class="gray">=> "1 book" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||$1 book||||$1 books___double_quote___ 10)')"> <span class="icon-button">▶</span> (template "No book||||$1 book||||$1 books" 10) <span class="gray">=> "10 books" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||One book||||Two books||||Three books||||$1 books___double_quote___ 0)')"> <span class="icon-button">▶</span> (template "No book||||One book||||Two books||||Three books||||$1 books" 0) <span class="gray">=> "No book" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||One book||||Two books||||Three books||||$1 books___double_quote___ 1)')"> <span class="icon-button">▶</span> (template "No book||||One book||||Two books||||Three books||||$1 books" 1) <span class="gray">=> "One book" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||One book||||Two books||||Three books||||$1 books___double_quote___ 2)')"> <span class="icon-button">▶</span> (template "No book||||One book||||Two books||||Three books||||$1 books" 2) <span class="gray">=> "Two books" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||One book||||Two books||||Three books||||$1 books___double_quote___ 3)')"> <span class="icon-button">▶</span> (template "No book||||One book||||Two books||||Three books||||$1 books" 3) <span class="gray">=> "Three books" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||One book||||Two books||||Three books||||$1 books___double_quote___ 4)')"> <span class="icon-button">▶</span> (template "No book||||One book||||Two books||||Three books||||$1 books" 4) <span class="gray">=> "4 books" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(template ___double_quote___Hi, $1 and $2___double_quote___ ___double_quote___Carl___double_quote___ ___double_quote___Larry___double_quote___)')"> <span class="icon-button">▶</span> (template "Hi, $1 and $2" "Carl" "Larry") <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___Hi $1, $2, $3, $4, $5, $6, $7, $8 and $9___double_quote___ :A :B :C :D :E :F :G :H :I)')"> <span class="icon-button">▶</span> (template "Hi $1, $2, $3, $4, $5, $6, $7, $8 and $9" :A :B :C :D :E :F :G :H :I) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___$1 book||||$1 books___double_quote___ 0)')"> <span class="icon-button">▶</span> (template "$1 book||||$1 books" 0) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___$1 book||||$1 books___double_quote___ 1)')"> <span class="icon-button">▶</span> (template "$1 book||||$1 books" 1) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___$1 book||||$1 books___double_quote___ 2)')"> <span class="icon-button">▶</span> (template "$1 book||||$1 books" 2) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||$1 book||||$1 books___double_quote___ 0)')"> <span class="icon-button">▶</span> (template "No book||||$1 book||||$1 books" 0) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||$1 book||||$1 books___double_quote___ 1)')"> <span class="icon-button">▶</span> (template "No book||||$1 book||||$1 books" 1) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||$1 book||||$1 books___double_quote___ 10)')"> <span class="icon-button">▶</span> (template "No book||||$1 book||||$1 books" 10) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||One book||||Two books||||Three books||||$1 books___double_quote___ 0)')"> <span class="icon-button">▶</span> (template "No book||||One book||||Two books||||Three books||||$1 books" 0) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||One book||||Two books||||Three books||||$1 books___double_quote___ 1)')"> <span class="icon-button">▶</span> (template "No book||||One book||||Two books||||Three books||||$1 books" 1) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||One book||||Two books||||Three books||||$1 books___double_quote___ 2)')"> <span class="icon-button">▶</span> (template "No book||||One book||||Two books||||Three books||||$1 books" 2) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||One book||||Two books||||Three books||||$1 books___double_quote___ 3)')"> <span class="icon-button">▶</span> (template "No book||||One book||||Two books||||Three books||||$1 books" 3) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(template ___double_quote___No book||||One book||||Two books||||Three books||||$1 books___double_quote___ 4)')"> <span class="icon-button">▶</span> (template "No book||||One book||||Two books||||Three books||||$1 books" 4) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -6074,8 +6076,8 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(from-char-code 65)')"> <span class="icon-button">▶</span> (from-char-code 65) <span class="gray">=> "A" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(from-char-code 0)')"> <span class="icon-button">▶</span> (from-char-code 0) <span class="gray">=> "\u0000" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(from-char-code 65)')"> <span class="icon-button">▶</span> (from-char-code 65) <span class="gray">=> NaN </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(from-char-code 0)')"> <span class="icon-button">▶</span> (from-char-code 0) <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -6098,7 +6100,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(encode-base64 ___double_quote___Albert 🐻___double_quote___)')"> <span class="icon-button">▶</span> (encode-base64 "Albert 🐻") <span class="gray">=> "QWxiZXJ0IPCfkLs=" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(encode-base64 ___double_quote___Albert 🐻___double_quote___)')"> <span class="icon-button">▶</span> (encode-base64 "Albert 🐻") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -6121,7 +6123,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(decode-base64 ___double_quote___QWxiZXJ0IPCfkLs=___double_quote___)')"> <span class="icon-button">▶</span> (decode-base64 "QWxiZXJ0IPCfkLs=") <span class="gray">=> "Albert 🐻" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(decode-base64 ___double_quote___QWxiZXJ0IPCfkLs=___double_quote___)')"> <span class="icon-button">▶</span> (decode-base64 "QWxiZXJ0IPCfkLs=") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -6144,7 +6146,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(encode-uri-component ___double_quote___Hi everyone!? 👍___double_quote___)')"> <span class="icon-button">▶</span> (encode-uri-component "Hi everyone!? 👍") <span class="gray">=> "Hi%20everyone!%3F%20%F0%9F%91%8D" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(encode-uri-component ___double_quote___Hi everyone!? 👍___double_quote___)')"> <span class="icon-button">▶</span> (encode-uri-component "Hi everyone!? 👍") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 
@@ -6167,7 +6169,7 @@
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(decode-uri-component ___double_quote___Hi%20everyone!%3F%20%F0%9F%91%8D___double_quote___)')"> <span class="icon-button">▶</span> (decode-uri-component "Hi%20everyone!%3F%20%F0%9F%91%8D") <span class="gray">=> "Hi everyone!? 👍" </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(decode-uri-component ___double_quote___Hi%20everyone!%3F%20%F0%9F%91%8D___double_quote___)')"> <span class="icon-button">▶</span> (decode-uri-component "Hi%20everyone!%3F%20%F0%9F%91%8D") <span class="gray">=> NaN </span> </span></pre>
   </div>
 </div>
 

@@ -23,6 +23,7 @@ let resizeDivider2XPercent = null
 let windowHeight = null
 let windowWidth = null
 let availablePanelsWidth = null
+let search = localStorage.getItem('search') || ''
 
 function calculateDimensions() {
   windowHeight = window.innerHeight
@@ -45,6 +46,7 @@ function layout() {
   const outputPanel = document.getElementById('output-panel')
   const resizeDivider1 = document.getElementById('resize-divider-1')
   const resizeDivider2 = document.getElementById('resize-divider-2')
+  const clearSearchLink = document.getElementById('search-clear')
 
   const textAreaHeight = playgroundHeight - 77
   const topPanelsBottom = playgroundHeight + 8
@@ -70,8 +72,32 @@ function layout() {
   mainPanel.style.bottom = topPanelsBottom + 'px'
 
   wrapper.style.display = 'block'
+
+  clearSearchLink.style.visibility = search ? 'visible' : 'hidden'
+  filterSidebar()
 }
 
+function filterSidebar() {
+  const sidebar = document.getElementById('sidebar')
+  const sidebarEntries = Array.from(sidebar.getElementsByTagName('li'))
+
+  sidebarEntries.forEach(entry => {
+    if (!search) {
+      entry.style.display = 'block'
+      entry.style.color = '#cccccc'
+    } else {
+      const text = entry.textContent
+      if (text.toLowerCase().includes(search.toLowerCase())) {
+        entry.style.display = 'block'
+        entry.style.color = 'yellow'
+      } else {
+        entry.style.display = 'none'
+        entry.style.color = undefined
+      }
+    }
+  })
+
+}
 function resetPlayground() {
   if (confirm('Clear all data?')) {
     resetParams()
@@ -84,7 +110,7 @@ function resetPlayground() {
     playgroundHeight = DEFAULT_PLAYGROUND_HEIGHT
     resizeDivider1XPercent = DEFAULT_RESIZE_DIVIDER1_X_PERCENT
     resizeDivider2XPercent = DEFAULT_RESIZE_DIVIDER2_X_PERCENT
-    layout()
+    clearSearch()
   }
 }
 
@@ -102,6 +128,31 @@ function resetOutput() {
   document.getElementById('output-textarea').value = ''
 }
 
+function initializeSearch() {
+  const searchInput = document.getElementById('search-input')
+  searchInput.value = search
+  searchInput.oninput = event => {
+    search = event.target.value
+    localStorage.setItem('search', search)
+    layout()
+  }
+  searchInput.onkeyup = event => {
+    if (event.key === 'Escape') {
+      clearSearch()
+      event.preventDefault()
+    }
+  }
+
+  searchInput.focus()
+}
+
+function clearSearch() {
+  const searchInput = document.getElementById('search-input')
+  search = ''
+  localStorage.setItem('search', search)
+  searchInput.value = search
+  layout()
+}
 window.onload = function () {
   var storedPlaygroundHeight = localStorage.getItem('playground-height')
   var storedResizeDivider1XPercent = localStorage.getItem('resize-divider-1-percent')
@@ -214,10 +265,6 @@ window.onload = function () {
       evt.preventDefault()
       parse(true)
     }
-    if (evt.key === 'Escape') {
-      evt.preventDefault()
-      minimizeAll()
-    }
   })
   document.getElementById('lits-textarea').addEventListener('keydown', keydownHandler)
   document
@@ -245,6 +292,7 @@ window.onload = function () {
   paramsTextArea.value = localStorage.getItem('params-textarea') || ''
 
   layout()
+  initializeSearch()
 }
 
 function keydownHandler(e) {
@@ -550,6 +598,15 @@ function stringifyValue(value) {
   }
   if (typeof value === 'object' && value instanceof Error) {
     return value.toString()
+  }
+  if (value === Number.POSITIVE_INFINITY) {
+    return Number.POSITIVE_INFINITY
+  }
+  if (value === Number.NEGATIVE_INFINITY) {
+    return Number.NEGATIVE_INFINITY
+  }
+  if (isNaN(value)) {
+    return 'NaN'
   }
   return JSON.stringify(value)
 }

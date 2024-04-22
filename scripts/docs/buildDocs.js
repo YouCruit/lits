@@ -46,7 +46,10 @@ function getTopBar() {
   return `
 <header id="top-bar">
   <div class="row">
-    <div class="column"></div>
+    <div class="column search-container">
+      <input placeholder="Search" autofocus id="search-input"/>
+      <a onclick="clearSearch()" id="search-clear">Clear</a>
+    </div>
     <div class="column header">Lits</div>
     <div class="column right version"><span>v${version}</span></div>
   </div>
@@ -131,11 +134,10 @@ function getIndexPage() {
       <li>No macros.</li>
       <li>No keyword symbols. <pre>:foo</pre> is just a shorthand for <pre>"foo"</pre>.</li>
       <li>Dynamic scoping, no lexical scoping</li>
-      <li>100% test coverage</li>
     </ul>
     <p>You can see some examples and find documentation of all built-in function to the left.</p>
     <p>For more instruction on how to install and use Lits as a cli or a typescript lib, checkout <a href="https://github.com/YouCruit/lits">https://github.com/YouCruit/lits</a></p>
-    <p/>
+    <p>
     <p>Happy coding!</p>
   </div>
 </div>
@@ -303,6 +305,15 @@ function stringifyValue(value) {
   }
   if (typeof value === 'object' && value instanceof RegExp) {
     return `${value}`
+  }
+  if (value === Number.POSITIVE_INFINITY) {
+    return Number.POSITIVE_INFINITY
+  }
+  if (value === Number.NEGATIVE_INFINITY) {
+    return Number.NEGATIVE_INFINITY
+  }
+  if (isNaN(value)) {
+    return 'NaN'
   }
   return JSON.stringify(value)
 }

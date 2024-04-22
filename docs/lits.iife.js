@@ -4515,7 +4515,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.60";
+  var version = "1.0.61";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;

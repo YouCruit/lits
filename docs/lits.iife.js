@@ -4515,7 +4515,7 @@ var Lits = (function (exports) {
       },
   };
 
-  var version = "1.0.61";
+  var version = "2.0.62";
 
   var uuidTemplate = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
   var xyRegexp = /[xy]/g;
@@ -4746,6 +4746,26 @@ var Lits = (function (exports) {
               return version;
           },
           validate: function (node) { return assertNumberOfParams(0, node); },
+      },
+      'json-parse': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var _b = __read(_a, 1), first = _b[0];
+              assertString(first, sourceCodeInfo);
+              return JSON.parse(first);
+          },
+          validate: function (node) { return assertNumberOfParams(1, node); },
+      },
+      'json-stringify': {
+          evaluate: function (_a, sourceCodeInfo) {
+              var _b = __read(_a, 2), first = _b[0], second = _b[1];
+              assertAny(first, sourceCodeInfo);
+              if (second === undefined) {
+                  return JSON.stringify(first);
+              }
+              assertNumber(second, sourceCodeInfo);
+              return JSON.stringify(first, null, second);
+          },
+          validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
       },
   };
 

@@ -349,5 +349,17 @@ describe(`misc functions`, () => {
         expect(lits.run(`(equal? {:a 10} {:a 10, :b 20})`)).toBe(false)
       })
     })
+
+    describe(`json-stringify`, () => {
+      test(`samples`, () => {
+        expect(lits.run(`(json-stringify {:a 10 :b 20})`)).toBe(`{"a":10,"b":20}`)
+        expect(lits.run(`(json-stringify {:a 10 :b 20} 2)`)).toBe(`{\n  "a": 10,\n  "b": 20\n}`)
+      })
+    })
+    describe(`json-parse`, () => {
+      test(`samples`, () => {
+        expect(lits.run(`(json-parse "[1,2,3]")`)).toEqual([1, 2, 3])
+      })
+    })
   }
 })

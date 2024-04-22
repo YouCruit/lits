@@ -295,4 +295,43 @@ module.exports = {
       `(equal? 0.3 (+ 0.1 0.2))`,
     ],
   },
+  'json-parse': {
+    name: `json-parse`,
+    category: `Misc`,
+    linkName: `json-parse`,
+    clojureDocs: null,
+    returns: {
+      type: `any`,
+    },
+    arguments: [
+      {
+        name: `value`,
+        type: `string`,
+      },
+    ],
+    description: `Returns JSON.parse(\`value\`).`,
+    examples: [`(json-parse "[1, 2, 3]")`],
+  },
+  'json-stringify': {
+    name: `json-stringify`,
+    category: `Misc`,
+    linkName: `json-stringify`,
+    clojureDocs: null,
+    returns: {
+      type: `string`,
+    },
+    arguments: [
+      {
+        name: `value`,
+        type: `any`,
+      },
+      {
+        name: `indent`,
+        type: `number`,
+        description: `optional`,
+      },
+    ],
+    description: `Returns JSON.stringify(\`value\`). If second argument is provided, returns JSON.stringify(\`value\`, null, \`indent\`).`,
+    examples: [`(json-stringify [1, 2, 3])`, `(json-stringify {:a {:b 10}} 2)`],
+  },
 }

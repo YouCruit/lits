@@ -2,7 +2,7 @@ import type { Any } from '../../../interface'
 import { compare, deepEqual } from '../../../utils'
 import type { BuiltinNormalExpressions } from '../../interface'
 import { version } from '../../../version'
-import { asAny } from '../../../typeGuards/lits'
+import { asAny, assertAny } from '../../../typeGuards/lits'
 import { assertNumber } from '../../../typeGuards/number'
 import { assertString } from '../../../typeGuards/string'
 import { assertNumberOfParams } from '../../../typeGuards'
@@ -175,5 +175,23 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
       return version
     },
     validate: node => assertNumberOfParams(0, node),
+  },
+  'json-parse': {
+    evaluate: ([first], sourceCodeInfo): Any => {
+      assertString(first, sourceCodeInfo)
+      return JSON.parse(first)
+    },
+    validate: node => assertNumberOfParams(1, node),
+  },
+  'json-stringify': {
+    evaluate: ([first, second], sourceCodeInfo): string => {
+      assertAny(first, sourceCodeInfo)
+      if (second === undefined) {
+        return JSON.stringify(first)
+      }
+      assertNumber(second, sourceCodeInfo)
+      return JSON.stringify(first, null, second)
+    },
+    validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   },
 }

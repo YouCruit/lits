@@ -312,7 +312,7 @@ function stringifyValue(value) {
   if (value === Number.NEGATIVE_INFINITY) {
     return Number.NEGATIVE_INFINITY
   }
-  if (isNaN(value)) {
+  if (typeof value === 'number' && isNaN(value)) {
     return 'NaN'
   }
   return JSON.stringify(value)

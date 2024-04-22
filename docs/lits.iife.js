@@ -251,6 +251,9 @@ var Lits = (function (exports) {
           _this.name = "LitsError";
           return _this;
       }
+      LitsError.prototype.getCodeMarker = function () {
+          return this.sourceCodeInfo && (getCodeMarker(this.sourceCodeInfo) || undefined);
+      };
       return LitsError;
   }(Error));
   var NotAFunctionError = /** @class */ (function (_super) {

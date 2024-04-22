@@ -32,6 +32,10 @@ export class LitsError extends Error {
     Object.setPrototypeOf(this, LitsError.prototype)
     this.name = `LitsError`
   }
+
+  public getCodeMarker(): string | undefined {
+    return this.sourceCodeInfo && (getCodeMarker(this.sourceCodeInfo) || undefined)
+  }
 }
 
 export class NotAFunctionError extends LitsError {

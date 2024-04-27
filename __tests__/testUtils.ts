@@ -10,28 +10,30 @@ import { isUnknownRecord } from '../src/typeGuards'
 import { isLitsFunction } from '../src/typeGuards/litsFunction'
 import { isRegularExpression } from '../src/typeGuards/lits'
 
-export type TypeGuardTestData = {
+export interface TypeGuardTestData {
   valid: unknown[]
   invalid: unknown[]
 }
 
 export function testTypeGuars(
   testData: TypeGuardTestData,
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  { is, as, assert }: { is: Function | undefined; as: Function; assert: Function },
+  { is, as, assert }: { is: Function | undefined, as: Function, assert: Function },
 ) {
-  testData.valid.forEach(validData => {
-    if (is) {
+  testData.valid.forEach((validData) => {
+    if (is)
       expect(is(validData)).toBe(true)
-    }
+
+    // eslint-disable-next-line ts/no-unsafe-return
     expect(() => assert(validData)).not.toThrow()
     expect(as(validData)).toBe(validData)
   })
-  testData.invalid.forEach(validData => {
-    if (is) {
+  testData.invalid.forEach((validData) => {
+    if (is)
       expect(is(validData)).toBe(false)
-    }
+
+    // eslint-disable-next-line ts/no-unsafe-return
     expect(() => assert(validData)).toThrow()
+    // eslint-disable-next-line ts/no-unsafe-return
     expect(() => as(validData)).toThrow()
   })
 }
@@ -96,6 +98,7 @@ const privateTestData: TestData = {
 let testData: TestData
 
 export function createTestData(): TestData {
+  // eslint-disable-next-line ts/no-unsafe-assignment
   testData = JSON.parse(JSON.stringify(privateTestData))
   return testData
 }
@@ -103,15 +106,14 @@ export function createTestData(): TestData {
 export function checkTestData(): void {
   const stringifiedTestData = JSON.stringify(testData, null, 4)
   const stringifiedPrivateTestData = JSON.stringify(privateTestData, null, 4)
-  if (stringifiedTestData !== stringifiedPrivateTestData) {
-    throw Error(`Expected testData to not change got:\n${stringifiedTestData}\nExpected${stringifiedPrivateTestData}`)
-  }
+  if (stringifiedTestData !== stringifiedPrivateTestData)
+    throw new Error(`Expected testData to not change got:\n${stringifiedTestData}\nExpected${stringifiedPrivateTestData}`)
 }
 
 export function regexpEquals(udr: unknown, r: RegExp): boolean {
-  if (!isRegularExpression(udr)) {
+  if (!isRegularExpression(udr))
     return false
-  }
+
   const sortedUdrFlags = udr.f.split(``).sort().join(``)
   const sortedRFlags = r.flags.split(``).sort().join(``)
   return udr.s === r.source && sortedRFlags === sortedUdrFlags
@@ -126,10 +128,11 @@ export function getLitsVariants() {
   const variants = [new Lits(), new Lits({ debug: true })]
   return {
     run(program: string, LitsParams?: LitsParams): unknown {
-      const [result1, result2] = variants.map(l => {
+      const [result1, result2] = variants.map((l) => {
         try {
           return l.run(program, LitsParams)
-        } catch (error) {
+        }
+        catch (error) {
           return { _error_: error }
         }
       })
@@ -163,7 +166,7 @@ export function getLitsVariants() {
       const us1 = getUndefinedSymbolNames(result1)
       const us2 = getUndefinedSymbolNames(result2)
       expect(us1).toStrictEqual(us2)
-      return result1 as AnalyzeResult
+      return result1
     },
   }
 }

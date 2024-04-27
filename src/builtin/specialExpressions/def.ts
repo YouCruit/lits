@@ -1,7 +1,7 @@
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import { assertNumberOfParams } from '../../typeGuards'
-import { assertNameNode, asNameNode, asAstNode } from '../../typeGuards/astNode'
+import { asAstNode, asNameNode, assertNameNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { assertNameNotDefined } from '../utils'

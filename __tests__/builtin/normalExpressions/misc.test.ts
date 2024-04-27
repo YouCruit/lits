@@ -24,7 +24,7 @@ describe(`misc functions`, () => {
   })
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
     describe(`inst-ms!`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() => lits.run(`(inst-ms! 1)`)).toThrow()
         expect(() => lits.run(`(inst-ms! :x)`)).toThrow()
         expect(lits.run(`(inst-ms!)`)).toBeLessThanOrEqual(Date.now())
@@ -32,7 +32,7 @@ describe(`misc functions`, () => {
     })
 
     describe(`inst-ms->iso-date-time`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() => lits.run(`(inst-ms->iso-date-time 1649756230899 1649756230899)`)).toThrow()
         expect(() => lits.run(`(inst-ms->iso-date-time)`)).toThrow()
         expect(() => lits.run(`(inst-ms->iso-date-time "1649756230899")`)).toThrow()
@@ -47,7 +47,7 @@ describe(`misc functions`, () => {
     })
 
     describe(`iso-date-time->inst-ms`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() =>
           lits.run(`(iso-date-time->inst-ms "2022-04-12T09:37:10.899Z" "2022-04-12T09:37:10.899Z")`),
         ).toThrow()
@@ -63,7 +63,7 @@ describe(`misc functions`, () => {
     })
 
     describe(`not=`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() => lits.run(`(not=)`)).toThrow()
         expect(lits.run(`(not= 1)`)).toBe(true)
         expect(lits.run(`(not= 1 1)`)).toBe(false)
@@ -82,7 +82,7 @@ describe(`misc functions`, () => {
     })
 
     describe(`equal?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() => lits.run(`(not=)`)).toThrow()
         expect(lits.run(`(equal? 1 1)`)).toBe(true)
         expect(lits.run(`(equal? 1 2)`)).toBe(false)
@@ -91,11 +91,17 @@ describe(`misc functions`, () => {
         expect(lits.run(`(equal? nil 0)`)).toBe(false)
         expect(lits.run(`(equal? [1 2 {:a 10 :b [nil]}] [1 2 {:b [nil] :a 10}])`)).toBe(true)
         expect(lits.run(`(equal? [1 2 {:a 10 :b [nil]}] [1 2 {:b [0] :a 10}])`)).toBe(false)
+        expect(lits.run(`(equal? {:a 10 :b 20} {:b 20 :a 10})`)).toBe(true)
+        expect(lits.run(`(equal? [1 true nil] [1 true nil])`)).toBe(true)
+        expect(lits.run(`(equal? {:a 10 :b [1 2 {:b 20}]} {:b [1 2 {:b 20}] :a 10})`)).toBe(true)
+        expect(lits.run(`(equal? {:a 10 :b [1 2 {:b 20}]} {:b [1 2 {:b 21}] :a 10})`)).toBe(false)
+        expect(lits.run(`(equal? [1, 2, 3] [1, 2, 3, 4])`)).toBe(false)
+        expect(lits.run(`(equal? {:a 10} {:a 10, :b 20})`)).toBe(false)
       })
     })
 
     describe(`=`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() => lits.run(`(=)`)).toThrow()
         expect(lits.run(`(= 1)`)).toBe(true)
         expect(lits.run(`(= 1 1)`)).toBe(true)
@@ -117,7 +123,7 @@ describe(`misc functions`, () => {
         expect(lits.run(`(= false false)`)).toBe(true)
       })
 
-      test(`Object equality`, () => {
+      it(`object equality`, () => {
         const program = `
         (def obj1 (object :x 10))
         (def obj2 (object :x 10))
@@ -126,7 +132,7 @@ describe(`misc functions`, () => {
         expect(lits.run(program)).toEqual([true, false])
       })
 
-      test(`Array equality`, () => {
+      it(`array equality`, () => {
         const program = `
         (def array1 [1 2 3])
         (def array2 [1 2 3])
@@ -137,7 +143,7 @@ describe(`misc functions`, () => {
     })
 
     describe(`>`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() => lits.run(`(>)`)).toThrow()
         expect(lits.run(`(> 1)`)).toBe(true)
         expect(lits.run(`(> 1 2)`)).toBe(false)
@@ -161,7 +167,7 @@ describe(`misc functions`, () => {
     })
 
     describe(`<`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() => lits.run(`(<)`)).toThrow()
         expect(lits.run(`(< 1)`)).toBe(true)
         expect(lits.run(`(< 1 2)`)).toBe(true)
@@ -185,7 +191,7 @@ describe(`misc functions`, () => {
     })
 
     describe(`>=`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() => lits.run(`(>=)`)).toThrow()
         expect(lits.run(`(>= 1)`)).toBe(true)
         expect(lits.run(`(>= 1 2)`)).toBe(false)
@@ -209,7 +215,7 @@ describe(`misc functions`, () => {
     })
 
     describe(`<=`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() => lits.run(`(<=)`)).toThrow()
         expect(lits.run(`(<= 1)`)).toBe(true)
         expect(lits.run(`(<= 1 2)`)).toBe(true)
@@ -233,7 +239,7 @@ describe(`misc functions`, () => {
     })
 
     describe(`not`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() => lits.run(`(not)`)).toThrow()
         expect(lits.run(`(not 0)`)).toBe(true)
         expect(lits.run(`(not "")`)).toBe(true)
@@ -249,7 +255,7 @@ describe(`misc functions`, () => {
     })
 
     describe(`write!`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(write!)`)).toBe(null)
         expect(lits.run(`(write! 1)`)).toBe(1)
         expect(lits.run(`(write! :1)`)).toBe(`1`)
@@ -260,32 +266,32 @@ describe(`misc functions`, () => {
         expect(lits.run(`(write! true)`)).toBe(true)
         expect(lits.run(`(write! false)`)).toBe(false)
       })
-      test(`that it does console.log`, () => {
+      it(`that it does console.log`, () => {
         lits.run(`(write! 1)`)
         expect(logSpy).toHaveBeenCalledWith(1)
       })
     })
 
     describe(`debug!`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(debug!)`)).toBe(null)
         expect(lits.run(`(debug! +)`)).toBeTruthy()
         expect(() => lits.run(`(debug! "" 0)`)).toThrow()
       })
-      test(`multiple contexts`, () => {
+      it(`multiple contexts`, () => {
         const context = lits.context(`(def x 10) (defn foo [] "foo") (def bar (fn [] "bar")) (def plus +)`)
         lits.run(`((fn [z] (debug!) (+ z 1)) 10)`, { values: { y: 20 }, contexts: [context] })
         console.log(lastLog)
         expect(lastLog).toMatchSnapshot()
       })
-      test(`debug value.`, () => {
+      it(`debug value.`, () => {
         lits.run(`(debug! #(> %1 2))`)
         expect(lastLog).toMatchSnapshot()
       })
     })
 
     describe(`boolean`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(boolean 0)`)).toBe(false)
         expect(lits.run(`(boolean 1)`)).toBe(true)
         expect(lits.run(`(boolean "Albert")`)).toBe(true)
@@ -301,7 +307,7 @@ describe(`misc functions`, () => {
     })
 
     describe(`compare`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(compare 0 1)`)).toBe(-1)
         expect(lits.run(`(compare 3 1)`)).toBe(1)
         expect(lits.run(`(compare nil nil)`)).toBe(0)
@@ -327,37 +333,26 @@ describe(`misc functions`, () => {
     })
 
     describe(`lits-version!`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(lits-version!)`)).toMatch(/^\d+\.\d+\.\d+/)
         expect(() => lits.run(`(lits-version! 1)`)).toThrow()
       })
     })
 
     describe(`uuid!`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(uuid!)`)).toMatch(/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i)
       })
     })
 
-    describe(`equal?`, () => {
-      test(`samples`, () => {
-        expect(lits.run(`(equal? {:a 10 :b 20} {:b 20 :a 10})`)).toBe(true)
-        expect(lits.run(`(equal? [1 true nil] [1 true nil])`)).toBe(true)
-        expect(lits.run(`(equal? {:a 10 :b [1 2 {:b 20}]} {:b [1 2 {:b 20}] :a 10})`)).toBe(true)
-        expect(lits.run(`(equal? {:a 10 :b [1 2 {:b 20}]} {:b [1 2 {:b 21}] :a 10})`)).toBe(false)
-        expect(lits.run(`(equal? [1, 2, 3] [1, 2, 3, 4])`)).toBe(false)
-        expect(lits.run(`(equal? {:a 10} {:a 10, :b 20})`)).toBe(false)
-      })
-    })
-
     describe(`json-stringify`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(json-stringify {:a 10 :b 20})`)).toBe(`{"a":10,"b":20}`)
         expect(lits.run(`(json-stringify {:a 10 :b 20} 2)`)).toBe(`{\n  "a": 10,\n  "b": 20\n}`)
       })
     })
     describe(`json-parse`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(json-parse "[1,2,3]")`)).toEqual([1, 2, 3])
       })
     })

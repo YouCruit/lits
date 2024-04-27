@@ -6,6 +6,6 @@
     "__tests__/**/*.test.ts"
   ],
   "exclude": [
-    "cli",
+    "cli"
   ]
 }

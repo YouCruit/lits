@@ -1,7 +1,6 @@
 import { UserDefinedError } from '../../errors'
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { AstNode, SpecialExpressionNode } from '../../parser/interface'
-import { TokenType } from '../../constants/constants'
 import { asToken, assertToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { asString } from '../../typeGuards/string'

@@ -3,7 +3,7 @@ import { Lits } from '../../../src'
 describe(`predicates`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
     describe(`function?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(function? "")`)).toBe(false)
         expect(lits.run(`(function? :x)`)).toBe(false)
         expect(lits.run(`(function? 1)`)).toBe(false)
@@ -21,7 +21,7 @@ describe(`predicates`, () => {
     })
 
     describe(`string?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(string? "")`)).toBe(true)
         expect(lits.run(`(string? :x)`)).toBe(true)
         expect(lits.run(`(string? 1)`)).toBe(false)
@@ -39,7 +39,7 @@ describe(`predicates`, () => {
     })
 
     describe(`number?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(number? 1)`)).toBe(true)
         expect(lits.run(`(number? 0)`)).toBe(true)
         expect(lits.run(`(number? -1)`)).toBe(true)
@@ -60,7 +60,7 @@ describe(`predicates`, () => {
     })
 
     describe(`integer?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(integer? 1)`)).toBe(true)
         expect(lits.run(`(integer? 0)`)).toBe(true)
         expect(lits.run(`(integer? -1)`)).toBe(true)
@@ -81,7 +81,7 @@ describe(`predicates`, () => {
     })
 
     describe(`boolean?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(boolean? 1)`)).toBe(false)
         expect(lits.run(`(boolean? 0)`)).toBe(false)
         expect(lits.run(`(boolean? -1)`)).toBe(false)
@@ -102,7 +102,7 @@ describe(`predicates`, () => {
     })
 
     describe(`nil?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(nil? 1)`)).toBe(false)
         expect(lits.run(`(nil? 0)`)).toBe(false)
         expect(lits.run(`(nil? -1)`)).toBe(false)
@@ -123,7 +123,7 @@ describe(`predicates`, () => {
     })
 
     describe(`zero?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(zero? 1)`)).toBe(false)
         expect(lits.run(`(zero? 0)`)).toBe(true)
         expect(lits.run(`(zero? 0.0)`)).toBe(true)
@@ -141,7 +141,7 @@ describe(`predicates`, () => {
     })
 
     describe(`pos?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(pos? 1)`)).toBe(true)
         expect(lits.run(`(pos? 0.1)`)).toBe(true)
         expect(lits.run(`(pos? 0)`)).toBe(false)
@@ -159,7 +159,7 @@ describe(`predicates`, () => {
     })
 
     describe(`neg?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(neg? 1)`)).toBe(false)
         expect(lits.run(`(neg? 0)`)).toBe(false)
         expect(lits.run(`(neg? -0)`)).toBe(false)
@@ -176,7 +176,7 @@ describe(`predicates`, () => {
     })
 
     describe(`even?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(even? 1)`)).toBe(false)
         expect(lits.run(`(even? 0)`)).toBe(true)
         expect(lits.run(`(even? -0)`)).toBe(true)
@@ -196,7 +196,7 @@ describe(`predicates`, () => {
     })
 
     describe(`odd?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(odd? 1)`)).toBe(true)
         expect(lits.run(`(odd? 0)`)).toBe(false)
         expect(lits.run(`(odd? -0)`)).toBe(false)
@@ -217,7 +217,7 @@ describe(`predicates`, () => {
     })
 
     describe(`array?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(array? 1)`)).toBe(false)
         expect(lits.run(`(array? 0)`)).toBe(false)
         expect(lits.run(`(array? -1)`)).toBe(false)
@@ -239,7 +239,7 @@ describe(`predicates`, () => {
     })
 
     describe(`coll?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(coll? 1)`)).toBe(false)
         expect(lits.run(`(coll? 0)`)).toBe(false)
         expect(lits.run(`(coll? -1)`)).toBe(false)
@@ -262,7 +262,7 @@ describe(`predicates`, () => {
     })
 
     describe(`seq?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(seq? 1)`)).toBe(false)
         expect(lits.run(`(seq? 0)`)).toBe(false)
         expect(lits.run(`(seq? -1)`)).toBe(false)
@@ -285,7 +285,7 @@ describe(`predicates`, () => {
     })
 
     describe(`object?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(object? 1)`)).toBe(false)
         expect(lits.run(`(object? 0)`)).toBe(false)
         expect(lits.run(`(object? -1)`)).toBe(false)
@@ -307,7 +307,7 @@ describe(`predicates`, () => {
     })
 
     describe(`regexp?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(regexp? 1)`)).toBe(false)
         expect(lits.run(`(regexp? 0)`)).toBe(false)
         expect(lits.run(`(regexp? -1)`)).toBe(false)
@@ -329,7 +329,7 @@ describe(`predicates`, () => {
     })
 
     describe(`finite?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(finite? 1)`)).toBe(true)
         expect(lits.run(`(finite? 0)`)).toBe(true)
         expect(lits.run(`(finite? (/ 1 0))`)).toBe(false)
@@ -339,7 +339,7 @@ describe(`predicates`, () => {
     })
 
     describe(`nan?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(nan? 1)`)).toBe(false)
         expect(lits.run(`(nan? 0)`)).toBe(false)
         expect(lits.run(`(nan? (/ 1 0))`)).toBe(false)
@@ -349,7 +349,7 @@ describe(`predicates`, () => {
     })
 
     describe(`positive-infinity?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(positive-infinity? 1)`)).toBe(false)
         expect(lits.run(`(positive-infinity? 0)`)).toBe(false)
         expect(lits.run(`(positive-infinity? (/ 1 0))`)).toBe(true)
@@ -359,7 +359,7 @@ describe(`predicates`, () => {
     })
 
     describe(`negative-infinity?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(negative-infinity? 1)`)).toBe(false)
         expect(lits.run(`(negative-infinity? 0)`)).toBe(false)
         expect(lits.run(`(negative-infinity? (/ 1 0))`)).toBe(false)
@@ -369,7 +369,7 @@ describe(`predicates`, () => {
     })
 
     describe(`true?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(true? false)`)).toBe(false)
         expect(lits.run(`(true? true)`)).toBe(true)
         expect(lits.run(`(true? 1)`)).toBe(false)
@@ -379,7 +379,7 @@ describe(`predicates`, () => {
     })
 
     describe(`false?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(false? false)`)).toBe(true)
         expect(lits.run(`(false? true)`)).toBe(false)
         expect(lits.run(`(false? 1)`)).toBe(false)
@@ -389,7 +389,7 @@ describe(`predicates`, () => {
     })
 
     describe(`empty?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(empty? [])`)).toBe(true)
         expect(lits.run(`(empty? [0])`)).toBe(false)
         expect(lits.run(`(empty? {})`)).toBe(true)
@@ -409,7 +409,7 @@ describe(`predicates`, () => {
     })
 
     describe(`not-empty?`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(not-empty? [])`)).toBe(false)
         expect(lits.run(`(not-empty? [0])`)).toBe(true)
         expect(lits.run(`(not-empty? {})`)).toBe(false)

@@ -25,9 +25,8 @@ export function asNonUndefined<T>(value: T | undefined, sourceCodeInfo?: SourceC
 }
 
 export function assertNonUndefined<T>(value: T | undefined, sourceCodeInfo?: SourceCodeInfo): asserts value is T {
-  if (!isNonUndefined(value)) {
+  if (!isNonUndefined(value))
     throw new LitsError(`Unexpected undefined`, getSourceCodeInfo(value, sourceCodeInfo))
-  }
 }
 
 /* istanbul ignore next */
@@ -54,7 +53,7 @@ export function asUnknownRecord(value: unknown, sourceCodeInfo?: SourceCodeInfo)
 }
 
 export function assertNumberOfParams(
-  count: number | { min?: number; max?: number },
+  count: number | { min?: number, max?: number },
   node: NormalExpressionNode | SpecialExpressionNode,
 ): void {
   const length = node.p.length
@@ -66,11 +65,11 @@ export function assertNumberOfParams(
         node.tkn?.sourceCodeInfo,
       )
     }
-  } else {
+  }
+  else {
     const { min, max } = count
-    if (min === undefined && max === undefined) {
+    if (min === undefined && max === undefined)
       throw new LitsError(`Min or max must be specified.`, sourceCodeInfo)
-    }
 
     if (typeof min === `number` && length < min) {
       throw new LitsError(

@@ -3,7 +3,7 @@ import { regexpEquals } from './testUtils'
 
 describe(`regexpShorthand`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(regexpEquals(lits.run(`#" "g`), / /g)).toBe(true)
       expect(regexpEquals(lits.run(`#"a"gi`), /a/gi)).toBe(true)
       expect(regexpEquals(lits.run(`#"a"ig`), /a/gi)).toBe(true)

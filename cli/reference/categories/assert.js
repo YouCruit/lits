@@ -1,5 +1,5 @@
 module.exports = {
-  assert: {
+  'assert': {
     name: `assert`,
     category: `Assert`,
     linkName: `assert`,

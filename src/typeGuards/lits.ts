@@ -14,9 +14,8 @@ export function asAny(value: unknown, sourceCodeInfo?: SourceCodeInfo): Any {
   return value
 }
 export function assertAny(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is Any {
-  if (!isAny(value)) {
+  if (!isAny(value))
     throw getAssertionError(`not undefined`, value, sourceCodeInfo)
-  }
 }
 
 export function isSeq(value: unknown): value is Seq {
@@ -27,19 +26,18 @@ export function asSeq(value: unknown, sourceCodeInfo?: SourceCodeInfo): Seq {
   return value
 }
 export function assertSeq(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is Seq {
-  if (!isSeq(value)) {
+  if (!isSeq(value))
     throw getAssertionError(`string or array`, value, sourceCodeInfo)
-  }
 }
 
 export function isObj(value: unknown): value is Obj {
   return !(
-    value === null ||
-    typeof value !== `object` ||
-    Array.isArray(value) ||
-    value instanceof RegExp ||
-    isLitsFunction(value) ||
-    isRegularExpression(value)
+    value === null
+    || typeof value !== `object`
+    || Array.isArray(value)
+    || value instanceof RegExp
+    || isLitsFunction(value)
+    || isRegularExpression(value)
   )
 }
 export function asObj(value: unknown, sourceCodeInfo?: SourceCodeInfo): Obj {
@@ -47,9 +45,8 @@ export function asObj(value: unknown, sourceCodeInfo?: SourceCodeInfo): Obj {
   return value
 }
 export function assertObj(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is Obj {
-  if (!isObj(value)) {
+  if (!isObj(value))
     throw getAssertionError(`object`, value, sourceCodeInfo)
-  }
 }
 
 export function isColl(value: unknown): value is Coll {
@@ -60,15 +57,14 @@ export function asColl(value: unknown, sourceCodeInfo?: SourceCodeInfo): Coll {
   return value
 }
 export function assertColl(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is Coll {
-  if (!isColl(value)) {
+  if (!isColl(value))
     throw getAssertionError(`string, array or object`, value, sourceCodeInfo)
-  }
 }
 
 export function isRegularExpression(regexp: unknown): regexp is RegularExpression {
-  if (regexp === null || typeof regexp !== `object`) {
+  if (regexp === null || typeof regexp !== `object`)
     return false
-  }
+
   return !!(regexp as RegularExpression)[REGEXP_SYMBOL]
 }
 export function asRegularExpression(value: unknown, sourceCodeInfo?: SourceCodeInfo): RegularExpression {
@@ -79,9 +75,8 @@ export function assertRegularExpression(
   value: unknown,
   sourceCodeInfo?: SourceCodeInfo,
 ): asserts value is RegularExpression {
-  if (!isRegularExpression(value)) {
+  if (!isRegularExpression(value))
     throw getAssertionError(`RegularExpression`, value, sourceCodeInfo)
-  }
 }
 
 export function isStringOrRegularExpression(value: unknown): value is string | RegularExpression {
@@ -98,7 +93,6 @@ export function assertStringOrRegularExpression(
   value: unknown,
   sourceCodeInfo?: SourceCodeInfo,
 ): asserts value is string | RegularExpression {
-  if (!isStringOrRegularExpression(value)) {
+  if (!isStringOrRegularExpression(value))
     throw getAssertionError(`string or RegularExpression`, value, sourceCodeInfo)
-  }
 }

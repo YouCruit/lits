@@ -15,12 +15,12 @@ afterEach(() => {
 
 describe(`array functions`, () => {
   describe(`array`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`[]`)).toEqual([])
       expect(lits.run(`(array 1)`)).toEqual([1])
       expect(lits.run(`(array 0 :1 nil true false (array []) (object))`)).toEqual([0, `1`, null, true, false, [[]], {}])
     })
-    test(`shorthand samples`, () => {
+    it(`shorthand samples`, () => {
       expect(lits.run(`[]`)).toEqual([])
       expect(lits.run(`[1]`)).toEqual([1])
       expect((lits.run(`[nil]`) as Arr)[0]).toEqual(null)
@@ -29,7 +29,7 @@ describe(`array functions`, () => {
   })
 
   describe(`range`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(range 0)`)).toEqual([])
       expect(lits.run(`(range 5)`)).toEqual([0, 1, 2, 3, 4])
       expect(lits.run(`(range -5)`)).toEqual([0, -1, -2, -3, -4])
@@ -49,7 +49,7 @@ describe(`array functions`, () => {
   })
 
   describe(`repeat`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(repeat 3 5)`)).toEqual([5, 5, 5])
       expect(lits.run(`(repeat 3 :5)`)).toEqual([`5`, `5`, `5`])
       expect(lits.run(`(repeat 1 :5)`)).toEqual([`5`])
@@ -63,7 +63,7 @@ describe(`array functions`, () => {
   })
 
   describe(`flatten`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(flatten [1 2 [3 4] 5])`)).toEqual([1, 2, 3, 4, 5])
       expect(lits.run(`(flatten [1 2 [3 [4 [5]]] 6])`)).toEqual([1, 2, 3, 4, 5, 6])
       expect(lits.run(`(flatten {})`)).toEqual([])
@@ -75,13 +75,13 @@ describe(`array functions`, () => {
       expect(() => lits.run(`(flatten [] [])`)).toThrow()
       expect(() => lits.run(`(flatten)`)).toThrow()
     })
-    test(`immutability`, () => {
+    it(`immutability`, () => {
       lits.run(`(flatten nestedArray)`, { values: testData })
     })
   })
 
   describe(`mapcat`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(mapcat reverse [[3 2 1 0] [6 5 4] [9 8 7]])`)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
       expect(lits.run(`(mapcat reverse [[3 2 1 0] [6 [5] 4] [9 8 7]])`)).toEqual([0, 1, 2, 3, 4, [5], 6, 7, 8, 9])
       expect(lits.run(`(defn foo [n] [(- n 1) n (+ n 1)]) (mapcat foo [1 2 3])`)).toEqual([0, 1, 2, 1, 2, 3, 2, 3, 4])

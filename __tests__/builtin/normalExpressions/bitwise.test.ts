@@ -3,7 +3,7 @@ import { Lits } from '../../../src'
 describe(`predicates`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
     describe(`bit-not`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(bit-not 0)`)).toBe(-1)
         expect(lits.run(`(bit-not 255)`)).toBe(-256)
         expect(lits.run(`(bit-not 0b1111)`)).toBe(~Number(`0b1111`))
@@ -13,7 +13,7 @@ describe(`predicates`, () => {
       })
     })
     describe(`bit-shift-left`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(bit-shift-left 16 2)`)).toBe(64)
         expect(lits.run(`(bit-shift-left -16 2)`)).toBe(-64)
         expect(() => lits.run(`(bit-shift-left)`)).toThrow()
@@ -22,7 +22,7 @@ describe(`predicates`, () => {
       })
     })
     describe(`bit-shift-right`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(bit-shift-right 16 2)`)).toBe(4)
         expect(lits.run(`(bit-shift-right -16 2)`)).toBe(-4)
         expect(() => lits.run(`(bit-shift-right)`)).toThrow()
@@ -31,7 +31,7 @@ describe(`predicates`, () => {
       })
     })
     describe(`bit-and`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(bit-and 0b0011 0b1010)`)).toBe(0b0010)
         expect(lits.run(`(bit-and 0b1111 0b1010 0b0101)`)).toBe(0b0000)
         expect(lits.run(`(bit-and 0b1111 0b0111 0b0011)`)).toBe(0b0011)
@@ -42,7 +42,7 @@ describe(`predicates`, () => {
     })
 
     describe(`bit-and-not`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(bit-and-not 0b1100 0b1001)`)).toBe(0b0100)
         expect(lits.run(`(bit-and-not 0b1111 0b1010 0b1010)`)).toBe(0b0101)
         expect(lits.run(`(bit-and-not 0b1111 0b0111 0b0011)`)).toBe(0b1000)
@@ -53,7 +53,7 @@ describe(`predicates`, () => {
     })
 
     describe(`bit-or`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(bit-or 0b0011 0b1010)`)).toBe(0b1011)
         expect(lits.run(`(bit-or 0b0001 0b0010 0b0100)`)).toBe(0b0111)
         expect(lits.run(`(bit-or 0b0001 0b0010 0b1111)`)).toBe(0b1111)
@@ -63,7 +63,7 @@ describe(`predicates`, () => {
       })
     })
     describe(`bit-xor`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(bit-xor 0b0011 0b1010)`)).toBe(0b1001)
         expect(lits.run(`(bit-xor 0b11110000 0b00111100 0b10101010)`)).toBe(0b01100110)
         expect(() => lits.run(`(bit-xor)`)).toThrow()
@@ -71,25 +71,25 @@ describe(`predicates`, () => {
       })
     })
     describe(`bit-clear`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(bit-clear 0b1111 2)`)).toBe(0b1011)
         expect(lits.run(`(bit-clear 0b1111 5)`)).toBe(0b1111)
       })
     })
     describe(`bit-flip`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(bit-flip 0b1111 2)`)).toBe(0b1011)
         expect(lits.run(`(bit-flip 0 2)`)).toBe(0b100)
       })
     })
     describe(`bit-set`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(bit-set 0b1001 2)`)).toBe(0b1101)
         expect(lits.run(`(bit-set 0 2)`)).toBe(0b100)
       })
     })
     describe(`bit-test`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(bit-test 0b1001 2)`)).toBe(false)
         expect(lits.run(`(bit-test 0b1111 2)`)).toBe(true)
       })

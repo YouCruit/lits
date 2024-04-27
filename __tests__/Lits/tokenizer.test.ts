@@ -1,8 +1,8 @@
 import { tokenize } from '../../src/tokenizer'
 import { TokenType } from '../../src/constants/constants'
 
-describe(`Tokenizer`, () => {
-  test(`simple expressions`, () => {
+describe(`tokenizer`, () => {
+  it(`simple expressions`, () => {
     const tokenStream = tokenize(
       `
       (let ((day (* 24 60 60 1000)))
@@ -12,12 +12,12 @@ describe(`Tokenizer`, () => {
     )
     expect(tokenStream.tokens.length).toBeGreaterThan(0)
   })
-  test(`another simple expressions`, () => {
+  it(`another simple expressions`, () => {
     const tokenStream = tokenize(`(do-me)`, { debug: false })
     expect(tokenStream.tokens.length).toBeGreaterThan(0)
   })
 
-  test(`forbidden reserved names`, () => {
+  it(`forbidden reserved names`, () => {
     expect(() => tokenize(`nil`, { debug: false })).not.toThrow()
     expect(() => tokenize(`false`, { debug: false })).not.toThrow()
     expect(() => tokenize(`true`, { debug: false })).not.toThrow()
@@ -29,7 +29,7 @@ describe(`Tokenizer`, () => {
     expect(() => tokenize(`||`, { debug: false })).toThrow()
   })
 
-  test(`comments`, () => {
+  it(`comments`, () => {
     expect(tokenize(`"Hi" ;This is a string`, { debug: false })).toEqual({ tokens: [{ t: TokenType.String, v: `Hi` }] })
     expect(tokenize(`"Hi" ;This is a string\n"there"`, { debug: false })).toEqual({
       tokens: [
@@ -40,10 +40,10 @@ describe(`Tokenizer`, () => {
   })
 
   describe(`strings`, () => {
-    test(`Unclosed string`, () => {
+    it(`unclosed string`, () => {
       expect(() => tokenize(`"Hej`, { debug: false })).toThrow()
     })
-    test(`Escaped string`, () => {
+    it(`escaped string`, () => {
       expect(tokenize(`"He\\"j"`, { debug: false }).tokens[0]).toEqual({
         t: TokenType.String,
         v: `He"j`,
@@ -60,7 +60,7 @@ describe(`Tokenizer`, () => {
   })
 
   describe(`regexpShorthand`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(tokenize(`#"Hej"`, { debug: true, filePath: `foo.lits` })).toEqual({
         tokens: [
           {
@@ -119,7 +119,7 @@ describe(`Tokenizer`, () => {
   })
 
   describe(`fnShorthand`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(tokenize(`#(`, { debug: true })).toEqual({
         tokens: [
           {
@@ -139,7 +139,7 @@ describe(`Tokenizer`, () => {
   })
 
   describe(`dotExpression`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       const samples = [
         `(#(indentity %1) [1 2 3])#1`,
         `x#1.bar`,
@@ -151,17 +151,17 @@ describe(`Tokenizer`, () => {
         `[1 2 3]#1`,
         `{:a 1}.a`,
       ]
-      for (const sample of samples) {
+      for (const sample of samples)
         tokenize(sample, { debug: false })
-      }
     })
-    test(`illegal samples`, () => {
+    it(`illegal samples`, () => {
       const illegalSamples = [`#(indentity %1)#1`, `(.bar`, `foo##1`, `foo..bar`, `.bar`, `).1`]
       for (const sample of illegalSamples) {
         try {
           tokenize(sample, { debug: false })
-          throw Error()
-        } catch {
+          throw new Error(`Expected to throw an error`)
+        }
+        catch {
           // Expected
         }
       }

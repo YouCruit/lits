@@ -11,6 +11,7 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
       assertString(sourceArg, sourceCodeInfo)
       const source = sourceArg || `(?:)`
       const flags = typeof flagsArg === `string` ? flagsArg : ``
+      // eslint-disable-next-line no-new
       new RegExp(source, flags) // Throws if invalid regexp
       return {
         [REGEXP_SYMBOL]: true,
@@ -24,15 +25,15 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
   match: {
     evaluate: ([regexp, text], sourceCodeInfo): string[] | null => {
       assertRegularExpression(regexp, sourceCodeInfo)
-      if (!isString(text)) {
+      if (!isString(text))
         return null
-      }
+
       const regExp = new RegExp(regexp.s, regexp.f)
 
       const match = regExp.exec(text)
-      if (match) {
+      if (match)
         return [...match]
-      }
+
       return null
     },
     validate: node => assertNumberOfParams(2, node),

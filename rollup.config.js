@@ -1,11 +1,11 @@
-const typescript = require('rollup-plugin-typescript2')
-const pkg = require('./package.json')
+const typescript = require(`rollup-plugin-typescript2`)
+const pkg = require(`./package.json`)
 
-const input = 'src/index.ts'
+const input = `src/index.ts`
 
 const plugins = [
   typescript({
-    typescript: require('typescript'),
+    typescript: require(`typescript`),
   }),
 ]
 
@@ -15,35 +15,35 @@ module.exports = [
     output: [
       {
         file: pkg.module,
-        format: 'esm',
+        format: `esm`,
         sourcemap: true,
       },
       {
         file: pkg.main,
-        format: 'cjs',
+        format: `cjs`,
         sourcemap: true,
       },
       {
         file: pkg.iife,
-        format: 'iife',
+        format: `iife`,
         sourcemap: true,
-        name: 'Lits',
+        name: `Lits`,
       },
     ],
     plugins,
   },
   {
-    input: 'src/testFramework/index.ts',
-    external: ['fs', 'path'],
+    input: `src/testFramework/index.ts`,
+    external: [`node:fs`, `node:path`],
     output: [
       {
-        file: 'dist/testFramework.esm.js',
-        format: 'esm',
+        file: `dist/testFramework.esm.js`,
+        format: `esm`,
         sourcemap: true,
       },
       {
-        file: 'dist/testFramework.js',
-        format: 'cjs',
+        file: `dist/testFramework.js`,
+        format: `cjs`,
         sourcemap: true,
       },
     ],

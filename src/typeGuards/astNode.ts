@@ -1,4 +1,4 @@
-import { isAstNodeType, AstNodeType } from '../constants/constants'
+import { AstNodeType, isAstNodeType } from '../constants/constants'
 import type {
   AstNode,
   ExpressionNode,
@@ -10,12 +10,12 @@ import type { SourceCodeInfo } from '../tokenizer/interface'
 import { getAssertionError } from '../utils/getAssertionError'
 
 export function isAstNode(value: unknown): value is AstNode {
-  if (value === null || typeof value !== `object`) {
+  if (value === null || typeof value !== `object`)
     return false
-  }
-  if (!isAstNodeType((value as AstNode).t)) {
+
+  if (!isAstNodeType((value as AstNode).t))
     return false
-  }
+
   return true
 }
 export function asAstNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): AstNode {
@@ -23,15 +23,14 @@ export function asAstNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): AstN
   return value
 }
 export function assertAstNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is AstNode {
-  if (!isAstNode(value)) {
+  if (!isAstNode(value))
     throw getAssertionError(`AstNode`, value, sourceCodeInfo)
-  }
 }
 
 export function isNameNode(value: unknown): value is NameNode {
-  if (!isAstNode(value)) {
+  if (!isAstNode(value))
     return false
-  }
+
   return value.t === AstNodeType.Name
 }
 export function asNameNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): NameNode {
@@ -39,15 +38,14 @@ export function asNameNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): Nam
   return value
 }
 export function assertNameNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is NameNode {
-  if (!isNameNode(value)) {
+  if (!isNameNode(value))
     throw getAssertionError(`NameNode`, value, sourceCodeInfo)
-  }
 }
 
 export function isNormalExpressionNode(value: unknown): value is NormalExpressionNode {
-  if (!isAstNode(value)) {
+  if (!isAstNode(value))
     return false
-  }
+
   return value.t === AstNodeType.NormalExpression
 }
 export function asNormalExpressionNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): NormalExpressionNode {
@@ -58,15 +56,14 @@ export function assertNormalExpressionNode(
   value: unknown,
   sourceCodeInfo?: SourceCodeInfo,
 ): asserts value is NormalExpressionNode {
-  if (!isNormalExpressionNode(value)) {
+  if (!isNormalExpressionNode(value))
     throw getAssertionError(`NormalExpressionNode`, value, sourceCodeInfo)
-  }
 }
 
 export function isNormalExpressionNodeWithName(value: unknown): value is NormalExpressionNodeWithName {
-  if (!isAstNode(value)) {
+  if (!isAstNode(value))
     return false
-  }
+
   return value.t === AstNodeType.NormalExpression && typeof value.n === `string`
 }
 export function asNormalExpressionNodeWithName(
@@ -80,20 +77,19 @@ export function assertNormalExpressionNodeWithName(
   value: unknown,
   sourceCodeInfo?: SourceCodeInfo,
 ): asserts value is NormalExpressionNodeWithName {
-  if (!isNormalExpressionNodeWithName(value)) {
+  if (!isNormalExpressionNodeWithName(value))
     throw getAssertionError(`NormalExpressionNodeWithName`, value, sourceCodeInfo)
-  }
 }
 
 export function isExpressionNode(value: unknown): value is ExpressionNode {
-  if (!isAstNode(value)) {
+  if (!isAstNode(value))
     return false
-  }
+
   return (
-    value.t === AstNodeType.NormalExpression ||
-    value.t === AstNodeType.SpecialExpression ||
-    value.t === AstNodeType.Number ||
-    value.t === AstNodeType.String
+    value.t === AstNodeType.NormalExpression
+    || value.t === AstNodeType.SpecialExpression
+    || value.t === AstNodeType.Number
+    || value.t === AstNodeType.String
   )
 }
 export function asExpressionNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): ExpressionNode {
@@ -101,7 +97,6 @@ export function asExpressionNode(value: unknown, sourceCodeInfo?: SourceCodeInfo
   return value
 }
 export function assertExpressionNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is ExpressionNode {
-  if (!isExpressionNode(value)) {
+  if (!isExpressionNode(value))
     throw getAssertionError(`ExpressionNode`, value, sourceCodeInfo)
-  }
 }

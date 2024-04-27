@@ -3,10 +3,9 @@ import { LitsError } from '../../errors'
 import type { ContextStack } from '../../evaluator/ContextStack'
 import type { Context, EvaluateAstNode } from '../../evaluator/interface'
 import type { Any, Arr } from '../../interface'
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
 import type { SourceCodeInfo, TokenStream } from '../../tokenizer/interface'
-import { TokenType } from '../../constants/constants'
 import { asAstNode } from '../../typeGuards/astNode'
 import { asToken, assertToken, isToken } from '../../typeGuards/token'
 import type { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
@@ -17,7 +16,7 @@ type LoopNode = SpecialExpressionNode & {
   l: LoopBindingNode[]
 }
 
-export type LoopBindingNode = {
+export interface LoopBindingNode {
   b: BindingNode // Binding
   m: Array<`&let` | `&when` | `&while`> // Modifiers
   l?: BindingNode[] // Let-Bindings
@@ -42,23 +41,23 @@ function parseLoopBinding(
   while (tkn.t === TokenType.Modifier) {
     switch (tkn.v) {
       case `&let`:
-        if (loopBinding.l) {
+        if (loopBinding.l)
           throw new LitsError(`Only one &let modifier allowed`, tkn.sourceCodeInfo)
-        }
+
         ;[position, loopBinding.l] = parseBindings(tokenStream, position + 1)
         loopBinding.m.push(`&let`)
         break
       case `&when`:
-        if (loopBinding.wn) {
+        if (loopBinding.wn)
           throw new LitsError(`Only one &when modifier allowed`, tkn.sourceCodeInfo)
-        }
+
         ;[position, loopBinding.wn] = parseToken(tokenStream, position + 1)
         loopBinding.m.push(`&when`)
         break
       case `&while`:
-        if (loopBinding.we) {
+        if (loopBinding.we)
           throw new LitsError(`Only one &while modifier allowed`, tkn.sourceCodeInfo)
-        }
+
         ;[position, loopBinding.we] = parseToken(tokenStream, position + 1)
         loopBinding.m.push(`&while`)
         break
@@ -78,9 +77,9 @@ function addToContext(
   sourceCodeInfo?: SourceCodeInfo,
 ) {
   for (const binding of bindings) {
-    if (context[binding.n]) {
+    if (context[binding.n])
       throw new LitsError(`Variable already defined: ${binding.n}.`, sourceCodeInfo)
-    }
+
     context[binding.n] = { value: evaluateAstNode(binding.v, contextStack) }
   }
 }
@@ -148,9 +147,9 @@ function evaluateLoop(
         bindingIndices[bindingIndex - 1] = asNonUndefined(bindingIndices[bindingIndex - 1], sourceCodeInfo) + 1
         break
       }
-      if (context[binding.n]) {
+      if (context[binding.n])
         throw new LitsError(`Variable already defined: ${binding.n}.`, sourceCodeInfo)
-      }
+
       context[binding.n] = {
         value: asAny(seq[index], sourceCodeInfo),
       }
@@ -184,9 +183,9 @@ function evaluateLoop(
     }
     if (!skip) {
       const value = evaluateAstNode(expression, newContextStack)
-      if (returnResult) {
+      if (returnResult)
         result.push(value)
-      }
+
       bindingIndices[bindingIndices.length - 1] += 1
     }
   }
@@ -204,14 +203,14 @@ function analyze(
   }
   const newContext: Context = {}
   const { l: loopBindings } = node as LoopNode
-  loopBindings.forEach(loopBinding => {
+  loopBindings.forEach((loopBinding) => {
     const { b: binding, l: letBindings, wn: whenNode, we: whileNode } = loopBinding
     analyzeAst(binding.v, contextStack.create(newContext), builtin).undefinedSymbols.forEach(symbol =>
       result.undefinedSymbols.add(symbol),
     )
     newContext[binding.n] = { value: true }
     if (letBindings) {
-      letBindings.forEach(letBinding => {
+      letBindings.forEach((letBinding) => {
         analyzeAst(letBinding.v, contextStack.create(newContext), builtin).undefinedSymbols.forEach(symbol =>
           result.undefinedSymbols.add(symbol),
         )

@@ -3,7 +3,7 @@ import type { Token } from '../tokenizer/interface'
 import { assertToken, isToken } from './token'
 
 describe(`token type guard`, () => {
-  test(`token`, () => {
+  it(`token`, () => {
     const tkn: Token = {
       t: TokenType.Name,
       v: `Albert`,
@@ -12,10 +12,10 @@ describe(`token type guard`, () => {
       ...tkn,
       t: 999,
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const nonTkn2: any = {
       ...tkn,
     }
+    // eslint-disable-next-line ts/no-unsafe-member-access
     delete nonTkn2.v
     expect(isToken(tkn)).toBe(true)
     expect(isToken(nonTkn1)).toBe(false)

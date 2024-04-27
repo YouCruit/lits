@@ -2,9 +2,8 @@ import { joinAnalyzeResults } from '../../analyze/utils'
 import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { AstNode, NameNode, SpecialExpressionNode } from '../../parser/interface'
-import { TokenType } from '../../constants/constants'
 import { assertNameNode } from '../../typeGuards/astNode'
 import { asToken, assertToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
@@ -65,7 +64,8 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
     const { te: tryExpression, ce: catchExpression, e: errorNode } = node as TryNode
     try {
       return evaluateAstNode(tryExpression, contextStack)
-    } catch (error) {
+    }
+    catch (error) {
       const newContext: Context = {
         [errorNode.v]: { value: asAny(error, node.tkn?.sourceCodeInfo) },
       }

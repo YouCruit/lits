@@ -7,13 +7,13 @@ import type { Builtin } from './interface'
 
 export type Arity = number | { min: number }
 
-export type FunctionOverload = {
+export interface FunctionOverload {
   as: FunctionArguments
   a: Arity
   b: AstNode[]
 }
 
-export type FunctionArguments = {
+export interface FunctionArguments {
   m: string[]
   r?: string
   b: BindingNode[]
@@ -25,23 +25,19 @@ export function assertNameNotDefined<T>(
   builtin: Builtin,
   sourceCodeInfo?: SourceCodeInfo,
 ): asserts name is T {
-  if (typeof name !== `string`) {
+  if (typeof name !== `string`)
     return
-  }
-  if (builtin.specialExpressions[name]) {
+
+  if (builtin.specialExpressions[name])
     throw new LitsError(`Cannot define variable ${name}, it's a special expression.`, sourceCodeInfo)
-  }
 
-  if (builtin.normalExpressions[name]) {
+  if (builtin.normalExpressions[name])
     throw new LitsError(`Cannot define variable ${name}, it's a builtin function.`, sourceCodeInfo)
-  }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if ((reservedNamesRecord as any)[name]) {
+  // eslint-disable-next-line ts/no-unsafe-member-access
+  if ((reservedNamesRecord as any)[name])
     throw new LitsError(`Cannot define variable ${name}, it's a reserved name.`, sourceCodeInfo)
-  }
 
-  if (contextStack.globalContext[name]) {
+  if (contextStack.globalContext[name])
     throw new LitsError(`Name already defined "${name}".`, sourceCodeInfo)
-  }
 }

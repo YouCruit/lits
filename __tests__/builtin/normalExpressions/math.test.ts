@@ -3,7 +3,7 @@ import { Lits } from '../../../src'
 describe(`math functions`, () => {
   const lits = new Lits()
   describe(`inc`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(inc 2.5)`)).toBe(3.5)
       expect(lits.run(`(inc 1)`)).toBe(2)
       expect(lits.run(`(inc 0)`)).toBe(1)
@@ -21,8 +21,8 @@ describe(`math functions`, () => {
     })
   })
 
-  describe(`inc`, () => {
-    test(`samples`, () => {
+  describe(`dec`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(dec 2.5)`)).toBe(1.5)
       expect(lits.run(`(dec 1)`)).toBe(0)
       expect(lits.run(`(dec 0)`)).toBe(-1)
@@ -41,7 +41,7 @@ describe(`math functions`, () => {
   })
 
   describe(`+`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(+)`)).toBe(0)
       expect(lits.run(`(+ 2)`)).toBe(2)
       expect(lits.run(`(+ 2 2)`)).toBe(4)
@@ -52,7 +52,7 @@ describe(`math functions`, () => {
   })
 
   describe(`*`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(*)`)).toBe(1)
       expect(lits.run(`(* 2)`)).toBe(2)
       expect(lits.run(`(* 2 2)`)).toBe(4)
@@ -63,7 +63,7 @@ describe(`math functions`, () => {
   })
 
   describe(`/`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(/)`)).toBe(1)
       expect(lits.run(`(/ 2)`)).toBe(1 / 2)
       expect(lits.run(`(/ 2 2)`)).toBe(2 / 2)
@@ -74,7 +74,7 @@ describe(`math functions`, () => {
   })
 
   describe(`-`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(-)`)).toBe(0)
       expect(lits.run(`(- 2)`)).toBe(-2)
       expect(lits.run(`(- 2 2)`)).toBe(2 - 2)
@@ -82,13 +82,13 @@ describe(`math functions`, () => {
       expect(lits.run(`(- 1 2 3 4)`)).toBe(1 - 2 - 3 - 4)
       expect(() => lits.run(`(- :1 2 3 4)`)).toThrow()
     })
-    test(`strange bug`, () => {
+    it(`strange bug`, () => {
       expect(lits.run(`(def a 0) (def b 2) (- a b)`)).toBe(-2)
     })
   })
 
   describe(`sqrt`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(() => lits.run(`(sqrt)`)).toThrow()
       expect(() => lits.run(`(sqrt 3 4)`)).toThrow()
       expect(lits.run(`(sqrt -3)`)).toBeNaN()
@@ -99,7 +99,7 @@ describe(`math functions`, () => {
   })
 
   describe(`cbrt`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(() => lits.run(`(cbrt)`)).toThrow()
       expect(() => lits.run(`(cbrt 3 4)`)).toThrow()
       expect(lits.run(`(cbrt -8)`)).toBe(-2)
@@ -111,7 +111,7 @@ describe(`math functions`, () => {
   })
 
   describe(`pow`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(() => lits.run(`(pow)`)).toThrow()
       expect(() => lits.run(`(pow 3)`)).toThrow()
       expect(() => lits.run(`(pow 3 4 5)`)).toThrow()
@@ -128,7 +128,7 @@ describe(`math functions`, () => {
   })
 
   describe(`round`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(() => lits.run(`(round)`)).toThrow()
       expect(() => lits.run(`(round 3 4 5)`)).toThrow()
       expect(lits.run(`(round 0)`)).toBe(0)
@@ -145,7 +145,7 @@ describe(`math functions`, () => {
   })
 
   describe(`floor`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(() => lits.run(`(floor)`)).toThrow()
       expect(() => lits.run(`(floor 3 4)`)).toThrow()
       expect(lits.run(`(floor 0)`)).toBe(0)
@@ -160,7 +160,7 @@ describe(`math functions`, () => {
   })
 
   describe(`ceil`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(() => lits.run(`(ceil)`)).toThrow()
       expect(() => lits.run(`(ceil 3 4)`)).toThrow()
       expect(lits.run(`(ceil 0)`)).toBe(0)
@@ -175,7 +175,7 @@ describe(`math functions`, () => {
   })
 
   describe(`rand!`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(rand!)`)).toBeLessThan(1)
       expect(lits.run(`(rand! 0.1)`)).toBeLessThan(0.1)
       expect(lits.run(`(rand! 0.1)`)).toBeGreaterThanOrEqual(0)
@@ -185,7 +185,7 @@ describe(`math functions`, () => {
   })
 
   describe(`rand-int!`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(rand-int! 1)`)).toBe(0)
       expect(lits.run(`(rand-int! 2)`)).toBeLessThan(2)
       expect(lits.run(`(rand-int! 20)`)).toBeLessThan(20)
@@ -196,7 +196,7 @@ describe(`math functions`, () => {
   })
 
   describe(`min`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(min 1)`)).toBe(1)
       expect(lits.run(`(min 1 -2)`)).toBe(-2)
       expect(lits.run(`(min 3 1 2 )`)).toBe(1)
@@ -207,7 +207,7 @@ describe(`math functions`, () => {
   })
 
   describe(`max`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(max 1)`)).toBe(1)
       expect(lits.run(`(max 1 -2)`)).toBe(1)
       expect(lits.run(`(max 3 1 2 )`)).toBe(3)
@@ -218,77 +218,77 @@ describe(`math functions`, () => {
   })
 
   describe(`e`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(e)`)).toBe(Math.E)
       expect(() => lits.run(`(e :1)`)).toThrow()
     })
   })
 
   describe(`max-safe-integer`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(max-safe-integer)`)).toBe(Number.MAX_SAFE_INTEGER)
       expect(() => lits.run(`(max-safe-integer :1)`)).toThrow()
     })
   })
 
   describe(`min-safe-integer`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(min-safe-integer)`)).toBe(Number.MIN_SAFE_INTEGER)
       expect(() => lits.run(`(min-safe-integer :1)`)).toThrow()
     })
   })
 
   describe(`max-value`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(max-value)`)).toBe(Number.MAX_VALUE)
       expect(() => lits.run(`(max-value :1)`)).toThrow()
     })
   })
 
   describe(`min-value`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(min-value)`)).toBe(Number.MIN_VALUE)
       expect(() => lits.run(`(min-value :1)`)).toThrow()
     })
   })
 
   describe(`epsilon`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(epsilon)`)).toBe(Number.EPSILON)
       expect(() => lits.run(`(epsilon :1)`)).toThrow()
     })
   })
 
   describe(`nan`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(nan)`)).toBeNaN()
       expect(() => lits.run(`(nan :1)`)).toThrow()
     })
   })
 
   describe(`positive-infinity`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(positive-infinity)`)).toBe(Number.POSITIVE_INFINITY)
       expect(() => lits.run(`(positive-infinity :1)`)).toThrow()
     })
   })
 
   describe(`negative-infinity`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(negative-infinity)`)).toBe(Number.NEGATIVE_INFINITY)
       expect(() => lits.run(`(negative-infinity :1)`)).toThrow()
     })
   })
 
   describe(`pi`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(pi)`)).toBe(Math.PI)
       expect(() => lits.run(`(pi 1)`)).toThrow()
     })
   })
 
   describe(`abs`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(abs 2)`)).toBe(2)
       expect(lits.run(`(abs -2)`)).toBe(2)
       expect(lits.run(`(abs -0)`)).toBe(0)
@@ -298,7 +298,7 @@ describe(`math functions`, () => {
   })
 
   describe(`sign`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(sign 2)`)).toBe(1)
       expect(lits.run(`(sign -2)`)).toBe(-1)
       expect(lits.run(`(sign -0)`)).toBe(-0)
@@ -309,7 +309,7 @@ describe(`math functions`, () => {
   })
 
   describe(`exp`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(exp 1)`)).toBe(Math.exp(1))
       expect(lits.run(`(exp -2)`)).toBe(Math.exp(-2))
       expect(lits.run(`(exp -0)`)).toBe(Math.exp(-0))
@@ -320,7 +320,7 @@ describe(`math functions`, () => {
   })
 
   describe(`log`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(log 0.1)`)).toBe(Math.log(0.1))
       expect(lits.run(`(log 1)`)).toBe(Math.log(1))
       expect(lits.run(`(log 100)`)).toBe(Math.log(100))
@@ -333,7 +333,7 @@ describe(`math functions`, () => {
   })
 
   describe(`log2`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(log2 0.1)`)).toBe(Math.log2(0.1))
       expect(lits.run(`(log2 1)`)).toBe(Math.log2(1))
       expect(lits.run(`(log2 100)`)).toBe(Math.log2(100))
@@ -346,7 +346,7 @@ describe(`math functions`, () => {
   })
 
   describe(`log10`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(log10 0.1)`)).toBe(Math.log10(0.1))
       expect(lits.run(`(log10 1)`)).toBe(Math.log10(1))
       expect(lits.run(`(log10 100)`)).toBe(Math.log10(100))
@@ -359,7 +359,7 @@ describe(`math functions`, () => {
   })
 
   describe(`trunc`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(trunc 0)`)).toBe(0)
       expect(lits.run(`(trunc 0.123)`)).toBe(0)
       expect(lits.run(`(trunc 0.999)`)).toBe(0)
@@ -371,7 +371,7 @@ describe(`math functions`, () => {
   })
 
   describe(`sin`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(sin 0)`)).toBe(Math.sin(0))
       expect(lits.run(`(sin 0.1)`)).toBe(Math.sin(0.1))
       expect(lits.run(`(sin -0.1)`)).toBe(Math.sin(-0.1))
@@ -382,7 +382,7 @@ describe(`math functions`, () => {
     })
   })
   describe(`cos`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(cos 0)`)).toBe(Math.cos(0))
       expect(lits.run(`(cos 0.1)`)).toBe(Math.cos(0.1))
       expect(lits.run(`(cos -0.1)`)).toBe(Math.cos(-0.1))
@@ -393,7 +393,7 @@ describe(`math functions`, () => {
     })
   })
   describe(`tan`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(tan 0)`)).toBe(Math.tan(0))
       expect(lits.run(`(tan 0.1)`)).toBe(Math.tan(0.1))
       expect(lits.run(`(tan -0.1)`)).toBe(Math.tan(-0.1))
@@ -405,7 +405,7 @@ describe(`math functions`, () => {
   })
 
   describe(`sinh`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(sinh 0)`)).toBe(Math.sinh(0))
       expect(lits.run(`(sinh 0.1)`)).toBe(Math.sinh(0.1))
       expect(lits.run(`(sinh -0.1)`)).toBe(Math.sinh(-0.1))
@@ -416,7 +416,7 @@ describe(`math functions`, () => {
     })
   })
   describe(`cosh`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(cosh 0)`)).toBe(Math.cosh(0))
       expect(lits.run(`(cosh 0.1)`)).toBe(Math.cosh(0.1))
       expect(lits.run(`(cosh -0.1)`)).toBe(Math.cosh(-0.1))
@@ -427,7 +427,7 @@ describe(`math functions`, () => {
     })
   })
   describe(`tanh`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(tanh 0)`)).toBe(Math.tanh(0))
       expect(lits.run(`(tanh 0.1)`)).toBe(Math.tanh(0.1))
       expect(lits.run(`(tanh -0.1)`)).toBe(Math.tanh(-0.1))
@@ -439,7 +439,7 @@ describe(`math functions`, () => {
   })
 
   describe(`asin`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(asin 0)`)).toBe(Math.asin(0))
       expect(lits.run(`(asin 0.1)`)).toBe(Math.asin(0.1))
       expect(lits.run(`(asin -0.1)`)).toBe(Math.asin(-0.1))
@@ -450,7 +450,7 @@ describe(`math functions`, () => {
     })
   })
   describe(`acos`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(acos 0)`)).toBe(Math.acos(0))
       expect(lits.run(`(acos 0.1)`)).toBe(Math.acos(0.1))
       expect(lits.run(`(acos -0.1)`)).toBe(Math.acos(-0.1))
@@ -461,7 +461,7 @@ describe(`math functions`, () => {
     })
   })
   describe(`atan`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(atan 0)`)).toBe(Math.atan(0))
       expect(lits.run(`(atan 0.1)`)).toBe(Math.atan(0.1))
       expect(lits.run(`(atan -0.1)`)).toBe(Math.atan(-0.1))
@@ -473,7 +473,7 @@ describe(`math functions`, () => {
   })
 
   describe(`asinh`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(asinh 0)`)).toBe(Math.asinh(0))
       expect(lits.run(`(asinh 0.1)`)).toBe(Math.asinh(0.1))
       expect(lits.run(`(asinh -0.1)`)).toBe(Math.asinh(-0.1))
@@ -484,7 +484,7 @@ describe(`math functions`, () => {
     })
   })
   describe(`acosh`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(acosh 1)`)).toBe(Math.acosh(1))
       expect(lits.run(`(acosh 100)`)).toBe(Math.acosh(100))
       expect(lits.run(`(acosh 0.1)`)).toBeNaN()
@@ -495,7 +495,7 @@ describe(`math functions`, () => {
     })
   })
   describe(`atanh`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(atanh 0)`)).toBe(Math.atanh(0))
       expect(lits.run(`(atanh 0.1)`)).toBe(Math.atanh(0.1))
       expect(lits.run(`(atanh -0.1)`)).toBe(Math.atanh(-0.1))
@@ -507,7 +507,7 @@ describe(`math functions`, () => {
   })
 
   describe(`quot`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(quot 13.75 3.25)`)).toBe(4)
       expect(lits.run(`(quot -13.75 3.25)`)).toBe(-4)
       expect(lits.run(`(quot 13.75 -3.25)`)).toBe(-4)
@@ -519,7 +519,7 @@ describe(`math functions`, () => {
   })
 
   describe(`mod`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(() => lits.run(`(mod)`)).toThrow()
       expect(() => lits.run(`(mod 3)`)).toThrow()
       expect(() => lits.run(`(mod 3 4 5)`)).toThrow()
@@ -539,7 +539,7 @@ describe(`math functions`, () => {
   })
 
   describe(`rem`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(rem 13.75 3.25)`)).toBe(0.75)
       expect(lits.run(`(rem -13.75 3.25)`)).toBe(-0.75)
       expect(lits.run(`(rem 13.75 -3.25)`)).toBe(0.75)

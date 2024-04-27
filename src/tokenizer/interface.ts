@@ -1,6 +1,6 @@
 import type { TokenType } from '../constants/constants'
 
-export type SourceCodeInfo = {
+export interface SourceCodeInfo {
   position?: {
     line: number
     column: number
@@ -9,7 +9,7 @@ export type SourceCodeInfo = {
   filePath?: string
 }
 
-export type Token = {
+export interface Token {
   t: TokenType // type
   v: string // value
   o?: Record<string, boolean> // options
@@ -17,12 +17,12 @@ export type Token = {
 }
 export type TokenDescriptor = [length: number, token: Token | undefined]
 export type Tokenizer = (input: string, position: number, sourceCodeInfo?: SourceCodeInfo) => TokenDescriptor
-export type TokenStream = {
+export interface TokenStream {
   tokens: Token[]
   filePath?: string
 }
 
-export type TokenizeParams = {
+export interface TokenizeParams {
   debug: boolean
   filePath?: string
 }

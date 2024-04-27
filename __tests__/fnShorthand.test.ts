@@ -2,7 +2,7 @@ import { Lits } from '../src'
 
 describe(`fnShorthand`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(#(identity "Kalle"))`)).toBe(`Kalle`)
       expect(lits.run(`(#(str %) 1)`)).toBe(`1`)
       expect(lits.run(`(#(str %1) 1)`)).toBe(`1`)

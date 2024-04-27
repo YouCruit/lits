@@ -1,6 +1,5 @@
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { AstNode, SpecialExpressionNode } from '../../parser/interface'
-import { TokenType } from '../../constants/constants'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 

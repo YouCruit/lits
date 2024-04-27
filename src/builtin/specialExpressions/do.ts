@@ -1,8 +1,7 @@
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { AstNode, SpecialExpressionNode } from '../../parser/interface'
-import { TokenType } from '../../constants/constants'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
@@ -30,9 +29,9 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const newContextStack = contextStack.create(newContext)
     let result: Any = null
-    for (const form of node.p) {
+    for (const form of node.p)
       result = evaluateAstNode(form, newContextStack)
-    }
+
     return result
   },
   analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.p, contextStack, builtin),

@@ -56,7 +56,7 @@ describe(`litsFunction type guards`, () => {
   const lf6 = createNativeJsFunction(() => undefined)
   const lf7 = createNativeJsFunction(() => undefined, `native`)
 
-  test(`isLitsFunction`, () => {
+  it(`isLitsFunction`, () => {
     const valid = [lf1, lf2, lf3, lf4, lf5, lf6, lf7]
     const invalid = [``, `1`, 0, 1, true, false, null, undefined, [], {}]
     testTypeGuars(
@@ -68,7 +68,7 @@ describe(`litsFunction type guards`, () => {
     )
   })
 
-  test(`isUserDefinedFunction`, () => {
+  it(`isUserDefinedFunction`, () => {
     const valid = [lf1]
     const invalid = [lf2, lf3, lf4, lf5, lf6, lf7, ``, `1`, 0, 1, true, false, null, undefined, [], {}]
 
@@ -81,7 +81,7 @@ describe(`litsFunction type guards`, () => {
     )
   })
 
-  test(`isNativeJsFunction`, () => {
+  it(`isNativeJsFunction`, () => {
     const valid = [lf6, lf7]
     const invalid = [lf1, lf2, lf3, lf4, lf5, ``, `1`, 0, 1, true, false, null, undefined, [], {}]
 

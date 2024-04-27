@@ -24,13 +24,12 @@ export const qqSpecialExpression: BuiltinSpecialExpression<Any> = {
     const [firstNode, secondNode] = node.p
 
     if (isNameNode(firstNode)) {
-      if (contextStack.lookUp(firstNode) === null) {
+      if (contextStack.lookUp(firstNode) === null)
         return secondNode ? evaluateAstNode(secondNode, contextStack) : null
-      }
     }
     assertAny(firstNode, node.tkn?.sourceCodeInfo)
     const firstResult = evaluateAstNode(firstNode, contextStack)
-    return firstResult ? firstResult : secondNode ? evaluateAstNode(secondNode, contextStack) : firstResult
+    return firstResult || (secondNode ? evaluateAstNode(secondNode, contextStack) : firstResult)
   },
   validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.p, contextStack, builtin),

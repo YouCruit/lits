@@ -3,7 +3,7 @@ import { Lits } from '../../../src'
 describe(`specialFunctions`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
     describe(`string as function`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(def person {"firstName" "Albert", "lastName", "Mojir"}) ("firstName" person)`)).toBe(`Albert`)
         expect(lits.run(`("firstName" {"firstName" "Albert", "lastName", "Mojir"})`)).toBe(`Albert`)
         expect(lits.run(`("lastName" {"firstName" "Albert", "lastName", "Mojir"})`)).toBe(`Mojir`)
@@ -23,7 +23,7 @@ describe(`specialFunctions`, () => {
     })
 
     describe(`object as function`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(def person {"firstName" "Albert", "lastName", "Mojir"}) (person "firstName")`)).toBe(`Albert`)
         expect(lits.run(`({"firstName" "Albert", "lastName", "Mojir"} "firstName")`)).toBe(`Albert`)
         expect(lits.run(`({"firstName" "Albert", "lastName", "Mojir"} "lastName")`)).toBe(`Mojir`)
@@ -40,7 +40,7 @@ describe(`specialFunctions`, () => {
     })
 
     describe(`array as function`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(def nameArray ["Albert" "Mojir"]) (nameArray 0)`)).toBe(`Albert`)
         expect(lits.run(`(["Albert" "Mojir"] 0)`)).toBe(`Albert`)
         expect(lits.run(`((cons 1 [2 3]) 1)`)).toBe(2)
@@ -54,7 +54,7 @@ describe(`specialFunctions`, () => {
     })
 
     describe(`number as function`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(def nameArray ["Albert" "Mojir"]) (0 nameArray)`)).toBe(`Albert`)
         expect(lits.run(`(0 ["Albert" "Mojir"])`)).toBe(`Albert`)
         expect(lits.run(`(3 ["Albert" "Mojir"])`)).toBeNull()

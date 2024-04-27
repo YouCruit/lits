@@ -1,5 +1,5 @@
 module.exports = {
-  nth: {
+  'nth': {
     name: `nth`,
     category: `Sequence`,
     linkName: `nth`,
@@ -35,7 +35,7 @@ module.exports = {
       `(nth nil 1 "Default value")`,
     ],
   },
-  push: {
+  'push': {
     name: `push`,
     category: `Sequence`,
     linkName: `push`,
@@ -57,7 +57,7 @@ module.exports = {
     description: `Pushes \`values\` to the end of \`array\`.`,
     examples: [`(push [1 2 3] 4)`, `(push [1 2 3] 4 5 6)`, `(def l [1 2 3]) (push l 4) l`],
   },
-  pop: {
+  'pop': {
     name: `pop`,
     category: `Sequence`,
     linkName: `pop`,
@@ -77,7 +77,7 @@ module.exports = {
     description: `Removes and returns then last item of \`array\`. If \`array\` is empty, \`nil\` is returned.`,
     examples: [`(pop [1 2 3])`, `(pop [])`],
   },
-  unshift: {
+  'unshift': {
     name: `unshift`,
     category: `Sequence`,
     linkName: `unshift`,
@@ -99,7 +99,7 @@ module.exports = {
     description: `Inserts \`values\` at the beginning of \`array\`.`,
     examples: [`(unshift [1 2 3] 4)`, `(unshift [1 2 3] 4 5 6)`, `(def l [1 2 3]) (unshift l 4) l`],
   },
-  shift: {
+  'shift': {
     name: `shift`,
     category: `Sequence`,
     linkName: `shift`,
@@ -120,7 +120,7 @@ module.exports = {
     description: `Removes and returns the first item of \`array\`. If \`array\` is empty, \`nil\` is returned.`,
     examples: [`(shift [1 2 3])`, `(shift [])`],
   },
-  slice: {
+  'slice': {
     name: `slice`,
     category: `Sequence`,
     linkName: `slice`,
@@ -147,7 +147,7 @@ module.exports = {
     description: `Returns a shallow copy of a portion of \`array\` into a new array selected from index \`start\` (inclusive) to index \`end\` (exclusive). If \`start\` is not provided it defaults to \`0\`. If \`end\` is not provided, the rest of the array will be copied.`,
     examples: [`(slice [1 2 3 4 5] 2 4)`, `(slice [1 2 3 4 5] 2)`],
   },
-  reductions: {
+  'reductions': {
     name: `reductions`,
     category: `Sequence`,
     linkName: `reductions`,
@@ -176,7 +176,7 @@ module.exports = {
       `(reductions (fn [result value] (+ result (if (even? value) value 0))) 0 [1 2 3 4 5 6 7 8 9])`,
     ],
   },
-  reduce: {
+  'reduce': {
     name: `reduce`,
     category: `Sequence`,
     linkName: `reduce`,
@@ -231,7 +231,7 @@ module.exports = {
     description: `Runs \`reducer\` function on each element of the \`seq\` (starting from the last item), passing in the return value from the calculation on the preceding element. The final result of running the reducer across all elements of the \`seq\` is a single value.`,
     examples: [`(reduce-right str [:A :B :C] "")`],
   },
-  map: {
+  'map': {
     name: `map`,
     category: `Sequence`,
     linkName: `map`,
@@ -257,7 +257,7 @@ module.exports = {
       `(map max [2 6 3] [2 4 7] [1 6 2])`,
     ],
   },
-  filter: {
+  'filter': {
     name: `filter`,
     category: `Sequence`,
     linkName: `filter`,
@@ -277,7 +277,7 @@ module.exports = {
     description: `Creates a new array with all elements that pass the test implemented by \`filter\`.`,
     examples: [`(filter string? ["Albert" "Mojir" 160 [1 2]])`, `(filter (fn [x] (> x 10)) [5 10 15 20])`],
   },
-  position: {
+  'position': {
     name: `position`,
     category: `Sequence`,
     linkName: `position`,
@@ -329,7 +329,7 @@ module.exports = {
       `(index-of nil 1)`,
     ],
   },
-  some: {
+  'some': {
     name: `some`,
     category: `Sequence`,
     linkName: `some`,
@@ -355,7 +355,7 @@ module.exports = {
       `(some (fn [x] (> x 10)) nil)`,
     ],
   },
-  reverse: {
+  'reverse': {
     name: `reverse`,
     category: `Sequence`,
     linkName: `reverse`,
@@ -371,7 +371,7 @@ module.exports = {
     description: `If \`input\` is an array, creates a new array with the elements from \`input\` in reversed order. If \`input\` is a string, returns new reversed string.`,
     examples: [`(reverse ["Albert" "Mojir" 160 [1 2]])`, `(reverse [])`, `(reverse "Albert")`, `(reverse nil)`],
   },
-  first: {
+  'first': {
     name: `first`,
     category: `Sequence`,
     linkName: `first`,
@@ -387,7 +387,7 @@ module.exports = {
     description: `Returns the first element of \`seq\`. If \`seq\` is empty or \`nil\`, \`nil\` is returned.`,
     examples: [`(first ["Albert" "Mojir" 160 [1 2]])`, `(first [])`, `(first nil)`],
   },
-  second: {
+  'second': {
     name: `second`,
     category: `Sequence`,
     linkName: `second`,
@@ -403,7 +403,7 @@ module.exports = {
     description: `Returns the second element of \`seq\`. If \`seq\` has less than two elements or is \`nil\`, \`nil\` is returned.`,
     examples: [`(second ["Albert" "Mojir" 160 [1 2]])`, `(second [1])`, `(second [])`, `(second nil)`],
   },
-  last: {
+  'last': {
     name: `last`,
     category: `Sequence`,
     linkName: `last`,
@@ -419,7 +419,7 @@ module.exports = {
     description: `Returns the last element of \`seq\`. If \`seq\` is empty, \`nil\` is returned.`,
     examples: [`(last ["Albert" "Mojir" 160 [1 2]])`, `(last [1 2])`, `(last [1])`, `(last [])`, `(last nil)`],
   },
-  rest: {
+  'rest': {
     name: `rest`,
     category: `Sequence`,
     linkName: `rest`,
@@ -442,7 +442,7 @@ module.exports = {
       `(rest "")`,
     ],
   },
-  nthrest: {
+  'nthrest': {
     name: `nthrest`,
     category: `Sequence`,
     linkName: `nthrest`,
@@ -464,7 +464,7 @@ module.exports = {
       `(nthrest "" 0)`,
     ],
   },
-  next: {
+  'next': {
     name: `next`,
     category: `Sequence`,
     linkName: `next`,
@@ -487,7 +487,7 @@ module.exports = {
       `(next "")`,
     ],
   },
-  nthnext: {
+  'nthnext': {
     name: `nthnext`,
     category: `Sequence`,
     linkName: `nthnext`,
@@ -509,7 +509,7 @@ module.exports = {
       `(nthnext "" 0)`,
     ],
   },
-  cons: {
+  'cons': {
     name: `cons`,
     category: `Sequence`,
     linkName: `cons`,
@@ -525,7 +525,7 @@ module.exports = {
     description: `Constructs a new array with \`element\` as first element and \`rest\` as the rest.`,
     examples: [`(cons "Hi" ["Albert" "Mojir" 160 [1 2]])`, `(cons "Hi" [])`],
   },
-  take: {
+  'take': {
     name: `take`,
     category: `Sequence`,
     linkName: `take`,
@@ -588,7 +588,7 @@ module.exports = {
     examples: [`(take-while (fn [x] (< x 3)) [1 2 3 2 1])`, `(take-while (fn [x] (> x 3)) [1 2 3 2 1])`],
   },
 
-  drop: {
+  'drop': {
     name: `drop`,
     category: `Sequence`,
     linkName: `drop`,
@@ -651,7 +651,7 @@ module.exports = {
     examples: [`(drop-while (fn [x] (< x 3)) [1 2 3 2 1])`, `(drop-while (fn [x] (> x 3)) [1 2 3 2 1])`],
   },
 
-  sort: {
+  'sort': {
     name: `sort`,
     category: `Sequence`,
     linkName: `sort`,
@@ -701,7 +701,7 @@ module.exports = {
     description: `Returns a sorted sequence of the items in \`seq\`, where the sort order is determined by comparing \`(keyfn item)\`. If no \`comparer\` is supplied, uses builtin \`compare\`.`,
     examples: [`(sort-by count ["Albert" "Mojir" "Nina"])`, `(sort-by lower-case "Albert")`],
   },
-  join: {
+  'join': {
     name: `join`,
     category: `Sequence`,
     linkName: `join`,
@@ -784,7 +784,7 @@ module.exports = {
       `(shuffle! [])`,
     ],
   },
-  distinct: {
+  'distinct': {
     name: `distinct`,
     category: `Sequence`,
     linkName: `distinct`,
@@ -801,7 +801,7 @@ module.exports = {
     examples: [`(distinct [1 2 3 1 3 5])`, `(distinct "Albert Mojir")`, `(distinct [])`, `(distinct "")`],
   },
 
-  remove: {
+  'remove': {
     name: `remove`,
     category: `Sequence`,
     linkName: `remove`,
@@ -886,7 +886,7 @@ module.exports = {
     examples: [`(split-with #(> %1 3) [1 2 3 4 5])`, `(split-with #(<= %1 :Z) "Albert")`],
   },
 
-  frequencies: {
+  'frequencies': {
     name: `frequencies`,
     category: `Sequence`,
     linkName: `frequencies`,
@@ -930,7 +930,7 @@ module.exports = {
     ],
   },
 
-  partition: {
+  'partition': {
     name: `partition`,
     category: `Sequence`,
     linkName: `partition`,

@@ -1,15 +1,15 @@
 import type { EvaluateAstNode, ExecuteFunction } from '../evaluator/interface'
 import type {
+  NormalExpressionNode,
   ParseArgument,
+  ParseBinding,
   ParseBindings,
   ParseExpression,
-  ParseTokens,
   ParseToken,
-  ParseBinding,
+  ParseTokens,
   SpecialExpressionNode,
 } from '../parser/interface'
 import type { SourceCodeInfo, TokenStream } from '../tokenizer/interface'
-import type { NormalExpressionNode } from '../parser/interface'
 import type { Any, Arr } from '../interface'
 import type { AnalyzeAst, AnalyzeResult } from '../analyze/interface'
 import type { ContextStack } from '../evaluator/ContextStack'
@@ -22,12 +22,12 @@ export type NormalExpressionEvaluator<T> = (
 ) => T
 type ValidateNode = (node: NormalExpressionNode) => void
 
-type BuiltinNormalExpression<T> = {
+interface BuiltinNormalExpression<T> {
   evaluate: NormalExpressionEvaluator<T>
   validate?: ValidateNode
 }
 
-export type ParserHelpers = {
+export interface ParserHelpers {
   parseExpression: ParseExpression
   parseTokens: ParseTokens
   parseToken: ParseToken
@@ -39,19 +39,19 @@ export type ParserHelpers = {
 export type BuiltinNormalExpressions = Record<string, BuiltinNormalExpression<Any>>
 export type BuiltinSpecialExpressions = Record<string, BuiltinSpecialExpression<Any>>
 
-type EvaluateHelpers = {
+interface EvaluateHelpers {
   evaluateAstNode: EvaluateAstNode
   builtin: Builtin
 }
-export type BuiltinSpecialExpression<T> = {
+export interface BuiltinSpecialExpression<T> {
   parse: (tokenStream: TokenStream, position: number, parsers: ParserHelpers) => [number, SpecialExpressionNode]
   evaluate: (node: SpecialExpressionNode, contextStack: ContextStack, helpers: EvaluateHelpers) => T
   validate?: (node: SpecialExpressionNode) => void
-  analyze(
+  analyze: (
     node: SpecialExpressionNode,
     contextStack: ContextStack,
-    params: { analyzeAst: AnalyzeAst; builtin: Builtin },
-  ): AnalyzeResult
+    params: { analyzeAst: AnalyzeAst, builtin: Builtin },
+  ) => AnalyzeResult
 }
 
 export type SpecialExpressionName =
@@ -88,7 +88,7 @@ export type SpecialExpressionName =
   | `declared?`
   | `??`
 
-export type Builtin = {
+export interface Builtin {
   normalExpressions: BuiltinNormalExpressions
   specialExpressions: BuiltinSpecialExpressions
 }

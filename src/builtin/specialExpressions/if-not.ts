@@ -25,12 +25,12 @@ export const ifNotSpecialExpression: BuiltinSpecialExpression<Any> = {
     const [conditionNode, trueNode, falseNode] = node.p
     if (!evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {
       return evaluateAstNode(asAstNode(trueNode, sourceCodeInfo), contextStack)
-    } else {
-      if (node.p.length === 3) {
+    }
+    else {
+      if (node.p.length === 3)
         return evaluateAstNode(asAstNode(falseNode, sourceCodeInfo), contextStack)
-      } else {
+      else
         return null
-      }
     }
   },
   validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),

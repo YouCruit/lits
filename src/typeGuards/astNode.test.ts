@@ -1,32 +1,32 @@
 import { testTypeGuars } from '../../__tests__/testUtils'
 import { AstNodeType, TokenType } from '../constants/constants'
 import type {
-  NameNode,
-  NormalExpressionNode,
-  NumberNode,
-  NormalExpressionNodeWithName,
-  SpecialExpressionNode,
   AstNode,
   ExpressionNode,
+  NameNode,
+  NormalExpressionNode,
+  NormalExpressionNodeWithName,
+  NumberNode,
+  SpecialExpressionNode,
   StringNode,
 } from '../parser/interface'
 import type { Token } from '../tokenizer/interface'
 import {
-  asNameNode,
-  assertNameNode,
-  isNormalExpressionNodeWithName,
-  isExpressionNode,
-  isAstNode,
-  assertAstNode,
   asAstNode,
-  isNameNode,
-  asNormalExpressionNodeWithName,
-  assertNormalExpressionNodeWithName,
-  asNormalExpressionNode,
-  assertNormalExpressionNode,
-  isNormalExpressionNode,
   asExpressionNode,
+  asNameNode,
+  asNormalExpressionNode,
+  asNormalExpressionNodeWithName,
+  assertAstNode,
   assertExpressionNode,
+  assertNameNode,
+  assertNormalExpressionNode,
+  assertNormalExpressionNodeWithName,
+  isAstNode,
+  isExpressionNode,
+  isNameNode,
+  isNormalExpressionNode,
+  isNormalExpressionNodeWithName,
 } from './astNode'
 
 describe(`astNode type guards`, () => {
@@ -102,7 +102,7 @@ describe(`astNode type guards`, () => {
 
   const validAstNodes: AstNode[] = [nameNode, ...expressionNodes]
 
-  test(`AstNode`, () => {
+  it(`astNode`, () => {
     testTypeGuars(
       {
         valid: [...validAstNodes],
@@ -112,7 +112,7 @@ describe(`astNode type guards`, () => {
     )
   })
 
-  test(`NameNode`, () => {
+  it(`nameNode`, () => {
     testTypeGuars(
       {
         valid: [nameNode],
@@ -122,7 +122,7 @@ describe(`astNode type guards`, () => {
     )
   })
 
-  test(`isNormalExpressionNodeWithName`, () => {
+  it(`isNormalExpressionNodeWithName`, () => {
     testTypeGuars(
       {
         valid: [normalExpressionNodeWithName],
@@ -136,7 +136,7 @@ describe(`astNode type guards`, () => {
     )
   })
 
-  test(`isNormalExpressionNode`, () => {
+  it(`isNormalExpressionNode`, () => {
     testTypeGuars(
       {
         valid: [normalExpressionNodeWithName, normalExpressionNodeWithoutName],
@@ -151,7 +151,7 @@ describe(`astNode type guards`, () => {
     )
   })
 
-  test(`ExpressionNode`, () => {
+  it(`expressionNode`, () => {
     testTypeGuars(
       {
         valid: [...expressionNodes],

@@ -1,5 +1,5 @@
 module.exports = {
-  apply: {
+  'apply': {
     name: `apply`,
     category: `Functional`,
     linkName: `apply`,
@@ -19,7 +19,7 @@ module.exports = {
     description: `Call supplied function with specified arguments.`,
     examples: [`(apply + [1 2 3])`, `(apply (fn [x y] (sqrt (+ (* x x) (* y y)))) [3 4])`],
   },
-  identity: {
+  'identity': {
     name: `identity`,
     category: `Functional`,
     linkName: `identity`,
@@ -35,7 +35,7 @@ module.exports = {
     description: `Returns \`value\`.`,
     examples: [`(identity 1)`, `(identity "Albert")`, `(identity {:a 1})`, `(identity nil)`],
   },
-  partial: {
+  'partial': {
     name: `partial`,
     category: `Functional`,
     linkName: `partial`,
@@ -56,7 +56,7 @@ module.exports = {
     description: `Takes a function \`fn\` and fewer (or equal) than the normal arguments to \`fn\`, and returns a function that takes a variable number of additional args. When called, the returned function calls f with \`args\` + additional args.`,
     examples: [`(partial + 100)`, `(def addHundred (partial + 100)) (addHundred 10)`],
   },
-  comp: {
+  'comp': {
     name: `comp`,
     category: `Functional`,
     linkName: `comp`,
@@ -82,7 +82,7 @@ module.exports = {
       `(def x {"bar" {"foo" 42}}) ((comp "foo" "bar") x)`,
     ],
   },
-  constantly: {
+  'constantly': {
     name: `constantly`,
     category: `Functional`,
     linkName: `constantly`,
@@ -101,7 +101,7 @@ module.exports = {
       `(#((apply constantly first (repeat %2 rest)) %1) [1 2 3 4 5 6 7] 3)`,
     ],
   },
-  juxt: {
+  'juxt': {
     name: `juxt`,
     category: `Functional`,
     linkName: `juxt`,
@@ -122,7 +122,7 @@ module.exports = {
       `(apply (juxt + * min max) (range 1 11))`,
     ],
   },
-  complement: {
+  'complement': {
     name: `complement`,
     category: `Functional`,
     linkName: `complement`,
@@ -182,7 +182,7 @@ module.exports = {
       `((some-pred string? #(> (count %1) 3)) [1 2 3] [2])`,
     ],
   },
-  fnil: {
+  'fnil': {
     name: `fnil`,
     category: `Functional`,
     linkName: `fnil`,

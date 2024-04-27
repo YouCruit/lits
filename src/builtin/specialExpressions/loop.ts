@@ -41,10 +41,10 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
     for (;;) {
       let result: Any = null
       try {
-        for (const form of node.p) {
+        for (const form of node.p)
           result = evaluateAstNode(form, newContextStack)
-        }
-      } catch (error) {
+      }
+      catch (error) {
         if (error instanceof RecurSignal) {
           const params = error.params
           if (params.length !== (node as LoopNode).bs.length) {

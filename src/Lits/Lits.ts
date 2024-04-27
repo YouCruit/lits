@@ -7,30 +7,28 @@ import { ContextStack } from '../evaluator/ContextStack'
 import type { Context } from '../evaluator/interface'
 import type { Any, Obj } from '../interface'
 import { parse } from '../parser'
-import type { LitsFunction } from '../parser/interface'
-import { type Ast, type NativeJsFunction } from '../parser/interface'
+import type { Ast, LitsFunction, NativeJsFunction } from '../parser/interface'
 import { tokenize } from '../tokenizer'
 import type { TokenStream } from '../tokenizer/interface'
 import { Cache } from './Cache'
 
-export type LitsRuntimeInfo = {
+export interface LitsRuntimeInfo {
   astCache: Cache | null
   astCacheSize: number | null
   debug: boolean
 }
 
-export type LazyValue = {
+export interface LazyValue {
   read: () => unknown
   [key: string]: unknown
 }
 
-export type JsFunction = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface JsFunction {
   fn: (...args: any[]) => unknown
   [key: string]: unknown
 }
 
-export type LitsParams = {
+export interface LitsParams {
   contexts?: Context[]
   values?: Record<string, unknown>
   lazyValues?: Record<string, LazyValue>
@@ -38,7 +36,7 @@ export type LitsParams = {
   filePath?: string
 }
 
-type LitsConfig = {
+interface LitsConfig {
   initialCache?: Record<string, Ast>
   astCacheSize?: number | null
   debug?: boolean
@@ -55,10 +53,10 @@ export class Lits {
     if (this.astCacheSize) {
       this.astCache = new Cache(this.astCacheSize)
       const initialCache = config.initialCache ?? {}
-      for (const cacheEntry of Object.keys(initialCache)) {
+      for (const cacheEntry of Object.keys(initialCache))
         this.astCache.set(cacheEntry, initialCache[cacheEntry] as Ast)
-      }
-    } else {
+    }
+    else {
       this.astCache = null
     }
   }
@@ -133,9 +131,8 @@ export class Lits {
 
     if (this.astCache) {
       const cachedAst = this.astCache.get(program)
-      if (cachedAst) {
+      if (cachedAst)
         return cachedAst
-      }
     }
     const tokenStream = this.tokenize(program, filePath)
     const ast: Ast = this.parse(tokenStream)
@@ -153,15 +150,13 @@ export function createContextStack(params: LitsParams = {}): ContextStack {
     values: params.values,
     lazyValues: params.lazyValues,
     nativeJsFunctions:
-      params.jsFunctions &&
-      Object.entries(params.jsFunctions).reduce((acc: Record<string, NativeJsFunction>, [name, jsFunction]) => {
+      params.jsFunctions
+      && Object.entries(params.jsFunctions).reduce((acc: Record<string, NativeJsFunction>, [name, jsFunction]) => {
         if (specialExpressionKeys.includes(name)) {
-          // eslint-disable-next-line no-console
           console.warn(`Cannot shadow special expression "${name}", ignoring.`)
           return acc
         }
         if (normalExpressionKeys.includes(name)) {
-          // eslint-disable-next-line no-console
           console.warn(`Cannot shadow builtin function "${name}", ignoring.`)
           return acc
         }

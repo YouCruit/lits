@@ -1,5 +1,5 @@
 module.exports = {
-  subs: {
+  'subs': {
     name: `subs`,
     category: `String`,
     linkName: `subs`,
@@ -45,7 +45,7 @@ module.exports = {
     description: `Repeates \`string\` \`count\` times.`,
     examples: [`(string-repeat "*" 10)`, `(string-repeat "***" 0)`],
   },
-  str: {
+  'str': {
     name: `str`,
     category: `String`,
     linkName: `str`,
@@ -67,7 +67,7 @@ module.exports = {
       `(str 0 false true nil #"^kalle" [1 2 3] {:a :a})`,
     ],
   },
-  number: {
+  'number': {
     name: `number`,
     category: `String`,
     linkName: `number`,
@@ -145,7 +145,7 @@ module.exports = {
     description: `Returns \`string\` converted to upper case.`,
     examples: [`(upper-case "Albert")`, `(upper-case "")`],
   },
-  trim: {
+  'trim': {
     name: `trim`,
     category: `String`,
     linkName: `trim`,
@@ -258,7 +258,7 @@ module.exports = {
       `(pad-right "Albert" -1)`,
     ],
   },
-  split: {
+  'split': {
     name: `split`,
     category: `String`,
     linkName: `split`,
@@ -289,7 +289,7 @@ module.exports = {
       `(map number (split "0123456789" "" 5))`,
     ],
   },
-  template: {
+  'template': {
     name: `template`,
     category: `String`,
     linkName: `template`,

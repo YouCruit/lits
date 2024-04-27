@@ -1,34 +1,34 @@
-import path from 'path'
+import path from 'node:path'
 import { LitsError } from '../../../src/errors'
 import { getErrorYaml, runTest } from '../../../src/testFramework'
 
 describe(`testFramework`, () => {
-  test(`expecting .lits file`, () => {
+  it(`expecting .lits file`, () => {
     expect(() => runTest({ testPath: path.join(__dirname, `empty.test`) })).toThrow()
   })
-  test(`illegal import`, () => {
+  it(`illegal import`, () => {
     expect(() => runTest({ testPath: path.join(__dirname, `illegal-import.test.lits`) })).toThrow()
   })
-  test(`empty test`, () => {
+  it(`empty test`, () => {
     const testResult = runTest({ testPath: path.join(__dirname, `empty.test.lits`) })
     expect(testResult.success).toBe(true)
     expect(testResult.tap).toBe(`TAP version 13\n1..0\n`)
   })
-  test(`duplicate test names`, () => {
+  it(`duplicate test names`, () => {
     const testResult = runTest({ testPath: path.join(__dirname, `duplicate-test-name.test.lits`) })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
 Bail out! Duplicate test name add
 `)
   })
-  test(`missing test name`, () => {
+  it(`missing test name`, () => {
     const testResult = runTest({ testPath: path.join(__dirname, `missing-test-name.test.lits`) })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
 Bail out! Missing test name on line 3
 `)
   })
-  test(`success`, () => {
+  it(`success`, () => {
     const testResult = runTest({ testPath: path.join(__dirname, `test.test.lits`) })
     expect(testResult.success).toBe(true)
     expect(testResult.tap).toBe(`TAP version 13
@@ -38,7 +38,7 @@ ok 2 sub
 `)
   })
 
-  test(`success import plus`, () => {
+  it(`success import plus`, () => {
     const testResult = runTest({
       testPath: path.join(__dirname, `test-import-plus.test.lits`),
     })
@@ -50,7 +50,7 @@ ok 2 sub
 `)
   })
 
-  test(`skip-test`, () => {
+  it(`skip-test`, () => {
     const testResult = runTest({ testPath: path.join(__dirname, `skip.test.lits`) })
     expect(testResult.success).toBe(true)
     expect(testResult.tap).toBe(`TAP version 13
@@ -60,7 +60,7 @@ ok 2 sub # skip
 `)
   })
 
-  test(`1 fail.`, () => {
+  it(`1 fail.`, () => {
     const testResult = runTest({ testPath: path.join(__dirname, `one-success.test.lits`) })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
@@ -78,7 +78,7 @@ not ok 2 sub
 `)
   })
 
-  test(`1 fail, 1 not matching pattern`, () => {
+  it(`1 fail, 1 not matching pattern`, () => {
     const testResult = runTest({ testPath: path.join(__dirname, `failure-test.lits`), testNamePattern: /ad/ })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
@@ -96,7 +96,7 @@ ok 2 sub # skip - Not matching testNamePattern /ad/
 `)
   })
 
-  test(`2 fail`, () => {
+  it(`2 fail`, () => {
     const testResult = runTest({ testPath: path.join(__dirname, `failure-test.lits`) })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
@@ -122,7 +122,7 @@ not ok 2 sub
 `)
   })
 
-  test(`Broken include`, () => {
+  it(`broken include`, () => {
     const testResult = runTest({
       testPath: path.join(__dirname, `broken-include.test.lits`),
     })
@@ -142,7 +142,7 @@ ok 2 sub
 `)
   })
 
-  test(`deep equals fails`, () => {
+  it(`deep equals fails`, () => {
     const testResult = runTest({ testPath: path.join(__dirname, `object-diff.test.lits`) })
     expect(testResult.success).toBe(false)
     expect(testResult.tap).toBe(`TAP version 13
@@ -168,7 +168,7 @@ not ok 1 equals
   ...
 `)
   })
-  test(`getErrorYaml`, () => {
+  it(`getErrorYaml`, () => {
     const error = new LitsError(`Error`, {
       code: `x`,
       position: { column: 1, line: 1 },

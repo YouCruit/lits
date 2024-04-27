@@ -11,12 +11,12 @@ import { type AstNodeType, FunctionType } from '../constants/constants'
 import { isUnknownRecord } from '../typeGuards'
 import type { JsFunction, LazyValue } from '../Lits/Lits'
 
-export type EvaluatedFunctionArguments = {
+export interface EvaluatedFunctionArguments {
   mandatoryArguments: string[]
   restArgument?: string
 }
 
-export type EvaluatedFunctionOverload = {
+export interface EvaluatedFunctionOverload {
   as: EvaluatedFunctionArguments
   b: AstNode[]
   a: Arity
@@ -25,7 +25,7 @@ export type EvaluatedFunctionOverload = {
 
 export type ExtraData = Record<string, LazyValue>
 
-type GenericLitsFunction = {
+interface GenericLitsFunction {
   [FUNCTION_SYMBOL]: true
   sourceCodeInfo?: SourceCodeInfo
   t: FunctionType
@@ -210,6 +210,6 @@ export type AstNode =
   | SpecialExpressionNode
 
 type AstBody = AstNode[]
-export type Ast = {
+export interface Ast {
   b: AstBody // body
 }

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { FunctionType, Lits } from '../src'
 import type { JsFunction } from '../src/Lits/Lits'
 import { LitsError } from '../src/errors'
@@ -10,18 +9,18 @@ const jsFunctions: Record<string, JsFunction> = {
   },
   throwError: {
     fn: () => {
-      throw Error(`An error`)
+      throw new Error(`An error`)
     },
   },
   throwNumber: {
     fn: () => {
-      // eslint-disable-next-line @typescript-eslint/no-throw-literal
+      // eslint-disable-next-line ts/no-throw-literal
       throw 1
     },
   },
   throwString: {
     fn: () => {
-      // eslint-disable-next-line @typescript-eslint/no-throw-literal
+      // eslint-disable-next-line ts/no-throw-literal
       throw `An error`
     },
   },
@@ -31,7 +30,7 @@ const stupidJsFunctions: Record<string, JsFunction> = {
   '+': {
     fn: (value: number) => value * 3,
   },
-  if: {
+  'if': {
     fn: () => true,
   },
 }
@@ -52,14 +51,14 @@ const values = {
 
 describe(`nativeJsFunction`, () => {
   const lits = new Lits()
-  test(`samples`, () => {
+  it(`samples`, () => {
     expect(lits.run(`(tripple 9)`, { jsFunctions })).toBe(27)
     expect(lits.run(`(def a tripple) (a 9)`, { jsFunctions })).toBe(27)
     expect(() => lits.run(`(throwError)`, { jsFunctions })).toThrowError(LitsError)
     expect(() => lits.run(`(throwString)`, { jsFunctions })).toThrowError(LitsError)
     expect(() => lits.run(`(throwNumber)`, { jsFunctions })).toThrowError(LitsError)
   })
-  test(`Builtin names cannot be shadowed`, () => {
+  it(`builtin names cannot be shadowed`, () => {
     const warn = console.warn
     console.warn = jest.fn()
     expect(lits.run(`(+ 1 2 3)`, { jsFunctions: stupidJsFunctions })).toBe(6)
@@ -68,7 +67,7 @@ describe(`nativeJsFunction`, () => {
     expect(console.warn).toHaveBeenCalledTimes(4)
     console.warn = warn
   })
-  test(`nested nativeJsFunction`, () => {
+  it(`nested nativeJsFunction`, () => {
     expect(lits.run(`(obj.square 9)`, { values })).toBe(81)
   })
 })

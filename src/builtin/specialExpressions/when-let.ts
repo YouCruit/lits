@@ -7,8 +7,7 @@ import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/i
 import { valueToString } from '../../utils/debug/debugTools'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import { asNonUndefined } from '../../typeGuards'
-import { assertNumberOfParams } from '../../typeGuards'
+import { asNonUndefined, assertNumberOfParams } from '../../typeGuards'
 
 type WhenLetNode = SpecialExpressionNode & {
   b: BindingNode
@@ -43,16 +42,16 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     const { b: binding } = node as WhenLetNode
     const locals: Context = {}
     const bindingValue = evaluateAstNode(binding.v, contextStack)
-    if (!bindingValue) {
+    if (!bindingValue)
       return null
-    }
+
     locals[binding.n] = { value: bindingValue }
     const newContextStack = contextStack.create(locals)
 
     let result: Any = null
-    for (const form of node.p) {
+    for (const form of node.p)
       result = evaluateAstNode(form, newContextStack)
-    }
+
     return result
   },
   validate: node => assertNumberOfParams({ min: 0 }, node),

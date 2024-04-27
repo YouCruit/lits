@@ -99,7 +99,7 @@ module.exports = {
     description: `Compares \`values\` according to 'greater than or equal' predicate. Each (overlapping) pair of the \`values\` is compared by it. The result is \`true\` if all compared pairs satisfy comparison.`,
     examples: [`(>= 1 0)`, `(>= 1.01 1)`, `(>= 1 1)`, `(>= 4 3 2 1)`, `(>= 3 2 2 1)`],
   },
-  not: {
+  'not': {
     name: `not`,
     category: `Misc`,
     linkName: `not`,
@@ -200,7 +200,7 @@ module.exports = {
     description: `If no params, prints context stack, otherwise prints \`value\` details.`,
     examples: [`(debug!)`, `(debug! #(> %1 2))`],
   },
-  boolean: {
+  'boolean': {
     name: `boolean`,
     category: `Misc`,
     linkName: `boolean`,
@@ -216,7 +216,7 @@ module.exports = {
     description: `Coerces \`value\` to boolean.`,
     examples: [`(boolean 0)`, `(boolean 1)`, `(boolean nil)`, `(boolean "Albert")`],
   },
-  compare: {
+  'compare': {
     name: `compare`,
     category: `Misc`,
     linkName: `compare`,

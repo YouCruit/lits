@@ -1,16 +1,16 @@
 module.exports = {
   root: true,
-  plugins: ['prettier'],
-  extends: ['eslint:recommended', 'prettier'],
+  plugins: [`prettier`],
+  extends: [`eslint:recommended`, `prettier`],
   rules: {
-    'prettier/prettier': ['error'],
-    'object-shorthand': 'error',
-    'no-console': 'warn',
-    'no-debugger': 'error',
-    quotes: ['error', 'backtick'],
+    'prettier/prettier': [`error`],
+    'object-shorthand': `error`,
+    'no-console': `warn`,
+    'no-debugger': `error`,
+    'quotes': [`error`, `backtick`],
   },
   parserOptions: {
-    sourceType: 'module',
+    sourceType: `module`,
     ecmaVersion: 2017,
   },
   env: {

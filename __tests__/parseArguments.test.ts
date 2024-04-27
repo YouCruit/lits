@@ -1,11 +1,9 @@
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Lits } from '../src'
 
 describe(`parseArguments`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
     describe(`defn`, () => {
-      test(`& params`, () => {
+      it(`& params`, () => {
         expect(() => lits.run(`(defn foo [& a] a)`)).not.toThrow()
         expect(() => lits.run(`(defn foo [& 1] a)`)).toThrow()
         expect(() => lits.run(`(defn foo [x & a] a)`)).not.toThrow()
@@ -20,7 +18,7 @@ describe(`parseArguments`, () => {
       `
         expect(lits.run(program)).toEqual([2, 3])
       })
-      test(`modifier combinations`, () => {
+      it(`modifier combinations`, () => {
         expect(lits.run(`((fn [& b] [b]))`)).toEqual([[]])
         expect(lits.run(`((fn [& b] [b]) 1)`)).toEqual([[1]])
         expect(lits.run(`((fn [& b] [b]) 1 2)`)).toEqual([[1, 2]])

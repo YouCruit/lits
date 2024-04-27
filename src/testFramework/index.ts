@@ -1,25 +1,23 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+import fs from 'node:fs'
+import path from 'node:path'
 import { LitsError } from '../errors'
 import type { Context } from '../evaluator/interface'
 import { Lits } from '../Lits/Lits'
 import type { SourceCodeInfo } from '../tokenizer/interface'
 import { getCodeMarker } from '../utils/debug/debugTools'
 
-const fs = require(`fs`)
-const path = require(`path`)
-
-type TestChunk = {
+interface TestChunk {
   name: string
   program: string
   directive: `SKIP` | null
 }
 
-export type RunTestParams = {
+export interface RunTestParams {
   testPath: string
   testNamePattern?: RegExp
 }
 
-export type TestResult = {
+export interface TestResult {
   /**
    * Test report
    * http://testanything.org/
@@ -41,9 +39,11 @@ export function runTest({ testPath: filePath, testNamePattern }: RunTestParams):
       const testNumber = index + 1
       if (testNamePattern && !testNamePattern.test(testChunkProgram.name)) {
         testResult.tap += `ok ${testNumber} ${testChunkProgram.name} # skip - Not matching testNamePattern ${testNamePattern}\n`
-      } else if (testChunkProgram.directive === `SKIP`) {
+      }
+      else if (testChunkProgram.directive === `SKIP`) {
         testResult.tap += `ok ${testNumber} ${testChunkProgram.name} # skip\n`
-      } else {
+      }
+      else {
         try {
           const lits = new Lits({ debug: true })
           const contexts = getContexts(includedFilePaths, lits)
@@ -52,13 +52,15 @@ export function runTest({ testPath: filePath, testNamePattern }: RunTestParams):
             filePath,
           })
           testResult.tap += `ok ${testNumber} ${testChunkProgram.name}\n`
-        } catch (error) {
+        }
+        catch (error) {
           testResult.success = false
           testResult.tap += `not ok ${testNumber} ${testChunkProgram.name}${getErrorYaml(error)}`
         }
       }
     })
-  } catch (error: unknown) {
+  }
+  catch (error: unknown) {
     testResult.tap += `Bail out! ${getErrorMessage(error)}\n`
     testResult.success = false
   }
@@ -66,9 +68,9 @@ export function runTest({ testPath: filePath, testNamePattern }: RunTestParams):
 }
 
 function readLitsFile(litsPath: string): string {
-  if (!litsPath.endsWith(`.lits`)) {
-    throw Error(`Expected .lits file, got ${litsPath}`)
-  }
+  if (!litsPath.endsWith(`.lits`))
+    throw new Error(`Expected .lits file, got ${litsPath}`)
+
   return fs.readFileSync(litsPath, { encoding: `utf-8` })
 }
 
@@ -84,15 +86,15 @@ function getIncludedFilePaths(absoluteFilePath: string): string[] {
   const result: string[] = []
   getIncludesRecursively(absoluteFilePath, result)
   return result.reduce((acc: string[], entry: string) => {
-    if (!acc.includes(entry)) {
+    if (!acc.includes(entry))
       acc.push(entry)
-    }
+
     return acc
   }, [])
 
   function getIncludesRecursively(filePath: string, includedFilePaths: string[]): void {
     const includeFilePaths = readIncludeDirectives(filePath)
-    includeFilePaths.forEach(includeFilePath => {
+    includeFilePaths.forEach((includeFilePath) => {
       getIncludesRecursively(includeFilePath, includedFilePaths)
       includedFilePaths.push(includeFilePath)
     })
@@ -106,15 +108,15 @@ function readIncludeDirectives(filePath: string): string[] {
   return fileContent.split(`\n`).reduce((acc: string[], line) => {
     const includeMatch = line.match(/^\s*;+\s*@include\s*(\S+)\s*$/)
     if (includeMatch) {
-      if (!okToInclude) {
-        throw Error(`@include must be in the beginning of file: ${filePath}:${line + 1}`)
-      }
+      if (!okToInclude)
+        throw new Error(`@include must be in the beginning of file: ${filePath}:${line + 1}`)
+
       const relativeFilePath = includeMatch[1] as string
       acc.push(path.resolve(dirname, relativeFilePath))
     }
-    if (!line.match(/^\s*(?:;.*)$/)) {
+    if (!line.match(/^\s*(?:;.*)$/))
       okToInclude = false
-    }
+
     return acc
   }, [])
 }
@@ -130,12 +132,12 @@ function getTestChunks(testPath: string): TestChunk[] {
     if (testNameAnnotationMatch) {
       const directive = (testNameAnnotationMatch[1] ?? ``).toUpperCase()
       const testName = testNameAnnotationMatch[2]
-      if (!testName) {
-        throw Error(`Missing test name on line ${currentLineNbr}`)
-      }
-      if (result.find(chunk => chunk.name === testName)) {
-        throw Error(`Duplicate test name ${testName}`)
-      }
+      if (!testName)
+        throw new Error(`Missing test name on line ${currentLineNbr}`)
+
+      if (result.find(chunk => chunk.name === testName))
+        throw new Error(`Duplicate test name ${testName}`)
+
       currentTest = {
         directive: (directive || null) as TestChunk[`directive`],
         name: testName,
@@ -146,11 +148,11 @@ function getTestChunks(testPath: string): TestChunk[] {
       result.push(currentTest)
       return result
     }
-    if (!currentTest) {
+    if (!currentTest)
       setupCode += `${line}\n`
-    } else {
+    else
       currentTest.program += `${line}\n`
-    }
+
     return result
   }, [])
 }
@@ -195,9 +197,8 @@ export function getErrorYaml(error: unknown): string {
 
 function getLocation(sourceCodeInfo: SourceCodeInfo): string {
   const terms: string[] = []
-  if (sourceCodeInfo.filePath) {
+  if (sourceCodeInfo.filePath)
     terms.push(sourceCodeInfo.filePath)
-  }
 
   if (sourceCodeInfo.position) {
     terms.push(`${sourceCodeInfo.position.line}`)

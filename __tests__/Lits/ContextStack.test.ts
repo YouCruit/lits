@@ -9,8 +9,8 @@ function getNameNode(name: string): NameNode {
   }
 }
 
-describe(`ContextStack`, () => {
-  test(`create`, () => {
+describe(`contextStack`, () => {
+  it(`create`, () => {
     const contextStack = new ContextStack({
       contexts: [{}],
       lazyValues: {

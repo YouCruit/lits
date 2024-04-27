@@ -1,24 +1,24 @@
 import { LitsError } from '../errors'
-import type { Token, Tokenizer, SourceCodeInfo, TokenizeParams, TokenStream } from './interface'
+import type { SourceCodeInfo, Token, TokenStream, TokenizeParams, Tokenizer } from './interface'
 import { getSugar } from './sugar'
 import {
   skipComment,
   skipWhiteSpace,
+  tokenizeCollectionAccessor,
+  tokenizeFnShorthand,
   tokenizeLeftBracket,
   tokenizeLeftCurly,
   tokenizeLeftParen,
   tokenizeModifier,
   tokenizeName,
   tokenizeNumber,
+  tokenizeRegexpShorthand,
   tokenizeReservedName,
   tokenizeRightBracket,
   tokenizeRightCurly,
   tokenizeRightParen,
   tokenizeString,
-  tokenizeRegexpShorthand,
-  tokenizeFnShorthand,
   tokenizeSymbolString,
-  tokenizeCollectionAccessor,
 } from './tokenizers'
 
 // All tokenizers, order matters!
@@ -81,15 +81,14 @@ export function tokenize(input: string, params: TokenizeParams): TokenStream {
       if (nbrOfCharacters > 0) {
         tokenized = true
         position += nbrOfCharacters
-        if (token) {
+        if (token)
           tokens.push(token)
-        }
+
         break
       }
     }
-    if (!tokenized) {
+    if (!tokenized)
       throw new LitsError(`Unrecognized character '${input[position]}'.`, sourceCodeInfo)
-    }
   }
 
   const tokenStream = {

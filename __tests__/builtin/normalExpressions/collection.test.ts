@@ -4,7 +4,7 @@ const lits = getLitsVariants()
 
 describe(`collection functions`, () => {
   describe(`count`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(count [])`)).toBe(0)
       expect(lits.run(`(count [1])`)).toBe(1)
       expect(lits.run(`(count [1 2 3])`)).toBe(3)
@@ -24,7 +24,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`get`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(get [] 1)`)).toBeNull()
       expect(lits.run(`(get [1] 1)`)).toBeNull()
       expect(lits.run(`(get [1 2 3] 1)`)).toBe(2)
@@ -61,7 +61,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`get-in`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(get-in [] [1])`)).toBeNull()
       expect(lits.run(`(get-in [1] [1])`)).toBeNull()
       expect(lits.run(`(get-in [1 2 3] [1])`)).toBe(2)
@@ -107,7 +107,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`contains?`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(contains? [] 1)`)).toBe(false)
       expect(lits.run(`(contains? [1] 1)`)).toBe(false)
       expect(lits.run(`(contains? [1 2 3] 1)`)).toBe(true)
@@ -140,7 +140,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`has?`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(has? [] 1)`)).toBe(false)
       expect(lits.run(`(has? [1] 1)`)).toBe(true)
       expect(lits.run(`(has? [1 2 3] 0)`)).toBe(false)
@@ -171,7 +171,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`has-some?`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(has-some? [] [1])`)).toBe(false)
       expect(lits.run(`(has-some? [1] [])`)).toBe(false)
       expect(lits.run(`(has-some? [1] nil)`)).toBe(false)
@@ -207,7 +207,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`has-every?`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(has-every? [] [1])`)).toBe(false)
       expect(lits.run(`(has-every? [1] [])`)).toBe(true)
       expect(lits.run(`(has-every? [1] nil)`)).toBe(true)
@@ -243,7 +243,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`assoc`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(assoc [1 2 3] 0 :1)`)).toEqual([`1`, 2, 3])
       expect(lits.run(`(assoc [1 2 3] 1 :2)`)).toEqual([1, `2`, 3])
       expect(lits.run(`(def a [1 2 3]) (assoc a 1 :2)`)).toEqual([1, `2`, 3])
@@ -287,7 +287,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`assoc-in`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(assoc-in "Albert" [0] :a)`)).toEqual(`albert`)
       expect(lits.run(`(assoc-in "Albert" [6] "!")`)).toEqual(`Albert!`)
       expect(() => lits.run(`(assoc-in "Albert" [7] "!")`)).toThrow()
@@ -304,7 +304,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`concat`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(concat [])`)).toEqual([])
       expect(lits.run(`(concat [1])`)).toEqual([1])
       expect(lits.run(`(concat [1] [2] [3 4])`)).toEqual([1, 2, 3, 4])
@@ -329,7 +329,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`not-empty`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(not-empty [])`)).toBeNull()
       expect(lits.run(`(not-empty [0])`)).toEqual([0])
       expect(lits.run(`(not-empty {})`)).toBeNull()
@@ -350,7 +350,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`every?`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(every? number? [1 2 3])`)).toBe(true)
       expect(lits.run(`(every? number? [:1 :2 :3])`)).toBe(false)
       expect(lits.run(`(every? number? [])`)).toBe(true)
@@ -369,7 +369,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`not-every?`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(not-every? number? [1 2 3])`)).toBe(false)
       expect(lits.run(`(not-every? number? [:1 :2 :3])`)).toBe(true)
       expect(lits.run(`(not-every? number? [])`)).toBe(false)
@@ -388,7 +388,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`any?`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(any? number? [1 2 3])`)).toBe(true)
       expect(lits.run(`(any? number? [1 :2 3])`)).toBe(true)
       expect(lits.run(`(any? number? [:1 :2 :3])`)).toBe(false)
@@ -410,7 +410,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`not-any?`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(not-any? number? [1 2 3])`)).toBe(false)
       expect(lits.run(`(not-any? number? [1 :2 3])`)).toBe(false)
       expect(lits.run(`(not-any? number? [:1 :2 :3])`)).toBe(true)
@@ -432,7 +432,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`update`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(
         lits.run(
           `(def x "Albert") (update x 3 (fn [val] (if (nil? val) "!" (from-char-code (inc (to-char-code val))))))`,
@@ -465,7 +465,7 @@ describe(`collection functions`, () => {
   })
 
   describe(`update-in`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       // expect(
       //   lits.run(
       //     `(def x "Albert") (update-in x [3] (fn [val] (if (nil? val) "!" (from-char-code (inc (to-char-code val))))))`,

@@ -22,9 +22,8 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     for (const param of node.p) {
       value = evaluateAstNode(param, contextStack)
-      if (value) {
+      if (value)
         break
-      }
     }
 
     return value

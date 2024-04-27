@@ -9,14 +9,14 @@ import { asAny } from '../../../typeGuards/lits'
 import { assertNumberOfParams } from '../../../typeGuards'
 
 export const assertNormalExpression: BuiltinNormalExpressions = {
-  assert: {
+  'assert': {
     evaluate: (params, sourceCodeInfo): Any => {
       const value = params[0]
       const message = params.length === 2 ? params[1] : `${value}`
       assertString(message, sourceCodeInfo)
-      if (!value) {
+      if (!value)
         throw new AssertionError(message, sourceCodeInfo)
-      }
+
       return asAny(value, sourceCodeInfo)
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
@@ -24,9 +24,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert=': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (first !== second) {
+      if (first !== second)
         throw new AssertionError(`Expected ${first} to be ${second}.${message}`, sourceCodeInfo)
-      }
+
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
@@ -34,9 +34,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert-not=': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (first === second) {
+      if (first === second)
         throw new AssertionError(`Expected ${first} not to be ${second}.${message}`, sourceCodeInfo)
-      }
+
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
@@ -70,9 +70,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert>': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (compare(first, second) <= 0) {
+      if (compare(first, second) <= 0)
         throw new AssertionError(`Expected ${first} to be grater than ${second}.${message}`, sourceCodeInfo)
-      }
+
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
@@ -80,9 +80,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert>=': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (compare(first, second) < 0) {
+      if (compare(first, second) < 0)
         throw new AssertionError(`Expected ${first} to be grater than or equal to ${second}.${message}`, sourceCodeInfo)
-      }
+
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
@@ -90,9 +90,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert<': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (compare(first, second) >= 0) {
+      if (compare(first, second) >= 0)
         throw new AssertionError(`Expected ${first} to be less than ${second}.${message}`, sourceCodeInfo)
-      }
+
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
@@ -100,9 +100,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert<=': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (compare(first, second) > 0) {
+      if (compare(first, second) > 0)
         throw new AssertionError(`Expected ${first} to be less than or equal to ${second}.${message}`, sourceCodeInfo)
-      }
+
       return null
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
@@ -110,9 +110,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert-true': {
     evaluate: ([first, message], sourceCodeInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (first !== true) {
+      if (first !== true)
         throw new AssertionError(`Expected ${first} to be true.${message}`, sourceCodeInfo)
-      }
+
       return null
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
@@ -120,9 +120,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert-false': {
     evaluate: ([first, message], sourceCodeInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (first !== false) {
+      if (first !== false)
         throw new AssertionError(`Expected ${first} to be false.${message}`, sourceCodeInfo)
-      }
+
       return null
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
@@ -130,9 +130,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert-truthy': {
     evaluate: ([first, message], sourceCodeInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (!first) {
+      if (!first)
         throw new AssertionError(`Expected ${first} to be truthy.${message}`, sourceCodeInfo)
-      }
+
       return null
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
@@ -140,9 +140,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert-falsy': {
     evaluate: ([first, message], sourceCodeInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (first) {
+      if (first)
         throw new AssertionError(`Expected ${first} to be falsy.${message}`, sourceCodeInfo)
-      }
+
       return null
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
@@ -150,9 +150,9 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   'assert-nil': {
     evaluate: ([first, message], sourceCodeInfo): null => {
       message = typeof message === `string` && message ? ` "${message}"` : ``
-      if (first !== null) {
+      if (first !== null)
         throw new AssertionError(`Expected ${first} to be nil.${message}`, sourceCodeInfo)
-      }
+
       return null
     },
     validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
@@ -163,7 +163,8 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       assertLitsFunction(func, sourceCodeInfo)
       try {
         executeFunction(func, [], contextStack, sourceCodeInfo)
-      } catch {
+      }
+      catch {
         return null
       }
       throw new AssertionError(`Expected function to throw.${message}`, sourceCodeInfo)
@@ -177,7 +178,8 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       assertLitsFunction(func, sourceCodeInfo)
       try {
         executeFunction(func, [], contextStack, sourceCodeInfo)
-      } catch (error) {
+      }
+      catch (error) {
         const errorMessage = (error as LitsError).shortMessage
         if (errorMessage !== throwMessage) {
           throw new AssertionError(
@@ -197,7 +199,8 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
       assertLitsFunction(func, sourceCodeInfo)
       try {
         executeFunction(func, [], contextStack, sourceCodeInfo)
-      } catch {
+      }
+      catch {
         throw new AssertionError(`Expected function not to throw.${message}`, sourceCodeInfo)
       }
       return null

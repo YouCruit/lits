@@ -4,9 +4,9 @@ import type { SourceCodeInfo, Token } from '../../tokenizer/interface'
 import { FUNCTION_SYMBOL } from '../symbols'
 
 function isLitsFunction(func: unknown): func is LitsFunction {
-  if (!isUnknownRecord(func)) {
+  if (!isUnknownRecord(func))
     return false
-  }
+
   return !!func[FUNCTION_SYMBOL] && isFunctionType(func.t)
 }
 
@@ -23,32 +23,32 @@ function isAstNode(value: unknown): value is AstNode {
 }
 
 export function valueToString(value: unknown): string {
-  if (isLitsFunction(value)) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (isLitsFunction(value))
+    // eslint-disable-next-line ts/no-unsafe-member-access
     return `<function ${(value as any).name || `λ`}>`
-  }
-  if (isToken(value)) {
+
+  if (isToken(value))
     return `${tokenTypeName.get(value.t)}-token "${value.v}"`
-  }
-  if (isAstNode(value)) {
+
+  if (isAstNode(value))
     return `${astNodeTypeName.get(value.t)}-node`
-  }
-  if (value === null) {
+
+  if (value === null)
     return `nil`
-  }
-  if (typeof value === `object` && value instanceof RegExp) {
+
+  if (typeof value === `object` && value instanceof RegExp)
     return `${value}`
-  }
-  if (typeof value === `object` && value instanceof Error) {
+
+  if (typeof value === `object` && value instanceof Error)
     return value.toString()
-  }
+
   return JSON.stringify(value)
 }
 
 export function getCodeMarker(sourceCodeInfo: SourceCodeInfo): string {
-  if (!sourceCodeInfo.position || !sourceCodeInfo.code) {
+  if (!sourceCodeInfo.position || !sourceCodeInfo.code)
     return ``
-  }
+
   const leftPadding = sourceCodeInfo.position.column - 1
   const rightPadding = sourceCodeInfo.code.length - leftPadding - 1
   return `${` `.repeat(Math.max(leftPadding, 0))}^${` `.repeat(Math.max(rightPadding, 0))}`

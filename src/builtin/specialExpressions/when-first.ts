@@ -51,18 +51,17 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
       )
     }
 
-    if (evaluatedBindingForm.length === 0) {
+    if (evaluatedBindingForm.length === 0)
       return null
-    }
 
     const bindingValue = toAny(evaluatedBindingForm[0])
     locals[binding.n] = { value: bindingValue }
     const newContextStack = contextStack.create(locals)
 
     let result: Any = null
-    for (const form of node.p) {
+    for (const form of node.p)
       result = evaluateAstNode(form, newContextStack)
-    }
+
     return result
   },
   validate: node => assertNumberOfParams({ min: 0 }, node),

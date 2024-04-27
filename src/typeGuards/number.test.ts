@@ -1,7 +1,7 @@
-import { assertNumber, asNumber, isNumber } from './number'
+import { asNumber, assertNumber, isNumber } from './number'
 
 describe(`number type guards`, () => {
-  test(`assertInteger`, () => {
+  it(`assertInteger`, () => {
     expect(() => assertNumber(-0, undefined, { integer: true })).not.toThrow()
     expect(() => assertNumber(-1, undefined, { integer: true })).not.toThrow()
     expect(() => assertNumber(1, undefined, { integer: true })).not.toThrow()
@@ -14,7 +14,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber([], undefined, { integer: true })).toThrow()
   })
 
-  test(`assertPositiveNumber`, () => {
+  it(`assertPositiveNumber`, () => {
     expect(() => assertNumber(-1, undefined, { positive: true })).toThrow()
     expect(() => assertNumber(-0.5, undefined, { positive: true })).toThrow()
     expect(() => assertNumber(0, undefined, { positive: true })).toThrow()
@@ -28,7 +28,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber(null, undefined, { positive: true })).toThrow()
     expect(() => assertNumber(undefined, undefined, { positive: true })).toThrow()
   })
-  test(`assertNegativeNumber`, () => {
+  it(`assertNegativeNumber`, () => {
     expect(() => assertNumber(-1, undefined, { negative: true })).not.toThrow()
     expect(() => assertNumber(-0.5, undefined, { negative: true })).not.toThrow()
     expect(() => assertNumber(0, undefined, { negative: true })).toThrow()
@@ -42,7 +42,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber(null, undefined, { negative: true })).toThrow()
     expect(() => assertNumber(undefined, undefined, { negative: true })).toThrow()
   })
-  test(`assertNonNegativeNumber`, () => {
+  it(`assertNonNegativeNumber`, () => {
     expect(() => assertNumber(-1, undefined, { nonNegative: true })).toThrow()
     expect(() => assertNumber(-1.1, undefined, { nonNegative: true })).toThrow()
     expect(() => assertNumber(0, undefined, { nonNegative: true })).not.toThrow()
@@ -57,7 +57,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber(null, undefined, { nonNegative: true })).toThrow()
     expect(() => assertNumber(undefined, undefined, { nonNegative: true })).toThrow()
   })
-  test(`assertNonPositiveNumber`, () => {
+  it(`assertNonPositiveNumber`, () => {
     expect(() => assertNumber(-1, undefined, { nonPositive: true })).not.toThrow()
     expect(() => assertNumber(-1.1, undefined, { nonPositive: true })).not.toThrow()
     expect(() => assertNumber(0, undefined, { nonPositive: true })).not.toThrow()
@@ -72,7 +72,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber(null, undefined, { nonPositive: true })).toThrow()
     expect(() => assertNumber(undefined, undefined, { nonPositive: true })).toThrow()
   })
-  test(`assertFiniteNumber`, () => {
+  it(`assertFiniteNumber`, () => {
     expect(() => assertNumber(-1, undefined, { finite: true })).not.toThrow()
     expect(() => assertNumber(-1.1, undefined, { finite: true })).not.toThrow()
     expect(() => assertNumber(0, undefined, { finite: true })).not.toThrow()
@@ -89,7 +89,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber(null, undefined, { finite: true })).toThrow()
     expect(() => assertNumber(undefined, undefined, { finite: true })).toThrow()
   })
-  test(`asFiniteNumber`, () => {
+  it(`asFiniteNumber`, () => {
     expect(asNumber(-1, undefined, { finite: true })).toBe(-1)
     expect(asNumber(-1.1, undefined, { finite: true })).toBe(-1.1)
     expect(asNumber(0, undefined, { finite: true })).toBe(0)
@@ -107,7 +107,7 @@ describe(`number type guards`, () => {
     expect(() => asNumber(null, undefined, { finite: true })).toThrow()
     expect(() => asNumber(undefined, undefined, { finite: true })).toThrow()
   })
-  test(`assertNumberGt`, () => {
+  it(`assertNumberGt`, () => {
     expect(() => assertNumber(0, undefined, { gt: 1 })).toThrow()
     expect(() => assertNumber(0.5, undefined, { gt: 1 })).toThrow()
     expect(() => assertNumber(1, undefined, { gt: 1 })).toThrow()
@@ -117,7 +117,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber([], undefined, { gt: 1 })).toThrow()
     expect(() => assertNumber(false, undefined, { gt: 1 })).toThrow()
   })
-  test(`assertNumberGte`, () => {
+  it(`assertNumberGte`, () => {
     expect(() => assertNumber(0, undefined, { gte: 1 })).toThrow()
     expect(() => assertNumber(0.5, undefined, { gte: 1 })).toThrow()
     expect(() => assertNumber(1, undefined, { gte: 1 })).not.toThrow()
@@ -127,7 +127,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber([], undefined, { gte: 1 })).toThrow()
     expect(() => assertNumber(false, undefined, { gte: 1 })).toThrow()
   })
-  test(`assertNumberLt`, () => {
+  it(`assertNumberLt`, () => {
     expect(() => assertNumber(0, undefined, { lt: 1 })).not.toThrow()
     expect(() => assertNumber(0.5, undefined, { lt: 1 })).not.toThrow()
     expect(() => assertNumber(1, undefined, { lt: 1 })).toThrow()
@@ -137,7 +137,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber([], undefined, { lt: 1 })).toThrow()
     expect(() => assertNumber(false, undefined, { lt: 1 })).toThrow()
   })
-  test(`assertNumberLte`, () => {
+  it(`assertNumberLte`, () => {
     expect(() => assertNumber(0, undefined, { lte: 1 })).not.toThrow()
     expect(() => assertNumber(0.5, undefined, { lte: 1 })).not.toThrow()
     expect(() => assertNumber(1, undefined, { lte: 1 })).not.toThrow()
@@ -147,7 +147,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber([], undefined, { lte: 1 })).toThrow()
     expect(() => assertNumber(false, undefined, { lte: 1 })).toThrow()
   })
-  test(`assertNumberNotZero`, () => {
+  it(`assertNumberNotZero`, () => {
     expect(() => assertNumber(-1, undefined, { nonZero: true })).not.toThrow()
     expect(() => assertNumber(-0.5, undefined, { nonZero: true })).not.toThrow()
     expect(() => assertNumber(0, undefined, { nonZero: true })).toThrow()
@@ -162,7 +162,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber(undefined, undefined, { nonZero: true })).toThrow()
   })
 
-  test(`isNumber`, () => {
+  it(`isNumber`, () => {
     expect(isNumber(1 / 0)).toBe(true)
     expect(isNumber(Number(`abc`))).toBe(true)
     expect(isNumber(0.12)).toBe(true)
@@ -171,7 +171,7 @@ describe(`number type guards`, () => {
     expect(isNumber([])).toBe(false)
   })
 
-  test(`asInteger`, () => {
+  it(`asInteger`, () => {
     expect(() => asNumber(1 / 0, undefined, { integer: true })).toThrow()
     expect(() => asNumber(Number(`abc`), undefined, { integer: true })).toThrow()
     expect(() => asNumber(12, undefined, { integer: true })).not.toThrow()
@@ -180,7 +180,7 @@ describe(`number type guards`, () => {
     expect(() => asNumber([], undefined, { integer: true })).toThrow()
   })
 
-  test(`isInteger`, () => {
+  it(`isInteger`, () => {
     expect(isNumber(1 / 0, { integer: true })).toBe(false)
     expect(isNumber(Number(`abc`), { integer: true })).toBe(false)
     expect(isNumber(0.12, { integer: true })).toBe(false)
@@ -192,7 +192,7 @@ describe(`number type guards`, () => {
     expect(isNumber([], { integer: true })).toBe(false)
   })
 
-  test(`assertNumber`, () => {
+  it(`assertNumber`, () => {
     expect(() => assertNumber(1 / 0, undefined)).not.toThrow()
     expect(() => assertNumber(Number(`abc`), undefined)).not.toThrow()
     expect(() => assertNumber(0.12, undefined)).not.toThrow()
@@ -201,7 +201,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber([], undefined)).toThrow()
   })
 
-  test(`assertMax`, () => {
+  it(`assertMax`, () => {
     expect(() => assertNumber(12, undefined, { lte: 10 })).toThrow()
     expect(() => assertNumber(-12, undefined, { lte: -10 })).not.toThrow()
     expect(() => assertNumber(-8, undefined, { lte: -10 })).toThrow()
@@ -209,7 +209,7 @@ describe(`number type guards`, () => {
     expect(() => assertNumber(0, undefined, { lte: 10 })).not.toThrow()
   })
 
-  test(`number`, () => {
+  it(`number`, () => {
     expect(() => assertNumber(0, undefined, { zero: true })).not.toThrow()
     expect(() => assertNumber(1, undefined, { zero: true })).toThrow()
     expect(() => assertNumber(1.5, undefined, { gt: 1, lt: 2 })).not.toThrow()

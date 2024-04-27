@@ -47,9 +47,9 @@ const categories = [
 
 const categorizedFunctions = Object.values(functionReference)
   .reduce((result, item) => {
-    if (!result.includes(item.category)) {
+    if (!result.includes(item.category))
       result.push(item.category)
-    }
+
     return result
   }, [])
   .sort((a, b) => categories.indexOf(a) - categories.indexOf(b))

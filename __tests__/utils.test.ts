@@ -1,11 +1,11 @@
 import type { NameNode, RegularExpression } from '../src/parser/interface'
-import { collHasKey, deepEqual, toNonNegativeInteger, cloneColl, createNativeJsFunction } from '../src/utils'
+import { cloneColl, collHasKey, createNativeJsFunction, deepEqual, toNonNegativeInteger } from '../src/utils'
 import { REGEXP_SYMBOL } from '../src/utils/symbols'
 import { valueToString } from '../src/utils/debug/debugTools'
 import { AstNodeType, FunctionType } from '../src'
 
 describe(`utils`, () => {
-  test(`createNativeJsFunction`, () => {
+  it(`createNativeJsFunction`, () => {
     const fnWithName = createNativeJsFunction(() => undefined, `foo`)
     expect(fnWithName.sourceCodeInfo).toBeUndefined()
     expect(fnWithName.n).toBe(`foo`)
@@ -20,7 +20,7 @@ describe(`utils`, () => {
     expect(fnWithoutName.t).toBe(FunctionType.NativeJsFunction)
     expect(fnWithoutName.λ).toBe(true)
   })
-  test(`collHasKey`, () => {
+  it(`collHasKey`, () => {
     expect(collHasKey(10, 1)).toBe(false)
 
     expect(collHasKey(`Albert`, 1)).toBe(true)
@@ -42,14 +42,13 @@ describe(`utils`, () => {
 
   const primitives = [0, 1, true, false, null, `Albert`, `Mojir`]
   describe(`deepEqual`, () => {
-    test(`primitives`, () => {
+    it(`primitives`, () => {
       for (const a of primitives) {
-        for (const b of primitives) {
+        for (const b of primitives)
           expect(deepEqual(a, b)).toBe(a === b)
-        }
       }
     })
-    test(`RegExp`, () => {
+    it(`regExp`, () => {
       const a: RegularExpression = {
         [REGEXP_SYMBOL]: true,
         s: `^ab`,
@@ -80,13 +79,13 @@ describe(`utils`, () => {
       expect(deepEqual(c, c)).toBe(true)
       expect(deepEqual(c, d)).toBe(true)
     })
-    test(`nested structures`, () => {
+    it(`nested structures`, () => {
       expect(deepEqual([1, 2, 3], [1, 2, 3])).toBe(true)
       expect(deepEqual({ a: 1, b: 2 }, { a: 1, b: 2 })).toBe(true)
       expect(deepEqual([1, 2, { a: 1, b: 2 }], [1, 2, { b: 2, a: 1 }])).toBe(true)
     })
   })
-  test(`toNonNegativeInteger`, () => {
+  it(`toNonNegativeInteger`, () => {
     expect(toNonNegativeInteger(0)).toBe(0)
     expect(toNonNegativeInteger(-0.1)).toBe(0)
     expect(toNonNegativeInteger(-100)).toBe(0)
@@ -96,11 +95,11 @@ describe(`utils`, () => {
   })
 
   describe(`cloneColl`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(cloneColl({ a: 10 })).toEqual({ a: 10 })
       expect(cloneColl({ a: [1, 2, 3] })).toEqual({ a: [1, 2, 3] })
     })
-    test(`new instance`, () => {
+    it(`new instance`, () => {
       const original = { a: [1, 2, 3] }
       const second = cloneColl(original)
       expect(original).not.toBe(second)
@@ -114,8 +113,8 @@ describe(`utils`, () => {
       t: AstNodeType.Name,
       v: `Foo`,
     }
-    test(`valueToString`, () => {
-      expect(valueToString(new Error())).toBe(`Error`)
+    it(`valueToString`, () => {
+      expect(valueToString(new Error(`An error`))).toBe(`Error: An error`)
       expect(valueToString(n)).toBe(`Name-node`)
     })
   })

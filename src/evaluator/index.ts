@@ -1,39 +1,40 @@
 import type {
+  Ast,
+  AstNode,
   NormalExpressionNode,
-  NumberNode,
-  StringNode,
-  ReservedNameNode,
   NormalExpressionNodeWithName,
+  NumberNode,
+  ReservedNameNode,
   SpecialExpressionNode,
+  StringNode,
 } from '../parser/interface'
-import type { Ast } from '../parser/interface'
 import { builtin } from '../builtin'
 import { reservedNamesRecord } from '../reservedNames'
 import { toAny } from '../utils'
-import type { Context, ContextEntry, EvaluateAstNode, ExecuteFunction } from './interface'
 import type { Any, Arr, Obj } from '../interface'
-import { functionExecutors } from './functionExecutors'
 import type { SourceCodeInfo } from '../tokenizer/interface'
 import { LitsError, NotAFunctionError, UndefinedSymbolError } from '../errors'
 import { AstNodeType } from '../constants/constants'
-import type { ContextStack } from './ContextStack'
 import { isNormalExpressionNodeWithName } from '../typeGuards/astNode'
 import { valueToString } from '../utils/debug/debugTools'
 import { isLitsFunction } from '../typeGuards/litsFunction'
 import { assertNumber, isNumber } from '../typeGuards/number'
 import { asNonUndefined } from '../typeGuards'
-import { asAny, isObj, assertSeq } from '../typeGuards/lits'
+import { asAny, assertSeq, isObj } from '../typeGuards/lits'
 import { assertString } from '../typeGuards/string'
+import type { ContextStack } from './ContextStack'
+import { functionExecutors } from './functionExecutors'
+import type { Context, ContextEntry } from './interface'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null
-  for (const node of ast.b) {
+  for (const node of ast.b)
     result = evaluateAstNode(node, contextStack)
-  }
+
   return result
 }
 
-export const evaluateAstNode: EvaluateAstNode = (node, contextStack) => {
+export function evaluateAstNode(node: AstNode, contextStack: ContextStack): Any {
   switch (node.t) {
     case AstNodeType.Number:
       return evaluateNumber(node)
@@ -69,32 +70,33 @@ function evaluateNormalExpression(node: NormalExpressionNode, contextStack: Cont
   const sourceCodeInfo = node.tkn?.sourceCodeInfo
   if (isNormalExpressionNodeWithName(node)) {
     const value = contextStack.getValue(node.n)
-    if (value !== undefined) {
+    if (value !== undefined)
       return executeFunction(asAny(value), params, contextStack, sourceCodeInfo)
-    }
+
     return evaluateBuiltinNormalExpression(node, params, contextStack)
-  } else {
+  }
+  else {
     const fn = evaluateAstNode(node.e, contextStack)
     return executeFunction(fn, params, contextStack, sourceCodeInfo)
   }
 }
 
-const executeFunction: ExecuteFunction = (fn, params, contextStack, sourceCodeInfo) => {
-  if (isLitsFunction(fn)) {
+function executeFunction(fn: Any, params: Arr, contextStack: ContextStack, sourceCodeInfo?: SourceCodeInfo): Any {
+  if (isLitsFunction(fn))
     return functionExecutors[fn.t](fn, params, sourceCodeInfo, contextStack, { evaluateAstNode, executeFunction })
-  }
-  if (Array.isArray(fn)) {
+
+  if (Array.isArray(fn))
     return evaluateArrayAsFunction(fn, params, sourceCodeInfo)
-  }
-  if (isObj(fn)) {
+
+  if (isObj(fn))
     return evalueateObjectAsFunction(fn, params, sourceCodeInfo)
-  }
-  if (typeof fn === `string`) {
+
+  if (typeof fn === `string`)
     return evaluateStringAsFunction(fn, params, sourceCodeInfo)
-  }
-  if (isNumber(fn)) {
+
+  if (isNumber(fn))
     return evaluateNumberAsFunction(fn, params, sourceCodeInfo)
-  }
+
   throw new NotAFunctionError(fn, sourceCodeInfo)
 }
 
@@ -104,9 +106,8 @@ function evaluateBuiltinNormalExpression(
   contextStack: ContextStack,
 ): Any {
   const normalExpression = builtin.normalExpressions[node.n]
-  if (!normalExpression) {
+  if (!normalExpression)
     throw new UndefinedSymbolError(node.n, node.tkn?.sourceCodeInfo)
-  }
 
   return normalExpression.evaluate(params, node.tkn?.sourceCodeInfo, contextStack, { executeFunction })
 }
@@ -118,34 +119,34 @@ function evaluateSpecialExpression(node: SpecialExpressionNode, contextStack: Co
 }
 
 function evalueateObjectAsFunction(fn: Obj, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
-  if (params.length !== 1) {
+  if (params.length !== 1)
     throw new LitsError(`Object as function requires one string parameter.`, sourceCodeInfo)
-  }
+
   const key = params[0]
   assertString(key, sourceCodeInfo)
   return toAny(fn[key])
 }
 
 function evaluateArrayAsFunction(fn: Arr, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
-  if (params.length !== 1) {
+  if (params.length !== 1)
     throw new LitsError(`Array as function requires one non negative integer parameter.`, sourceCodeInfo)
-  }
+
   const index = params[0]
   assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true })
   return toAny(fn[index])
 }
 
 function evaluateStringAsFunction(fn: string, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
-  if (params.length !== 1) {
+  if (params.length !== 1)
     throw new LitsError(`String as function requires one Obj parameter.`, sourceCodeInfo)
-  }
+
   const param = toAny(params[0])
-  if (isObj(param)) {
-    return toAny((param as Obj)[fn])
-  }
-  if (isNumber(param, { integer: true })) {
+  if (isObj(param))
+    return toAny((param)[fn])
+
+  if (isNumber(param, { integer: true }))
     return toAny(fn[param])
-  }
+
   throw new LitsError(
     `string as function expects Obj or integer parameter, got ${valueToString(param)}`,
     sourceCodeInfo,
@@ -154,18 +155,18 @@ function evaluateStringAsFunction(fn: string, params: Arr, sourceCodeInfo?: Sour
 
 function evaluateNumberAsFunction(fn: number, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
   assertNumber(fn, sourceCodeInfo, { integer: true })
-  if (params.length !== 1) {
+  if (params.length !== 1)
     throw new LitsError(`Number as function requires one Arr parameter.`, sourceCodeInfo)
-  }
+
   const param = params[0]
   assertSeq(param, sourceCodeInfo)
   return toAny(param[fn])
 }
 
 export function contextToString(context: Context) {
-  if (Object.keys(context).length === 0) {
+  if (Object.keys(context).length === 0)
     return `  <empty>\n`
-  }
+
   const maxKeyLength = Math.max(...Object.keys(context).map(key => key.length))
   return Object.entries(context).reduce((result, entry) => {
     const key = `${entry[0]}`.padEnd(maxKeyLength + 2, ` `)
@@ -176,14 +177,13 @@ export function contextToString(context: Context) {
 function contextEntryToString(contextEntry: ContextEntry): string {
   const { value } = contextEntry
   if (isLitsFunction(value)) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line ts/no-unsafe-member-access, ts/no-unsafe-assignment
     const name: string | undefined = (value as any).n
-    //TODO value.t makes littl sence, should be mapped to a type name
-    if (name) {
+    // TODO value.t makes littl sence, should be mapped to a type name
+    if (name)
       return `<${value.t} function ${name}>`
-    } else {
+    else
       return `<${value.t} function λ>`
-    }
   }
   return JSON.stringify(contextEntry.value)
 }

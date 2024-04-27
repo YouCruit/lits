@@ -1,40 +1,35 @@
-import { isTokenType, type TokenType } from '../constants/constants'
+import { type TokenType, isTokenType } from '../constants/constants'
 import { LitsError } from '../errors'
-import type { Token, SourceCodeInfo } from '../tokenizer/interface'
+import type { SourceCodeInfo, Token } from '../tokenizer/interface'
 import { valueToString } from '../utils/debug/debugTools'
 import { getSourceCodeInfo } from '../utils/debug/getSourceCodeInfo'
 
 type TokenAssertionOptions =
   | {
-      type: TokenType
-      value?: string
-    }
+    type: TokenType
+    value?: string
+  }
   | {
-      type?: never
-      value?: never
-    }
+    type?: never
+    value?: never
+  }
 
 export function isToken(value: unknown, options: TokenAssertionOptions = {}): value is Token {
-  if (typeof value !== `object` || value === null) {
+  if (typeof value !== `object` || value === null)
     return false
-  }
 
   const tkn = value as Token
-  if (typeof tkn.v !== `string`) {
+  if (typeof tkn.v !== `string`)
     return false
-  }
 
-  if (!isTokenType(tkn.t)) {
+  if (!isTokenType(tkn.t))
     return false
-  }
 
-  if (options.type && tkn.t !== options.type) {
+  if (options.type && tkn.t !== options.type)
     return false
-  }
 
-  if (options.value && tkn.v !== options.value) {
+  if (options.value && tkn.v !== options.value)
     return false
-  }
 
   return true
 }
@@ -48,8 +43,8 @@ export function assertToken(
     const sourceCodeInfo: SourceCodeInfo | undefined = isToken(value)
       ? value.sourceCodeInfo
       : typeof filePath === `string`
-      ? { filePath }
-      : undefined
+        ? { filePath }
+        : undefined
 
     throw new LitsError(
       `Expected ${options.type ? `${options.type}-` : ``}token${

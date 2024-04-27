@@ -3,7 +3,7 @@ import { Lits } from '../../../src'
 describe(`string functions`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
     describe(`subs`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(() => lits.run(`(subs "abcde")`)).toThrow()
         expect(lits.run(`(subs "abcde" 0)`)).toBe(`abcde`)
         expect(lits.run(`(subs "abcde" 1)`)).toBe(`bcde`)
@@ -24,7 +24,7 @@ describe(`string functions`, () => {
     })
 
     describe(`str`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(str x)`, { values: { x: null } })).toBe(``)
         expect(lits.run(`(str)`)).toBe(``)
         expect(lits.run(`(str "")`)).toBe(``)
@@ -42,13 +42,13 @@ describe(`string functions`, () => {
         expect(lits.run(`(str {:a 1})`)).toBe(`{"a":1}`)
       })
 
-      test(`regressions`, () => {
+      it(`regressions`, () => {
         expect(lits.run(`(str ")")`)).toBe(`)`)
       })
     })
 
     describe(`number`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(number "123.25")`)).toBe(123.25)
         expect(lits.run(`(number "0b1111")`)).toBe(15)
         expect(lits.run(`(number "0Xf")`)).toBe(15)
@@ -61,7 +61,7 @@ describe(`string functions`, () => {
     })
 
     describe(`number-to-string`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(number-to-string 10.25)`)).toBe(`10.25`)
         expect(lits.run(`(number-to-string -11)`)).toBe(`-11`)
         expect(lits.run(`(number-to-string 11 2)`)).toBe(`1011`)
@@ -81,7 +81,7 @@ describe(`string functions`, () => {
     })
 
     describe(`lower-case`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(lower-case "Albert!")`)).toBe(`albert!`)
         expect(lits.run(`(lower-case "")`)).toBe(``)
         expect(() => lits.run(`(lower-case)`)).toThrow()
@@ -90,7 +90,7 @@ describe(`string functions`, () => {
     })
 
     describe(`upper-case`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(upper-case "Albert!")`)).toBe(`ALBERT!`)
         expect(lits.run(`(upper-case "")`)).toBe(``)
         expect(() => lits.run(`(upper-case)`)).toThrow()
@@ -99,7 +99,7 @@ describe(`string functions`, () => {
     })
 
     describe(`trim`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(trim "  Albert!  ")`)).toBe(`Albert!`)
         expect(lits.run(`(trim " ")`)).toBe(``)
         expect(lits.run(`(trim "")`)).toBe(``)
@@ -109,7 +109,7 @@ describe(`string functions`, () => {
     })
 
     describe(`trim-left`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(trim-left "  Albert!  ")`)).toBe(`Albert!  `)
         expect(lits.run(`(trim-left " ")`)).toBe(``)
         expect(lits.run(`(trim-left "")`)).toBe(``)
@@ -119,7 +119,7 @@ describe(`string functions`, () => {
     })
 
     describe(`trim-right`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(trim-right "  Albert!  ")`)).toBe(`  Albert!`)
         expect(lits.run(`(trim-right " ")`)).toBe(``)
         expect(lits.run(`(trim-right "")`)).toBe(``)
@@ -129,7 +129,7 @@ describe(`string functions`, () => {
     })
 
     describe(`pad-left`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(pad-left "Albert" 10)`)).toBe(`    Albert`)
         expect(lits.run(`(pad-left "Albert" 10 "*")`)).toBe(`****Albert`)
         expect(lits.run(`(pad-left "Albert" 10 "123")`)).toBe(`1231Albert`)
@@ -141,7 +141,7 @@ describe(`string functions`, () => {
     })
 
     describe(`pad-right`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(pad-right "Albert" 10)`)).toBe(`Albert    `)
         expect(lits.run(`(pad-right "Albert" 10 "*")`)).toBe(`Albert****`)
         expect(lits.run(`(pad-right "Albert" 10 "123")`)).toBe(`Albert1231`)
@@ -153,7 +153,7 @@ describe(`string functions`, () => {
     })
 
     describe(`split`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(split "Albert Mojir" " ")`)).toEqual([`Albert`, `Mojir`])
         expect(lits.run(`(split "0123456789" "")`)).toEqual([`0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`])
         expect(lits.run(`(split "abcdefghijklmnopqrstuvw" (regexp "[aoueiy]"))`)).toEqual([
@@ -172,7 +172,7 @@ describe(`string functions`, () => {
     })
 
     describe(`string-repeat`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(string-repeat "*" 10)`)).toBe(`**********`)
         expect(lits.run(`(string-repeat "*" 0)`)).toBe(``)
         expect(lits.run(`(string-repeat "Hello, " 3)`)).toBe(`Hello, Hello, Hello, `)
@@ -185,7 +185,7 @@ describe(`string functions`, () => {
     })
 
     describe(`template`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(template "Hi")`)).toBe(`Hi`)
         expect(lits.run(`(template "Hi" "Carl")`)).toBe(`Hi`)
         expect(lits.run(`(template "Hi, $1", "Carl")`)).toBe(`Hi, Carl`)
@@ -226,7 +226,7 @@ describe(`string functions`, () => {
         expect(() => lits.run(`(template []`)).toThrow()
         expect(() => lits.run(`(template (object))`)).toThrow()
       })
-      test(`Pluralization samples`, () => {
+      it(`pluralization samples`, () => {
         expect(lits.run(`(template "" 0)`)).toBe(``)
         expect(lits.run(`(template "$1 book||||$1 books" 0)`)).toBe(`0 books`)
         expect(lits.run(`(template "$1 book||||$1 books" 1)`)).toBe(`1 book`)
@@ -255,7 +255,7 @@ describe(`string functions`, () => {
       })
     })
     describe(`to-char-code`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(to-char-code :a)`)).toBe(97)
         expect(lits.run(`(to-char-code "abc")`)).toBe(97)
         expect(() => lits.run(`(to-char-code)`)).toThrow()
@@ -263,7 +263,7 @@ describe(`string functions`, () => {
       })
     })
     describe(`from-char-code`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(from-char-code 97)`)).toBe(`a`)
         expect(() => lits.run(`(from-char-code 9700000)`)).toThrow()
         expect(() => lits.run(`(from-char-code)`)).toThrow()
@@ -272,7 +272,7 @@ describe(`string functions`, () => {
     })
 
     describe(`encode-base64`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(encode-base64 :Albert)`)).toBe(`QWxiZXJ0`)
         expect(lits.run(`(encode-base64 "Albert is a 🐻")`)).toBe(`QWxiZXJ0IGlzIGEg8J+Quw==`)
         expect(() => lits.run(`(encode-base64)`)).toThrow()
@@ -281,7 +281,7 @@ describe(`string functions`, () => {
     })
 
     describe(`decode-base64`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(decode-base64 "QWxiZXJ0")`)).toBe(`Albert`)
         expect(lits.run(`(decode-base64 "QWxiZXJ0IGlzIGEg8J+Quw==")`)).toBe(`Albert is a 🐻`)
         expect(() => lits.run(`(decode-base64 "Illegal string ~")`)).toThrow()
@@ -291,7 +291,7 @@ describe(`string functions`, () => {
     })
 
     describe(`encode-uri-component`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(encode-uri-component "a string")`)).toBe(`a%20string`)
         expect(() => lits.run(`(encode-uri-component)`)).toThrow()
         expect(() => lits.run(`(encode-uri-component :X :Y)`)).toThrow()
@@ -299,7 +299,7 @@ describe(`string functions`, () => {
     })
 
     describe(`decode-uri-component`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(decode-uri-component "a%20string")`)).toBe(`a string`)
         expect(() => lits.run(`(decode-uri-component "a%AFc")`)).toThrow()
         expect(() => lits.run(`(decode-uri-component)`)).toThrow()
@@ -307,7 +307,7 @@ describe(`string functions`, () => {
       })
     })
 
-    test(`Short hand strings`, () => {
+    it(`short hand strings`, () => {
       expect(lits.run(`:a`)).toBe(`a`)
       expect(lits.run(`:a-a`)).toBe(`a-a`)
       expect(() => lits.run(`:`)).toThrow()

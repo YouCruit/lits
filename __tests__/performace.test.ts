@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Lits } from '../src'
 import { evaluate } from '../src/evaluator'
 import { ContextStack } from '../src/evaluator/ContextStack'
@@ -17,6 +16,7 @@ const jsExpression = `((x - y) * (y - x)) + ((x / y) * (y / x))`
 const startRefTime = Date.now()
 for (let i = 0; i < ITERATIONS; i += 1) {
   const jsProgram = createJsProgram(jsExpression, hostValues)
+  // eslint-disable-next-line no-eval
   eval(jsProgram)
 }
 const averageRefTime = Math.round((100000 * (Date.now() - startRefTime)) / ITERATIONS) / 100
@@ -41,48 +41,48 @@ Factor: ${Math.round((100 * averageTime) / averageRefTime) / 100} (${averageRefT
 }
 
 describe.skip(`performace`, () => {
-  test(`tokenise`, () => {
+  it(`tokenise`, () => {
     const startTime = Date.now()
-    for (let i = 0; i < ITERATIONS; i += 1) {
+    for (let i = 0; i < ITERATIONS; i += 1)
       tokenize(program, { debug: true })
-    }
+
     logPerformace(`Tokenise`, Date.now() - startTime)
   })
 
-  test(`parse`, () => {
+  it(`parse`, () => {
     const tokens = tokenize(program, { debug: true })
     const startTime = Date.now()
-    for (let i = 0; i < ITERATIONS; i += 1) {
+    for (let i = 0; i < ITERATIONS; i += 1)
       parse(tokens)
-    }
+
     logPerformace(`Parse tokens`, Date.now() - startTime)
   })
 
-  test(`evaluate`, () => {
+  it(`evaluate`, () => {
     const tokens = tokenize(program, { debug: true })
     const ast = parse(tokens)
     const startTime = Date.now()
-    for (let i = 0; i < ITERATIONS; i += 1) {
+    for (let i = 0; i < ITERATIONS; i += 1)
       evaluate(ast, contextStack)
-    }
+
     logPerformace(`Evaluate AST`, Date.now() - startTime)
   })
 
-  test(`lits run - NOT cached.`, () => {
+  it(`lits run - NOT cached.`, () => {
     const lits = new Lits()
     const startTime = Date.now()
-    for (let i = 0; i < ITERATIONS; i += 1) {
+    for (let i = 0; i < ITERATIONS; i += 1)
       lits.run(program, { values: hostValues })
-    }
+
     logPerformace(`Run program`, Date.now() - startTime)
   })
 
-  test(`lits run - cached`, () => {
+  it(`lits run - cached`, () => {
     const lits = new Lits({ astCacheSize: 100 })
     const startTime = Date.now()
-    for (let i = 0; i < ITERATIONS; i += 1) {
+    for (let i = 0; i < ITERATIONS; i += 1)
       lits.run(program, { values: hostValues })
-    }
+
     console.log(lits.getRuntimeInfo())
     logPerformace(`Run program (with astCache)`, Date.now() - startTime)
   })

@@ -1,11 +1,11 @@
-import type { SugarFunction } from '.'
 import { TokenType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import { asNonUndefined } from '../../typeGuards'
 import { assertNumber } from '../../typeGuards/number'
 import type { SourceCodeInfo, Token, TokenStream } from '../interface'
+import type { SugarFunction } from '.'
 
-export const applyCollectionAccessors: SugarFunction = tokenStream => {
+export const applyCollectionAccessors: SugarFunction = (tokenStream) => {
   let dotTokenIndex = tokenStream.tokens.findIndex(tkn => tkn.t === TokenType.CollectionAccessor)
   while (dotTokenIndex >= 0) {
     applyCollectionAccessor(tokenStream, dotTokenIndex)
@@ -33,7 +33,8 @@ function applyCollectionAccessor(tokenStream: TokenStream, position: number) {
       v: nextTkn.v,
       sourceCodeInfo: nextTkn.sourceCodeInfo,
     }
-  } else {
+  }
+  else {
     assertNumber(Number(nextTkn.v), sourceCodeInfo, { integer: true, nonNegative: true })
     tokenStream.tokens[position + 1] = {
       t: TokenType.Number,
@@ -50,9 +51,9 @@ function applyCollectionAccessor(tokenStream: TokenStream, position: number) {
 
 function getPositionBackwards(tokenStream: TokenStream, position: number, sourceCodeInfo: SourceCodeInfo | undefined) {
   let bracketCount: number | null = null
-  if (position <= 0) {
+  if (position <= 0)
     throw new LitsError(`Array accessor # must come after a sequence`, sourceCodeInfo)
-  }
+
   const prevToken = asNonUndefined(tokenStream.tokens[position - 1])
   let openBracket: null | `(` | `[` | `{` = null
   let closeBracket: null | `)` | `]` | `}` = null
@@ -81,19 +82,17 @@ function getPositionBackwards(tokenStream: TokenStream, position: number, source
     position -= 1
     const tkn = asNonUndefined(tokenStream.tokens[position], sourceCodeInfo)
     if (tkn.t === TokenType.Bracket) {
-      if (tkn.v === openBracket) {
+      if (tkn.v === openBracket)
         bracketCount += 1
-      }
-      if (tkn.v === closeBracket) {
+
+      if (tkn.v === closeBracket)
         bracketCount -= 1
-      }
     }
   }
   if (openBracket === `(` && position > 0) {
     const tokenBeforeBracket = asNonUndefined(tokenStream.tokens[position - 1])
-    if (tokenBeforeBracket.t === TokenType.FnShorthand) {
+    if (tokenBeforeBracket.t === TokenType.FnShorthand)
       throw new LitsError(`# or . must NOT be preceeded by shorthand lambda function`, sourceCodeInfo)
-    }
   }
   return position
 }
@@ -106,10 +105,9 @@ function checkForward(
 ) {
   const tkn = asNonUndefined(tokenStream.tokens[position + 1], sourceCodeInfo)
 
-  if (dotTkn.v === `.` && tkn.t !== TokenType.Name) {
+  if (dotTkn.v === `.` && tkn.t !== TokenType.Name)
     throw new LitsError(`# as a collection accessor must be followed by an name`, sourceCodeInfo)
-  }
-  if (dotTkn.v === `#` && tkn.t !== TokenType.Number) {
+
+  if (dotTkn.v === `#` && tkn.t !== TokenType.Number)
     throw new LitsError(`# as a collection accessor must be followed by an integer`, sourceCodeInfo)
-  }
 }

@@ -8,13 +8,13 @@ import { isUnknownRecord } from '../typeGuards'
 import { FunctionType } from '../constants/constants'
 
 export function collHasKey(coll: unknown, key: string | number): boolean {
-  if (!isColl(coll)) {
+  if (!isColl(coll))
     return false
-  }
+
   if (typeof coll === `string` || Array.isArray(coll)) {
-    if (!isNumber(key, { integer: true })) {
+    if (!isNumber(key, { integer: true }))
       return false
-    }
+
     return key >= 0 && key < coll.length
   }
   return !!Object.getOwnPropertyDescriptor(coll, key)
@@ -34,39 +34,37 @@ const sortOrderByType: Record<Type, number> = {
 }
 
 function getType(value: unknown): Type {
-  if (value === null) {
+  if (value === null)
     return `null`
-  } else if (typeof value === `boolean`) {
+  else if (typeof value === `boolean`)
     return `boolean`
-  } else if (typeof value === `number`) {
+  else if (typeof value === `number`)
     return `number`
-  } else if (typeof value === `string`) {
+  else if (typeof value === `string`)
     return `string`
-  } else if (Array.isArray(value)) {
+  else if (Array.isArray(value))
     return `array`
-  } else if (isObj(value)) {
+  else if (isObj(value))
     return `object`
-  } else if (isRegularExpression(value)) {
+  else if (isRegularExpression(value))
     return `regexp`
-  } else {
+  else
     return `unknown`
-  }
 }
 
 export function compare(a: unknown, b: unknown): number {
   const aType = getType(a)
   const bType = getType(b)
-  if (aType !== bType) {
+  if (aType !== bType)
     return Math.sign(sortOrderByType[aType] - sortOrderByType[bType])
-  }
 
   switch (aType) {
     case `null`:
       return 0
     case `boolean`:
-      if (a === b) {
+      if (a === b)
         return 0
-      }
+
       return a === false ? -1 : 1
     case `number`:
       return Math.sign((a as number) - (b as number))
@@ -78,16 +76,15 @@ export function compare(a: unknown, b: unknown): number {
     case `array`: {
       const aArray = a as Arr
       const bArray = b as Arr
-      if (aArray.length < bArray.length) {
+      if (aArray.length < bArray.length)
         return -1
-      } else if (aArray.length > bArray.length) {
+      else if (aArray.length > bArray.length)
         return 1
-      }
+
       for (let i = 0; i < aArray.length; i += 1) {
         const innerComp = compare(aArray[i], bArray[i])
-        if (innerComp !== 0) {
+        if (innerComp !== 0)
           return innerComp
-        }
       }
       return 0
     }
@@ -107,39 +104,35 @@ export function compare(a: unknown, b: unknown): number {
 }
 
 export function deepEqual(a: Any, b: Any, sourceCodeInfo?: SourceCodeInfo): boolean {
-  if (a === b) {
+  if (a === b)
     return true
-  }
 
-  if (typeof a === `number` && typeof b === `number`) {
+  if (typeof a === `number` && typeof b === `number`)
     return Math.abs(a - b) < Number.EPSILON
-  }
 
   if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length) {
+    if (a.length !== b.length)
       return false
-    }
+
     for (let i = 0; i < a.length; i += 1) {
-      if (!deepEqual(asAny(a[i], sourceCodeInfo), asAny(b[i], sourceCodeInfo), sourceCodeInfo)) {
+      if (!deepEqual(asAny(a[i], sourceCodeInfo), asAny(b[i], sourceCodeInfo), sourceCodeInfo))
         return false
-      }
     }
     return true
   }
-  if (isRegularExpression(a) && isRegularExpression(b)) {
+  if (isRegularExpression(a) && isRegularExpression(b))
     return a.s === b.s && a.f === b.f
-  }
+
   if (isUnknownRecord(a) && isUnknownRecord(b)) {
     const aKeys = Object.keys(a)
     const bKeys = Object.keys(b)
-    if (aKeys.length !== bKeys.length) {
+    if (aKeys.length !== bKeys.length)
       return false
-    }
+
     for (let i = 0; i < aKeys.length; i += 1) {
       const key = asString(aKeys[i], sourceCodeInfo)
-      if (!deepEqual(toAny(a[key]), toAny(b[key]), sourceCodeInfo)) {
+      if (!deepEqual(toAny(a[key]), toAny(b[key]), sourceCodeInfo))
         return false
-      }
     }
     return true
   }
@@ -162,9 +155,10 @@ function clone<T>(value: T): T {
       return result
     }, {}) as T
   }
-  if (Array.isArray(value)) {
+  if (Array.isArray(value))
+    // eslint-disable-next-line ts/no-unsafe-return
     return value.map(item => clone(item)) as unknown as T
-  }
+
   return value
 }
 
@@ -172,7 +166,6 @@ export function cloneColl<T extends Coll>(value: T): T {
   return clone(value)
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createNativeJsFunction(fn: (...args: any[]) => unknown, name?: string): NativeJsFunction {
   return {
     λ: true,

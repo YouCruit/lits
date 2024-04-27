@@ -1,3 +1,6 @@
+import { testTypeGuars } from '../../__tests__/testUtils'
+import { AstNodeType, TokenType } from '../constants/constants'
+import type { AstNode, NormalExpressionNode } from '../parser/interface'
 import {
   asNonUndefined,
   asUnknownRecord,
@@ -7,9 +10,6 @@ import {
   assertUnknownRecord,
   isUnknownRecord,
 } from '.'
-import { testTypeGuars } from '../../__tests__/testUtils'
-import { AstNodeType, TokenType } from '../constants/constants'
-import type { AstNode, NormalExpressionNode } from '../parser/interface'
 
 function toNormalExpressionNode(arr: number[]): NormalExpressionNode {
   const astNodes: AstNode[] = arr.map(n => ({
@@ -26,7 +26,7 @@ function toNormalExpressionNode(arr: number[]): NormalExpressionNode {
 }
 
 describe(`typeGuards index file`, () => {
-  test(`asNotUndefined`, () => {
+  it(`asNotUndefined`, () => {
     expect(() => asNonUndefined(undefined)).toThrow()
     expect(asNonUndefined(null)).toBe(null)
     expect(asNonUndefined(false)).toBe(false)
@@ -35,7 +35,7 @@ describe(`typeGuards index file`, () => {
     const obj = {}
     expect(asNonUndefined(obj)).toBe(obj)
   })
-  test(`assertNotUndefined`, () => {
+  it(`assertNotUndefined`, () => {
     expect(() => assertNonUndefined(undefined)).toThrow()
     expect(() => assertNonUndefined(undefined)).toThrow()
     expect(() => assertNonUndefined(null)).not.toThrow()
@@ -44,7 +44,7 @@ describe(`typeGuards index file`, () => {
     expect(() => assertNonUndefined(0)).not.toThrow()
     expect(() => assertNonUndefined({})).not.toThrow()
   })
-  test(`assertLengthEven`, () => {
+  it(`assertLengthEven`, () => {
     expect(() => assertEventNumberOfParams(toNormalExpressionNode([]))).not.toThrow()
     expect(() => assertEventNumberOfParams(toNormalExpressionNode([0]))).toThrow()
     expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1]))).not.toThrow()
@@ -54,7 +54,7 @@ describe(`typeGuards index file`, () => {
     expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1, 2, 3, 4, 5]))).not.toThrow()
   })
 
-  test(`assertLength`, () => {
+  it(`assertLength`, () => {
     expect(() => assertNumberOfParams(0, toNormalExpressionNode([]))).not.toThrow()
     expect(() => assertNumberOfParams(0, toNormalExpressionNode([1]))).toThrow()
     expect(() => assertNumberOfParams(1, toNormalExpressionNode([1]))).not.toThrow()
@@ -92,7 +92,7 @@ describe(`typeGuards index file`, () => {
     expect(() => assertNumberOfParams({ min: 3, max: 1 }, toNormalExpressionNode([1, 2, 3, 4, 5, 6]))).toThrow()
   })
 
-  test(`UnknownRecord`, () => {
+  it(`unknownRecord`, () => {
     const valid = [{}, { a: 1 }]
     const invalid = [undefined, null, 0, false, true, ``, `foo`, []]
     testTypeGuars(

@@ -7,7 +7,7 @@ import { getUndefinedSymbolNames } from './testUtils'
 
 describe(`analyzeAst.`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
-    test(`example`, () => {
+    it(`example`, () => {
       const program = `(+ a b)`
       const tokens = lits.tokenize(program)
       const ast = lits.parse(tokens)

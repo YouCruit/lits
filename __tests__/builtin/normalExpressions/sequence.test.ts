@@ -4,7 +4,7 @@ const lits = new Lits()
 const litsInstances = [lits, new Lits({ debug: true })]
 describe(`sequence functions`, () => {
   describe(`nth`, () => {
-    test(`array samples`, () => {
+    it(`array samples`, () => {
       for (const lits2 of litsInstances) {
         expect(lits2.run(`(nth [1 2 3] 1)`)).toBe(2)
         expect(lits2.run(`(nth [] 0)`)).toBeNull()
@@ -18,7 +18,7 @@ describe(`sequence functions`, () => {
       }
     })
 
-    test(`string samples`, () => {
+    it(`string samples`, () => {
       expect(lits.run(`(nth "A string" 1)`)).toBe(` `)
       expect(lits.run(`(nth "A string" 3)`)).toBe(`t`)
       expect(lits.run(`(nth "A string" -3)`)).toBeNull()
@@ -28,7 +28,7 @@ describe(`sequence functions`, () => {
       expect(() => lits.run(`(nth "A string" 1 2 3)`)).toThrow()
     })
 
-    test(`Default values`, () => {
+    it(`default values`, () => {
       expect(lits.run(`(nth [1 2 3] 1 99)`)).toBe(2)
       expect(lits.run(`(nth [1 2 3] 3 99)`)).toBe(99)
       expect(lits.run(`(nth [1 2 3] -1 99)`)).toBe(99)
@@ -40,14 +40,14 @@ describe(`sequence functions`, () => {
       expect(lits.run(`(nth "A string" -30 99)`)).toBe(99)
     })
 
-    test(`nil sequence`, () => {
+    it(`nil sequence`, () => {
       expect(lits.run(`(nth nil 0)`)).toBeNull()
       expect(lits.run(`(nth nil 0 99)`)).toBe(99)
     })
   })
 
   describe(`slice`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(slice [1 2 3])`)).toEqual([1, 2, 3])
       expect(lits.run(`(slice [1 2 3] 0)`)).toEqual([1, 2, 3])
       expect(lits.run(`(slice [1 2 3] 1)`)).toEqual([2, 3])
@@ -86,7 +86,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`reductions`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(reductions + [1 2 3 4 5])`)).toEqual([1, 3, 6, 10, 15])
       expect(lits.run(`(reductions + [])`)).toEqual([0])
       expect(lits.run(`(reductions + [1])`)).toEqual([1])
@@ -124,7 +124,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`reduce`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       let program = `
       (defn countChars [stringArray]
         (reduce
@@ -177,7 +177,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`reduce-right`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(reduce-right + [1 2 3 4 5])`)).toBe(15)
       expect(lits.run(`(reduce-right + [])`)).toBe(0)
       expect(lits.run(`(reduce-right + [1])`)).toBe(1)
@@ -198,7 +198,7 @@ describe(`sequence functions`, () => {
     })
   })
   describe(`filter`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(filter number? [1 :2 3])`)).toEqual([1, 3])
       expect(lits.run(`(filter number? [])`)).toEqual([])
       expect(lits.run(`(filter nil? [1 :2 3])`)).toEqual([])
@@ -211,7 +211,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`position`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(position number? [:1 :2 3])`)).toEqual(2)
       expect(lits.run(`(position number? [:1 :2 :3])`)).toBeNull()
       expect(lits.run(`(position number? [])`)).toBeNull()
@@ -226,7 +226,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`index-of`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(index-of [:1 :2 3] :2)`)).toEqual(1)
       expect(lits.run(`(index-of [:1 :2 :3] :4)`)).toBeNull()
       expect(lits.run(`(index-of [] 1)`)).toBeNull()
@@ -241,7 +241,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`some`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(some #(= :l %) :Albert)`)).toBe(`l`)
 
       expect(lits.run(`(some number? nil)`)).toBeNull()
@@ -260,7 +260,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`map`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(map number? [1 :2 3])`)).toEqual([true, false, true])
       expect(lits.run(`(map number? [])`)).toEqual([])
       expect(lits.run(`(map + [1 2 3] [1 2 3])`)).toEqual([2, 4, 6])
@@ -306,7 +306,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`first`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(first [1 2 3])`)).toEqual(1)
       expect(lits.run(`(first [:1])`)).toEqual(`1`)
       expect(lits.run(`(first [])`)).toBeNull()
@@ -324,7 +324,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`second`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(second [1 2 3])`)).toEqual(2)
       expect(lits.run(`(second [:1])`)).toBeNull()
       expect(lits.run(`(second [])`)).toBeNull()
@@ -345,7 +345,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`reverse`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(reverse [1 2 3])`)).toEqual([3, 2, 1])
       expect(lits.run(`(reverse [:1])`)).toEqual([`1`])
       expect(lits.run(`(reverse [])`)).toEqual([])
@@ -363,7 +363,7 @@ describe(`sequence functions`, () => {
       expect(() => lits.run(`(reverse (object))`)).toThrow()
       expect(() => lits.run(`(reverse 10)`)).toThrow()
     })
-    test(`returns a new array instance`, () => {
+    it(`returns a new array instance`, () => {
       const program = `
         (def l [1 2 3])
         (not= l (reverse l))
@@ -373,7 +373,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`last`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(last [1 2 3])`)).toEqual(3)
       expect(lits.run(`(last [:1])`)).toEqual(`1`)
       expect(lits.run(`(last [])`)).toBeNull()
@@ -392,7 +392,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`rest`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(rest [1 2 3])`)).toEqual([2, 3])
       expect(lits.run(`(rest [1 2])`)).toEqual([2])
       expect(lits.run(`(rest [:1])`)).toEqual([])
@@ -411,7 +411,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`nthrest`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(nthrest [1 2 3 4 5 6 7 8 9] 4)`)).toEqual([5, 6, 7, 8, 9])
       expect(lits.run(`(nthrest [1 2 3 4 5 6 7 8 9] 4.1)`)).toEqual([6, 7, 8, 9])
       expect(lits.run(`(nthrest [1 2 3 4 5 6 7 8 9] -1)`)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -435,7 +435,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`next`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(next [1 2 3])`)).toEqual([2, 3])
       expect(lits.run(`(next [1 2])`)).toEqual([2])
       expect(lits.run(`(next [:1])`)).toBeNull()
@@ -454,7 +454,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`nthnext`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(nthnext [1 2 3 4 5 6 7 8 9] 4)`)).toEqual([5, 6, 7, 8, 9])
       expect(lits.run(`(nthnext [1 2 3 4 5 6 7 8 9] 10)`)).toBeNull()
       expect(lits.run(`(nthnext [1 2 3 4 5 6 7 8 9] 4.1)`)).toEqual([6, 7, 8, 9])
@@ -478,7 +478,7 @@ describe(`sequence functions`, () => {
     })
   })
   describe(`cons`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(cons 0 [1 2 3])`)).toEqual([0, 1, 2, 3])
       expect(lits.run(`(cons 0 [:1])`)).toEqual([0, `1`])
       expect(lits.run(`(cons 0 [])`)).toEqual([0])
@@ -496,7 +496,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`push`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(push [1 2 3] 0)`)).toEqual([1, 2, 3, 0])
       expect(lits.run(`(push [1 2 3] 1 :2)`)).toEqual([1, 2, 3, 1, `2`])
       expect(lits.run(`(def l [1 2 3]) (push l 1 :2)`)).toEqual([1, 2, 3, 1, `2`])
@@ -519,7 +519,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`pop`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(pop [1 2 3])`)).toEqual([1, 2])
       expect(lits.run(`(pop [])`)).toEqual([])
       expect(lits.run(`(def l [1 2 3]) (pop l) l`)).toEqual([1, 2, 3])
@@ -539,7 +539,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`unshift`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(unshift [1 2 3] 0)`)).toEqual([0, 1, 2, 3])
       expect(lits.run(`(unshift [1 2 3] 1 :2)`)).toEqual([1, `2`, 1, 2, 3])
       expect(lits.run(`(def l [1 2 3]) (unshift l 1 :2) l`)).toEqual([1, 2, 3])
@@ -559,7 +559,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`shift`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(shift [1 2 3])`)).toEqual([2, 3])
       expect(lits.run(`(shift [])`)).toEqual([])
       expect(lits.run(`(def l [1 2 3]) (shift l) l`)).toEqual([1, 2, 3])
@@ -579,7 +579,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`take`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(take 2 [1 2 3])`)).toEqual([1, 2])
       expect(lits.run(`(take 2 [])`)).toEqual([])
       expect(lits.run(`(take 20 [1 2 3])`)).toEqual([1, 2, 3])
@@ -597,7 +597,7 @@ describe(`sequence functions`, () => {
       expect(() => lits.run(`(take 1 2 [1 2 3])`)).toThrow()
     })
 
-    test(`new array created`, () => {
+    it(`new array created`, () => {
       const program = `
         (def l1 [1 2 3])
         (def l2 (take 2 l1))
@@ -608,7 +608,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`take-last`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(take-last 2 [1 2 3])`)).toEqual([2, 3])
       expect(lits.run(`(take-last 20 [1 2 3])`)).toEqual([1, 2, 3])
       expect(lits.run(`(take-last 0 [1 2 3])`)).toEqual([])
@@ -624,7 +624,7 @@ describe(`sequence functions`, () => {
       expect(() => lits.run(`(take-last 1 2 [1 2 3])`)).toThrow()
     })
 
-    test(`new array created`, () => {
+    it(`new array created`, () => {
       const program = `
         (def l1 [1 2 3])
         (def l2 (take-last 2 l1))
@@ -635,7 +635,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`take-while`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(take-while (fn [x] (< x 3)) [1 2 3 2 1])`)).toEqual([1, 2])
       expect(lits.run(`(take-while (fn [x] (> x 3)) [1 2 3 2 1])`)).toEqual([])
       expect(lits.run(`(take-while (fn [x] (<= x :c)) "abcdabcd")`)).toEqual(`abc`)
@@ -649,7 +649,7 @@ describe(`sequence functions`, () => {
       expect(() => lits.run(`(take-while [1 2 3])`)).toThrow()
       expect(() => lits.run(`(take-while (fn [x] (< x 3)) [1 2 3] 1)`)).toThrow()
     })
-    test(`new array created`, () => {
+    it(`new array created`, () => {
       const program = `
         (def l1 [1 2 3])
         (def l2 (take-while (fn [x] (< x 3)) l1))
@@ -660,7 +660,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`drop`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(drop 2 [1 2 3])`)).toEqual([3])
       expect(lits.run(`(drop 20 [1 2 3])`)).toEqual([])
       expect(lits.run(`(drop 0 [1 2 3])`)).toEqual([1, 2, 3])
@@ -678,7 +678,7 @@ describe(`sequence functions`, () => {
       expect(() => lits.run(`(drop 1 2 [1 2 3])`)).toThrow()
     })
 
-    test(`new array created`, () => {
+    it(`new array created`, () => {
       const program = `
         (def l1 [1 2 3])
         (def l2 (drop 2 l1))
@@ -689,7 +689,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`drop-last`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(drop-last 2 [1 2 3])`)).toEqual([1])
       expect(lits.run(`(drop-last 20 [1 2 3])`)).toEqual([])
       expect(lits.run(`(drop-last 0 [1 2 3])`)).toEqual([1, 2, 3])
@@ -709,7 +709,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`drop-while`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(drop-while (fn [x] (< x 3)) [1 2 3 2 1])`)).toEqual([3, 2, 1])
       expect(lits.run(`(drop-while (fn [x] (> x 3)) [1 2 3 2 1])`)).toEqual([1, 2, 3, 2, 1])
       expect(lits.run(`(drop-while (fn [x] (<= x :c)) "abcdab")`)).toEqual(`dab`)
@@ -723,7 +723,7 @@ describe(`sequence functions`, () => {
       expect(() => lits.run(`(drop-while [1 2 3])`)).toThrow()
       expect(() => lits.run(`(drop-while (fn [x] (< x 3)) [1 2 3] 1)`)).toThrow()
     })
-    test(`new array created`, () => {
+    it(`new array created`, () => {
       const program = `
         (def l1 [1 2 3])
         (def l2 (take-while (fn [x] (< x 3)) l1))
@@ -734,7 +734,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`sort`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(sort (fn [a b] (cond (< a b) -1 (> a b) 1 true 0)) [3 1 2])`)).toEqual([1, 2, 3])
       expect(lits.run(`(sort (fn [a b] (cond (> a b) -1 (< a b) 1 true 0)) [3 1 2])`)).toEqual([3, 2, 1])
       expect(lits.run(`(sort (fn [a b] (cond (> a b) -1 (< a b) 1 true 0)) [])`)).toEqual([])
@@ -755,7 +755,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`join`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(join ["Albert" "Mojir"] " ")`)).toBe(`Albert Mojir`)
       expect(lits.run(`(join (map number-to-string [0 1 2 3 4 5 6 7 8 9]) ", ")`)).toBe(`0, 1, 2, 3, 4, 5, 6, 7, 8, 9`)
       expect(() => lits.run(`(join (map number-to-string [0 1 2 3 4 5 6 7 8 9]) ", " 5)`)).toThrow()
@@ -766,7 +766,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`random-sample!`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(random-sample! 1 [1 2 3])`)).toEqual([1, 2, 3])
       expect(lits.run(`(random-sample! 1.9 [1 2 3])`)).toEqual([1, 2, 3])
       expect(lits.run(`(random-sample! 0 [1 2 3])`)).toEqual([])
@@ -782,7 +782,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`rand-nth!`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(rand-nth! [])`)).toBeNull()
       expect(lits.run(`(rand-nth! "")`)).toBeNull()
       expect([1, 2, 3].includes(lits.run(`(rand-nth! [1 2 3])`) as number)).toBe(true)
@@ -791,7 +791,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`shuffle!`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(shuffle! [1 2 3])`)).not.toEqual([1, 2, 3]) // Due to the shuffle algorithm, it will always differ
       expect(lits.run(`(shuffle! "Albert")`)).not.toBe(`Albert`) // Due to the shuffle algorithm, it will always differ
       expect(lits.run(`(shuffle! [1 2])`)).toEqual([2, 1]) // Due to the shuffle algorithm, first element connot be the same after shuffle
@@ -803,7 +803,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`distinct`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(distinct [1 2 3 1 3 5])`)).toEqual([1, 2, 3, 5])
       expect(lits.run(`(distinct [])`)).toEqual([])
       expect(lits.run(`(distinct "Albert Mojir")`)).toBe(`Albert Moji`)
@@ -814,7 +814,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`remove`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(remove even? [1 2 3 1 3 5])`)).toEqual([1, 3, 1, 3, 5])
       expect(lits.run(`(remove #(has? "aoueiyAOUEIY" %1) "Albert Mojir")`)).toBe(`lbrt Mjr`)
       expect(() => lits.run(`(remove)`)).toThrow()
@@ -825,7 +825,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`remove-at`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(remove-at -1 [1 2 3 4 5])`)).toEqual([1, 2, 3, 4, 5])
       expect(lits.run(`(remove-at 0 [1 2 3 4 5])`)).toEqual([2, 3, 4, 5])
       expect(lits.run(`(remove-at 2 [1 2 3 4 5])`)).toEqual([1, 2, 4, 5])
@@ -844,7 +844,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`split-at`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(split-at 2 [1 2 3 4 5])`)).toEqual([
         [1, 2],
         [3, 4, 5],
@@ -866,7 +866,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`split-with`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(split-with #(< %1 3) [1 2 3 4 5])`)).toEqual([
         [1, 2],
         [3, 4, 5],
@@ -885,7 +885,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`frequencies`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(frequencies ["Albert" "Mojir" "Nina" "Mojir"])`)).toEqual({ Albert: 1, Nina: 1, Mojir: 2 })
       expect(lits.run(`(frequencies "Pneumonoultramicroscopicsilicovolcanoconiosis")`)).toEqual({
         P: 1,
@@ -912,7 +912,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`group-by`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(group-by "name" [{"name" "Albert"} {"name" "Albert"} {"name" "Mojir"}])`)).toEqual({
         Albert: [{ name: `Albert` }, { name: `Albert` }],
         Mojir: [{ name: `Mojir` }],
@@ -930,7 +930,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`sort-by`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(sort-by count ["Albert" "Mojir" "Nina"])`)).toEqual([`Nina`, `Mojir`, `Albert`])
       expect(lits.run(`(sort-by count (fn [a b] (- b a)) ["Albert" "Mojir" "Nina"])`)).toEqual([
         `Albert`,
@@ -950,7 +950,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`partition`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(partition 4 (range 20))`)).toEqual([
         [0, 1, 2, 3],
         [4, 5, 6, 7],
@@ -1021,7 +1021,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`partition-all`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(partition-all 4 [0 1 2 3 4 5 6 7 8 9])`)).toEqual([
         [0, 1, 2, 3],
         [4, 5, 6, 7],
@@ -1038,7 +1038,7 @@ describe(`sequence functions`, () => {
   })
 
   describe(`partition-by`, () => {
-    test(`samples`, () => {
+    it(`samples`, () => {
       expect(lits.run(`(partition-by #(= 3 %1) [1 2 3 4 5])`)).toEqual([[1, 2], [3], [4, 5]])
       expect(lits.run(`(partition-by odd? [1 1 1 2 2 3 3])`)).toEqual([
         [1, 1, 1],

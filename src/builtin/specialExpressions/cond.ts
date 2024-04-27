@@ -1,12 +1,11 @@
 import type { Any } from '../../interface'
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { AstNode, ParseToken, SpecialExpressionNode } from '../../parser/interface'
 import type { TokenStream } from '../../tokenizer/interface'
-import { TokenType } from '../../constants/constants'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export type Condition = {
+export interface Condition {
   t: AstNode // test
   f: AstNode // form
 }
@@ -53,9 +52,9 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     for (const condition of (node as CondNode).c) {
       const value = evaluateAstNode(condition.t, contextStack)
-      if (!value) {
+      if (!value)
         continue
-      }
+
       return evaluateAstNode(condition.f, contextStack)
     }
     return null

@@ -68,7 +68,7 @@ module.exports = {
     description: `Computes division or reciprocal. When called with one argument it computes reciprocal. When called with two or more arguments it does compute division of the first by the all remaining \`numbers\`.`,
     examples: [`(/)`, `(/ 2)`, `(/ 2 4)`, `(/ 4 3 2 1)`],
   },
-  mod: {
+  'mod': {
     name: `mod`,
     category: `Math`,
     linkName: `mod`,
@@ -88,7 +88,7 @@ module.exports = {
     description: `Modulus of \`dividend\` and \`divisor\`. Truncates toward negative infinity.`,
     examples: [`(mod 5 3)`, `(mod 5.2 3.1)`, `(mod -5 3)`, `(mod 5 -3)`, `(mod -5 -3)`],
   },
-  rem: {
+  'rem': {
     name: `rem`,
     category: `Math`,
     linkName: `rem`,
@@ -108,7 +108,7 @@ module.exports = {
     description: `Remainder of dividing \`dividend\` and \`divisor\`.`,
     examples: [`(rem 5 3)`, `(rem 5.2 3.1)`, `(rem -5 3)`, `(rem 5 -3)`, `(rem -5 -3)`],
   },
-  quot: {
+  'quot': {
     name: `quot`,
     category: `Math`,
     linkName: `quot`,
@@ -128,7 +128,7 @@ module.exports = {
     description: `Quotient of dividing \`dividend\` and \`divisor\`.`,
     examples: [`(quot 5 3)`, `(quot 5.2 3.1)`, `(quot -5 3)`, `(quot 5 -3)`, `(quot -5 -3)`],
   },
-  inc: {
+  'inc': {
     name: `inc`,
     category: `Math`,
     linkName: `inc`,
@@ -144,7 +144,7 @@ module.exports = {
     description: `Adds one to \`number\`.`,
     examples: [`(inc 0)`, `(inc 1)`, `(inc 100.1)`],
   },
-  dec: {
+  'dec': {
     name: `dec`,
     category: `Math`,
     linkName: `dec`,
@@ -160,7 +160,7 @@ module.exports = {
     description: `Subtracts one from \`number\`.`,
     examples: [`(dec 0)`, `(dec 1)`, `(dec 100.1)`],
   },
-  sqrt: {
+  'sqrt': {
     name: `sqrt`,
     category: `Math`,
     linkName: `sqrt`,
@@ -177,7 +177,7 @@ module.exports = {
     description: `Computes square root of \`number\`.`,
     examples: [`(sqrt 0)`, `(sqrt 9)`, `(sqrt 2)`],
   },
-  cbrt: {
+  'cbrt': {
     name: `cbrt`,
     category: `Math`,
     linkName: `cbrt`,
@@ -194,7 +194,7 @@ module.exports = {
     description: `Computes cube root of \`number\`.`,
     examples: [`(cbrt 0)`, `(cbrt 27)`, `(cbrt 2)`, `(cbrt 1)`],
   },
-  pow: {
+  'pow': {
     name: `pow`,
     category: `Math`,
     linkName: `pow`,
@@ -215,7 +215,7 @@ module.exports = {
     description: `Computes returns \`base-number\` raised to the \`power-number\`.`,
     examples: [`(pow 2 3)`, `(pow 2 0)`, `(pow 2 -3)`, `(pow -2 3)`, `(pow -2 -3)`],
   },
-  exp: {
+  'exp': {
     name: `exp`,
     category: `Math`,
     linkName: `exp`,
@@ -232,7 +232,7 @@ module.exports = {
     description: `Computes \`e\` rasied to the \`power-number\`.`,
     examples: [`(exp 3)`, `(exp 0)`, `(exp -3)`, `(exp 3)`],
   },
-  round: {
+  'round': {
     name: `round`,
     category: `Math`,
     linkName: `round`,
@@ -262,7 +262,7 @@ module.exports = {
       `(round 1.23456789 4)`,
     ],
   },
-  trunc: {
+  'trunc': {
     name: `trunc`,
     category: `Math`,
     linkName: `trunc`,
@@ -279,7 +279,7 @@ module.exports = {
     description: `Returns the integer part of \`number\` by removing any fractional digits.`,
     examples: [`(trunc 2)`, `(trunc 2.49)`, `(trunc 2.5)`, `(trunc -2.49)`, `(trunc -2.5)`, `(trunc -2.501)`],
   },
-  floor: {
+  'floor': {
     name: `floor`,
     category: `Math`,
     linkName: `floor`,
@@ -296,7 +296,7 @@ module.exports = {
     description: `Returns the largest \`integer\` less than or equal to \`number\`.`,
     examples: [`(floor 2)`, `(floor 2.49)`, `(floor 2.5)`, `(floor -2.49)`, `(floor -2.5)`, `(floor -2.501)`],
   },
-  ceil: {
+  'ceil': {
     name: `ceil`,
     category: `Math`,
     linkName: `ceil`,
@@ -313,7 +313,7 @@ module.exports = {
     description: `Returns the smallest \`integer\` larger than or equal to \`number\`.`,
     examples: [`(ceil 2)`, `(ceil 2.49)`, `(ceil 2.5)`, `(ceil -2.49)`, `(ceil -2.5)`, `(ceil -2.501)`],
   },
-  min: {
+  'min': {
     name: `min`,
     category: `Math`,
     linkName: `min`,
@@ -330,7 +330,7 @@ module.exports = {
     description: `Returns the smallest number of the arguments.`,
     examples: [`(min 2 0 1)`, `(min 2 -1 1)`, `(min 2.5)`],
   },
-  max: {
+  'max': {
     name: `max`,
     category: `Math`,
     linkName: `max`,
@@ -347,7 +347,7 @@ module.exports = {
     description: `Returns the largest number of the arguments.`,
     examples: [`(max 2 0 1)`, `(max 2 -1 1)`, `(max 2.5)`],
   },
-  abs: {
+  'abs': {
     name: `abs`,
     category: `Math`,
     linkName: `abs`,
@@ -364,7 +364,7 @@ module.exports = {
     description: `Returns the absolute value of \`number\`.`,
     examples: [`(abs -2.3)`, `(abs 0)`, `(abs 2.5)`],
   },
-  sign: {
+  'sign': {
     name: `sign`,
     category: `Math`,
     linkName: `sign`,
@@ -453,7 +453,7 @@ module.exports = {
     description: `Returns a number representing the smallest positive numeric value.`,
     examples: [`(min-value)`],
   },
-  epsilon: {
+  'epsilon': {
     name: `epsilon`,
     category: `Math`,
     linkName: `epsilon`,
@@ -465,7 +465,7 @@ module.exports = {
     description: `Returns a number representing the difference between 1 and the smallest floating point number greater than 1.`,
     examples: [`(epsilon)`],
   },
-  nan: {
+  'nan': {
     name: `nan`,
     category: `Math`,
     linkName: `nan`,
@@ -476,7 +476,7 @@ module.exports = {
     description: `Returns a number representing Not-A-Number.`,
     examples: [`(nan)`],
   },
-  e: {
+  'e': {
     name: `e`,
     category: `Math`,
     linkName: `e`,
@@ -488,7 +488,7 @@ module.exports = {
     description: `Returns Euler's number, the base of natural logarithms, e.`,
     examples: [`(e)`],
   },
-  pi: {
+  'pi': {
     name: `pi`,
     category: `Math`,
     linkName: `pi`,
@@ -500,7 +500,7 @@ module.exports = {
     description: `Returns Pi, the ratio of the circumference of a circle to its diameter.`,
     examples: [`(pi)`],
   },
-  log: {
+  'log': {
     name: `log`,
     category: `Math`,
     linkName: `log`,
@@ -517,7 +517,7 @@ module.exports = {
     description: `Returns the natural logarithm (base e) of \`number\`.`,
     examples: [`(log 0.01)`, `(log (exp 12))`, `(log 2.5)`],
   },
-  log2: {
+  'log2': {
     name: `log2`,
     category: `Math`,
     linkName: `log2`,
@@ -534,7 +534,7 @@ module.exports = {
     description: `Returns the base 2 logarithm of a number.`,
     examples: [`(log2 0.01)`, `(log2 (pow 2 12))`, `(log2 2.5)`],
   },
-  log10: {
+  'log10': {
     name: `log10`,
     category: `Math`,
     linkName: `log10`,
@@ -587,7 +587,7 @@ module.exports = {
     description: `Returns a semi random integer between \`0\` (inclusive) and \`number\` (exclusive).`,
     examples: [`(rand-int! 1)`, `(rand-int! 10.12)`, `(rand-int! 123)`],
   },
-  sin: {
+  'sin': {
     name: `sin`,
     category: `Math`,
     linkName: `sin`,
@@ -604,7 +604,7 @@ module.exports = {
     description: `Returns the sine of \`angle\`. \`angle\` must be specified in radians.`,
     examples: [`(sin 0)`, `(sin 1)`, `(sin (pi))`, `(sin -0.5)`],
   },
-  cos: {
+  'cos': {
     name: `cos`,
     category: `Math`,
     linkName: `cos`,
@@ -621,7 +621,7 @@ module.exports = {
     description: `Returns the cosine of \`angle\`. \`angle\` must be specified in radians.`,
     examples: [`(cos 0)`, `(cos 1)`, `(cos (pi))`, `(cos -0.5)`],
   },
-  tan: {
+  'tan': {
     name: `tan`,
     category: `Math`,
     linkName: `tan`,
@@ -638,7 +638,7 @@ module.exports = {
     description: `Returns the tangent of \`angle\`. \`angle\` must be specified in radians.`,
     examples: [`(tan 0)`, `(tan 1)`, `(tan (pi))`, `(tan -0.5)`],
   },
-  asin: {
+  'asin': {
     name: `asin`,
     category: `Math`,
     linkName: `asin`,
@@ -655,7 +655,7 @@ module.exports = {
     description: `Returns the arcsine (in radians) of \`value\`.`,
     examples: [`(asin 0)`, `(asin 1)`, `(asin -0.5)`],
   },
-  acos: {
+  'acos': {
     name: `acos`,
     category: `Math`,
     linkName: `acos`,
@@ -672,7 +672,7 @@ module.exports = {
     description: `Returns the arccosine (in radians) of \`value\`.`,
     examples: [`(acos 0)`, `(acos 1)`, `(acos -0.5)`],
   },
-  atan: {
+  'atan': {
     name: `atan`,
     category: `Math`,
     linkName: `atan`,
@@ -689,7 +689,7 @@ module.exports = {
     description: `Returns the arctangent (in radians) of \`value\`.`,
     examples: [`(atan 0)`, `(atan 1)`, `(atan -0.5)`],
   },
-  sinh: {
+  'sinh': {
     name: `sinh`,
     category: `Math`,
     linkName: `sinh`,
@@ -706,7 +706,7 @@ module.exports = {
     description: `Returns the hyperbolic sine of \`value\`.`,
     examples: [`(sinh 0)`, `(sinh 1)`, `(sinh -0.5)`],
   },
-  cosh: {
+  'cosh': {
     name: `cosh`,
     category: `Math`,
     linkName: `cosh`,
@@ -723,7 +723,7 @@ module.exports = {
     description: `Returns the hyperbolic cosine of \`value\`.`,
     examples: [`(cosh 0)`, `(cosh 1)`, `(cosh -0.5)`],
   },
-  tanh: {
+  'tanh': {
     name: `tanh`,
     category: `Math`,
     linkName: `tanh`,
@@ -740,7 +740,7 @@ module.exports = {
     description: `Returns the hyperbolic tangent of \`value\`.`,
     examples: [`(tanh 0)`, `(tanh 1)`, `(tanh -0.5)`, `(tanh 50)`],
   },
-  asinh: {
+  'asinh': {
     name: `asinh`,
     category: `Math`,
     linkName: `asinh`,
@@ -757,7 +757,7 @@ module.exports = {
     description: `Returns the hyperbolic arcsine of \`value\`.`,
     examples: [`(asinh 0)`, `(asinh 0.9)`, `(asinh -0.5)`],
   },
-  acosh: {
+  'acosh': {
     name: `acosh`,
     category: `Math`,
     linkName: `acosh`,
@@ -774,7 +774,7 @@ module.exports = {
     description: `Returns the hyperbolic arccosine of \`value\`.`,
     examples: [`(acosh 1)`, `(acosh 2)`, `(acosh 100)`],
   },
-  atanh: {
+  'atanh': {
     name: `atanh`,
     category: `Math`,
     linkName: `atanh`,

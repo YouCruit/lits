@@ -1,16 +1,16 @@
 var examples = [
   {
-    id: 'default',
-    name: 'Simple Lisp expression',
-    description: 'A super simple example.',
+    id: `default`,
+    name: `Simple Lisp expression`,
+    description: `A super simple example.`,
     code: `
 (+ 10 20)
     `.trim(),
   },
   {
-    id: 'collection-accessor',
-    name: 'Collection accessors',
-    description: 'Syntactic sugar for accessing object, array and string elements.',
+    id: `collection-accessor`,
+    name: `Collection accessors`,
+    description: `Syntactic sugar for accessing object, array and string elements.`,
     code: `
 ;; Access object properies with .
 ;; Access string and array elements with #
@@ -27,22 +27,22 @@ var examples = [
     `.trim(),
   },
   {
-    id: 'simple-params-example',
-    name: 'Params in use',
-    description: 'Simple example using params.',
+    id: `simple-params-example`,
+    name: `Params in use`,
+    description: `Simple example using params.`,
     params: {
       values: { x: 15 },
-      lazyValues: { y: { read: 'EVAL:() => 42' } },
-      jsFunctions: { plus: { fn: 'EVAL:(a, b) => a + b' } },
+      lazyValues: { y: { read: `EVAL:() => 42` } },
+      jsFunctions: { plus: { fn: `EVAL:(a, b) => a + b` } },
     },
     code: `
 (plus x y)
     `.trim(),
   },
   {
-    id: 'phone-number-formatter',
-    name: 'Phone number formatter',
-    description: 'Pretty prints a US phone number.',
+    id: `phone-number-formatter`,
+    name: `Phone number formatter`,
+    description: `Pretty prints a US phone number.`,
     code: `
 (defn formatPhoneNumber [$data]
   (if (string? $data)
@@ -80,9 +80,9 @@ var examples = [
 `.trim(),
   },
   {
-    id: 'factorial',
-    name: 'Factorial',
-    description: 'A recursive implementation of the factorial function.',
+    id: `factorial`,
+    name: `Factorial`,
+    description: `A recursive implementation of the factorial function.`,
     code: `
 (defn factorial [x]
   (if (= x 1)
@@ -95,9 +95,9 @@ var examples = [
 `.trim(),
   },
   {
-    id: 'sort',
-    name: 'Sort',
-    description: 'Sort an array of numbers.',
+    id: `sort`,
+    name: `Sort`,
+    description: `Sort an array of numbers.`,
     code: `
 (def l [7 39 45 0 23 1 50 100 12 -5])
 (defn numberComparer [a b]
@@ -112,9 +112,9 @@ var examples = [
     `.trim(),
   },
   {
-    id: 'multiple-arity',
-    name: 'Many arities',
-    description: 'Function with multiple arities.',
+    id: `multiple-arity`,
+    name: `Many arities`,
+    description: `Function with multiple arities.`,
     code: `
 (defn foo
   ([] "No parameters")
@@ -133,14 +133,14 @@ var examples = [
 `.trim(),
   },
   {
-    id: 'translations-lib',
-    name: 'Translations lib',
-    description: 'A Lits take on i18n.',
+    id: `translations-lib`,
+    name: `Translations lib`,
+    description: `A Lits take on i18n.`,
     params: {
       values: {
         TRANSLATIONS: {
-          'welcome-message': 'Welcome, $1',
-          'count-chairs': '$1 chair||||$1 chairs',
+          'welcome-message': `Welcome, $1`,
+          'count-chairs': `$1 chair||||$1 chairs`,
         },
       },
     },
@@ -163,9 +163,9 @@ var examples = [
   },
 
   {
-    id: 'isoDateString',
-    name: 'Is ISO date string',
-    description: 'Check if string is formatted as an ISO date string.',
+    id: `isoDateString`,
+    name: `Is ISO date string`,
+    description: `Check if string is formatted as an ISO date string.`,
     code: `
 (defn isoDateString? [$data]
   (if-let [m (match (regexp "^(\\d{4})-(\\d{2})-(\\d{2})$") $data)]
@@ -210,9 +210,9 @@ var examples = [
   },
 
   {
-    id: 'label-from-value',
-    name: 'label-from-value',
-    description: 'Find label to corresponding value in array of {label value}-objects.',
+    id: `label-from-value`,
+    name: `label-from-value`,
+    description: `Find label to corresponding value in array of {label value}-objects.`,
     code: `
 (defn label-from-value [$array $value]
   (let [entry (some #(= $value (%1 :value)) $array)]
@@ -230,9 +230,9 @@ var examples = [
   },
 
   {
-    id: 'labels-from-values',
-    name: 'labels-from-values',
-    description: 'Find labels to corresponding values in array of {label value}-objects.',
+    id: `labels-from-values`,
+    name: `labels-from-values`,
+    description: `Find labels to corresponding values in array of {label value}-objects.`,
     code: `
 (defn labels-from-values [$array $values]
   (for

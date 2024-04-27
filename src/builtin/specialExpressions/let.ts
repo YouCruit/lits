@@ -38,9 +38,9 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
 
     let result: Any = null
-    for (const astNode of node.p) {
+    for (const astNode of node.p)
       result = evaluateAstNode(astNode, newContextStack)
-    }
+
     return result
   },
   analyze: (node, contextStack, { analyzeAst, builtin }) => {
@@ -51,7 +51,7 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
         return context
       }, {})
     const bindingContext: Context = {}
-    const bindingResults = (node as LetNode).bs.map(bindingNode => {
+    const bindingResults = (node as LetNode).bs.map((bindingNode) => {
       const valueNode = bindingNode.v
       const bindingsResult = analyzeAst(valueNode, contextStack.create(bindingContext), builtin)
       bindingContext[bindingNode.n] = { value: true }

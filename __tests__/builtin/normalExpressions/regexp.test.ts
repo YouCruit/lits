@@ -4,11 +4,12 @@ import { regexpEquals } from '../../testUtils'
 describe(`regexp functions`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
     describe(`regexp`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(regexpEquals(lits.run(`(regexp "^abc$")`), /^abc$/)).toBe(true)
         expect(regexpEquals(lits.run(`#"^abc$"`), /^abc$/)).toBe(true)
         expect(regexpEquals(lits.run(`(regexp "^abc$" "gi")`), /^abc$/gi)).toBe(true)
         expect(regexpEquals(lits.run(`(regexp "^abc$" "ig")`), /^abc$/gi)).toBe(true)
+        // eslint-disable-next-line prefer-regex-literals
         expect(regexpEquals(lits.run(`(regexp "")`), new RegExp(``))).toBe(true)
         expect(() => lits.run(`(regexp "(")`)).toThrow()
         expect(() => lits.run(`(regexp)`)).toThrow()
@@ -23,7 +24,7 @@ describe(`regexp functions`, () => {
         expect(() => lits.run(`(regexp "abc" :g "extra")`)).toThrow()
       })
 
-      test(`email regexp`, () => {
+      it(`email regexp`, () => {
         expect(
           lits.run(
             `
@@ -36,7 +37,7 @@ describe(`regexp functions`, () => {
     })
 
     describe(`match`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(match (regexp "^abc$") "abc")`)).toEqual([`abc`])
         expect(lits.run(`(match (regexp "^abc$") "abx")`)).toBeNull()
         expect(lits.run(`(match (regexp "^(a)bc$") "abc")`)).toEqual([`abc`, `a`])
@@ -55,7 +56,7 @@ describe(`regexp functions`, () => {
     })
 
     describe(`replace`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(replace "abcabcABCABC" (regexp "^abc") "ABC")`)).toEqual(`ABCabcABCABC`)
         expect(lits.run(`(replace "abcabcABCABC" (regexp :a) :A)`)).toEqual(`AbcabcABCABC`)
         expect(lits.run(`(replace "abcabcABCABC" (regexp :a :g) :A)`)).toEqual(`AbcAbcABCABC`)

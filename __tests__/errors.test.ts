@@ -1,13 +1,13 @@
-import { LitsError, isLitsError } from '../src/errors'
-import { RecurSignal, UserDefinedError } from '../src/errors'
+import { LitsError, RecurSignal, UserDefinedError, isLitsError } from '../src/errors'
+
 describe(`errors`, () => {
-  test(`RecurSignal`, () => {
+  it(`recurSignal`, () => {
     const err = new RecurSignal([100])
     expect(err).toBeInstanceOf(RecurSignal)
     expect(err.name).toBe(`RecurSignal`)
     expect(err.params).toEqual([100])
   })
-  test(`UserDefinedError`, () => {
+  it(`userDefinedError`, () => {
     const err = new UserDefinedError(`A message`, {
       position: {
         line: 1,
@@ -20,7 +20,7 @@ describe(`errors`, () => {
     expect(err.message).toBe(`A message\n(+ 1 2)\n^      `)
   })
   describe(`isLitsError`, () => {
-    test(`isLitsError`, () => {
+    it(`isLitsError`, () => {
       const error = new Error(`An error`)
       const litsError = new LitsError(`An error`)
       const recurSignal = new RecurSignal([100])

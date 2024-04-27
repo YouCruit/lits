@@ -1,5 +1,5 @@
 module.exports = {
-  count: {
+  'count': {
     name: `count`,
     category: `Collection`,
     linkName: `count`,
@@ -22,7 +22,7 @@ module.exports = {
       `(count nil)`,
     ],
   },
-  get: {
+  'get': {
     name: `get`,
     category: `Collection`,
     linkName: `get`,
@@ -210,7 +210,7 @@ module.exports = {
       `(has-every? [1, 2, 3] nil)`,
     ],
   },
-  assoc: {
+  'assoc': {
     name: `assoc`,
     category: `Collection`,
     linkName: `assoc`,
@@ -267,7 +267,7 @@ module.exports = {
       `(assoc-in [1 2 {"name" "albert"}] [2 "name" 0] :A)`,
     ],
   },
-  concat: {
+  'concat': {
     name: `concat`,
     category: `Collection`,
     linkName: `concat`,
@@ -428,7 +428,7 @@ module.exports = {
       `(not-any? #(even? (second %)) {:a 1 :b 3})`,
     ],
   },
-  update: {
+  'update': {
     name: `update`,
     category: `Collection`,
     linkName: `update`,

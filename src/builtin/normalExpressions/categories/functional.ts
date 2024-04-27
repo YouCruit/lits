@@ -1,14 +1,14 @@
 import { FunctionType } from '../../../constants/constants'
 import type { Any, Arr } from '../../../interface'
 import type {
-  ComplementFunction,
   CompFunction,
+  ComplementFunction,
   ConstantlyFunction,
   EveryPredFunction,
+  FNilFunction,
   JuxtFunction,
   PartialFunction,
   SomePredFunction,
-  FNilFunction,
 } from '../../../parser/interface'
 import { toAny } from '../../../utils'
 import { assertLitsFunction } from '../../../typeGuards/litsFunction'
@@ -16,8 +16,9 @@ import { FUNCTION_SYMBOL } from '../../../utils/symbols'
 import type { BuiltinNormalExpressions } from '../../interface'
 import { assertArray } from '../../../typeGuards/array'
 import { assertNumberOfParams } from '../../../typeGuards'
+
 export const functionalNormalExpression: BuiltinNormalExpressions = {
-  apply: {
+  'apply': {
     evaluate: ([func, ...params]: Arr, sourceCodeInfo, contextStack, { executeFunction }): Any => {
       assertLitsFunction(func, sourceCodeInfo)
       const paramsLength = params.length
@@ -29,14 +30,14 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams({ min: 2 }, node),
   },
 
-  identity: {
+  'identity': {
     evaluate: ([value]): Any => {
       return toAny(value)
     },
     validate: node => assertNumberOfParams(1, node),
   },
 
-  partial: {
+  'partial': {
     evaluate: ([fn, ...params], sourceCodeInfo): PartialFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
@@ -49,13 +50,13 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams({ min: 1 }, node),
   },
 
-  comp: {
+  'comp': {
     evaluate: (fns, sourceCodeInfo): CompFunction => {
       if (fns.length > 1) {
         const last = fns[fns.length - 1]
-        if (Array.isArray(last)) {
+        if (Array.isArray(last))
+          // eslint-disable-next-line ts/no-unsafe-assignment
           fns = [...fns.slice(0, -1), ...last]
-        }
       }
       return {
         [FUNCTION_SYMBOL]: true,
@@ -66,7 +67,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     },
   },
 
-  constantly: {
+  'constantly': {
     evaluate: ([value], sourceCodeInfo): ConstantlyFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
@@ -78,7 +79,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams(1, node),
   },
 
-  juxt: {
+  'juxt': {
     evaluate: (fns, sourceCodeInfo): JuxtFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
@@ -90,7 +91,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams({ min: 1 }, node),
   },
 
-  complement: {
+  'complement': {
     evaluate: ([fn], sourceCodeInfo): ComplementFunction => {
       return {
         [FUNCTION_SYMBOL]: true,
@@ -126,7 +127,7 @@ export const functionalNormalExpression: BuiltinNormalExpressions = {
     validate: node => assertNumberOfParams({ min: 1 }, node),
   },
 
-  fnil: {
+  'fnil': {
     evaluate: ([fn, ...params], sourceCodeInfo): FNilFunction => {
       return {
         [FUNCTION_SYMBOL]: true,

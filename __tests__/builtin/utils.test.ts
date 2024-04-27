@@ -6,7 +6,7 @@ import { createContextStackWithGlobalContext } from '../testUtils'
 const contextStack: ContextStack = createContextStackWithGlobalContext({ a: { value: 1 } })
 
 describe(`builtin utils`, () => {
-  test(`assertNameNotDefined`, () => {
+  it(`assertNameNotDefined`, () => {
     expect(() => assertNameNotDefined(undefined, contextStack, builtin)).not.toThrow()
     expect(() => assertNameNotDefined(`b`, contextStack, builtin)).not.toThrow()
     expect(() => assertNameNotDefined(`a`, contextStack, builtin)).toThrow()

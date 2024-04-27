@@ -3,8 +3,7 @@ import { parse } from '../../src/parser'
 import { evaluate, evaluateAstNode } from '../../src/evaluator'
 import { Lits } from '../../src'
 import type { Context } from '../../src/evaluator/interface'
-import { TokenType } from '../../src/constants/constants'
-import { AstNodeType } from '../../src/constants/constants'
+import { AstNodeType, TokenType } from '../../src/constants/constants'
 import { type LazyValue, createContextStack } from '../../src/Lits/Lits'
 
 let lits: Lits
@@ -56,26 +55,26 @@ const lazyValues: Record<string, LazyValue> = {
   lisa: { read: () => 15 },
 }
 
-describe(`Evaluator`, () => {
-  test(`super simple program`, () => {
+describe(`evaluator`, () => {
+  it(`super simple program`, () => {
     const tokens = tokenize(`(+ 10 kalle)`, { debug: true })
     const ast = parse(tokens)
     const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toBe(15)
   })
-  test(`Another super simple program`, () => {
+  it(`another super simple program`, () => {
     const tokens = tokenize(`(+ 10 lisa)`, { debug: true })
     const ast = parse(tokens)
     const result = evaluate(ast, createContextStack({ lazyValues }))
     expect(result).toBe(25)
   })
-  test(`simple program`, () => {
+  it(`simple program`, () => {
     const tokens = tokenize(simpleProgram, { debug: true })
     const ast = parse(tokens)
     const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toBe(13 * 24 * 60 * 60 * 1000)
   })
-  test(`if statement (true)`, () => {
+  it(`if statement (true)`, () => {
     const tokens = tokenize(
       `
       (if (= (get info "gender") "male") "It\\"s a boy" "It\\"s not a girl")
@@ -86,7 +85,7 @@ describe(`Evaluator`, () => {
     const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toBe(`It"s a boy`)
   })
-  test(`if statement (false)`, () => {
+  it(`if statement (false)`, () => {
     const tokens = tokenize(
       `
       (if (= (get info "gender") "female") "It\\"s a girl" "It\\"s not a girl")
@@ -97,7 +96,7 @@ describe(`Evaluator`, () => {
     const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toBe(`It"s not a girl`)
   })
-  test(`> statement`, () => {
+  it(`> statement`, () => {
     const tokens = tokenize(
       `
       (> 0 -1)
@@ -108,7 +107,7 @@ describe(`Evaluator`, () => {
     const result = evaluate(ast, createContextStack({ contexts: [context] }))
     expect(result).toBe(true)
   })
-  test(`not= statement 1`, () => {
+  it(`not= statement 1`, () => {
     const tokens = tokenize(
       `
       [(not= 0 -1) (not= 1 1)]
@@ -120,11 +119,11 @@ describe(`Evaluator`, () => {
     expect(result).toEqual([true, false])
   })
 
-  test(`normal expression with lambda`, () => {
+  it(`normal expression with lambda`, () => {
     expect(lits.run(`((fn [x] (* x x)) 10)`)).toBe(100)
   })
 
-  test(`litsFunction`, () => {
+  it(`litsFunction`, () => {
     expect(lits.run(`((fn [] 10))`)).toBe(10)
     expect(lits.run(`((fn [x] (x 10)) (fn [x] (* x x)))`)).toBe(100)
     expect(lits.run(`((fn [x] (x 10)) inc)`)).toBe(11)
@@ -133,7 +132,7 @@ describe(`Evaluator`, () => {
     expect(() => lits.run(`((fn [x] (* x x)))`)).toThrow()
   })
 
-  test(`formatPhoneNumber`, () => {
+  it(`formatPhoneNumber`, () => {
     expect(lits.run(formatPhoneNumber, { values: { $data: null } })).toBe(``)
     expect(lits.run(formatPhoneNumber, { values: { $data: `` } })).toBe(``)
     expect(lits.run(formatPhoneNumber, { values: { $data: `+` } })).toBe(``)
@@ -163,7 +162,7 @@ describe(`Evaluator`, () => {
   })
 })
 
-test(`evaluateAstNode`, () => {
+it(`evaluateAstNode`, () => {
   expect(() =>
     evaluateAstNode(
       {
@@ -195,7 +194,7 @@ test(`evaluateAstNode`, () => {
   ).toThrow()
 })
 
-test(`a test`, () => {
+it(`a test`, () => {
   expect(() =>
     lits.run(`(defn numberComparer [a b]
     (cond

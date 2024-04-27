@@ -1,16 +1,16 @@
-import type { NameNode, BuiltinFunction, NativeJsFunction, ExtraData } from '../parser/interface'
+import type { BuiltinFunction, ExtraData, NameNode, NativeJsFunction } from '../parser/interface'
 import { isBuiltinFunction } from '../parser/interface'
 import { builtin } from '../builtin'
 import { toAny } from '../utils'
-import type { Context, LookUpResult } from './interface'
-import { isContextEntry } from './interface'
 import type { Any } from '../interface'
 import { UndefinedSymbolError } from '../errors'
 import type { LazyValue } from '../Lits/Lits'
 import { FUNCTION_SYMBOL } from '../utils/symbols'
-import { contextToString } from '.'
 import { FunctionType } from '../constants/constants'
 import { asNonUndefined } from '../typeGuards'
+import { isContextEntry } from './interface'
+import type { Context, LookUpResult } from './interface'
+import { contextToString } from '.'
 
 export class ContextStack {
   private contexts: Context[]
@@ -59,18 +59,16 @@ export class ContextStack {
   public getValue(name: string): unknown {
     for (const context of this.contexts) {
       const contextEntry = context[name]
-      if (contextEntry) {
+      if (contextEntry)
         return contextEntry.value
-      }
     }
     const lazyHostValue = this.lazyValues?.[name]
-    if (lazyHostValue) {
+    if (lazyHostValue)
       return lazyHostValue.read()
-    }
+
     const nativeJsFunction = this.nativeJsFunctions?.[name]
-    if (nativeJsFunction) {
+    if (nativeJsFunction)
       return nativeJsFunction
-    }
 
     return this.values?.[name]
   }
@@ -81,9 +79,8 @@ export class ContextStack {
 
     for (const context of this.contexts) {
       const contextEntry = context[value]
-      if (contextEntry) {
+      if (contextEntry)
         return contextEntry
-      }
     }
     const lazyHostValue = this.lazyValues?.[value]
     if (lazyHostValue !== undefined) {
@@ -107,9 +104,8 @@ export class ContextStack {
       return builtinFunction
     }
 
-    if (builtin.specialExpressions[value]) {
+    if (builtin.specialExpressions[value])
       return `specialExpression`
-    }
 
     const nativeJsFunction = this.nativeJsFunctions?.[value]
     if (nativeJsFunction) {
@@ -124,11 +120,11 @@ export class ContextStack {
   public evaluateName(node: NameNode): Any {
     const lookUpResult = this.lookUp(node)
 
-    if (isContextEntry(lookUpResult)) {
+    if (isContextEntry(lookUpResult))
       return lookUpResult.value
-    } else if (isBuiltinFunction(lookUpResult)) {
+    else if (isBuiltinFunction(lookUpResult))
       return lookUpResult
-    }
+
     throw new UndefinedSymbolError(node.v, node.tkn?.sourceCodeInfo)
   }
 }

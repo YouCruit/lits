@@ -23,9 +23,9 @@ export class LitsError extends Error {
   public readonly sourceCodeInfo?: SourceCodeInfo
   public readonly shortMessage: string
   constructor(message: string | Error, sourceCodeInfo?: SourceCodeInfo) {
-    if (message instanceof Error) {
+    if (message instanceof Error)
       message = `${message.name}${message.message ? `: ${message.message}` : ``}`
-    }
+
     super(getLitsErrorMessage(message, sourceCodeInfo))
     this.shortMessage = message
     this.sourceCodeInfo = sourceCodeInfo

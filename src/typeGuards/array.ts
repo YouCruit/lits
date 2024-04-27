@@ -7,9 +7,8 @@ export function asArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): unknow
   return value
 }
 export function assertArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is unknown[] {
-  if (!Array.isArray(value)) {
+  if (!Array.isArray(value))
     throw getAssertionError(`array`, value, sourceCodeInfo)
-  }
 }
 
 export function isStringArray(value: unknown): value is string[] {
@@ -20,9 +19,8 @@ export function asStringArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): 
   return value
 }
 export function assertStringArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is string[] {
-  if (!isStringArray(value)) {
+  if (!isStringArray(value))
     throw getAssertionError(`array of strings`, value, sourceCodeInfo)
-  }
 }
 
 export function isCharArray(value: unknown): value is string[] {
@@ -33,7 +31,6 @@ export function asCharArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): st
   return value
 }
 export function assertCharArray(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is string[] {
-  if (!isCharArray(value)) {
+  if (!isCharArray(value))
     throw getAssertionError(`array of strings`, value, sourceCodeInfo)
-  }
 }

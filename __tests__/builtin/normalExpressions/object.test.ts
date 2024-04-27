@@ -1,11 +1,9 @@
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Lits } from '../../../src'
 
 describe(`object functions`, () => {
   for (const lits of [new Lits(), new Lits({ debug: true })]) {
     describe(`object`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(object)`)).toEqual({})
         expect(lits.run(`(object :x 1)`)).toEqual({ x: 1 })
         expect(lits.run(`(object :x nil)`)).toEqual({ x: null })
@@ -31,7 +29,7 @@ describe(`object functions`, () => {
     })
 
     describe(`keys`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(keys (object))`)).toEqual([])
         expect(lits.run(`(keys (object :x 1))`)).toEqual([`x`])
         expect(lits.run(`(keys (object :x nil :y 2))`)).toEqual([`x`, `y`])
@@ -46,7 +44,7 @@ describe(`object functions`, () => {
     })
 
     describe(`vals`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(vals (object))`)).toEqual([])
         expect(lits.run(`(vals (object :x 1))`)).toEqual([1])
         expect(lits.run(`(vals (object :x nil :y 2))`)).toEqual([null, 2])
@@ -61,7 +59,7 @@ describe(`object functions`, () => {
     })
 
     describe(`entries`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(entries (object))`)).toEqual([])
         expect(lits.run(`(entries (object :x 1))`)).toEqual([[`x`, 1]])
         expect(lits.run(`(entries (object :x nil :y 2))`)).toEqual([
@@ -79,7 +77,7 @@ describe(`object functions`, () => {
     })
 
     describe(`find`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(find (object :x 1) :a)`)).toBeNull()
         expect(lits.run(`(find (object :x 1) :x)`)).toEqual([`x`, 1])
         expect(lits.run(`(find (object :x 1 :y 2) :x)`)).toEqual([`x`, 1])
@@ -98,7 +96,7 @@ describe(`object functions`, () => {
     })
 
     describe(`dissoc`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(dissoc (object) :x)`)).toEqual({})
         expect(lits.run(`(dissoc (object :x 1 :y 2) :x)`)).toEqual({ y: 2 })
         expect(lits.run(`(dissoc (object :x 1) "")`)).toEqual({ x: 1 })
@@ -113,7 +111,7 @@ describe(`object functions`, () => {
         expect(() => lits.run(`(dissoc undefined :x)`)).toThrow()
         expect(() => lits.run(`(dissoc [1] :x)`)).toThrow()
       })
-      test(`delete atribute`, () => {
+      it(`delete atribute`, () => {
         const program = `
         (def obj (object :x 10))
         (dissoc obj :x)
@@ -122,7 +120,7 @@ describe(`object functions`, () => {
         expect(lits.run(program)).toEqual({ x: 10 })
       })
 
-      test(`delete unexisting attribute`, () => {
+      it(`delete unexisting attribute`, () => {
         const program = `
         (def obj (object :x 10))
         (dissoc obj :y)
@@ -133,7 +131,7 @@ describe(`object functions`, () => {
     })
 
     describe(`merge`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(merge (object :x 10))`)).toEqual({ x: 10 })
         expect(lits.run(`(merge (object :x 10) (object :y 20))`)).toEqual({ x: 10, y: 20 })
         expect(lits.run(`(merge (object :x 10) (object :x 5))`)).toEqual({ x: 5 })
@@ -153,7 +151,7 @@ describe(`object functions`, () => {
       })
 
       describe(`merge-with`, () => {
-        test(`samples`, () => {
+        it(`samples`, () => {
           expect(lits.run(`(merge-with + (object :x 10) (object :y 20))`)).toEqual({
             x: 10,
             y: 20,
@@ -172,7 +170,7 @@ describe(`object functions`, () => {
         })
       })
 
-      test(`merge returns new object`, () => {
+      it(`merge returns new object`, () => {
         const program = `
         (def obj1 (object :x 10))
         (def obj2 (merge obj1))
@@ -183,7 +181,7 @@ describe(`object functions`, () => {
     })
 
     describe(`zipmap`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(zipmap [:a :b :c] [10 nil [1 2 3]])`)).toEqual({ a: 10, b: null, c: [1, 2, 3] })
         expect(lits.run(`(zipmap [:a :b] [10 nil [1 2 3]])`)).toEqual({ a: 10, b: null })
         expect(lits.run(`(zipmap [:a :b :c] [10 nil])`)).toEqual({ a: 10, b: null })
@@ -198,7 +196,7 @@ describe(`object functions`, () => {
     })
 
     describe(`select-keys`, () => {
-      test(`samples`, () => {
+      it(`samples`, () => {
         expect(lits.run(`(select-keys {:a 1 :b 2 :c 3} [:a :b])`)).toEqual({ a: 1, b: 2 })
         expect(lits.run(`(select-keys {:a 1} [:a :b])`)).toEqual({ a: 1 })
         expect(() => lits.run(`(select-keys {:a 1})`)).toThrow()

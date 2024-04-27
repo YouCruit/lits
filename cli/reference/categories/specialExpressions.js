@@ -1,5 +1,5 @@
 module.exports = {
-  and: {
+  'and': {
     name: `and`,
     category: `Special expression`,
     linkName: `and`,
@@ -22,7 +22,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  or: {
+  'or': {
     name: `or`,
     category: `Special expression`,
     linkName: `or`,
@@ -45,7 +45,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  def: {
+  'def': {
     name: `def`,
     category: `Special expression`,
     linkName: `def`,
@@ -66,7 +66,7 @@ module.exports = {
     examples: [`(def a (object))`, `(def a (object :x 10 :y true :z "A string"))`],
     specialExpression: true,
   },
-  defs: {
+  'defs': {
     name: `defs`,
     category: `Special expression`,
     linkName: `defs`,
@@ -92,7 +92,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  let: {
+  'let': {
     name: `let`,
     category: `Special expression`,
     linkName: `let`,
@@ -192,7 +192,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  fn: {
+  'fn': {
     name: `fn`,
     category: `Special expression`,
     linkName: `fn`,
@@ -213,7 +213,7 @@ module.exports = {
     examples: [`(fn [a b] (sqrt (+ (* a a) (* b b))))`, `((fn [a b] (sqrt (+ (* a a) (* b b)))) 3 4)`],
     specialExpression: true,
   },
-  defn: {
+  'defn': {
     name: `defn`,
     category: `Special expression`,
     linkName: `defn`,
@@ -242,7 +242,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  defns: {
+  'defns': {
     name: `defns`,
     category: `Special expression`,
     linkName: `defns`,
@@ -272,7 +272,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  try: {
+  'try': {
     name: `try`,
     category: `Special expression`,
     linkName: `try`,
@@ -298,7 +298,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  throw: {
+  'throw': {
     name: `throw`,
     category: `Special expression`,
     linkName: `throw`,
@@ -320,7 +320,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  if: {
+  'if': {
     name: `if`,
     category: `Special expression`,
     linkName: `if`,
@@ -382,7 +382,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  cond: {
+  'cond': {
     name: `cond`,
     category: `Special expression`,
     linkName: `cond`,
@@ -402,7 +402,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  when: {
+  'when': {
     name: `when`,
     category: `Special expression`,
     linkName: `when`,
@@ -456,7 +456,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  comment: {
+  'comment': {
     name: `comment`,
     category: `Special expression`,
     linkName: `comment`,
@@ -473,7 +473,7 @@ module.exports = {
     examples: [`(comment (write! "Hi") (write! "Albert"))`, `(comment)`],
     specialExpression: true,
   },
-  do: {
+  'do': {
     name: `do`,
     category: `Special expression`,
     linkName: `do`,
@@ -490,7 +490,7 @@ module.exports = {
     examples: [`(do (write! "Hi") (write! "Albert"))`, `(do)`],
     specialExpression: true,
   },
-  recur: {
+  'recur': {
     name: `recur`,
     category: `Special expression`,
     linkName: `recur`,
@@ -511,7 +511,7 @@ module.exports = {
     ],
     specialExpression: true,
   },
-  loop: {
+  'loop': {
     name: `loop`,
     category: `Special expression`,
     linkName: `loop`,
@@ -553,7 +553,7 @@ module.exports = {
     examples: [`(defn fib [x] (if (<= x 2) 1 (+ (fib (dec x)) (fib (- x 2))))) (time! (fib 10))`],
     specialExpression: true,
   },
-  doseq: {
+  'doseq': {
     name: `doseq`,
     category: `Special expression`,
     linkName: `doseq`,
@@ -574,7 +574,7 @@ module.exports = {
     examples: [`(doseq [x [1 2 4]] (write! x))`],
     specialExpression: true,
   },
-  for: {
+  'for': {
     name: `for`,
     category: `Special expression`,
     linkName: `for`,

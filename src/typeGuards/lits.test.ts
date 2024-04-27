@@ -5,27 +5,27 @@ import type { AstNode, RegularExpression } from '../parser/interface'
 import { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
 import {
   asAny,
+  asColl,
+  asObj,
+  asRegularExpression,
+  asSeq,
+  asStringOrRegularExpression,
   assertAny,
+  assertColl,
   assertObj,
   assertRegularExpression,
   assertSeq,
   assertStringOrRegularExpression,
-  isRegularExpression,
-  asColl,
   isAny,
-  isObj,
-  asObj,
-  asRegularExpression,
-  isSeq,
-  asSeq,
-  isStringOrRegularExpression,
-  asStringOrRegularExpression,
   isColl,
-  assertColl,
+  isObj,
+  isRegularExpression,
+  isSeq,
+  isStringOrRegularExpression,
 } from './lits'
 
 describe(`lits type guards`, () => {
-  test(`Any`, () => {
+  it(`any`, () => {
     const node: AstNode = {
       t: AstNodeType.Name,
       v: `test`,
@@ -43,7 +43,7 @@ describe(`lits type guards`, () => {
     )
   })
 
-  test(`Obj`, () => {
+  it(`obj`, () => {
     const valid = [{}, { a: 1 }]
     const invalid = [0, { [FUNCTION_SYMBOL]: true }, /test/, [], [1], true, null, undefined]
     testTypeGuars(
@@ -55,12 +55,13 @@ describe(`lits type guards`, () => {
     )
   })
 
-  test(`RegularExpression`, () => {
+  it(`regularExpression`, () => {
     const regExp: RegularExpression = {
       [REGEXP_SYMBOL]: true,
       s: `^ab`,
       f: ``,
     }
+    // eslint-disable-next-line prefer-regex-literals
     const invalid = [/a/, new RegExp(`a`), 0, `0`, null, undefined, false, true, [], {}]
     testTypeGuars(
       {
@@ -71,7 +72,7 @@ describe(`lits type guards`, () => {
     )
   })
 
-  test(`Seq`, () => {
+  it(`seq`, () => {
     const valid: Seq = [``, `1`, [], [1, 2, 3]]
     const invalid = [0, 1, true, false, null, undefined, {}]
     testTypeGuars(
@@ -83,7 +84,7 @@ describe(`lits type guards`, () => {
     )
   })
 
-  test(`stringOrRegularExpression`, () => {
+  it(`stringOrRegularExpression`, () => {
     const regExp: RegularExpression = {
       [REGEXP_SYMBOL]: true,
       s: `^ab`,
@@ -100,7 +101,7 @@ describe(`lits type guards`, () => {
     )
   })
 
-  test(`Coll`, () => {
+  it(`coll`, () => {
     const valid = [`2`, { a: 1 }, [2]]
     const invalid = [0, null, true, false]
     testTypeGuars(

@@ -1,4 +1,3 @@
-import type { ContextStack } from './ContextStack'
 import { normalExpressions } from '../builtin/normalExpressions'
 import { LitsError, RecurSignal } from '../errors'
 import type { Any, Arr } from '../interface'
@@ -19,22 +18,22 @@ import type {
 } from '../parser/interface'
 import type { SourceCodeInfo } from '../tokenizer/interface'
 import { toAny } from '../utils'
-import type { Context, EvaluateAstNode, ExecuteFunction } from './interface'
 import { valueToString } from '../utils/debug/debugTools'
 import { FunctionType } from '../constants/constants'
 import { asString } from '../typeGuards/string'
 import { asNonUndefined, isUnknownRecord } from '../typeGuards'
 import { asAny } from '../typeGuards/lits'
+import type { Context, EvaluateAstNode, ExecuteFunction } from './interface'
+import type { ContextStack } from './ContextStack'
 
 type FunctionExecutors = Record<
   LitsFunctionType,
   (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fn: any,
     params: Arr,
     sourceCodeInfo: SourceCodeInfo | undefined,
     contextStack: ContextStack,
-    helpers: { evaluateAstNode: EvaluateAstNode; executeFunction: ExecuteFunction },
+    helpers: { evaluateAstNode: EvaluateAstNode, executeFunction: ExecuteFunction },
   ) => Any
 >
 
@@ -43,32 +42,34 @@ function findOverloadFunction(
   nbrOfParams: number,
   sourceCodeInfo?: SourceCodeInfo,
 ): EvaluatedFunctionOverload {
-  const overloadFunction = overloads.find(overload => {
+  const overloadFunction = overloads.find((overload) => {
     const arity = overload.a
-    if (typeof arity === `number`) {
+    if (typeof arity === `number`)
       return arity === nbrOfParams
-    } else {
+    else
       return arity.min <= nbrOfParams
-    }
   })
-  if (!overloadFunction) {
+  if (!overloadFunction)
     throw new LitsError(`Unexpected number of arguments, got ${valueToString(nbrOfParams)}.`, sourceCodeInfo)
-  }
+
   return overloadFunction
 }
 
 export const functionExecutors: FunctionExecutors = {
   [FunctionType.NativeJsFunction]: (fn: NativeJsFunction, params, sourceCodeInfo) => {
     try {
+      // eslint-disable-next-line ts/no-unsafe-assignment
       const clonedParams = JSON.parse(JSON.stringify(params))
+      // eslint-disable-next-line ts/no-unsafe-argument
       return toAny(fn.f.fn(...clonedParams))
-    } catch (error) {
-      const message =
-        typeof error === `string`
+    }
+    catch (error) {
+      const message
+        = typeof error === `string`
           ? error
           : isUnknownRecord(error) && typeof error.message === `string`
-          ? error.message
-          : `<no message>`
+            ? error.message
+            : `<no message>`
       throw new LitsError(`Native function throwed: "${message}"`, sourceCodeInfo)
     }
   },
@@ -87,23 +88,24 @@ export const functionExecutors: FunctionExecutors = {
           const param = toAny(params[i])
           const key = asString(args.mandatoryArguments[i], sourceCodeInfo)
           newContext[key] = { value: param }
-        } else {
+        }
+        else {
           rest.push(toAny(params[i]))
         }
       }
 
-      if (args.restArgument) {
+      if (args.restArgument)
         newContext[args.restArgument] = { value: rest }
-      }
 
       try {
         let result: Any = null
         const newContextStack = contextStack.create(newContext, fn.x)
-        for (const node of overloadFunction.b) {
+        for (const node of overloadFunction.b)
           result = evaluateAstNode(node, newContextStack)
-        }
+
         return result
-      } catch (error) {
+      }
+      catch (error) {
         if (error instanceof RecurSignal) {
           params = error.params
           continue
@@ -118,9 +120,9 @@ export const functionExecutors: FunctionExecutors = {
   [FunctionType.Comp]: (fn: CompFunction, params, sourceCodeInfo, contextStack, { executeFunction }) => {
     const { f } = fn
     if (f.length === 0) {
-      if (params.length !== 1) {
+      if (params.length !== 1)
         throw new LitsError(`(comp) expects one argument, got ${valueToString(params.length)}.`, sourceCodeInfo)
-      }
+
       return asAny(params[0], sourceCodeInfo)
     }
     return asAny(
@@ -143,9 +145,8 @@ export const functionExecutors: FunctionExecutors = {
     for (const f of fn.f) {
       for (const param of params) {
         const result = executeFunction(toAny(f), [param], contextStack, sourceCodeInfo)
-        if (!result) {
+        if (!result)
           return false
-        }
       }
     }
     return true
@@ -154,9 +155,8 @@ export const functionExecutors: FunctionExecutors = {
     for (const f of fn.f) {
       for (const param of params) {
         const result = executeFunction(toAny(f), [param], contextStack, sourceCodeInfo)
-        if (result) {
+        if (result)
           return true
-        }
       }
     }
     return false

@@ -1,5 +1,5 @@
 module.exports = {
-  dissoc: {
+  'dissoc': {
     name: `dissoc`,
     category: `Object`,
     linkName: `dissoc`,
@@ -19,7 +19,7 @@ module.exports = {
     description: `Return shallow copy of \`object\` with attribute \`attr\` deleted.`,
     examples: [`(dissoc (object :x 10 :y 20) :x)`, `(dissoc { :x 10 } :y)`, `(def o { :a 5 }) (dissoc o :a) o`],
   },
-  object: {
+  'object': {
     name: `object`,
     category: `Object`,
     linkName: `object`,
@@ -37,7 +37,7 @@ module.exports = {
     description: `Constructs a new object. Object members are created from \`key\` - \`value\` pairs. Requires an even number of arguments.`,
     examples: [`(object)`, `(object :x 10 :y true :z "A string")`, `{}`, `{:a 1 :b 2}`],
   },
-  keys: {
+  'keys': {
     name: `keys`,
     category: `Object`,
     linkName: `keys`,
@@ -53,7 +53,7 @@ module.exports = {
     description: `Returns array of all keys in \`object\`.`,
     examples: [`(keys (object))`, `(keys (object :x 10 :y true :z "A string"))`],
   },
-  vals: {
+  'vals': {
     name: `vals`,
     category: `Object`,
     linkName: `vals`,
@@ -69,7 +69,7 @@ module.exports = {
     description: `Returns array of all values in \`object\`.`,
     examples: [`(vals (object))`, `(vals (object :x 10 :y true :z "A string"))`],
   },
-  entries: {
+  'entries': {
     name: `entries`,
     category: `Object`,
     linkName: `entries`,
@@ -86,7 +86,7 @@ module.exports = {
     description: `Returns nested array of all key - value pairs in \`object\`.`,
     examples: [`(entries (object))`, `(entries (object :x 10 :y true :z "A string"))`],
   },
-  find: {
+  'find': {
     name: `find`,
     category: `Object`,
     linkName: `find`,
@@ -106,7 +106,7 @@ module.exports = {
     description: `Returns entry for \`key\`, or \`nil\` if \`key\` not present in \`object\`.`,
     examples: [`(find (object :a 1 :b 2) :b)`, `(find (object :a 1 :b 2) :c)`],
   },
-  merge: {
+  'merge': {
     name: `merge`,
     category: `Object`,
     linkName: `merge`,
@@ -148,7 +148,7 @@ module.exports = {
       `(merge-with - (object :x 10) (object :x 20) (object :x 30) (object :x 40))`,
     ],
   },
-  zipmap: {
+  'zipmap': {
     name: `zipmap`,
     category: `Object`,
     linkName: `zipmap`,

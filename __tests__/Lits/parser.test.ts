@@ -15,30 +15,30 @@ const optimizableProgram = `
   (* 11 day)
 )`
 
-describe(`Parser`, () => {
-  test(`simple program`, () => {
+describe(`parser`, () => {
+  it(`simple program`, () => {
     const tokens = tokenize(program, { debug: true })
     const ast = parse(tokens)
     expect(ast.b.length).toBe(1)
   })
-  test(`empty program`, () => {
+  it(`empty program`, () => {
     const tokens = tokenize(``, { debug: true })
     const ast = parse(tokens)
     expect(ast.b.length).toBe(0)
   })
 
-  test(`optimization`, () => {
+  it(`optimization`, () => {
     const tokens = tokenize(optimizableProgram, { debug: true })
     const ast = parse(tokens)
     expect(ast.b.length).toBe(1)
   })
 
-  test(`Unparsable expression`, () => {
+  it(`unparsable expression`, () => {
     const tokens = tokenize(`(`, { debug: true, filePath: `test.lits` })
     expect(() => parse(tokens)).toThrow()
   })
 
-  test(`parse for`, () => {
+  it(`parse for`, () => {
     expect(() => parse(tokenize(`(for [x [1 2 3]] x)`, { debug: true }))).not.toThrow()
     expect(() => parse(tokenize(`(for [x [1 2 3] &let [y (* x x)]] y)`, { debug: true }))).not.toThrow()
     expect(() => parse(tokenize(`(for [x [1 2 3] &let [z x] &let [y (* x x)]] y)`, { debug: true }))).toThrow()
@@ -57,7 +57,7 @@ describe(`Parser`, () => {
     ).not.toThrow()
   })
 
-  test(`parse dotNotation, check ast 1`, () => {
+  it(`parse dotNotation, check ast 1`, () => {
     const tokens = tokenize(`foo#1.a`, { debug: false })
     const ast = parse(tokens)
     expect(ast).toEqual<Ast>({
@@ -85,7 +85,7 @@ describe(`Parser`, () => {
     })
   })
 
-  test(`parse dotNotation, check ast 2`, () => {
+  it(`parse dotNotation, check ast 2`, () => {
     const tokens = tokenize(`(#(identity %1) [1 2 3])#1`, { debug: false })
     const ast = parse(tokens)
     expect(ast).toEqual<Ast>({
@@ -152,7 +152,7 @@ describe(`Parser`, () => {
     })
   })
 
-  test(`parseToken unknown token`, () => {
+  it(`parseToken unknown token`, () => {
     const tokenStream: TokenStream = {
       tokens: [
         {

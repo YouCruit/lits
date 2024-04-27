@@ -23,14 +23,13 @@ export const whenNotSpecialExpression: BuiltinSpecialExpression<Any> = {
     const [whenExpression, ...body] = node.p
     assertAstNode(whenExpression, node.tkn?.sourceCodeInfo)
 
-    if (evaluateAstNode(whenExpression, contextStack)) {
+    if (evaluateAstNode(whenExpression, contextStack))
       return null
-    }
 
     let result: Any = null
-    for (const form of body) {
+    for (const form of body)
       result = evaluateAstNode(form, contextStack)
-    }
+
     return result
   },
   validate: node => assertNumberOfParams({ min: 1 }, node),

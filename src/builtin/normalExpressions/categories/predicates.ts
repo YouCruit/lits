@@ -1,7 +1,7 @@
 import type { NormalExpressionNode } from '../../../parser/interface'
 import { isLitsFunction } from '../../../typeGuards/litsFunction'
-import { isColl, isSeq, isObj, isRegularExpression, assertColl } from '../../../typeGuards/lits'
-import { isNumber, assertNumber } from '../../../typeGuards/number'
+import { assertColl, isColl, isObj, isRegularExpression, isSeq } from '../../../typeGuards/lits'
+import { assertNumber, isNumber } from '../../../typeGuards/number'
 import { assertNumberOfParams } from '../../../typeGuards'
 import type { BuiltinNormalExpressions } from '../../interface'
 
@@ -155,32 +155,32 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
 
   'empty?': {
     evaluate: ([coll], sourceCodeInfo): boolean => {
-      if (coll === null) {
+      if (coll === null)
         return true
-      }
+
       assertColl(coll, sourceCodeInfo)
-      if (typeof coll === `string`) {
+      if (typeof coll === `string`)
         return coll.length === 0
-      }
-      if (Array.isArray(coll)) {
+
+      if (Array.isArray(coll))
         return coll.length === 0
-      }
+
       return Object.keys(coll).length === 0
     },
     validate: node => assertNumberOfParams(1, node),
   },
   'not-empty?': {
     evaluate: ([coll], sourceCodeInfo): boolean => {
-      if (coll === null) {
+      if (coll === null)
         return false
-      }
+
       assertColl(coll, sourceCodeInfo)
-      if (typeof coll === `string`) {
+      if (typeof coll === `string`)
         return coll.length > 0
-      }
-      if (Array.isArray(coll)) {
+
+      if (Array.isArray(coll))
         return coll.length > 0
-      }
+
       return Object.keys(coll).length > 0
     },
     validate: node => assertNumberOfParams(1, node),

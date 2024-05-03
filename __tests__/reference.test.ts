@@ -1,6 +1,7 @@
 /* eslint-disable ts/no-unsafe-return */
 /* eslint-disable ts/no-unsafe-member-access */
 
+import { describe, expect, it } from 'vitest'
 import { categories, functionReference } from '../reference'
 import { normalExpressionKeys, specialExpressionKeys } from '../src/builtin'
 

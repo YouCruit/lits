@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { asString, assertString } from './string'
 
 describe('string type guards', () => {

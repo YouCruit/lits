@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { TokenType } from '../constants/constants'
 import type { Token } from '../tokenizer/interface'
 import { assertToken, isToken } from './token'

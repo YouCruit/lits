@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-alert */
 /* eslint-disable unused-imports/no-unused-vars */
 const defaultProgram = `(defn factorial [x]

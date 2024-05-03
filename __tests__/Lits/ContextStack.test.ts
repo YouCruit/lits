@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { AstNodeType } from '../../src'
 import { ContextStack } from '../../src/evaluator/ContextStack'
 import type { NameNode } from '../../src/parser/interface'

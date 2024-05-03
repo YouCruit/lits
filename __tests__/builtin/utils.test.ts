@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { builtin } from '../../src/builtin'
 import { assertNameNotDefined } from '../../src/builtin/utils'
 import type { ContextStack } from '../../src/evaluator/ContextStack'

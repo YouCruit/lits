@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { getCodeMarker } from '../src/utils/debug/debugTools'
 
 describe('debugTools', () => {

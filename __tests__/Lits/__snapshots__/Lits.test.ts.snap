@@ -1,4 +1,34 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`runtime info > getRuntimeInfo() with ast cache = 0 1`] = `
+{
+  "astCache": null,
+  "astCacheSize": 0,
+  "debug": false,
+}
+`;
+
+exports[`runtime info > getRuntimeInfo() with ast cache > 0 1`] = `
+{
+  "astCache": Cache {
+    "_size": 0,
+    "cache": {},
+    "firstEntry": undefined,
+    "lastEntry": undefined,
+    "maxSize": 10,
+  },
+  "astCacheSize": 10,
+  "debug": false,
+}
+`;
+
+exports[`runtime info > getRuntimeInfo(). 1`] = `
+{
+  "astCache": null,
+  "astCacheSize": null,
+  "debug": false,
+}
+`;
 
 exports[`runtime info getRuntimeInfo() with ast cache = 0 1`] = `
 {

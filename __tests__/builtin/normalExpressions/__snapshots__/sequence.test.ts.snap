@@ -1,4 +1,50 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`sequence functions > sort > samples 1`] = `
+[
+  false,
+  true,
+  -100,
+  1,
+  2,
+  "Albert",
+  "albert",
+  [],
+  [
+    0,
+    1,
+    2,
+  ],
+  [
+    1,
+    2,
+    3,
+  ],
+  [
+    0,
+    0,
+    0,
+    0,
+  ],
+  {},
+  {
+    "a": 1,
+  },
+  {
+    "f": "",
+    "s": "ABC",
+    "sourceCodeInfo": undefined,
+    "Ʀ": true,
+  },
+  {
+    "f": "",
+    "s": "abc",
+    "sourceCodeInfo": undefined,
+    "Ʀ": true,
+  },
+  null,
+]
+`;
 
 exports[`sequence functions sort samples 1`] = `
 [

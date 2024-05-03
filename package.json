@@ -33,51 +33,21 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build": "rm -rf dist build && rollup -c && npm run build-playground",
-    "test": "jest --collect-coverage",
+    "test": "vitest",
     "compile": "tsc -p ./tsconfig.compile.json --noEmit",
     "lits": "node ./cli/index.cjs",
     "build-playground": "node ./build/buildPlayground.js",
-    "open-playground": "open-cli ./docs/index.html",
+    "playground": "open-cli ./docs/index.html",
     "open-lcov": "open-cli ./coverage/lcov-report/index.html"
   },
-  "jest": {
-    "testResultsProcessor": "jest-junit",
-    "transform": {
-      ".ts": "ts-jest"
-    },
-    "testRegex": "\\.test\\.ts$",
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.ts"
-    ],
-    "coveragePathIgnorePatterns": [
-      "src/errors.ts",
-      "src/index.ts"
-    ]
-  },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.16.0",
+    "@antfu/eslint-config": "2.16.1",
     "@rollup/plugin-json": "6.1.0",
-    "@types/jest": "29.5.4",
-    "@typescript-eslint/eslint-plugin": "6.4.1",
-    "@typescript-eslint/parser": "6.4.1",
-    "eslint": "^8.47.0",
-    "eslint-config-prettier": "9.0.0",
-    "eslint-plugin-prettier": "5.0.0",
-    "jest": "29.6.3",
-    "jest-junit": "16.0.0",
     "open-cli": "7.2.0",
     "rollup": "3.28.1",
     "rollup-plugin-typescript2": "0.35.0",
-    "ts-jest": "29.1.1",
-    "ts-node": "10.9.1",
     "tslib": "2.6.2",
-    "typescript": "5.1.6"
-  },
-  "jest-junit": {
-    "outputName": "test-report.xml"
+    "typescript": "5.1.6",
+    "vitest": "1.6.0"
   }
 }

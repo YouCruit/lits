@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it } from 'vitest'
 import { tokenize } from '../../src/tokenizer'
 import { parse } from '../../src/parser'
 import { evaluate, evaluateAstNode } from '../../src/evaluator'

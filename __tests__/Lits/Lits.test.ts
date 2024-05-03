@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it } from 'vitest'
 import type { Ast } from '../../src'
 import { Lits } from '../../src'
 import { UndefinedSymbolError } from '../../src/errors'
@@ -318,9 +319,10 @@ describe('regressions', () => {
 )
 
 (formatPhoneNumber "+1234232123")`
+    let failed = false
     try {
       lits.run(program)
-      fail()
+      failed = true
     }
     catch (error) {
       // eslint-disable-next-line ts/no-unsafe-member-access
@@ -328,6 +330,8 @@ describe('regressions', () => {
       // eslint-disable-next-line ts/no-unsafe-member-access
       expect((error as any).sourceCodeInfo.position.column).toBe(12)
     }
+    if (failed)
+      throw new Error('Expected error')
   })
   it('unexpected argument', () => {
     try {

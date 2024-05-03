@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { Lits } from '../src'
 import { createContextStack } from '../src/Lits/Lits'
 import { analyzeAst } from '../src/analyze'

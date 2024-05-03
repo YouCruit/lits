@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { afterEach, beforeEach, describe, expect, it, vitest } from 'vitest'
 import { Lits } from '../../../src'
 
 describe('functional functions', () => {
@@ -7,7 +8,7 @@ describe('functional functions', () => {
     let logSpy: (...args: unknown[]) => void
     beforeEach(() => {
       oldLog = console.log
-      logSpy = jest.fn()
+      logSpy = vitest.fn()
       console.log = (...args) => {
         logSpy(...args)
       }

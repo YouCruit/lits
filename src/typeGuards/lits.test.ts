@@ -1,3 +1,4 @@
+import { describe, it } from 'vitest'
 import { testTypeGuars } from '../../__tests__/testUtils'
 import { AstNodeType, TokenType } from '../constants/constants'
 import type { Seq } from '../interface'

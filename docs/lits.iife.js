@@ -421,11 +421,11 @@ var Lits = (function (exports) {
       var conditions = [];
       var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
       while (!isToken(tkn, { type: exports.TokenType.Bracket, value: ')' })) {
-          var test_1 = void 0;
-          _a = __read(parseToken(tokenStream, position), 2), position = _a[0], test_1 = _a[1];
+          var test = void 0;
+          _a = __read(parseToken(tokenStream, position), 2), position = _a[0], test = _a[1];
           var form = void 0;
           _b = __read(parseToken(tokenStream, position), 2), position = _b[0], form = _b[1];
-          conditions.push({ t: test_1, f: form });
+          conditions.push({ t: test, f: form });
           tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
       }
       return [position, conditions];

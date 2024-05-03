@@ -6,7 +6,8 @@
     "__tests__/**/*.test.ts",
     "cli/**/*",
     "scripts/**/*",
-    "reference/**/*"
+    "reference/**/*",
+    "vite.config.mts"
   ],
   "exclude": []
 }

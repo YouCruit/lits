@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { Lits } from '../../../src'
 
 const lits = new Lits()

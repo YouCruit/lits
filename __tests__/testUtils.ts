@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 
+import { expect } from 'vitest'
 import type { Context, LitsFunction, LitsParams } from '../src'
 import { Lits } from '../src'
 import type { AnalyzeResult } from '../src/analyze/interface'

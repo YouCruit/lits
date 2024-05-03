@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import type { NameNode, RegularExpression } from '../src/parser/interface'
 import { cloneColl, collHasKey, createNativeJsFunction, deepEqual, toNonNegativeInteger } from '../src/utils'
 import { REGEXP_SYMBOL } from '../src/utils/symbols'

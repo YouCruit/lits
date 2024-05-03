@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { parse } from '../../src/parser'
 import { AstNodeType, TokenType } from '../../src/constants/constants'
 import type { Ast } from '../../src/parser/interface'

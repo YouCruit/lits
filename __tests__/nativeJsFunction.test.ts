@@ -1,3 +1,4 @@
+import { describe, expect, it, vitest } from 'vitest'
 import { FunctionType, Lits } from '../src'
 import type { JsFunction } from '../src/Lits/Lits'
 import { LitsError } from '../src/errors'
@@ -60,7 +61,7 @@ describe('nativeJsFunction', () => {
   })
   it('builtin names cannot be shadowed', () => {
     const warn = console.warn
-    console.warn = jest.fn()
+    console.warn = vitest.fn()
     expect(lits.run('(+ 1 2 3)', { jsFunctions: stupidJsFunctions })).toBe(6)
     expect(console.warn).toHaveBeenCalledTimes(2)
     expect(lits.run('(if true false true)', { jsFunctions: stupidJsFunctions })).toBe(false)

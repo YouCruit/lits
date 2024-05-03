@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { describe, it } from 'vitest'
 import { Lits } from '../src'
 import { evaluate } from '../src/evaluator'
 import { ContextStack } from '../src/evaluator/ContextStack'

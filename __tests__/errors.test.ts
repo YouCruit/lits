@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { LitsError, RecurSignal, UserDefinedError, isLitsError } from '../src/errors'
 
 describe('errors', () => {

@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { describe, expect, it } from 'vitest'
 import { LitsError } from '../../../src/errors'
 import { getErrorYaml, runTest } from '../../../src/testFramework'
 

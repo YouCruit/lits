@@ -1,4 +1,6 @@
 /* eslint-disable no-console */
+import type { Mock } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vitest } from 'vitest'
 import { Lits } from '../../src'
 import { UserDefinedError } from '../../src/errors'
 import { getLitsVariants, getUndefinedSymbolNames } from '../testUtils'
@@ -7,11 +9,11 @@ const lits = getLitsVariants()
 
 describe('specialExpressions', () => {
   let oldLog: () => void
-  let logSpy: jest.Mock<any, any>
+  let logSpy: Mock<any, any>
   let lastLog: unknown
   beforeEach(() => {
     oldLog = console.log
-    logSpy = jest.fn()
+    logSpy = vitest.fn()
     console.log = (...args: unknown[]) => {
       logSpy(...args)
       lastLog = args[0]
@@ -22,24 +24,30 @@ describe('specialExpressions', () => {
   })
   it('error message', () => {
     const litsNoDebug = new Lits()
+    let failed = false
     try {
       litsNoDebug.run('(throw (subs "An error" 3))')
-      fail()
+      failed = true
     }
     catch (error) {
       expect((error as UserDefinedError).message).toBe('error')
     }
+    if (failed)
+      throw new Error('Should have thrown an error')
 
     const litsDebug = new Lits({ debug: true })
     try {
+      failed = false
       litsDebug.run('(throw (subs "An error" 3))')
-      fail()
+      failed = true
     }
     catch (error) {
       expect((error as UserDefinedError).message).toBe(
         'error\n(throw (subs "An error" 3))\n       ^                   ',
       )
     }
+    if (failed)
+      throw new Error('Should have thrown an error')
   })
 
   describe('defs', () => {

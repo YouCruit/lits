@@ -22,7 +22,7 @@
   "module": "dist/index.esm.js",
   "iife": "dist/lits.iife.js",
   "bin": {
-    "lits": "cli/index.js"
+    "lits": "cli/index.cjs"
   },
   "files": [
     "cli/**/*",
@@ -31,13 +31,12 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "lint2": "eslint \"src/**/*.ts\" \"__tests__/**/*.ts\" \"cli/**/*.js\" \"cli/**/*.js\"",
-    "build": "node ./scripts/generateVersion.js && rm -rf dist && rollup -c && npm run build-docs",
+    "build": "node ./scripts/generateVersion.cjs && rm -rf dist && rollup -c && npm run build-playground",
     "test": "jest --collect-coverage",
     "compile": "tsc -p ./tsconfig.compile.json --noEmit",
-    "lits": "node ./cli/index.js",
-    "build-docs": "node ./scripts/docs/buildDocs.js",
-    "open-docs": "open-cli ./docs/index.html",
+    "lits": "node ./cli/index.cjs",
+    "build-playground": "node ./build/buildPlayground.js",
+    "open-playground": "open-cli ./docs/index.html",
     "open-lcov": "open-cli ./coverage/lcov-report/index.html"
   },
   "jest": {
@@ -60,6 +59,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.16.0",
+    "@rollup/plugin-json": "6.1.0",
     "@types/jest": "29.5.4",
     "@typescript-eslint/eslint-plugin": "6.4.1",
     "@typescript-eslint/parser": "6.4.1",

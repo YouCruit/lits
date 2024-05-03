@@ -5,7 +5,11 @@
     "types/**/*",
     "__tests__/**/*.test.ts",
     "cli/**/*",
+    "scripts/**/*",
     "reference/**/*"
   ],
-  "exclude": []
+  "exclude": [
+    "playgroundAssets",
+    
+  ]
 }

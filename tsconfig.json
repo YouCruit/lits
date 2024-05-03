@@ -32,10 +32,12 @@
     "src/**/*",
     "types/**/*",
     "cli/**/*",
-    "reference/**/*"
+    "scripts/**/*",
+    "reference/**/*",
   ],
   "exclude": [
     "**/*.test.ts",
-    "__tests__"
+    "__tests__",
+    "playgroundAssets",
   ]
 }

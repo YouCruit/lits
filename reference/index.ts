@@ -69,7 +69,7 @@ export const categories = [
   'Assert',
 ]
 
-const categorizedFunctions = Object.values(functionReference)
+export const categorizedFunctions = Object.values(functionReference)
   .reduce((result: Category[], item) => {
     if (!result.includes(item.category))
       result.push(item.category)

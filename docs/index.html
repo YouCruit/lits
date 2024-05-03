@@ -210,10 +210,10 @@
   <p>Returns number of elements in <span class="pre">coll</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>count undefined => number</pre>
+    <pre>count _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection,string,nil</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection,string,nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -238,12 +238,12 @@
   <p>Returns value in <span class="pre">coll</span> mapped at <span class="pre">key</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>get undefined undefined undefined => any</pre>
+    <pre>get _____________  _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: string,integer</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ string,integer</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -270,12 +270,12 @@
   <p>Returns the value in a nested collection, where <span class="pre">keys</span> is an array of keys. Returns <span class="pre">default</span> if the key is not present. If <span class="pre">default</span> is not set, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>get-in undefined undefined undefined => any</pre>
+    <pre>get-in _____________  _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: array</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ array</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -297,11 +297,11 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">collection</span> contains <span class="pre">key</span>, otherwise returns <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>contains? undefined undefined => boolean</pre>
+    <pre>contains? _____________  _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection,nil</pre>
-<pre>undefined: string,number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection,nil</pre>
+<pre>_________ string,number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -325,11 +325,11 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">collection</span> has <span class="pre">value</span>, otherwise returns <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>has? undefined undefined => boolean</pre>
+    <pre>has? _____________  _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection,nil</pre>
-<pre>undefined: string,number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection,nil</pre>
+<pre>_________ string,number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -355,11 +355,11 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">collection</span> has any of the elements in <span class="pre">keys</span>, otherwise returns <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>has-some? undefined undefined => boolean</pre>
+    <pre>has-some? _____________  _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -390,11 +390,11 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">collection</span> has all of the elements in <span class="pre">keys</span>, otherwise returns <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>has-every? undefined undefined => boolean</pre>
+    <pre>has-every? _____________  _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -427,12 +427,12 @@
   <p>Sets <span class="pre">value</span> on specified element of <span class="pre">coll</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assoc undefined undefined undefined => collection</pre>
+    <pre>assoc _____________  _____________  _____________  => collection</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: string,number</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ string,number</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -455,12 +455,12 @@
   <p>Associates a value in a nested Coll, where <span class="pre">keys</span> is an array of keys and <span class="pre">value</span> is the new value and returns a new nested structure. If any levels do not exist, objects will be created - and the corresponding keys must be of type string.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assoc-in undefined undefined undefined => collection</pre>
+    <pre>assoc-in _____________  _____________  _____________  => collection</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: array</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ array</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -482,10 +482,10 @@
   <p>Concatenates array or object arguments into one collection.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>concat undefined => collection</pre>
+    <pre>concat _____________  => collection</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -511,10 +511,10 @@
   <p>Returns <span class="pre">null</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">coll</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>not-empty undefined => boolean</pre>
+    <pre>not-empty _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection,string,nil</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection,string,nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -540,11 +540,11 @@
   <p>Returns true if all entries in <span class="pre">coll</span> pass the test implemented by <span class="pre">finder</span>, otherwise returns false.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>every? undefined undefined => boolean</pre>
+    <pre>every? _____________  _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -570,11 +570,11 @@
   <p>Returns true if all entries in <span class="pre">coll</span> pass the test implemented by <span class="pre">finder</span>, otherwise returns false.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>not-every? undefined undefined => boolean</pre>
+    <pre>not-every? _____________  _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -600,11 +600,11 @@
   <p>Returns true if any entry in <span class="pre">coll</span> pass the test implemented by <span class="pre">finder</span>, otherwise returns false.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>any? undefined undefined => boolean</pre>
+    <pre>any? _____________  _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -630,11 +630,11 @@
   <p>Returns false if any entry in <span class="pre">coll</span> pass the test implemented by <span class="pre">finder</span>, otherwise returns true.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>not-any? undefined undefined => boolean</pre>
+    <pre>not-any? _____________  _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -660,13 +660,13 @@
   <p>Updates a value in collection, where <span class="pre">key</span> is a key and <span class="pre">fn</span> is a function that will take the old value and any supplied <span class="pre">args</span> and return the new value, and returns a new collection.  If the key does not exist, nil is passed as the old value.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>update undefined undefined undefined undefined => collection</pre>
+    <pre>update _____________  _____________  _____________  _____________  => collection</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: string,number</pre>
-<pre>undefined: function</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ string,number</pre>
+<pre>_________ function</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -687,13 +687,13 @@
   <p>'Updates' a value in <span class="pre">coll</span>, where <span class="pre">keys</span> is an array of keys (string or number) and <span class="pre">fn</span> is a function that will take the old value and any supplied <span class="pre">args</span> and return the new value, and returns a new Coll. If any levels do not exist, objects will be created - and the corresponding keys must be of type string.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>update-in undefined undefined undefined undefined => collection</pre>
+    <pre>update-in _____________  _____________  _____________  _____________  => collection</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection</pre>
-<pre>undefined: array</pre>
-<pre>undefined: function</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection</pre>
+<pre>_________ array</pre>
+<pre>_________ function</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -714,10 +714,10 @@
   <p>Makes new array from <span class="pre">values</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>array undefined => any</pre>
+    <pre>array _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: array</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ array</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -744,12 +744,12 @@
   <p>Create an array with a range of numbers. If only one argument: <span class="pre">0...a</span>, otherwise: <span class="pre">a...b</span>. <span class="pre">step</span> defaults to <span class="pre">1</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>range undefined undefined undefined => any</pre>
+    <pre>range _____________  _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: number</pre>
-<pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ number</pre>
+<pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -772,11 +772,11 @@
   <p>Returns an array with <span class="pre">value</span> repeated <span class="pre">count</span> times.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>repeat undefined undefined => any</pre>
+    <pre>repeat _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -798,10 +798,10 @@
   <p>Takes a nested array and return a flat array. If <span class="pre">input</span> isn't an array, an empty array is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>flatten undefined => any</pre>
+    <pre>flatten _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: array</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ array</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -823,11 +823,11 @@
   <p>Returns the result of applying concat to the result of applying map to <span class="pre">mapper</span> and <span class="pre">arrays</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>mapcat undefined undefined => any</pre>
+    <pre>mapcat _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: array</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ array</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -850,12 +850,12 @@
   <p>Accesses element <span class="pre">index</span> of <span class="pre">input</span>. Accessing out-of-bounds indices returns <span class="pre">notFound</span> or <span class="pre">nil</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>nth undefined undefined undefined => any</pre>
+    <pre>nth _____________  _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: array,string,nil</pre>
-<pre>undefined: integer</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ array,string,nil</pre>
+<pre>_________ integer</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -884,11 +884,11 @@
   <p>Pushes <span class="pre">values</span> to the end of <span class="pre">array</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>push undefined undefined => any</pre>
+    <pre>push _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -910,11 +910,11 @@
   <p>Removes and returns then last item of <span class="pre">array</span>. If <span class="pre">array</span> is empty, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>pop undefined undefined => any</pre>
+    <pre>pop _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -935,11 +935,11 @@
   <p>Inserts <span class="pre">values</span> at the beginning of <span class="pre">array</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>unshift undefined undefined => any</pre>
+    <pre>unshift _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -961,11 +961,11 @@
   <p>Removes and returns the first item of <span class="pre">array</span>. If <span class="pre">array</span> is empty, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>shift undefined undefined => any</pre>
+    <pre>shift _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -986,12 +986,12 @@
   <p>Returns a shallow copy of a portion of <span class="pre">array</span> into a new array selected from index <span class="pre">start</span> (inclusive) to index <span class="pre">end</span> (exclusive). If <span class="pre">start</span> is not provided it defaults to <span class="pre">0</span>. If <span class="pre">end</span> is not provided, the rest of the array will be copied.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>slice undefined undefined undefined => any</pre>
+    <pre>slice _____________  _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: number</pre>
-<pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ number</pre>
+<pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1012,12 +1012,12 @@
   <p>Returns an array of the intermediate values of the reduction (see <span class="pre">reduce</span>) of <span class="pre">seq</span> by <span class="pre">reducer</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>reductions undefined undefined undefined => any</pre>
+    <pre>reductions _____________  _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: function</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ function</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1040,12 +1040,12 @@
   <p>Runs <span class="pre">reducer</span> function on each element of the <span class="pre">seq</span>, passing in the return value from the calculation on the preceding element. The final result of running the reducer across all elements of the <span class="pre">seq</span> is a single value.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>reduce undefined undefined undefined => sequence</pre>
+    <pre>reduce _____________  _____________  _____________  => sequence</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: any</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ any</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1068,12 +1068,12 @@
   <p>Runs <span class="pre">reducer</span> function on each element of the <span class="pre">seq</span> (starting from the last item), passing in the return value from the calculation on the preceding element. The final result of running the reducer across all elements of the <span class="pre">seq</span> is a single value.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>reduce-right undefined undefined undefined => sequence</pre>
+    <pre>reduce-right _____________  _____________  _____________  => sequence</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: any</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ any</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1093,11 +1093,11 @@
   <p>Creates a new array populated with the results of calling <span class="pre">mapper</span> on every elements in the calling <span class="pre">sequence</span>s.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>map undefined undefined => any</pre>
+    <pre>map _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1120,11 +1120,11 @@
   <p>Creates a new array with all elements that pass the test implemented by <span class="pre">filter</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>filter undefined undefined => any</pre>
+    <pre>filter _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1145,11 +1145,11 @@
   <p>Returns the index of the first elements that pass the test implemented by <span class="pre">finder</span>. If no element was found, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>position undefined undefined => number</pre>
+    <pre>position _____________  _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: array,string,nil</pre>
-<pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ array,string,nil</pre>
+<pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1172,11 +1172,11 @@
   <p>Returns the index of <span class="pre">value</span> in <span class="pre">seq</span>. If element is not present in <span class="pre">seq</span> <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>index-of undefined undefined => number</pre>
+    <pre>index-of _____________  _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: array,string,nil</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ array,string,nil</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1199,11 +1199,11 @@
   <p>Returns the first elements that pass the test implemented by <span class="pre">finder</span>. I no element was found, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>some undefined undefined => array,string,nil</pre>
+    <pre>some _____________  _____________  => array,string,nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: array,string,nil</pre>
-<pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ array,string,nil</pre>
+<pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1227,10 +1227,10 @@
   <p>If <span class="pre">input</span> is an array, creates a new array with the elements from <span class="pre">input</span> in reversed order. If <span class="pre">input</span> is a string, returns new reversed string.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>reverse undefined => array,string,nil</pre>
+    <pre>reverse _____________  => array,string,nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: array,string,nil</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ array,string,nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1253,10 +1253,10 @@
   <p>Returns the first element of <span class="pre">seq</span>. If <span class="pre">seq</span> is empty or <span class="pre">nil</span>, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>first undefined => any</pre>
+    <pre>first _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: array,string,nil</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ array,string,nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1278,10 +1278,10 @@
   <p>Returns the second element of <span class="pre">seq</span>. If <span class="pre">seq</span> has less than two elements or is <span class="pre">nil</span>, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>second undefined => any</pre>
+    <pre>second _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: array,string,nil</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ array,string,nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1304,10 +1304,10 @@
   <p>Returns the last element of <span class="pre">seq</span>. If <span class="pre">seq</span> is empty, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>last undefined => any</pre>
+    <pre>last _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: array,string,nil</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ array,string,nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1331,10 +1331,10 @@
   <p>If <span class="pre">input</span> is an array, returns a new array with all but the first element from <span class="pre">input</span>. If <span class="pre">input</span> has less than two elements, an empty array is returned. For string <span class="pre">input</span> returns all but the first characters in <span class="pre">input</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>rest undefined => array,string</pre>
+    <pre>rest _____________  => array,string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: array,string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ array,string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1359,10 +1359,10 @@
   <p>If <span class="pre">input</span> is an array, returns a new array with all but the first <span class="pre">count</span> elements from <span class="pre">input</span>. For string <span class="pre">input</span> returns all but the first <span class="pre">count</span> characters in <span class="pre">input</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>nthrest undefined => any</pre>
+    <pre>nthrest _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1386,10 +1386,10 @@
   <p>If <span class="pre">input</span> is an array, returns a new array with all but the first element from <span class="pre">input</span>. If <span class="pre">input</span> has less than two elements, <span class="pre">nil</span> is returned. For string <span class="pre">input</span> returns all but the first characters in <span class="pre">input</span>. If length of string <span class="pre">input</span> is less than two, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>next undefined => any</pre>
+    <pre>next _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1414,10 +1414,10 @@
   <p>If <span class="pre">input</span> is an array, returns a new array with all but the first <span class="pre">count</span> elements from <span class="pre">input</span>. If <span class="pre">input</span> has less or equal than <span class="pre">count</span> elements, <span class="pre">nil</span> returned. For string <span class="pre">input</span> returns all but the first <span class="pre">count</span> characters in <span class="pre">input</span>. If length of string <span class="pre">input</span> is less or equal than <span class="pre">count</span>, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>nthnext undefined => any</pre>
+    <pre>nthnext _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1441,10 +1441,10 @@
   <p>Constructs a new array with <span class="pre">element</span> as first element and <span class="pre">rest</span> as the rest.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>cons undefined => any</pre>
+    <pre>cons _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1465,11 +1465,11 @@
   <p>Constructs a new array/string with the <span class="pre">count</span> first elements from <span class="pre">input</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>take undefined undefined => array,string</pre>
+    <pre>take _____________  _____________  => array,string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre>
-<pre>undefined: array,string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre>
+<pre>_________ array,string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1492,11 +1492,11 @@
   <p>Constructs a new array with the <span class="pre">count</span> last elements from <span class="pre">array</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>take-last undefined undefined => any</pre>
+    <pre>take-last _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1517,11 +1517,11 @@
   <p>Returns the members of <span class="pre">array</span> in order, stopping before the first one for which <span class="pre">predicate</span> returns a falsy value.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>take-while undefined undefined => any</pre>
+    <pre>take-while _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1542,11 +1542,11 @@
   <p>Constructs a new array/string with the <span class="pre">count</span> first elements dropped from <span class="pre">input</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>drop undefined undefined => array,string</pre>
+    <pre>drop _____________  _____________  => array,string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre>
-<pre>undefined: array,string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre>
+<pre>_________ array,string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1569,11 +1569,11 @@
   <p>Constructs a new array with the <span class="pre">count</span> last elements dropped from <span class="pre">array</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>drop-last undefined undefined => any</pre>
+    <pre>drop-last _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1594,11 +1594,11 @@
   <p>Returns the members of <span class="pre">array</span> in order, skipping the fist elements for witch the <span class="pre">predicate</span> returns a truethy value.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>drop-while undefined undefined => any</pre>
+    <pre>drop-while _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1619,11 +1619,11 @@
   <p>Returns a new Seq with the elements from <span class="pre">seq</span> sorted according to <span class="pre">comparer</span>. If no <span class="pre">comparer</span> is supplied, builtin <span class="pre">compare</span> will be used.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>sort undefined undefined => any</pre>
+    <pre>sort _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1645,12 +1645,12 @@
   <p>Returns a sorted sequence of the items in <span class="pre">seq</span>, where the sort order is determined by comparing <span class="pre">(keyfn item)</span>. If no <span class="pre">comparer</span> is supplied, uses builtin <span class="pre">compare</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>sort-by undefined undefined undefined => any</pre>
+    <pre>sort-by _____________  _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: function</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ function</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1671,11 +1671,11 @@
   <p>Returns a new string by concatenating all of the elements in <span class="pre">array</span>, separated by <span class="pre">delimiter</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>join undefined undefined => string</pre>
+    <pre>join _____________  _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1696,11 +1696,11 @@
   <p>Returns an array. Each element from <span class="pre">array</span> has the probability <span class="pre">prob</span> to be included in the result.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>random-sample! undefined undefined => any</pre>
+    <pre>random-sample! _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1721,10 +1721,10 @@
   <p>Returns a random element from <span class="pre">seq</span>. Returns <span class="pre">nil</span> if <span class="pre">seq</span> is empty.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>rand-nth! undefined => any</pre>
+    <pre>rand-nth! _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1746,10 +1746,10 @@
   <p>Returns a shuffled copy of <span class="pre">input</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>shuffle! undefined => sequence</pre>
+    <pre>shuffle! _____________  => sequence</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1773,10 +1773,10 @@
   <p>Returns a copy of <span class="pre">input</span> with no duplicates.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>distinct undefined => sequence</pre>
+    <pre>distinct _____________  => sequence</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1799,11 +1799,11 @@
   <p>Returns a new sequence of items in <span class="pre">input</span> for witch <span class="pre">(pred item)</span> returns a falsy value.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>remove undefined undefined => sequence</pre>
+    <pre>remove _____________  _____________  => sequence</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1824,11 +1824,11 @@
   <p>Returns a new sequence of all items in <span class="pre">input</span> except item at <span class="pre">index</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>remove-at undefined undefined => sequence</pre>
+    <pre>remove-at _____________  _____________  => sequence</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1850,11 +1850,11 @@
   <p>Returns a new array/string of <span class="pre">[(take pos input) (drop pos input)]</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>split-at undefined undefined => sequence</pre>
+    <pre>split-at _____________  _____________  => sequence</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1875,11 +1875,11 @@
   <p>Returns a new array/string of <span class="pre">[(take-while pos input) (drop-while pos input)]</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>split-with undefined undefined => sequence</pre>
+    <pre>split-with _____________  _____________  => sequence</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1900,10 +1900,10 @@
   <p>Returns an object from distinct items in <span class="pre">seq</span> to the number of times they appear. Note that all items in <span class="pre">seq</span> must be valid object keys i.e. strings.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>frequencies undefined => object</pre>
+    <pre>frequencies _____________  => object</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1924,11 +1924,11 @@
   <p>Returns an object of the elements of <span class="pre">seq</span> keyed by the result of <span class="pre">fn</span> on each element. The value at each key will be an array of the corresponding elements.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>group-by undefined undefined => object</pre>
+    <pre>group-by _____________  _____________  => object</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1949,13 +1949,13 @@
   <p>Returns an array of sequences of <span class="pre">n</span> items each, at offsets <span class="pre">step</span> apart. If <span class="pre">step</span> is not supplied, defaults to <span class="pre">n</span>. If a <span class="pre">pad</span> array is supplied, use its elements as necessary to complete last partition upto <span class="pre">n</span> items. In case there are not enough padding elements, return a partition with less than <span class="pre">n</span> items.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>partition undefined undefined undefined undefined => sequence</pre>
+    <pre>partition _____________  _____________  _____________  _____________  => sequence</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: number</pre>
-<pre>undefined: array</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ number</pre>
+<pre>_________ array</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -1989,12 +1989,12 @@
   <p>Returns an array of sequences like partition, but may include partitions with fewer than n items at the end.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>partition-all undefined undefined undefined => sequence</pre>
+    <pre>partition-all _____________  _____________  _____________  => sequence</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: number</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ number</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2016,11 +2016,11 @@
   <p>Applies <span class="pre">fn</span> to each value in <span class="pre">seq</span>, splitting it each time <span class="pre">fn</span> returns a new value. Returns an array of sequences.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>partition-by undefined undefined => sequence</pre>
+    <pre>partition-by _____________  _____________  => sequence</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: sequence</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ sequence</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2042,10 +2042,10 @@
   <p>Computes sum of <span class="pre">numbers</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>+ undefined => number</pre>
+    <pre>+ _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2069,10 +2069,10 @@
   <p>Computes difference between first value and sum of the rest. When called with only one argument, it does negation.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>- undefined => number</pre>
+    <pre>- _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2095,10 +2095,10 @@
   <p>Computes product of <span class="pre">numbers</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>* undefined => number</pre>
+    <pre>* _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2121,10 +2121,10 @@
   <p>Computes division or reciprocal. When called with one argument it computes reciprocal. When called with two or more arguments it does compute division of the first by the all remaining <span class="pre">numbers</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>/ undefined => number</pre>
+    <pre>/ _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2147,11 +2147,11 @@
   <p>Modulus of <span class="pre">dividend</span> and <span class="pre">divisor</span>. Truncates toward negative infinity.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>mod undefined undefined => number</pre>
+    <pre>mod _____________  _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2175,11 +2175,11 @@
   <p>Remainder of dividing <span class="pre">dividend</span> and <span class="pre">divisor</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>rem undefined undefined => number</pre>
+    <pre>rem _____________  _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2203,11 +2203,11 @@
   <p>Quotient of dividing <span class="pre">dividend</span> and <span class="pre">divisor</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>quot undefined undefined => number</pre>
+    <pre>quot _____________  _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2231,10 +2231,10 @@
   <p>Adds one to <span class="pre">number</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>inc undefined => number</pre>
+    <pre>inc _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2256,10 +2256,10 @@
   <p>Subtracts one from <span class="pre">number</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>dec undefined => number</pre>
+    <pre>dec _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2281,10 +2281,10 @@
   <p>Computes square root of <span class="pre">number</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>sqrt undefined => number</pre>
+    <pre>sqrt _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2306,10 +2306,10 @@
   <p>Computes cube root of <span class="pre">number</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>cbrt undefined => number</pre>
+    <pre>cbrt _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2332,11 +2332,11 @@
   <p>Computes returns <span class="pre">base-number</span> raised to the <span class="pre">power-number</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>pow undefined undefined => number</pre>
+    <pre>pow _____________  _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2360,10 +2360,10 @@
   <p>Computes <span class="pre">e</span> rasied to the <span class="pre">power-number</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>exp undefined => number</pre>
+    <pre>exp _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2386,11 +2386,11 @@
   <p>Returns rounded <span class="pre">number</span>. If <span class="pre">decimals</span> is provided it return a number with that many decimals.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>round undefined undefined => number</pre>
+    <pre>round _____________  _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2416,10 +2416,10 @@
   <p>Returns the integer part of <span class="pre">number</span> by removing any fractional digits.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>trunc undefined => integer</pre>
+    <pre>trunc _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2444,10 +2444,10 @@
   <p>Returns the largest <span class="pre">integer</span> less than or equal to <span class="pre">number</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>floor undefined => integer</pre>
+    <pre>floor _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2472,10 +2472,10 @@
   <p>Returns the smallest <span class="pre">integer</span> larger than or equal to <span class="pre">number</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>ceil undefined => integer</pre>
+    <pre>ceil _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2500,10 +2500,10 @@
   <p>Returns the smallest number of the arguments.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>min undefined => number</pre>
+    <pre>min _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2525,10 +2525,10 @@
   <p>Returns the largest number of the arguments.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>max undefined => number</pre>
+    <pre>max _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2550,10 +2550,10 @@
   <p>Returns the absolute value of <span class="pre">number</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>abs undefined => number</pre>
+    <pre>abs _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2575,10 +2575,10 @@
   <p>Returns <span class="pre">1</span> if <span class="pre">number > 0</span>, <span class="pre">-1</span> if <span class="pre">number < 0</span>, <span class="pre">0</span> if <span class="pre">number = 0</span> or <span class="pre">-0</span> if <span class="pre">number = -0</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>sign undefined => number</pre>
+    <pre>sign _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2831,10 +2831,10 @@
   <p>Returns the natural logarithm (base e) of <span class="pre">number</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>log undefined => number</pre>
+    <pre>log _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2856,10 +2856,10 @@
   <p>Returns the base 2 logarithm of a number.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>log2 undefined => number</pre>
+    <pre>log2 _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2881,10 +2881,10 @@
   <p>Returns the base 2 logarithm of a number.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>log10 undefined => number</pre>
+    <pre>log10 _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2906,10 +2906,10 @@
   <p>Returns a semi random number between <span class="pre">0</span> (inclusive) and <span class="pre">number</span> (default 1) (exclusive).</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>rand! undefined(Positive number) => number</pre>
+    <pre>rand! _____________ (_________ Positive number) => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2931,10 +2931,10 @@
   <p>Returns a semi random integer between <span class="pre">0</span> (inclusive) and <span class="pre">number</span> (exclusive).</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>rand-int! undefined(Positive number) => number</pre>
+    <pre>rand-int! _____________ (_________ Positive number) => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2956,10 +2956,10 @@
   <p>Returns the sine of <span class="pre">angle</span>. <span class="pre">angle</span> must be specified in radians.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>sin undefined => number</pre>
+    <pre>sin _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -2982,10 +2982,10 @@
   <p>Returns the cosine of <span class="pre">angle</span>. <span class="pre">angle</span> must be specified in radians.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>cos undefined => number</pre>
+    <pre>cos _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3008,10 +3008,10 @@
   <p>Returns the tangent of <span class="pre">angle</span>. <span class="pre">angle</span> must be specified in radians.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>tan undefined => number</pre>
+    <pre>tan _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3034,10 +3034,10 @@
   <p>Returns the arcsine (in radians) of <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>asin undefined => number</pre>
+    <pre>asin _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3059,10 +3059,10 @@
   <p>Returns the arccosine (in radians) of <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>acos undefined => number</pre>
+    <pre>acos _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3084,10 +3084,10 @@
   <p>Returns the arctangent (in radians) of <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>atan undefined => number</pre>
+    <pre>atan _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3109,10 +3109,10 @@
   <p>Returns the hyperbolic sine of <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>sinh undefined => number</pre>
+    <pre>sinh _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3134,10 +3134,10 @@
   <p>Returns the hyperbolic cosine of <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>cosh undefined => number</pre>
+    <pre>cosh _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3159,10 +3159,10 @@
   <p>Returns the hyperbolic tangent of <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>tanh undefined => number</pre>
+    <pre>tanh _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3185,10 +3185,10 @@
   <p>Returns the hyperbolic arcsine of <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>asinh undefined => number</pre>
+    <pre>asinh _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3210,10 +3210,10 @@
   <p>Returns the hyperbolic arccosine of <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>acosh undefined => number</pre>
+    <pre>acosh _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3235,10 +3235,10 @@
   <p>Returns the hyperbolic arctangent of <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>atanh undefined => number</pre>
+    <pre>atanh _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3260,11 +3260,11 @@
   <p>Call supplied function with specified arguments.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>apply undefined undefined => boolean</pre>
+    <pre>apply _____________  _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: array</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ array</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3285,10 +3285,10 @@
   <p>Returns <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>identity undefined => any</pre>
+    <pre>identity _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3311,11 +3311,11 @@
   <p>Takes a function <span class="pre">fn</span> and fewer (or equal) than the normal arguments to <span class="pre">fn</span>, and returns a function that takes a variable number of additional args. When called, the returned function calls f with <span class="pre">args</span> + additional args.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>partial undefined undefined => function</pre>
+    <pre>partial _____________  _____________  => function</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3336,11 +3336,11 @@
   <p>Takes a set of functions and returns a fn that is the composition of those. The returned functions takes a variable number of arguments, applies the rightmost function to the args, the next function (right-to-left) to the result, etc.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>comp undefined undefined => function</pre>
+    <pre>comp _____________  _____________  => function</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3362,15 +3362,15 @@
   <p>Returns a function that takes any number of arguments and returns <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>constantly undefined => function</pre>
+    <pre>constantly _____________  => function</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(def always-true (constantly true)) (always-true 9 3)')"> <span class="icon-button">▶</span> (def always-true (constantly true)) (always-true 9 3) <span class="gray">=> true </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(#((apply constantly first (repeat %2 rest)) %1) [1 2 3 4 5 6 7] 3)')"> <span class="icon-button">▶</span> (#((apply constantly first (repeat %2 rest)) %1) [1 2 3 4 5 6 7] 3) <span class="gray">=> &lt;function λ&gt; </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(#((apply constantly first (repeat %2 rest)) %1) [1 2 3 4 5 6 7] 3)')"> <span class="icon-button">▶</span> (#((apply constantly first (repeat %2 rest)) %1) [1 2 3 4 5 6 7] 3) <span class="gray">=> &lt;builtin function first&gt; </span> </span></pre>
   </div>
 </div>
 
@@ -3386,10 +3386,10 @@
   <p>Takes variable number of <span class="pre">functions</span> and returns a function that is the juxtaposition of those <span class="pre">functions</span>.  The returned function takes a variable number of args, and returns a vector containing the result of applying each <span class="pre">function</span> to the args (left-to-right).</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>juxt undefined => function</pre>
+    <pre>juxt _____________  => function</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3411,10 +3411,10 @@
   <p>Takes a <span class="pre">function</span> and returns a new function that takes the same arguments as f, has the same effects, if any, and returns the opposite truth value.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>complement undefined => function</pre>
+    <pre>complement _____________  => function</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3437,10 +3437,10 @@
   <p>Takes a number of <span class="pre">predicates</span> and returns a function that returns true if all of the <span class="pre">predicates</span> return a truthy true value against all of its arguments, else it returns false.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>every-pred undefined => function</pre>
+    <pre>every-pred _____________  => function</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3462,10 +3462,10 @@
   <p>Takes a number of <span class="pre">predicates</span> and returns a function that returns true if at least one of the <span class="pre">predicates</span> return a truthy true value against at least one of its arguments, else it returns false.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>some-pred undefined => function</pre>
+    <pre>some-pred _____________  => function</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3488,11 +3488,11 @@
   <p>Takes a function <span class="pre">fn</span>, and returns a function that calls <span class="pre">fn</span>, replacing a nil argument to <span class="pre">fn</span> with the corresponding <span class="pre">param</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>fnil undefined undefined => function</pre>
+    <pre>fnil _____________  _____________  => function</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3516,10 +3516,10 @@
   <p>Result is <span class="pre">true</span> if no two <span class="pre">values</span> are equal to each other, otherwise result is <span class="pre">false</span>. Note that only two argument version result is negation of <span class="pre">=</span> function, that is <span class="pre">(not= a b)</span> is same as <span class="pre">(not (= a b))</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>not= undefined => boolean</pre>
+    <pre>not= _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3544,10 +3544,10 @@
   <p>Compares <span class="pre">values</span> according to 'equal' predicate. Result is <span class="pre">true</span> if every specified value is equal to each other, otherwise result is <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>= undefined => boolean</pre>
+    <pre>= _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3571,10 +3571,10 @@
   <p>Compares <span class="pre">values</span> according to 'less than' predicate. Each (overlapping) pair of the <span class="pre">values</span> is compared by it. The result is <span class="pre">true</span> if all compared pairs satisfy comparison.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>< undefined => boolean</pre>
+    <pre>< _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3599,10 +3599,10 @@
   <p>Compares <span class="pre">values</span> according to 'greater than' predicate. Each (overlapping) pair of the <span class="pre">values</span> is compared by it. The result is <span class="pre">true</span> if all compared pairs satisfy comparison.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>> undefined => boolean</pre>
+    <pre>> _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3626,10 +3626,10 @@
   <p>Compares <span class="pre">values</span> according to 'less than or equal' predicate. Each (overlapping) pair of the <span class="pre">values</span> is compared by it. The result is <span class="pre">true</span> if all compared pairs satisfy comparison.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre><= undefined => boolean</pre>
+    <pre><= _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3653,10 +3653,10 @@
   <p>Compares <span class="pre">values</span> according to 'greater than or equal' predicate. Each (overlapping) pair of the <span class="pre">values</span> is compared by it. The result is <span class="pre">true</span> if all compared pairs satisfy comparison.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>>= undefined => boolean</pre>
+    <pre>>= _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3680,10 +3680,10 @@
   <p>Computes logical negation. Note that any other <span class="pre">value</span> than <span class="pre">false</span>, <span class="pre">0</span>, <span class="pre">nil</span> and <span class="pre">''</span> is considered as <span class="pre">true</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>not undefined => boolean</pre>
+    <pre>not _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3709,10 +3709,10 @@
   <p>It console.log the <span class="pre">values</span> and then returns the last element of the <span class="pre">values</span> array. If called with no arguments <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>write! undefined => any</pre>
+    <pre>write! _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3760,10 +3760,10 @@
   <p>Returns milliseconds elapsed since the UNIX epoch to <span class="pre">date-time</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>iso-date-time->inst-ms undefined => number</pre>
+    <pre>iso-date-time->inst-ms _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3784,10 +3784,10 @@
   <p>Returns IOS date time string from <span class="pre">ms</span> (milliseconds elapsed since the UNIX epoch).</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>inst-ms->iso-date-time undefined => string</pre>
+    <pre>inst-ms->iso-date-time _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3808,10 +3808,10 @@
   <p>If no params, prints context stack, otherwise prints <span class="pre">value</span> details.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>debug! undefined => any</pre>
+    <pre>debug! _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3832,10 +3832,10 @@
   <p>Coerces <span class="pre">value</span> to boolean.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>boolean undefined => boolean</pre>
+    <pre>boolean _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3858,11 +3858,11 @@
   <p>Compares two values. Returns -1 if a < b, 1 if a > b and 0 if a and b have the same sort order.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>compare undefined undefined => number</pre>
+    <pre>compare _____________  _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3935,11 +3935,11 @@
   <p>Returns true if <span class="pre">a</span> and <span class="pre">b</span> are structually equal.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>equal? undefined undefined => boolean</pre>
+    <pre>equal? _____________  _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3964,10 +3964,10 @@
   <p>Returns JSON.parse(<span class="pre">value</span>).</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>json-parse undefined => any</pre>
+    <pre>json-parse _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -3987,11 +3987,11 @@
   <p>Returns JSON.stringify(<span class="pre">value</span>). If second argument is provided, returns JSON.stringify(<span class="pre">value</span>, null, <span class="pre">indent</span>).</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>json-stringify undefined undefined => string</pre>
+    <pre>json-stringify _____________  _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4012,11 +4012,11 @@
   <p>Return shallow copy of <span class="pre">object</span> with attribute <span class="pre">attr</span> deleted.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>dissoc undefined undefined => object</pre>
+    <pre>dissoc _____________  _____________  => object</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: object</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ object</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4038,10 +4038,10 @@
   <p>Constructs a new object. Object members are created from <span class="pre">key</span> - <span class="pre">value</span> pairs. Requires an even number of arguments.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>object undefined(key - value pairs, where key is a string) => object</pre>
+    <pre>object _____________ (_________ key - value pairs, where key is a string) => object</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4064,10 +4064,10 @@
   <p>Returns array of all keys in <span class="pre">object</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>keys undefined => any</pre>
+    <pre>keys _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: object</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ object</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4088,10 +4088,10 @@
   <p>Returns array of all values in <span class="pre">object</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>vals undefined => any</pre>
+    <pre>vals _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: object</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ object</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4112,10 +4112,10 @@
   <p>Returns nested array of all key - value pairs in <span class="pre">object</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>entries undefined => array</pre>
+    <pre>entries _____________  => array</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: object</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ object</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4136,11 +4136,11 @@
   <p>Returns entry for <span class="pre">key</span>, or <span class="pre">nil</span> if <span class="pre">key</span> not present in <span class="pre">object</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>find undefined undefined => array,nil</pre>
+    <pre>find _____________  _____________  => array,nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: object</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ object</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4161,10 +4161,10 @@
   <p>Returns a new object created by merging together all arguments.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>merge undefined => object</pre>
+    <pre>merge _____________  => object</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: object</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ object</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4185,11 +4185,11 @@
   <p>Returns a new object created by merging together all arguments. If two keys appears in more than one object <span class="pre">fn</span> is used to calculate the new value.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>merge-with undefined undefined => object</pre>
+    <pre>merge-with _____________  _____________  => object</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: object</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ object</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4211,11 +4211,11 @@
   <p>Returns a new object created by mapping <span class="pre">keys</span> to <span class="pre">values</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>zipmap undefined undefined => object</pre>
+    <pre>zipmap _____________  _____________  => object</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4237,11 +4237,11 @@
   <p>Returns an object containing only those entries in <span class="pre">object</span> whose key is in <span class="pre">keys</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>select-keys undefined undefined => object</pre>
+    <pre>select-keys _____________  _____________  => object</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: object</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ object</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4262,10 +4262,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a <span class="pre">boolean</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>boolean? undefined => boolean</pre>
+    <pre>boolean? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4289,10 +4289,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is <span class="pre">nil</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>nil? undefined => boolean</pre>
+    <pre>nil? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4316,10 +4316,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a number, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>number? undefined => boolean</pre>
+    <pre>number? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4344,10 +4344,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a string, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>string? undefined => boolean</pre>
+    <pre>string? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4372,10 +4372,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a function, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>function? undefined => boolean</pre>
+    <pre>function? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4400,10 +4400,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is an integer, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>integer? undefined => boolean</pre>
+    <pre>integer? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4430,10 +4430,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is an array, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>array? undefined => boolean</pre>
+    <pre>array? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4458,10 +4458,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is an object, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>object? undefined => boolean</pre>
+    <pre>object? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4488,10 +4488,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a Coll i.e. an array, an object or a string, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>coll? undefined => boolean</pre>
+    <pre>coll? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4517,10 +4517,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a Seq i.e. an array or a string, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>seq? undefined => boolean</pre>
+    <pre>seq? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4546,10 +4546,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is a regexp, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>regexp? undefined => boolean</pre>
+    <pre>regexp? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4577,10 +4577,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is <span class="pre">0</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>zero? undefined => boolean</pre>
+    <pre>zero? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4603,10 +4603,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is greater than <span class="pre">0</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>pos? undefined => boolean</pre>
+    <pre>pos? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4629,10 +4629,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is less than <span class="pre">0</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>neg? undefined => boolean</pre>
+    <pre>neg? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4655,10 +4655,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is even, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>even? undefined => boolean</pre>
+    <pre>even? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4681,10 +4681,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is odd, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>odd? undefined => boolean</pre>
+    <pre>odd? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4707,10 +4707,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is finite, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>finite? undefined => boolean</pre>
+    <pre>finite? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4733,10 +4733,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> is NaN (not a number), otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>nan? undefined => boolean</pre>
+    <pre>nan? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4759,10 +4759,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> equals negative infinity, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>negative-infinity? undefined => boolean</pre>
+    <pre>negative-infinity? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4785,10 +4785,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">number</span> equals positive infinity, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>positive-infinity? undefined => boolean</pre>
+    <pre>positive-infinity? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4811,10 +4811,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is <span class="pre">true</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>false? undefined => boolean</pre>
+    <pre>false? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4837,10 +4837,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">value</span> is <span class="pre">true</span>, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>true? undefined => boolean</pre>
+    <pre>true? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4863,10 +4863,10 @@
   <p>Returns <span class="pre">true</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">false</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>empty? undefined => boolean</pre>
+    <pre>empty? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection,string,nil</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection,string,nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4892,10 +4892,10 @@
   <p>Returns <span class="pre">false</span> if <span class="pre">coll</span> is empty, otherwise <span class="pre">true</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>not-empty? undefined => boolean</pre>
+    <pre>not-empty? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: collection,string,nil</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ collection,string,nil</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4921,11 +4921,11 @@
   <p>Creates a RegExp from <span class="pre">pattern</span> and <span class="pre">flags</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>regexp undefined undefined => regexp</pre>
+    <pre>regexp _____________  _____________  => regexp</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4948,11 +4948,11 @@
   <p>Matches <span class="pre">string</span> against <span class="pre">pattern</span>. If <span class="pre">string</span> is a string and matches the regular expression, a <em>match</em>-array is returned, otherwise <span class="pre">nil</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>match undefined undefined => any</pre>
+    <pre>match _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: regexp</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ regexp</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -4977,12 +4977,12 @@
   <p>Returns a new string with some or all matches of <span class="pre">pattern</span> replaced by <span class="pre">replacement</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>replace undefined undefined undefined => any</pre>
+    <pre>replace _____________  _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre>
-<pre>undefined: regexp</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre>
+<pre>_________ regexp</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5004,10 +5004,10 @@
   <p>Computes logical 'and' function. <span class="pre">expressions</span> evaluation starts from left. Value from the first form that decides result is returned so <span class="pre">expressions</span> at end of argument array may not evaluated.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>and undefined => boolean</pre>
+    <pre>and _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *expressions</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *expressions</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5031,10 +5031,10 @@
   <p>Computes logical 'or' function. <span class="pre">expressions</span> evaluation starts from left. Value from the first form that decides result is returned so forms at end of argument array may not evaluated.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>or undefined => boolean</pre>
+    <pre>or _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *expressions</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *expressions</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5058,11 +5058,11 @@
   <p>Bind <span class="pre">value</span> to <span class="pre">variable</span>. If <span class="pre">variable</span> isn't defined, a new global variable is created.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>def undefined undefined => any</pre>
+    <pre>def _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *name</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *name</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5083,11 +5083,11 @@
   <p>Creates a variable with name set to <span class="pre">variable</span> evaluated and value set to <span class="pre">value</span>. If a variable with name <span class="pre">variable</span> isn't found a new global variable is created.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>defs undefined undefined => any</pre>
+    <pre>defs _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *expression</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *expression</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5109,11 +5109,11 @@
   <p>Binds local variables. The variables lives only within the body. It returns evaluation of the last expression in the body.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>let undefined undefined => any</pre>
+    <pre>let _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *bindings</pre>
-<pre>undefined: *expressions</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *bindings</pre>
+<pre>_________ *expressions</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5133,12 +5133,12 @@
   <p>Binds one local variable. If it evaluates to a truthy value the then-form is executed with the variable accessable. If the bound variable evaluates to false, the then-form is evaluated (without variable accessable).</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>if-let undefined undefined undefined => any</pre>
+    <pre>if-let _____________  _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *bindings</pre>
-<pre>undefined: any</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *bindings</pre>
+<pre>_________ any</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5159,11 +5159,11 @@
   <p>Binds one local variable. If it evaluates to a truthy value the then-form is executed with the variable accessable. If the bound variable evaluates to false, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>when-let undefined undefined => any</pre>
+    <pre>when-let _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *bindings</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *bindings</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5184,11 +5184,11 @@
   <p>Roughly the same as <span class="pre">(when (seq xs) (let [x (first xs)] body))</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>when-first undefined undefined => any</pre>
+    <pre>when-first _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *bindings</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *bindings</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5211,11 +5211,11 @@
   <p>Creates a function. When called, evaluation of the last expression in the body is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>fn undefined undefined => function</pre>
+    <pre>fn _____________  _____________  => function</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *arguments</pre>
-<pre>undefined: *expressions</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *arguments</pre>
+<pre>_________ *expressions</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5236,16 +5236,16 @@
   <p>Creates a named global function. When called, evaluation of the last expression in the body is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>defn undefined undefined undefined => function</pre>
+    <pre>defn _____________  _____________  _____________  => function</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *name</pre>
-<pre>undefined: *arguments</pre>
-<pre>undefined: *expressions</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *name</pre>
+<pre>_________ *arguments</pre>
+<pre>_________ *expressions</pre></div>
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(defn hyp [a b] (sqrt (+ (* a a) (* b b)))) hyp')"> <span class="icon-button">▶</span> (defn hyp [a b] (sqrt (+ (* a a) (* b b)))) hyp <span class="gray">=> &lt;function λ&gt; </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(defn hyp [a b] (sqrt (+ (* a a) (* b b)))) hyp')"> <span class="icon-button">▶</span> (defn hyp [a b] (sqrt (+ (* a a) (* b b)))) hyp <span class="gray">=> &lt;function hyp&gt; </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(defn hyp [a b] (sqrt (+ (* a a) (* b b)))) (hyp 3 4)')"> <span class="icon-button">▶</span> (defn hyp [a b] (sqrt (+ (* a a) (* b b)))) (hyp 3 4) <span class="gray">=> 5 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(defn sumOfSquares [& s] (apply + (map (fn [x] (* x x)) s))) (sumOfSquares 1 2 3 4 5)')"> <span class="icon-button">▶</span> (defn sumOfSquares [& s] (apply + (map (fn [x] (* x x)) s))) (sumOfSquares 1 2 3 4 5) <span class="gray">=> 55 </span> </span></pre>
   </div>
@@ -5263,16 +5263,16 @@
   <p>Creates a named global function with its name set to <span class="pre">name</span> evaluated. When called, evaluation of the last expression in the body is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>defns undefined undefined undefined => function</pre>
+    <pre>defns _____________  _____________  _____________  => function</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *expression</pre>
-<pre>undefined: *arguments</pre>
-<pre>undefined: *expressions</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *expression</pre>
+<pre>_________ *arguments</pre>
+<pre>_________ *expressions</pre></div>
 
   <label>Examples</label>
   <div class="indent">
-    <pre><span class="example" onclick="addToPlayground('(defns ___double_quote___hyp___double_quote___ [a b] (sqrt (+ (* a a) (* b b)))) hyp')"> <span class="icon-button">▶</span> (defns "hyp" [a b] (sqrt (+ (* a a) (* b b)))) hyp <span class="gray">=> &lt;function λ&gt; </span> </span></pre>
+    <pre><span class="example" onclick="addToPlayground('(defns ___double_quote___hyp___double_quote___ [a b] (sqrt (+ (* a a) (* b b)))) hyp')"> <span class="icon-button">▶</span> (defns "hyp" [a b] (sqrt (+ (* a a) (* b b)))) hyp <span class="gray">=> &lt;function hyp&gt; </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(defns (str :h :y :p) [a b] (sqrt (+ (* a a) (* b b)))) (hyp 3 4)')"> <span class="icon-button">▶</span> (defns (str :h :y :p) [a b] (sqrt (+ (* a a) (* b b)))) (hyp 3 4) <span class="gray">=> 5 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(defns ___double_quote___sumOfSquares___double_quote___ [& s] (apply + (map (fn [x] (* x x)) s))) (sumOfSquares 1 2 3 4 5)')"> <span class="icon-button">▶</span> (defns "sumOfSquares" [& s] (apply + (map (fn [x] (* x x)) s))) (sumOfSquares 1 2 3 4 5) <span class="gray">=> 55 </span> </span></pre>
   </div>
@@ -5290,11 +5290,11 @@
   <p>Executes tryExpression. If that throws, the catchBlock gets executed. See examples for details.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>try undefined undefined => any</pre>
+    <pre>try _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *expression</pre>
-<pre>undefined: *catch</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *expression</pre>
+<pre>_________ *catch</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5316,10 +5316,10 @@
   <p>Throws <span class="pre">UserDefinedError</span> with message set to <span class="pre">message</span> evaluated. <span class="pre">message</span> must evaluate to a <span class="pre">string</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>throw undefined => *never</pre>
+    <pre>throw _____________  => *never</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *expression</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *expression</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5347,12 +5347,12 @@
   <p>Either <span class="pre">then</span> or <span class="pre">else</span> branch is taken. Then branch is selected when <span class="pre">test</span> result is truthy. I test is falsy and no <span class="pre">else</span> branch exists, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>if undefined undefined undefined => any</pre>
+    <pre>if _____________  _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5375,12 +5375,12 @@
   <p>Either <span class="pre">then</span> or <span class="pre">else</span> branch is taken. Then branch is selected when <span class="pre">test</span> result is falsy. I test is falsy and no <span class="pre">else</span> branch exists, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>if-not undefined undefined undefined => any</pre>
+    <pre>if-not _____________  _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5403,10 +5403,10 @@
   <p>Used for branching. Variants are tested sequentially from the top. If no branch is tested truthy, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>cond undefined => any</pre>
+    <pre>cond _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *cond-cases</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *cond-cases</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5427,11 +5427,11 @@
   <p>If <span class="pre">test</span> yields a thruthy value, the forms are evaluated in order from left to right and the value returned by the last <span class="pre">form</span> is returned. Otherwise, if <span class="pre">test</span> yields a falsy value, the forms are not evaluated, and <span class="pre">nil</span> is returned. If no <span class="pre">form</span> is provided, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>when undefined undefined => any</pre>
+    <pre>when _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *expression</pre>
-<pre>undefined: *expression</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *expression</pre>
+<pre>_________ *expression</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5454,11 +5454,11 @@
   <p>If <span class="pre">test</span> yields a falsy value, the forms are evaluated in order from left to right and the value returned by the last <span class="pre">form</span> is returned. Otherwise, if <span class="pre">test</span> yields a truthy value, the forms are not evaluated, and <span class="pre">nil</span> is returned. If no <span class="pre">form</span> is provided, <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>when-not undefined undefined => any</pre>
+    <pre>when-not _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *expression</pre>
-<pre>undefined: *expression</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *expression</pre>
+<pre>_________ *expression</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5481,10 +5481,10 @@
   <p>All <span class="pre">expressions</span> within <span class="pre">comment</span> are read and must be valid <span class="pre">lits</span> but they are not eveluated. <span class="pre">nil</span> is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>comment undefined => nil</pre>
+    <pre>comment _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *expressions</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *expressions</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5505,10 +5505,10 @@
   <p>Calls <span class="pre">expressions</span> in the order they have been written. Resulting value is the value of the last form.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>do undefined => any</pre>
+    <pre>do _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *expressions</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *expressions</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5529,10 +5529,10 @@
   <p>Recursevly calls enclosing function or loop with its evaluated <span class="pre">expressions</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>recur undefined => nil</pre>
+    <pre>recur _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *expressions</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *expressions</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5554,11 +5554,11 @@
   <p>Executes body with initial <span class="pre">bindings</span>. The <span class="pre">bindings</span> will be replaced with the recur parameters for subsequent recursions.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>loop undefined undefined => any</pre>
+    <pre>loop _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *bindings</pre>
-<pre>undefined: *expressions</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *bindings</pre>
+<pre>_________ *expressions</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5579,10 +5579,10 @@
   <p>Prints the time it took to evaluate <span class="pre">form</span>. Returns <span class="pre">form</span> evaluated.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>time! undefined => any</pre>
+    <pre>time! _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5602,11 +5602,11 @@
   <p>Same syntax as <span class="pre">for</span>, but returns <span class="pre">nil</span>. Use for side effects. Consumes less memory than <span class="pre">for</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>doseq undefined undefined => nil</pre>
+    <pre>doseq _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *bindings</pre>
-<pre>undefined: *expression</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *bindings</pre>
+<pre>_________ *expression</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5626,11 +5626,11 @@
   <p>List comprehension. Takes an array of one or more <span class="pre">bindings</span>, each followed by zero or more modifiers, and returns an array of evaluations of <span class="pre">expression</span>. Collections are iterated in a nested fashion, rightmost fastest. Supported modifiers are: &let &while and &when.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>for undefined undefined => any</pre>
+    <pre>for _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: *bindings</pre>
-<pre>undefined: *expression</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ *bindings</pre>
+<pre>_________ *expression</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5658,10 +5658,10 @@
   <p>Returns <span class="pre">true</span> if name is a declared variable or a builtin function.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>declared? undefined => boolean</pre>
+    <pre>declared? _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5685,17 +5685,17 @@
   <p>Sort of like <span class="pre">or</span> with a couple of differences.<br /><br />1. <span class="pre">test</span> does not need to be declared (defaults to <span class="pre">nil</span>)<br />2. Accept exactly one or two parameters.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>?? undefined undefined => any</pre>
+    <pre>?? _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
     <pre><span class="example" onclick="addToPlayground('(?? foo)')"> <span class="icon-button">▶</span> (?? foo) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(def foo :foo) (?? foo)')"> <span class="icon-button">▶</span> (def foo :foo) (?? foo) <span class="gray">=> "foo" </span> </span></pre>
-<pre><span class="example" onclick="addToPlayground('(?? +)')"> <span class="icon-button">▶</span> (?? +) <span class="gray">=> &lt;function λ&gt; </span> </span></pre>
+<pre><span class="example" onclick="addToPlayground('(?? +)')"> <span class="icon-button">▶</span> (?? +) <span class="gray">=> &lt;builtin function +&gt; </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(def foo nil) (?? foo)')"> <span class="icon-button">▶</span> (def foo nil) (?? foo) <span class="gray">=> null </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(?? foo 1)')"> <span class="icon-button">▶</span> (?? foo 1) <span class="gray">=> 1 </span> </span></pre>
 <pre><span class="example" onclick="addToPlayground('(?? ___double_quote______double_quote___)')"> <span class="icon-button">▶</span> (?? "") <span class="gray">=> "" </span> </span></pre>
@@ -5717,12 +5717,12 @@
   <p>Extracts characters from <span class="pre">indexStart</span> up to but not including <span class="pre">indexEnd</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>subs undefined undefined undefined => string</pre>
+    <pre>subs _____________  _____________  _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre>
-<pre>undefined: integer</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre>
+<pre>_________ integer</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5745,11 +5745,11 @@
   <p>Repeates <span class="pre">string</span> <span class="pre">count</span> times.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>string-repeat undefined undefined => number</pre>
+    <pre>string-repeat _____________  _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5770,10 +5770,10 @@
   <p>Concatenats <span class="pre">values</span> into one <span class="pre">string</span>. If <span class="pre">value</span> equals <span class="pre">nil</span> empty string is returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>str undefined => number</pre>
+    <pre>str _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5796,10 +5796,10 @@
   <p>Parses <span class="pre">string</span> to a number.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>number undefined => number</pre>
+    <pre>number _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5821,11 +5821,11 @@
   <p>Converts <span class="pre">number</span> to a string. If <span class="pre">base</span> is not equal to <span class="pre">10</span> nu mber must be a non negative integer.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>number-to-string undefined undefined(2, 8, 10 or 16) => string</pre>
+    <pre>number-to-string _____________  _____________ (_________ 2, 8, 10 or 16) => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre>
-<pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre>
+<pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5850,10 +5850,10 @@
   <p>Returns <span class="pre">string</span> converted to lower case.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>lower-case undefined => string</pre>
+    <pre>lower-case _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5874,10 +5874,10 @@
   <p>Returns <span class="pre">string</span> converted to upper case.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>upper-case undefined => string</pre>
+    <pre>upper-case _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5898,10 +5898,10 @@
   <p>Returns a new string with leading and trailing whitespaces removed.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>trim undefined => string</pre>
+    <pre>trim _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5923,10 +5923,10 @@
   <p>Returns a new string with leading whitespaces removed.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>trim-left undefined => string</pre>
+    <pre>trim-left _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5948,10 +5948,10 @@
   <p>Returns a new string with trailing whitespaces removed.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>trim-right undefined => string</pre>
+    <pre>trim-right _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -5973,12 +5973,12 @@
   <p>Pads from the start of <span class="pre">string</span> with <span class="pre">padString</span> (multiple times, if needed) until the resulting string reaches the given <span class="pre">length</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>pad-left undefined undefined undefined => string</pre>
+    <pre>pad-left _____________  _____________  _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre>
-<pre>undefined: integer</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre>
+<pre>_________ integer</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6001,12 +6001,12 @@
   <p>Pads from the start of <span class="pre">string</span> with <span class="pre">padString</span> (multiple times, if needed) until the resulting string reaches the given <span class="pre">length</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>pad-right undefined undefined undefined => string</pre>
+    <pre>pad-right _____________  _____________  _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre>
-<pre>undefined: integer</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre>
+<pre>_________ integer</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6029,12 +6029,12 @@
   <p>Divides <span class="pre">string</span> into an array of substrings. The division is done by searching for <span class="pre">delimiter</span>. If <span class="pre">limit</span> as provided, at most <span class="pre">limit</span> number of substrings are returned.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>split undefined undefined undefined => string</pre>
+    <pre>split _____________  _____________  _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre>
-<pre>undefined: string</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre>
+<pre>_________ string</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6057,11 +6057,11 @@
   <p>Applies placeholders to a string. Support for basic pluralization - see examples. If pluralization is used, first placeholder must be a number.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>template undefined undefined => string</pre>
+    <pre>template _____________  _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6093,10 +6093,10 @@
   <p>Return code point for first character in <span class="pre">input</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>to-char-code undefined => number</pre>
+    <pre>to-char-code _____________  => number</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6117,10 +6117,10 @@
   <p>Return character for code point <span class="pre">code</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>from-char-code undefined => string</pre>
+    <pre>from-char-code _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: number</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ number</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6141,10 +6141,10 @@
   <p>Returns a Base64 encoded string from <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>encode-base64 undefined => string</pre>
+    <pre>encode-base64 _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6164,10 +6164,10 @@
   <p>Returns a Base64 decoded string from <span class="pre">base64string</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>decode-base64 undefined => string</pre>
+    <pre>decode-base64 _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6187,10 +6187,10 @@
   <p>Returns an escaped <span class="pre">uri</span> string.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>encode-uri-component undefined => string</pre>
+    <pre>encode-uri-component _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6210,10 +6210,10 @@
   <p>Returns an un-escaped <span class="pre">uri</span> string.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>decode-uri-component undefined => string</pre>
+    <pre>decode-uri-component _____________  => string</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6233,11 +6233,11 @@
   <p>Shifts <span class="pre">number</span> arithmetically left by <span class="pre">count</span> bit positions if <span class="pre">count</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>bit-shift-left undefined undefined => integer</pre>
+    <pre>bit-shift-left _____________  _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6258,11 +6258,11 @@
   <p>Shifts <span class="pre">number</span> arithmetically right by <span class="pre">count</span> bit positions if <span class="pre">count</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>bit-shift-right undefined undefined => integer</pre>
+    <pre>bit-shift-right _____________  _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6283,10 +6283,10 @@
   <p>Returns bitwise <span class="pre">not</span> of <span class="pre">number</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>bit-not undefined => integer</pre>
+    <pre>bit-not _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6307,11 +6307,11 @@
   <p>Returns bitwise <span class="pre">and</span> of all arguments.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>bit-and undefined undefined => integer</pre>
+    <pre>bit-and _____________  _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6332,10 +6332,10 @@
   <p>Returns bitwise <span class="pre">and</span> with complement of all arguments. (bit-and-not x y) <==> (bit-and x (bit-not y)).</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>bit-and-not undefined => integer</pre>
+    <pre>bit-and-not _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6356,10 +6356,10 @@
   <p>Returns bitwise <span class="pre">or</span> of all arguments. Return 0 if no arguments.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>bit-or undefined => integer</pre>
+    <pre>bit-or _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6380,10 +6380,10 @@
   <p>Returns bitwise <span class="pre">xor</span> of all arguments.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>bit-xor undefined => integer</pre>
+    <pre>bit-xor _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6404,11 +6404,11 @@
   <p>Flips bit number <span class="pre">index</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>bit-flip undefined undefined => integer</pre>
+    <pre>bit-flip _____________  _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6429,11 +6429,11 @@
   <p>Clears bit number <span class="pre">index</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>bit-clear undefined undefined => integer</pre>
+    <pre>bit-clear _____________  _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6454,11 +6454,11 @@
   <p>Sets bit number <span class="pre">index</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>bit-set undefined undefined => integer</pre>
+    <pre>bit-set _____________  _____________  => integer</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6479,11 +6479,11 @@
   <p>Checks if bit number <span class="pre">index</span> is set.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>bit-test undefined undefined => boolean</pre>
+    <pre>bit-test _____________  _____________  => boolean</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: integer</pre>
-<pre>undefined: integer</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ integer</pre>
+<pre>_________ integer</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6504,11 +6504,11 @@
   <p>If <span class="pre">value</span> is falsy it throws AssertionError with <span class="pre">message</span>. If no <span class="pre">message</span> is provided, message is set to <span class="pre">value</span>.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert undefined undefined => any</pre>
+    <pre>assert _____________  _____________  => any</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6530,12 +6530,12 @@
   <p>If <span class="pre">first</span> is not the same as <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert= undefined undefined undefined => nil</pre>
+    <pre>assert= _____________  _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6561,12 +6561,12 @@
   <p>If <span class="pre">first</span> is the same as <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert-not= undefined undefined undefined => nil</pre>
+    <pre>assert-not= _____________  _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6592,12 +6592,12 @@
   <p>If <span class="pre">first</span> is not deep equal to <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert-equal undefined undefined undefined => nil</pre>
+    <pre>assert-equal _____________  _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6637,12 +6637,12 @@ to deep equal
   <p>If <span class="pre">first</span> is not deep equal to <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert-not-equal undefined undefined undefined => nil</pre>
+    <pre>assert-not-equal _____________  _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6668,12 +6668,12 @@ to deep equal
   <p>If <span class="pre">first</span> is not greater than <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert> undefined undefined undefined => nil</pre>
+    <pre>assert> _____________  _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6699,12 +6699,12 @@ to deep equal
   <p>If <span class="pre">first</span> is not less than <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert< undefined undefined undefined => nil</pre>
+    <pre>assert< _____________  _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6730,12 +6730,12 @@ to deep equal
   <p>If <span class="pre">first</span> is less than <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert>= undefined undefined undefined => nil</pre>
+    <pre>assert>= _____________  _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6761,12 +6761,12 @@ to deep equal
   <p>If <span class="pre">first</span> is grater than <span class="pre">second</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert<= undefined undefined undefined => nil</pre>
+    <pre>assert<= _____________  _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6792,11 +6792,11 @@ to deep equal
   <p>If <span class="pre">first</span> is not <span class="pre">true</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert-true undefined undefined => nil</pre>
+    <pre>assert-true _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6822,11 +6822,11 @@ to deep equal
   <p>If <span class="pre">first</span> is not <span class="pre">false</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert-false undefined undefined => nil</pre>
+    <pre>assert-false _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6852,11 +6852,11 @@ to deep equal
   <p>If <span class="pre">first</span> is not <span class="pre">truthy</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert-truthy undefined undefined => nil</pre>
+    <pre>assert-truthy _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6895,11 +6895,11 @@ to deep equal
   <p>If <span class="pre">first</span> is not <span class="pre">falsy</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert-falsy undefined undefined => nil</pre>
+    <pre>assert-falsy _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6937,11 +6937,11 @@ to deep equal
   <p>If <span class="pre">first</span> is not <span class="pre">nil</span> it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert-nil undefined undefined => nil</pre>
+    <pre>assert-nil _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: any</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ any</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -6985,11 +6985,11 @@ to deep equal
   <p>If <span class="pre">func</span> does not throw, it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert-throws undefined undefined => nil</pre>
+    <pre>assert-throws _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -7012,12 +7012,12 @@ to deep equal
   <p>If <span class="pre">func</span> does not throw <span class="pre">expectedMessage</span>, it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert-throws-error undefined undefined undefined => nil</pre>
+    <pre>assert-throws-error _____________  _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: string</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ string</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">
@@ -7041,11 +7041,11 @@ to deep equal
   <p>If <span class="pre">func</span> throws, it throws AssertionError.</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>assert-not-throws undefined undefined => nil</pre>
+    <pre>assert-not-throws _____________  _____________  => nil</pre>
   </div>
 
-  <label>Arguments</label><div class="indent"><pre>undefined: function</pre>
-<pre>undefined: string</pre></div>
+  <label>Arguments</label><div class="indent"><pre>_________ function</pre>
+<pre>_________ string</pre></div>
 
   <label>Examples</label>
   <div class="indent">

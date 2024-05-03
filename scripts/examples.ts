@@ -1,4 +1,16 @@
-var examples = [
+export interface Example {
+  id: string
+  name: string
+  description: string
+  code: string
+  params?: {
+    values?: Record<string, unknown>
+    lazyValues?: Record<string, { read: string }>
+    jsFunctions?: Record<string, { fn: string }>
+  }
+}
+
+const examples: Example[] = [
   {
     id: 'default',
     name: 'Simple Lisp expression',
@@ -261,3 +273,5 @@ var examples = [
 `.trim(),
   },
 ]
+
+export default examples

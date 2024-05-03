@@ -1,18 +1,19 @@
-const path = require('node:path')
-const fs = require('node:fs')
-const { version } = require('../../package.json')
-const { functionReference, categorizedFunctions } = require('../../dist/reference')
-const Lits = require('../../dist/index')
-const litsExamples = require('./examples')
+import path from 'node:path'
+import fs from 'node:fs'
+import { version } from '../package.json'
+import type { Category, Reference } from '../reference'
+import { categorizedFunctions, functionReference } from '../reference'
+import { FunctionType, Lits, isLitsFunction } from '../src'
+import type { UnknownRecord } from '../src/interface'
+import litsExamples from './examples'
 
-const DOC_DIR = path.resolve(__dirname, '../../docs')
-const lits = new Lits.Lits({ debug: true })
+const DOC_DIR = path.resolve(__dirname, '../docs')
+const lits = new Lits({ debug: true })
 
 setupPredictability()
 setupDocDir()
-copyScripts()
-copyStyles()
-copyFavicon()
+copyLitsScript()
+copyAssets()
 writeIndexPage()
 
 function writeIndexPage() {
@@ -21,7 +22,7 @@ function writeIndexPage() {
 ${getHtmlHeader()}
 <body>
   <div id="wrapper">
-    ${getTopBar({ back: false })}
+    ${getTopBar()}
     <main id="main-panel" class="fancy-scroll">
       ${getIndexPage()}
       ${getExamplePage()}
@@ -171,8 +172,8 @@ function getExamplePage() {
 `
 }
 
-function getDocumentationContent(docObj) {
-  const { name, description, returns, linkName, examples, arguments: args, clojureDocs, category } = docObj
+function getDocumentationContent(reference: Reference<Category>) {
+  const { name, description, linkName, examples, arguments: args, clojureDocs, category } = reference
   const clojureDocsLink
     = clojureDocs === null
       ? null
@@ -194,14 +195,14 @@ function getDocumentationContent(docObj) {
   <p>${formattedDescription}</p>
   <label>Syntax</label>
   <div class="indent">
-    <pre>${getSyntax(name, args, returns)}</pre>
+    <pre>${getSyntax(reference)}</pre>
   </div>
 
   ${
     args.length === 0
       ? '<label>No arguments</label>'
       : `<label>Arguments</label><div class="indent">${args
-          .map(arg => `<pre>${arg.name}: ${arg.type}</pre>`)
+          .map(arg => `<pre>_________ ${arg.type}</pre>`)
           .join('\n')}</div>`
   }
 
@@ -214,7 +215,7 @@ function getDocumentationContent(docObj) {
         const oldWarn = console.warn
         console.warn = function () {}
         let result
-        const escapedExample = escapeExample(example)
+        const escapedExample = escapeExampleString(example)
         try {
           result = lits.run(example)
           const stringifiedResult = stringifyValue(result)
@@ -233,9 +234,9 @@ function getDocumentationContent(docObj) {
 }
 
 function getSideBar() {
-  const categoryCollections = Object.values(functionReference).reduce((result, obj) => {
+  const categoryCollections = Object.values(functionReference).reduce((result: Record<string, Reference<Category>[]>, obj) => {
     result[obj.category] = result[obj.category] || []
-    result[obj.category].push(obj)
+    result[obj.category]!.push(obj)
     return result
   }, {})
 
@@ -252,7 +253,7 @@ function getSideBar() {
         <ul>
           ${
             categoryCollections[categoryKey]
-              ? categoryCollections[categoryKey]
+              ? categoryCollections[categoryKey]!
                   .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
                   .map((obj) => {
                     const linkName = obj.linkName
@@ -274,27 +275,20 @@ function setupDocDir() {
   fs.mkdirSync(DOC_DIR)
 }
 
-function copyScripts() {
-  fs.copyFileSync(path.join(__dirname, '../../dist/lits.iife.js'), path.join(DOC_DIR, 'lits.iife.js'))
-  fs.copyFileSync(path.join(__dirname, 'scripts.js'), path.join(DOC_DIR, 'scripts.js'))
-  const examplesContent = fs.readFileSync(path.join(__dirname, 'examples.js'), { encoding: 'utf-8' })
-  fs.writeFileSync(path.join(DOC_DIR, 'examples.js'), examplesContent.replace('module.exports =', 'var examples ='))
+function copyLitsScript() {
+  fs.copyFileSync(path.join(__dirname, '../dist/lits.iife.js'), path.join(DOC_DIR, 'lits.iife.js'))
 }
 
-function copyStyles() {
-  fs.copyFileSync(path.join(__dirname, 'styles.css'), path.join(DOC_DIR, 'styles.css'))
+function copyAssets() {
+  fs.cpSync(path.join(__dirname, '../playgroundAssets/'), path.join(DOC_DIR), { recursive: true })
 }
 
-function copyFavicon() {
-  fs.copyFileSync(path.join(__dirname, 'favicon.ico'), path.join(DOC_DIR, 'favicon.ico'))
-}
-
-function stringifyValue(value) {
-  if (Lits.isLitsFunction(value)) {
-    if (value.builtin)
-      return `&lt;builtin function ${value.builtin}&gt;`
+function stringifyValue(value: unknown) {
+  if (isLitsFunction(value)) {
+    if (value.t === FunctionType.Builtin)
+      return `&lt;builtin function ${value.n}&gt;`
     else
-      return `&lt;function ${value.name || 'λ'}&gt;`
+      return `&lt;function ${(value as unknown as UnknownRecord).n ?? 'λ'}&gt;`
   }
   if (value === null)
     return 'null'
@@ -317,13 +311,13 @@ function stringifyValue(value) {
   return JSON.stringify(value)
 }
 
-function escape(str) {
+function escape(str: string) {
   str = str.replace(/>/g, '&gt;')
   str = str.replace(/</g, '&lt;')
   return str
 }
 
-function formatDescription(value) {
+function formatDescription(value: string) {
   value = value.replace(/`(.*?)`/g, '<span class="pre">$1</span>')
   value = value.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
   value = value.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -332,14 +326,14 @@ function formatDescription(value) {
   return value
 }
 
-function getSyntax(name, args, returns) {
+function getSyntax({ name, arguments: args, returns }: Reference<Category>) {
   return `${name}${
-    args.length ? ` ${args.map(arg => `${arg.name}${arg.description ? `(${arg.description})` : ''}`).join(' ')}` : ''
+    args.length ? ` ${args.map(arg => `_____________ ${arg.description ? `(_________ ${arg.description})` : ''}`).join(' ')}` : ''
   } => ${returns.type}`
 }
 
-function escapeExample(example) {
-  return example.replace(/'/g, '___single_quote___').replace(/"/g, '___double_quote___')
+function escapeExampleString(exampleString: string) {
+  return exampleString.replace(/'/g, '___single_quote___').replace(/"/g, '___double_quote___')
 }
 
 function setupPredictability() {
@@ -620,7 +614,7 @@ function setupPredictability() {
 
   let i = 0
   Math.random = () => {
-    const result = randomNumbers[i]
+    const result = randomNumbers[i]!
     i = (i + 1) % randomNumbers.length
     return result
   }

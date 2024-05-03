@@ -49,4 +49,15 @@ module.exports = [
     ],
     plugins,
   },
+  {
+    input: `reference/index.ts`,
+    output: [
+      {
+        file: `dist/reference.js`,
+        format: `cjs`,
+        sourcemap: true,
+      },
+    ],
+    plugins,
+  },
 ]

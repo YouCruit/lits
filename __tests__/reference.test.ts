@@ -1,7 +1,7 @@
 /* eslint-disable ts/no-unsafe-return */
 /* eslint-disable ts/no-unsafe-member-access */
-/* eslint-disable ts/no-unsafe-argument */
-import { categories, functionReference } from '../cli/reference'
+
+import { categories, functionReference } from '../reference'
 import { normalExpressionKeys, specialExpressionKeys } from '../src/builtin'
 
 function getLinkName(name: string): string {
@@ -20,7 +20,7 @@ function getLinkName(name: string): string {
 }
 
 describe(`functionReference`, () => {
-  Object.entries(functionReference).forEach(([key, obj]: [key: string, obj: any]) => {
+  Object.entries(functionReference).forEach(([key, obj]) => {
     it(key, () => {
       expect(obj.name).toBe(key)
       expect(categories.includes(obj.category)).toBe(true)
@@ -32,9 +32,9 @@ describe(`functionReference`, () => {
       expect(obj.examples.length).toBeGreaterThan(0)
       expect(Array.isArray(obj.arguments)).toBe(true)
       if (normalExpressionKeys.includes(key))
-        expect(obj.specialExpression).toBeFalsy()
+        expect(obj.category).not.toBe(`Special expression`)
       else if (specialExpressionKeys.includes(key))
-        expect(obj.specialExpression).toBe(true)
+        expect(obj.category).toBe(`Special expression`)
       else
         throw new Error(`${key} is not a builtin function`)
     })

@@ -8,7 +8,6 @@
       "./node_modules/@types",
       "./types"
     ],
-    "allowJs": true,
     "strict": true, /* Enable strict checking of function types. */
     "strictBindCallApply": true, /* Enable strict null checks. */
     "strictFunctionTypes": true, /* Raise error on expressions and declarations with an implied 'any' type. */
@@ -31,10 +30,11 @@
   },
   "include": [
     "src/**/*",
-    "types/**/*"
+    "types/**/*",
+    "cli/**/*",
+    "reference/**/*"
   ],
   "exclude": [
-    "cli",
     "**/*.test.ts",
     "__tests__"
   ]

@@ -12,7 +12,7 @@ const { runTest } = require(`../dist/testFramework`)
 
 const historyResults = []
 const lits = new Lits({ debug: true })
-const { functionReference } = require(`./reference`)
+const { functionReference } = require(`../dist/reference`)
 
 const commands = [`\`help`, `\`quit`, `\`builtins`, `\`globalContext`, `\`GlobalContext`, `\`resetGlobalContext`]
 const nameCharacters = `@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>.+*/-`

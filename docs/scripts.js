@@ -359,7 +359,7 @@ function run() {
   }
   let result
   const oldLog = console.log
-  console.log = function () {
+  console.log = function (...args) {
     oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(` `)
     const oldContent = output.value
@@ -368,7 +368,7 @@ function run() {
     output.scrollTop = output.scrollHeight
   }
   const oldWarn = console.warn
-  console.warn = function () {
+  console.warn = function (...args) {
     oldWarn.apply(console, args)
     const logRow = args[0]
     const oldContent = output.value

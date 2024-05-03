@@ -129,8 +129,6 @@ export type ParseBinding = (tokens: TokenStream, position: number) => [number, B
 export type ParseBindings = (tokens: TokenStream, position: number) => [number, BindingNode[]]
 export type ParseArgument = (tokens: TokenStream, position: number) => [number, ArgumentNode | ModifierNode]
 export type ParseExpression = (tokens: TokenStream, position: number) => [number, ExpressionNode]
-export type ParseNormalExpression = (tokens: TokenStream, position: number) => [number, NormalExpressionNode]
-export type ParseSpecialExpression = (tokens: TokenStream, position: number) => [number, SpecialExpressionNode]
 export type ParseTokens = (tokens: TokenStream, position: number) => [number, AstNode[]]
 export type ParseToken = (tokens: TokenStream, position: number) => [number, AstNode]
 

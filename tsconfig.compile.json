@@ -3,9 +3,9 @@
   "include": [
     "src/**/*",
     "types/**/*",
-    "__tests__/**/*.test.ts"
+    "__tests__/**/*.test.ts",
+    "cli/**/*",
+    "reference/**/*"
   ],
-  "exclude": [
-    "cli"
-  ]
+  "exclude": []
 }

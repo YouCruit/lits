@@ -1,7 +1,7 @@
 const path = require(`node:path`)
 const fs = require(`node:fs`)
 const { version } = require(`../../package.json`)
-const { functionReference, categorizedFunctions } = require(`../../cli/reference`)
+const { functionReference, categorizedFunctions } = require(`../../dist/reference`)
 const Lits = require(`../../dist/index`)
 const litsExamples = require(`./examples`)
 
@@ -172,7 +172,7 @@ function getExamplePage() {
 }
 
 function getDocumentationContent(docObj) {
-  const { name, description, returns, linkName, specialExpression, examples, arguments: args, clojureDocs } = docObj
+  const { name, description, returns, linkName, examples, arguments: args, clojureDocs, category } = docObj
   const clojureDocsLink
     = clojureDocs === null
       ? null
@@ -190,7 +190,7 @@ function getDocumentationContent(docObj) {
     }
   </div>
 
-  ${specialExpression ? `<h3>Special Expression</h3>` : ``}
+  ${category === `Special expression` ? `<h3>Special Expression</h3>` : ``}
   <p>${formattedDescription}</p>
   <label>Syntax</label>
   <div class="indent">

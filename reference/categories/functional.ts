@@ -1,4 +1,6 @@
-module.exports = {
+import type { Reference } from '..'
+
+export const functionalReference: Record<string, Reference<`Functional`>> = {
   'apply': {
     name: `apply`,
     category: `Functional`,
@@ -8,11 +10,9 @@ module.exports = {
     },
     arguments: [
       {
-        name: `fn`,
         type: `function`,
       },
       {
-        name: `args`,
         type: `array`,
       },
     ],
@@ -28,7 +28,6 @@ module.exports = {
     },
     arguments: [
       {
-        name: `value`,
         type: `any`,
       },
     ],
@@ -44,13 +43,10 @@ module.exports = {
     },
     arguments: [
       {
-        name: `fn`,
         type: `function`,
       },
       {
-        name: `args`,
         type: `any`,
-        description: `zero or more`,
       },
     ],
     description: `Takes a function \`fn\` and fewer (or equal) than the normal arguments to \`fn\`, and returns a function that takes a variable number of additional args. When called, the returned function calls f with \`args\` + additional args.`,
@@ -65,14 +61,11 @@ module.exports = {
     },
     arguments: [
       {
-        name: `fn`,
         type: `function`,
-        description: `zero or more`,
       },
       {
-        name: `fns`,
-        type: `function[]`,
-        description: `optional`,
+        type: `function`,
+        array: true,
       },
     ],
     description: `Takes a set of functions and returns a fn that is the composition of those. The returned functions takes a variable number of arguments, applies the rightmost function to the args, the next function (right-to-left) to the result, etc.`,
@@ -91,7 +84,6 @@ module.exports = {
     },
     arguments: [
       {
-        name: `value`,
         type: `any`,
       },
     ],
@@ -106,13 +98,11 @@ module.exports = {
     category: `Functional`,
     linkName: `juxt`,
     returns: {
-      type: `Function`,
+      type: `function`,
     },
     arguments: [
       {
-        name: `functions`,
-        type: `Function`,
-        description: `one or more`,
+        type: `function`,
       },
     ],
     description: `Takes variable number of \`functions\` and returns a function that is the juxtaposition of those \`functions\`.  The returned function takes a variable number of args, and returns a vector containing the result of applying each \`function\` to the args (left-to-right).`,
@@ -127,12 +117,11 @@ module.exports = {
     category: `Functional`,
     linkName: `complement`,
     returns: {
-      type: `Function`,
+      type: `function`,
     },
     arguments: [
       {
-        name: `function`,
-        type: `Function`,
+        type: `function`,
       },
     ],
     description: `Takes a \`function\` and returns a new function that takes the same arguments as f, has the same effects, if any, and returns the opposite truth value.`,
@@ -143,13 +132,11 @@ module.exports = {
     category: `Functional`,
     linkName: `every-pred`,
     returns: {
-      type: `Function`,
+      type: `function`,
     },
     arguments: [
       {
-        name: `predicates`,
-        type: `Function`,
-        description: `one or more`,
+        type: `function`,
       },
     ],
     description: `Takes a number of \`predicates\` and returns a function that returns true if all of the \`predicates\` return a truthy true value against all of its arguments, else it returns false.`,
@@ -165,13 +152,11 @@ module.exports = {
     linkName: `some-pred`,
     clojureDocs: null,
     returns: {
-      type: `Function`,
+      type: `function`,
     },
     arguments: [
       {
-        name: `predicates`,
-        type: `Function`,
-        description: `one or more`,
+        type: `function`,
       },
     ],
     description: `Takes a number of \`predicates\` and returns a function that returns true if at least one of the \`predicates\` return a truthy true value against at least one of its arguments, else it returns false.`,
@@ -187,17 +172,14 @@ module.exports = {
     category: `Functional`,
     linkName: `fnil`,
     returns: {
-      type: `Function`,
+      type: `function`,
     },
     arguments: [
       {
-        name: `fn`,
-        type: `Function`,
+        type: `function`,
       },
       {
-        name: `param`,
-        type: `Any`,
-        description: `one or more`,
+        type: `any`,
       },
     ],
     description: `Takes a function \`fn\`, and returns a function that calls \`fn\`, replacing a nil argument to \`fn\` with the corresponding \`param\`.`,

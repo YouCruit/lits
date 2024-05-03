@@ -1,15 +1,17 @@
-module.exports = {
+import type { Reference } from '..'
+
+export const arrayReference: Record<string, Reference<`Array`>> = {
   array: {
     name: `array`,
     category: `Array`,
     linkName: `array`,
     clojureDocs: `vector`,
     returns: {
-      type: `array`,
+      type: `any`,
+      array: true,
     },
     arguments: [
       {
-        name: `values`,
         type: `array`,
       },
     ],
@@ -30,22 +32,20 @@ module.exports = {
     category: `Array`,
     linkName: `range`,
     returns: {
-      type: `array`,
+      type: `any`,
+      array: true,
     },
     arguments: [
       {
-        name: `a`,
         type: `number`,
       },
       {
-        name: `length`,
         type: `number`,
-        description: `optional`,
+        quantifier: `optional`,
       },
       {
-        name: `length`,
         type: `number`,
-        description: `optional`,
+        quantifier: `optional`,
       },
     ],
     description: `Create an array with a range of numbers. If only one argument: \`0...a\`, otherwise: \`a...b\`. \`step\` defaults to \`1\`.`,
@@ -56,15 +56,14 @@ module.exports = {
     category: `Array`,
     linkName: `repeat`,
     returns: {
-      type: `array`,
+      type: `any`,
+      array: true,
     },
     arguments: [
       {
-        name: `count`,
-        type: `non negative integer`,
+        type: `integer`,
       },
       {
-        name: `value`,
         type: `any`,
       },
     ],
@@ -76,12 +75,12 @@ module.exports = {
     category: `Array`,
     linkName: `flatten`,
     returns: {
-      type: `array`,
+      type: `any`,
+      array: true,
     },
     arguments: [
       {
-        name: `input`,
-        type: `Array`,
+        type: `array`,
       },
     ],
     description: `Takes a nested array and return a flat array. If \`input\` isn't an array, an empty array is returned.`,
@@ -92,17 +91,16 @@ module.exports = {
     category: `Array`,
     linkName: `mapcat`,
     returns: {
-      type: `Array`,
+      type: `any`,
+      array: true,
     },
     arguments: [
       {
-        name: `mapper`,
         type: `function`,
       },
       {
-        name: `arrays`,
-        type: `Array`,
-        description: `one or many`,
+        type: `array`,
+        quantifier: `oneOrMore`,
       },
     ],
     description: `Returns the result of applying concat to the result of applying map to \`mapper\` and \`arrays\`.`,

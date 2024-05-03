@@ -8,8 +8,5 @@
     "scripts/**/*",
     "reference/**/*"
   ],
-  "exclude": [
-    "playgroundAssets",
-    
-  ]
+  "exclude": []
 }

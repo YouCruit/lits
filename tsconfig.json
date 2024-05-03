@@ -33,11 +33,10 @@
     "types/**/*",
     "cli/**/*",
     "scripts/**/*",
-    "reference/**/*",
+    "reference/**/*"
   ],
   "exclude": [
     "**/*.test.ts",
-    "__tests__",
-    "playgroundAssets",
+    "__tests__"
   ]
 }

@@ -8,6 +8,7 @@ const plugins = [
   typescript({
     typescript: require('typescript'),
   }),
+  jsonPlugin(),
 ]
 
 module.exports = [
@@ -70,9 +71,6 @@ module.exports = [
         format: 'cjs',
       },
     ],
-    plugins: [
-      ...plugins,
-      jsonPlugin(),
-    ],
+    plugins,
   },
 ]

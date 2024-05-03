@@ -16,7 +16,7 @@ export class Cache {
   private maxSize: number | null
   constructor(maxSize: number | null) {
     this.maxSize = maxSize === null ? null : toNonNegativeInteger(maxSize)
-    if (typeof this.maxSize === `number` && this.maxSize < 1)
+    if (typeof this.maxSize === 'number' && this.maxSize < 1)
       throw new Error(`1 is the minimum maxSize, got ${valueToString(maxSize)}`)
   }
 

@@ -11,11 +11,11 @@ function isLitsFunction(func: unknown): func is LitsFunction {
 }
 
 function isUnknownRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === `object` && value !== null
+  return typeof value === 'object' && value !== null
 }
 
 function isToken(value: unknown): value is Token {
-  return isUnknownRecord(value) && isTokenType(value.t) && typeof value.v === `string`
+  return isUnknownRecord(value) && isTokenType(value.t) && typeof value.v === 'string'
 }
 
 function isAstNode(value: unknown): value is AstNode {
@@ -25,7 +25,7 @@ function isAstNode(value: unknown): value is AstNode {
 export function valueToString(value: unknown): string {
   if (isLitsFunction(value))
     // eslint-disable-next-line ts/no-unsafe-member-access
-    return `<function ${(value as any).name || `λ`}>`
+    return `<function ${(value as any).name || 'λ'}>`
 
   if (isToken(value))
     return `${tokenTypeName.get(value.t)}-token "${value.v}"`
@@ -34,12 +34,12 @@ export function valueToString(value: unknown): string {
     return `${astNodeTypeName.get(value.t)}-node`
 
   if (value === null)
-    return `nil`
+    return 'nil'
 
-  if (typeof value === `object` && value instanceof RegExp)
+  if (typeof value === 'object' && value instanceof RegExp)
     return `${value}`
 
-  if (typeof value === `object` && value instanceof Error)
+  if (typeof value === 'object' && value instanceof Error)
     return value.toString()
 
   return JSON.stringify(value)
@@ -47,9 +47,9 @@ export function valueToString(value: unknown): string {
 
 export function getCodeMarker(sourceCodeInfo: SourceCodeInfo): string {
   if (!sourceCodeInfo.position || !sourceCodeInfo.code)
-    return ``
+    return ''
 
   const leftPadding = sourceCodeInfo.position.column - 1
   const rightPadding = sourceCodeInfo.code.length - leftPadding - 1
-  return `${` `.repeat(Math.max(leftPadding, 0))}^${` `.repeat(Math.max(rightPadding, 0))}`
+  return `${' '.repeat(Math.max(leftPadding, 0))}^${' '.repeat(Math.max(rightPadding, 0))}`
 }

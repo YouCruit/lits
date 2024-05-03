@@ -2,27 +2,27 @@
 /* eslint-disable node/prefer-global/process */
 
 /* eslint-disable no-console */
-const { version } = require(`../package.json`)
-const readline = require(`readline`)
-const path = require(`path`)
-const fs = require(`fs`)
-const homeDir = require(`os`).homedir()
-const { Lits, normalExpressionKeys, specialExpressionKeys, reservedNames, isLitsFunction } = require(`../dist/index`)
-const { runTest } = require(`../dist/testFramework`)
+const readline = require('node:readline')
+const path = require('node:path')
+const fs = require('node:fs')
+const homeDir = require('node:os').homedir()
+const { version } = require('../package.json')
+const { Lits, normalExpressionKeys, specialExpressionKeys, reservedNames, isLitsFunction } = require('../dist/index')
+const { runTest } = require('../dist/testFramework')
 
 const historyResults = []
 const lits = new Lits({ debug: true })
-const { functionReference } = require(`../dist/reference`)
+const { functionReference } = require('../dist/reference')
 
-const commands = [`\`help`, `\`quit`, `\`builtins`, `\`globalContext`, `\`GlobalContext`, `\`resetGlobalContext`]
-const nameCharacters = `@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>.+*/-`
+const commands = ['`help', '`quit', '`builtins', '`globalContext', '`GlobalContext', '`resetGlobalContext']
+const nameCharacters = '@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>.+*/-'
 const expressionRegExp = new RegExp(`^(.*\\(\\s*)([${nameCharacters}]*)$`)
 const nameRegExp = new RegExp(`^(.*?)([${nameCharacters}]*)$`)
 const helpRegExp = new RegExp(`^\`help\\s+([${nameCharacters}]+)\\s*$`)
 const expressions = [...normalExpressionKeys, ...specialExpressionKeys]
 
-const historyDir = path.join(homeDir, `.config`)
-const historyFile = path.join(historyDir, `lits_history.txt`)
+const historyDir = path.join(homeDir, '.config')
+const historyFile = path.join(historyDir, 'lits_history.txt')
 
 const config = processArguments(process.argv.slice(2))
 
@@ -36,7 +36,7 @@ if (config.expression) {
   process.exit(0)
 }
 else if (config.filename) {
-  const content = fs.readFileSync(config.filename, { encoding: `utf-8` })
+  const content = fs.readFileSync(config.filename, { encoding: 'utf-8' })
   execute(content)
   process.exit(0)
 }
@@ -50,7 +50,7 @@ else {
 
 function runLitsTest(testPath, testNamePattern) {
   if (!testPath.match(/\.test\.lits/)) {
-    console.error(`Test file must end with .test.lits`)
+    console.error('Test file must end with .test.lits')
     process.exit(1)
   }
   const { success, tap } = runTest({
@@ -76,20 +76,20 @@ function execute(expression) {
   }
   catch (error) {
     console.log(`${error}`)
-    config.globalContext[`*e*`] = { value: error }
+    config.globalContext['*e*'] = { value: error }
   }
 }
 
 function setReplHistoryVariables() {
-  delete config.globalContext[`*1*`]
-  delete config.globalContext[`*2*`]
-  delete config.globalContext[`*3*`]
-  delete config.globalContext[`*4*`]
-  delete config.globalContext[`*5*`]
-  delete config.globalContext[`*6*`]
-  delete config.globalContext[`*7*`]
-  delete config.globalContext[`*8*`]
-  delete config.globalContext[`*9*`]
+  delete config.globalContext['*1*']
+  delete config.globalContext['*2*']
+  delete config.globalContext['*3*']
+  delete config.globalContext['*4*']
+  delete config.globalContext['*5*']
+  delete config.globalContext['*6*']
+  delete config.globalContext['*7*']
+  delete config.globalContext['*8*']
+  delete config.globalContext['*9*']
   for (i = 0; i < historyResults.length; i += 1)
     config.globalContext[`*${i + 1}*`] = { value: historyResults[i] }
 }
@@ -102,11 +102,11 @@ function executeExample(expression) {
   console.error = (...values) => outputs.push(values.map(value => formatValue(value)))
   try {
     const result = lits.run(expression)
-    const outputString = `Console: ${outputs.map(output => output.join(`, `)).join(`  `)}`
-    return `${formatValue(result)}    ${outputs.length > 0 ? outputString : ``}`
+    const outputString = `Console: ${outputs.map(output => output.join(', ')).join('  ')}`
+    return `${formatValue(result)}    ${outputs.length > 0 ? outputString : ''}`
   }
   catch (error) {
-    return `ERROR!`.brightRed
+    return 'ERROR!'.brightRed
   }
   finally {
     console.log = oldLog
@@ -122,16 +122,16 @@ function formatValue(value) {
   if (isLitsFunction(value))
     return functionToString(value)
 
-  if (typeof value === `object` && value instanceof Error)
+  if (typeof value === 'object' && value instanceof Error)
     return value.toString()
 
   if (value === null)
-    return `null`
+    return 'null'
 
   if (
-    typeof value === `string`
+    typeof value === 'string'
     || Array.isArray(value)
-    || (value !== null && typeof value === `object` && !(value instanceof RegExp))
+    || (value !== null && typeof value === 'object' && !(value instanceof RegExp))
   )
     return `${stringifyValue(value)}`
 
@@ -140,40 +140,40 @@ function formatValue(value) {
 
 function processArguments(args) {
   const defaultConfig = {
-    filename: ``,
+    filename: '',
     globalContext: {},
-    expression: ``,
+    expression: '',
     help: undefined,
   }
   for (let i = 0; i < args.length; i += 2) {
     const option = args[i]
     const argument = args[i + 1]
     switch (option) {
-      case `test`:
+      case 'test':
         if (!argument) {
-          console.error(`Missing filename after test`)
+          console.error('Missing filename after test')
           process.exit(1)
         }
         defaultConfig.testFilename = argument
         break
-      case `-t`:
-      case `--testNamePattern`:
+      case '-t':
+      case '--testNamePattern':
         if (!argument) {
-          console.error(`Missing test name pattern after -t`)
+          console.error('Missing test name pattern after -t')
           process.exit(1)
         }
         defaultConfig.testNamePattern = argument
         break
-      case `-f`:
+      case '-f':
         if (!argument) {
-          console.error(`Missing filename after -f`)
+          console.error('Missing filename after -f')
           process.exit(1)
         }
         defaultConfig.filename = argument
         break
-      case `-g`:
+      case '-g':
         if (!argument) {
-          console.error(`Missing global variables after -g`)
+          console.error('Missing global variables after -g')
           process.exit(1)
         }
         try {
@@ -182,37 +182,37 @@ function processArguments(args) {
           })
         }
         catch (e) {
-          const message = e !== null && typeof e === `object` ? e.message || `Unknown error` : `Unknown error`
+          const message = e !== null && typeof e === 'object' ? e.message || 'Unknown error' : 'Unknown error'
           console.error(`Couldn\`t parse global variables: ${message}`)
           process.exit(1)
         }
         break
-      case `-G`:
+      case '-G':
         if (!argument) {
-          console.error(`Missing global variables filename after -G`)
+          console.error('Missing global variables filename after -G')
           process.exit(1)
         }
         try {
-          const contextString = fs.readFileSync(argument, { encoding: `utf-8` })
+          const contextString = fs.readFileSync(argument, { encoding: 'utf-8' })
           Object.entries(JSON.parse(contextString)).forEach(([key, value]) => {
             defaultConfig.globalContext[key] = { value }
           })
         }
         catch (e) {
-          const message = e !== null && typeof e === `object` ? e.message || `Unknown error` : `Unknown error`
+          const message = e !== null && typeof e === 'object' ? e.message || 'Unknown error' : 'Unknown error'
           console.error(`Couldn\`t parse global variables: ${message}`)
           process.exit(1)
         }
         break
-      case `-e`:
+      case '-e':
         if (!argument) {
-          console.error(`Missing lits expression after -e`)
+          console.error('Missing lits expression after -e')
           process.exit(1)
         }
         defaultConfig.expression = argument
         break
-      case `-h`:
-      case `--help`:
+      case '-h':
+      case '--help':
         if (argument) {
           defaultConfig.help = argument
         }
@@ -221,8 +221,8 @@ function processArguments(args) {
           process.exit(0)
         }
         break
-      case `-v`:
-      case `--version`:
+      case '-v':
+      case '--version':
         console.log(version)
         process.exit(0)
         break
@@ -231,16 +231,16 @@ function processArguments(args) {
     }
   }
   if (defaultConfig.filename && defaultConfig.expression) {
-    console.error(`Cannot both specify -f and -e`)
+    console.error('Cannot both specify -f and -e')
     process.exit(1)
   }
   if (defaultConfig.test) {
     if (defaultConfig.filename) {
-      console.error(`Illegal option -f`)
+      console.error('Illegal option -f')
       process.exit(1)
     }
     if (defaultConfig.expression) {
-      console.error(`Illegal option -e`)
+      console.error('Illegal option -e')
       process.exit(1)
     }
   }
@@ -251,13 +251,13 @@ function runREPL() {
   createInterface({
     input: process.stdin,
     output: process.stdout,
-    prompt: `LITS> `,
+    prompt: 'LITS> ',
     completer,
     next(rl) {
-      console.log(`Type "\`help" for more information.`)
+      console.log('Type "`help" for more information.')
       rl.prompt()
 
-      rl.on(`line`, (line) => {
+      rl.on('line', (line) => {
         line = line.trim()
 
         const helpMatch = helpRegExp.exec(line)
@@ -265,25 +265,25 @@ function runREPL() {
           const name = helpMatch[1]
           console.log(getFullDocumentation(name))
         }
-        else if (line.startsWith(`\``)) {
+        else if (line.startsWith('`')) {
           switch (line) {
-            case `\`builtins`:
+            case '`builtins':
               printBuiltins()
               break
-            case `\`help`:
+            case '`help':
               printHelp()
               break
-            case `\`globalContext`:
+            case '`globalContext':
               printGlobalContext(false)
               break
-            case `\`GlobalContext`:
+            case '`GlobalContext':
               printGlobalContext(true)
               break
-            case `\`resetGlobalContext`:
+            case '`resetGlobalContext':
               config.globalContext = {}
-              console.log(`Global context is now empty\n`)
+              console.log('Global context is now empty\n')
               break
-            case `\`quit`:
+            case '`quit':
               rl.close()
               break
             default:
@@ -294,8 +294,8 @@ function runREPL() {
           execute(line)
         }
         rl.prompt()
-      }).on(`close`, () => {
-        console.log(`Over and out!`)
+      }).on('close', () => {
+        console.log('Over and out!')
         process.exit(0)
       })
     },
@@ -313,20 +313,20 @@ function printBuiltins() {
   }, 0)
 
   console.log(
-    `${`Builtins (* = special expression):`}\n${all
+    `${'Builtins (* = special expression):'}\n${all
       .map((entry) => {
-        const prefix = entry.special ? `* ` : `  `
-        const name = entry.name.padEnd(maxLength + 2, ` `)
+        const prefix = entry.special ? '* ' : '  '
+        const name = entry.name.padEnd(maxLength + 2, ' ')
         return `${prefix}${name}  ${getDocString(entry.name)}`
       })
-      .join(`\n`)}\n`,
+      .join('\n')}\n`,
   )
 }
 
 function getDocString(name) {
   const doc = functionReference[name]
   if (!doc)
-    return ``
+    return ''
 
   return `${getSyntax(doc)}   ${doc.description}`
 }
@@ -336,7 +336,7 @@ function getFullDocumentation(name) {
   if (!doc)
     return `No documentation available for ${name}`
 
-  const header = `${doc.specialExpression ? `Special expression` : `Function`} ${name}`
+  const header = `${doc.specialExpression ? 'Special expression' : 'Function'} ${name}`
 
   return `${header}
 
@@ -345,14 +345,14 @@ ${doc.description}
 Syntax
   ${getSyntax(doc)}
 
-${`Arguments`}
-${doc.arguments.length === 0 ? `  None` : doc.arguments.map(arg => `  ${arg.name}: ${arg.type}`).join(`\n`)}
+${'Arguments'}
+${doc.arguments.length === 0 ? '  None' : doc.arguments.map(arg => `  ${arg.name}: ${arg.type}`).join('\n')}
 
-${`Examples`}
+${'Examples'}
 ${
   doc.examples.length === 0
-    ? `[no examples]`
-    : doc.examples.map(example => `  ${example} => ${executeExample(example)}`).join(`\n`)
+    ? '[no examples]'
+    : doc.examples.map(example => `  ${example} => ${executeExample(example)}`).join('\n')
 }
 `
 }
@@ -360,8 +360,8 @@ ${
 function getSyntax(doc) {
   return `${doc.name}${
     doc.arguments.length
-      ? ` ${doc.arguments.map(arg => `${arg.name}${arg.description ? `(${arg.description})` : ``}`).join(` `)}`
-      : ``
+      ? ` ${doc.arguments.map(arg => `${arg.name}${arg.description ? `(${arg.description})` : ''}`).join(' ')}`
+      : ''
   } => ${doc.returns.type}`
 }
 
@@ -394,7 +394,7 @@ function printGlobalContext(stringify) {
   const context = config.globalContext
   const keys = Object.keys(context)
   if (keys.length === 0) {
-    console.log(`[empty]\n`)
+    console.log('[empty]\n')
   }
   else {
     keys.sort().forEach((x) => {
@@ -411,7 +411,7 @@ function functionToString(fun) {
   if (fun.builtin)
     return `<BUILTIN FUNCTION ${fun.builtin}>`
   else
-    return `<FUNCTION ${fun.name || `λ`}>`
+    return `<FUNCTION ${fun.name || 'λ'}>`
 }
 
 function completer(line) {
@@ -419,7 +419,7 @@ function completer(line) {
   if (helpMatch)
     return [expressions.filter(c => c.startsWith(helpMatch[1])).map(c => `\`help ${c} `), line]
 
-  if (line.startsWith(`\``))
+  if (line.startsWith('`'))
     return [commands.filter(c => c.startsWith(line)).map(c => `${c} `), line]
 
   const expressionMatch = expressionRegExp.exec(line)
@@ -441,7 +441,7 @@ function isHistoryEnabled() {
     return true
 
   try {
-    fs.openSync(historyFile, `w`)
+    fs.openSync(historyFile, 'w')
   }
   catch (e) {
     console.error(`No history for you!
@@ -456,7 +456,7 @@ If you would like to enable history persistence, make sure the directory "${path
 function createInterface(options) {
   const historyEnabled = isHistoryEnabled()
   const history = historyEnabled
-    ? fs.readFileSync(historyFile, `utf8`).toString().split(`\n`).slice(0, -1).reverse().slice(0, 100)
+    ? fs.readFileSync(historyFile, 'utf8').toString().split('\n').slice(0, -1).reverse().slice(0, 100)
     : []
 
   readline.kHistorySize = Math.max(readline.kHistorySize, 100)

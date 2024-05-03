@@ -15,7 +15,7 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
       newPosition + 1,
       {
         t: AstNodeType.SpecialExpression,
-        n: `defs`,
+        n: 'defs',
         p: params,
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       },

@@ -40,14 +40,14 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
       return params.reduce((result: string, param) => {
         const paramStr
           = param === undefined || param === null
-            ? ``
+            ? ''
             : isObj(param)
               ? JSON.stringify(param)
               : Array.isArray(param)
                 ? JSON.stringify(param)
                 : `${param}`
         return result + paramStr
-      }, ``)
+      }, '')
     },
   },
 
@@ -137,7 +137,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   'trim-left': {
     evaluate: ([str], sourceCodeInfo): string => {
       assertString(str, sourceCodeInfo)
-      return str.replace(/^\s+/, ``)
+      return str.replace(/^\s+/, '')
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
@@ -145,7 +145,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
   'trim-right': {
     evaluate: ([str], sourceCodeInfo): string => {
       assertString(str, sourceCodeInfo)
-      return str.replace(/\s+$/, ``)
+      return str.replace(/\s+$/, '')
     },
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
@@ -168,7 +168,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
         assertNumber(limit, sourceCodeInfo, { integer: true, nonNegative: true })
 
       const delimiter
-        = typeof stringOrRegExpValue === `string`
+        = typeof stringOrRegExpValue === 'string'
           ? stringOrRegExpValue
           : new RegExp(stringOrRegExpValue.s, stringOrRegExpValue.f)
       return str.split(delimiter, limit)
@@ -206,7 +206,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([templateString, ...placeholders], sourceCodeInfo): string => {
       assertString(templateString, sourceCodeInfo)
       assertArray(placeholders, sourceCodeInfo)
-      const templateStrings = templateString.split(`||||`)
+      const templateStrings = templateString.split('||||')
       if (templateStrings.length <= 1) {
         return applyPlaceholders(templateStrings[0] as string, placeholders, sourceCodeInfo)
       }
@@ -258,7 +258,7 @@ export const stringNormalExpression: BuiltinNormalExpressions = {
               // eslint-disable-next-line ts/no-unsafe-call, ts/no-unsafe-member-access
               return `%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`
             })
-            .join(``),
+            .join(''),
         )
       }
       catch (error) {
@@ -296,12 +296,12 @@ function applyPlaceholders(templateString: string, placeholders: unknown[], sour
     // Matches $1, $2, ..., $9
     // Does not match $$1
     // But does match $$$1, (since the two first '$' will later be raplaced with a single '$'
-    const re = new RegExp(`(\\$\\$|[^$]|^)\\$${i + 1}`, `g`)
+    const re = new RegExp(`(\\$\\$|[^$]|^)\\$${i + 1}`, 'g')
     if (re.test(templateString)) {
       const placeHolder = asStringOrNumber(placeholders[i], sourceCodeInfo)
       templateString = templateString.replace(re, `$1${placeHolder}`)
     }
   }
-  templateString = templateString.replace(doubleDollarRegexp, `$`)
+  templateString = templateString.replace(doubleDollarRegexp, '$')
   return templateString
 }

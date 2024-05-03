@@ -9,7 +9,7 @@ const jsFunctions: Record<string, JsFunction> = {
   },
   throwError: {
     fn: () => {
-      throw new Error(`An error`)
+      throw new Error('An error')
     },
   },
   throwNumber: {
@@ -21,7 +21,7 @@ const jsFunctions: Record<string, JsFunction> = {
   throwString: {
     fn: () => {
       // eslint-disable-next-line ts/no-throw-literal
-      throw `An error`
+      throw 'An error'
     },
   },
 }
@@ -39,7 +39,7 @@ const nativeJsFunction: NativeJsFunction = {
   f: {
     fn: (value: number) => value * value,
   },
-  n: `square`,
+  n: 'square',
   t: FunctionType.NativeJsFunction,
   λ: true,
 }
@@ -49,25 +49,25 @@ const values = {
   },
 }
 
-describe(`nativeJsFunction`, () => {
+describe('nativeJsFunction', () => {
   const lits = new Lits()
-  it(`samples`, () => {
-    expect(lits.run(`(tripple 9)`, { jsFunctions })).toBe(27)
-    expect(lits.run(`(def a tripple) (a 9)`, { jsFunctions })).toBe(27)
-    expect(() => lits.run(`(throwError)`, { jsFunctions })).toThrowError(LitsError)
-    expect(() => lits.run(`(throwString)`, { jsFunctions })).toThrowError(LitsError)
-    expect(() => lits.run(`(throwNumber)`, { jsFunctions })).toThrowError(LitsError)
+  it('samples', () => {
+    expect(lits.run('(tripple 9)', { jsFunctions })).toBe(27)
+    expect(lits.run('(def a tripple) (a 9)', { jsFunctions })).toBe(27)
+    expect(() => lits.run('(throwError)', { jsFunctions })).toThrowError(LitsError)
+    expect(() => lits.run('(throwString)', { jsFunctions })).toThrowError(LitsError)
+    expect(() => lits.run('(throwNumber)', { jsFunctions })).toThrowError(LitsError)
   })
-  it(`builtin names cannot be shadowed`, () => {
+  it('builtin names cannot be shadowed', () => {
     const warn = console.warn
     console.warn = jest.fn()
-    expect(lits.run(`(+ 1 2 3)`, { jsFunctions: stupidJsFunctions })).toBe(6)
+    expect(lits.run('(+ 1 2 3)', { jsFunctions: stupidJsFunctions })).toBe(6)
     expect(console.warn).toHaveBeenCalledTimes(2)
-    expect(lits.run(`(if true false true)`, { jsFunctions: stupidJsFunctions })).toBe(false)
+    expect(lits.run('(if true false true)', { jsFunctions: stupidJsFunctions })).toBe(false)
     expect(console.warn).toHaveBeenCalledTimes(4)
     console.warn = warn
   })
-  it(`nested nativeJsFunction`, () => {
-    expect(lits.run(`(obj.square 9)`, { values })).toBe(81)
+  it('nested nativeJsFunction', () => {
+    expect(lits.run('(obj.square 9)', { values })).toBe(81)
   })
 })

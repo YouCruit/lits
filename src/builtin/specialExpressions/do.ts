@@ -11,12 +11,12 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
-      n: `do`,
+      n: 'do',
       p: [],
       tkn: tkn.sourceCodeInfo ? tkn : undefined,
     }
 
-    while (!isToken(tkn, { type: TokenType.Bracket, value: `)` })) {
+    while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {
       let bodyNode: AstNode
       ;[position, bodyNode] = parseToken(tokenStream, position)
       node.p.push(bodyNode)

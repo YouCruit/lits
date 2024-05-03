@@ -10,16 +10,16 @@ import {
   isStringArray,
 } from './array'
 
-describe(`array type guards`, () => {
-  const nonArrays: unknown[] = [0, 1, true, false, null, undefined, {}, { 1: 1 }, /foo/, `bar`, ``]
-  const stringArrays: string[][] = [[`foo`], [`foo`, `c`]]
-  const charArrays: string[][] = [[`f`], [`f`, `c`]]
-  const unknownArray: unknown[] = [`foo`, null]
+describe('array type guards', () => {
+  const nonArrays: unknown[] = [0, 1, true, false, null, undefined, {}, { 1: 1 }, /foo/, 'bar', '']
+  const stringArrays: string[][] = [['foo'], ['foo', 'c']]
+  const charArrays: string[][] = [['f'], ['f', 'c']]
+  const unknownArray: unknown[] = ['foo', null]
 
   const allStringArrays = [[], ...stringArrays, ...charArrays]
   const allArrays = [...allStringArrays, unknownArray]
 
-  it(`array`, () => {
+  it('array', () => {
     testTypeGuars(
       {
         valid: allArrays,
@@ -29,7 +29,7 @@ describe(`array type guards`, () => {
     )
   })
 
-  it(`stringArray`, () => {
+  it('stringArray', () => {
     testTypeGuars(
       {
         valid: allStringArrays,
@@ -39,7 +39,7 @@ describe(`array type guards`, () => {
     )
   })
 
-  it(`charArray`, () => {
+  it('charArray', () => {
     testTypeGuars(
       {
         valid: [[], ...charArrays],

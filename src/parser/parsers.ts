@@ -51,7 +51,7 @@ function parseTokens(tokenStream: TokenStream, position: number): [number, AstNo
   let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const astNodes: AstNode[] = []
   let astNode: AstNode
-  while (!(tkn.t === TokenType.Bracket && (tkn.v === `)` || tkn.v === `]`))) {
+  while (!(tkn.t === TokenType.Bracket && (tkn.v === ')' || tkn.v === ']'))) {
     ;[position, astNode] = parseToken(tokenStream, position)
     astNodes.push(astNode)
     tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
@@ -76,7 +76,7 @@ function parseArrayLitteral(tokenStream: TokenStream, position: number): [number
   let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const params: AstNode[] = []
   let param: AstNode
-  while (!(tkn.t === TokenType.Bracket && tkn.v === `]`)) {
+  while (!(tkn.t === TokenType.Bracket && tkn.v === ']')) {
     ;[position, param] = parseToken(tokenStream, position)
     params.push(param)
     tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
@@ -86,7 +86,7 @@ function parseArrayLitteral(tokenStream: TokenStream, position: number): [number
 
   const node: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
-    n: `array`,
+    n: 'array',
     p: params,
     tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
   }
@@ -101,7 +101,7 @@ function parseObjectLitteral(tokenStream: TokenStream, position: number): [numbe
   let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const params: AstNode[] = []
   let param: AstNode
-  while (!(tkn.t === TokenType.Bracket && tkn.v === `}`)) {
+  while (!(tkn.t === TokenType.Bracket && tkn.v === '}')) {
     ;[position, param] = parseToken(tokenStream, position)
     params.push(param)
     tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
@@ -111,7 +111,7 @@ function parseObjectLitteral(tokenStream: TokenStream, position: number): [numbe
 
   const node: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
-    n: `object`,
+    n: 'object',
     p: params,
     tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
   }
@@ -133,13 +133,13 @@ function parseRegexpShorthand(tokenStream: TokenStream, position: number): [numb
 
   const optionsNode: StringNode = {
     t: AstNodeType.String,
-    v: `${tkn.o.g ? `g` : ``}${tkn.o.i ? `i` : ``}`,
+    v: `${tkn.o.g ? 'g' : ''}${tkn.o.i ? 'i' : ''}`,
     tkn: tkn.sourceCodeInfo ? tkn : undefined,
   }
 
   const node: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
-    n: `regexp`,
+    n: 'regexp',
     p: [stringNode, optionsNode],
     tkn: tkn.sourceCodeInfo ? tkn : undefined,
   }
@@ -156,35 +156,35 @@ const parseFnShorthand: ParseFnShorthand = (tokenStream, position) => {
   const [newPosition, exprNode] = parseExpression(tokenStream, position)
 
   let arity = 0
-  let percent1: `NOT_SET` | `WITH_1` | `NAKED` = `NOT_SET`
+  let percent1: 'NOT_SET' | 'WITH_1' | 'NAKED' = 'NOT_SET'
   for (let pos = position + 1; pos < newPosition - 1; pos += 1) {
     const tkn = asToken(tokenStream.tokens[pos], tokenStream.filePath)
     if (tkn.t === TokenType.Name) {
       const match = placeholderRegexp.exec(tkn.v)
       if (match) {
-        const number = match[1] ?? `1`
-        if (number === `1`) {
-          const mixedPercent1 = (!match[1] && percent1 === `WITH_1`) || (match[1] && percent1 === `NAKED`)
+        const number = match[1] ?? '1'
+        if (number === '1') {
+          const mixedPercent1 = (!match[1] && percent1 === 'WITH_1') || (match[1] && percent1 === 'NAKED')
           if (mixedPercent1)
-            throw new LitsError(`Please make up your mind, either use % or %1`, firstToken.sourceCodeInfo)
+            throw new LitsError('Please make up your mind, either use % or %1', firstToken.sourceCodeInfo)
 
-          percent1 = match[1] ? `WITH_1` : `NAKED`
+          percent1 = match[1] ? 'WITH_1' : 'NAKED'
         }
 
         arity = Math.max(arity, Number(number))
         if (arity > 20)
-          throw new LitsError(`Can't specify more than 20 arguments`, firstToken.sourceCodeInfo)
+          throw new LitsError('Can\'t specify more than 20 arguments', firstToken.sourceCodeInfo)
       }
     }
     if (tkn.t === TokenType.FnShorthand)
-      throw new LitsError(`Nested shortcut functions are not allowed`, firstToken.sourceCodeInfo)
+      throw new LitsError('Nested shortcut functions are not allowed', firstToken.sourceCodeInfo)
   }
 
   const mandatoryArguments: string[] = []
 
   for (let i = 1; i <= arity; i += 1) {
-    if (i === 1 && percent1 === `NAKED`)
-      mandatoryArguments.push(`%`)
+    if (i === 1 && percent1 === 'NAKED')
+      mandatoryArguments.push('%')
     else
       mandatoryArguments.push(`%${i}`)
   }
@@ -196,7 +196,7 @@ const parseFnShorthand: ParseFnShorthand = (tokenStream, position) => {
 
   const node: FnNode = {
     t: AstNodeType.SpecialExpression,
-    n: `fn`,
+    n: 'fn',
     p: [],
     o: [
       {
@@ -226,12 +226,12 @@ const parseArgument: ParseArgument = (tokenStream, position) => {
 }
 
 function parseBindings(tokenStream: TokenStream, position: number): [number, BindingNode[]] {
-  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `[` })
+  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: '[' })
   position += 1
   tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const bindings: BindingNode[] = []
   let binding: BindingNode
-  while (!(tkn.t === TokenType.Bracket && tkn.v === `]`)) {
+  while (!(tkn.t === TokenType.Bracket && tkn.v === ']')) {
     ;[position, binding] = parseBinding(tokenStream, position)
     bindings.push(binding)
     tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
@@ -327,11 +327,11 @@ export function parseToken(tokenStream: TokenStream, position: number): [number,
     case TokenType.ReservedName:
       return parseReservedName(tokenStream, position)
     case TokenType.Bracket:
-      if (tkn.v === `(`)
+      if (tkn.v === '(')
         return parseExpression(tokenStream, position)
-      else if (tkn.v === `[`)
+      else if (tkn.v === '[')
         return parseArrayLitteral(tokenStream, position)
-      else if (tkn.v === `{`)
+      else if (tkn.v === '{')
         return parseObjectLitteral(tokenStream, position)
 
       break

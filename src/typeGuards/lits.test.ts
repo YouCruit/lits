@@ -24,15 +24,15 @@ import {
   isStringOrRegularExpression,
 } from './lits'
 
-describe(`lits type guards`, () => {
-  it(`any`, () => {
+describe('lits type guards', () => {
+  it('any', () => {
     const node: AstNode = {
       t: AstNodeType.Name,
-      v: `test`,
-      tkn: { t: TokenType.Name, v: `X` },
+      v: 'test',
+      tkn: { t: TokenType.Name, v: 'X' },
     }
 
-    const valid = [node, 1, `bar`, null, [], {}]
+    const valid = [node, 1, 'bar', null, [], {}]
     const invalid = [undefined]
     testTypeGuars(
       {
@@ -43,7 +43,7 @@ describe(`lits type guards`, () => {
     )
   })
 
-  it(`obj`, () => {
+  it('obj', () => {
     const valid = [{}, { a: 1 }]
     const invalid = [0, { [FUNCTION_SYMBOL]: true }, /test/, [], [1], true, null, undefined]
     testTypeGuars(
@@ -55,14 +55,14 @@ describe(`lits type guards`, () => {
     )
   })
 
-  it(`regularExpression`, () => {
+  it('regularExpression', () => {
     const regExp: RegularExpression = {
       [REGEXP_SYMBOL]: true,
-      s: `^ab`,
-      f: ``,
+      s: '^ab',
+      f: '',
     }
     // eslint-disable-next-line prefer-regex-literals
-    const invalid = [/a/, new RegExp(`a`), 0, `0`, null, undefined, false, true, [], {}]
+    const invalid = [/a/, new RegExp('a'), 0, '0', null, undefined, false, true, [], {}]
     testTypeGuars(
       {
         valid: [regExp],
@@ -72,8 +72,8 @@ describe(`lits type guards`, () => {
     )
   })
 
-  it(`seq`, () => {
-    const valid: Seq = [``, `1`, [], [1, 2, 3]]
+  it('seq', () => {
+    const valid: Seq = ['', '1', [], [1, 2, 3]]
     const invalid = [0, 1, true, false, null, undefined, {}]
     testTypeGuars(
       {
@@ -84,13 +84,13 @@ describe(`lits type guards`, () => {
     )
   })
 
-  it(`stringOrRegularExpression`, () => {
+  it('stringOrRegularExpression', () => {
     const regExp: RegularExpression = {
       [REGEXP_SYMBOL]: true,
-      s: `^ab`,
-      f: ``,
+      s: '^ab',
+      f: '',
     }
-    const valid = [``, `1`, regExp]
+    const valid = ['', '1', regExp]
     const invalid = [/^a/, [], [1, 2, 3], 0, 1, true, false, null, undefined, {}]
     testTypeGuars(
       {
@@ -101,8 +101,8 @@ describe(`lits type guards`, () => {
     )
   })
 
-  it(`coll`, () => {
-    const valid = [`2`, { a: 1 }, [2]]
+  it('coll', () => {
+    const valid = ['2', { a: 1 }, [2]]
     const invalid = [0, null, true, false]
     testTypeGuars(
       {

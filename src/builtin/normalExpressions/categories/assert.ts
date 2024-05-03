@@ -23,7 +23,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert=': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (first !== second)
         throw new AssertionError(`Expected ${first} to be ${second}.${message}`, sourceCodeInfo)
 
@@ -33,7 +33,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-not=': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (first === second)
         throw new AssertionError(`Expected ${first} not to be ${second}.${message}`, sourceCodeInfo)
 
@@ -43,7 +43,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-equal': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (!deepEqual(asAny(first, sourceCodeInfo), asAny(second, sourceCodeInfo), sourceCodeInfo)) {
         throw new AssertionError(
           `Expected\n${JSON.stringify(first, null, 2)}\nto deep equal\n${JSON.stringify(second, null, 2)}.${message}`,
@@ -56,7 +56,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-not-equal': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (deepEqual(asAny(first, sourceCodeInfo), asAny(second, sourceCodeInfo), sourceCodeInfo)) {
         throw new AssertionError(
           `Expected ${JSON.stringify(first)} not to deep equal ${JSON.stringify(second)}.${message}`,
@@ -69,7 +69,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert>': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (compare(first, second) <= 0)
         throw new AssertionError(`Expected ${first} to be grater than ${second}.${message}`, sourceCodeInfo)
 
@@ -79,7 +79,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert>=': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (compare(first, second) < 0)
         throw new AssertionError(`Expected ${first} to be grater than or equal to ${second}.${message}`, sourceCodeInfo)
 
@@ -89,7 +89,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert<': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (compare(first, second) >= 0)
         throw new AssertionError(`Expected ${first} to be less than ${second}.${message}`, sourceCodeInfo)
 
@@ -99,7 +99,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert<=': {
     evaluate: ([first, second, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (compare(first, second) > 0)
         throw new AssertionError(`Expected ${first} to be less than or equal to ${second}.${message}`, sourceCodeInfo)
 
@@ -109,7 +109,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-true': {
     evaluate: ([first, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (first !== true)
         throw new AssertionError(`Expected ${first} to be true.${message}`, sourceCodeInfo)
 
@@ -119,7 +119,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-false': {
     evaluate: ([first, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (first !== false)
         throw new AssertionError(`Expected ${first} to be false.${message}`, sourceCodeInfo)
 
@@ -129,7 +129,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-truthy': {
     evaluate: ([first, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (!first)
         throw new AssertionError(`Expected ${first} to be truthy.${message}`, sourceCodeInfo)
 
@@ -139,7 +139,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-falsy': {
     evaluate: ([first, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (first)
         throw new AssertionError(`Expected ${first} to be falsy.${message}`, sourceCodeInfo)
 
@@ -149,7 +149,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-nil': {
     evaluate: ([first, message], sourceCodeInfo): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       if (first !== null)
         throw new AssertionError(`Expected ${first} to be nil.${message}`, sourceCodeInfo)
 
@@ -159,7 +159,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-throws': {
     evaluate: ([func, message], sourceCodeInfo, contextStack, { executeFunction }): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       assertLitsFunction(func, sourceCodeInfo)
       try {
         executeFunction(func, [], contextStack, sourceCodeInfo)
@@ -173,7 +173,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-throws-error': {
     evaluate: ([func, throwMessage, message], sourceCodeInfo, contextStack, { executeFunction }): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       assertString(throwMessage, sourceCodeInfo)
       assertLitsFunction(func, sourceCodeInfo)
       try {
@@ -195,7 +195,7 @@ export const assertNormalExpression: BuiltinNormalExpressions = {
   },
   'assert-not-throws': {
     evaluate: ([func, message], sourceCodeInfo, contextStack, { executeFunction }): null => {
-      message = typeof message === `string` && message ? ` "${message}"` : ``
+      message = typeof message === 'string' && message ? ` "${message}"` : ''
       assertLitsFunction(func, sourceCodeInfo)
       try {
         executeFunction(func, [], contextStack, sourceCodeInfo)

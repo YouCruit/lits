@@ -91,7 +91,7 @@ function executeFunction(fn: Any, params: Arr, contextStack: ContextStack, sourc
   if (isObj(fn))
     return evalueateObjectAsFunction(fn, params, sourceCodeInfo)
 
-  if (typeof fn === `string`)
+  if (typeof fn === 'string')
     return evaluateStringAsFunction(fn, params, sourceCodeInfo)
 
   if (isNumber(fn))
@@ -120,7 +120,7 @@ function evaluateSpecialExpression(node: SpecialExpressionNode, contextStack: Co
 
 function evalueateObjectAsFunction(fn: Obj, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
   if (params.length !== 1)
-    throw new LitsError(`Object as function requires one string parameter.`, sourceCodeInfo)
+    throw new LitsError('Object as function requires one string parameter.', sourceCodeInfo)
 
   const key = params[0]
   assertString(key, sourceCodeInfo)
@@ -129,7 +129,7 @@ function evalueateObjectAsFunction(fn: Obj, params: Arr, sourceCodeInfo?: Source
 
 function evaluateArrayAsFunction(fn: Arr, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
   if (params.length !== 1)
-    throw new LitsError(`Array as function requires one non negative integer parameter.`, sourceCodeInfo)
+    throw new LitsError('Array as function requires one non negative integer parameter.', sourceCodeInfo)
 
   const index = params[0]
   assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true })
@@ -138,7 +138,7 @@ function evaluateArrayAsFunction(fn: Arr, params: Arr, sourceCodeInfo?: SourceCo
 
 function evaluateStringAsFunction(fn: string, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
   if (params.length !== 1)
-    throw new LitsError(`String as function requires one Obj parameter.`, sourceCodeInfo)
+    throw new LitsError('String as function requires one Obj parameter.', sourceCodeInfo)
 
   const param = toAny(params[0])
   if (isObj(param))
@@ -156,7 +156,7 @@ function evaluateStringAsFunction(fn: string, params: Arr, sourceCodeInfo?: Sour
 function evaluateNumberAsFunction(fn: number, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {
   assertNumber(fn, sourceCodeInfo, { integer: true })
   if (params.length !== 1)
-    throw new LitsError(`Number as function requires one Arr parameter.`, sourceCodeInfo)
+    throw new LitsError('Number as function requires one Arr parameter.', sourceCodeInfo)
 
   const param = params[0]
   assertSeq(param, sourceCodeInfo)
@@ -165,13 +165,13 @@ function evaluateNumberAsFunction(fn: number, params: Arr, sourceCodeInfo?: Sour
 
 export function contextToString(context: Context) {
   if (Object.keys(context).length === 0)
-    return `  <empty>\n`
+    return '  <empty>\n'
 
   const maxKeyLength = Math.max(...Object.keys(context).map(key => key.length))
   return Object.entries(context).reduce((result, entry) => {
-    const key = `${entry[0]}`.padEnd(maxKeyLength + 2, ` `)
+    const key = `${entry[0]}`.padEnd(maxKeyLength + 2, ' ')
     return `${result}  ${key}${contextEntryToString(entry[1])}\n`
-  }, ``)
+  }, '')
 }
 
 function contextEntryToString(contextEntry: ContextEntry): string {

@@ -115,9 +115,9 @@ export type LitsFunction =
   | SomePredFunction
   | FNilFunction
 
-export type LitsFunctionType = LitsFunction[`t`]
+export type LitsFunctionType = LitsFunction['t']
 
-export type ModifierName = `&` | `&let` | `&when` | `&while`
+export type ModifierName = '&' | '&let' | '&when' | '&while'
 
 interface GenericNode {
   t: AstNodeType // type

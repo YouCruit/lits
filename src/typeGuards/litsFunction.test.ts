@@ -16,7 +16,7 @@ import {
   isUserDefinedFunction,
 } from './litsFunction'
 
-describe(`litsFunction type guards`, () => {
+describe('litsFunction type guards', () => {
   const lf1: LitsFunction = {
     [FUNCTION_SYMBOL]: true,
     t: FunctionType.UserDefined,
@@ -35,7 +35,7 @@ describe(`litsFunction type guards`, () => {
   const lf2: LitsFunction = {
     [FUNCTION_SYMBOL]: true,
     t: FunctionType.Builtin,
-    n: `+`,
+    n: '+',
   }
   const lf3: LitsFunction = {
     [FUNCTION_SYMBOL]: true,
@@ -46,7 +46,7 @@ describe(`litsFunction type guards`, () => {
   const lf4: LitsFunction = {
     [FUNCTION_SYMBOL]: true,
     t: FunctionType.Comp,
-    f: [`x`],
+    f: ['x'],
   }
   const lf5: LitsFunction = {
     [FUNCTION_SYMBOL]: true,
@@ -54,11 +54,11 @@ describe(`litsFunction type guards`, () => {
     v: 10,
   }
   const lf6 = createNativeJsFunction(() => undefined)
-  const lf7 = createNativeJsFunction(() => undefined, `native`)
+  const lf7 = createNativeJsFunction(() => undefined, 'native')
 
-  it(`isLitsFunction`, () => {
+  it('isLitsFunction', () => {
     const valid = [lf1, lf2, lf3, lf4, lf5, lf6, lf7]
-    const invalid = [``, `1`, 0, 1, true, false, null, undefined, [], {}]
+    const invalid = ['', '1', 0, 1, true, false, null, undefined, [], {}]
     testTypeGuars(
       {
         valid,
@@ -68,9 +68,9 @@ describe(`litsFunction type guards`, () => {
     )
   })
 
-  it(`isUserDefinedFunction`, () => {
+  it('isUserDefinedFunction', () => {
     const valid = [lf1]
-    const invalid = [lf2, lf3, lf4, lf5, lf6, lf7, ``, `1`, 0, 1, true, false, null, undefined, [], {}]
+    const invalid = [lf2, lf3, lf4, lf5, lf6, lf7, '', '1', 0, 1, true, false, null, undefined, [], {}]
 
     testTypeGuars(
       {
@@ -81,9 +81,9 @@ describe(`litsFunction type guards`, () => {
     )
   })
 
-  it(`isNativeJsFunction`, () => {
+  it('isNativeJsFunction', () => {
     const valid = [lf6, lf7]
-    const invalid = [lf1, lf2, lf3, lf4, lf5, ``, `1`, 0, 1, true, false, null, undefined, [], {}]
+    const invalid = [lf1, lf2, lf3, lf4, lf5, '', '1', 0, 1, true, false, null, undefined, [], {}]
 
     testTypeGuars(
       {

@@ -12,22 +12,22 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
   },
 
   'string?': {
-    evaluate: ([first]): boolean => typeof first === `string`,
+    evaluate: ([first]): boolean => typeof first === 'string',
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'number?': {
-    evaluate: ([first]): boolean => typeof first === `number`,
+    evaluate: ([first]): boolean => typeof first === 'number',
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'integer?': {
-    evaluate: ([first]): boolean => typeof first === `number` && isNumber(first, { integer: true }),
+    evaluate: ([first]): boolean => typeof first === 'number' && isNumber(first, { integer: true }),
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
   'boolean?': {
-    evaluate: ([first]): boolean => typeof first === `boolean`,
+    evaluate: ([first]): boolean => typeof first === 'boolean',
     validate: (node: NormalExpressionNode): void => assertNumberOfParams(1, node),
   },
 
@@ -159,7 +159,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
         return true
 
       assertColl(coll, sourceCodeInfo)
-      if (typeof coll === `string`)
+      if (typeof coll === 'string')
         return coll.length === 0
 
       if (Array.isArray(coll))
@@ -175,7 +175,7 @@ export const predicatesNormalExpression: BuiltinNormalExpressions = {
         return false
 
       assertColl(coll, sourceCodeInfo)
-      if (typeof coll === `string`)
+      if (typeof coll === 'string')
         return coll.length > 0
 
       if (Array.isArray(coll))

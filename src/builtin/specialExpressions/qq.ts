@@ -13,7 +13,7 @@ export const qqSpecialExpression: BuiltinSpecialExpression<Any> = {
     const [newPosition, params] = parseTokens(tokenStream, position)
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
-      n: `??`,
+      n: '??',
       p: params,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }

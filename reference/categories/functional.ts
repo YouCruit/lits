@@ -1,194 +1,194 @@
 import type { Reference } from '..'
 
-export const functionalReference: Record<string, Reference<`Functional`>> = {
+export const functionalReference: Record<string, Reference<'Functional'>> = {
   'apply': {
-    name: `apply`,
-    category: `Functional`,
-    linkName: `apply`,
+    name: 'apply',
+    category: 'Functional',
+    linkName: 'apply',
     returns: {
-      type: `boolean`,
+      type: 'boolean',
     },
     arguments: [
       {
-        type: `function`,
+        type: 'function',
       },
       {
-        type: `array`,
+        type: 'array',
       },
     ],
-    description: `Call supplied function with specified arguments.`,
-    examples: [`(apply + [1 2 3])`, `(apply (fn [x y] (sqrt (+ (* x x) (* y y)))) [3 4])`],
+    description: 'Call supplied function with specified arguments.',
+    examples: ['(apply + [1 2 3])', '(apply (fn [x y] (sqrt (+ (* x x) (* y y)))) [3 4])'],
   },
   'identity': {
-    name: `identity`,
-    category: `Functional`,
-    linkName: `identity`,
+    name: 'identity',
+    category: 'Functional',
+    linkName: 'identity',
     returns: {
-      type: `any`,
+      type: 'any',
     },
     arguments: [
       {
-        type: `any`,
+        type: 'any',
       },
     ],
-    description: `Returns \`value\`.`,
-    examples: [`(identity 1)`, `(identity "Albert")`, `(identity {:a 1})`, `(identity nil)`],
+    description: 'Returns `value`.',
+    examples: ['(identity 1)', '(identity "Albert")', '(identity {:a 1})', '(identity nil)'],
   },
   'partial': {
-    name: `partial`,
-    category: `Functional`,
-    linkName: `partial`,
+    name: 'partial',
+    category: 'Functional',
+    linkName: 'partial',
     returns: {
-      type: `function`,
+      type: 'function',
     },
     arguments: [
       {
-        type: `function`,
+        type: 'function',
       },
       {
-        type: `any`,
+        type: 'any',
       },
     ],
-    description: `Takes a function \`fn\` and fewer (or equal) than the normal arguments to \`fn\`, and returns a function that takes a variable number of additional args. When called, the returned function calls f with \`args\` + additional args.`,
-    examples: [`(partial + 100)`, `(def addHundred (partial + 100)) (addHundred 10)`],
+    description: 'Takes a function `fn` and fewer (or equal) than the normal arguments to `fn`, and returns a function that takes a variable number of additional args. When called, the returned function calls f with `args` + additional args.',
+    examples: ['(partial + 100)', '(def addHundred (partial + 100)) (addHundred 10)'],
   },
   'comp': {
-    name: `comp`,
-    category: `Functional`,
-    linkName: `comp`,
+    name: 'comp',
+    category: 'Functional',
+    linkName: 'comp',
     returns: {
-      type: `function`,
+      type: 'function',
     },
     arguments: [
       {
-        type: `function`,
+        type: 'function',
       },
       {
-        type: `function`,
+        type: 'function',
         array: true,
       },
     ],
-    description: `Takes a set of functions and returns a fn that is the composition of those. The returned functions takes a variable number of arguments, applies the rightmost function to the args, the next function (right-to-left) to the result, etc.`,
+    description: 'Takes a set of functions and returns a fn that is the composition of those. The returned functions takes a variable number of arguments, applies the rightmost function to the args, the next function (right-to-left) to the result, etc.',
     examples: [
-      `(def negative-quotient (comp - /)) (negative-quotient 9 3)`,
-      `(#((apply comp first (repeat %2 rest)) %1) [1 2 3 4 5 6 7] 3)`,
-      `(def x {"bar" {"foo" 42}}) ((comp "foo" "bar") x)`,
+      '(def negative-quotient (comp - /)) (negative-quotient 9 3)',
+      '(#((apply comp first (repeat %2 rest)) %1) [1 2 3 4 5 6 7] 3)',
+      '(def x {"bar" {"foo" 42}}) ((comp "foo" "bar") x)',
     ],
   },
   'constantly': {
-    name: `constantly`,
-    category: `Functional`,
-    linkName: `constantly`,
+    name: 'constantly',
+    category: 'Functional',
+    linkName: 'constantly',
     returns: {
-      type: `function`,
+      type: 'function',
     },
     arguments: [
       {
-        type: `any`,
+        type: 'any',
       },
     ],
-    description: `Returns a function that takes any number of arguments and returns \`value\`.`,
+    description: 'Returns a function that takes any number of arguments and returns `value`.',
     examples: [
-      `(def always-true (constantly true)) (always-true 9 3)`,
-      `(#((apply constantly first (repeat %2 rest)) %1) [1 2 3 4 5 6 7] 3)`,
+      '(def always-true (constantly true)) (always-true 9 3)',
+      '(#((apply constantly first (repeat %2 rest)) %1) [1 2 3 4 5 6 7] 3)',
     ],
   },
   'juxt': {
-    name: `juxt`,
-    category: `Functional`,
-    linkName: `juxt`,
+    name: 'juxt',
+    category: 'Functional',
+    linkName: 'juxt',
     returns: {
-      type: `function`,
+      type: 'function',
     },
     arguments: [
       {
-        type: `function`,
+        type: 'function',
       },
     ],
-    description: `Takes variable number of \`functions\` and returns a function that is the juxtaposition of those \`functions\`.  The returned function takes a variable number of args, and returns a vector containing the result of applying each \`function\` to the args (left-to-right).`,
+    description: 'Takes variable number of `functions` and returns a function that is the juxtaposition of those `functions`.  The returned function takes a variable number of args, and returns a vector containing the result of applying each `function` to the args (left-to-right).',
     examples: [
-      `((juxt + * min max) 3 4 6)`,
-      `((juxt :a :b) {:a 1, :b 2, :c 3, :d 4})`,
-      `(apply (juxt + * min max) (range 1 11))`,
+      '((juxt + * min max) 3 4 6)',
+      '((juxt :a :b) {:a 1, :b 2, :c 3, :d 4})',
+      '(apply (juxt + * min max) (range 1 11))',
     ],
   },
   'complement': {
-    name: `complement`,
-    category: `Functional`,
-    linkName: `complement`,
+    name: 'complement',
+    category: 'Functional',
+    linkName: 'complement',
     returns: {
-      type: `function`,
+      type: 'function',
     },
     arguments: [
       {
-        type: `function`,
+        type: 'function',
       },
     ],
-    description: `Takes a \`function\` and returns a new function that takes the same arguments as f, has the same effects, if any, and returns the opposite truth value.`,
-    examples: [`((complement >) 1 3)`, `((complement <) 1 3)`, `((complement +) 1 3)`, `((complement +) 0 0)`],
+    description: 'Takes a `function` and returns a new function that takes the same arguments as f, has the same effects, if any, and returns the opposite truth value.',
+    examples: ['((complement >) 1 3)', '((complement <) 1 3)', '((complement +) 1 3)', '((complement +) 0 0)'],
   },
   'every-pred': {
-    name: `every-pred`,
-    category: `Functional`,
-    linkName: `every-pred`,
+    name: 'every-pred',
+    category: 'Functional',
+    linkName: 'every-pred',
     returns: {
-      type: `function`,
+      type: 'function',
     },
     arguments: [
       {
-        type: `function`,
+        type: 'function',
       },
     ],
-    description: `Takes a number of \`predicates\` and returns a function that returns true if all of the \`predicates\` return a truthy true value against all of its arguments, else it returns false.`,
+    description: 'Takes a number of `predicates` and returns a function that returns true if all of the `predicates` return a truthy true value against all of its arguments, else it returns false.',
     examples: [
-      `((every-pred string? #(> (count %1) 3)) "Albert" "Mojir")`,
-      `((every-pred string? #(> (count %1) 3)) "Albert" :M)`,
-      `((every-pred string? #(> (count %1) 3)) "Albert" [1 2 3])`,
+      '((every-pred string? #(> (count %1) 3)) "Albert" "Mojir")',
+      '((every-pred string? #(> (count %1) 3)) "Albert" :M)',
+      '((every-pred string? #(> (count %1) 3)) "Albert" [1 2 3])',
     ],
   },
   'some-pred': {
-    name: `some-pred`,
-    category: `Functional`,
-    linkName: `some-pred`,
+    name: 'some-pred',
+    category: 'Functional',
+    linkName: 'some-pred',
     clojureDocs: null,
     returns: {
-      type: `function`,
+      type: 'function',
     },
     arguments: [
       {
-        type: `function`,
+        type: 'function',
       },
     ],
-    description: `Takes a number of \`predicates\` and returns a function that returns true if at least one of the \`predicates\` return a truthy true value against at least one of its arguments, else it returns false.`,
+    description: 'Takes a number of `predicates` and returns a function that returns true if at least one of the `predicates` return a truthy true value against at least one of its arguments, else it returns false.',
     examples: [
-      `((some-pred string? #(> (count %1) 3)) "Albert" "Mojir")`,
-      `((some-pred string? #(> (count %1) 3)) :A :M)`,
-      `((some-pred string? #(> (count %1) 3)) :A [1 2 3])`,
-      `((some-pred string? #(> (count %1) 3)) [1 2 3] [2])`,
+      '((some-pred string? #(> (count %1) 3)) "Albert" "Mojir")',
+      '((some-pred string? #(> (count %1) 3)) :A :M)',
+      '((some-pred string? #(> (count %1) 3)) :A [1 2 3])',
+      '((some-pred string? #(> (count %1) 3)) [1 2 3] [2])',
     ],
   },
   'fnil': {
-    name: `fnil`,
-    category: `Functional`,
-    linkName: `fnil`,
+    name: 'fnil',
+    category: 'Functional',
+    linkName: 'fnil',
     returns: {
-      type: `function`,
+      type: 'function',
     },
     arguments: [
       {
-        type: `function`,
+        type: 'function',
       },
       {
-        type: `any`,
+        type: 'any',
       },
     ],
-    description: `Takes a function \`fn\`, and returns a function that calls \`fn\`, replacing a nil argument to \`fn\` with the corresponding \`param\`.`,
+    description: 'Takes a function `fn`, and returns a function that calls `fn`, replacing a nil argument to `fn` with the corresponding `param`.',
     examples: [
-      `((fnil + 1 2) 0 0)`,
-      `((fnil + 1 2) nil 0)`,
-      `((fnil + 1 2) 0 nil)`,
-      `((fnil + 1 2) nil nil)`,
-      `((fnil + 1 2) nil nil 3 4)`,
+      '((fnil + 1 2) 0 0)',
+      '((fnil + 1 2) nil 0)',
+      '((fnil + 1 2) 0 nil)',
+      '((fnil + 1 2) nil nil)',
+      '((fnil + 1 2) nil nil 3 4)',
     ],
   },
 }

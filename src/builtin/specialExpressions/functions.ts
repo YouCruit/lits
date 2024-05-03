@@ -51,7 +51,7 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
       position,
       {
         t: AstNodeType.SpecialExpression,
-        n: `defn`,
+        n: 'defn',
         f: functionName,
         p: [],
         o: functionOverloades,
@@ -60,7 +60,7 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
     ]
   },
   evaluate: (node, contextStack, { builtin, evaluateAstNode }) => {
-    const name = getFunctionName(`defn`, node, contextStack, evaluateAstNode)
+    const name = getFunctionName('defn', node, contextStack, evaluateAstNode)
 
     assertNameNotDefined(name, contextStack, builtin, node.tkn?.sourceCodeInfo)
 
@@ -98,7 +98,7 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
       position,
       {
         t: AstNodeType.SpecialExpression,
-        n: `defns`,
+        n: 'defns',
         f: functionName,
         p: [],
         o: functionOverloades,
@@ -107,7 +107,7 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
     ]
   },
   evaluate: (node, contextStack, { builtin, evaluateAstNode }) => {
-    const name = getFunctionName(`defns`, node, contextStack, evaluateAstNode)
+    const name = getFunctionName('defns', node, contextStack, evaluateAstNode)
 
     assertNameNotDefined(name, contextStack, builtin, node.tkn?.sourceCodeInfo)
 
@@ -139,7 +139,7 @@ export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
       position,
       {
         t: AstNodeType.SpecialExpression,
-        n: `fn`,
+        n: 'fn',
         p: [],
         o: functionOverloades,
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
@@ -164,13 +164,13 @@ export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
 }
 
 function getFunctionName(
-  expressionName: `defn` | `defns`,
+  expressionName: 'defn' | 'defns',
   node: SpecialExpressionNode,
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
 ): string {
   const sourceCodeInfo = node.tkn?.sourceCodeInfo
-  if (expressionName === `defn`)
+  if (expressionName === 'defn')
     return ((node as DefnNode).f as NameNode).v
 
   const name = evaluateAstNode((node as DefnsNode).f, contextStack)
@@ -225,7 +225,7 @@ function addOverloadsUndefinedSymbols(
     overload.as.m.forEach((arg) => {
       newContext[arg] = { value: true }
     })
-    if (typeof overload.as.r === `string`)
+    if (typeof overload.as.r === 'string')
       newContext[overload.as.r] = { value: true }
 
     const newContextStack = contextStackWithFunctionName.create(newContext)
@@ -236,16 +236,16 @@ function addOverloadsUndefinedSymbols(
 }
 
 function arityOk(overloadedFunctions: FunctionOverload[], arity: Arity) {
-  if (typeof arity === `number`) {
+  if (typeof arity === 'number') {
     return overloadedFunctions.every((fun) => {
-      if (typeof fun.a === `number`)
+      if (typeof fun.a === 'number')
         return fun.a !== arity
 
       return fun.a.min > arity
     })
   }
   return overloadedFunctions.every((fun) => {
-    if (typeof fun.a === `number`)
+    if (typeof fun.a === 'number')
       return fun.a < arity.min
 
     return false
@@ -259,14 +259,14 @@ function parseFunctionBody(
 ): [number, AstNode[]] {
   let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const body: AstNode[] = []
-  while (!(tkn.t === TokenType.Bracket && tkn.v === `)`)) {
+  while (!(tkn.t === TokenType.Bracket && tkn.v === ')')) {
     let bodyNode: AstNode
     ;[position, bodyNode] = parseToken(tokenStream, position)
     body.push(bodyNode)
     tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   }
   if (body.length === 0)
-    throw new LitsError(`Missing body in function`, tkn.sourceCodeInfo)
+    throw new LitsError('Missing body in function', tkn.sourceCodeInfo)
 
   return [position + 1, body]
 }
@@ -277,9 +277,9 @@ function parseFunctionOverloades(
   parsers: ParserHelpers,
 ): [number, FunctionOverload[]] {
   let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket })
-  if (tkn.v === `(`) {
+  if (tkn.v === '(') {
     const functionOverloades: FunctionOverload[] = []
-    while (!(tkn.t === TokenType.Bracket && tkn.v === `)`)) {
+    while (!(tkn.t === TokenType.Bracket && tkn.v === ')')) {
       position += 1
       tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
       let functionArguments: FunctionArguments
@@ -287,7 +287,7 @@ function parseFunctionOverloades(
       const arity: Arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length
 
       if (!arityOk(functionOverloades, arity))
-        throw new LitsError(`All overloaded functions must have different arity`, tkn.sourceCodeInfo)
+        throw new LitsError('All overloaded functions must have different arity', tkn.sourceCodeInfo)
 
       let functionBody: AstNode[]
       ;[position, functionBody] = parseFunctionBody(tokenStream, position, parsers)
@@ -298,13 +298,13 @@ function parseFunctionOverloades(
       })
 
       tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket })
-      if (tkn.v !== `)` && tkn.v !== `(`)
+      if (tkn.v !== ')' && tkn.v !== '(')
         throw new LitsError(`Expected ( or ) token, got ${valueToString(tkn)}.`, tkn.sourceCodeInfo)
     }
 
     return [position + 1, functionOverloades]
   }
-  else if (tkn.v === `[`) {
+  else if (tkn.v === '[') {
     let functionArguments: FunctionArguments
     ;[position, functionArguments] = parseFunctionArguments(tokenStream, position, parsers)
     const arity: Arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length
@@ -336,13 +336,13 @@ function parseFunctionArguments(
   let bindings: BindingNode[] = []
   let restArgument: string | undefined
   const mandatoryArguments: string[] = []
-  let state: `mandatory` | `rest` | `let` = `mandatory`
+  let state: 'mandatory' | 'rest' | 'let' = 'mandatory'
   let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
 
   position += 1
   tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
-  while (!(tkn.t === TokenType.Bracket && tkn.v === `]`)) {
-    if (state === `let`) {
+  while (!(tkn.t === TokenType.Bracket && tkn.v === ']')) {
+    if (state === 'let') {
       ;[position, bindings] = parseBindings(tokenStream, position)
       break
     }
@@ -353,17 +353,17 @@ function parseFunctionArguments(
 
       if (node.t === AstNodeType.Modifier) {
         switch (node.v) {
-          case `&`:
-            if (state === `rest`)
-              throw new LitsError(`& can only appear once`, tkn.sourceCodeInfo)
+          case '&':
+            if (state === 'rest')
+              throw new LitsError('& can only appear once', tkn.sourceCodeInfo)
 
-            state = `rest`
+            state = 'rest'
             break
-          case `&let`:
-            if (state === `rest` && !restArgument)
-              throw new LitsError(`No rest argument was specified`, tkn.sourceCodeInfo)
+          case '&let':
+            if (state === 'rest' && !restArgument)
+              throw new LitsError('No rest argument was specified', tkn.sourceCodeInfo)
 
-            state = `let`
+            state = 'let'
             break
           default:
             throw new LitsError(`Illegal modifier: ${node.v}`, tkn.sourceCodeInfo)
@@ -371,12 +371,12 @@ function parseFunctionArguments(
       }
       else {
         switch (state) {
-          case `mandatory`:
+          case 'mandatory':
             mandatoryArguments.push(node.n)
             break
-          case `rest`:
+          case 'rest':
             if (restArgument !== undefined)
-              throw new LitsError(`Can only specify one rest argument`, tkn.sourceCodeInfo)
+              throw new LitsError('Can only specify one rest argument', tkn.sourceCodeInfo)
 
             restArgument = node.n
             break
@@ -385,8 +385,8 @@ function parseFunctionArguments(
     }
   }
 
-  if (state === `rest` && restArgument === undefined)
-    throw new LitsError(`Missing rest argument name`, tkn.sourceCodeInfo)
+  if (state === 'rest' && restArgument === undefined)
+    throw new LitsError('Missing rest argument name', tkn.sourceCodeInfo)
 
   position += 1
 

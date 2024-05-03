@@ -38,7 +38,7 @@ function analyzeAstNode(astNode: AstNode, contextStack: ContextStack, builtin: B
     case AstNodeType.NormalExpression: {
       const undefinedSymbols = new Set<UndefinedSymbolEntry>()
       const { e: expression, n: name, tkn: token } = astNode
-      if (typeof name === `string`) {
+      if (typeof name === 'string') {
         const lookUpResult = contextStack.lookUp({ t: AstNodeType.Name, v: name, tkn: token })
         if (lookUpResult === null)
           undefinedSymbols.add({ symbol: name, token: astNode.tkn })

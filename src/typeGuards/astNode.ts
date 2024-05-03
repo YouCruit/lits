@@ -10,7 +10,7 @@ import type { SourceCodeInfo } from '../tokenizer/interface'
 import { getAssertionError } from '../utils/getAssertionError'
 
 export function isAstNode(value: unknown): value is AstNode {
-  if (value === null || typeof value !== `object`)
+  if (value === null || typeof value !== 'object')
     return false
 
   if (!isAstNodeType((value as AstNode).t))
@@ -24,7 +24,7 @@ export function asAstNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): AstN
 }
 export function assertAstNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is AstNode {
   if (!isAstNode(value))
-    throw getAssertionError(`AstNode`, value, sourceCodeInfo)
+    throw getAssertionError('AstNode', value, sourceCodeInfo)
 }
 
 export function isNameNode(value: unknown): value is NameNode {
@@ -39,7 +39,7 @@ export function asNameNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): Nam
 }
 export function assertNameNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is NameNode {
   if (!isNameNode(value))
-    throw getAssertionError(`NameNode`, value, sourceCodeInfo)
+    throw getAssertionError('NameNode', value, sourceCodeInfo)
 }
 
 export function isNormalExpressionNode(value: unknown): value is NormalExpressionNode {
@@ -57,14 +57,14 @@ export function assertNormalExpressionNode(
   sourceCodeInfo?: SourceCodeInfo,
 ): asserts value is NormalExpressionNode {
   if (!isNormalExpressionNode(value))
-    throw getAssertionError(`NormalExpressionNode`, value, sourceCodeInfo)
+    throw getAssertionError('NormalExpressionNode', value, sourceCodeInfo)
 }
 
 export function isNormalExpressionNodeWithName(value: unknown): value is NormalExpressionNodeWithName {
   if (!isAstNode(value))
     return false
 
-  return value.t === AstNodeType.NormalExpression && typeof value.n === `string`
+  return value.t === AstNodeType.NormalExpression && typeof value.n === 'string'
 }
 export function asNormalExpressionNodeWithName(
   value: unknown,
@@ -78,7 +78,7 @@ export function assertNormalExpressionNodeWithName(
   sourceCodeInfo?: SourceCodeInfo,
 ): asserts value is NormalExpressionNodeWithName {
   if (!isNormalExpressionNodeWithName(value))
-    throw getAssertionError(`NormalExpressionNodeWithName`, value, sourceCodeInfo)
+    throw getAssertionError('NormalExpressionNodeWithName', value, sourceCodeInfo)
 }
 
 export function isExpressionNode(value: unknown): value is ExpressionNode {
@@ -98,5 +98,5 @@ export function asExpressionNode(value: unknown, sourceCodeInfo?: SourceCodeInfo
 }
 export function assertExpressionNode(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is ExpressionNode {
   if (!isExpressionNode(value))
-    throw getAssertionError(`ExpressionNode`, value, sourceCodeInfo)
+    throw getAssertionError('ExpressionNode', value, sourceCodeInfo)
 }

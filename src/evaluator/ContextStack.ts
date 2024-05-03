@@ -39,9 +39,9 @@ export class ContextStack {
   public toString() {
     return this.contexts.reduce((result, context, index) => {
       return `${result}Context ${index}${
-        index === this.contexts.length - 1 ? ` - Global context` : ``
+        index === this.contexts.length - 1 ? ' - Global context' : ''
       }\n${contextToString(context)}\n`
-    }, ``)
+    }, '')
   }
 
   public create(context: Context, extraData?: ExtraData): ContextStack {
@@ -105,7 +105,7 @@ export class ContextStack {
     }
 
     if (builtin.specialExpressions[value])
-      return `specialExpression`
+      return 'specialExpression'
 
     const nativeJsFunction = this.nativeJsFunctions?.[value]
     if (nativeJsFunction) {

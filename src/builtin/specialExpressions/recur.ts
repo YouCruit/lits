@@ -12,7 +12,7 @@ export const recurSpecialExpression: BuiltinSpecialExpression<null> = {
 
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
-      n: `recur`,
+      n: 'recur',
       p: params,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }

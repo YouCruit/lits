@@ -15,11 +15,11 @@ type TokenAssertionOptions =
   }
 
 export function isToken(value: unknown, options: TokenAssertionOptions = {}): value is Token {
-  if (typeof value !== `object` || value === null)
+  if (typeof value !== 'object' || value === null)
     return false
 
   const tkn = value as Token
-  if (typeof tkn.v !== `string`)
+  if (typeof tkn.v !== 'string')
     return false
 
   if (!isTokenType(tkn.t))
@@ -42,13 +42,13 @@ export function assertToken(
   if (!isToken(value, options)) {
     const sourceCodeInfo: SourceCodeInfo | undefined = isToken(value)
       ? value.sourceCodeInfo
-      : typeof filePath === `string`
+      : typeof filePath === 'string'
         ? { filePath }
         : undefined
 
     throw new LitsError(
-      `Expected ${options.type ? `${options.type}-` : ``}token${
-        typeof options.value === `string` ? ` value='${options.value}'` : ``
+      `Expected ${options.type ? `${options.type}-` : ''}token${
+        typeof options.value === 'string' ? ` value='${options.value}'` : ''
       }, got ${valueToString(value)}.`,
       getSourceCodeInfo(value, sourceCodeInfo),
     )

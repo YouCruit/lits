@@ -33,7 +33,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const node: WhenFirstNode = {
       t: AstNodeType.SpecialExpression,
-      n: `when-first`,
+      n: 'when-first',
       b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
       p: params,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,

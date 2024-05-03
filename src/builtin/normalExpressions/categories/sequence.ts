@@ -19,7 +19,7 @@ export const evaluateMap: NormalExpressionEvaluator<Arr | string> = (
   const [fn, firstList] = params
   assertLitsFunction(fn, sourceCodeInfo)
   assertSeq(firstList, sourceCodeInfo)
-  const isStringSeq = typeof firstList === `string`
+  const isStringSeq = typeof firstList === 'string'
 
   const length = firstList.length
   if (params.length === 2) {
@@ -28,13 +28,13 @@ export const evaluateMap: NormalExpressionEvaluator<Arr | string> = (
     }
     else {
       return firstList
-        .split(``)
+        .split('')
         .map((elem) => {
           const newVal = executeFunction(fn, [elem], contextStack, sourceCodeInfo)
           assertString(newVal, sourceCodeInfo, { char: true })
           return newVal
         })
-        .join(``)
+        .join('')
     }
   }
   else {
@@ -45,11 +45,11 @@ export const evaluateMap: NormalExpressionEvaluator<Arr | string> = (
         assertArray(collParam, sourceCodeInfo)
 
       if (length !== collParam.length)
-        throw new LitsError(`All arguments to "map" must have the same length.`, sourceCodeInfo)
+        throw new LitsError('All arguments to "map" must have the same length.', sourceCodeInfo)
     })
 
     if (isStringSeq) {
-      let result = ``
+      let result = ''
       for (let i = 0; i < length; i += 1) {
         const fnParams = params.slice(1).map(l => (l as string)[i]) as string[]
         const newValue = executeFunction(fn, fnParams, contextStack, sourceCodeInfo)
@@ -105,9 +105,9 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         return seq.filter(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
 
       return seq
-        .split(``)
+        .split('')
         .filter(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
-        .join(``)
+        .join('')
     },
     validate: node => assertNumberOfParams(2, node),
   },
@@ -138,7 +138,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   'pop': {
     evaluate: ([seq], sourceCodeInfo): Seq => {
       assertSeq(seq, sourceCodeInfo)
-      if (typeof seq === `string`)
+      if (typeof seq === 'string')
         return seq.substr(0, seq.length - 1)
 
       const copy = [...seq]
@@ -154,8 +154,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         return null
 
       assertSeq(seq, sourceCodeInfo)
-      if (typeof seq === `string`) {
-        const index = seq.split(``).findIndex(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
+      if (typeof seq === 'string') {
+        const index = seq.split('').findIndex(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
         return index !== -1 ? index : null
       }
       else {
@@ -172,7 +172,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         return null
 
       assertSeq(seq, sourceCodeInfo)
-      if (typeof seq === `string`) {
+      if (typeof seq === 'string') {
         assertString(value, sourceCodeInfo)
         const index = seq.indexOf(value)
         return index !== -1 ? index : null
@@ -187,9 +187,9 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   'push': {
     evaluate: ([seq, ...values], sourceCodeInfo): Seq => {
       assertSeq(seq, sourceCodeInfo)
-      if (typeof seq === `string`) {
+      if (typeof seq === 'string') {
         assertCharArray(values, sourceCodeInfo)
-        return [seq, ...values].join(``)
+        return [seq, ...values].join('')
       }
       else {
         return [...seq, ...values]
@@ -210,8 +210,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         else if (arr.length === 1)
           return [toAny(arr[0])]
 
-        if (typeof arr === `string`) {
-          const chars = arr.split(``)
+        if (typeof arr === 'string') {
+          const chars = arr.split('')
           const resultArray: Any[] = [asAny(chars[0], sourceCodeInfo)]
           chars.slice(1).reduce(
             (result: Any, elem) => {
@@ -237,13 +237,13 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         const [, val, seq] = params
         assertAny(val, sourceCodeInfo)
         assertSeq(seq, sourceCodeInfo)
-        if (typeof seq === `string`) {
+        if (typeof seq === 'string') {
           assertString(val, sourceCodeInfo)
           if (seq.length === 0)
             return [val]
 
           const resultArray: Any[] = [val]
-          seq.split(``).reduce((result: Any, elem) => {
+          seq.split('').reduce((result: Any, elem) => {
             const newVal = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo)
             resultArray.push(newVal)
             return newVal
@@ -279,8 +279,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         else if (arr.length === 1)
           return toAny(arr[0])
 
-        if (typeof arr === `string`) {
-          const chars = arr.split(``)
+        if (typeof arr === 'string') {
+          const chars = arr.split('')
           return chars.slice(1).reduce(
             (result: Any, elem) => {
               const val = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo)
@@ -299,12 +299,12 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         const [, val, seq] = params
         assertAny(val, sourceCodeInfo)
         assertSeq(seq, sourceCodeInfo)
-        if (typeof seq === `string`) {
+        if (typeof seq === 'string') {
           assertString(val, sourceCodeInfo)
           if (seq.length === 0)
             return val
 
-          return seq.split(``).reduce((result: Any, elem) => {
+          return seq.split('').reduce((result: Any, elem) => {
             const newVal = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo)
             return newVal
           }, val)
@@ -334,8 +334,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         else if (seq.length === 1)
           return toAny(seq[0])
 
-        if (typeof seq === `string`) {
-          const chars = seq.split(``)
+        if (typeof seq === 'string') {
+          const chars = seq.split('')
           return chars.slice(0, chars.length - 1).reduceRight(
             (result, elem) => {
               const newVal = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo)
@@ -358,11 +358,11 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         const [, val, seq] = params
         assertAny(val, sourceCodeInfo)
         assertSeq(seq, sourceCodeInfo)
-        if (typeof seq === `string`) {
+        if (typeof seq === 'string') {
           if (seq.length === 0)
             return val
 
-          return seq.split(``).reduceRight((result: Any, elem) => {
+          return seq.split('').reduceRight((result: Any, elem) => {
             const newVal = executeFunction(fn, [result, elem], contextStack, sourceCodeInfo)
             return newVal
           }, val)
@@ -444,7 +444,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
       if (Array.isArray(seq))
         return [...seq].reverse()
 
-      return seq.split(``).reverse().join(``)
+      return seq.split('').reverse().join('')
     },
     validate: node => assertNumberOfParams(1, node),
   },
@@ -461,7 +461,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   'shift': {
     evaluate: ([seq], sourceCodeInfo): Any => {
       assertSeq(seq, sourceCodeInfo)
-      if (typeof seq === `string`)
+      if (typeof seq === 'string')
         return seq.substr(1)
 
       const copy = [...seq]
@@ -499,8 +499,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
       if (seq.length === 0)
         return null
 
-      if (typeof seq === `string`)
-        return seq.split(``).find(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo)) ?? null
+      if (typeof seq === 'string')
+        return seq.split('').find(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo)) ?? null
 
       return toAny(seq.find(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo)))
     },
@@ -513,8 +513,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
       const comparer = defaultComparer ? null : params[0]
       assertSeq(seq, sourceCodeInfo)
 
-      if (typeof seq === `string`) {
-        const result = seq.split(``)
+      if (typeof seq === 'string') {
+        const result = seq.split('')
         if (defaultComparer) {
           result.sort(compare)
         }
@@ -526,7 +526,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
             return compareValue
           })
         }
-        return result.join(``)
+        return result.join('')
       }
 
       const result = [...seq]
@@ -553,8 +553,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
       const comparer = defaultComparer ? null : params[1]
       const seq = asSeq(defaultComparer ? params[1] : params[2], sourceCodeInfo)
 
-      if (typeof seq === `string`) {
-        const result = seq.split(``)
+      if (typeof seq === 'string') {
+        const result = seq.split('')
         if (defaultComparer) {
           result.sort((a, b) => {
             const aKey = executeFunction(keyfn, [a], contextStack, sourceCodeInfo)
@@ -572,7 +572,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
             return compareValue
           })
         }
-        return result.join(``)
+        return result.join('')
       }
 
       const result = [...seq]
@@ -628,7 +628,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         else
           break
       }
-      return typeof seq === `string` ? result.join(``) : result
+      return typeof seq === 'string' ? result.join('') : result
     },
     validate: node => assertNumberOfParams(2, node),
   },
@@ -661,18 +661,18 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         const from = seq.findIndex(elem => !executeFunction(fn, [elem], contextStack, sourceCodeInfo))
         return seq.slice(from)
       }
-      const charArray = seq.split(``)
+      const charArray = seq.split('')
       const from = charArray.findIndex(elem => !executeFunction(fn, [elem], contextStack, sourceCodeInfo))
-      return charArray.slice(from).join(``)
+      return charArray.slice(from).join('')
     },
     validate: node => assertNumberOfParams(2, node),
   },
   'unshift': {
     evaluate: ([seq, ...values], sourceCodeInfo): Seq => {
       assertSeq(seq, sourceCodeInfo)
-      if (typeof seq === `string`) {
+      if (typeof seq === 'string') {
         assertCharArray(values, sourceCodeInfo)
-        return [...values, seq].join(``)
+        return [...values, seq].join('')
       }
       const copy = [...seq]
       copy.unshift(...values)
@@ -685,11 +685,11 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
       assertNumber(prob, sourceCodeInfo, { finite: true })
       assertSeq(seq, sourceCodeInfo)
 
-      if (typeof seq === `string`) {
+      if (typeof seq === 'string') {
         return seq
-          .split(``)
+          .split('')
           .filter(() => Math.random() < prob)
-          .join(``)
+          .join('')
       }
       else {
         return seq.filter(() => Math.random() < prob)
@@ -705,8 +705,8 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
 
       const index = Math.floor(Math.random() * seq.length)
 
-      if (typeof seq === `string`)
-        return toAny(seq.split(``)[index])
+      if (typeof seq === 'string')
+        return toAny(seq.split('')[index])
 
       return toAny(seq[index])
     },
@@ -715,7 +715,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
   'shuffle!': {
     evaluate: ([input], sourceCodeInfo): Seq => {
       assertSeq(input, sourceCodeInfo)
-      const array: Arr = typeof input === `string` ? [...input.split(``)] : [...input]
+      const array: Arr = typeof input === 'string' ? [...input.split('')] : [...input]
       let remainingLength = array.length
       let arrayElement: Any
       let pickedIndex: number
@@ -733,7 +733,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         array[pickedIndex] = arrayElement
       }
 
-      return typeof input === `string` ? array.join(``) : array
+      return typeof input === 'string' ? array.join('') : array
     },
     validate: node => assertNumberOfParams(1, node),
   },
@@ -743,7 +743,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
       if (Array.isArray(input))
         return Array.from(new Set(input))
 
-      return Array.from(new Set(input.split(``))).join(``)
+      return Array.from(new Set(input.split(''))).join('')
     },
     validate: node => assertNumberOfParams(1, node),
   },
@@ -755,9 +755,9 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         return input.filter(elem => !executeFunction(fn, [elem], contextStack, sourceCodeInfo))
 
       return input
-        .split(``)
+        .split('')
         .filter(elem => !executeFunction(fn, [elem], contextStack, sourceCodeInfo))
-        .join(``)
+        .join('')
     },
     validate: node => assertNumberOfParams(2, node),
   },
@@ -794,10 +794,10 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
       assertLitsFunction(fn, sourceCodeInfo)
       assertSeq(seq, sourceCodeInfo)
       const seqIsArray = Array.isArray(seq)
-      const arr = seqIsArray ? seq : seq.split(``)
+      const arr = seqIsArray ? seq : seq.split('')
       const index = arr.findIndex(elem => !executeFunction(fn, [elem], contextStack, sourceCodeInfo))
       if (index === -1)
-        return [seq, seqIsArray ? [] : ``]
+        return [seq, seqIsArray ? [] : '']
 
       return [seq.slice(0, index), seq.slice(index)]
     },
@@ -808,7 +808,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([seq], sourceCodeInfo): Obj => {
       assertSeq(seq, sourceCodeInfo)
 
-      const arr = typeof seq === `string` ? seq.split(``) : seq
+      const arr = typeof seq === 'string' ? seq.split('') : seq
 
       return arr.reduce((result: Obj, val) => {
         assertString(val, sourceCodeInfo)
@@ -827,7 +827,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([fn, seq], sourceCodeInfo, contextStack, { executeFunction }): Obj => {
       assertAny(fn, sourceCodeInfo)
       assertSeq(seq, sourceCodeInfo)
-      const arr = Array.isArray(seq) ? seq : seq.split(``)
+      const arr = Array.isArray(seq) ? seq : seq.split('')
 
       return arr.reduce((result: Obj, val) => {
         const key = executeFunction(fn, [val], contextStack, sourceCodeInfo)
@@ -876,10 +876,10 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
     evaluate: ([fn, seq], sourceCodeInfo, contextStack, { executeFunction }): Seq => {
       assertLitsFunction(fn, sourceCodeInfo)
       assertSeq(seq, sourceCodeInfo)
-      const isStringSeq = typeof seq === `string`
+      const isStringSeq = typeof seq === 'string'
       let oldValue: unknown
 
-      const result = (isStringSeq ? seq.split(``) : seq).reduce((acc: Arr, elem) => {
+      const result = (isStringSeq ? seq.split('') : seq).reduce((acc: Arr, elem) => {
         const value = executeFunction(fn, [elem], contextStack, sourceCodeInfo)
         if (value !== oldValue) {
           acc.push([])
@@ -889,7 +889,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
         return acc
       }, [])
 
-      return isStringSeq ? result.map(elem => (elem as Arr).join(``)) : result
+      return isStringSeq ? result.map(elem => (elem as Arr).join('')) : result
     },
     validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
   },
@@ -897,7 +897,7 @@ export const sequenceNormalExpression: BuiltinNormalExpressions = {
 
 function partition(n: number, step: number, seq: Seq, pad: Arr | undefined, sourceCodeInfo?: SourceCodeInfo) {
   assertNumber(step, sourceCodeInfo, { positive: true })
-  const isStringSeq = typeof seq === `string`
+  const isStringSeq = typeof seq === 'string'
 
   const result: Arr[] = []
   let start = 0
@@ -922,5 +922,5 @@ function partition(n: number, step: number, seq: Seq, pad: Arr | undefined, sour
     result.push(innerArr)
     start += step
   }
-  return isStringSeq ? result.map(x => x.join(``)) : result
+  return isStringSeq ? result.map(x => x.join('')) : result
 }

@@ -23,7 +23,7 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const node: LoopNode = {
       t: AstNodeType.SpecialExpression,
-      n: `loop`,
+      n: 'loop',
       p: params,
       bs: bindings,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,

@@ -11,7 +11,7 @@ export function collHasKey(coll: unknown, key: string | number): boolean {
   if (!isColl(coll))
     return false
 
-  if (typeof coll === `string` || Array.isArray(coll)) {
+  if (typeof coll === 'string' || Array.isArray(coll)) {
     if (!isNumber(key, { integer: true }))
       return false
 
@@ -20,7 +20,7 @@ export function collHasKey(coll: unknown, key: string | number): boolean {
   return !!Object.getOwnPropertyDescriptor(coll, key)
 }
 
-type Type = `null` | `boolean` | `number` | `string` | `object` | `array` | `regexp` | `unknown`
+type Type = 'null' | 'boolean' | 'number' | 'string' | 'object' | 'array' | 'regexp' | 'unknown'
 
 const sortOrderByType: Record<Type, number> = {
   boolean: 0,
@@ -35,21 +35,21 @@ const sortOrderByType: Record<Type, number> = {
 
 function getType(value: unknown): Type {
   if (value === null)
-    return `null`
-  else if (typeof value === `boolean`)
-    return `boolean`
-  else if (typeof value === `number`)
-    return `number`
-  else if (typeof value === `string`)
-    return `string`
+    return 'null'
+  else if (typeof value === 'boolean')
+    return 'boolean'
+  else if (typeof value === 'number')
+    return 'number'
+  else if (typeof value === 'string')
+    return 'string'
   else if (Array.isArray(value))
-    return `array`
+    return 'array'
   else if (isObj(value))
-    return `object`
+    return 'object'
   else if (isRegularExpression(value))
-    return `regexp`
+    return 'regexp'
   else
-    return `unknown`
+    return 'unknown'
 }
 
 export function compare(a: unknown, b: unknown): number {
@@ -59,21 +59,21 @@ export function compare(a: unknown, b: unknown): number {
     return Math.sign(sortOrderByType[aType] - sortOrderByType[bType])
 
   switch (aType) {
-    case `null`:
+    case 'null':
       return 0
-    case `boolean`:
+    case 'boolean':
       if (a === b)
         return 0
 
       return a === false ? -1 : 1
-    case `number`:
+    case 'number':
       return Math.sign((a as number) - (b as number))
-    case `string`: {
+    case 'string': {
       const aString = a as string
       const bString = b as string
       return aString < bString ? -1 : aString > bString ? 1 : 0
     }
-    case `array`: {
+    case 'array': {
       const aArray = a as Arr
       const bArray = b as Arr
       if (aArray.length < bArray.length)
@@ -88,17 +88,17 @@ export function compare(a: unknown, b: unknown): number {
       }
       return 0
     }
-    case `object`: {
+    case 'object': {
       const aObj = a as Obj
       const bObj = b as Obj
       return Math.sign(Object.keys(aObj).length - Object.keys(bObj).length)
     }
-    case `regexp`: {
+    case 'regexp': {
       const aString = (a as RegularExpression).s
       const bString = (b as RegularExpression).s
       return aString < bString ? -1 : aString > bString ? 1 : 0
     }
-    case `unknown`:
+    case 'unknown':
       return 0
   }
 }
@@ -107,7 +107,7 @@ export function deepEqual(a: Any, b: Any, sourceCodeInfo?: SourceCodeInfo): bool
   if (a === b)
     return true
 
-  if (typeof a === `number` && typeof b === `number`)
+  if (typeof a === 'number' && typeof b === 'number')
     return Math.abs(a - b) < Number.EPSILON
 
   if (Array.isArray(a) && Array.isArray(b)) {

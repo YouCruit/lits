@@ -12,10 +12,10 @@ import { specialExpressionsReference } from './categories/specialExpressions'
 import { stringReference } from './categories/string'
 import { bitwiseReference } from './categories/bitwise'
 
-export type Category = `Collection` | `Array` | `Sequence` | `Math` | `Functional` | `Misc` | `Object` | `Predicate` | `Regular expression` | `Special expression` | `String` | `Bitwise` | `Assert`
+export type Category = 'Collection' | 'Array' | 'Sequence' | 'Math' | 'Functional' | 'Misc' | 'Object' | 'Predicate' | 'Regular expression' | 'Special expression' | 'String' | 'Bitwise' | 'Assert'
 
-type DataType = `number` | `string` | `object` | `array` | `boolean` | `function` | `integer` | `any` | `nil` | `collection` | `sequence` | `regexp`
-type Quantifier = `optional` | `oneOrMore` | `zeroOrMore` | `evenNumber`
+type DataType = 'number' | 'string' | 'object' | 'array' | 'boolean' | 'function' | 'integer' | 'any' | 'nil' | 'collection' | 'sequence' | 'regexp'
+type Quantifier = 'optional' | 'oneOrMore' | 'zeroOrMore' | 'evenNumber'
 
 type TypedValue = {
   type: DataType[] | DataType
@@ -23,7 +23,7 @@ type TypedValue = {
   array?: true
   description?: string
 } | {
-  type: `*expression` | `*expressions` | `*name` | `*bindings` | `*arguments` | `*catch` | `*never` | `*cond-cases`
+  type: '*expression' | '*expressions' | '*name' | '*bindings' | '*arguments' | '*catch' | '*never' | '*cond-cases'
   description?: string
 }
 export interface Reference<T extends Category> {
@@ -54,19 +54,19 @@ export const functionReference: Record<string, Reference<Category>> = {
 }
 
 export const categories = [
-  `Special expression`,
-  `Predicate`,
-  `Sequence`,
-  `Collection`,
-  `Array`,
-  `Object`,
-  `String`,
-  `Math`,
-  `Functional`,
-  `Regular expression`,
-  `Bitwise`,
-  `Misc`,
-  `Assert`,
+  'Special expression',
+  'Predicate',
+  'Sequence',
+  'Collection',
+  'Array',
+  'Object',
+  'String',
+  'Math',
+  'Functional',
+  'Regular expression',
+  'Bitwise',
+  'Misc',
+  'Assert',
 ]
 
 const categorizedFunctions = Object.values(functionReference)

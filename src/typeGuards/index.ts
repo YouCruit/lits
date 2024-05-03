@@ -26,22 +26,22 @@ export function asNonUndefined<T>(value: T | undefined, sourceCodeInfo?: SourceC
 
 export function assertNonUndefined<T>(value: T | undefined, sourceCodeInfo?: SourceCodeInfo): asserts value is T {
   if (!isNonUndefined(value))
-    throw new LitsError(`Unexpected undefined`, getSourceCodeInfo(value, sourceCodeInfo))
+    throw new LitsError('Unexpected undefined', getSourceCodeInfo(value, sourceCodeInfo))
 }
 
 /* istanbul ignore next */
 export function assertUnreachable(_: never): never {
-  throw new Error(`This should not be reached`)
+  throw new Error('This should not be reached')
 }
 
 export function isUnknownRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === `object` && !Array.isArray(value)
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 export function assertUnknownRecord(value: unknown, sourceCodeInfo?: SourceCodeInfo): asserts value is UnknownRecord {
   if (!isUnknownRecord(value)) {
     throw new LitsError(
-      `Expected ${`UnknownRecord`}, got ${valueToString(value)}.`,
+      `Expected ${'UnknownRecord'}, got ${valueToString(value)}.`,
       getSourceCodeInfo(value, sourceCodeInfo),
     )
   }
@@ -58,7 +58,7 @@ export function assertNumberOfParams(
 ): void {
   const length = node.p.length
   const sourceCodeInfo = node.tkn?.sourceCodeInfo
-  if (typeof count === `number`) {
+  if (typeof count === 'number') {
     if (length !== count) {
       throw new LitsError(
         `Wrong number of arguments to "${node.n}", expected ${count}, got ${valueToString(length)}.`,
@@ -69,16 +69,16 @@ export function assertNumberOfParams(
   else {
     const { min, max } = count
     if (min === undefined && max === undefined)
-      throw new LitsError(`Min or max must be specified.`, sourceCodeInfo)
+      throw new LitsError('Min or max must be specified.', sourceCodeInfo)
 
-    if (typeof min === `number` && length < min) {
+    if (typeof min === 'number' && length < min) {
       throw new LitsError(
         `Wrong number of arguments to "${node.n}", expected at least ${min}, got ${valueToString(length)}.`,
         sourceCodeInfo,
       )
     }
 
-    if (typeof max === `number` && length > max) {
+    if (typeof max === 'number' && length > max) {
       throw new LitsError(
         `Wrong number of arguments to "${node.n}", expected at most ${max}, got ${valueToString(length)}.`,
         sourceCodeInfo,

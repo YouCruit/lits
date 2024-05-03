@@ -7,7 +7,7 @@ import { assertNumber } from '../../../typeGuards/number'
 import { assertString } from '../../../typeGuards/string'
 import { assertNumberOfParams } from '../../../typeGuards'
 
-const uuidTemplate = `xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx`
+const uuidTemplate = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
 const xyRegexp = /[xy]/g
 
 export const miscNormalExpression: BuiltinNormalExpressions = {
@@ -161,7 +161,7 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
     evaluate: (): string => {
       return uuidTemplate.replace(xyRegexp, (character) => {
         const randomNbr = Math.floor(Math.random() * 16)
-        const newValue = character === `x` ? randomNbr : (randomNbr & 0x3) | 0x8
+        const newValue = character === 'x' ? randomNbr : (randomNbr & 0x3) | 0x8
         return newValue.toString(16)
       })
     },

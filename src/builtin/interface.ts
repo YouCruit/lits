@@ -55,38 +55,38 @@ export interface BuiltinSpecialExpression<T> {
 }
 
 export type SpecialExpressionName =
-  | `and`
-  | `block`
-  | `comment`
-  | `cond`
-  | `def`
-  | `defn`
-  | `defns`
-  | `defs`
-  | `do`
-  | `doseq`
-  | `fn`
-  | `for`
-  | `function`
-  | `if-let`
-  | `if-not`
-  | `if`
-  | `let`
-  | `loop`
-  | `or`
-  | `partial`
-  | `recur`
-  | `return-from`
-  | `return`
-  | `throw`
-  | `time!`
-  | `try`
-  | `when-first`
-  | `when-let`
-  | `when-not`
-  | `when`
-  | `declared?`
-  | `??`
+  | 'and'
+  | 'block'
+  | 'comment'
+  | 'cond'
+  | 'def'
+  | 'defn'
+  | 'defns'
+  | 'defs'
+  | 'do'
+  | 'doseq'
+  | 'fn'
+  | 'for'
+  | 'function'
+  | 'if-let'
+  | 'if-not'
+  | 'if'
+  | 'let'
+  | 'loop'
+  | 'or'
+  | 'partial'
+  | 'recur'
+  | 'return-from'
+  | 'return'
+  | 'throw'
+  | 'time!'
+  | 'try'
+  | 'when-first'
+  | 'when-let'
+  | 'when-not'
+  | 'when'
+  | 'declared?'
+  | '??'
 
 export interface Builtin {
   normalExpressions: BuiltinNormalExpressions

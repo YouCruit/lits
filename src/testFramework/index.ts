@@ -9,7 +9,7 @@ import { getCodeMarker } from '../utils/debug/debugTools'
 interface TestChunk {
   name: string
   program: string
-  directive: `SKIP` | null
+  directive: 'SKIP' | null
 }
 
 export interface RunTestParams {
@@ -29,7 +29,7 @@ export interface TestResult {
 export function runTest({ testPath: filePath, testNamePattern }: RunTestParams): TestResult {
   const includedFilePaths = getIncludedFilePaths(filePath)
   const testResult: TestResult = {
-    tap: `TAP version 13\n`,
+    tap: 'TAP version 13\n',
     success: true,
   }
   try {
@@ -40,7 +40,7 @@ export function runTest({ testPath: filePath, testNamePattern }: RunTestParams):
       if (testNamePattern && !testNamePattern.test(testChunkProgram.name)) {
         testResult.tap += `ok ${testNumber} ${testChunkProgram.name} # skip - Not matching testNamePattern ${testNamePattern}\n`
       }
-      else if (testChunkProgram.directive === `SKIP`) {
+      else if (testChunkProgram.directive === 'SKIP') {
         testResult.tap += `ok ${testNumber} ${testChunkProgram.name} # skip\n`
       }
       else {
@@ -68,10 +68,10 @@ export function runTest({ testPath: filePath, testNamePattern }: RunTestParams):
 }
 
 function readLitsFile(litsPath: string): string {
-  if (!litsPath.endsWith(`.lits`))
+  if (!litsPath.endsWith('.lits'))
     throw new Error(`Expected .lits file, got ${litsPath}`)
 
-  return fs.readFileSync(litsPath, { encoding: `utf-8` })
+  return fs.readFileSync(litsPath, { encoding: 'utf-8' })
 }
 
 function getContexts(includedFilePaths: string[], lits: Lits): Context[] {
@@ -105,7 +105,7 @@ function readIncludeDirectives(filePath: string): string[] {
   const fileContent = readLitsFile(filePath)
   const dirname = path.dirname(filePath)
   let okToInclude = true
-  return fileContent.split(`\n`).reduce((acc: string[], line) => {
+  return fileContent.split('\n').reduce((acc: string[], line) => {
     const includeMatch = line.match(/^\s*;+\s*@include\s*(\S+)\s*$/)
     if (includeMatch) {
       if (!okToInclude)
@@ -125,12 +125,12 @@ function readIncludeDirectives(filePath: string): string[] {
 function getTestChunks(testPath: string): TestChunk[] {
   const testProgram = readLitsFile(testPath)
   let currentTest: TestChunk | undefined
-  let setupCode = ``
-  return testProgram.split(`\n`).reduce((result: TestChunk[], line, index) => {
+  let setupCode = ''
+  return testProgram.split('\n').reduce((result: TestChunk[], line, index) => {
     const currentLineNbr = index + 1
     const testNameAnnotationMatch = line.match(/^\s*;+\s*@(?:(skip)-)?test\s*(.*)$/)
     if (testNameAnnotationMatch) {
-      const directive = (testNameAnnotationMatch[1] ?? ``).toUpperCase()
+      const directive = (testNameAnnotationMatch[1] ?? '').toUpperCase()
       const testName = testNameAnnotationMatch[2]
       if (!testName)
         throw new Error(`Missing test name on line ${currentLineNbr}`)
@@ -139,11 +139,11 @@ function getTestChunks(testPath: string): TestChunk[] {
         throw new Error(`Duplicate test name ${testName}`)
 
       currentTest = {
-        directive: (directive || null) as TestChunk[`directive`],
+        directive: (directive || null) as TestChunk['directive'],
         name: testName,
         // Adding new-lines to make lits debug information report correct rows
         program:
-          setupCode + [...Array(currentLineNbr + 2 - setupCode.split(`\n`).length).keys()].map(() => ``).join(`\n`),
+          setupCode + [...Array(currentLineNbr + 2 - setupCode.split('\n').length).keys()].map(() => '').join('\n'),
       }
       result.push(currentTest)
       return result
@@ -171,7 +171,7 @@ export function getErrorYaml(error: unknown): string {
 
   const sourceCodeInfo = error.sourceCodeInfo
   /* istanbul ignore next */
-  if (!sourceCodeInfo || typeof sourceCodeInfo === `string`) {
+  if (!sourceCodeInfo || typeof sourceCodeInfo === 'string') {
     return `
   ---
   message: ${JSON.stringify(message)}
@@ -180,8 +180,8 @@ export function getErrorYaml(error: unknown): string {
 `
   }
 
-  const formattedMessage = message.includes(`\n`)
-    ? `|\n    ${message.split(/\r?\n/).join(`\n    `)}`
+  const formattedMessage = message.includes('\n')
+    ? `|\n    ${message.split(/\r?\n/).join('\n    ')}`
     : JSON.stringify(message)
   return `
   ---
@@ -205,14 +205,14 @@ function getLocation(sourceCodeInfo: SourceCodeInfo): string {
     terms.push(`${sourceCodeInfo.position.column}`)
   }
 
-  return terms.join(`:`)
+  return terms.join(':')
 }
 
 function getErrorMessage(error: unknown): string {
   if (!isAbstractLitsError(error)) {
     // error should always be an Error (other cases is just for kicks)
     /* istanbul ignore next */
-    return typeof error === `string` ? error : error instanceof Error ? error.message : `Unknown error`
+    return typeof error === 'string' ? error : error instanceof Error ? error.message : 'Unknown error'
   }
   return error.shortMessage
 }

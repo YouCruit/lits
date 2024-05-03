@@ -55,7 +55,7 @@ function cloneAndGetMeta(
 
 function get(coll: Coll, key: string | number): Any | undefined {
   if (isObj(coll)) {
-    if (typeof key === `string` && collHasKey(coll, key))
+    if (typeof key === 'string' && collHasKey(coll, key))
       return toAny(coll[key])
   }
   else {
@@ -97,7 +97,7 @@ function update(
       return result
     }
     else {
-      const result = coll.split(``).map((elem, index) => {
+      const result = coll.split('').map((elem, index) => {
         if (intKey === index) {
           return asString(executeFunction(fn, [elem, ...params], contextStack, sourceCodeInfo), sourceCodeInfo, {
             char: true,
@@ -114,7 +114,7 @@ function update(
           },
         )
       }
-      return result.join(``)
+      return result.join('')
     }
   }
 }
@@ -122,11 +122,11 @@ function update(
 function assoc(coll: Coll, key: string | number, value: Any, sourceCodeInfo?: SourceCodeInfo) {
   assertColl(coll, sourceCodeInfo)
   assertStringOrNumber(key, sourceCodeInfo)
-  if (Array.isArray(coll) || typeof coll === `string`) {
+  if (Array.isArray(coll) || typeof coll === 'string') {
     assertNumber(key, sourceCodeInfo, { integer: true })
     assertNumber(key, sourceCodeInfo, { gte: 0 })
     assertNumber(key, sourceCodeInfo, { lte: coll.length })
-    if (typeof coll === `string`) {
+    if (typeof coll === 'string') {
       assertString(value, sourceCodeInfo, { char: true })
       return `${coll.slice(0, key)}${value}${coll.slice(key + 1)}`
     }
@@ -183,7 +183,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       if (coll === null)
         return 0
 
-      if (typeof coll === `string`)
+      if (typeof coll === 'string')
         return coll.length
 
       assertColl(coll, sourceCodeInfo)
@@ -221,8 +221,8 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       if (Array.isArray(coll))
         return coll.includes(value)
 
-      if (typeof coll === `string`)
-        return typeof value === `string` ? coll.split(``).includes(value) : false
+      if (typeof coll === 'string')
+        return typeof value === 'string' ? coll.split('').includes(value) : false
 
       return Object.values(coll).includes(value)
     },
@@ -242,9 +242,9 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         }
         return false
       }
-      if (typeof coll === `string`) {
+      if (typeof coll === 'string') {
         for (const value of seq) {
-          if (isString(value, { char: true }) ? coll.split(``).includes(value) : false)
+          if (isString(value, { char: true }) ? coll.split('').includes(value) : false)
             return true
         }
         return false
@@ -274,9 +274,9 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         }
         return true
       }
-      if (typeof coll === `string`) {
+      if (typeof coll === 'string') {
         for (const value of seq) {
-          if (!isString(value, { char: true }) || !coll.split(``).includes(value))
+          if (!isString(value, { char: true }) || !coll.split('').includes(value))
             return false
         }
         return true
@@ -394,7 +394,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         return params.reduce((result: string, s) => {
           assertString(s, sourceCodeInfo)
           return `${result}${s}`
-        }, ``)
+        }, '')
       }
       else {
         return params.reduce((result: Obj, obj) => {
@@ -411,7 +411,7 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
         return null
 
       assertColl(coll, sourceCodeInfo)
-      if (typeof coll === `string`)
+      if (typeof coll === 'string')
         return coll.length > 0 ? coll : null
 
       if (Array.isArray(coll))
@@ -429,8 +429,8 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       if (Array.isArray(coll))
         return coll.every(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
 
-      if (typeof coll === `string`)
-        return coll.split(``).every(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
+      if (typeof coll === 'string')
+        return coll.split('').every(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
 
       return Object.entries(coll).every(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
     },
@@ -444,8 +444,8 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       if (Array.isArray(coll))
         return coll.some(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
 
-      if (typeof coll === `string`)
-        return coll.split(``).some(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
+      if (typeof coll === 'string')
+        return coll.split('').some(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
 
       return Object.entries(coll).some(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
     },
@@ -459,8 +459,8 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       if (Array.isArray(coll))
         return !coll.some(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
 
-      if (typeof coll === `string`)
-        return !coll.split(``).some(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
+      if (typeof coll === 'string')
+        return !coll.split('').some(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
 
       return !Object.entries(coll).some(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
     },
@@ -474,8 +474,8 @@ export const collectionNormalExpression: BuiltinNormalExpressions = {
       if (Array.isArray(coll))
         return !coll.every(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
 
-      if (typeof coll === `string`)
-        return !coll.split(``).every(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
+      if (typeof coll === 'string')
+        return !coll.split('').every(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
 
       return !Object.entries(coll).every(elem => executeFunction(fn, [elem], contextStack, sourceCodeInfo))
     },

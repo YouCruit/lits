@@ -11,7 +11,7 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<boolean> = {
     const [newPosition, params] = parseTokens(tokenStream, position)
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
-      n: `declared?`,
+      n: 'declared?',
       p: params,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }

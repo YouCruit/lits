@@ -12,7 +12,7 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
     const [newPosition, astNode] = parseToken(tokenStream, position)
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
-      n: `time!`,
+      n: 'time!',
       p: [astNode],
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }

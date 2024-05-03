@@ -15,12 +15,12 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
     const [newPosition, messageNode] = parseToken(tokenStream, position)
     position = newPosition
 
-    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `)` })
+    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
     position += 1
 
     const node: ThrowNode = {
       t: AstNodeType.SpecialExpression,
-      n: `throw`,
+      n: 'throw',
       p: [],
       m: messageNode,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,

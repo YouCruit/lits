@@ -40,7 +40,7 @@ export function testTypeGuars(
 
 interface Primitives extends Obj {
   string: string
-  emptyString: ``
+  emptyString: ''
   integer: number
   float: number
   negativeNumber: number
@@ -64,30 +64,30 @@ export interface TestData extends Primitives {
 
 const privateTestData: TestData = {
   boolean: true,
-  emptyString: ``,
+  emptyString: '',
   false: false,
   float: 42.42,
   integer: 42,
-  mixedArray: [true, 0, `Albert`, null, ``, 42, -42.42],
+  mixedArray: [true, 0, 'Albert', null, '', 42, -42.42],
   negativeFloat: -42.42,
   negativeNumber: -42,
   null: null,
   numberArray: [0, 1, 2, 3, 4, 5],
   simpleObject: {
     boolean: true,
-    emptyString: ``,
+    emptyString: '',
     false: false,
     float: 42.42,
     integer: 42,
     negativeFloat: -42.42,
     negativeNumber: -42,
     null: null,
-    string: `Albert`,
+    string: 'Albert',
     true: true,
     zero: 0,
   },
-  string: `Albert`,
-  stringArray: [`Albert`, `Mojir`, `Lits`, `Immutable`],
+  string: 'Albert',
+  stringArray: ['Albert', 'Mojir', 'Lits', 'Immutable'],
   true: true,
   zero: 0,
   emptyArray: [],
@@ -114,8 +114,8 @@ export function regexpEquals(udr: unknown, r: RegExp): boolean {
   if (!isRegularExpression(udr))
     return false
 
-  const sortedUdrFlags = udr.f.split(``).sort().join(``)
-  const sortedRFlags = r.flags.split(``).sort().join(``)
+  const sortedUdrFlags = udr.f.split('').sort().join('')
+  const sortedRFlags = r.flags.split('').sort().join('')
   return udr.s === r.source && sortedRFlags === sortedUdrFlags
 }
 

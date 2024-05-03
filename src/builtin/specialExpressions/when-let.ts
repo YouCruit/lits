@@ -31,7 +31,7 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const node: WhenLetNode = {
       t: AstNodeType.SpecialExpression,
-      n: `when-let`,
+      n: 'when-let',
       b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
       p: params,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,

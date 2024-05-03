@@ -12,20 +12,20 @@ export enum AstNodeType {
 }
 
 export const astNodeTypeName = new Map([
-  [AstNodeType.Number, `Number`],
-  [AstNodeType.String, `String`],
-  [AstNodeType.NormalExpression, `NormalExpression`],
-  [AstNodeType.SpecialExpression, `SpecialExpression`],
-  [AstNodeType.Name, `Name`],
-  [AstNodeType.Modifier, `Modifier`],
-  [AstNodeType.ReservedName, `ReservedName`],
-  [AstNodeType.Binding, `Binding`],
-  [AstNodeType.Argument, `Argument`],
-  [AstNodeType.Partial, `Partial`],
+  [AstNodeType.Number, 'Number'],
+  [AstNodeType.String, 'String'],
+  [AstNodeType.NormalExpression, 'NormalExpression'],
+  [AstNodeType.SpecialExpression, 'SpecialExpression'],
+  [AstNodeType.Name, 'Name'],
+  [AstNodeType.Modifier, 'Modifier'],
+  [AstNodeType.ReservedName, 'ReservedName'],
+  [AstNodeType.Binding, 'Binding'],
+  [AstNodeType.Argument, 'Argument'],
+  [AstNodeType.Partial, 'Partial'],
 ])
 
 export function isAstNodeType(type: unknown): type is AstNodeType {
-  return typeof type === `number` && astNodeTypeName.has(type)
+  return typeof type === 'number' && astNodeTypeName.has(type)
 }
 
 export enum TokenType {
@@ -41,19 +41,19 @@ export enum TokenType {
 }
 
 export const tokenTypeName = new Map([
-  [TokenType.Bracket, `Bracket`],
-  [TokenType.Number, `Number`],
-  [TokenType.Name, `Name`],
-  [TokenType.String, `String`],
-  [TokenType.ReservedName, `ReservedName`],
-  [TokenType.Modifier, `Modifier`],
-  [TokenType.RegexpShorthand, `RegexpShorthand`],
-  [TokenType.FnShorthand, `FnShorthand`],
-  [TokenType.CollectionAccessor, `CollectionAccessor`],
+  [TokenType.Bracket, 'Bracket'],
+  [TokenType.Number, 'Number'],
+  [TokenType.Name, 'Name'],
+  [TokenType.String, 'String'],
+  [TokenType.ReservedName, 'ReservedName'],
+  [TokenType.Modifier, 'Modifier'],
+  [TokenType.RegexpShorthand, 'RegexpShorthand'],
+  [TokenType.FnShorthand, 'FnShorthand'],
+  [TokenType.CollectionAccessor, 'CollectionAccessor'],
 ])
 
 export function isTokenType(type: unknown): type is TokenType {
-  return typeof type === `number` && tokenTypeName.has(type)
+  return typeof type === 'number' && tokenTypeName.has(type)
 }
 
 export enum FunctionType {
@@ -71,18 +71,18 @@ export enum FunctionType {
 }
 
 export const functionTypeName = new Map([
-  [FunctionType.UserDefined, `UserDefined`],
-  [FunctionType.Partial, `Partial`],
-  [FunctionType.Comp, `Comp`],
-  [FunctionType.Constantly, `Constantly`],
-  [FunctionType.Juxt, `Juxt`],
-  [FunctionType.Complement, `Complement`],
-  [FunctionType.EveryPred, `EveryPred`],
-  [FunctionType.SomePred, `SomePred`],
-  [FunctionType.Fnil, `Fnil`],
-  [FunctionType.Builtin, `Builtin`],
+  [FunctionType.UserDefined, 'UserDefined'],
+  [FunctionType.Partial, 'Partial'],
+  [FunctionType.Comp, 'Comp'],
+  [FunctionType.Constantly, 'Constantly'],
+  [FunctionType.Juxt, 'Juxt'],
+  [FunctionType.Complement, 'Complement'],
+  [FunctionType.EveryPred, 'EveryPred'],
+  [FunctionType.SomePred, 'SomePred'],
+  [FunctionType.Fnil, 'Fnil'],
+  [FunctionType.Builtin, 'Builtin'],
 ])
 
 export function isFunctionType(type: unknown): type is FunctionType {
-  return typeof type === `number` && functionTypeName.has(type)
+  return typeof type === 'number' && functionTypeName.has(type)
 }

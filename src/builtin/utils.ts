@@ -25,7 +25,7 @@ export function assertNameNotDefined<T>(
   builtin: Builtin,
   sourceCodeInfo?: SourceCodeInfo,
 ): asserts name is T {
-  if (typeof name !== `string`)
+  if (typeof name !== 'string')
     return
 
   if (builtin.specialExpressions[name])

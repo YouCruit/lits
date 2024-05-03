@@ -15,50 +15,50 @@ const optimizableProgram = `
   (* 11 day)
 )`
 
-describe(`parser`, () => {
-  it(`simple program`, () => {
+describe('parser', () => {
+  it('simple program', () => {
     const tokens = tokenize(program, { debug: true })
     const ast = parse(tokens)
     expect(ast.b.length).toBe(1)
   })
-  it(`empty program`, () => {
-    const tokens = tokenize(``, { debug: true })
+  it('empty program', () => {
+    const tokens = tokenize('', { debug: true })
     const ast = parse(tokens)
     expect(ast.b.length).toBe(0)
   })
 
-  it(`optimization`, () => {
+  it('optimization', () => {
     const tokens = tokenize(optimizableProgram, { debug: true })
     const ast = parse(tokens)
     expect(ast.b.length).toBe(1)
   })
 
-  it(`unparsable expression`, () => {
-    const tokens = tokenize(`(`, { debug: true, filePath: `test.lits` })
+  it('unparsable expression', () => {
+    const tokens = tokenize('(', { debug: true, filePath: 'test.lits' })
     expect(() => parse(tokens)).toThrow()
   })
 
-  it(`parse for`, () => {
-    expect(() => parse(tokenize(`(for [x [1 2 3]] x)`, { debug: true }))).not.toThrow()
-    expect(() => parse(tokenize(`(for [x [1 2 3] &let [y (* x x)]] y)`, { debug: true }))).not.toThrow()
-    expect(() => parse(tokenize(`(for [x [1 2 3] &let [z x] &let [y (* x x)]] y)`, { debug: true }))).toThrow()
-    expect(() => parse(tokenize(`(for [x [1 2 3] &when (odd? x)] x)`, { debug: true }))).not.toThrow()
-    expect(() => parse(tokenize(`(for [x [1 2 3] &when (odd? x) &when (odd? x)] x)`, { debug: true }))).toThrow()
-    expect(() => parse(tokenize(`(for [x [1 2 3] &while (odd? x)] x)`, { debug: true }))).not.toThrow()
-    expect(() => parse(tokenize(`(for [x [1 2 3] &while (odd? x) &while (odd? x)] x)`, { debug: true }))).toThrow()
-    expect(() => parse(tokenize(`(for [x [1 2 3] &while (odd? x) &whil (odd? x)] x)`, { debug: true }))).toThrow()
+  it('parse for', () => {
+    expect(() => parse(tokenize('(for [x [1 2 3]] x)', { debug: true }))).not.toThrow()
+    expect(() => parse(tokenize('(for [x [1 2 3] &let [y (* x x)]] y)', { debug: true }))).not.toThrow()
+    expect(() => parse(tokenize('(for [x [1 2 3] &let [z x] &let [y (* x x)]] y)', { debug: true }))).toThrow()
+    expect(() => parse(tokenize('(for [x [1 2 3] &when (odd? x)] x)', { debug: true }))).not.toThrow()
+    expect(() => parse(tokenize('(for [x [1 2 3] &when (odd? x) &when (odd? x)] x)', { debug: true }))).toThrow()
+    expect(() => parse(tokenize('(for [x [1 2 3] &while (odd? x)] x)', { debug: true }))).not.toThrow()
+    expect(() => parse(tokenize('(for [x [1 2 3] &while (odd? x) &while (odd? x)] x)', { debug: true }))).toThrow()
+    expect(() => parse(tokenize('(for [x [1 2 3] &while (odd? x) &whil (odd? x)] x)', { debug: true }))).toThrow()
     expect(() =>
       parse(
         tokenize(
-          `(for [x [1 2 3] &when (odd? x) &while (not= x 3) &let [y (* x x)] y [5 10 15] z [100 200 300]] (+ x y z))`,
+          '(for [x [1 2 3] &when (odd? x) &while (not= x 3) &let [y (* x x)] y [5 10 15] z [100 200 300]] (+ x y z))',
           { debug: true },
         ),
       ),
     ).not.toThrow()
   })
 
-  it(`parse dotNotation, check ast 1`, () => {
-    const tokens = tokenize(`foo#1.a`, { debug: false })
+  it('parse dotNotation, check ast 1', () => {
+    const tokens = tokenize('foo#1.a', { debug: false })
     const ast = parse(tokens)
     expect(ast).toEqual<Ast>({
       b: [
@@ -66,7 +66,7 @@ describe(`parser`, () => {
           t: AstNodeType.NormalExpression,
           e: {
             t: AstNodeType.NormalExpression,
-            n: `foo`,
+            n: 'foo',
             p: [
               {
                 t: AstNodeType.Number,
@@ -77,7 +77,7 @@ describe(`parser`, () => {
           p: [
             {
               t: AstNodeType.String,
-              v: `a`,
+              v: 'a',
             },
           ],
         },
@@ -85,8 +85,8 @@ describe(`parser`, () => {
     })
   })
 
-  it(`parse dotNotation, check ast 2`, () => {
-    const tokens = tokenize(`(#(identity %1) [1 2 3])#1`, { debug: false })
+  it('parse dotNotation, check ast 2', () => {
+    const tokens = tokenize('(#(identity %1) [1 2 3])#1', { debug: false })
     const ast = parse(tokens)
     expect(ast).toEqual<Ast>({
       b: [
@@ -96,22 +96,22 @@ describe(`parser`, () => {
             t: 203,
             e: {
               t: 204,
-              n: `fn`,
+              n: 'fn',
               p: [],
               o: [
                 {
                   as: {
                     b: [],
-                    m: [`%1`],
+                    m: ['%1'],
                   },
                   b: [
                     {
                       t: 203,
-                      n: `identity`,
+                      n: 'identity',
                       p: [
                         {
                           t: 205,
-                          v: `%1`,
+                          v: '%1',
                         },
                       ],
                     },
@@ -123,7 +123,7 @@ describe(`parser`, () => {
             p: [
               {
                 t: 203,
-                n: `array`,
+                n: 'array',
                 p: [
                   {
                     t: 201,
@@ -152,16 +152,16 @@ describe(`parser`, () => {
     })
   })
 
-  it(`parseToken unknown token`, () => {
+  it('parseToken unknown token', () => {
     const tokenStream: TokenStream = {
       tokens: [
         {
           t: TokenType.CollectionAccessor,
-          v: ``,
+          v: '',
         },
         {
           t: TokenType.Modifier,
-          v: ``,
+          v: '',
         },
       ],
     }

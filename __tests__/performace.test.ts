@@ -7,10 +7,10 @@ import { parse } from '../src/parser'
 import { tokenize } from '../src/tokenizer'
 
 const ITERATIONS = 25000
-const program = `(+ (* (- x y) (- y x)) (* (/ x y) (/ y x)))`
+const program = '(+ (* (- x y) (- y x)) (* (/ x y) (/ y x)))'
 const hostValues: Obj = { x: 20, y: 30 }
 const contextStack = new ContextStack({ contexts: [{}], values: hostValues })
-const jsExpression = `((x - y) * (y - x)) + ((x / y) * (y / x))`
+const jsExpression = '((x - y) * (y - x)) + ((x / y) * (y / x))'
 
 // Some baseline values for javascript eval to compare with
 const startRefTime = Date.now()
@@ -24,7 +24,7 @@ const averageRefTime = Math.round((100000 * (Date.now() - startRefTime)) / ITERA
 function createJsProgram(expression: string, globalContext: Record<string, unknown>) {
   const vars = Object.entries(globalContext)
     .map(entry => `  var ${entry[0]} = ${JSON.stringify(entry[1])};`)
-    .join(`\n`)
+    .join('\n')
   return `
 (function () {
 ${vars}
@@ -40,50 +40,50 @@ ${label}: ${averageTime} µs
 Factor: ${Math.round((100 * averageTime) / averageRefTime) / 100} (${averageRefTime} µs)`)
 }
 
-describe.skip(`performace`, () => {
-  it(`tokenise`, () => {
+describe.skip('performace', () => {
+  it('tokenise', () => {
     const startTime = Date.now()
     for (let i = 0; i < ITERATIONS; i += 1)
       tokenize(program, { debug: true })
 
-    logPerformace(`Tokenise`, Date.now() - startTime)
+    logPerformace('Tokenise', Date.now() - startTime)
   })
 
-  it(`parse`, () => {
+  it('parse', () => {
     const tokens = tokenize(program, { debug: true })
     const startTime = Date.now()
     for (let i = 0; i < ITERATIONS; i += 1)
       parse(tokens)
 
-    logPerformace(`Parse tokens`, Date.now() - startTime)
+    logPerformace('Parse tokens', Date.now() - startTime)
   })
 
-  it(`evaluate`, () => {
+  it('evaluate', () => {
     const tokens = tokenize(program, { debug: true })
     const ast = parse(tokens)
     const startTime = Date.now()
     for (let i = 0; i < ITERATIONS; i += 1)
       evaluate(ast, contextStack)
 
-    logPerformace(`Evaluate AST`, Date.now() - startTime)
+    logPerformace('Evaluate AST', Date.now() - startTime)
   })
 
-  it(`lits run - NOT cached.`, () => {
+  it('lits run - NOT cached.', () => {
     const lits = new Lits()
     const startTime = Date.now()
     for (let i = 0; i < ITERATIONS; i += 1)
       lits.run(program, { values: hostValues })
 
-    logPerformace(`Run program`, Date.now() - startTime)
+    logPerformace('Run program', Date.now() - startTime)
   })
 
-  it(`lits run - cached`, () => {
+  it('lits run - cached', () => {
     const lits = new Lits({ astCacheSize: 100 })
     const startTime = Date.now()
     for (let i = 0; i < ITERATIONS; i += 1)
       lits.run(program, { values: hostValues })
 
     console.log(lits.getRuntimeInfo())
-    logPerformace(`Run program (with astCache)`, Date.now() - startTime)
+    logPerformace('Run program (with astCache)', Date.now() - startTime)
   })
 })

@@ -44,7 +44,7 @@ function findOverloadFunction(
 ): EvaluatedFunctionOverload {
   const overloadFunction = overloads.find((overload) => {
     const arity = overload.a
-    if (typeof arity === `number`)
+    if (typeof arity === 'number')
       return arity === nbrOfParams
     else
       return arity.min <= nbrOfParams
@@ -65,11 +65,11 @@ export const functionExecutors: FunctionExecutors = {
     }
     catch (error) {
       const message
-        = typeof error === `string`
+        = typeof error === 'string'
           ? error
-          : isUnknownRecord(error) && typeof error.message === `string`
+          : isUnknownRecord(error) && typeof error.message === 'string'
             ? error.message
-            : `<no message>`
+            : '<no message>'
       throw new LitsError(`Native function throwed: "${message}"`, sourceCodeInfo)
     }
   },

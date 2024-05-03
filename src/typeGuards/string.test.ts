@@ -1,9 +1,9 @@
 import { asString, assertString } from './string'
 
-describe(`string type guards`, () => {
-  it(`asNonEmptyString`, () => {
-    expect(asString(`1`, undefined, { nonEmpty: true })).toBe(`1`)
-    expect(() => asString(``, undefined, { nonEmpty: true })).toThrow()
+describe('string type guards', () => {
+  it('asNonEmptyString', () => {
+    expect(asString('1', undefined, { nonEmpty: true })).toBe('1')
+    expect(() => asString('', undefined, { nonEmpty: true })).toThrow()
     expect(() => asString(0, undefined, { nonEmpty: true })).toThrow()
     expect(() => asString(1, undefined, { nonEmpty: true })).toThrow()
     expect(() => asString(true, undefined, { nonEmpty: true })).toThrow()
@@ -14,9 +14,9 @@ describe(`string type guards`, () => {
     expect(() => asString({}, undefined, { nonEmpty: true })).toThrow()
   })
 
-  it(`assertString`, () => {
-    expect(() => assertString(``, undefined)).not.toThrow()
-    expect(() => assertString(`1`, undefined)).not.toThrow()
+  it('assertString', () => {
+    expect(() => assertString('', undefined)).not.toThrow()
+    expect(() => assertString('1', undefined)).not.toThrow()
     expect(() => assertString(0, undefined)).toThrow()
     expect(() => assertString(1, undefined)).toThrow()
     expect(() => assertString(true, undefined)).toThrow()
@@ -26,9 +26,9 @@ describe(`string type guards`, () => {
     expect(() => assertString([], undefined)).toThrow()
     expect(() => assertString({}, undefined)).toThrow()
   })
-  it(`asString`, () => {
-    expect(() => asString(``, undefined)).not.toThrow()
-    expect(() => asString(`1`, undefined)).not.toThrow()
+  it('asString', () => {
+    expect(() => asString('', undefined)).not.toThrow()
+    expect(() => asString('1', undefined)).not.toThrow()
     expect(() => asString(0, undefined)).toThrow()
     expect(() => asString(1, undefined)).toThrow()
     expect(() => asString(true, undefined)).toThrow()
@@ -38,10 +38,10 @@ describe(`string type guards`, () => {
     expect(() => asString([], undefined)).toThrow()
     expect(() => asString({}, undefined)).toThrow()
   })
-  it(`assertNonEmptyString`, () => {
-    expect(() => assertString(`1`, undefined, { nonEmpty: true })).not.toThrow()
-    expect(() => assertString(`abc`, undefined, { nonEmpty: true })).not.toThrow()
-    expect(() => assertString(``, undefined, { nonEmpty: true })).toThrow()
+  it('assertNonEmptyString', () => {
+    expect(() => assertString('1', undefined, { nonEmpty: true })).not.toThrow()
+    expect(() => assertString('abc', undefined, { nonEmpty: true })).not.toThrow()
+    expect(() => assertString('', undefined, { nonEmpty: true })).toThrow()
     expect(() => assertString(0, undefined, { nonEmpty: true })).toThrow()
     expect(() => assertString(1, undefined, { nonEmpty: true })).toThrow()
     expect(() => assertString(true, undefined, { nonEmpty: true })).toThrow()
@@ -52,30 +52,30 @@ describe(`string type guards`, () => {
     expect(() => assertString({}, undefined, { nonEmpty: true })).toThrow()
   })
 
-  it(`assertChar`, () => {
-    expect(() => assertString(`2`, undefined, { char: true })).not.toThrow()
-    expect(() => assertString(`Albert`, undefined, { char: true })).toThrow()
+  it('assertChar', () => {
+    expect(() => assertString('2', undefined, { char: true })).not.toThrow()
+    expect(() => assertString('Albert', undefined, { char: true })).toThrow()
     expect(() => assertString(0, undefined, { char: true })).toThrow()
     expect(() => assertString(null, undefined, { char: true })).toThrow()
     expect(() => assertString(true, undefined, { char: true })).toThrow()
     expect(() => assertString(false, undefined, { char: true })).toThrow()
-    expect(() => assertString([`a`], undefined, { char: true })).toThrow()
-    expect(() => assertString({ a: `a` }, undefined, { char: true })).toThrow()
+    expect(() => assertString(['a'], undefined, { char: true })).toThrow()
+    expect(() => assertString({ a: 'a' }, undefined, { char: true })).toThrow()
   })
-  it(`asChar`, () => {
-    expect(asString(`2`, undefined, { char: true })).toBe(`2`)
-    expect(() => asString(`Albert`, undefined, { char: true })).toThrow()
+  it('asChar', () => {
+    expect(asString('2', undefined, { char: true })).toBe('2')
+    expect(() => asString('Albert', undefined, { char: true })).toThrow()
     expect(() => asString(0, undefined, { char: true })).toThrow()
     expect(() => asString(null, undefined, { char: true })).toThrow()
     expect(() => asString(true, undefined, { char: true })).toThrow()
     expect(() => asString(false, undefined, { char: true })).toThrow()
-    expect(() => asString([`a`], undefined, { char: true })).toThrow()
-    expect(() => asString({ a: `a` }, undefined, { char: true })).toThrow()
+    expect(() => asString(['a'], undefined, { char: true })).toThrow()
+    expect(() => asString({ a: 'a' }, undefined, { char: true })).toThrow()
   })
 
-  it(`character`, () => {
-    expect(() => assertString(`k`, undefined, { char: true })).not.toThrow()
-    expect(() => assertString(`k1`, undefined, { char: true })).toThrow()
+  it('character', () => {
+    expect(() => assertString('k', undefined, { char: true })).not.toThrow()
+    expect(() => assertString('k1', undefined, { char: true })).toThrow()
     expect(() => assertString(1, undefined, { char: true })).toThrow()
   })
 })

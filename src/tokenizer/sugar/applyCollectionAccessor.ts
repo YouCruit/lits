@@ -23,11 +23,11 @@ function applyCollectionAccessor(tokenStream: TokenStream, position: number) {
   tokenStream.tokens.splice(position, 1)
   tokenStream.tokens.splice(backPosition, 0, {
     t: TokenType.Bracket,
-    v: `(`,
+    v: '(',
     sourceCodeInfo,
   })
   const nextTkn = asNonUndefined(tokenStream.tokens[position + 1])
-  if (dotTkn.v === `.`) {
+  if (dotTkn.v === '.') {
     tokenStream.tokens[position + 1] = {
       t: TokenType.String,
       v: nextTkn.v,
@@ -44,7 +44,7 @@ function applyCollectionAccessor(tokenStream: TokenStream, position: number) {
   }
   tokenStream.tokens.splice(position + 2, 0, {
     t: TokenType.Bracket,
-    v: `)`,
+    v: ')',
     sourceCodeInfo,
   })
 }
@@ -52,28 +52,28 @@ function applyCollectionAccessor(tokenStream: TokenStream, position: number) {
 function getPositionBackwards(tokenStream: TokenStream, position: number, sourceCodeInfo: SourceCodeInfo | undefined) {
   let bracketCount: number | null = null
   if (position <= 0)
-    throw new LitsError(`Array accessor # must come after a sequence`, sourceCodeInfo)
+    throw new LitsError('Array accessor # must come after a sequence', sourceCodeInfo)
 
   const prevToken = asNonUndefined(tokenStream.tokens[position - 1])
-  let openBracket: null | `(` | `[` | `{` = null
-  let closeBracket: null | `)` | `]` | `}` = null
+  let openBracket: null | '(' | '[' | '{' = null
+  let closeBracket: null | ')' | ']' | '}' = null
 
   if (prevToken.t === TokenType.Bracket) {
     switch (prevToken.v) {
-      case `)`:
-        openBracket = `(`
-        closeBracket = `)`
+      case ')':
+        openBracket = '('
+        closeBracket = ')'
         break
-      case `]`:
-        openBracket = `[`
-        closeBracket = `]`
+      case ']':
+        openBracket = '['
+        closeBracket = ']'
         break
-      case `}`:
-        openBracket = `{`
-        closeBracket = `}`
+      case '}':
+        openBracket = '{'
+        closeBracket = '}'
         break
       default:
-        throw new LitsError(`# or . must be preceeded by a collection`, sourceCodeInfo)
+        throw new LitsError('# or . must be preceeded by a collection', sourceCodeInfo)
     }
   }
 
@@ -89,10 +89,10 @@ function getPositionBackwards(tokenStream: TokenStream, position: number, source
         bracketCount -= 1
     }
   }
-  if (openBracket === `(` && position > 0) {
+  if (openBracket === '(' && position > 0) {
     const tokenBeforeBracket = asNonUndefined(tokenStream.tokens[position - 1])
     if (tokenBeforeBracket.t === TokenType.FnShorthand)
-      throw new LitsError(`# or . must NOT be preceeded by shorthand lambda function`, sourceCodeInfo)
+      throw new LitsError('# or . must NOT be preceeded by shorthand lambda function', sourceCodeInfo)
   }
   return position
 }
@@ -105,9 +105,9 @@ function checkForward(
 ) {
   const tkn = asNonUndefined(tokenStream.tokens[position + 1], sourceCodeInfo)
 
-  if (dotTkn.v === `.` && tkn.t !== TokenType.Name)
-    throw new LitsError(`# as a collection accessor must be followed by an name`, sourceCodeInfo)
+  if (dotTkn.v === '.' && tkn.t !== TokenType.Name)
+    throw new LitsError('# as a collection accessor must be followed by an name', sourceCodeInfo)
 
-  if (dotTkn.v === `#` && tkn.t !== TokenType.Number)
-    throw new LitsError(`# as a collection accessor must be followed by an integer`, sourceCodeInfo)
+  if (dotTkn.v === '#' && tkn.t !== TokenType.Number)
+    throw new LitsError('# as a collection accessor must be followed by an integer', sourceCodeInfo)
 }

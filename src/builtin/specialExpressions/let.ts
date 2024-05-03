@@ -21,7 +21,7 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const node: LetNode = {
       t: AstNodeType.SpecialExpression,
-      n: `let`,
+      n: 'let',
       p: params,
       bs: bindings,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,

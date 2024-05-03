@@ -104,12 +104,12 @@ export class Lits {
   }
 
   public apply(fn: LitsFunction, fnParams: unknown[], params: LitsParams = {}): Any {
-    const fnName = `FN_2eb7b316-471c-5bfa-90cb-d3dfd9164a59`
+    const fnName = 'FN_2eb7b316-471c-5bfa-90cb-d3dfd9164a59'
     const paramsString: string = fnParams
       .map((_, index) => {
         return `${fnName}_${index}`
       })
-      .join(` `)
+      .join(' ')
     const program = `(${fnName} ${paramsString})`
     const ast = this.generateAst(program, params.filePath)
 

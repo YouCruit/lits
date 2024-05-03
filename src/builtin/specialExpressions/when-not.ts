@@ -12,7 +12,7 @@ export const whenNotSpecialExpression: BuiltinSpecialExpression<Any> = {
     const [newPosition, params] = parseTokens(tokenStream, position)
     const node: SpecialExpressionNode = {
       t: AstNodeType.SpecialExpression,
-      n: `when-not`,
+      n: 'when-not',
       p: params,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }

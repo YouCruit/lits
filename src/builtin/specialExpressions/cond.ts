@@ -18,7 +18,7 @@ function parseConditions(tokenStream: TokenStream, position: number, parseToken:
   const conditions: Condition[] = []
 
   let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
-  while (!isToken(tkn, { type: TokenType.Bracket, value: `)` })) {
+  while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {
     let test: AstNode
     ;[position, test] = parseToken(tokenStream, position)
 
@@ -42,7 +42,7 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
       position + 1,
       {
         t: AstNodeType.SpecialExpression,
-        n: `cond`,
+        n: 'cond',
         c: conditions,
         p: [],
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,

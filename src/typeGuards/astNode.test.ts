@@ -29,17 +29,17 @@ import {
   isNormalExpressionNodeWithName,
 } from './astNode'
 
-describe(`astNode type guards`, () => {
-  const tkn: Token = { t: TokenType.Name, v: `X` }
+describe('astNode type guards', () => {
+  const tkn: Token = { t: TokenType.Name, v: 'X' }
   const invalidAstNodes: unknown[] = [
     {
       tkn,
-      v: `A name`,
+      v: 'A name',
     },
     {
       t: 999,
       tkn,
-      v: `A name`,
+      v: 'A name',
     },
     {},
     null,
@@ -52,13 +52,13 @@ describe(`astNode type guards`, () => {
   ]
   const specialExpressionNode: SpecialExpressionNode = {
     t: AstNodeType.SpecialExpression,
-    n: `??`,
+    n: '??',
     p: [],
   }
   const nameNode: NameNode = {
     t: AstNodeType.Name,
     tkn,
-    v: `A name`,
+    v: 'A name',
   }
   const numberNode: NumberNode = {
     t: AstNodeType.Number,
@@ -67,26 +67,26 @@ describe(`astNode type guards`, () => {
   }
   const stringNode: StringNode = {
     t: AstNodeType.String,
-    v: `foo`,
-    tkn: { t: TokenType.Name, v: `X` },
+    v: 'foo',
+    tkn: { t: TokenType.Name, v: 'X' },
   }
   const normalExpressionNodeWithName: NormalExpressionNodeWithName = {
     t: AstNodeType.NormalExpression,
     p: [],
-    n: `object`,
-    tkn: { t: TokenType.Name, v: `X` },
+    n: 'object',
+    tkn: { t: TokenType.Name, v: 'X' },
   }
   const normalExpressionNodeWithoutName: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
     p: [],
     e: {
       t: AstNodeType.NormalExpression,
-      n: `+`,
+      n: '+',
       p: [
         {
           t: AstNodeType.Number,
           v: 2,
-          tkn: { t: TokenType.Name, v: `X` },
+          tkn: { t: TokenType.Name, v: 'X' },
         },
       ],
     },
@@ -102,7 +102,7 @@ describe(`astNode type guards`, () => {
 
   const validAstNodes: AstNode[] = [nameNode, ...expressionNodes]
 
-  it(`astNode`, () => {
+  it('astNode', () => {
     testTypeGuars(
       {
         valid: [...validAstNodes],
@@ -112,7 +112,7 @@ describe(`astNode type guards`, () => {
     )
   })
 
-  it(`nameNode`, () => {
+  it('nameNode', () => {
     testTypeGuars(
       {
         valid: [nameNode],
@@ -122,7 +122,7 @@ describe(`astNode type guards`, () => {
     )
   })
 
-  it(`isNormalExpressionNodeWithName`, () => {
+  it('isNormalExpressionNodeWithName', () => {
     testTypeGuars(
       {
         valid: [normalExpressionNodeWithName],
@@ -136,7 +136,7 @@ describe(`astNode type guards`, () => {
     )
   })
 
-  it(`isNormalExpressionNode`, () => {
+  it('isNormalExpressionNode', () => {
     testTypeGuars(
       {
         valid: [normalExpressionNodeWithName, normalExpressionNodeWithoutName],
@@ -151,7 +151,7 @@ describe(`astNode type guards`, () => {
     )
   })
 
-  it(`expressionNode`, () => {
+  it('expressionNode', () => {
     testTypeGuars(
       {
         valid: [...expressionNodes],

@@ -13,7 +13,7 @@ type StringAssertionOptions =
   }
 
 export function isString(value: unknown, options: StringAssertionOptions = {}): value is string {
-  if (typeof value !== `string`)
+  if (typeof value !== 'string')
     return false
 
   if (options.nonEmpty && value.length === 0)
@@ -33,7 +33,7 @@ export function assertString(
   if (!isString(value, options)) {
     throw new LitsError(
       getAssertionError(
-        `${options.nonEmpty ? `non empty string` : options.char ? `character` : `string`}`,
+        `${options.nonEmpty ? 'non empty string' : options.char ? 'character' : 'string'}`,
         value,
         sourceCodeInfo,
       ),
@@ -51,7 +51,7 @@ export function asString(
 }
 
 export function isStringOrNumber(value: unknown): value is string | number {
-  return typeof value === `string` || typeof value === `number`
+  return typeof value === 'string' || typeof value === 'number'
 }
 export function asStringOrNumber(value: unknown, sourceCodeInfo?: SourceCodeInfo): string | number {
   assertStringOrNumber(value, sourceCodeInfo)
@@ -62,5 +62,5 @@ export function assertStringOrNumber(
   sourceCodeInfo?: SourceCodeInfo,
 ): asserts value is string | number {
   if (!isStringOrNumber(value))
-    throw getAssertionError(`string or number`, value, sourceCodeInfo)
+    throw getAssertionError('string or number', value, sourceCodeInfo)
 }

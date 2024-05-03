@@ -1,11 +1,11 @@
-const path = require(`node:path`)
-const fs = require(`node:fs`)
-const { version } = require(`../../package.json`)
-const { functionReference, categorizedFunctions } = require(`../../dist/reference`)
-const Lits = require(`../../dist/index`)
-const litsExamples = require(`./examples`)
+const path = require('node:path')
+const fs = require('node:fs')
+const { version } = require('../../package.json')
+const { functionReference, categorizedFunctions } = require('../../dist/reference')
+const Lits = require('../../dist/index')
+const litsExamples = require('./examples')
 
-const DOC_DIR = path.resolve(__dirname, `../../docs`)
+const DOC_DIR = path.resolve(__dirname, '../../docs')
 const lits = new Lits.Lits({ debug: true })
 
 setupPredictability()
@@ -27,7 +27,7 @@ ${getHtmlHeader()}
       ${getExamplePage()}
       ${Object.values(functionReference)
         .map(obj => getDocumentationContent(obj))
-        .join(`\n`)}
+        .join('\n')}
     </main>
     ${getSideBar()}
     ${getPlayground()}
@@ -38,7 +38,7 @@ ${getHtmlHeader()}
 </body>
 </html>
 `
-  fs.writeFileSync(path.join(DOC_DIR, `index.html`), page, { encoding: `utf-8` })
+  fs.writeFileSync(path.join(DOC_DIR, 'index.html'), page, { encoding: 'utf-8' })
 }
 
 function getTopBar() {
@@ -165,7 +165,7 @@ function getExamplePage() {
       </li>
     `
     })
-    .join(`\n`)}
+    .join('\n')}
   </ul>
 </div>
 `
@@ -176,7 +176,7 @@ function getDocumentationContent(docObj) {
   const clojureDocsLink
     = clojureDocs === null
       ? null
-      : `https://clojuredocs.org/clojure.core/${clojureDocs !== undefined ? clojureDocs : name.replace(`?`, `_q`)}`
+      : `https://clojuredocs.org/clojure.core/${clojureDocs !== undefined ? clojureDocs : name.replace('?', '_q')}`
   const formattedDescription = formatDescription(description)
   return `
 <div id="${linkName}" class="content function">
@@ -186,11 +186,11 @@ function getDocumentationContent(docObj) {
     ${
       clojureDocsLink
         ? `<div class="column right"><a target="_blank" class="link" href="${clojureDocsLink}">Clojure docs</a></div>`
-        : ``
+        : ''
     }
   </div>
 
-  ${category === `Special expression` ? `<h3>Special Expression</h3>` : ``}
+  ${category === 'Special expression' ? '<h3>Special Expression</h3>' : ''}
   <p>${formattedDescription}</p>
   <label>Syntax</label>
   <div class="indent">
@@ -199,10 +199,10 @@ function getDocumentationContent(docObj) {
 
   ${
     args.length === 0
-      ? `<label>No arguments</label>`
+      ? '<label>No arguments</label>'
       : `<label>Arguments</label><div class="indent">${args
           .map(arg => `<pre>${arg.name}: ${arg.type}</pre>`)
-          .join(`\n`)}</div>`
+          .join('\n')}</div>`
   }
 
   <label>Examples</label>
@@ -226,7 +226,7 @@ function getDocumentationContent(docObj) {
           console.warn = oldWarn
         }
       })
-      .join(`\n`)}
+      .join('\n')}
   </div>
 </div>
 `
@@ -259,12 +259,12 @@ function getSideBar() {
                     const name = escape(obj.name)
                     return `<li id="${linkName}_link" onclick="showPage('${linkName}')">${name}</li>`
                   })
-                  .join(`\n`)
-              : ``
+                  .join('\n')
+              : ''
           }
         </ul>`
     })
-    .join(`\n`)}
+    .join('\n')}
 </nav>
 `
 }
@@ -275,18 +275,18 @@ function setupDocDir() {
 }
 
 function copyScripts() {
-  fs.copyFileSync(path.join(__dirname, `../../dist/lits.iife.js`), path.join(DOC_DIR, `lits.iife.js`))
-  fs.copyFileSync(path.join(__dirname, `scripts.js`), path.join(DOC_DIR, `scripts.js`))
-  const examplesContent = fs.readFileSync(path.join(__dirname, `examples.js`), { encoding: `utf-8` })
-  fs.writeFileSync(path.join(DOC_DIR, `examples.js`), examplesContent.replace(`module.exports =`, `var examples =`))
+  fs.copyFileSync(path.join(__dirname, '../../dist/lits.iife.js'), path.join(DOC_DIR, 'lits.iife.js'))
+  fs.copyFileSync(path.join(__dirname, 'scripts.js'), path.join(DOC_DIR, 'scripts.js'))
+  const examplesContent = fs.readFileSync(path.join(__dirname, 'examples.js'), { encoding: 'utf-8' })
+  fs.writeFileSync(path.join(DOC_DIR, 'examples.js'), examplesContent.replace('module.exports =', 'var examples ='))
 }
 
 function copyStyles() {
-  fs.copyFileSync(path.join(__dirname, `styles.css`), path.join(DOC_DIR, `styles.css`))
+  fs.copyFileSync(path.join(__dirname, 'styles.css'), path.join(DOC_DIR, 'styles.css'))
 }
 
 function copyFavicon() {
-  fs.copyFileSync(path.join(__dirname, `favicon.ico`), path.join(DOC_DIR, `favicon.ico`))
+  fs.copyFileSync(path.join(__dirname, 'favicon.ico'), path.join(DOC_DIR, 'favicon.ico'))
 }
 
 function stringifyValue(value) {
@@ -294,15 +294,15 @@ function stringifyValue(value) {
     if (value.builtin)
       return `&lt;builtin function ${value.builtin}&gt;`
     else
-      return `&lt;function ${value.name || `λ`}&gt;`
+      return `&lt;function ${value.name || 'λ'}&gt;`
   }
   if (value === null)
-    return `null`
+    return 'null'
 
-  if (typeof value === `object` && value instanceof Error)
+  if (typeof value === 'object' && value instanceof Error)
     return value.toString()
 
-  if (typeof value === `object` && value instanceof RegExp)
+  if (typeof value === 'object' && value instanceof RegExp)
     return `${value}`
 
   if (value === Number.POSITIVE_INFINITY)
@@ -311,35 +311,35 @@ function stringifyValue(value) {
   if (value === Number.NEGATIVE_INFINITY)
     return Number.NEGATIVE_INFINITY
 
-  if (typeof value === `number` && Number.isNaN(value))
-    return `NaN`
+  if (typeof value === 'number' && Number.isNaN(value))
+    return 'NaN'
 
   return JSON.stringify(value)
 }
 
 function escape(str) {
-  str = str.replace(/>/g, `&gt;`)
-  str = str.replace(/</g, `&lt;`)
+  str = str.replace(/>/g, '&gt;')
+  str = str.replace(/</g, '&lt;')
   return str
 }
 
 function formatDescription(value) {
-  value = value.replace(/`(.*?)`/g, `<span class="pre">$1</span>`)
-  value = value.replace(/\*\*\*(.*?)\*\*\*/g, `<strong><em>$1</em></strong>`)
-  value = value.replace(/\*\*(.*?)\*\*/g, `<strong>$1</strong>`)
-  value = value.replace(/\*(.*?)\*/g, `<em>$1</em>`)
-  value = value.replace(/\n/g, `<br />`)
+  value = value.replace(/`(.*?)`/g, '<span class="pre">$1</span>')
+  value = value.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
+  value = value.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+  value = value.replace(/\*(.*?)\*/g, '<em>$1</em>')
+  value = value.replace(/\n/g, '<br />')
   return value
 }
 
 function getSyntax(name, args, returns) {
   return `${name}${
-    args.length ? ` ${args.map(arg => `${arg.name}${arg.description ? `(${arg.description})` : ``}`).join(` `)}` : ``
+    args.length ? ` ${args.map(arg => `${arg.name}${arg.description ? `(${arg.description})` : ''}`).join(' ')}` : ''
   } => ${returns.type}`
 }
 
 function escapeExample(example) {
-  return example.replace(/'/g, `___single_quote___`).replace(/"/g, `___double_quote___`)
+  return example.replace(/'/g, '___single_quote___').replace(/"/g, '___double_quote___')
 }
 
 function setupPredictability() {

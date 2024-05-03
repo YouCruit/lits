@@ -9,8 +9,8 @@ export const regexpNormalExpression: BuiltinNormalExpressions = {
   regexp: {
     evaluate: ([sourceArg, flagsArg], sourceCodeInfo): RegularExpression => {
       assertString(sourceArg, sourceCodeInfo)
-      const source = sourceArg || `(?:)`
-      const flags = typeof flagsArg === `string` ? flagsArg : ``
+      const source = sourceArg || '(?:)'
+      const flags = typeof flagsArg === 'string' ? flagsArg : ''
       // eslint-disable-next-line no-new
       new RegExp(source, flags) // Throws if invalid regexp
       return {

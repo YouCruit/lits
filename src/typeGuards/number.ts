@@ -82,50 +82,50 @@ LtOptions
 
 function getRangeString(options: NumberOptions): string {
   const hasUpperAndLowerBound
-    = (typeof options.gt === `number` || typeof options.gte === `number`)
-    && (typeof options.lt === `number` || typeof options.lte === `number`)
+    = (typeof options.gt === 'number' || typeof options.gte === 'number')
+    && (typeof options.lt === 'number' || typeof options.lte === 'number')
   if (hasUpperAndLowerBound) {
-    return `${typeof options.gt === `number` ? `${options.gt} < n ` : `${options.gte} <= n `}${
-      typeof options.lt === `number` ? `< ${options.lt}` : `<= ${options.lte}`
+    return `${typeof options.gt === 'number' ? `${options.gt} < n ` : `${options.gte} <= n `}${
+      typeof options.lt === 'number' ? `< ${options.lt}` : `<= ${options.lte}`
     }`
   }
-  else if (typeof options.gt === `number` || typeof options.gte === `number`) {
-    return `${typeof options.gt === `number` ? `n > ${options.gt}` : `n >= ${options.gte}`}`
+  else if (typeof options.gt === 'number' || typeof options.gte === 'number') {
+    return `${typeof options.gt === 'number' ? `n > ${options.gt}` : `n >= ${options.gte}`}`
   }
-  else if (typeof options.lt === `number` || typeof options.lte === `number`) {
-    return `${typeof options.lt === `number` ? `n < ${options.lt}` : `n <= ${options.lte}`}`
+  else if (typeof options.lt === 'number' || typeof options.lte === 'number') {
+    return `${typeof options.lt === 'number' ? `n < ${options.lt}` : `n <= ${options.lte}`}`
   }
-  else { return `` }
+  else { return '' }
 }
 
 function getSignString(options: NumberOptions): string {
   return options.positive
-    ? `positive`
+    ? 'positive'
     : options.negative
-      ? `negative`
+      ? 'negative'
       : options.nonNegative
-        ? `non negative`
+        ? 'non negative'
         : options.nonPositive
-          ? `non positive`
+          ? 'non positive'
           : options.nonZero
-            ? `non zero`
-            : ``
+            ? 'non zero'
+            : ''
 }
 
 function getNumberTypeName(options: NumberOptions): string {
   if (options.zero)
-    return `zero`
+    return 'zero'
 
   const sign = getSignString(options)
-  const numberType = options.integer ? `integer` : `number`
-  const finite = options.finite ? `finite` : ``
+  const numberType = options.integer ? 'integer' : 'number'
+  const finite = options.finite ? 'finite' : ''
   const range = getRangeString(options)
 
-  return [sign, finite, numberType, range].filter(x => !!x).join(` `)
+  return [sign, finite, numberType, range].filter(x => !!x).join(' ')
 }
 
 export function isNumber(value: unknown, options: NumberOptions = {}): value is number {
-  if (typeof value !== `number`)
+  if (typeof value !== 'number')
     return false
 
   if (options.integer && !Number.isInteger(value))
@@ -152,16 +152,16 @@ export function isNumber(value: unknown, options: NumberOptions = {}): value is 
   if (options.nonNegative && value < 0)
     return false
 
-  if (typeof options.gt === `number` && value <= options.gt)
+  if (typeof options.gt === 'number' && value <= options.gt)
     return false
 
-  if (typeof options.gte === `number` && value < options.gte)
+  if (typeof options.gte === 'number' && value < options.gte)
     return false
 
-  if (typeof options.lt === `number` && value >= options.lt)
+  if (typeof options.lt === 'number' && value >= options.lt)
     return false
 
-  if (typeof options.lte === `number` && value > options.lte)
+  if (typeof options.lte === 'number' && value > options.lte)
     return false
 
   return true

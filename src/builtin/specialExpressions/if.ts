@@ -13,7 +13,7 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
       newPosition + 1,
       {
         t: AstNodeType.SpecialExpression,
-        n: `if`,
+        n: 'if',
         p: params,
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       },

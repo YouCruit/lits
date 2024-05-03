@@ -11,7 +11,7 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
       newPosition + 1,
       {
         t: AstNodeType.SpecialExpression,
-        n: `or`,
+        n: 'or',
         p: params,
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       },

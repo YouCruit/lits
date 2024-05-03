@@ -32,7 +32,7 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     const node: IfLetNode = {
       t: AstNodeType.SpecialExpression,
-      n: `if-let`,
+      n: 'if-let',
       b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
       p: params,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,

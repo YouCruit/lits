@@ -18,7 +18,7 @@ type LoopNode = SpecialExpressionNode & {
 
 export interface LoopBindingNode {
   b: BindingNode // Binding
-  m: Array<`&let` | `&when` | `&while`> // Modifiers
+  m: Array<'&let' | '&when' | '&while'> // Modifiers
   l?: BindingNode[] // Let-Bindings
   wn?: AstNode // When Node
   we?: AstNode // While Node
@@ -40,26 +40,26 @@ function parseLoopBinding(
   let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   while (tkn.t === TokenType.Modifier) {
     switch (tkn.v) {
-      case `&let`:
+      case '&let':
         if (loopBinding.l)
-          throw new LitsError(`Only one &let modifier allowed`, tkn.sourceCodeInfo)
+          throw new LitsError('Only one &let modifier allowed', tkn.sourceCodeInfo)
 
         ;[position, loopBinding.l] = parseBindings(tokenStream, position + 1)
-        loopBinding.m.push(`&let`)
+        loopBinding.m.push('&let')
         break
-      case `&when`:
+      case '&when':
         if (loopBinding.wn)
-          throw new LitsError(`Only one &when modifier allowed`, tkn.sourceCodeInfo)
+          throw new LitsError('Only one &when modifier allowed', tkn.sourceCodeInfo)
 
         ;[position, loopBinding.wn] = parseToken(tokenStream, position + 1)
-        loopBinding.m.push(`&when`)
+        loopBinding.m.push('&when')
         break
-      case `&while`:
+      case '&while':
         if (loopBinding.we)
-          throw new LitsError(`Only one &while modifier allowed`, tkn.sourceCodeInfo)
+          throw new LitsError('Only one &while modifier allowed', tkn.sourceCodeInfo)
 
         ;[position, loopBinding.we] = parseToken(tokenStream, position + 1)
-        loopBinding.m.push(`&while`)
+        loopBinding.m.push('&while')
         break
       default:
         throw new LitsError(`Illegal modifier: ${tkn.v}`, tkn.sourceCodeInfo)
@@ -89,13 +89,13 @@ function parseLoopBindings(
   position: number,
   parsers: ParserHelpers,
 ): [number, LoopBindingNode[]] {
-  assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `[` })
+  assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: '[' })
   position += 1
 
   const loopBindings: LoopBindingNode[] = []
 
   let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
-  while (!isToken(tkn, { type: TokenType.Bracket, value: `]` })) {
+  while (!isToken(tkn, { type: TokenType.Bracket, value: ']' })) {
     let loopBinding: LoopBindingNode
     ;[position, loopBinding] = parseLoopBinding(tokenStream, position, parsers)
     loopBindings.push(loopBinding)
@@ -155,7 +155,7 @@ function evaluateLoop(
       }
       for (const modifier of modifiers) {
         switch (modifier) {
-          case `&let`:
+          case '&let':
             addToContext(
               asNonUndefined(letBindings, sourceCodeInfo),
               context,
@@ -164,14 +164,14 @@ function evaluateLoop(
               sourceCodeInfo,
             )
             break
-          case `&when`:
+          case '&when':
             if (!evaluateAstNode(asAstNode(whenNode, sourceCodeInfo), newContextStack)) {
               bindingIndices[bindingIndex] = asNonUndefined(bindingIndices[bindingIndex], sourceCodeInfo) + 1
               skip = true
               break bindingsLoop
             }
             break
-          case `&while`:
+          case '&while':
             if (!evaluateAstNode(asAstNode(whileNode, sourceCodeInfo), newContextStack)) {
               bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY
               skip = true
@@ -244,10 +244,10 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any> = {
     let expression: AstNode
     ;[position, expression] = parseToken(tokenStream, position)
 
-    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `)` })
+    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: LoopNode = {
-      n: `for`,
+      n: 'for',
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
       p: [expression],
@@ -270,10 +270,10 @@ export const doseqSpecialExpression: BuiltinSpecialExpression<null> = {
     let expression: AstNode
     ;[position, expression] = parseToken(tokenStream, position)
 
-    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: `)` })
+    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: LoopNode = {
-      n: `doseq`,
+      n: 'doseq',
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
       p: [expression],

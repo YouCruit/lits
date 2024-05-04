@@ -56,7 +56,7 @@ export const specialExpressions: BuiltinSpecialExpressions = {
 }
 
 Object.keys(specialExpressions).forEach((key) => {
-  /* istanbul ignore next */
+  /* v8 ignore next 2 */
   if (normalExpressions[key])
     throw new Error(`Expression ${key} is defined as both a normal expression and a special expression`)
 })

@@ -973,7 +973,7 @@ var Lits = (function (exports) {
       if (!isNonUndefined(value))
           throw new LitsError('Unexpected undefined', getSourceCodeInfo(value, sourceCodeInfo));
   }
-  /* istanbul ignore next */
+  /* v8 ignore next 3 */
   function assertUnreachable(_) {
       throw new Error('This should not be reached');
   }
@@ -5631,7 +5631,7 @@ var Lits = (function (exports) {
       '??': qqSpecialExpression,
   };
   Object.keys(specialExpressions).forEach(function (key) {
-      /* istanbul ignore next */
+      /* v8 ignore next 2 */
       if (normalExpressions[key])
           throw new Error("Expression ".concat(key, " is defined as both a normal expression and a special expression"));
   });
@@ -6444,7 +6444,7 @@ var Lits = (function (exports) {
           case exports.TokenType.CollectionAccessor:
           case exports.TokenType.Modifier:
               break;
-          /* istanbul ignore next */
+          /* v8 ignore next 2 */
           default:
               assertUnreachable(tkn.t);
       }

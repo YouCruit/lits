@@ -1,5 +1,3 @@
-/* istanbul ignore file */
-
 import { expect } from 'vitest'
 import type { Context, LitsFunction, LitsParams } from '../src'
 import { Lits } from '../src'

@@ -24,7 +24,7 @@ export class LitsError extends Error {
   public readonly shortMessage: string
   constructor(message: string | Error, sourceCodeInfo?: SourceCodeInfo) {
     if (message instanceof Error)
-      message = `${message.name}${message.message ? `: ${message.message}` : ''}`
+      message = `${message.name}${message.message}`
 
     super(getLitsErrorMessage(message, sourceCodeInfo))
     this.shortMessage = message
@@ -34,7 +34,7 @@ export class LitsError extends Error {
   }
 
   public getCodeMarker(): string | undefined {
-    return this.sourceCodeInfo && (getCodeMarker(this.sourceCodeInfo) || undefined)
+    return this.sourceCodeInfo && getCodeMarker(this.sourceCodeInfo)
   }
 }
 

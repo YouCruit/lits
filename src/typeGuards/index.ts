@@ -29,7 +29,7 @@ export function assertNonUndefined<T>(value: T | undefined, sourceCodeInfo?: Sou
     throw new LitsError('Unexpected undefined', getSourceCodeInfo(value, sourceCodeInfo))
 }
 
-/* istanbul ignore next */
+/* v8 ignore next 3 */
 export function assertUnreachable(_: never): never {
   throw new Error('This should not be reached')
 }

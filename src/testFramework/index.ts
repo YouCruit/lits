@@ -159,8 +159,7 @@ function getTestChunks(testPath: string): TestChunk[] {
 
 export function getErrorYaml(error: unknown): string {
   const message = getErrorMessage(error)
-  // This is a fallback, should not happen (Lits should be throwing AbstractLitsErrors)
-  /* istanbul ignore next */
+  /* v8 ignore next 7 */
   if (!isAbstractLitsError(error)) {
     return `
   ---
@@ -170,7 +169,7 @@ export function getErrorYaml(error: unknown): string {
   }
 
   const sourceCodeInfo = error.sourceCodeInfo
-  /* istanbul ignore next */
+  /* v8 ignore next 8 */
   if (!sourceCodeInfo || typeof sourceCodeInfo === 'string') {
     return `
   ---
@@ -211,7 +210,7 @@ function getLocation(sourceCodeInfo: SourceCodeInfo): string {
 function getErrorMessage(error: unknown): string {
   if (!isAbstractLitsError(error)) {
     // error should always be an Error (other cases is just for kicks)
-    /* istanbul ignore next */
+    /* v8 ignore next 1 */
     return typeof error === 'string' ? error : error instanceof Error ? error.message : 'Unknown error'
   }
   return error.shortMessage

@@ -342,7 +342,7 @@ export function parseToken(tokenStream: TokenStream, position: number): [number,
     case TokenType.CollectionAccessor:
     case TokenType.Modifier:
       break
-    /* istanbul ignore next */
+    /* v8 ignore next 2 */
     default:
       assertUnreachable(tkn.t)
   }

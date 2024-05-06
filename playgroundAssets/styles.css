@@ -528,3 +528,14 @@ h4, h2, h1 {
 h2.discrete {
   color: gray;
 }
+
+.hover-bold:hover {
+  td {
+    font-weight: bold;
+  }
+}
+
+table {
+  border-collapse: collapse;
+  margin-left: -3px;
+}

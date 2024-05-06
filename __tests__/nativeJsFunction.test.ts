@@ -42,7 +42,7 @@ const nativeJsFunction: NativeJsFunction = {
   },
   n: 'square',
   t: FunctionType.NativeJsFunction,
-  λ: true,
+  __fn: true,
 }
 const values = {
   obj: {

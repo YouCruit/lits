@@ -34,13 +34,13 @@ exports[`sequence functions > sort > samples 1`] = `
     "f": "",
     "s": "ABC",
     "sourceCodeInfo": undefined,
-    "Ʀ": true,
+    "__re": true,
   },
   {
     "f": "",
     "s": "abc",
     "sourceCodeInfo": undefined,
-    "Ʀ": true,
+    "__re": true,
   },
   null,
 ]

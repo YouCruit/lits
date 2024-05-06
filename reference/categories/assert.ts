@@ -6,17 +6,21 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   linkName: 'assert',
   returns: {
     type: 'any',
+    description: 'Returns $value.',
   },
-  arguments: [
-    {
+  parameters: {
+    value: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['value'] },
+    { parameterNames: ['value', 'message'] },
   ],
-  description: 'If `value` is falsy it throws AssertionError with `message`. If no `message` is provided, message is set to `value`.',
+  description: `If $value is falsy it throws \`AssertionError\` with $message. If no $message is provided, message is set to $value.`,
   examples: ['(try (assert 0 "Expected a positive value") (catch e e))'],
 }, 'assert=': {
   name: 'assert=',
@@ -26,19 +30,22 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    a: {
       type: 'any',
     },
-    {
+    b: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['a', 'b'] },
+    { parameterNames: ['a', 'b', 'message'] },
   ],
-  description: 'If `first` is not the same as `second` it throws AssertionError.',
+  description: `If $a is not the same as $b it throws \`AssertionError\`.`,
   examples: [
     '(try (assert= 0 1 "Expected same values") (catch e e))',
     '(try (assert= 0 1) (catch e e))',
@@ -52,19 +59,22 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    a: {
       type: 'any',
     },
-    {
+    b: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['a', 'b'] },
+    { parameterNames: ['a', 'b', 'message'] },
   ],
-  description: 'If `first` is the same as `second` it throws AssertionError.',
+  description: `If $a is the same as $b it throws \`AssertionError\`.`,
   examples: [
     '(try (assert-not= 0 0 "Expected different values") (catch e e))',
     '(try (assert-not= 0 0) (catch e e))',
@@ -78,19 +88,22 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    a: {
       type: 'any',
     },
-    {
+    b: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['a', 'b'] },
+    { parameterNames: ['a', 'b', 'message'] },
   ],
-  description: 'If `first` is not deep equal to `second` it throws AssertionError.',
+  description: `If $a is not deep equal to $b it throws \`AssertionError\`.`,
   examples: [
     '(try (assert-equal { :a 1 } { :a 2 } "Expected equal values") (catch e e))',
     '(try (assert-equal { :a 1 } { :a 2 }) (catch e e))',
@@ -104,19 +117,22 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    a: {
       type: 'any',
     },
-    {
+    b: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['a', 'b'] },
+    { parameterNames: ['a', 'b', 'message'] },
   ],
-  description: 'If `first` is not deep equal to `second` it throws AssertionError.',
+  description: `If $a is not deep equal to $b it throws \`AssertionError\`.`,
   examples: [
     '(try (assert-not-equal { :a 2 } { :a 2 } "Expected different values") (catch e e))',
     '(try (assert-not-equal { :a 2 } { :a 2 }) (catch e e))',
@@ -130,19 +146,22 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    a: {
       type: 'any',
     },
-    {
+    b: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['a', 'b'] },
+    { parameterNames: ['a', 'b', 'message'] },
   ],
-  description: 'If `first` is not greater than `second` it throws AssertionError.',
+  description: `If $a is not greater than $b it throws \`AssertionError\`.`,
   examples: [
     '(try (assert> 0 1 "Expected greater value") (catch e e))',
     '(try (assert> 0 0) (catch e e))',
@@ -156,19 +175,22 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    a: {
       type: 'any',
     },
-    {
+    b: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['a', 'b'] },
+    { parameterNames: ['a', 'b', 'message'] },
   ],
-  description: 'If `first` is not less than `second` it throws AssertionError.',
+  description: `If $a is not less than $b it throws \`AssertionError\`.`,
   examples: [
     '(try (assert< 1 0 "Expected smaller value value") (catch e e))',
     '(try (assert< 1 1) (catch e e))',
@@ -182,19 +204,22 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    a: {
       type: 'any',
     },
-    {
+    b: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['a', 'b'] },
+    { parameterNames: ['a', 'b', 'message'] },
   ],
-  description: 'If `first` is less than `second` it throws AssertionError.',
+  description: `If $a is less than $b it throws \`AssertionError\`.`,
   examples: [
     '(try (assert>= 0 1 "Expected greater value") (catch e e))',
     '(try (assert>= 0 1) (catch e e))',
@@ -208,19 +233,22 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    a: {
       type: 'any',
     },
-    {
+    b: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['a', 'b'] },
+    { parameterNames: ['a', 'b', 'message'] },
   ],
-  description: 'If `first` is grater than `second` it throws AssertionError.',
+  description: `If $a is grater than $b it throws \`AssertionError\`.`,
   examples: [
     '(try (assert<= 1 0 "Expected smaller value value") (catch e e))',
     '(try (assert<= 1 0) (catch e e))',
@@ -234,16 +262,19 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    value: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['value'] },
+    { parameterNames: ['value', 'message'] },
   ],
-  description: 'If `first` is not `true` it throws AssertionError.',
+  description: `If $value is not \`true\` it throws \`AssertionError\`.`,
   examples: [
     '(try (assert-true false "Expected true") (catch e e))',
     '(try (assert-true false) (catch e e))',
@@ -257,16 +288,19 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    value: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['value'] },
+    { parameterNames: ['value', 'message'] },
   ],
-  description: 'If `first` is not `false` it throws AssertionError.',
+  description: `If $value is not \`false\` it throws \`AssertionError\`.`,
   examples: [
     '(try (assert-false true "Expected false") (catch e e))',
     '(try (assert-false true) (catch e e))',
@@ -280,16 +314,19 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    value: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['value'] },
+    { parameterNames: ['value', 'message'] },
   ],
-  description: 'If `first` is not `truthy` it throws AssertionError.',
+  description: `If $value is not \`truthy\` it throws \`AssertionError\`.`,
   examples: [
     '(try (assert-truthy false "Expected truthy") (catch e e))',
     '(try (assert-truthy false) (catch e e))',
@@ -310,16 +347,19 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    value: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['value'] },
+    { parameterNames: ['value', 'message'] },
   ],
-  description: 'If `first` is not `falsy` it throws AssertionError.',
+  description: `If $value is not \`falsy\` it throws \`AssertionError\`.`,
   examples: [
     '(try (assert-falsy true "Expected falsy") (catch e e))',
     '(try (assert-falsy :x) (catch e e))',
@@ -339,16 +379,19 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    value: {
       type: 'any',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['value'] },
+    { parameterNames: ['value', 'message'] },
   ],
-  description: 'If `first` is not `nil` it throws AssertionError.',
+  description: `If $value is not \`nil\` it throws \`AssertionError\`.`,
   examples: [
     '(assert-nil nil)',
     '(try (assert-nil true "Expected nil") (catch e e))',
@@ -368,16 +411,19 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    fn: {
       type: 'function',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['fn'] },
+    { parameterNames: ['fn', 'message'] },
   ],
-  description: 'If `func` does not throw, it throws AssertionError.',
+  description: `If $fn does not throw, it throws \`AssertionError\`.`,
   examples: ['(assert-throws #(throw "Error"))', '(try (assert-throws #(identity "Error")) (catch e e))'],
 }, 'assert-throws-error': {
   name: 'assert-throws-error',
@@ -387,23 +433,26 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    fn: {
       type: 'function',
     },
-    {
+    'error-message': {
       type: 'string',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['value', 'error-message'] },
+    { parameterNames: ['value', 'error-message', 'message'] },
   ],
-  description: 'If `func` does not throw `expectedMessage`, it throws AssertionError.',
+  description: `If $fn does not throw $error-message, it throws \`AssertionError\`.`,
   examples: [
-    '(assert-throws-error #(throw "Error") "Error")',
-    '(try (assert-throws #(throw "Not Error")) (catch e e))',
-    '(try (assert-throws #(identity "Error")) (catch e e))',
+    '(assert-throws-error #(throw :Error) :Error)',
+    '(try (assert-throws-error #(throw "Something else") :Error "Hej alla barn") (catch e e))',
+    '(try (assert-throws-error #(identity :Error) :Error) (catch e e))',
   ],
 }, 'assert-not-throws': {
   name: 'assert-not-throws',
@@ -413,15 +462,18 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   returns: {
     type: 'nil',
   },
-  arguments: [
-    {
+  parameters: {
+    fn: {
       type: 'function',
     },
-    {
+    message: {
       type: 'string',
-      quantifier: 'optional',
     },
+  },
+  variants: [
+    { parameterNames: ['fn'] },
+    { parameterNames: ['fn', 'message'] },
   ],
-  description: 'If `func` throws, it throws AssertionError.',
+  description: `If $fn throws, it throws \`AssertionError\`.`,
   examples: ['(assert-not-throws #(identity "Error"))', '(try (assert-not-throws #(throw "Error")) (catch e e))'],
 } }

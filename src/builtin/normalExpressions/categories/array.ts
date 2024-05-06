@@ -76,13 +76,10 @@ export const arrayNormalExpression: BuiltinNormalExpressions = {
   },
   mapcat: {
     evaluate: (params, sourceCodeInfo, contextStack, helpers): Arr | string => {
-      params.slice(1).forEach((arr) => {
-        assertArray(arr, sourceCodeInfo)
-      })
       const mapResult = evaluateMap(params, sourceCodeInfo, contextStack, helpers)
       assertArray(mapResult, sourceCodeInfo)
       return mapResult.flat(1)
     },
-    validate: node => assertNumberOfParams({ min: 2 }, node),
+    validate: node => assertNumberOfParams(2, node),
   },
 }

@@ -12,14 +12,14 @@ describe('utils', () => {
     expect(fnWithName.n).toBe('foo')
     expect(typeof fnWithName.f.fn).toBe('function')
     expect(fnWithName.t).toBe(FunctionType.NativeJsFunction)
-    expect(fnWithName.λ).toBe(true)
+    expect(fnWithName.__fn).toBe(true)
 
     const fnWithoutName = createNativeJsFunction(() => undefined)
     expect(fnWithoutName.sourceCodeInfo).toBeUndefined()
     expect(fnWithoutName.n).toBeUndefined()
     expect(typeof fnWithoutName.f.fn).toBe('function')
     expect(fnWithoutName.t).toBe(FunctionType.NativeJsFunction)
-    expect(fnWithoutName.λ).toBe(true)
+    expect(fnWithoutName.__fn).toBe(true)
   })
   it('collHasKey', () => {
     expect(collHasKey(10, 1)).toBe(false)

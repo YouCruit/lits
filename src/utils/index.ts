@@ -168,7 +168,7 @@ export function cloneColl<T extends Coll>(value: T): T {
 
 export function createNativeJsFunction(fn: (...args: any[]) => unknown, name?: string): NativeJsFunction {
   return {
-    λ: true,
+    __fn: true,
     f: {
       fn,
     },

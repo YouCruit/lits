@@ -39,7 +39,7 @@ describe('lazy host values as function', () => {
       },
       foo: {
         read: () => ({
-          λ: true,
+          __fn: true,
           t: 301,
           o: [
             {

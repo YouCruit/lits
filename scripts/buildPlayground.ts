@@ -3,12 +3,10 @@ import fs from 'node:fs'
 import { version } from '../package.json'
 import type { Category, Reference } from '../reference'
 import { categorizedFunctions, functionReference } from '../reference'
-import { FunctionType, Lits, isLitsFunction } from '../src'
-import type { UnknownRecord } from '../src/interface'
 import litsExamples from './examples'
+import { getFunctionDocumentation } from './functionDocumentation'
 
 const DOC_DIR = path.resolve(__dirname, '../docs')
-const lits = new Lits({ debug: true })
 
 setupPredictability()
 setupDocDir()
@@ -27,14 +25,13 @@ ${getHtmlHeader()}
       ${getIndexPage()}
       ${getExamplePage()}
       ${Object.values(functionReference)
-        .map(obj => getDocumentationContent(obj))
+        .map(obj => getFunctionDocumentation(obj))
         .join('\n')}
     </main>
     ${getSideBar()}
     ${getPlayground()}
   </div>
   <script src="lits.iife.js"></script>
-  <script src='examples.js'></script>
   <script src='scripts.js'></script>
 </body>
 </html>
@@ -47,7 +44,7 @@ function getTopBar() {
 <header id="top-bar">
   <div class="row">
     <div class="column search-container">
-      <input placeholder="Search" autofocus id="search-input"/>
+      <input placeholder="Search" id="search-input"/>
       <a onclick="clearSearch()" id="search-clear">Clear</a>
     </div>
     <div class="column header">Lits</div>
@@ -172,67 +169,6 @@ function getExamplePage() {
 `
 }
 
-function getDocumentationContent(reference: Reference<Category>) {
-  const { name, description, linkName, examples, arguments: args, clojureDocs, category } = reference
-  const clojureDocsLink
-    = clojureDocs === null
-      ? null
-      : `https://clojuredocs.org/clojure.core/${clojureDocs !== undefined ? clojureDocs : name.replace('?', '_q')}`
-  const formattedDescription = formatDescription(description)
-  return `
-<div id="${linkName}" class="content function">
-
-  <div class="function-header row">
-    <div class="column">${name}</div>
-    ${
-      clojureDocsLink
-        ? `<div class="column right"><a target="_blank" class="link" href="${clojureDocsLink}">Clojure docs</a></div>`
-        : ''
-    }
-  </div>
-
-  ${category === 'Special expression' ? '<h3>Special Expression</h3>' : ''}
-  <p>${formattedDescription}</p>
-  <label>Syntax</label>
-  <div class="indent">
-    <pre>${getSyntax(reference)}</pre>
-  </div>
-
-  ${
-    args.length === 0
-      ? '<label>No arguments</label>'
-      : `<label>Arguments</label><div class="indent">${args
-          .map(arg => `<pre>_________ ${arg.type}</pre>`)
-          .join('\n')}</div>`
-  }
-
-  <label>Examples</label>
-  <div class="indent">
-    ${examples
-      .map((example) => {
-        const oldLog = console.log
-        console.log = function () {}
-        const oldWarn = console.warn
-        console.warn = function () {}
-        let result
-        const escapedExample = escapeExampleString(example)
-        try {
-          result = lits.run(example)
-          const stringifiedResult = stringifyValue(result)
-
-          return `<pre><span class="example" onclick="addToPlayground('${escapedExample}')"> <span class="icon-button">▶</span> ${example} <span class="gray">=> ${stringifiedResult} </span> </span></pre>`
-        }
- finally {
-          console.log = oldLog
-          console.warn = oldWarn
-        }
-      })
-      .join('\n')}
-  </div>
-</div>
-`
-}
-
 function getSideBar() {
   const categoryCollections = Object.values(functionReference).reduce((result: Record<string, Reference<Category>[]>, obj) => {
     result[obj.category] = result[obj.category] || []
@@ -283,57 +219,10 @@ function copyAssets() {
   fs.cpSync(path.join(__dirname, '../playgroundAssets/'), path.join(DOC_DIR), { recursive: true })
 }
 
-function stringifyValue(value: unknown) {
-  if (isLitsFunction(value)) {
-    if (value.t === FunctionType.Builtin)
-      return `&lt;builtin function ${value.n}&gt;`
-    else
-      return `&lt;function ${(value as unknown as UnknownRecord).n ?? 'λ'}&gt;`
-  }
-  if (value === null)
-    return 'null'
-
-  if (typeof value === 'object' && value instanceof Error)
-    return value.toString()
-
-  if (typeof value === 'object' && value instanceof RegExp)
-    return `${value}`
-
-  if (value === Number.POSITIVE_INFINITY)
-    return Number.POSITIVE_INFINITY
-
-  if (value === Number.NEGATIVE_INFINITY)
-    return Number.NEGATIVE_INFINITY
-
-  if (typeof value === 'number' && Number.isNaN(value))
-    return 'NaN'
-
-  return JSON.stringify(value)
-}
-
 function escape(str: string) {
   str = str.replace(/>/g, '&gt;')
   str = str.replace(/</g, '&lt;')
   return str
-}
-
-function formatDescription(value: string) {
-  value = value.replace(/`(.*?)`/g, '<span class="pre">$1</span>')
-  value = value.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
-  value = value.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-  value = value.replace(/\*(.*?)\*/g, '<em>$1</em>')
-  value = value.replace(/\n/g, '<br />')
-  return value
-}
-
-function getSyntax({ name, arguments: args, returns }: Reference<Category>) {
-  return `${name}${
-    args.length ? ` ${args.map(arg => `_____________ ${arg.description ? `(_________ ${arg.description})` : ''}`).join(' ')}` : ''
-  } => ${returns.type}`
-}
-
-function escapeExampleString(exampleString: string) {
-  return exampleString.replace(/'/g, '___single_quote___').replace(/"/g, '___double_quote___')
 }
 
 function setupPredictability() {

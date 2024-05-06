@@ -164,7 +164,7 @@ export function createContextStack(params: LitsParams = {}): ContextStack {
           t: FunctionType.NativeJsFunction,
           f: jsFunction,
           n: name,
-          λ: true,
+          __fn: true,
         }
         return acc
       }, {}),

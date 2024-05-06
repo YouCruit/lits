@@ -3,7 +3,7 @@
 exports[`misc functions > debug! > debug value. 1`] = `
 "*** LITS DEBUG ***
 {
-  "λ": true,
+  "__fn": true,
   "t": 301,
   "o": [
     {
@@ -39,7 +39,7 @@ exports[`misc functions > debug! > debug value. 1`] = `
 exports[`misc functions > debug! > debug value. 2`] = `
 "*** LITS DEBUG ***
 {
-  "λ": true,
+  "__fn": true,
   "sourceCodeInfo": {
     "code": "(debug! #(> %1 2))",
     "position": {

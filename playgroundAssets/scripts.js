@@ -143,8 +143,6 @@ function initializeSearch() {
       event.preventDefault()
     }
   }
-
-  searchInput.focus()
 }
 
 function clearSearch() {
@@ -266,6 +264,17 @@ window.onload = function () {
     if (evt.key === 'F7') {
       evt.preventDefault()
       parse(true)
+    }
+    if (evt.key === 'k' || evt.key === 'K') {
+      if (evt.ctrlKey || evt.commandKey) {
+        evt.preventDefault()
+        clearSearch()
+      }
+      const searchInput = document.getElementById('search-input')
+      searchInput.select()
+      searchInput.focus()
+
+      evt.preventDefault()
     }
   })
   document.getElementById('lits-textarea').addEventListener('keydown', keydownHandler)
@@ -609,8 +618,8 @@ function stringifyValue(value) {
   return JSON.stringify(value)
 }
 
-function addToPlayground(example) {
-  example = example.replace(/___single_quote___/g, '\'').replace(/___double_quote___/g, '"')
+function addToPlayground(uriEncodedExample) {
+  example = decodeURIComponent(uriEncodedExample)
   const textarea = document.getElementById('lits-textarea')
 
   if (textarea.value)

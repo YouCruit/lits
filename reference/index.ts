@@ -1,55 +1,74 @@
-import { collectionReference } from './categories/collection'
-import { functionalReference } from './categories/functional'
+// import { collectionReference } from './categories/collection'
+// import { functionalReference } from './categories/functional'
+import { isUnknownRecord } from '../src/typeGuards'
 import { arrayReference } from './categories/array'
-import { sequenceReference } from './categories/sequence'
-import { mathReference } from './categories/math'
-import { miscReference } from './categories/misc'
+// import { sequenceReference } from './categories/sequence'
+// import { mathReference } from './categories/math'
+// import { miscReference } from './categories/misc'
 import { assertReference } from './categories/assert'
-import { objectReference } from './categories/object'
-import { predicateReference } from './categories/predicate'
-import { regularExpressionReference } from './categories/regularExpression'
-import { specialExpressionsReference } from './categories/specialExpressions'
-import { stringReference } from './categories/string'
-import { bitwiseReference } from './categories/bitwise'
+// import { objectReference } from './categories/object'
+// import { predicateReference } from './categories/predicate'
+// import { regularExpressionReference } from './categories/regularExpression'
+// import { specialExpressionsReference } from './categories/specialExpressions'
+// import { stringReference } from './categories/string'
+// import { bitwiseReference } from './categories/bitwise'
 
 export type Category = 'Collection' | 'Array' | 'Sequence' | 'Math' | 'Functional' | 'Misc' | 'Object' | 'Predicate' | 'Regular expression' | 'Special expression' | 'String' | 'Bitwise' | 'Assert'
 
 type DataType = 'number' | 'string' | 'object' | 'array' | 'boolean' | 'function' | 'integer' | 'any' | 'nil' | 'collection' | 'sequence' | 'regexp'
-type Quantifier = 'optional' | 'oneOrMore' | 'zeroOrMore' | 'evenNumber'
 
-type TypedValue = {
+export interface TypedValue {
   type: DataType[] | DataType
-  quantifier?: Quantifier
+  rest?: true
   array?: true
   description?: string
-} | {
+}
+
+type NormalExpressionParameter = TypedValue
+interface SpecialExpressionParameter {
   type: '*expression' | '*expressions' | '*name' | '*bindings' | '*arguments' | '*catch' | '*never' | '*cond-cases'
   description?: string
 }
+
+export type Parameter = NormalExpressionParameter | SpecialExpressionParameter
+
+export function isSpecialExpressionParameter(arg?: Parameter): arg is SpecialExpressionParameter {
+  return isUnknownRecord(arg) && typeof arg.type === 'string' && arg.type.startsWith('*')
+}
+
+export function isNormalExpressionParameter(arg?: Parameter): arg is NormalExpressionParameter {
+  return isUnknownRecord(arg) && !isSpecialExpressionParameter(arg)
+}
+
+interface Variant {
+  parameterNames: string[]
+}
+
 export interface Reference<T extends Category> {
   name: string
   category: T
   linkName: string
   clojureDocs?: string | null
   returns: TypedValue
-  arguments: TypedValue[]
+  parameters: Record<string, Parameter>
+  variants: Variant[]
   description: string
   examples: string[]
 }
 
 export const functionReference: Record<string, Reference<Category>> = {
-  ...collectionReference,
+  // ...collectionReference,
   ...arrayReference,
-  ...sequenceReference,
-  ...mathReference,
-  ...functionalReference,
-  ...miscReference,
-  ...objectReference,
-  ...predicateReference,
-  ...regularExpressionReference,
-  ...specialExpressionsReference,
-  ...stringReference,
-  ...bitwiseReference,
+  // ...sequenceReference,
+  // ...mathReference,
+  // ...functionalReference,
+  // ...miscReference,
+  // ...objectReference,
+  // ...predicateReference,
+  // ...regularExpressionReference,
+  // ...specialExpressionsReference,
+  // ...stringReference,
+  // ...bitwiseReference,
   ...assertReference,
 }
 

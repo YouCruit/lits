@@ -171,8 +171,8 @@ var Lits = (function (exports) {
       return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
   };
 
-  var FUNCTION_SYMBOL = 'λ';
-  var REGEXP_SYMBOL = 'Ʀ';
+  var FUNCTION_SYMBOL = '__fn';
+  var REGEXP_SYMBOL = '__re';
 
   function isLitsFunction$1(func) {
       if (!isUnknownRecord$1(func))
@@ -234,7 +234,7 @@ var Lits = (function (exports) {
       function LitsError(message, sourceCodeInfo) {
           var _this = this;
           if (message instanceof Error)
-              message = "".concat(message.name).concat(message.message ? ": ".concat(message.message) : '');
+              message = "".concat(message.name).concat(message.message);
           _this = _super.call(this, getLitsErrorMessage(message, sourceCodeInfo)) || this;
           _this.shortMessage = message;
           _this.sourceCodeInfo = sourceCodeInfo;
@@ -243,7 +243,7 @@ var Lits = (function (exports) {
           return _this;
       }
       LitsError.prototype.getCodeMarker = function () {
-          return this.sourceCodeInfo && (getCodeMarker(this.sourceCodeInfo) || undefined);
+          return this.sourceCodeInfo && getCodeMarker(this.sourceCodeInfo);
       };
       return LitsError;
   }(Error));
@@ -2117,7 +2117,7 @@ var Lits = (function (exports) {
   }
   function createNativeJsFunction(fn, name) {
       return {
-          λ: true,
+          __fn: true,
           f: {
               fn: fn,
           },
@@ -3894,14 +3894,11 @@ var Lits = (function (exports) {
       },
       mapcat: {
           evaluate: function (params, sourceCodeInfo, contextStack, helpers) {
-              params.slice(1).forEach(function (arr) {
-                  assertArray(arr, sourceCodeInfo);
-              });
               var mapResult = evaluateMap(params, sourceCodeInfo, contextStack, helpers);
               assertArray(mapResult, sourceCodeInfo);
               return mapResult.flat(1);
           },
-          validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+          validate: function (node) { return assertNumberOfParams(2, node); },
       },
   };
 
@@ -6563,7 +6560,8 @@ var Lits = (function (exports) {
 
   var NO_MATCH = [0, undefined];
   // A name (function or variable) can contain a lot of different characters
-  var nameRegExp = /[@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>+*/-]/;
+  var nameCharacters = '[@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>+*/-]';
+  var nameRegExp = new RegExp("".concat(nameCharacters));
   var whitespaceRegExp = /\s|,/;
   var skipWhiteSpace = function (input, current) {
       return whitespaceRegExp.test(input[current]) ? [1, undefined] : NO_MATCH;
@@ -7110,7 +7108,7 @@ var Lits = (function (exports) {
                       t: exports.FunctionType.NativeJsFunction,
                       f: jsFunction,
                       n: name,
-                      λ: true,
+                      __fn: true,
                   };
                   return acc;
               }, {}),

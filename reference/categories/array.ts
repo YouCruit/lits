@@ -10,12 +10,16 @@ export const arrayReference: Record<string, Reference<'Array'>> = {
       type: 'any',
       array: true,
     },
-    arguments: [
-      {
-        type: 'array',
+    parameters: {
+      values: {
+        type: 'any',
+        rest: true,
       },
+    },
+    variants: [
+      { parameterNames: ['values'] },
     ],
-    description: 'Makes new array from `values`.',
+    description: 'Makes new array from $values.',
     examples: [
       '(array 1 2 3)',
       '(array (array nil false true))',
@@ -32,24 +36,40 @@ export const arrayReference: Record<string, Reference<'Array'>> = {
     category: 'Array',
     linkName: 'range',
     returns: {
-      type: 'any',
+      type: 'number',
       array: true,
     },
-    arguments: [
-      {
+    parameters: {
+      start: {
         type: 'number',
       },
-      {
+      end: {
         type: 'number',
-        quantifier: 'optional',
       },
-      {
+      step: {
         type: 'number',
-        quantifier: 'optional',
       },
+    },
+    variants: [
+      { parameterNames: ['end'] },
+      { parameterNames: ['start', 'end'] },
+      { parameterNames: ['start', 'end', 'step'] },
     ],
-    description: 'Create an array with a range of numbers. If only one argument: `0...a`, otherwise: `a...b`. `step` defaults to `1`.',
-    examples: ['(range 4)', '(range 1 4)', '(range 0.4 4.9)', '(range 0.25 1 0.25)'],
+    description: `$range creates an array with a range of numbers from $start to $end (exclusive), by $step.
+
+$start defaults to 0  
+$step defaults to 1`,
+    examples: [
+      '(range 4)',
+      '(range 1 4)',
+      '(range 0.4 4.9)',
+      `
+(range
+  0.25
+  1
+  0.25
+)`,
+    ],
   },
   repeat: {
     name: 'repeat',
@@ -59,16 +79,23 @@ export const arrayReference: Record<string, Reference<'Array'>> = {
       type: 'any',
       array: true,
     },
-    arguments: [
-      {
+    parameters: {
+      n: {
         type: 'integer',
       },
-      {
+      x: {
         type: 'any',
       },
+    },
+    variants: [{
+      parameterNames: ['n', 'x'],
+    }],
+    description: 'Returns an array with $x repeated $n times.',
+    examples: [
+      '(repeat 3 10)',
+      '(repeat 0 10)',
+      '(repeat 5 "Albert")',
     ],
-    description: 'Returns an array with `value` repeated `count` times.',
-    examples: ['(repeat 3 10)', '(repeat 0 10)', '(repeat 5 "Albert")'],
   },
   flatten: {
     name: 'flatten',
@@ -78,32 +105,48 @@ export const arrayReference: Record<string, Reference<'Array'>> = {
       type: 'any',
       array: true,
     },
-    arguments: [
-      {
-        type: 'array',
+    parameters: {
+      x: {
+        type: ['array', 'any'],
+        description: 'If not an array, `[ ]` is returned.',
       },
+    },
+    variants: [{
+      parameterNames: ['x'],
+    }],
+    description: 'Takes a nested array $x and flattens it.',
+    examples: [
+      '(flatten [1 2 [3 4] 5])',
+      `
+(let [foo :bar]
+  (flatten
+    [1
+     " 2 A "
+     [foo [4 [:ABC]]] 6]))`,
+
+      '(flatten 12)',
     ],
-    description: 'Takes a nested array and return a flat array. If `input` isn\'t an array, an empty array is returned.',
-    examples: ['(flatten [1 2 [3 4] 5])', '(flatten [1 2 [3 [4 [5]]] 6])', '(flatten 12)'],
   },
   mapcat: {
     name: 'mapcat',
     category: 'Array',
     linkName: 'mapcat',
     returns: {
-      type: 'any',
-      array: true,
+      type: 'collection',
     },
-    arguments: [
-      {
+    parameters: {
+      f: {
         type: 'function',
       },
-      {
-        type: 'array',
-        quantifier: 'oneOrMore',
+      colls: {
+        type: 'collection',
+        array: true,
       },
-    ],
-    description: 'Returns the result of applying concat to the result of applying map to `mapper` and `arrays`.',
+    },
+    variants: [{
+      parameterNames: ['f', 'colls'],
+    }],
+    description: 'Returns the result of applying concat to the result of applying map to $f and $colls.',
     examples: [
       '(mapcat reverse [[3 2 1 0] [6 5 4] [9 8 7]])',
       '(mapcat reverse [[3 2 1 0] [6 [5] 4] [9 8 7]])',

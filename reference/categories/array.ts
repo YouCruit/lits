@@ -65,9 +65,9 @@ $step defaults to 1`,
       '(range 0.4 4.9)',
       `
 (range
-  0.25
-  1
-  0.25
+  0.25 ;; start value
+  1    ;; end value (exclusive)
+  0.25 ;; step value
 )`,
     ],
   },

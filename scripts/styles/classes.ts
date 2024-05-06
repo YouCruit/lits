@@ -102,6 +102,7 @@ export type CssClass =
   | 'color-gray-900'
   | 'color-gray-950'
   | 'color-black'
+  | 'color-Comment'
   | 'color-Parameter'
   | 'color-FunctionName'
   | 'color-Name'

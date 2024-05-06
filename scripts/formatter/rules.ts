@@ -150,6 +150,16 @@ export const nameRule = createRule({
   stopRecursion: true,
 })
 
+export const commentRule = createRule({
+  name: 'comment',
+  startPattern: /^;.*/,
+  startTag: `<span ${styles('color-Comment', 'italic')}>`,
+  endTag: '</span>',
+  keepPatterns: true,
+  formatPatterns: true,
+  stopRecursion: true,
+})
+
 export const litsKeywordRule = createRule({
   name: 'functionName',
   startPattern: /^\b(nil|true|false)\b/,

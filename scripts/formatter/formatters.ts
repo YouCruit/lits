@@ -1,8 +1,9 @@
 import { styles } from '../styles'
-import { functionNameRule, litsKeywordRule, nameRule, numberRule, shortcutStringRule, stringRule } from './rules'
+import { commentRule, functionNameRule, litsKeywordRule, nameRule, numberRule, shortcutStringRule, stringRule } from './rules'
 import { createFormatter } from './createFormatter'
 
 const litsExpressionRules = [
+  commentRule,
   stringRule,
   shortcutStringRule,
   functionNameRule,

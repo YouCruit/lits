@@ -26,11 +26,11 @@ export function getFunctionExamples(examples: string[]) {
 
             return `
               <div ${styles('pl-3', 'border-solid', 'border-0', 'border-l-3', 'border-gray-400', 'text-sm', 'font-mono', 'flex', 'flex-col', 'gap-2')} >
-                <div ${styles('whitespace-pre', 'cursor-pointer')} class="hover-bold" onclick="addToPlayground(\`${encodedUriExample}\`)">${formattedExample}</div>
-                <div ${styles('flex', 'flex-row', 'gap-2', 'color-gray-400')}>
-                  <span ${styles('color-gray-400', 'font-bold')}>-&gt</span>
-                  <div ${styles('whitespace-pre')}>${stringifiedResult}</div>
+                <div ${styles('flex', 'flex-row', 'gap-2')}>
+                  <span ${styles('color-gray-300', 'font-bold')}>=&gt</span>
+                  <div ${styles('whitespace-pre', 'cursor-pointer')} class="hover-bold" onclick="addToPlayground(\`${encodedUriExample}\`)">${formattedExample}</div>
                 </div>
+                <div ${styles('whitespace-pre', 'ml-2', 'color-gray-400')}>${stringifiedResult}</div>
               </div>`
           }
           finally {

@@ -24,6 +24,9 @@ enum Color {
 
 export function getColorStyles(css: CssTemplateFunction) {
   const colorStyles = {
+    'color-Comment': css`
+      color: ${Color.Gray_500};
+    `,
     'color-Parameter': css`
       color: ${Color.Parameter};
     `,

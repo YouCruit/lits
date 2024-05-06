@@ -1,7 +1,7 @@
 import type { CssTemplateFunction, Styles } from '.'
 
 enum Color {
-  Parameter = '#c586c0',
+  Argument = '#c586c0',
   Name = '#4ec9b0',
   FunctionName = '#569cd6',
   Number = '#dcdcaa',
@@ -27,8 +27,8 @@ export function getColorStyles(css: CssTemplateFunction) {
     'color-Comment': css`
       color: ${Color.Gray_500};
     `,
-    'color-Parameter': css`
-      color: ${Color.Parameter};
+    'color-Argument': css`
+      color: ${Color.Argument};
     `,
     'color-Name': css`
       color: ${Color.Name};

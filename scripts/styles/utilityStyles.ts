@@ -12,7 +12,7 @@ export function getUtilityStyles(css: CssTemplateFunction) {
     Description_argument: css`
       @apply px-0.5; 
       @apply font-mono;
-      @apply color-Parameter;
+      @apply color-Argument;
     `,
     SubHeader: css`
       @apply color-gray-200;

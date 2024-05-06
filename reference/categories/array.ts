@@ -10,14 +10,14 @@ export const arrayReference: Record<string, Reference<'Array'>> = {
       type: 'any',
       array: true,
     },
-    parameters: {
+    args: {
       values: {
         type: 'any',
         rest: true,
       },
     },
     variants: [
-      { parameterNames: ['values'] },
+      { argumentNames: ['values'] },
     ],
     description: 'Makes new array from $values.',
     examples: [
@@ -39,7 +39,7 @@ export const arrayReference: Record<string, Reference<'Array'>> = {
       type: 'number',
       array: true,
     },
-    parameters: {
+    args: {
       start: {
         type: 'number',
       },
@@ -51,9 +51,9 @@ export const arrayReference: Record<string, Reference<'Array'>> = {
       },
     },
     variants: [
-      { parameterNames: ['end'] },
-      { parameterNames: ['start', 'end'] },
-      { parameterNames: ['start', 'end', 'step'] },
+      { argumentNames: ['end'] },
+      { argumentNames: ['start', 'end'] },
+      { argumentNames: ['start', 'end', 'step'] },
     ],
     description: `$range creates an array with a range of numbers from $start to $end (exclusive), by $step.
 
@@ -79,7 +79,7 @@ $step defaults to 1`,
       type: 'any',
       array: true,
     },
-    parameters: {
+    args: {
       n: {
         type: 'integer',
       },
@@ -88,7 +88,7 @@ $step defaults to 1`,
       },
     },
     variants: [{
-      parameterNames: ['n', 'x'],
+      argumentNames: ['n', 'x'],
     }],
     description: 'Returns an array with $x repeated $n times.',
     examples: [
@@ -105,14 +105,14 @@ $step defaults to 1`,
       type: 'any',
       array: true,
     },
-    parameters: {
+    args: {
       x: {
         type: ['array', 'any'],
         description: 'If $x is not an array, `[ ]` is returned.',
       },
     },
     variants: [{
-      parameterNames: ['x'],
+      argumentNames: ['x'],
     }],
     description: 'Takes a nested array $x and flattens it.',
     examples: [
@@ -134,7 +134,7 @@ $step defaults to 1`,
     returns: {
       type: 'collection',
     },
-    parameters: {
+    args: {
       f: {
         type: 'function',
       },
@@ -144,7 +144,7 @@ $step defaults to 1`,
       },
     },
     variants: [{
-      parameterNames: ['f', 'colls'],
+      argumentNames: ['f', 'colls'],
     }],
     description: 'Returns the result of applying concat to the result of applying map to $f and $colls.',
     examples: [

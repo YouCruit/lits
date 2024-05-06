@@ -10,7 +10,7 @@ const reference: Reference<Category> = {
   returns: {
     type: 'number',
   },
-  parameters: {
+  arguments: {
     n: {
       type: 'boolean',
     },
@@ -20,7 +20,7 @@ const reference: Reference<Category> = {
     },
   },
   variants: [
-    { parameterNames: ['n', 'ns'] },
+    { argumentNames: ['n', 'ns'] },
   ],
   clojureDocs: '',
   category: 'Special expression',

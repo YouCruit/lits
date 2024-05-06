@@ -24,24 +24,24 @@ export interface TypedValue {
   description?: string
 }
 
-type NormalExpressionParameter = TypedValue
-interface SpecialExpressionParameter {
+type NormalExpressionArgument = TypedValue
+interface SpecialExpressionArgument {
   type: '*expression' | '*expressions' | '*name' | '*bindings' | '*arguments' | '*catch' | '*never' | '*cond-cases'
   description?: string
 }
 
-export type Parameter = NormalExpressionParameter | SpecialExpressionParameter
+export type Argument = NormalExpressionArgument | SpecialExpressionArgument
 
-export function isSpecialExpressionParameter(arg?: Parameter): arg is SpecialExpressionParameter {
+export function isSpecialExpressionArgument(arg?: Argument): arg is SpecialExpressionArgument {
   return isUnknownRecord(arg) && typeof arg.type === 'string' && arg.type.startsWith('*')
 }
 
-export function isNormalExpressionParameter(arg?: Parameter): arg is NormalExpressionParameter {
-  return isUnknownRecord(arg) && !isSpecialExpressionParameter(arg)
+export function isNormalExpressionArgument(arg?: Argument): arg is NormalExpressionArgument {
+  return isUnknownRecord(arg) && !isSpecialExpressionArgument(arg)
 }
 
 interface Variant {
-  parameterNames: string[]
+  argumentNames: string[]
 }
 
 export interface Reference<T extends Category> {
@@ -50,7 +50,7 @@ export interface Reference<T extends Category> {
   linkName: string
   clojureDocs?: string | null
   returns: TypedValue
-  parameters: Record<string, Parameter>
+  args: Record<string, Argument>
   variants: Variant[]
   description: string
   examples: string[]

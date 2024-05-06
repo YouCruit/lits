@@ -22,7 +22,6 @@ export function getFunctionExamples(examples: string[]) {
             const stringifiedResult = stringifyValue(result)
 
             const formattedExample = formatLitsExpression(example)
-            // const formattedResult = formatResultExpression(stringifiedResult)
 
             return `
               <div ${styles('pl-3', 'border-solid', 'border-0', 'border-l-3', 'border-gray-400', 'text-sm', 'font-mono', 'flex', 'flex-col', 'gap-2')} >

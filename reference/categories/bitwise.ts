@@ -7,7 +7,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
   returns: {
     type: 'integer',
   },
-  parameters: {
+  args: {
     x: {
       type: 'integer',
     },
@@ -16,7 +16,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
     },
   },
   variants: [
-    { parameterNames: ['x', 'n'] },
+    { argumentNames: ['x', 'n'] },
   ],
   description: 'Shifts $x arithmetically left by $n bit positions.',
   examples: ['(bit-shift-left 1 10)', '(bit-shift-left -4 2)'],
@@ -27,7 +27,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
   returns: {
     type: 'integer',
   },
-  parameters: {
+  args: {
     x: {
       type: 'integer',
     },
@@ -36,7 +36,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
     },
   },
   variants: [
-    { parameterNames: ['x', 'n'] },
+    { argumentNames: ['x', 'n'] },
   ],
   description: 'Shifts $x arithmetically right by $n bit positions.',
   examples: ['(bit-shift-right 2048 10)', '(bit-shift-right 4 10)'],
@@ -47,13 +47,13 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
   returns: {
     type: 'integer',
   },
-  parameters: {
+  args: {
     x: {
       type: 'integer',
     },
   },
   variants: [
-    { parameterNames: ['x'] },
+    { argumentNames: ['x'] },
   ],
   description: 'Returns bitwise `not` of $x.',
   examples: ['(bit-not 0)', '(bit-not 255)'],
@@ -64,12 +64,12 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
   returns: {
     type: 'integer',
   },
-  parameters: {
+  args: {
     x: {
       type: 'integer',
     },
     y: {
-        type: 'integer',
+      type: 'integer',
     },
     rest: {
       type: 'integer',
@@ -77,8 +77,8 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
     },
   },
   variants: [
-    { parameterNames: ['x', 'y'] },
-    { parameterNames: ['x', 'y', 'rest'] },
+    { argumentNames: ['x', 'y'] },
+    { argumentNames: ['x', 'y', 'rest'] },
   ],
   description: 'Returns bitwise `and` of all arguments.',
   examples: [
@@ -92,12 +92,12 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
   returns: {
     type: 'integer',
   },
-  parameters: {
+  args: {
     x: {
       type: 'integer',
     },
     y: {
-        type: 'integer',
+      type: 'integer',
     },
     rest: {
       type: 'integer',
@@ -105,8 +105,8 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
     },
   },
   variants: [
-    { parameterNames: ['x', 'y'] },
-    { parameterNames: ['x', 'y', 'rest'] },
+    { argumentNames: ['x', 'y'] },
+    { argumentNames: ['x', 'y', 'rest'] },
   ],
   description: 'Returns bitwise `and` with complement.',
   examples: ['(bit-and-not 0b0011 0b0110)', '(bit-and-not 0b0011 0b0110 0b1001)'],
@@ -117,12 +117,12 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
   returns: {
     type: 'integer',
   },
-  parameters: {
+  args: {
     x: {
       type: 'integer',
     },
     y: {
-        type: 'integer',
+      type: 'integer',
     },
     rest: {
       type: 'integer',
@@ -130,8 +130,8 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
     },
   },
   variants: [
-    { parameterNames: ['x', 'y'] },
-    { parameterNames: ['x', 'y', 'rest'] },
+    { argumentNames: ['x', 'y'] },
+    { argumentNames: ['x', 'y', 'rest'] },
   ],
   description: 'Returns bitwise `or` of all arguments.',
   examples: ['(bit-or 0b0011 0b0110)', '(bit-or 0b1000 0b0100 0b0010)'],
@@ -142,12 +142,12 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
   returns: {
     type: 'integer',
   },
-  parameters: {
+  args: {
     x: {
       type: 'integer',
     },
     y: {
-        type: 'integer',
+      type: 'integer',
     },
     rest: {
       type: 'integer',
@@ -155,8 +155,8 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
     },
   },
   variants: [
-    { parameterNames: ['x', 'y'] },
-    { parameterNames: ['x', 'y', 'rest'] },
+    { argumentNames: ['x', 'y'] },
+    { argumentNames: ['x', 'y', 'rest'] },
   ],
   description: 'Returns bitwise `xor` of all arguments.',
   examples: ['(bit-xor 0b0011 0b0110)', '(bit-xor 0b11110000 0b00111100 0b10101010)'],
@@ -167,7 +167,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
   returns: {
     type: 'integer',
   },
-  parameters: {
+  args: {
     x: {
       type: 'integer',
     },
@@ -176,7 +176,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
     },
   },
   variants: [
-    { parameterNames: ['x', 'n'] },
+    { argumentNames: ['x', 'n'] },
   ],
   description: 'Flips bit number $n.',
   examples: ['(bit-flip 0b0011 1)', '(bit-flip 0b1100 1)'],
@@ -187,7 +187,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
   returns: {
     type: 'integer',
   },
-  parameters: {
+  args: {
     x: {
       type: 'integer',
     },
@@ -196,7 +196,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
     },
   },
   variants: [
-    { parameterNames: ['x', 'n'] },
+    { argumentNames: ['x', 'n'] },
   ],
   description: 'Clears bit number $n.',
   examples: ['(bit-clear 0b0011 1)', '(bit-clear 0b1100 1)'],
@@ -207,7 +207,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
   returns: {
     type: 'integer',
   },
-  parameters: {
+  args: {
     x: {
       type: 'integer',
     },
@@ -216,7 +216,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
     },
   },
   variants: [
-    { parameterNames: ['x', 'n'] },
+    { argumentNames: ['x', 'n'] },
   ],
   description: 'Sets bit number $n.',
   examples: ['(bit-set 0b0011 1)', '(bit-set 0b1100 1)'],
@@ -227,7 +227,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
   returns: {
     type: 'boolean',
   },
-  parameters: {
+  args: {
     x: {
       type: 'integer',
     },
@@ -236,7 +236,7 @@ export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shi
     },
   },
   variants: [
-    { parameterNames: ['x', 'n'] },
+    { argumentNames: ['x', 'n'] },
   ],
   description: 'Checks if bit number $n is set.',
   examples: ['(bit-test 0b0011 1)', '(bit-test 0b1100 1)'],

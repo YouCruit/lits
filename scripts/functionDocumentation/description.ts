@@ -15,13 +15,13 @@ export function formatDescription(description: string, reference: Reference<Cate
     variableName => variableName === reference.name,
   )
 
-  const parameterRule = createVariableRule(
-    variableName => `<span ${styles('color-Parameter')}>${variableName}</span>`,
-    variableName => isParameterName(variableName, reference),
+  const argumentRule = createVariableRule(
+    variableName => `<span ${styles('color-Argument')}>${variableName}</span>`,
+    variableName => isArgumentName(variableName, reference),
   )
 
   checkVariables(reference, descriptionVariables)
-  const formattedDescription = createFormatter([...mdRules, functionNameRule, parameterRule, numberRule])(description)
+  const formattedDescription = createFormatter([...mdRules, functionNameRule, argumentRule, numberRule])(description)
   return `<span ${styles('Description')}>${formattedDescription}</span>`
 }
 
@@ -31,13 +31,13 @@ function checkVariables(reference: Reference<Category>, variables: Set<string>) 
     if (variableName === reference.name)
       return
 
-    if (!isParameterName(variableName, reference)) {
-      console.error(`Unknown parameter ${variable}`, reference)
-      throw new Error(`Unknown parameter ${variable}`)
+    if (!isArgumentName(variableName, reference)) {
+      console.error(`Unknown argument ${variable}`, reference)
+      throw new Error(`Unknown argument ${variable}`)
     }
   })
 }
 
-function isParameterName(variableName: string, reference: Reference<Category>) {
-  return Object.keys(reference.parameters).includes(variableName)
+function isArgumentName(variableName: string, reference: Reference<Category>) {
+  return Object.keys(reference.args).includes(variableName)
 }

@@ -1,9 +1,9 @@
-import { type Category, type Reference, isNormalExpressionParameter, isSpecialExpressionParameter } from '../../reference'
+import { type Category, type Reference, isNormalExpressionArgument, isSpecialExpressionArgument } from '../../reference'
 import { styles } from '../styles'
 import { getClojureDocsLink } from './clojureDocs'
 import { formatDescription } from './description'
 import { getFunctionExamples } from './functionExamples'
-import { getParameterInfo } from './parameterInfo'
+import { getArgumentInfo } from './argumentInfo'
 import { getReturnType } from './returnType'
 import { getSection } from './section'
 
@@ -31,7 +31,7 @@ export function getFunctionDocumentation(reference: Reference<Category>) {
   
     ${getSection('Returns', getReturnType(reference))}
  
-    ${getSection('Parameters', getParameterInfo(reference))}
+    ${getSection('Arguments', getArgumentInfo(reference))}
 
     ${getSection('Examples', getFunctionExamples(examples))}
 
@@ -39,18 +39,18 @@ export function getFunctionDocumentation(reference: Reference<Category>) {
   `
 }
 
-function getSyntax({ name, variants, parameters }: Reference<Category>) {
+function getSyntax({ name, variants, args }: Reference<Category>) {
   return variants.map(variant =>
-    `(<span ${styles('color-FunctionName')}>${name}</span> ${variant.parameterNames.map((parameterName) => {
+    `(<span ${styles('color-FunctionName')}>${name}</span> ${variant.argumentNames.map((argName) => {
       let result = ''
-      const parameter = parameters[parameterName]
-      if (isNormalExpressionParameter(parameter)) {
-        if (parameter.rest)
+      const arg = args[argName]
+      if (isNormalExpressionArgument(arg)) {
+        if (arg.rest)
           result += '& '
-        result += `<span ${styles('color-Parameter')}>${parameterName}</span>`
+        result += `<span ${styles('color-Argument')}>${argName}</span>`
       }
-      else if (isSpecialExpressionParameter(parameter)) {
-        result += `<span ${styles('color-Parameter')}>${parameterName}</span>`
+      else if (isSpecialExpressionArgument(arg)) {
+        result += `<span ${styles('color-Argument')}>${argName}</span>`
       }
       return result
     }).join(' ')})`).join('<br>',

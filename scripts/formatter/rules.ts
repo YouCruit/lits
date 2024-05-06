@@ -11,61 +11,6 @@ export const variableRegExp = new RegExp(`^\\$${nameCharacters}+`)
 
 const noMatch = { count: 0, formattedText: '' }
 
-export function createRule({
-  name,
-  startPattern,
-  endPattern,
-  startTag,
-  endTag,
-  keepPatterns,
-  formatPatterns,
-  stopRecursion,
-}: {
-  name: string
-  startPattern: RegExp
-  endPattern?: RegExp
-  startTag: string
-  endTag: string
-  keepPatterns?: boolean
-  formatPatterns?: boolean
-  stopRecursion?: boolean
-}): FormatterRule {
-  return (text, index, formatter) => {
-    const startMatch = startPattern.exec(text.slice(index))
-    if (startMatch) {
-      let count = startMatch[0].length
-      let body = keepPatterns && formatPatterns ? startMatch[0] : ''
-      let endMatch: RegExpExecArray | null = null
-
-      if (endPattern) {
-        while (index + count < text.length && !endPattern.test(text.slice(index + count))) {
-          body += text[index + count]
-          count += 1
-        }
-        endMatch = endPattern.exec(text.slice(index + count))
-        if (!endMatch)
-          throw new Error(`No end pattern found for rule ${name},  ${endPattern}`)
-
-        count += endMatch[0].length
-        body += keepPatterns && formatPatterns ? endMatch[0] : ''
-      }
-      const formattedText = `${
-        keepPatterns && !formatPatterns ? startMatch[0] : ''
-      }${
-        startTag
-      }${
-        body ? (stopRecursion ? body : formatter(body)) : ''
-      }${
-        endTag
-      }${
-        endMatch && keepPatterns && !formatPatterns ? endMatch[0] : ''
-      }`
-      return { count, formattedText }
-    }
-    return { count: 0, formattedText: '' }
-  }
-}
-
 export function createVariableRule(
   formatVariableName: TextFormatter,
   variableNamePredicate: (variableName: string) => boolean,
@@ -108,7 +53,17 @@ export const numberRule: FormatterRule = (text, index) => {
   return { count: 0, formattedText: '' }
 }
 
-export const stringRule = createRule({
+const operatorRule = createRule({
+  name: 'string',
+  startPattern: /^[<>\-+/*=?.,():]+/,
+  startTag: `<span ${styles('color-Operator')}>`,
+  endTag: '</span>',
+  keepPatterns: true,
+  formatPatterns: true,
+  stopRecursion: true,
+})
+
+const stringRule = createRule({
   name: 'string',
   startPattern: /^"/,
   endPattern: /^"/,
@@ -119,7 +74,7 @@ export const stringRule = createRule({
   stopRecursion: true,
 })
 
-export const shortcutStringRule = createRule({
+const shortcutStringRule = createRule({
   name: 'string',
   startPattern: new RegExp(`^:${nameCharacters}+`),
   startTag: `<span ${styles('color-String')}>`,
@@ -129,7 +84,7 @@ export const shortcutStringRule = createRule({
   stopRecursion: true,
 })
 
-export const functionNameRule = createRule({
+const functionNameRule = createRule({
   name: 'functionName',
   startPattern: new RegExp(`^\\((?=${nameCharacters}+)`),
   endPattern: /^[) \n]/,
@@ -140,7 +95,7 @@ export const functionNameRule = createRule({
   stopRecursion: true,
 })
 
-export const nameRule = createRule({
+const nameRule = createRule({
   name: 'functionName',
   startPattern: new RegExp(`^${nameCharacters}+`),
   startTag: `<span ${styles('color-Name')}>`,
@@ -150,7 +105,7 @@ export const nameRule = createRule({
   stopRecursion: true,
 })
 
-export const commentRule = createRule({
+const commentRule = createRule({
   name: 'comment',
   startPattern: /^;.*/,
   startTag: `<span ${styles('color-Comment', 'italic')}>`,
@@ -160,7 +115,7 @@ export const commentRule = createRule({
   stopRecursion: true,
 })
 
-export const litsKeywordRule = createRule({
+const litsKeywordRule = createRule({
   name: 'functionName',
   startPattern: /^\b(nil|true|false)\b/,
   startTag: `<span ${styles('color-Keyword')}>`,
@@ -170,7 +125,7 @@ export const litsKeywordRule = createRule({
   stopRecursion: true,
 })
 
-export const inlinceCodeKeywordRule = createRule({
+const inlinceCodeKeywordRule = createRule({
   name: 'inlinceCodeKeywordRule',
   startPattern: /^\b(null|true|false|nil|falsy|truthy)\b/,
   startTag: `<span ${styles('color-Keyword')}>`,
@@ -181,6 +136,7 @@ export const inlinceCodeKeywordRule = createRule({
 })
 
 const formatInlineCode = createFormatter([
+  operatorRule,
   stringRule,
   shortcutStringRule,
   numberRule,
@@ -240,4 +196,76 @@ const paragraphRule = createRule({
   endTag: '</div>',
 })
 
-export const mdRules: FormatterRule[] = [inlineCodeRule, italicRule, boldRule, newLineRule, paragraphRule]
+export const mdRules: FormatterRule[] = [
+  inlineCodeRule,
+  italicRule,
+  boldRule,
+  newLineRule,
+  paragraphRule,
+]
+
+export const litsExpressionRules: FormatterRule[] = [
+  commentRule,
+  stringRule,
+  shortcutStringRule,
+  functionNameRule,
+  numberRule,
+  litsKeywordRule,
+  nameRule,
+]
+
+function createRule({
+  name,
+  startPattern,
+  endPattern,
+  startTag,
+  endTag,
+  keepPatterns,
+  formatPatterns,
+  stopRecursion,
+}: {
+  name: string
+  startPattern: RegExp
+  endPattern?: RegExp
+  startTag: string
+  endTag: string
+  keepPatterns?: boolean
+  formatPatterns?: boolean
+  stopRecursion?: boolean
+}): FormatterRule {
+  return (text, index, formatter) => {
+    const startMatch = startPattern.exec(text.slice(index))
+    if (startMatch) {
+      let count = startMatch[0].length
+      let body = keepPatterns && formatPatterns ? startMatch[0] : ''
+      let endMatch: RegExpExecArray | null = null
+
+      if (endPattern) {
+        while (index + count < text.length && !endPattern.test(text.slice(index + count))) {
+          body += text[index + count]
+          count += 1
+        }
+        endMatch = endPattern.exec(text.slice(index + count))
+        if (!endMatch)
+          throw new Error(`No end pattern found for rule ${name},  ${endPattern}`)
+
+        count += endMatch[0].length
+        body += keepPatterns && formatPatterns ? endMatch[0] : ''
+      }
+      const formattedText = `${
+        keepPatterns && !formatPatterns ? startMatch[0] : ''
+      }${
+        startTag
+      }${
+        body ? (stopRecursion ? body : formatter(body)) : ''
+      }${
+        endTag
+      }${
+        endMatch && keepPatterns && !formatPatterns ? endMatch[0] : ''
+      }`
+      return { count, formattedText }
+    }
+    return { count: 0, formattedText: '' }
+  }
+}
+

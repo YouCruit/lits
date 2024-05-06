@@ -42,6 +42,9 @@ export function getColorStyles(css: CssTemplateFunction) {
     'color-String': css`
       color: ${Color.String};
     `,
+    'color-Operator': css`
+      color: ${Color.Gray_200};
+    `,
     'color-Keyword': css`
       color: ${Color.Keyword};
     `,

@@ -183,7 +183,7 @@ function contextEntryToString(contextEntry: ContextEntry): string {
     if (name)
       return `<${value.t} function ${name}>`
     else
-      return `<${value.t} function λ>`
+      return `<${value.t} function \u03BB>`
   }
   return JSON.stringify(contextEntry.value)
 }

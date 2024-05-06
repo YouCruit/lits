@@ -3,8 +3,9 @@ import fs from 'node:fs'
 import { version } from '../package.json'
 import type { Category, Reference } from '../reference'
 import { categorizedFunctions, functionReference } from '../reference'
-import litsExamples from './examples'
+import { examples } from '../reference/examples'
 import { getFunctionDocumentation } from './functionDocumentation'
+import { styles } from './styles'
 
 const DOC_DIR = path.resolve(__dirname, '../docs')
 
@@ -117,7 +118,18 @@ function getPlayground() {
 function getIndexPage() {
   return `
 <div id="index" class="content">
-  <h1>Welcome to Lits!</h1>
+  <center>
+  <span ${styles('whitespace-pre', 'font-mono', 'text-xl')}>
+  ░▒▓█▓▒░      ░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░ 
+  ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        
+  ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        
+  ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░   ░▒▓██████▓▒░  
+  ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░ 
+  ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░ 
+  ░▒▓████████▓▒░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░  
+  </span>
+</center>
+                                                
   <br />
     <div class="text">
     <p>Lits is a Lisp dialect made to work well in a browser or Node environment. It's heavily inspired by Clojure, most of the core functions from Clojure have been ported.</p>
@@ -147,8 +159,9 @@ function getExamplePage() {
   <h1>Examples</h1>
   <br />
   <ul>
-  ${litsExamples
+  ${examples
     .map((example) => {
+      const uriEncodedExample = encodeURIComponent(JSON.stringify(example))
       return `
       <li>
         <div class="row example-item">
@@ -157,7 +170,7 @@ function getExamplePage() {
             <div class="example-description">${example.description}</div>
           </div>
           <div class="column right">
-            <span class="button" onclick="setPlayground('${example.id}')">Show in playground</span>
+            <span class="button" onclick="setPlayground(\`${uriEncodedExample}\`)">Show in playground</span>
           </div>
         </div>
       </li>

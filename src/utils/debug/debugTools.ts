@@ -25,7 +25,7 @@ function isAstNode(value: unknown): value is AstNode {
 export function valueToString(value: unknown): string {
   if (isLitsFunction(value))
     // eslint-disable-next-line ts/no-unsafe-member-access
-    return `<function ${(value as any).name || 'λ'}>`
+    return `<function ${(value as any).name || '\u03BB'}>`
 
   if (isToken(value))
     return `${tokenTypeName.get(value.t)}-token "${value.v}"`

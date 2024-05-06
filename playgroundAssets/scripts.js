@@ -12,8 +12,8 @@ const defaultProgram = `(defn factorial [x]
 `
 
 const DEFAULT_PLAYGROUND_HEIGHT = 500
-const DEFAULT_RESIZE_DIVIDER1_X_PERCENT = 25
-const DEFAULT_RESIZE_DIVIDER2_X_PERCENT = 75
+const DEFAULT_RESIZE_DIVIDER1_X_PERCENT = 15
+const DEFAULT_RESIZE_DIVIDER2_X_PERCENT = 80
 
 let moveParams = null
 let playgroundHeight = null
@@ -595,7 +595,7 @@ function stringifyValue(value) {
     if (value.builtin)
       return `<builtin function ${value.builtin}>`
     else
-      return `<function ${value.name || 'λ'}>`
+      return `<function ${value.name || '\u03BB'}>`
   }
   if (value === null)
     return 'null'
@@ -630,21 +630,18 @@ function addToPlayground(uriEncodedExample) {
   localStorage.setItem('lits-textarea', textarea.value)
 }
 
-function setPlayground(exampleId) {
-  const example = examples.find(ex => ex.id === exampleId)
-  if (!example)
-    throw new Error(`Could not find example '${exampleId}'`)
+function setPlayground(uriEncodedExample) {
+  const example = JSON.parse(decodeURIComponent(uriEncodedExample))
 
-  if (example.params) {
-    const value = JSON.stringify(example.params, (_k, v) => (v === undefined ? null : v), 2)
-    document.getElementById('params-textarea').value = value
-    localStorage.setItem('params-textarea', value)
-  }
+  const params = example.params
+    ? JSON.stringify(example.params, (_k, v) => (v === undefined ? null : v), 2)
+    : ''
+  document.getElementById('params-textarea').value = params
+  localStorage.setItem('params-textarea', params)
 
-  if (example.code) {
-    document.getElementById('lits-textarea').value = example.code
-    localStorage.setItem('lits-textarea', example.code)
-  }
+  const code = example.code ? example.code : ''
+  document.getElementById('lits-textarea').value = code
+  localStorage.setItem('lits-textarea', code)
 
   run()
 }

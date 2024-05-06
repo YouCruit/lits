@@ -108,6 +108,7 @@ export type CssClass =
   | 'color-Name'
   | 'color-Number'
   | 'color-String'
+  | 'color-Operator'
   | 'color-Keyword'
   | 'justify-normal'
   | 'justify-start'

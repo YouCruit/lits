@@ -1,6 +1,6 @@
-// import { collectionReference } from './categories/collection'
-// import { functionalReference } from './categories/functional'
 import { isUnknownRecord } from '../src/typeGuards'
+import { collectionReference } from './categories/collection'
+// import { functionalReference } from './categories/functional'
 import { arrayReference } from './categories/array'
 // import { sequenceReference } from './categories/sequence'
 // import { mathReference } from './categories/math'
@@ -13,6 +13,7 @@ import { assertReference } from './categories/assert'
 // import { stringReference } from './categories/string'
 import { bitwiseReference } from './categories/bitwise'
 
+export { } from './examples'
 export type Category = 'Collection' | 'Array' | 'Sequence' | 'Math' | 'Functional' | 'Misc' | 'Object' | 'Predicate' | 'Regular expression' | 'Special expression' | 'String' | 'Bitwise' | 'Assert'
 
 type DataType = 'number' | 'string' | 'object' | 'array' | 'boolean' | 'function' | 'integer' | 'any' | 'nil' | 'collection' | 'sequence' | 'regexp'
@@ -57,7 +58,7 @@ export interface Reference<T extends Category> {
 }
 
 export const functionReference: Record<string, Reference<Category>> = {
-  // ...collectionReference,
+  ...collectionReference,
   ...arrayReference,
   // ...sequenceReference,
   // ...mathReference,

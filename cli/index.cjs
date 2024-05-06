@@ -411,7 +411,7 @@ function functionToString(fun) {
   if (fun.builtin)
     return `<BUILTIN FUNCTION ${fun.builtin}>`
   else
-    return `<FUNCTION ${fun.name || 'λ'}>`
+    return `<FUNCTION ${fun.name || '\u03BB'}>`
 }
 
 function completer(line) {

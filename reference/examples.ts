@@ -10,7 +10,7 @@ export interface Example {
   }
 }
 
-const examples: Example[] = [
+export const examples: Example[] = [
   {
     id: 'default',
     name: 'Simple Lisp expression',
@@ -273,5 +273,3 @@ const examples: Example[] = [
 `.trim(),
   },
 ]
-
-export default examples

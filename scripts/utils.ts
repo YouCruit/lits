@@ -11,7 +11,7 @@ export function stringifyValue(value: unknown): string {
     if (value.t === FunctionType.Builtin)
       return `&lt;builtin function ${value.n}&gt;`
     else
-      return `&lt;function ${(value as unknown as UnknownRecord).n ?? 'λ'}&gt;`
+      return `&lt;function ${(value as unknown as UnknownRecord).n ?? '\u03BB'}&gt;`
   }
   if (value === null)
     return 'null'

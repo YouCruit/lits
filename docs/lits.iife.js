@@ -191,7 +191,7 @@ var Lits = (function (exports) {
   function valueToString(value) {
       if (isLitsFunction$1(value))
           // eslint-disable-next-line ts/no-unsafe-member-access
-          return "<function ".concat(value.name || 'λ', ">");
+          return "<function ".concat(value.name || '\u03BB', ">");
       if (isToken$1(value))
           return "".concat(tokenTypeName.get(value.t), "-token \"").concat(value.v, "\"");
       if (isAstNode$1(value))

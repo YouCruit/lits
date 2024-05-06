@@ -24,7 +24,7 @@ export function getFunctionExamples(examples: string[]) {
             const formattedExample = formatLitsExpression(example)
 
             return `
-              <div ${styles('pl-3', 'border-solid', 'border-0', 'border-l-3', 'border-gray-400', 'text-sm', 'font-mono', 'flex', 'flex-col', 'gap-2')} >
+              <div ${styles('text-sm', 'font-mono', 'flex', 'flex-col', 'gap-2')} >
                 <div ${styles('flex', 'flex-row', 'gap-2')}>
                   <span ${styles('color-gray-300', 'font-bold')}>=&gt</span>
                   <div ${styles('whitespace-pre', 'cursor-pointer')} class="hover-bold" onclick="addToPlayground(\`${encodedUriExample}\`)">${formattedExample}</div>

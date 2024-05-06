@@ -10,7 +10,7 @@ const variableRegExp = new RegExp(`\\$${nameCharacters}+`, 'g')
 export function formatDescription(description: string, reference: Reference<Category>) {
   const descriptionVariables = findAllOccurrences(description, variableRegExp)
 
-  const functionNameRule = createVariableRule(
+  const currentFunctionNameRule = createVariableRule(
     variableName => `<span ${styles('color-FunctionName')}>${variableName}</span>`,
     variableName => variableName === reference.name,
   )
@@ -21,7 +21,7 @@ export function formatDescription(description: string, reference: Reference<Cate
   )
 
   checkVariables(reference, descriptionVariables)
-  const formattedDescription = createFormatter([...mdRules, functionNameRule, argumentRule, numberRule])(description)
+  const formattedDescription = createFormatter([...mdRules, currentFunctionNameRule, argumentRule, numberRule])(description)
   return `<span ${styles('Description')}>${formattedDescription}</span>`
 }
 

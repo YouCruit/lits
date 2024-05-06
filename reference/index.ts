@@ -11,7 +11,7 @@ import { assertReference } from './categories/assert'
 // import { regularExpressionReference } from './categories/regularExpression'
 // import { specialExpressionsReference } from './categories/specialExpressions'
 // import { stringReference } from './categories/string'
-// import { bitwiseReference } from './categories/bitwise'
+import { bitwiseReference } from './categories/bitwise'
 
 export type Category = 'Collection' | 'Array' | 'Sequence' | 'Math' | 'Functional' | 'Misc' | 'Object' | 'Predicate' | 'Regular expression' | 'Special expression' | 'String' | 'Bitwise' | 'Assert'
 
@@ -68,7 +68,7 @@ export const functionReference: Record<string, Reference<Category>> = {
   // ...regularExpressionReference,
   // ...specialExpressionsReference,
   // ...stringReference,
-  // ...bitwiseReference,
+  ...bitwiseReference,
   ...assertReference,
 }
 

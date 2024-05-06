@@ -108,7 +108,7 @@ $step defaults to 1`,
     parameters: {
       x: {
         type: ['array', 'any'],
-        description: 'If not an array, `[ ]` is returned.',
+        description: 'If $x is not an array, `[ ]` is returned.',
       },
     },
     variants: [{

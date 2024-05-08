@@ -1,5 +1,5 @@
-import { type Argument, isNormalExpressionArgument } from '../../reference'
-import { styles } from '../styles'
+import { type Argument, isNormalExpressionArgument } from '../../../reference'
+import { styles } from '../../styles'
 
 export function getType(argument: Argument) {
   if (isNormalExpressionArgument(argument)) {

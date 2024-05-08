@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <title>Lits</title>
   <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
@@ -8,197 +7,195 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
   <div id="wrapper">
-    
     <main id="main-panel" class="fancy-scroll">
       
-<div id="index" class="content">
-  <center>
-  <span style="white-space: pre; font-family: 'Fira Code', monospace; font-size: 1.25rem;">
-  ░▒▓█▓▒░      ░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░ 
-  ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        
-  ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        
-  ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░   ░▒▓██████▓▒░  
-  ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░ 
-  ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░ 
-  ░▒▓████████▓▒░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░  
-  </span>
-</center>
-                                                
-  <br />
-    <div class="text">
-    <p>Lits is a Lisp dialect made to work well in a browser or Node environment. It's heavily inspired by Clojure, most of the core functions from Clojure have been ported.</p>
-    <p>Some outstanding features / shortcommings worth mentioning.</p>
-    <ul>
-      <li>All datatypes in Lits are immutable.</li>
-      <li>All functions are <a href="https://www.sitepoint.com/functional-programming-pure-functions/">pure</a>, unless the built-in function name ends with a !. See <pre>write!</pre> or <pre>rand!</pre> for example.</li>
-      <li>All datatypes in Lits mapps directly to Javascript's types.</li>
-      <li>No lazy evaluation.</li>
-      <li>No quotes.</li>
-      <li>No macros.</li>
-      <li>No keyword symbols. <pre>:foo</pre> is just a shorthand for <pre>"foo"</pre>.</li>
-      <li>Dynamic scoping, no lexical scoping</li>
-    </ul>
-    <p>You can see some examples and find documentation of all built-in function to the left.</p>
-    <p>For more instruction on how to install and use Lits as a cli or a typescript lib, checkout <a href="https://github.com/YouCruit/lits">https://github.com/YouCruit/lits</a></p>
-    <p>
-    <p>Happy coding!</p>
+  <div id="index" class="content">
+    <center>
+    <span style="white-space: pre; font-family: 'Fira Code', monospace; font-size: 1.25rem;">
+    ░▒▓█▓▒░      ░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░ 
+    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        
+    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        
+    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░   ░▒▓██████▓▒░  
+    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░ 
+    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░ 
+    ░▒▓████████▓▒░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░  
+    </span>
+  </center>
+                                                  
+    <br />
+      <div class="text">
+      <p>Lits is a Lisp dialect made to work well in a browser or Node environment. It's heavily inspired by Clojure, most of the core functions from Clojure have been ported.</p>
+      <p>Some outstanding features / shortcommings worth mentioning.</p>
+      <ul>
+        <li>All datatypes in Lits are immutable.</li>
+        <li>All functions are <a href="https://www.sitepoint.com/functional-programming-pure-functions/">pure</a>, unless the built-in function name ends with a !. See <pre>write!</pre> or <pre>rand!</pre> for example.</li>
+        <li>All datatypes in Lits mapps directly to Javascript's types.</li>
+        <li>No lazy evaluation.</li>
+        <li>No quotes.</li>
+        <li>No macros.</li>
+        <li>No keyword symbols. <pre>:foo</pre> is just a shorthand for <pre>"foo"</pre>.</li>
+        <li>Dynamic scoping, no lexical scoping</li>
+      </ul>
+      <p>You can see some examples and find documentation of all built-in function to the left.</p>
+      <p>For more instruction on how to install and use Lits as a cli or a typescript lib, checkout <a href="https://github.com/YouCruit/lits">https://github.com/YouCruit/lits</a></p>
+      <p>
+      <p>Happy coding!</p>
+    </div>
   </div>
-</div>
-
-      
-<div id="example-page" class="content">
-  <h1>Examples</h1>
-  <br />
-  <ul>
   
-      <li>
-        <div class="row example-item">
-          <div class="column wide">
-            <div class="example-name">Simple Lisp expression</div>
-            <div class="example-description">A super simple example.</div>
-          </div>
-          <div class="column right">
-            <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22default%22%2C%22name%22%3A%22Simple%20Lisp%20expression%22%2C%22description%22%3A%22A%20super%20simple%20example.%22%2C%22code%22%3A%22(%2B%2010%2020)%22%7D`)">Show in playground</span>
-          </div>
-        </div>
-      </li>
+      
+  <div id="example-page" class="content">
+    <h1>Examples</h1>
+    <br />
+    <ul>
     
+        <li>
+          <div class="row example-item">
+            <div class="column wide">
+              <div class="example-name">Simple Lisp expression</div>
+              <div class="example-description">A super simple example.</div>
+            </div>
+            <div class="column right">
+              <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22default%22%2C%22name%22%3A%22Simple%20Lisp%20expression%22%2C%22description%22%3A%22A%20super%20simple%20example.%22%2C%22code%22%3A%22(%2B%2010%2020)%22%7D`)">Show in playground</span>
+            </div>
+          </div>
+        </li>
+      
 
-      <li>
-        <div class="row example-item">
-          <div class="column wide">
-            <div class="example-name">Collection accessors</div>
-            <div class="example-description">Syntactic sugar for accessing object, array and string elements.</div>
+        <li>
+          <div class="row example-item">
+            <div class="column wide">
+              <div class="example-name">Collection accessors</div>
+              <div class="example-description">Syntactic sugar for accessing object, array and string elements.</div>
+            </div>
+            <div class="column right">
+              <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22collection-accessor%22%2C%22name%22%3A%22Collection%20accessors%22%2C%22description%22%3A%22Syntactic%20sugar%20for%20accessing%20object%2C%20array%20and%20string%20elements.%22%2C%22code%22%3A%22%3B%3B%20Access%20object%20properies%20with%20.%5Cn%3B%3B%20Access%20string%20and%20array%20elements%20with%20%23%5Cn%5Cn(def%20data%20%7B%3Anumbers%20%5B1%202%203%5D%2C%20%3Achars%20%5B%3Aa%20%3Ab%20%3Ac%5D%2C%20%3Astring%20%5C%22Albert%5C%22%7D)%5Cn%5Cn(write!%20data.numbers%230)%5Cn(write!%20data.chars%232)%5Cn(write!%20data.string%230)%5Cn%5Cn(write!%20%7B%3Aa%201%2C%20%3Ab%202%2C%20%3Ac%203%7D.b)%5Cn(write!%20%5C%22Albert%5C%22%233)%5Cn(write!%20%5B1%202%203%5D%232)%22%7D`)">Show in playground</span>
+            </div>
           </div>
-          <div class="column right">
-            <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22collection-accessor%22%2C%22name%22%3A%22Collection%20accessors%22%2C%22description%22%3A%22Syntactic%20sugar%20for%20accessing%20object%2C%20array%20and%20string%20elements.%22%2C%22code%22%3A%22%3B%3B%20Access%20object%20properies%20with%20.%5Cn%3B%3B%20Access%20string%20and%20array%20elements%20with%20%23%5Cn%5Cn(def%20data%20%7B%3Anumbers%20%5B1%202%203%5D%2C%20%3Achars%20%5B%3Aa%20%3Ab%20%3Ac%5D%2C%20%3Astring%20%5C%22Albert%5C%22%7D)%5Cn%5Cn(write!%20data.numbers%230)%5Cn(write!%20data.chars%232)%5Cn(write!%20data.string%230)%5Cn%5Cn(write!%20%7B%3Aa%201%2C%20%3Ab%202%2C%20%3Ac%203%7D.b)%5Cn(write!%20%5C%22Albert%5C%22%233)%5Cn(write!%20%5B1%202%203%5D%232)%22%7D`)">Show in playground</span>
-          </div>
-        </div>
-      </li>
-    
+        </li>
+      
 
-      <li>
-        <div class="row example-item">
-          <div class="column wide">
-            <div class="example-name">Params in use</div>
-            <div class="example-description">Simple example using params.</div>
+        <li>
+          <div class="row example-item">
+            <div class="column wide">
+              <div class="example-name">Params in use</div>
+              <div class="example-description">Simple example using params.</div>
+            </div>
+            <div class="column right">
+              <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22simple-params-example%22%2C%22name%22%3A%22Params%20in%20use%22%2C%22description%22%3A%22Simple%20example%20using%20params.%22%2C%22params%22%3A%7B%22values%22%3A%7B%22x%22%3A15%7D%2C%22lazyValues%22%3A%7B%22y%22%3A%7B%22read%22%3A%22EVAL%3A()%20%3D%3E%2042%22%7D%7D%2C%22jsFunctions%22%3A%7B%22plus%22%3A%7B%22fn%22%3A%22EVAL%3A(a%2C%20b)%20%3D%3E%20a%20%2B%20b%22%7D%7D%7D%2C%22code%22%3A%22(plus%20x%20y)%22%7D`)">Show in playground</span>
+            </div>
           </div>
-          <div class="column right">
-            <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22simple-params-example%22%2C%22name%22%3A%22Params%20in%20use%22%2C%22description%22%3A%22Simple%20example%20using%20params.%22%2C%22params%22%3A%7B%22values%22%3A%7B%22x%22%3A15%7D%2C%22lazyValues%22%3A%7B%22y%22%3A%7B%22read%22%3A%22EVAL%3A()%20%3D%3E%2042%22%7D%7D%2C%22jsFunctions%22%3A%7B%22plus%22%3A%7B%22fn%22%3A%22EVAL%3A(a%2C%20b)%20%3D%3E%20a%20%2B%20b%22%7D%7D%7D%2C%22code%22%3A%22(plus%20x%20y)%22%7D`)">Show in playground</span>
-          </div>
-        </div>
-      </li>
-    
+        </li>
+      
 
-      <li>
-        <div class="row example-item">
-          <div class="column wide">
-            <div class="example-name">Phone number formatter</div>
-            <div class="example-description">Pretty prints a US phone number.</div>
+        <li>
+          <div class="row example-item">
+            <div class="column wide">
+              <div class="example-name">Phone number formatter</div>
+              <div class="example-description">Pretty prints a US phone number.</div>
+            </div>
+            <div class="column right">
+              <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22phone-number-formatter%22%2C%22name%22%3A%22Phone%20number%20formatter%22%2C%22description%22%3A%22Pretty%20prints%20a%20US%20phone%20number.%22%2C%22code%22%3A%22(defn%20formatPhoneNumber%20%5B%24data%5D%5Cn%20%20(if%20(string%3F%20%24data)%5Cn%20%20%20%20(let%20%5BphoneNumber%20(if%20(%3D%20%5C%22%2B%5C%22%20(nth%20%24data%200))%20(subs%20%24data%202)%20%24data)%5D%5Cn%20%20%20%20%20%20(cond%5Cn%20%20%20%20%20%20%20%20(%3E%20(count%20phoneNumber)%206)%5Cn%20%20%20%20%20%20%20%20%20%20(str%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%5C%22(%5C%22%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(subs%20phoneNumber%200%203)%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%5C%22)%20%5C%22%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(subs%20phoneNumber%203%206)%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%5C%22-%5C%22%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(subs%20phoneNumber%206))%5Cn%5Cn%20%20%20%20%20%20%20%20(%3E%20(count%20phoneNumber)%203)%5Cn%20%20%20%20%20%20%20%20%20%20(str%20%5C%22(%5C%22%20(subs%20phoneNumber%200%203)%20%5C%22)%20%5C%22%20(subs%20phoneNumber%203))%5Cn%5Cn%20%20%20%20%20%20%20%20(%3E%20(count%20phoneNumber)%200)%5Cn%20%20%20%20%20%20%20%20%20%20(str%20%5C%22(%5C%22%20(subs%20phoneNumber%200))%5Cn%5Cn%20%20%20%20%20%20%20%20true%5Cn%20%20%20%20%20%20%20%20%20%20phoneNumber%5Cn%20%20%20%20%20%20)%5Cn%20%20%20%20)%5Cn%20%20%20%20%5C%22%5C%22%5Cn%20%20)%5Cn)%5Cn%5Cn(write!%20formatPhoneNumber)%5Cn(write!%20(formatPhoneNumber%20123234))%5Cn(write!%20(formatPhoneNumber%20%5C%22123234%5C%22))%5Cn(write!%20(formatPhoneNumber%20%5C%221232343456%5C%22))%5Cn(write!%20(formatPhoneNumber%20%5C%22%2B11232343456789%5C%22))%5Cn(write!%20(formatPhoneNumber%20%5C%22%2B11232343456%5C%22))%22%7D`)">Show in playground</span>
+            </div>
           </div>
-          <div class="column right">
-            <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22phone-number-formatter%22%2C%22name%22%3A%22Phone%20number%20formatter%22%2C%22description%22%3A%22Pretty%20prints%20a%20US%20phone%20number.%22%2C%22code%22%3A%22(defn%20formatPhoneNumber%20%5B%24data%5D%5Cn%20%20(if%20(string%3F%20%24data)%5Cn%20%20%20%20(let%20%5BphoneNumber%20(if%20(%3D%20%5C%22%2B%5C%22%20(nth%20%24data%200))%20(subs%20%24data%202)%20%24data)%5D%5Cn%20%20%20%20%20%20(cond%5Cn%20%20%20%20%20%20%20%20(%3E%20(count%20phoneNumber)%206)%5Cn%20%20%20%20%20%20%20%20%20%20(str%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%5C%22(%5C%22%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(subs%20phoneNumber%200%203)%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%5C%22)%20%5C%22%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(subs%20phoneNumber%203%206)%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%5C%22-%5C%22%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(subs%20phoneNumber%206))%5Cn%5Cn%20%20%20%20%20%20%20%20(%3E%20(count%20phoneNumber)%203)%5Cn%20%20%20%20%20%20%20%20%20%20(str%20%5C%22(%5C%22%20(subs%20phoneNumber%200%203)%20%5C%22)%20%5C%22%20(subs%20phoneNumber%203))%5Cn%5Cn%20%20%20%20%20%20%20%20(%3E%20(count%20phoneNumber)%200)%5Cn%20%20%20%20%20%20%20%20%20%20(str%20%5C%22(%5C%22%20(subs%20phoneNumber%200))%5Cn%5Cn%20%20%20%20%20%20%20%20true%5Cn%20%20%20%20%20%20%20%20%20%20phoneNumber%5Cn%20%20%20%20%20%20)%5Cn%20%20%20%20)%5Cn%20%20%20%20%5C%22%5C%22%5Cn%20%20)%5Cn)%5Cn%5Cn(write!%20formatPhoneNumber)%5Cn(write!%20(formatPhoneNumber%20123234))%5Cn(write!%20(formatPhoneNumber%20%5C%22123234%5C%22))%5Cn(write!%20(formatPhoneNumber%20%5C%221232343456%5C%22))%5Cn(write!%20(formatPhoneNumber%20%5C%22%2B11232343456789%5C%22))%5Cn(write!%20(formatPhoneNumber%20%5C%22%2B11232343456%5C%22))%22%7D`)">Show in playground</span>
-          </div>
-        </div>
-      </li>
-    
+        </li>
+      
 
-      <li>
-        <div class="row example-item">
-          <div class="column wide">
-            <div class="example-name">Factorial</div>
-            <div class="example-description">A recursive implementation of the factorial function.</div>
+        <li>
+          <div class="row example-item">
+            <div class="column wide">
+              <div class="example-name">Factorial</div>
+              <div class="example-description">A recursive implementation of the factorial function.</div>
+            </div>
+            <div class="column right">
+              <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22factorial%22%2C%22name%22%3A%22Factorial%22%2C%22description%22%3A%22A%20recursive%20implementation%20of%20the%20factorial%20function.%22%2C%22code%22%3A%22(defn%20factorial%20%5Bx%5D%5Cn%20%20(if%20(%3D%20x%201)%5Cn%20%20%20%201%5Cn%20%20%20%20(*%20x%20(factorial%20(dec%20x)))%5Cn%20%20)%5Cn)%5Cn%5Cn(factorial%204)%22%7D`)">Show in playground</span>
+            </div>
           </div>
-          <div class="column right">
-            <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22factorial%22%2C%22name%22%3A%22Factorial%22%2C%22description%22%3A%22A%20recursive%20implementation%20of%20the%20factorial%20function.%22%2C%22code%22%3A%22(defn%20factorial%20%5Bx%5D%5Cn%20%20(if%20(%3D%20x%201)%5Cn%20%20%20%201%5Cn%20%20%20%20(*%20x%20(factorial%20(dec%20x)))%5Cn%20%20)%5Cn)%5Cn%5Cn(factorial%204)%22%7D`)">Show in playground</span>
-          </div>
-        </div>
-      </li>
-    
+        </li>
+      
 
-      <li>
-        <div class="row example-item">
-          <div class="column wide">
-            <div class="example-name">Sort</div>
-            <div class="example-description">Sort an array of numbers.</div>
+        <li>
+          <div class="row example-item">
+            <div class="column wide">
+              <div class="example-name">Sort</div>
+              <div class="example-description">Sort an array of numbers.</div>
+            </div>
+            <div class="column right">
+              <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22sort%22%2C%22name%22%3A%22Sort%22%2C%22description%22%3A%22Sort%20an%20array%20of%20numbers.%22%2C%22code%22%3A%22(def%20l%20%5B7%2039%2045%200%2023%201%2050%20100%2012%20-5%5D)%5Cn(defn%20numberComparer%20%5Ba%20b%5D%5Cn%20%20(cond%5Cn%20%20%20%20(%3C%20a%20b)%20-1%5Cn%20%20%20%20(%3E%20a%20b)%201%5Cn%20%20%20%20true%200%5Cn%20%20)%5Cn)%5Cn%5Cn(sort%20numberComparer%20l)%22%7D`)">Show in playground</span>
+            </div>
           </div>
-          <div class="column right">
-            <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22sort%22%2C%22name%22%3A%22Sort%22%2C%22description%22%3A%22Sort%20an%20array%20of%20numbers.%22%2C%22code%22%3A%22(def%20l%20%5B7%2039%2045%200%2023%201%2050%20100%2012%20-5%5D)%5Cn(defn%20numberComparer%20%5Ba%20b%5D%5Cn%20%20(cond%5Cn%20%20%20%20(%3C%20a%20b)%20-1%5Cn%20%20%20%20(%3E%20a%20b)%201%5Cn%20%20%20%20true%200%5Cn%20%20)%5Cn)%5Cn%5Cn(sort%20numberComparer%20l)%22%7D`)">Show in playground</span>
-          </div>
-        </div>
-      </li>
-    
+        </li>
+      
 
-      <li>
-        <div class="row example-item">
-          <div class="column wide">
-            <div class="example-name">Many arities</div>
-            <div class="example-description">Function with multiple arities.</div>
+        <li>
+          <div class="row example-item">
+            <div class="column wide">
+              <div class="example-name">Many arities</div>
+              <div class="example-description">Function with multiple arities.</div>
+            </div>
+            <div class="column right">
+              <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22multiple-arity%22%2C%22name%22%3A%22Many%20arities%22%2C%22description%22%3A%22Function%20with%20multiple%20arities.%22%2C%22code%22%3A%22(defn%20foo%5Cn%20%20(%5B%5D%20%5C%22No%20parameters%5C%22)%5Cn%20%20(%5Bx%5D%20%5C%22One%20parameter%5C%22)%5Cn%20%20(%5Bx%20y%5D%20%5C%22Two%20parameters%5C%22)%5Cn%20%20(%5Bx%20y%20z%5D%20%5C%22Three%20parameters%5C%22)%5Cn%20%20(%5Bx%20y%20z%20%C3%A5%20%26%20rest%5D%20%5C%22Four%20or%20more%20parameters%5C%22)%5Cn)%5Cn%5Cn(write!%20(foo))%5Cn(write!%20(foo%201))%5Cn(write!%20(foo%201%202))%5Cn(write!%20(foo%201%202%203))%5Cn(write!%20(foo%201%202%203%204))%5Cn(write!%20(foo%201%202%203%204%205))%22%7D`)">Show in playground</span>
+            </div>
           </div>
-          <div class="column right">
-            <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22multiple-arity%22%2C%22name%22%3A%22Many%20arities%22%2C%22description%22%3A%22Function%20with%20multiple%20arities.%22%2C%22code%22%3A%22(defn%20foo%5Cn%20%20(%5B%5D%20%5C%22No%20parameters%5C%22)%5Cn%20%20(%5Bx%5D%20%5C%22One%20parameter%5C%22)%5Cn%20%20(%5Bx%20y%5D%20%5C%22Two%20parameters%5C%22)%5Cn%20%20(%5Bx%20y%20z%5D%20%5C%22Three%20parameters%5C%22)%5Cn%20%20(%5Bx%20y%20z%20%C3%A5%20%26%20rest%5D%20%5C%22Four%20or%20more%20parameters%5C%22)%5Cn)%5Cn%5Cn(write!%20(foo))%5Cn(write!%20(foo%201))%5Cn(write!%20(foo%201%202))%5Cn(write!%20(foo%201%202%203))%5Cn(write!%20(foo%201%202%203%204))%5Cn(write!%20(foo%201%202%203%204%205))%22%7D`)">Show in playground</span>
-          </div>
-        </div>
-      </li>
-    
+        </li>
+      
 
-      <li>
-        <div class="row example-item">
-          <div class="column wide">
-            <div class="example-name">Translations lib</div>
-            <div class="example-description">A Lits take on i18n.</div>
+        <li>
+          <div class="row example-item">
+            <div class="column wide">
+              <div class="example-name">Translations lib</div>
+              <div class="example-description">A Lits take on i18n.</div>
+            </div>
+            <div class="column right">
+              <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22translations-lib%22%2C%22name%22%3A%22Translations%20lib%22%2C%22description%22%3A%22A%20Lits%20take%20on%20i18n.%22%2C%22params%22%3A%7B%22values%22%3A%7B%22TRANSLATIONS%22%3A%7B%22welcome-message%22%3A%22Welcome%2C%20%241%22%2C%22count-chairs%22%3A%22%241%20chair%7C%7C%7C%7C%241%20chairs%22%7D%7D%7D%2C%22code%22%3A%22(loop%20%5Blist%20(entries%20TRANSLATIONS)%5D%5Cn%20%20(when%20(count%20list)%5Cn%20%20%20%20(let%20%5Bentry%20(first%20list)%5D%5Cn%20%20%20%20%20%20(defns%20(entry%200)%20%5B%26%20params%20%26let%20%5BtemplateString%20(entry%201)%5D%5D%5Cn%20%20%20%20%20%20%20%20(apply%20template%20(cons%20templateString%20params))%5Cn%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20(recur%20(rest%20list))%5Cn%20%20%20%20)%5Cn%20%20)%5Cn)%5Cn%5Cn(write!%20(welcome-message%20%5C%22Albert%5C%22))%5Cn(write!%20(count-chairs%2012))%5Cn(write!%20(count-chairs%201))%22%7D`)">Show in playground</span>
+            </div>
           </div>
-          <div class="column right">
-            <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22translations-lib%22%2C%22name%22%3A%22Translations%20lib%22%2C%22description%22%3A%22A%20Lits%20take%20on%20i18n.%22%2C%22params%22%3A%7B%22values%22%3A%7B%22TRANSLATIONS%22%3A%7B%22welcome-message%22%3A%22Welcome%2C%20%241%22%2C%22count-chairs%22%3A%22%241%20chair%7C%7C%7C%7C%241%20chairs%22%7D%7D%7D%2C%22code%22%3A%22(loop%20%5Blist%20(entries%20TRANSLATIONS)%5D%5Cn%20%20(when%20(count%20list)%5Cn%20%20%20%20(let%20%5Bentry%20(first%20list)%5D%5Cn%20%20%20%20%20%20(defns%20(entry%200)%20%5B%26%20params%20%26let%20%5BtemplateString%20(entry%201)%5D%5D%5Cn%20%20%20%20%20%20%20%20(apply%20template%20(cons%20templateString%20params))%5Cn%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20(recur%20(rest%20list))%5Cn%20%20%20%20)%5Cn%20%20)%5Cn)%5Cn%5Cn(write!%20(welcome-message%20%5C%22Albert%5C%22))%5Cn(write!%20(count-chairs%2012))%5Cn(write!%20(count-chairs%201))%22%7D`)">Show in playground</span>
-          </div>
-        </div>
-      </li>
-    
+        </li>
+      
 
-      <li>
-        <div class="row example-item">
-          <div class="column wide">
-            <div class="example-name">Is ISO date string</div>
-            <div class="example-description">Check if string is formatted as an ISO date string.</div>
+        <li>
+          <div class="row example-item">
+            <div class="column wide">
+              <div class="example-name">Is ISO date string</div>
+              <div class="example-description">Check if string is formatted as an ISO date string.</div>
+            </div>
+            <div class="column right">
+              <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22isoDateString%22%2C%22name%22%3A%22Is%20ISO%20date%20string%22%2C%22description%22%3A%22Check%20if%20string%20is%20formatted%20as%20an%20ISO%20date%20string.%22%2C%22code%22%3A%22(defn%20isoDateString%3F%20%5B%24data%5D%5Cn%20%20(if-let%20%5Bm%20(match%20(regexp%20%5C%22%5E(%5C%5Cd%7B4%7D)-(%5C%5Cd%7B2%7D)-(%5C%5Cd%7B2%7D)%24%5C%22)%20%24data)%5D%5Cn%20%20%20%20(let%5Cn%20%20%20%20%20%20%5B%5Cn%20%20%20%20%20%20%20%20year%20(number%20(m%201))%5Cn%20%20%20%20%20%20%20%20month%20(number%20(m%202))%5Cn%20%20%20%20%20%20%20%20day%20(number%20(m%203))%5Cn%20%20%20%20%20%20%20%20leapYear%5Cn%20%20%20%20%20%20%20%20%20%20(and%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(zero%3F%20(mod%20year%204))%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(or%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%20%20(not%20(zero%3F%20(mod%20year%20100)))%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%20%20(zero%3F%20(mod%20year%20400))%5Cn%20%20%20%20%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20%5D%5Cn%20%20%20%20%20%20(not%20(or%5Cn%20%20%20%20%20%20%20%20(or%20(%3C%20year%201900)%20(%3E%20year%202100))%5Cn%20%20%20%20%20%20%20%20(or%20(%3C%20month%201)%20(%3E%20month%2012))%5Cn%20%20%20%20%20%20%20%20(or%20(%3C%20day%201)%20(%3E%20day%2031))%5Cn%20%20%20%20%20%20%20%20(and%5Cn%20%20%20%20%20%20%20%20%20%20(or%20(%3D%20month%204)%20(%3D%20month%206)%20(%3D%20month%209)%20(%3D%20month%2011))%5Cn%20%20%20%20%20%20%20%20%20%20(%3E%20day%2030)%5Cn%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20%20%20(and%5Cn%20%20%20%20%20%20%20%20%20%20(%3D%20month%202)%5Cn%20%20%20%20%20%20%20%20%20%20(or%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(and%20leapYear%20(%3E%20day%2029))%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(and%20(not%20leapYear)%20(%3E%20day%2028))%5Cn%20%20%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20))%5Cn%20%20%20%20)%5Cn%20%20%20%20false%5Cn%20%20)%5Cn)%5Cn%5Cn(write!%20(isoDateString%3F%20%5C%221978-12-21%5C%22))%5Cn(write!%20(isoDateString%3F%20%5C%22197-12-21%5C%22))%22%7D`)">Show in playground</span>
+            </div>
           </div>
-          <div class="column right">
-            <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22isoDateString%22%2C%22name%22%3A%22Is%20ISO%20date%20string%22%2C%22description%22%3A%22Check%20if%20string%20is%20formatted%20as%20an%20ISO%20date%20string.%22%2C%22code%22%3A%22(defn%20isoDateString%3F%20%5B%24data%5D%5Cn%20%20(if-let%20%5Bm%20(match%20(regexp%20%5C%22%5E(%5C%5Cd%7B4%7D)-(%5C%5Cd%7B2%7D)-(%5C%5Cd%7B2%7D)%24%5C%22)%20%24data)%5D%5Cn%20%20%20%20(let%5Cn%20%20%20%20%20%20%5B%5Cn%20%20%20%20%20%20%20%20year%20(number%20(m%201))%5Cn%20%20%20%20%20%20%20%20month%20(number%20(m%202))%5Cn%20%20%20%20%20%20%20%20day%20(number%20(m%203))%5Cn%20%20%20%20%20%20%20%20leapYear%5Cn%20%20%20%20%20%20%20%20%20%20(and%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(zero%3F%20(mod%20year%204))%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(or%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%20%20(not%20(zero%3F%20(mod%20year%20100)))%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%20%20(zero%3F%20(mod%20year%20400))%5Cn%20%20%20%20%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20%5D%5Cn%20%20%20%20%20%20(not%20(or%5Cn%20%20%20%20%20%20%20%20(or%20(%3C%20year%201900)%20(%3E%20year%202100))%5Cn%20%20%20%20%20%20%20%20(or%20(%3C%20month%201)%20(%3E%20month%2012))%5Cn%20%20%20%20%20%20%20%20(or%20(%3C%20day%201)%20(%3E%20day%2031))%5Cn%20%20%20%20%20%20%20%20(and%5Cn%20%20%20%20%20%20%20%20%20%20(or%20(%3D%20month%204)%20(%3D%20month%206)%20(%3D%20month%209)%20(%3D%20month%2011))%5Cn%20%20%20%20%20%20%20%20%20%20(%3E%20day%2030)%5Cn%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20%20%20(and%5Cn%20%20%20%20%20%20%20%20%20%20(%3D%20month%202)%5Cn%20%20%20%20%20%20%20%20%20%20(or%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(and%20leapYear%20(%3E%20day%2029))%5Cn%20%20%20%20%20%20%20%20%20%20%20%20(and%20(not%20leapYear)%20(%3E%20day%2028))%5Cn%20%20%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20))%5Cn%20%20%20%20)%5Cn%20%20%20%20false%5Cn%20%20)%5Cn)%5Cn%5Cn(write!%20(isoDateString%3F%20%5C%221978-12-21%5C%22))%5Cn(write!%20(isoDateString%3F%20%5C%22197-12-21%5C%22))%22%7D`)">Show in playground</span>
-          </div>
-        </div>
-      </li>
-    
+        </li>
+      
 
-      <li>
-        <div class="row example-item">
-          <div class="column wide">
-            <div class="example-name">label-from-value</div>
-            <div class="example-description">Find label to corresponding value in array of {label value}-objects.</div>
+        <li>
+          <div class="row example-item">
+            <div class="column wide">
+              <div class="example-name">label-from-value</div>
+              <div class="example-description">Find label to corresponding value in array of {label value}-objects.</div>
+            </div>
+            <div class="column right">
+              <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22label-from-value%22%2C%22name%22%3A%22label-from-value%22%2C%22description%22%3A%22Find%20label%20to%20corresponding%20value%20in%20array%20of%20%7Blabel%20value%7D-objects.%22%2C%22code%22%3A%22(defn%20label-from-value%20%5B%24array%20%24value%5D%5Cn%20%20(let%20%5Bentry%20(some%20%23(%3D%20%24value%20(%251%20%3Avalue))%20%24array)%5D%5Cn%20%20%20%20(if%20(nil%3F%20entry)%20(str%20%24value)%20(entry%20%3Alabel))%5Cn%20%20)%5Cn)%5Cn%5Cn(def%20arr%20%5B%5Cn%20%20%7B%3Alabel%20%5C%22Name%5C%22%20%3Avalue%20%5C%22name%5C%22%7D%5Cn%20%20%7B%3Alabel%20%5C%22Age%5C%22%20%3Avalue%20%5C%22age%5C%22%7D%5Cn%5D)%5Cn%5Cn(label-from-value%20arr%20%3Aname)%22%7D`)">Show in playground</span>
+            </div>
           </div>
-          <div class="column right">
-            <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22label-from-value%22%2C%22name%22%3A%22label-from-value%22%2C%22description%22%3A%22Find%20label%20to%20corresponding%20value%20in%20array%20of%20%7Blabel%20value%7D-objects.%22%2C%22code%22%3A%22(defn%20label-from-value%20%5B%24array%20%24value%5D%5Cn%20%20(let%20%5Bentry%20(some%20%23(%3D%20%24value%20(%251%20%3Avalue))%20%24array)%5D%5Cn%20%20%20%20(if%20(nil%3F%20entry)%20(str%20%24value)%20(entry%20%3Alabel))%5Cn%20%20)%5Cn)%5Cn%5Cn(def%20arr%20%5B%5Cn%20%20%7B%3Alabel%20%5C%22Name%5C%22%20%3Avalue%20%5C%22name%5C%22%7D%5Cn%20%20%7B%3Alabel%20%5C%22Age%5C%22%20%3Avalue%20%5C%22age%5C%22%7D%5Cn%5D)%5Cn%5Cn(label-from-value%20arr%20%3Aname)%22%7D`)">Show in playground</span>
-          </div>
-        </div>
-      </li>
-    
+        </li>
+      
 
-      <li>
-        <div class="row example-item">
-          <div class="column wide">
-            <div class="example-name">labels-from-values</div>
-            <div class="example-description">Find labels to corresponding values in array of {label value}-objects.</div>
+        <li>
+          <div class="row example-item">
+            <div class="column wide">
+              <div class="example-name">labels-from-values</div>
+              <div class="example-description">Find labels to corresponding values in array of {label value}-objects.</div>
+            </div>
+            <div class="column right">
+              <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22labels-from-values%22%2C%22name%22%3A%22labels-from-values%22%2C%22description%22%3A%22Find%20labels%20to%20corresponding%20values%20in%20array%20of%20%7Blabel%20value%7D-objects.%22%2C%22code%22%3A%22(defn%20labels-from-values%20%5B%24array%20%24values%5D%5Cn%20%20(for%5Cn%20%20%20%20%5B%5Cn%20%20%20%20%20%20value%5Cn%20%20%20%20%20%20%24values%5Cn%20%20%20%20%20%20%26let%20%5B%5Cn%20%20%20%20%20%20%20%20label%5Cn%20%20%20%20%20%20%20%20(let%20%5Bentry%20(some%20%23(%3D%20value%20(%251%20%3Avalue))%20%24array)%5D%5Cn%20%20%20%20%20%20%20%20%20%20(if%20(nil%3F%20entry)%20(str%20value)%20(entry%20%3Alabel))%5Cn%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20%5D%5Cn%20%20%20%20%20%20%26when%20(boolean%20label)%5Cn%20%20%20%20%5D%5Cn%20%20%20%20label%5Cn%20%20)%5Cn)%5Cn%5Cn(def%20arr%20%5B%5Cn%20%20%7B%3Alabel%20%5C%22Name%5C%22%20%3Avalue%20%5C%22name%5C%22%7D%5Cn%20%20%7B%3Alabel%20%5C%22Age%5C%22%20%3Avalue%20%5C%22age%5C%22%7D%5Cn%20%20%7B%3Alabel%20%5C%22Email%5C%22%20%3Avalue%20%5C%22email%5C%22%7D%5Cn%5D)%5Cn%5Cn(labels-from-values%20arr%20%5B%3Aname%20%3Aage%5D)%22%7D`)">Show in playground</span>
+            </div>
           </div>
-          <div class="column right">
-            <span class="button" onclick="setPlayground(`%7B%22id%22%3A%22labels-from-values%22%2C%22name%22%3A%22labels-from-values%22%2C%22description%22%3A%22Find%20labels%20to%20corresponding%20values%20in%20array%20of%20%7Blabel%20value%7D-objects.%22%2C%22code%22%3A%22(defn%20labels-from-values%20%5B%24array%20%24values%5D%5Cn%20%20(for%5Cn%20%20%20%20%5B%5Cn%20%20%20%20%20%20value%5Cn%20%20%20%20%20%20%24values%5Cn%20%20%20%20%20%20%26let%20%5B%5Cn%20%20%20%20%20%20%20%20label%5Cn%20%20%20%20%20%20%20%20(let%20%5Bentry%20(some%20%23(%3D%20value%20(%251%20%3Avalue))%20%24array)%5D%5Cn%20%20%20%20%20%20%20%20%20%20(if%20(nil%3F%20entry)%20(str%20value)%20(entry%20%3Alabel))%5Cn%20%20%20%20%20%20%20%20)%5Cn%20%20%20%20%20%20%5D%5Cn%20%20%20%20%20%20%26when%20(boolean%20label)%5Cn%20%20%20%20%5D%5Cn%20%20%20%20label%5Cn%20%20)%5Cn)%5Cn%5Cn(def%20arr%20%5B%5Cn%20%20%7B%3Alabel%20%5C%22Name%5C%22%20%3Avalue%20%5C%22name%5C%22%7D%5Cn%20%20%7B%3Alabel%20%5C%22Age%5C%22%20%3Avalue%20%5C%22age%5C%22%7D%5Cn%20%20%7B%3Alabel%20%5C%22Email%5C%22%20%3Avalue%20%5C%22email%5C%22%7D%5Cn%5D)%5Cn%5Cn(labels-from-values%20arr%20%5B%3Aname%20%3Aage%5D)%22%7D`)">Show in playground</span>
-          </div>
-        </div>
-      </li>
-    
-  </ul>
-</div>
-
+        </li>
+      
+    </ul>
+  </div>
+  
       
   <div id="count" class="content function">
   
@@ -5215,18 +5212,18 @@ to deep equal
   
     </main>
     
-<nav id="sidebar" class="fancy-scroll">
-  <div style="padding: 0.25rem; padding-left: 0.5rem; color: rgb(115 115 115); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; cursor: pointer; border-color: rgb(115 115 115); border-width: 1px; border-style: solid;" onclick="openSearch()">
-    Search
-  </div>
-  <label class="link" onclick="showPage('index')">Home</label>
-  <br />
-  <label class="link" onclick="showPage('example-page')">Examples</label>
-  <br />
-  
-        <label>Collection</label>
-        <ul>
-          <li id="any_question_link" onclick="showPage('any_question')">any?</li>
+  <nav id="sidebar" class="fancy-scroll">
+    <div style="padding: 0.25rem; padding-left: 0.5rem; color: rgb(115 115 115); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; cursor: pointer; border-color: rgb(115 115 115); border-width: 1px; border-style: solid;" onclick="openSearch()">
+      Search
+    </div>
+    <label class="link" onclick="showPage('index')">Home</label>
+    <br />
+    <label class="link" onclick="showPage('example-page')">Examples</label>
+    <br />
+    
+          <label>Collection</label>
+          <ul>
+            <li id="any_question_link" onclick="showPage('any_question')">any?</li>
 <li id="assoc_link" onclick="showPage('assoc')">assoc</li>
 <li id="assoc-in_link" onclick="showPage('assoc-in')">assoc-in</li>
 <li id="concat_link" onclick="showPage('concat')">concat</li>
@@ -5243,20 +5240,20 @@ to deep equal
 <li id="not-every_question_link" onclick="showPage('not-every_question')">not-every?</li>
 <li id="update_link" onclick="showPage('update')">update</li>
 <li id="update-in_link" onclick="showPage('update-in')">update-in</li>
-        </ul>
+          </ul>
 
-        <label>Array</label>
-        <ul>
-          <li id="array_link" onclick="showPage('array')">array</li>
+          <label>Array</label>
+          <ul>
+            <li id="array_link" onclick="showPage('array')">array</li>
 <li id="flatten_link" onclick="showPage('flatten')">flatten</li>
 <li id="mapcat_link" onclick="showPage('mapcat')">mapcat</li>
 <li id="range_link" onclick="showPage('range')">range</li>
 <li id="repeat_link" onclick="showPage('repeat')">repeat</li>
-        </ul>
+          </ul>
 
-        <label>Bitwise</label>
-        <ul>
-          <li id="bit-and_link" onclick="showPage('bit-and')">bit-and</li>
+          <label>Bitwise</label>
+          <ul>
+            <li id="bit-and_link" onclick="showPage('bit-and')">bit-and</li>
 <li id="bit-and-not_link" onclick="showPage('bit-and-not')">bit-and-not</li>
 <li id="bit-clear_link" onclick="showPage('bit-clear')">bit-clear</li>
 <li id="bit-flip_link" onclick="showPage('bit-flip')">bit-flip</li>
@@ -5267,11 +5264,11 @@ to deep equal
 <li id="bit-shift-right_link" onclick="showPage('bit-shift-right')">bit-shift-right</li>
 <li id="bit-test_link" onclick="showPage('bit-test')">bit-test</li>
 <li id="bit-xor_link" onclick="showPage('bit-xor')">bit-xor</li>
-        </ul>
+          </ul>
 
-        <label>Assert</label>
-        <ul>
-          <li id="assert_link" onclick="showPage('assert')">assert</li>
+          <label>Assert</label>
+          <ul>
+            <li id="assert_link" onclick="showPage('assert')">assert</li>
 <li id="assert-equal_link" onclick="showPage('assert-equal')">assert-equal</li>
 <li id="assert-false_link" onclick="showPage('assert-false')">assert-false</li>
 <li id="assert-falsy_link" onclick="showPage('assert-falsy')">assert-falsy</li>
@@ -5288,52 +5285,52 @@ to deep equal
 <li id="assert_equal_link" onclick="showPage('assert_equal')">assert=</li>
 <li id="assert_gt_link" onclick="showPage('assert_gt')">assert&gt;</li>
 <li id="assert_gte_link" onclick="showPage('assert_gte')">assert&gt;=</li>
-        </ul>
-</nav>
-
-    
-<div id="playground" style="position: fixed; bottom: 0; left: 0; right: 0; background-color: rgb(38 38 38); background-color: transparent;">
-  <div style="display: flex; justify-content: flex-end; background-color: transparent; font-size: 0.875rem; width: 100%; color: rgb(212 212 212);">
-    <a style="padding-right: 0.5rem; padding-bottom: 0.25rem;" onclick="resetPlayground()">Reset Playground</a>
-  </div>
-  <div id="resize-playground" style="height: 5px; background-color: rgb(82 82 82); cursor: row-resize;"></div>
+          </ul>
+  </nav>
   
-  <div id="panels-container" style="height: 100%; width: 100%; display: flex; flex-direction: row; white-space: nowrap;">
-    <div id="params-panel" style="height: 100%;">
-      <div id="params-links" style="position: relative; top: 0.25rem; float: right; margin-right: 0.5rem;">
-        <div style="display: flex; flex-direction: row; gap: 0.5rem; font-size: 0.875rem; color: rgb(212 212 212);">
-          <a onclick="resetParams()">Clear</a>
+    
+  <div id="playground" style="position: fixed; bottom: 0; left: 0; right: 0; background-color: rgb(38 38 38); background-color: transparent;">
+    <div style="display: flex; justify-content: flex-end; background-color: transparent; font-size: 0.875rem; width: 100%; color: rgb(212 212 212);">
+      <a style="padding-right: 0.5rem; padding-bottom: 0.25rem;" onclick="resetPlayground()">Reset Playground</a>
+    </div>
+    <div id="resize-playground" style="height: 5px; background-color: rgb(82 82 82); cursor: row-resize;"></div>
+    
+    <div id="panels-container" style="height: 100%; width: 100%; display: flex; flex-direction: row; white-space: nowrap;">
+      <div id="params-panel" style="height: 100%;">
+        <div id="params-links" style="position: relative; top: 0.25rem; float: right; margin-right: 0.5rem;">
+          <div style="display: flex; flex-direction: row; gap: 0.5rem; font-size: 0.875rem; color: rgb(212 212 212);">
+            <a onclick="resetParams()">Clear</a>
+          </div>
         </div>
-      </div>
-      <textarea style="height: 100%; border-width: 0; padding-bottom: 0.25rem;" id="params-textarea" placeholder="Parameters" class="fancy-scroll" spellcheck="false"></textarea>
-    </div
-
-    ><div id="resize-divider-1" style="width: 5px; height: 100%; cursor: col-resize; background-color: rgb(82 82 82);"></div
-
-    ><div id="lits-panel" style="height: 100%;">
-      <div id="lits-links" style="position: relative; top: 0.25rem; float: right; margin-right: 0.5rem;">
-        <div style="display: flex; flex-direction: row; gap: 0.5rem; font-size: 0.875rem; color: rgb(212 212 212);">
-          <a onclick="run()">Run</a>
-          
-          <a onclick="resetLitsCode()">Clear</a>
+        <textarea style="height: 100%; border-width: 0; padding-bottom: 0.25rem;" id="params-textarea" placeholder="Parameters" class="fancy-scroll" spellcheck="false"></textarea>
+      </div
+  
+      ><div id="resize-divider-1" style="width: 5px; height: 100%; cursor: col-resize; background-color: rgb(82 82 82);"></div
+  
+      ><div id="lits-panel" style="height: 100%;">
+        <div id="lits-links" style="position: relative; top: 0.25rem; float: right; margin-right: 0.5rem;">
+          <div style="display: flex; flex-direction: row; gap: 0.5rem; font-size: 0.875rem; color: rgb(212 212 212);">
+            <a onclick="run()">Run</a>
+            
+            <a onclick="resetLitsCode()">Clear</a>
+          </div>
         </div>
-      </div>
-      <textarea style="height: 100%; border-width: 0; padding-bottom: 2rem;" id="lits-textarea" placeholder="Lits code, F2 to run" class="fancy-scroll" spellcheck="false"></textarea>
-    </div
-
-    ><div id="resize-divider-2" style="width: 5px; height: 100%; cursor: col-resize; background-color: rgb(82 82 82);"></div
-
-    ><div id="output-panel" style="height: 100%;">
-      <div id="output-links" style="position: relative; top: 0.25rem; float: right; margin-right: 0.5rem;">
-        <div style="display: flex; flex-direction: row; gap: 0.5rem; font-size: 0.875rem; color: rgb(212 212 212);">
-          <a onclick="resetOutput()">Clear</a>
+        <textarea style="height: 100%; border-width: 0; padding-bottom: 2rem;" id="lits-textarea" placeholder="Lits code, F2 to run" class="fancy-scroll" spellcheck="false"></textarea>
+      </div
+  
+      ><div id="resize-divider-2" style="width: 5px; height: 100%; cursor: col-resize; background-color: rgb(82 82 82);"></div
+  
+      ><div id="output-panel" style="height: 100%;">
+        <div id="output-links" style="position: relative; top: 0.25rem; float: right; margin-right: 0.5rem;">
+          <div style="display: flex; flex-direction: row; gap: 0.5rem; font-size: 0.875rem; color: rgb(212 212 212);">
+            <a onclick="resetOutput()">Clear</a>
+          </div>
         </div>
+        <textarea style="height: 100%; border-width: 0;" id="output-textarea" class="fancy-scroll" readonly spellcheck="false" placeholder="Output" ></textarea>
       </div>
-      <textarea style="height: 100%; border-width: 0;" id="output-textarea" class="fancy-scroll" readonly spellcheck="false" placeholder="Output" ></textarea>
     </div>
   </div>
-</div>
-
+  
   </div>
   
     <div id="search-dialog-overlay" class="dialog-overlay">

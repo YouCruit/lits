@@ -1,7 +1,7 @@
-import { formatLitsExpression } from '../formatter/formatters'
-import { stringifyValue } from '../utils'
-import { Lits } from '../../src'
-import { styles } from '../styles'
+import { formatLitsExpression } from '../../formatter/formatters'
+import { stringifyValue } from '../../utils/utils'
+import { Lits } from '../../../src'
+import { styles } from '../../styles'
 
 const lits = new Lits({ debug: true })
 

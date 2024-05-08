@@ -63,11 +63,11 @@ module.exports = [
     plugins,
   },
   {
-    input: 'scripts/buildPlayground.ts',
+    input: 'scripts/buildPlaygroundSite.ts',
     external: ['node:fs', 'node:path'],
     output: [
       {
-        file: 'build/buildPlayground.js',
+        file: 'build/buildPlaygroundSite.js',
         format: 'cjs',
       },
     ],

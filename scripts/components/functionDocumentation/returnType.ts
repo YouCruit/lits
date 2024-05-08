@@ -1,5 +1,5 @@
-import type { Category, Reference } from '../../reference'
-import { styles } from '../styles'
+import type { Category, Reference } from '../../../reference'
+import { styles } from '../../styles'
 import { formatDescription } from './description'
 import { getType } from './getType'
 

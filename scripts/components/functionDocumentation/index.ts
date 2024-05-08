@@ -1,5 +1,5 @@
-import { type Category, type Reference, isNormalExpressionArgument, isSpecialExpressionArgument } from '../../reference'
-import { styles } from '../styles'
+import { type Category, type Reference, functionReference, isNormalExpressionArgument, isSpecialExpressionArgument } from '../../../reference'
+import { styles } from '../../styles'
 import { getClojureDocsLink } from './clojureDocs'
 import { formatDescription } from './description'
 import { getFunctionExamples } from './functionExamples'
@@ -7,7 +7,13 @@ import { getArgumentInfo } from './argumentInfo'
 import { getReturnType } from './returnType'
 import { getSection } from './section'
 
-export function getFunctionDocumentation(reference: Reference<Category>) {
+export function getFunctionDocumentations() {
+  return Object.values(functionReference)
+    .map(obj => getFunctionDocumentation(obj))
+    .join('\n')
+}
+
+function getFunctionDocumentation(reference: Reference<Category>) {
   const { name, linkName, examples, clojureDocs, category } = reference
   const clojureDocsLink = getClojureDocsLink(name, clojureDocs)
 

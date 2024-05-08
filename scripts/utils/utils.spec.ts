@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { variableRegExp } from '../formatter/rules'
 import { findAllOccurrences } from './utils'
-import { variableRegExp } from './formatter/rules'
 
 describe('findAllOccurrences', () => {
   it('should find all occurrences of a pattern in the input string', () => {

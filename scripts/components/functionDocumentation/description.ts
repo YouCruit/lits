@@ -1,9 +1,9 @@
-import type { Category, Reference } from '../../reference'
-import { nameCharacters } from '../../src/tokenizer/tokenizers'
-import { styles } from '../styles'
-import { createFormatter } from '../formatter/createFormatter'
-import { createVariableRule, mdRules, numberRule } from '../formatter/rules'
-import { findAllOccurrences } from '../utils'
+import type { Category, Reference } from '../../../reference'
+import { nameCharacters } from '../../../src/tokenizer/tokenizers'
+import { styles } from '../../styles'
+import { createFormatter } from '../../formatter/createFormatter'
+import { createVariableRule, mdRules, numberRule } from '../../formatter/rules'
+import { findAllOccurrences } from '../../utils/utils'
 
 const variableRegExp = new RegExp(`\\$${nameCharacters}+`, 'g')
 

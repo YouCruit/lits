@@ -22,7 +22,8 @@ body.no-select {
 
 textarea {
   outline: none;
-  background-color: #333333;
+  background-color: #222222;
+  cursor: pointer;
   width: 100%;
   resize: none;
   padding: 0.5rem;
@@ -35,7 +36,8 @@ textarea {
 
 input {
   outline: none;
-  background-color: #333333;
+  background-color: #222222;
+  border: 1px solid #444444;
   padding: 0.2rem;
   color: #dddddd;
   font-size: 1rem;
@@ -247,8 +249,10 @@ input[type="submit"]:hover{
   box-sizing: border-box;
   position: fixed;
   left: 290px;
-  top: 95px;
-  right: 1rem;
+  top: 0;
+  padding-top: 1rem;
+  /* top: 95px; */
+  right: 0;
   overflow-y: auto;
 }
 
@@ -256,49 +260,41 @@ input[type="submit"]:hover{
   position: fixed;
   left: 0;
   width: 250px;
-  top: 95px;
+  top: 0;
+  /* top: 95px; */
+  padding-top: 1rem;
   padding-left: 1rem;
   white-space: nowrap;
   overflow-y: scroll;
   padding-right: 1rem;
 }
 
-#playground {
+/* #playground {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   background-color: #333333;
-  padding: 0 0.5rem 0.5rem 0.5rem;
+  padding: 0 0.5rem 0rem 0.5rem;
   box-shadow: 6px 3px 8px #111111;
-}
+} */
 
-#playground #panels-container {
-  width: 100%;
-  white-space: nowrap;
-}
-
-
-#playground #params-panel, #playground #lits-panel, #playground #output-panel {
-  display: inline-block;
-}
-
-#playground #resize-playground {
+/* #playground #resize-playground {
   display: block;
   height: 5px;
   background-color: #444444;
   margin-left: -0.5rem;
   margin-right: -0.5rem;
   cursor: row-resize;
-}
-
+} */
+/* 
 #playground #resize-divider-1, #playground #resize-divider-2 {
   display: inline-block;
   max-width: 5px;
   width: 5px;
   margin: 20px 0px 5px 0px;
   cursor: col-resize;
-}
+} */
 
 .text {
   font-family: Roboto;
@@ -435,42 +431,8 @@ h4, h2, h1 {
   align-self: end;
 }
 
-
-#playground .header {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 0.75rem;
-  margin-top: 0.25rem;
-  background-color: #333333;
-  color: #dddddd;
-  color: #dddddd;
-  padding: 0 0.15rem;
-}
-
 #playground #params-textarea, #playground #lits-textarea {
   background-color: #222222;
-}
-
-#output-textarea {
-  margin-bottom: 1px;
-}
-
-#playground .textarea-header {
-  white-space: nowrap;
-  padding-left: 0.25rem;
-  display: flex;
-  justify-content: space-between;
-}
-
-#playground .textarea-header label {
-  font-weight: bold;
-  margin: 0;
-  padding: 0;
-}
-
-#playground .textarea-header a {
-  margin: 0;
-  padding-right: 5px;
 }
 
 #index pre, span.pre {
@@ -538,4 +500,43 @@ h2.discrete {
 table {
   border-collapse: collapse;
   margin-left: -3px;
+}
+
+.dialog-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px);
+  animation: fade-in 0.15s ease-in-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.dialog-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: top;
+  padding-top: 100px;
+  max-height: calc(100% - 200px);
+}
+.dialog-overlay .dialog {
+  background-color: #333333;
+  color: #ccc;
+  outline: none;
+  width: calc(100% - 300px);
+  max-width: 800px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  overflow-y: auto;
 }

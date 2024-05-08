@@ -1,17 +1,8 @@
 /* eslint-disable no-console */
-/* eslint-disable no-alert */
+
 /* eslint-disable unused-imports/no-unused-vars */
-const defaultProgram = `(defn factorial [x]
-  (if (= x 1)
-    1
-    (* x (factorial (dec x)))
-  )
-)
 
-(factorial 10)
-`
-
-const DEFAULT_PLAYGROUND_HEIGHT = 500
+const DEFAULT_PLAYGROUND_HEIGHT = 350
 const DEFAULT_RESIZE_DIVIDER1_X_PERCENT = 15
 const DEFAULT_RESIZE_DIVIDER2_X_PERCENT = 80
 
@@ -22,12 +13,12 @@ let resizeDivider2XPercent = null
 let windowHeight = null
 let windowWidth = null
 let availablePanelsWidth = null
-let search = localStorage.getItem('search') || ''
+let search = ''
 
 function calculateDimensions() {
   windowHeight = window.innerHeight
   windowWidth = window.innerWidth
-  availablePanelsWidth = windowWidth - 26
+  availablePanelsWidth = windowWidth
 }
 
 function layout() {
@@ -37,31 +28,17 @@ function layout() {
   const playground = document.getElementById('playground')
   const sidebar = document.getElementById('sidebar')
   const mainPanel = document.getElementById('main-panel')
-  const paramsTextarea = document.getElementById('params-textarea')
-  const litsTextarea = document.getElementById('lits-textarea')
-  const outputTextarea = document.getElementById('output-textarea')
   const paramsPanel = document.getElementById('params-panel')
   const litsPanel = document.getElementById('lits-panel')
   const outputPanel = document.getElementById('output-panel')
-  const resizeDivider1 = document.getElementById('resize-divider-1')
-  const resizeDivider2 = document.getElementById('resize-divider-2')
-  const clearSearchLink = document.getElementById('search-clear')
 
-  const textAreaHeight = playgroundHeight - 77
-  const topPanelsBottom = playgroundHeight + 8
+  const topPanelsBottom = playgroundHeight - 21
 
   const paramsPanelWidth = (availablePanelsWidth * resizeDivider1XPercent) / 100
   const outputPanelWidth = (availablePanelsWidth * (100 - resizeDivider2XPercent)) / 100
   const litsPanelWidth = availablePanelsWidth - paramsPanelWidth - outputPanelWidth
 
   playground.style.height = `${playgroundHeight}px`
-  resizeDivider1.style.height = `${playgroundHeight - 78}px`
-  resizeDivider2.style.height = `${playgroundHeight - 78}px`
-  resizeDivider1.style.marginTop = '20px'
-  resizeDivider2.style.marginTop = '20px'
-  paramsTextarea.style.height = `${textAreaHeight}px`
-  litsTextarea.style.height = `${textAreaHeight}px`
-  outputTextarea.style.height = `${textAreaHeight}px`
 
   paramsPanel.style.width = `${paramsPanelWidth}px`
   litsPanel.style.width = `${litsPanelWidth}px`
@@ -72,61 +49,154 @@ function layout() {
 
   wrapper.style.display = 'block'
 
-  clearSearchLink.style.visibility = search ? 'visible' : 'hidden'
-  filterSidebar()
+  populateSearchResult()
 }
 
-function filterSidebar() {
-  const sidebar = document.getElementById('sidebar')
-  const sidebarEntries = Array.from(sidebar.getElementsByTagName('li'))
-
-  sidebarEntries.forEach((entry) => {
-    if (!search) {
-      entry.style.display = 'block'
-      entry.style.color = '#cccccc'
-    }
-    else {
-      const text = entry.textContent
-      if (text.toLowerCase().includes(search.toLowerCase())) {
-        entry.style.display = 'block'
-        entry.style.color = 'yellow'
-      }
-      else {
-        entry.style.display = 'none'
-        entry.style.color = undefined
-      }
-    }
-  })
+function populateSearchResult() {
+  const searchResult = document.getElementById('search-result')
+  const noSearchResult = document.getElementById('no-search-result')
+  if (!search) {
+    noSearchResult.style.display = 'block'
+    searchResult.style.display = 'none'
+  }
+  else {
+    noSearchResult.style.display = 'none'
+    searchResult.style.display = 'block'
+  }
 }
 
 function resetPlayground() {
-  if (confirm('Clear all data?')) {
-    resetParams()
-    resetLits()
-    resetOutput()
+  resetParams()
+  resetLitsCode()
+  resetOutput()
 
-    localStorage.removeItem('playground-height')
-    localStorage.removeItem('resize-divider-1-percent')
-    localStorage.removeItem('resize-divider-2-percent')
-    playgroundHeight = DEFAULT_PLAYGROUND_HEIGHT
-    resizeDivider1XPercent = DEFAULT_RESIZE_DIVIDER1_X_PERCENT
-    resizeDivider2XPercent = DEFAULT_RESIZE_DIVIDER2_X_PERCENT
-    clearSearch()
-  }
+  localStorage.removeItem('playground-height')
+  localStorage.removeItem('resize-divider-1-percent')
+  localStorage.removeItem('resize-divider-2-percent')
+  playgroundHeight = DEFAULT_PLAYGROUND_HEIGHT
+  resizeDivider1XPercent = DEFAULT_RESIZE_DIVIDER1_X_PERCENT
+  resizeDivider2XPercent = DEFAULT_RESIZE_DIVIDER2_X_PERCENT
+  clearSearch()
+  layout()
 }
 
 function resetParams() {
   document.getElementById('params-textarea').value = ''
   localStorage.removeItem('params-textarea')
+  updateParamsLinks()
 }
 
-function resetLits() {
-  document.getElementById('lits-textarea').value = ''
+function setParams(value) {
+  const paramsTextArea = document.getElementById('params-textarea')
+  paramsTextArea.value = value
+  localStorage.setItem('params-textarea', value)
+  updateParamsLinks()
+}
+
+function getParams() {
+  return document.getElementById('params-textarea').value
+}
+
+function resetLitsCode() {
+  const litsTextArea = document.getElementById('lits-textarea')
+  litsTextArea.value = ''
   localStorage.removeItem('lits-textarea')
+  litsTextArea.focus()
+  updateLitsCodeLinks()
+}
+
+function setLitsCode(value) {
+  const litsTextArea = document.getElementById('lits-textarea')
+  litsTextArea.value = value
+  localStorage.setItem('lits-textarea', value)
+  litsTextArea.scrollTop = litsTextArea.scrollHeight
+  updateLitsCodeLinks()
+  litsTextArea.focus()
+}
+
+function appendLitsCode(value) {
+  const litsTextArea = document.getElementById('lits-textarea')
+  const oldContent = litsTextArea.value
+  const newContent = oldContent ? `${oldContent}\n${value}` : value
+  litsTextArea.value = newContent
+  localStorage.setItem('lits-textarea', newContent)
+  litsTextArea.scrollTop = litsTextArea.scrollHeight
+  updateLitsCodeLinks()
+  litsTextArea.focus()
+}
+
+function getLitsCode() {
+  return document.getElementById('lits-textarea').value
 }
 
 function resetOutput() {
-  document.getElementById('output-textarea').value = ''
+  setOutput('')
+  updateOutputLinks()
+}
+
+function appendOutput(value) {
+  const output = document.getElementById('output-textarea')
+  output.classList.remove('error')
+  const oldContent = output.value
+  const newContent = oldContent ? `${oldContent}\n${value}` : value
+  output.value = newContent
+  output.scrollTop = output.scrollHeight
+  updateOutputLinks()
+}
+
+function setOutput(value) {
+  const output = document.getElementById('output-textarea')
+  output.classList.remove('error')
+  output.value = value
+  output.scrollTop = output.scrollHeight
+  updateOutputLinks()
+}
+
+function setOutputError(value) {
+  const output = document.getElementById('output-textarea')
+  output.classList.add('error')
+  output.value = value
+  output.scrollTop = output.scrollHeight
+  updateOutputLinks()
+}
+
+function getOutput() {
+  return document.getElementById('output-textarea').value
+}
+
+function updateLinks() {
+  updateLitsCodeLinks()
+  updateOutputLinks()
+  updateParamsLinks()
+}
+
+function updateParamsLinks() {
+  const paramsLinks = document.getElementById('params-links')
+  
+  if (getParams())
+    paramsLinks.style.display = 'block'
+  else
+    paramsLinks.style.display = 'none'
+}
+
+function updateLitsCodeLinks() {
+  const litsLinks = document.getElementById('lits-links')
+
+  if (getLitsCode())
+    litsLinks.style.display = 'block'
+  else
+    litsLinks.style.display = 'none'
+
+}
+
+function updateOutputLinks() {
+  const outputLinks = document.getElementById('output-links')
+
+  if (getOutput())
+    outputLinks.style.display = 'block'
+  else
+    outputLinks.style.display = 'none'
+
 }
 
 function initializeSearch() {
@@ -134,23 +204,14 @@ function initializeSearch() {
   searchInput.value = search
   searchInput.oninput = (event) => {
     search = event.target.value
-    localStorage.setItem('search', search)
     layout()
-  }
-  searchInput.onkeyup = (event) => {
-    if (event.key === 'Escape') {
-      clearSearch()
-      event.preventDefault()
-    }
   }
 }
 
 function clearSearch() {
   const searchInput = document.getElementById('search-input')
   search = ''
-  localStorage.setItem('search', search)
   searchInput.value = search
-  layout()
 }
 window.onload = function () {
   const storedPlaygroundHeight = localStorage.getItem('playground-height')
@@ -206,8 +267,8 @@ window.onload = function () {
 
     if (moveParams.id === 'playground') {
       playgroundHeight = moveParams.heightBeforeMove + moveParams.startMoveY - event.clientY
-      if (playgroundHeight < 45)
-        playgroundHeight = 45
+      if (playgroundHeight < 26)
+        playgroundHeight = 26
 
       if (playgroundHeight > windowHeight - 89)
         playgroundHeight = windowHeight - 89
@@ -236,7 +297,6 @@ window.onload = function () {
 
       localStorage.setItem('resize-divider-2-percent', resizeDivider2XPercent)
     }
-
     layout()
   }
 
@@ -266,25 +326,25 @@ window.onload = function () {
       parse(true)
     }
     if (evt.key === 'k' || evt.key === 'K') {
-      if (evt.ctrlKey || evt.commandKey) {
+      console.log(evt.ctrlKey, evt.metaKey)
+      if (evt.ctrlKey || evt.metaKey) {
+        openSearch()
         evt.preventDefault()
-        clearSearch()
       }
-      const searchInput = document.getElementById('search-input')
-      searchInput.select()
-      searchInput.focus()
-
+    }
+    if (evt.key === 'Escape') {
+      closeSearch()
       evt.preventDefault()
     }
   })
   document.getElementById('lits-textarea').addEventListener('keydown', keydownHandler)
   document
     .getElementById('lits-textarea')
-    .addEventListener('input', e => localStorage.setItem('lits-textarea', e.target.value))
+    .addEventListener('input', (e) => setLitsCode(e.target.value))
   document.getElementById('params-textarea').addEventListener('keydown', keydownHandler)
   document
     .getElementById('params-textarea')
-    .addEventListener('input', e => localStorage.setItem('params-textarea', e.target.value))
+    .addEventListener('input', (e) => setParams(e.target.value))
 
   const id = location.hash.substring(1) || 'index'
   showPage(id, 'replace')
@@ -292,17 +352,33 @@ window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search)
 
   const program = urlParams.get('program')
-  const litsTextArea = document.getElementById('lits-textarea')
-  if (program)
-    litsTextArea.value = decodeURIComponent(program)
-  else
-    litsTextArea.value = localStorage.getItem('lits-textarea') || defaultProgram
+  const litsCode = program ? decodeURIComponent(program) : localStorage.getItem('lits-textarea') || ''
+  setLitsCode(litsCode)
 
-  const paramsTextArea = document.getElementById('params-textarea')
-  paramsTextArea.value = localStorage.getItem('params-textarea') || ''
+  setParams(localStorage.getItem('params-textarea') || '')
 
+  updateLinks()
   layout()
   initializeSearch()
+  document.getElementById('lits-textarea').focus()
+}
+
+function openSearch() {
+  const searchOverlay = document.getElementById('search-dialog-overlay')
+  const searchDialod = document.getElementById('search-dialog')
+  searchOverlay.style.display = 'block'
+  searchDialod.open = 'open'
+  const searchInput = document.getElementById('search-input')
+  searchInput.focus()
+}
+
+function closeSearch() {
+  const searchOverlay = document.getElementById('search-dialog-overlay')
+  const searchDialod = document.getElementById('search-dialog')
+  searchOverlay.style.display = 'none'
+  searchDialod.open = 'closed'
+  clearSearch()
+  layout()
 }
 
 function keydownHandler(e) {
@@ -349,10 +425,9 @@ window.addEventListener('popstate', () => {
 })
 
 function run() {
-  const code = document.getElementById('lits-textarea').value
-  const paramsString = document.getElementById('params-textarea').value
-  const output = document.getElementById('output-textarea')
-  output.value = ''
+  const code = getLitsCode()
+  const paramsString = getParams()
+  setOutput('')
   let params
   try {
     params
@@ -363,8 +438,7 @@ function run() {
         : {}
   }
   catch (e) {
-    output.value = `Error: Could not parse params: ${paramsString}`
-    output.classList.add('error')
+    setOutputError(`Error: Could not parse params: ${paramsString}`)
     return
   }
   let result
@@ -372,111 +446,88 @@ function run() {
   console.log = function (...args) {
     oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
-    const oldContent = output.value
-    const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    output.value = newContent
-    output.scrollTop = output.scrollHeight
+    appendOutput(logRow)
   }
   const oldWarn = console.warn
   console.warn = function (...args) {
     oldWarn.apply(console, args)
     const logRow = args[0]
-    const oldContent = output.value
+    appendOutput(logRow)
+    const oldContent = getOutput()
     const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    output.value = newContent
-    output.scrollTop = output.scrollHeight
+    setOutput(newContent)
   }
   try {
     result = lits.run(code, params)
   }
   catch (error) {
-    output.value = error
-    output.classList.add('error')
+    setOutputError(error)
     return
   }
   finally {
     console.log = oldLog
     console.warn = oldWarn
   }
-  output.classList.remove('error')
   const content = stringifyValue(result)
 
-  const oldContent = output.value
-  const newContent = oldContent ? `${oldContent}\n${content}` : content
-  output.value = newContent
-  output.scrollTop = output.scrollHeight
-
-  output.value = newContent
+  appendOutput(content)
 }
 
 function analyze() {
-  const code = document.getElementById('lits-textarea').value
-  const output = document.getElementById('output-textarea')
-  output.value = ''
+  const code = getLitsCode()
+  resetOutput()
   let result
   const oldLog = console.log
   console.log = function (...args) {
     oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
-    const oldContent = output.value
+    const oldContent = getOutput()
     const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    output.value = newContent
-    output.scrollTop = output.scrollHeight
+    setOutput(newContent)
   }
   const oldWarn = console.warn
   console.warn = function (...args) {
     oldWarn.apply(console, args)
     const logRow = args[0]
-    const oldContent = output.value
+    const oldContent = getOutput()
     const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    output.value = newContent
-    output.scrollTop = output.scrollHeight
+    setOutput(newContent)
   }
   try {
     result = lits.analyze(code)
   }
   catch (error) {
-    output.value = error
-    output.classList.add('error')
+    setOutputError(error)
     return
   }
   finally {
     console.log = oldLog
     console.warn = oldWarn
   }
-  output.classList.remove('error')
   const content = `Undefined symbols: ${stringifyValue([...result.undefinedSymbols])}`
 
-  const oldContent = output.value
-  const newContent = oldContent ? `${oldContent}\n${content}` : content
-  output.value = newContent
-  output.scrollTop = output.scrollHeight
-
-  output.value = newContent
+  appendOutput(content)
 }
 
 function parse(debug) {
-  const code = document.getElementById('lits-textarea').value
-  const output = document.getElementById('output-textarea')
-  output.value = ''
+  const code = getLitsCode()
+  resetOutput()
   let result
   const oldLog = console.log
   console.log = function (...args) {
     oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
-    const oldContent = output.value
+    const oldContent = getOutput()
     const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    output.value = newContent
-    output.scrollTop = output.scrollHeight
+    setOutput(newContent)
   }
   const oldWarn = console.warn
   console.warn = function (...args) {
     oldWarn.apply(console, args)
     const logRow = args[0]
-    const oldContent = output.value
+    const oldContent = getOutput()
     const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    output.value = newContent
-    output.scrollTop = output.scrollHeight
+    setOutput(newContent)
   }
   try {
     if (debug) {
@@ -489,47 +540,37 @@ function parse(debug) {
     }
   }
   catch (error) {
-    output.value = error
-    output.classList.add('error')
+    setOutputError(error)
     return
   }
   finally {
     console.log = oldLog
     console.warn = oldWarn
   }
-  output.classList.remove('error')
   const content = JSON.stringify(result, null, 2)
 
-  const oldContent = output.value
-  const newContent = oldContent ? `${oldContent}\n${content}` : content
-  output.value = newContent
-  output.scrollTop = output.scrollHeight
-
-  output.value = newContent
+  appendOutput(content)
 }
 
 function tokenize(debug) {
-  const code = document.getElementById('lits-textarea').value
-  const output = document.getElementById('output-textarea')
-  output.value = ''
+  const code = getLitsCode()
+  resetOutput()
   let result
   const oldLog = console.log
   console.log = function (...args) {
     oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
-    const oldContent = output.value
+    const oldContent = getOutput()
     const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    output.value = newContent
-    output.scrollTop = output.scrollHeight
+    setOutput(newContent)
   }
   const oldWarn = console.warn
   console.warn = function (...args) {
     oldWarn.apply(console, args)
     const logRow = args[0]
-    const oldContent = output.value
+    const oldContent = getOutput()
     const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    output.value = newContent
-    output.scrollTop = output.scrollHeight
+    setOutput(newContent)
   }
   try {
     if (debug)
@@ -538,23 +579,16 @@ function tokenize(debug) {
       result = litsNoDebug.tokenize(code, { debug: false })
   }
   catch (error) {
-    output.value = error
-    output.classList.add('error')
+    setOutputError(error)
     return
   }
   finally {
     console.log = oldLog
     console.warn = oldWarn
   }
-  output.classList.remove('error')
   const content = JSON.stringify(result, null, 2)
 
-  const oldContent = output.value
-  const newContent = oldContent ? `${oldContent}\n${content}` : content
-  output.value = newContent
-  output.scrollTop = output.scrollHeight
-
-  output.value = newContent
+  appendOutput(content)
 }
 
 function showPage(id, historyEvent) {
@@ -620,14 +654,9 @@ function stringifyValue(value) {
 
 function addToPlayground(uriEncodedExample) {
   example = decodeURIComponent(uriEncodedExample)
-  const textarea = document.getElementById('lits-textarea')
+  appendLitsCode(example)
 
-  if (textarea.value)
-    textarea.value = `${textarea.value}\n\n${example}`
-  else
-    textarea.value = example
-
-  localStorage.setItem('lits-textarea', textarea.value)
+  run()
 }
 
 function setPlayground(uriEncodedExample) {
@@ -636,12 +665,11 @@ function setPlayground(uriEncodedExample) {
   const params = example.params
     ? JSON.stringify(example.params, (_k, v) => (v === undefined ? null : v), 2)
     : ''
-  document.getElementById('params-textarea').value = params
-  localStorage.setItem('params-textarea', params)
+
+  setParams(params)
 
   const code = example.code ? example.code : ''
-  document.getElementById('lits-textarea').value = code
-  localStorage.setItem('lits-textarea', code)
+  setLitsCode(code)
 
   run()
 }

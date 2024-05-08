@@ -8,84 +8,150 @@ enum Color {
   String = '#cc8f77',
   Keyword = '#d16969',
   White = '#ffffff',
-  Gray_50	= 'rgb(249 250 251)',
-  Gray_100 = 'rgb(243 244 246)',
-  Gray_200 = 'rgb(229 231 235)',
-  Gray_300 = 'rgb(209 213 219)',
-  Gray_400 = 'rgb(156 163 175)',
-  Gray_500 = 'rgb(107 114 128)',
-  Gray_600 = 'rgb(75 85 99)',
-  Gray_700 = 'rgb(55 65 81)',
-  Gray_800 = 'rgb(31 41 55)',
-  Gray_900 = 'rgb(17 24 39)',
-  Gray_950 = 'rgb(3 7 18)',
+  Gray_50	= 'rgb(250 250 250)',
+  Gray_100 = 'rgb(245 245 245)',
+  Gray_200 = 'rgb(229 229 229)',
+  Gray_300 = 'rgb(212 212 212)',
+  Gray_400 = 'rgb(163 163 163)',
+  Gray_500 = 'rgb(115 115 115)',
+  Gray_600 = 'rgb(82 82 82)',
+  Gray_700 = 'rgb(64 64 64)',
+  Gray_800 = 'rgb(38 38 38)',
+  Gray_900 = 'rgb(23 23 23)',
+  Gray_950 = 'rgb(10 10 10)',
   Black = '#000000',
 }
 
 export function getColorStyles(css: CssTemplateFunction) {
   const colorStyles = {
-    'color-Comment': css`
+    'text-color-Comment': css`
       color: ${Color.Gray_500};
     `,
-    'color-Argument': css`
+    'text-color-Argument': css`
       color: ${Color.Argument};
     `,
-    'color-Name': css`
+    'text-color-Name': css`
       color: ${Color.Name};
     `,
-    'color-FunctionName': css`
+    'text-color-FunctionName': css`
       color: ${Color.FunctionName};
     `,
-    'color-Number': css`
+    'text-color-Number': css`
       color: ${Color.Number};
     `,
-    'color-String': css`
+    'text-color-String': css`
       color: ${Color.String};
     `,
-    'color-Operator': css`
+    'text-color-Operator': css`
       color: ${Color.Gray_200};
     `,
-    'color-Keyword': css`
+    'text-color-Keyword': css`
       color: ${Color.Keyword};
     `,
-    'color-white': css`
+    'text-color-inherit': css`
+      color: inherit;
+    `,
+    'text-color-current': css`
+      color: currentColor;
+    `,
+    'text-color-transparent': css`
+      color: transparent;
+    `,
+    'text-color-white': css`
       color: ${Color.White};
     `,
-    'color-gray-50': css`
+    'text-color-gray-50': css`
       color: ${Color.Gray_50};
     `,
-    'color-gray-100': css`
+    'text-color-gray-100': css`
       color: ${Color.Gray_100};
     `,
-    'color-gray-200': css`
+    'text-color-gray-200': css`
       color: ${Color.Gray_200};
     `,
-    'color-gray-300': css`
+    'text-color-gray-300': css`
       color: ${Color.Gray_300};
     `,
-    'color-gray-400': css`
+    'text-color-gray-400': css`
       color: ${Color.Gray_400};
     `,
-    'color-gray-500': css`
+    'text-color-gray-500': css`
       color: ${Color.Gray_500};
     `,
-    'color-gray-600': css`
+    'text-color-gray-600': css`
       color: ${Color.Gray_600};
     `,
-    'color-gray-700': css`
+    'text-color-gray-700': css`
       color: ${Color.Gray_700};
     `,
-    'color-gray-800': css`
+    'text-color-gray-800': css`
       color: ${Color.Gray_800};
     `,
-    'color-gray-900': css`
+    'text-color-gray-900': css`
       color: ${Color.Gray_900};
     `,
-    'color-gray-950': css`
+    'text-color-gray-950': css`
       color: ${Color.Gray_950};
     `,
-    'color-black': css`
+    'text-color-black': css`
       color: ${Color.Black};
+    `,
+    'bg-inherit': css`
+      background-color: inherit;
+    `,
+    'bg-current': css`
+      background-color: currentColor;
+    `,
+    'bg-transparent': css`
+      background-color: transparent;
+    `,
+    'bg-white': css`
+      background-color: ${Color.White};
+    `,
+    'bg-gray-50': css`
+      background-color: ${Color.Gray_50};
+    `,
+    'bg-gray-100': css`
+      background-color: ${Color.Gray_100};
+    `,
+    'bg-gray-200': css`
+      background-color: ${Color.Gray_200};
+    `,
+    'bg-gray-300': css`
+      background-color: ${Color.Gray_300};
+    `,
+    'bg-gray-400': css`
+      background-color: ${Color.Gray_400};
+    `,
+    'bg-gray-500': css`
+      background-color: ${Color.Gray_500};
+    `,
+    'bg-gray-600': css`
+      background-color: ${Color.Gray_600};
+    `,
+    'bg-gray-700': css`
+      background-color: ${Color.Gray_700};
+    `,
+    'bg-gray-800': css`
+      background-color: ${Color.Gray_800};
+    `,
+    'bg-gray-900': css`
+      background-color: ${Color.Gray_900};
+    `,
+    'bg-gray-950': css`
+      background-color: ${Color.Gray_950};
+    `,
+    'bg-black': css`
+      background-color: ${Color.Black};
+    `,
+    'border-inherit': css`
+      color: inherit;
+    `,
+    'border-current': css`
+      color: currentColor;
+    `,
+    'border-transparent': css`
+      color: transparent;
     `,
     'border-white': css`
       border-color: ${Color.White};

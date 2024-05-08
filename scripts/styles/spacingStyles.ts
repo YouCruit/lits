@@ -232,6 +232,216 @@ export function getSpacingStyles(css: CssTemplateFunction) {
     'ml-8': css`
       margin-left: 2rem;
     `,
+
+    '-m-px': css`
+      margin: -1px;
+    `,
+    '-m-0.5': css`
+      margin: -0.125rem;
+    `,
+    '-m-1': css`
+      margin: -0.25rem;
+    `,
+    '-m-2': css`
+      margin: -0.5rem;
+    `,
+    '-m-3': css`
+      margin: -0.75rem;
+    `,
+    '-m-4': css`
+      margin: -1rem;
+    `,
+    '-m-5': css`
+      margin: -1.25rem;
+    `,
+    '-m-6': css`
+      margin: -1.5rem;
+    `,
+    '-m-8': css`
+      margin: -2rem;
+    `,
+    '-my-px': css`
+      margin-top: -1px;
+      margin-bottom: -1px;
+    `,
+    '-my-0.5': css`
+      margin-top: -0.125rem;
+      margin-bottom: -0.125rem;
+    `,
+    '-my-1': css`
+      margin-top: -0.25rem;
+      margin-bottom: -0.25rem;
+    `,
+    '-my-2': css`
+      margin-top: -0.5rem;
+      margin-bottom: -0.5rem;
+    `,
+    '-my-3': css`
+      margin-top: -0.75rem;
+      margin-bottom: -0.75rem;
+    `,
+    '-my-4': css`
+      margin-top: -1rem;
+      margin-bottom: -1rem;
+    `,
+    '-my-5': css`
+      margin-top: -1.25rem;
+      margin-bottom: -1.25rem;
+    `,
+    '-my-6': css`
+      margin-top: -1.5rem;
+      margin-bottom: -1.5rem;
+    `,
+    '-my-8': css`
+      margin-top: -2rem;
+      margin-bottom: -2rem;
+    `,
+    '-mx-px': css`
+      margin-left: -1px;
+      margin-right: -1px;
+    `,
+    '-mx-0.5': css`
+      margin-left: -0.125rem;
+      margin-right: -0.125rem;
+    `,
+    '-mx-1': css`
+      margin-left: -0.25rem;
+      margin-right: -0.25rem;
+    `,
+    '-mx-2': css`
+      margin-left: -0.5rem;
+      margin-right: -0.5rem;
+    `,
+    '-mx-3': css`
+      margin-left: -0.75rem;
+      margin-right: -0.75rem;
+    `,
+    '-mx-4': css`
+      margin-left: -1rem;
+      margin-right: -1rem;
+    `,
+    '-mx-5': css`
+      margin-left: -1.25rem;
+      margin-right: -1.25rem;
+    `,
+    '-mx-6': css`
+      margin-left: -1.5rem;
+      margin-right: -1.5rem;
+    `,
+    '-mx-8': css`
+      margin-left: -2rem;
+      margin-right: -2rem;
+    `,
+    '-mt-px': css`
+      margin-top: -1px;
+    `,
+    '-mt-0.5': css`
+      margin-top: -0.125rem;
+    `,
+    '-mt-1': css`
+      margin-top: -0.25rem;
+    `,
+    '-mt-2': css`
+      margin-top: -0.5rem;
+    `,
+    '-mt-3': css`
+      margin-top: -0.75rem;
+    `,
+    '-mt-4': css`
+      margin-top: -1rem;
+    `,
+    '-mt-5': css`
+      margin-top: -1.25rem;
+    `,
+    '-mt-6': css`
+      margin-top: -1.5rem;
+    `,
+    '-mt-8': css`
+      margin-top: -2rem;
+    `,
+    '-mr-px': css`
+      margin-right: -1px;
+    `,
+    '-mr-0.5': css`
+      margin-right: -0.125rem;
+    `,
+    '-mr-1': css`
+      margin-right: -0.25rem;
+    `,
+    '-mr-2': css`
+      margin-right: -0.5rem;
+    `,
+    '-mr-3': css`
+      margin-right: -0.75rem;
+    `,
+    '-mr-4': css`
+      margin-right: -1rem;
+    `,
+    '-mr-5': css`
+      margin-right: -1.25rem;
+    `,
+    '-mr-6': css`
+      margin-right: -1.5rem;
+    `,
+    '-mr-8': css`
+      margin-right: -2rem;
+    `,
+    '-mb-px': css`
+      margin-bottom: -1px;
+    `,
+    '-mb-0.5': css`
+      margin-bottom: -0.125rem;
+    `,
+    '-mb-1': css`
+      margin-bottom: -0.25rem;
+    `,
+    '-mb-2': css`
+      margin-bottom: -0.5rem;
+    `,
+    '-mb-3': css`
+      margin-bottom: -0.75rem;
+    `,
+    '-mb-4': css`
+      margin-bottom: -1rem;
+    `,
+    '-mb-5': css`
+      margin-bottom: -1.25rem;
+    `,
+    '-mb-6': css`
+      margin-bottom: -1.5rem;
+    `,
+    '-mb-8': css`
+      margin-bottom: -2rem;
+    `,
+    '-ml-px': css`
+      margin-left: -1px;
+    `,
+    '-ml-0.5': css`
+      margin-left: -0.125rem;
+    `,
+    '-ml-1': css`
+      margin-left: -0.25rem;
+    `,
+    '-ml-2': css`
+      margin-left: -0.5rem;
+    `,
+    '-ml-3': css`
+      margin-left: -0.75rem;
+    `,
+    '-ml-4': css`
+      margin-left: -1rem;
+    `,
+    '-ml-5': css`
+      margin-left: -1.25rem;
+    `,
+    '-ml-6': css`
+      margin-left: -1.5rem;
+    `,
+    '-ml-8': css`
+      margin-left: -2rem;
+    `,
+
+
     'p-0': css`
       padding: 0;
     `,

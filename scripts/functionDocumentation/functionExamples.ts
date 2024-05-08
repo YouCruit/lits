@@ -26,10 +26,10 @@ export function getFunctionExamples(examples: string[]) {
             return `
               <div ${styles('text-sm', 'font-mono', 'flex', 'flex-col', 'gap-2')} >
                 <div ${styles('flex', 'flex-row', 'gap-2')}>
-                  <span ${styles('color-gray-300', 'font-bold')}>=&gt</span>
+                  <span ${styles('text-color-gray-300', 'font-bold')}>=&gt</span>
                   <div ${styles('whitespace-pre', 'cursor-pointer')} class="hover-bold" onclick="addToPlayground(\`${encodedUriExample}\`)">${formattedExample}</div>
                 </div>
-                <div ${styles('whitespace-pre', 'ml-2', 'color-gray-400')}>${stringifiedResult}</div>
+                <div ${styles('whitespace-pre', 'ml-2', 'text-color-gray-400')}>${stringifiedResult}</div>
               </div>`
           }
           finally {

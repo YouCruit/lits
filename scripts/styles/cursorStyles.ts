@@ -26,6 +26,12 @@ export function getCursorStyles(css: CssTemplateFunction) {
     'cursor-not-allowed': css`
       cursor: not-allowed;
     `,
+    'cursor-row-resize': css`
+      cursor: row-resize;
+    `,
+    'cursor-col-resize': css`
+      cursor: col-resize;
+    `,
   } satisfies Partial<Styles>
 
   return cursorStyles

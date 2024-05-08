@@ -41,16 +41,16 @@ export function getFunctionDocumentation(reference: Reference<Category>) {
 
 function getSyntax({ name, variants, args }: Reference<Category>) {
   return variants.map(variant =>
-    `(<span ${styles('color-FunctionName')}>${name}</span> ${variant.argumentNames.map((argName) => {
+    `(<span ${styles('text-color-FunctionName')}>${name}</span> ${variant.argumentNames.map((argName) => {
       let result = ''
       const arg = args[argName]
       if (isNormalExpressionArgument(arg)) {
         if (arg.rest)
           result += '& '
-        result += `<span ${styles('color-Argument')}>${argName}</span>`
+        result += `<span ${styles('text-color-Argument')}>${argName}</span>`
       }
       else if (isSpecialExpressionArgument(arg)) {
-        result += `<span ${styles('color-Argument')}>${argName}</span>`
+        result += `<span ${styles('text-color-Argument')}>${argName}</span>`
       }
       return result
     }).join(' ')})`).join('<br>',

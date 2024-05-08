@@ -8,9 +8,9 @@ export function getType(argument: Argument) {
     const result = (argument.rest || argument.array)
       ? `Array<${typeString}>`
       : typeString
-    return `<span ${styles('font-mono', 'color-gray-300')}>${result}</span>`
+    return `<span ${styles('font-mono', 'text-color-gray-300')}>${result}</span>`
   }
   else {
-    return `<span ${styles('font-mono', 'color-gray-300')}>${argument.type}</span>`
+    return `<span ${styles('font-mono', 'text-color-gray-300')}>${argument.type}</span>`
   }
 }

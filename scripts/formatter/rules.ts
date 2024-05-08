@@ -47,7 +47,7 @@ export const numberRule: FormatterRule = (text, index) => {
       return noMatch
 
     const number = startMatch[0]
-    const formattedText = `<span ${styles('color-Number')}>${number}</span>`
+    const formattedText = `<span ${styles('text-color-Number')}>${number}</span>`
     return { count, formattedText }
   }
   return { count: 0, formattedText: '' }
@@ -56,7 +56,7 @@ export const numberRule: FormatterRule = (text, index) => {
 const operatorRule = createRule({
   name: 'string',
   startPattern: /^[<>\-+/*=?.,():]+/,
-  startTag: `<span ${styles('color-Operator')}>`,
+  startTag: `<span ${styles('text-color-Operator')}>`,
   endTag: '</span>',
   keepPatterns: true,
   formatPatterns: true,
@@ -67,7 +67,7 @@ const stringRule = createRule({
   name: 'string',
   startPattern: /^"/,
   endPattern: /^"/,
-  startTag: `<span ${styles('color-String')}>`,
+  startTag: `<span ${styles('text-color-String')}>`,
   endTag: '</span>',
   keepPatterns: true,
   formatPatterns: true,
@@ -77,7 +77,7 @@ const stringRule = createRule({
 const shortcutStringRule = createRule({
   name: 'string',
   startPattern: new RegExp(`^:${nameCharacters}+`),
-  startTag: `<span ${styles('color-String')}>`,
+  startTag: `<span ${styles('text-color-String')}>`,
   endTag: '</span>',
   keepPatterns: true,
   formatPatterns: true,
@@ -88,7 +88,7 @@ const functionNameRule = createRule({
   name: 'functionName',
   startPattern: new RegExp(`^\\((?=${nameCharacters}+)`),
   endPattern: /^[) \n]/,
-  startTag: `<span ${styles('color-FunctionName')}>`,
+  startTag: `<span ${styles('text-color-FunctionName')}>`,
   endTag: '</span>',
   keepPatterns: true,
   formatPatterns: false,
@@ -98,7 +98,7 @@ const functionNameRule = createRule({
 const nameRule = createRule({
   name: 'functionName',
   startPattern: new RegExp(`^${nameCharacters}+`),
-  startTag: `<span ${styles('color-Name')}>`,
+  startTag: `<span ${styles('text-color-Name')}>`,
   endTag: '</span>',
   keepPatterns: true,
   formatPatterns: true,
@@ -108,7 +108,7 @@ const nameRule = createRule({
 const commentRule = createRule({
   name: 'comment',
   startPattern: /^;.*/,
-  startTag: `<span ${styles('color-Comment', 'italic')}>`,
+  startTag: `<span ${styles('text-color-Comment', 'italic')}>`,
   endTag: '</span>',
   keepPatterns: true,
   formatPatterns: true,
@@ -118,7 +118,7 @@ const commentRule = createRule({
 const litsKeywordRule = createRule({
   name: 'functionName',
   startPattern: /^\b(nil|true|false)\b/,
-  startTag: `<span ${styles('color-Keyword')}>`,
+  startTag: `<span ${styles('text-color-Keyword')}>`,
   endTag: '</span>',
   keepPatterns: true,
   formatPatterns: true,
@@ -128,7 +128,7 @@ const litsKeywordRule = createRule({
 const inlinceCodeKeywordRule = createRule({
   name: 'inlinceCodeKeywordRule',
   startPattern: /^\b(null|true|false|nil|falsy|truthy)\b/,
-  startTag: `<span ${styles('color-Keyword')}>`,
+  startTag: `<span ${styles('text-color-Keyword')}>`,
   endTag: '</span>',
   keepPatterns: true,
   formatPatterns: true,
@@ -143,7 +143,7 @@ const formatInlineCode = createFormatter([
   inlinceCodeKeywordRule,
   nameRule,
 ], {
-  prefix: `<span ${styles('color-gray-200')}>`,
+  prefix: `<span ${styles('text-color-gray-200')}>`,
   suffix: '</span>',
 })
 
@@ -268,4 +268,3 @@ function createRule({
     return { count: 0, formattedText: '' }
   }
 }
-

@@ -11,12 +11,12 @@ export function formatDescription(description: string, reference: Reference<Cate
   const descriptionVariables = findAllOccurrences(description, variableRegExp)
 
   const currentFunctionNameRule = createVariableRule(
-    variableName => `<span ${styles('color-FunctionName')}>${variableName}</span>`,
+    variableName => `<span ${styles('text-color-FunctionName')}>${variableName}</span>`,
     variableName => variableName === reference.name,
   )
 
   const argumentRule = createVariableRule(
-    variableName => `<span ${styles('color-Argument')}>${variableName}</span>`,
+    variableName => `<span ${styles('text-color-Argument')}>${variableName}</span>`,
     variableName => isArgumentName(variableName, reference),
   )
 

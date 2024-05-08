@@ -8,29 +8,48 @@ import { getAlignAndJustifyStyles } from './alignAndJustifyStyles'
 import { getWhitespaceStyles } from './whitespaceStyles'
 import { getCursorStyles } from './cursorStyles'
 import { getBorderStyles } from './borderStyles'
+import { getSizeStyles } from './sizeStyles'
+import { getZStyles } from './zStyles'
+import { getPositionStyles } from './positionStyles'
+import { getDisplayStyles } from './displayStyles'
+import { getFloatStyles } from './floatStyles'
+import { getTopRightBottomLeftStyles } from './topRightBottomLeftStyles'
 
 export type Styles = Record<CssClass, string[]>
 export type CssTemplateFunction = ReturnType<typeof createCssTag>
 
-const simpleCss = createCssTag()
+const css = createCssTag()
 
 const basicStyles = {
-  ...getColorStyles(simpleCss),
-  ...getTextStyles(simpleCss),
-  ...getSpacingStyles(simpleCss),
-  ...getFlexStyles(simpleCss),
-  ...getAlignAndJustifyStyles(simpleCss),
-  ...getWhitespaceStyles(simpleCss),
-  ...getCursorStyles(simpleCss),
-  ...getBorderStyles(simpleCss),
+  ...getColorStyles(css),
+  ...getTextStyles(css),
+  ...getSpacingStyles(css),
+  ...getFlexStyles(css),
+  ...getAlignAndJustifyStyles(css),
+  ...getWhitespaceStyles(css),
+  ...getCursorStyles(css),
+  ...getBorderStyles(css),
+  ...getSizeStyles(css),
+  ...getZStyles(css),
+  ...getPositionStyles(css),
+  ...getDisplayStyles(css),
+  ...getTopRightBottomLeftStyles(css),
+  ...getFloatStyles(css),
 } satisfies Partial<Styles>
 
 const utilityStyles = getUtilityStyles(createCssTag(basicStyles))
 
 const allStyles: Styles = { ...basicStyles, ...utilityStyles }
 
-export function styles(...classes: CssClass[]): string {
-  return `style="${[...new Set(classes)].flatMap(c => allStyles[c]).join(' ')}"`
+type StylesParam = CssClass | `${string}: ${string};`
+
+export function styles(...classes: StylesParam[]): string {
+  return `style="${[...new Set(classes)].flatMap((c) => {
+    if (c.includes(':'))
+      return c
+    else 
+    return allStyles[c as CssClass]
+}).join(' ')}"`
 }
 
 export function createCssTag(dependencies: Partial<Styles> = {}) {

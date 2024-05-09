@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-
 /* eslint-disable unused-imports/no-unused-vars */
 
 const DEFAULT_PLAYGROUND_HEIGHT = 350
@@ -13,7 +12,6 @@ let resizeDivider2XPercent = null
 let windowHeight = null
 let windowWidth = null
 let availablePanelsWidth = null
-let search = ''
 
 function calculateDimensions() {
   windowHeight = window.innerHeight
@@ -68,21 +66,6 @@ function layout() {
   mainPanel.style.bottom = `${topPanelsBottom}px`
 
   wrapper.style.display = 'block'
-
-  populateSearchResult()
-}
-
-function populateSearchResult() {
-  const searchResult = document.getElementById('search-result')
-  const noSearchResult = document.getElementById('no-search-result')
-  if (!search) {
-    noSearchResult.style.display = 'block'
-    searchResult.style.display = 'none'
-  }
-  else {
-    noSearchResult.style.display = 'none'
-    searchResult.style.display = 'block'
-  }
 }
 
 function resetPlayground() {
@@ -96,7 +79,6 @@ function resetPlayground() {
   playgroundHeight = DEFAULT_PLAYGROUND_HEIGHT
   resizeDivider1XPercent = DEFAULT_RESIZE_DIVIDER1_X_PERCENT
   resizeDivider2XPercent = DEFAULT_RESIZE_DIVIDER2_X_PERCENT
-  clearSearch()
   layout()
 }
 
@@ -218,21 +200,6 @@ function updateOutputLinks() {
     outputLinks.style.display = 'none'
 }
 
-function initializeSearch() {
-  const searchInput = document.getElementById('search-input')
-  searchInput.value = search
-  searchInput.oninput = (event) => {
-    search = event.target.value
-    layout()
-  }
-}
-
-function clearSearch() {
-  const searchInput = document.getElementById('search-input')
-  search = ''
-  searchInput.value = search
-}
-
 window.onload = function () {
   document.addEventListener('click', onDocumentClick, true)
 
@@ -323,22 +290,14 @@ window.onload = function () {
   }
 
   window.addEventListener('keydown', (evt) => {
+    if (Playground.Search.onKeyDown(evt))
+      return
+
     if (evt.key === 'F5') {
       evt.preventDefault()
       run()
     }
-    if (evt.key === 'k' || evt.key === 'K') {
-      if (evt.ctrlKey || evt.metaKey) {
-        openSearch()
-        evt.preventDefault()
-      }
-    }
-    if (evt.key === 'F3') {
-      openSearch()
-      evt.preventDefault()
-    }
     if (evt.key === 'Escape') {
-      closeSearch()
       closeMoreMenu()
       evt.preventDefault()
     }
@@ -365,26 +324,7 @@ window.onload = function () {
 
   updateLinks()
   layout()
-  initializeSearch()
   document.getElementById('lits-textarea').focus()
-}
-
-function openSearch() {
-  const searchOverlay = document.getElementById('search-dialog-overlay')
-  const searchDialod = document.getElementById('search-dialog')
-  searchOverlay.style.display = 'block'
-  searchDialod.open = 'open'
-  const searchInput = document.getElementById('search-input')
-  searchInput.focus()
-}
-
-function closeSearch() {
-  const searchOverlay = document.getElementById('search-dialog-overlay')
-  const searchDialod = document.getElementById('search-dialog')
-  searchOverlay.style.display = 'none'
-  searchDialod.open = 'closed'
-  clearSearch()
-  layout()
 }
 
 function keydownHandler(e) {
@@ -443,7 +383,7 @@ function run() {
           typeof val === 'string' && val.startsWith('EVAL:') ? eval(val.substring(5)) : val)
         : {}
   }
-  catch (e) {
+  catch (_e) {
     setOutputError(`Error: Could not parse params: ${paramsString}`)
     return
   }

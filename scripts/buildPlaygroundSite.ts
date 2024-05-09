@@ -7,7 +7,7 @@ import { getStartPage } from './components/startPage'
 import { getExamplePage } from './components/examplePage'
 import { getPlayground } from './components/playground'
 import { getSideBar } from './components/sideBar'
-import { searchables } from './searchables'
+import { allSearchResultEntries } from './allSearchResultEntries'
 
 const DOC_DIR = path.resolve(__dirname, '../docs')
 setupPredictability()
@@ -25,6 +25,8 @@ function writeIndexPage() {
   <meta name="description" content="A reference and a playground for Lits - a Typescript Lisp implementation">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="styles.css">
+</script>
+
 </head>
 <body>
   <div id="wrapper">
@@ -38,13 +40,15 @@ function writeIndexPage() {
   </div>
   ${getSearchDialog()}
 
-  <script>
-    window.LitsPlayground = {
-      searchables: JSON.parse(atob('${btoa(JSON.stringify(searchables))}')),
-    }
-  </script>
   <script src="lits.iife.js"></script>
+
+  <script>
+    window.Playground = {}
+    window.Playground.allSearchResultEntries = JSON.parse(atob('${btoa(JSON.stringify(allSearchResultEntries))}'))
+  </script>
+
   <script src='scripts.js'></script>
+  <script src='Search.js'></script>
 </body>
 </html>
 `

@@ -20,6 +20,7 @@ export function getUtilityStyles(css: CssTemplateFunction) {
       @apply font-bold;
       @apply mb-2;
     `,
+
   } satisfies Partial<Styles> & UtilityStyles
 
   return utilityStyles

@@ -18,41 +18,46 @@ import { getTopRightBottomLeftStyles } from './topRightBottomLeftStyles'
 export type Styles = Record<CssClass, string[]>
 export type CssTemplateFunction = ReturnType<typeof createCssTag>
 
-const css = createCssTag()
+const basicCss = createCssTag()
 
 const basicStyles = {
-  ...getColorStyles(css),
-  ...getTextStyles(css),
-  ...getSpacingStyles(css),
-  ...getFlexStyles(css),
-  ...getAlignAndJustifyStyles(css),
-  ...getWhitespaceStyles(css),
-  ...getCursorStyles(css),
-  ...getBorderStyles(css),
-  ...getSizeStyles(css),
-  ...getZStyles(css),
-  ...getPositionStyles(css),
-  ...getDisplayStyles(css),
-  ...getTopRightBottomLeftStyles(css),
-  ...getFloatStyles(css),
+  ...getColorStyles(basicCss),
+  ...getTextStyles(basicCss),
+  ...getSpacingStyles(basicCss),
+  ...getFlexStyles(basicCss),
+  ...getAlignAndJustifyStyles(basicCss),
+  ...getWhitespaceStyles(basicCss),
+  ...getCursorStyles(basicCss),
+  ...getBorderStyles(basicCss),
+  ...getSizeStyles(basicCss),
+  ...getZStyles(basicCss),
+  ...getPositionStyles(basicCss),
+  ...getDisplayStyles(basicCss),
+  ...getTopRightBottomLeftStyles(basicCss),
+  ...getFloatStyles(basicCss),
 } satisfies Partial<Styles>
 
-const utilityStyles = getUtilityStyles(createCssTag(basicStyles))
+export const css = createCssTag(basicStyles)
+const utilityStyles = getUtilityStyles(css)
 
 const allStyles: Styles = { ...basicStyles, ...utilityStyles }
 
 type StylesParam = CssClass | `${string}: ${string};`
 
-export function styles(...classes: StylesParam[]): string {
-  return `style="${[...new Set(classes)].flatMap((c) => {
-    if (c.includes(':'))
-      return c
-    else
-    return allStyles[c as CssClass]
-}).join(' ')}"`
+export function createStyles<T extends string>(extraStyles: Record<T, string[]>): (...classes: (StylesParam | T)[]) => string {
+  return (...classes: (StylesParam | T)[]): string => {
+    return `style="${[...new Set(classes)].flatMap((c) => {
+      if (c.includes(':'))
+        return c
+      else
+      return allStyles[c as CssClass] || extraStyles[c as T]
+    }).join(' ')}"`
+  }
 }
 
-export function createCssTag(dependencies: Partial<Styles> = {}) {
+export const styles = createStyles({})
+
+export function createCssTag(dependencies: Record<string, string[]> = {}) {
   return (strings: TemplateStringsArray, ...values: string[]): string[] => {
     const rawString = String.raw({ raw: strings }, ...values)
     return rawString

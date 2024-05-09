@@ -29,7 +29,7 @@
     "cli/**/*",
     "dist"
   ],
-  "scripts": {  
+  "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build": "rm -rf dist build && rollup -c && node ./build/buildPlaygroundSite.js",

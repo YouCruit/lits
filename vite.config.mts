@@ -14,7 +14,7 @@ export default defineConfig({
         'cli/**',
         'docs/**',
         'playgroundAssets/**',
-        '**/interface.ts'
+        '**/interface.ts',
       ],
     },
   },

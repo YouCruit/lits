@@ -8,7 +8,7 @@ enum Color {
   String = '#cc8f77',
   Keyword = '#d16969',
   White = '#ffffff',
-  Gray_50	= 'rgb(250 250 250)',
+  Gray_50 = 'rgb(250 250 250)',
   Gray_100 = 'rgb(245 245 245)',
   Gray_200 = 'rgb(229 229 229)',
   Gray_300 = 'rgb(212 212 212)',

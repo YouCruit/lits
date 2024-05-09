@@ -2,19 +2,19 @@ import type { CssTemplateFunction, Styles } from '.'
 
 export function getPositionStyles(css: CssTemplateFunction) {
   const positionStyles = {
-    'static': css`
+    static: css`
       position: static;
     `,
-    'fixed': css`
+    fixed: css`
       position: fixed;
     `,
-    'absolute': css`
+    absolute: css`
       position: absolute;
     `,
-    'relative': css`
+    relative: css`
       position: relative;
     `,
-    'sticky': css`
+    sticky: css`
       position: sticky;
     `,
   } satisfies Partial<Styles>

@@ -1,7 +1,7 @@
-import { styles } from "../styles";
+import { styles } from '../styles'
 
 export function getStartPage(): string {
-    return `
+  return `
   <div id="index" class="content">
     <center>
     <span ${styles('whitespace-pre', 'font-mono', 'text-xl')}>
@@ -36,5 +36,4 @@ export function getStartPage(): string {
     </div>
   </div>
   `
-  }
-  
+}

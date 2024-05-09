@@ -23,7 +23,6 @@ body.no-select {
 textarea {
   outline: none;
   background-color: #222222;
-  cursor: pointer;
   width: 100%;
   resize: none;
   padding: 0.5rem;
@@ -205,24 +204,23 @@ input[type="submit"]:hover{
 }
 
 .fancy-scroll::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-  box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-  background-color: #222222;
+  background-color: transparent;
 }
 
 .fancy-scroll::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-  background-color: #222222;
+  width: 8px;
+  height: 8px;
+  background-color: transparent;
 }
 
 .fancy-scroll::-webkit-scrollbar-thumb {
-  background-color: #333333;
-  border: 0px solid #555555;
+  background-color: transparent;
+  border: 1px solid rgb(115 115 115);
+  border-right: none;
 }
 
 .fancy-scroll::-webkit-scrollbar-corner {
-  background-color: #222222;
+  background-color: black;
 }
 
 /************ LAYOUT **********/
@@ -261,40 +259,13 @@ input[type="submit"]:hover{
   left: 0;
   width: 250px;
   top: 0;
-  /* top: 95px; */
   padding-top: 1rem;
   padding-left: 1rem;
   white-space: nowrap;
   overflow-y: scroll;
   padding-right: 1rem;
+  border-right: 1px solid rgb(115 115 115);
 }
-
-/* #playground {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #333333;
-  padding: 0 0.5rem 0rem 0.5rem;
-  box-shadow: 6px 3px 8px #111111;
-} */
-
-/* #playground #resize-playground {
-  display: block;
-  height: 5px;
-  background-color: #444444;
-  margin-left: -0.5rem;
-  margin-right: -0.5rem;
-  cursor: row-resize;
-} */
-/* 
-#playground #resize-divider-1, #playground #resize-divider-2 {
-  display: inline-block;
-  max-width: 5px;
-  width: 5px;
-  margin: 20px 0px 5px 0px;
-  cursor: col-resize;
-} */
 
 .text {
   font-family: Roboto;
@@ -388,7 +359,7 @@ input[type="submit"]:hover{
 
 .content {
   display: none;
-  padding: 0 1.5rem;
+  padding: 0 0.75rem;
 }
 
 .content.active-content {

@@ -7,9 +7,9 @@ import { getStartPage } from './components/startPage'
 import { getExamplePage } from './components/examplePage'
 import { getPlayground } from './components/playground'
 import { getSideBar } from './components/sideBar'
+import { searchables } from './searchables'
 
 const DOC_DIR = path.resolve(__dirname, '../docs')
-
 setupPredictability()
 setupDocDir()
 copyLitsScript()
@@ -38,10 +38,13 @@ function writeIndexPage() {
   </div>
   ${getSearchDialog()}
 
+  <script>
+    window.LitsPlayground = {
+      searchables: JSON.parse(atob('${btoa(JSON.stringify(searchables))}')),
+    }
+  </script>
   <script src="lits.iife.js"></script>
   <script src='scripts.js'></script>
-  <script>
-  </script>
 </body>
 </html>
 `

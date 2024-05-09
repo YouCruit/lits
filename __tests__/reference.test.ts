@@ -31,7 +31,7 @@ describe('functionReference', () => {
       expect(obj.description[obj.description.length - 1]).toBe('.')
 
       expect(obj.examples.length).toBeGreaterThan(0)
-      expect(Array.isArray(obj.parameters)).toBe(true)
+      expect(Array.isArray(obj.args)).toBe(true)
       if (normalExpressionKeys.includes(key))
         expect(obj.category).not.toBe('Special expression')
       else if (specialExpressionKeys.includes(key))

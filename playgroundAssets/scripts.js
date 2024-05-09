@@ -21,6 +21,26 @@ function calculateDimensions() {
   availablePanelsWidth = windowWidth
 }
 
+function toggleMoreMenu() {
+  const moreMenu = document.getElementById('more-menu')
+  moreMenu.style.display = moreMenu.style.display === 'block' ? 'none' : 'block'
+}
+
+function onDocumentClick(event) {
+  if (event.target.closest('#more-menu'))
+    return
+
+  if (document.getElementById('more-menu').style.display === 'block') {
+    event.stopPropagation()
+    closeMoreMenu()
+  }
+}
+
+function closeMoreMenu() {
+  const moreMenu = document.getElementById('more-menu')
+  moreMenu.style.display = 'none'
+}
+
 function layout() {
   calculateDimensions()
 
@@ -32,7 +52,7 @@ function layout() {
   const litsPanel = document.getElementById('lits-panel')
   const outputPanel = document.getElementById('output-panel')
 
-  const topPanelsBottom = playgroundHeight - 21
+  const topPanelsBottom = playgroundHeight
 
   const paramsPanelWidth = (availablePanelsWidth * resizeDivider1XPercent) / 100
   const outputPanelWidth = (availablePanelsWidth * (100 - resizeDivider2XPercent)) / 100
@@ -116,8 +136,9 @@ function setLitsCode(value) {
 
 function appendLitsCode(value) {
   const litsTextArea = document.getElementById('lits-textarea')
-  const oldContent = litsTextArea.value
-  const newContent = oldContent ? `${oldContent}\n${value}` : value
+  const oldContent = litsTextArea.value.trimEnd()
+
+  const newContent = oldContent ? `${oldContent}\n\n${value}` : value.trim()
   litsTextArea.value = newContent
   localStorage.setItem('lits-textarea', newContent)
   litsTextArea.scrollTop = litsTextArea.scrollHeight
@@ -172,7 +193,7 @@ function updateLinks() {
 
 function updateParamsLinks() {
   const paramsLinks = document.getElementById('params-links')
-  
+
   if (getParams())
     paramsLinks.style.display = 'block'
   else
@@ -186,7 +207,6 @@ function updateLitsCodeLinks() {
     litsLinks.style.display = 'block'
   else
     litsLinks.style.display = 'none'
-
 }
 
 function updateOutputLinks() {
@@ -196,7 +216,6 @@ function updateOutputLinks() {
     outputLinks.style.display = 'block'
   else
     outputLinks.style.display = 'none'
-
 }
 
 function initializeSearch() {
@@ -213,7 +232,10 @@ function clearSearch() {
   search = ''
   searchInput.value = search
 }
+
 window.onload = function () {
+  document.addEventListener('click', onDocumentClick, true)
+
   const storedPlaygroundHeight = localStorage.getItem('playground-height')
   const storedResizeDivider1XPercent = localStorage.getItem('resize-divider-1-percent')
   const storedResizeDivider2XPercent = localStorage.getItem('resize-divider-2-percent')
@@ -301,50 +323,34 @@ window.onload = function () {
   }
 
   window.addEventListener('keydown', (evt) => {
-    if (evt.key === 'F2') {
+    if (evt.key === 'F5') {
       evt.preventDefault()
       run()
     }
-    if (evt.key === 'F3') {
-      evt.preventDefault()
-      analyze()
-    }
-    if (evt.key === 'F4') {
-      evt.preventDefault()
-      tokenize(false)
-    }
-    if (evt.key === 'F5') {
-      evt.preventDefault()
-      tokenize(true)
-    }
-    if (evt.key === 'F6') {
-      evt.preventDefault()
-      parse(false)
-    }
-    if (evt.key === 'F7') {
-      evt.preventDefault()
-      parse(true)
-    }
     if (evt.key === 'k' || evt.key === 'K') {
-      console.log(evt.ctrlKey, evt.metaKey)
       if (evt.ctrlKey || evt.metaKey) {
         openSearch()
         evt.preventDefault()
       }
     }
+    if (evt.key === 'F3') {
+      openSearch()
+      evt.preventDefault()
+    }
     if (evt.key === 'Escape') {
       closeSearch()
+      closeMoreMenu()
       evt.preventDefault()
     }
   })
   document.getElementById('lits-textarea').addEventListener('keydown', keydownHandler)
   document
     .getElementById('lits-textarea')
-    .addEventListener('input', (e) => setLitsCode(e.target.value))
+    .addEventListener('input', e => setLitsCode(e.target.value))
   document.getElementById('params-textarea').addEventListener('keydown', keydownHandler)
   document
     .getElementById('params-textarea')
-    .addEventListener('input', (e) => setParams(e.target.value))
+    .addEventListener('input', e => setParams(e.target.value))
 
   const id = location.hash.substring(1) || 'index'
   showPage(id, 'replace')
@@ -352,7 +358,7 @@ window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search)
 
   const program = urlParams.get('program')
-  const litsCode = program ? decodeURIComponent(program) : localStorage.getItem('lits-textarea') || ''
+  const litsCode = program ? atob(program) : localStorage.getItem('lits-textarea') || ''
   setLitsCode(litsCode)
 
   setParams(localStorage.getItem('params-textarea') || '')
@@ -504,7 +510,10 @@ function analyze() {
     console.log = oldLog
     console.warn = oldWarn
   }
-  const content = `Undefined symbols: ${stringifyValue([...result.undefinedSymbols])}`
+  const undefinedSymbols = [...result.undefinedSymbols].map(s => s.symbol).join(', ')
+  const content = undefinedSymbols
+    ? `Undefined symbols: ${undefinedSymbols}`
+    : 'No undefined symbols'
 
   appendOutput(content)
 }
@@ -652,9 +661,9 @@ function stringifyValue(value) {
   return JSON.stringify(value)
 }
 
-function addToPlayground(uriEncodedExample) {
-  example = decodeURIComponent(uriEncodedExample)
-  appendLitsCode(example)
+function addToPlayground(comment, uriEncodedExample) {
+  const example = atob(uriEncodedExample)
+  appendLitsCode(`${comment}\n${example}`)
 
   run()
 }

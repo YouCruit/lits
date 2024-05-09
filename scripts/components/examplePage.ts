@@ -1,4 +1,4 @@
-import { examples } from "../../reference/examples"
+import { examples } from '../../reference/examples'
 
 export function getExamplePage(): string {
   return `
@@ -8,7 +8,7 @@ export function getExamplePage(): string {
     <ul>
     ${examples
       .map((example) => {
-        const uriEncodedExample = encodeURIComponent(JSON.stringify(example))
+        const uriEncodedExample = btoa(JSON.stringify(example))
         return `
         <li>
           <div class="row example-item">

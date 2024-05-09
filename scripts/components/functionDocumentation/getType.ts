@@ -4,7 +4,7 @@ import { styles } from '../../styles'
 export function getType(argument: Argument) {
   if (isNormalExpressionArgument(argument)) {
     const types = Array.isArray(argument.type) ? argument.type : [argument.type]
-    const typeString = types.map(type => `<span ${styles()}>${type}</span>`).join(' | ')
+    const typeString = types.map(type => type).join(' | ')
     const result = (argument.rest || argument.array)
       ? `Array<${typeString}>`
       : typeString

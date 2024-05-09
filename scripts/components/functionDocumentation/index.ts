@@ -14,19 +14,21 @@ export function getFunctionDocumentations() {
 }
 
 function getFunctionDocumentation(reference: Reference<Category>) {
-  const { name, linkName, examples, clojureDocs, category } = reference
+  const { name, linkName, clojureDocs, category } = reference
   const clojureDocsLink = getClojureDocsLink(name, clojureDocs)
 
   return `
   <div id="${linkName}" class="content function">
   
-    <div class="function-header row">
-      <div class="column">${name}</div>
-      ${
-        clojureDocsLink
-          ? `<div class="column right"><a target="_blank" class="link" href="${clojureDocsLink}">Clojure docs</a></div>`
-          : ''
-      }
+    <div ${styles('flex', 'justify-between', 'text-2xl', 'items-center', 'bg-gray-700', 'p-2', 'px-4')}">
+      <div ${styles('text-color-gray-200')}>${name}</div>
+      <div>
+        ${
+          clojureDocsLink
+            ? `<a target="_blank" ${styles('text-color-gray-400', 'text-lg')} href="${clojureDocsLink}">Clojure docs</a>`
+            : ''
+        }
+      </div>
     </div>
   
     ${category === 'Special expression' ? '<h3>Special Expression</h3>' : ''}
@@ -39,7 +41,7 @@ function getFunctionDocumentation(reference: Reference<Category>) {
  
     ${getSection('Arguments', getArgumentInfo(reference))}
 
-    ${getSection('Examples', getFunctionExamples(examples))}
+    ${getSection('Examples', getFunctionExamples(reference))}
 
   </div>
   `

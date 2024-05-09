@@ -47,7 +47,7 @@ export function styles(...classes: StylesParam[]): string {
   return `style="${[...new Set(classes)].flatMap((c) => {
     if (c.includes(':'))
       return c
-    else 
+    else
     return allStyles[c as CssClass]
 }).join(' ')}"`
 }

@@ -11,4 +11,3 @@ export function getReturnType(reference: Reference<Category>) {
   ${returns.description ? formatDescription(returns.description, reference) : ''}
 </div>`
 }
-

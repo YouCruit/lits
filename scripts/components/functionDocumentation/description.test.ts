@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Category, Reference } from '../../reference'
-import { styles } from '../styles'
+import type { Category, Reference } from '../../../reference'
+import { styles } from '../../styles'
 import { formatDescription } from './description'
 
 const reference: Reference<Category> = {
@@ -10,7 +10,7 @@ const reference: Reference<Category> = {
   returns: {
     type: 'number',
   },
-  arguments: {
+  args: {
     n: {
       type: 'boolean',
     },

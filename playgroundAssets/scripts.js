@@ -72,6 +72,8 @@ function resetPlayground() {
   resetParams()
   resetLitsCode()
   resetOutput()
+  Playground.Search.closeSearch()
+  Playground.Search.clearSearch()
 
   localStorage.removeItem('playground-height')
   localStorage.removeItem('resize-divider-1-percent')
@@ -290,7 +292,7 @@ window.onload = function () {
   }
 
   window.addEventListener('keydown', (evt) => {
-    if (Playground.Search.onKeyDown(evt))
+    if (Playground.Search.handleKeyDown(evt))
       return
 
     if (evt.key === 'F5') {
@@ -323,7 +325,10 @@ window.onload = function () {
   setParams(localStorage.getItem('params-textarea') || '')
 
   updateLinks()
+  
   layout()
+  
+  Playground.Search.onClose(() => document.getElementById('lits-textarea').focus())
   document.getElementById('lits-textarea').focus()
 }
 
@@ -543,6 +548,7 @@ function tokenize(debug) {
 function showPage(id, historyEvent) {
   inactivateAll()
 
+  Playground.Search.closeSearch()
   const page = document.getElementById(id)
   const link = document.getElementById(`${id}_link`)
 

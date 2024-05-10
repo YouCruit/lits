@@ -6,7 +6,6 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   linkName: 'assert',
   returns: {
     type: 'any',
-    description: 'Returns $value.',
   },
   args: {
     value: {

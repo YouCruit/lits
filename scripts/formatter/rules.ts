@@ -189,6 +189,13 @@ const newLineRule = createRule({
   endTag: '<br>',
 })
 
+const newParagraphRule = createRule({
+  name: 'new-line',
+  startPattern: /^\n{2}/,
+  startTag: '',
+  endTag: `<p>`,
+})
+
 const paragraphRule = createRule({
   name: 'paragraph',
   startPattern: /^\n{2}/,
@@ -201,6 +208,7 @@ export const mdRules: FormatterRule[] = [
   italicRule,
   boldRule,
   newLineRule,
+  newParagraphRule,
   paragraphRule,
 ]
 

@@ -1,6 +1,6 @@
 import { isUnknownRecord } from '../src/typeGuards'
 import { collectionReference } from './categories/collection'
-// import { functionalReference } from './categories/functional'
+import { functionalReference } from './categories/functional'
 import { arrayReference } from './categories/array'
 // import { sequenceReference } from './categories/sequence'
 // import { mathReference } from './categories/math'
@@ -22,10 +22,11 @@ export interface TypedValue {
   type: DataType[] | DataType
   rest?: true
   array?: true
-  description?: string
 }
 
-type NormalExpressionArgument = TypedValue
+type NormalExpressionArgument = TypedValue & {
+  description?: string
+}
 interface SpecialExpressionArgument {
   type: '*expression' | '*expressions' | '*name' | '*bindings' | '*arguments' | '*catch' | '*never' | '*cond-cases'
   description?: string
@@ -38,6 +39,10 @@ export function isSpecialExpressionArgument(arg?: Argument): arg is SpecialExpre
 }
 
 export function isNormalExpressionArgument(arg?: Argument): arg is NormalExpressionArgument {
+  return isUnknownRecord(arg) && !isSpecialExpressionArgument(arg)
+}
+
+export function isTypedValue(arg?: Argument): arg is TypedValue {
   return isUnknownRecord(arg) && !isSpecialExpressionArgument(arg)
 }
 
@@ -62,7 +67,7 @@ export const functionReference: Record<string, Reference<Category>> = {
   ...arrayReference,
   // ...sequenceReference,
   // ...mathReference,
-  // ...functionalReference,
+  ...functionalReference,
   // ...miscReference,
   // ...objectReference,
   // ...predicateReference,

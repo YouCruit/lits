@@ -233,6 +233,237 @@ export function getSpacingStyles(css: CssTemplateFunction) {
       margin-left: 2rem;
     `,
 
+    'scroll-m-0': css`
+      scroll-margin: 0;
+    `,
+    'scroll-m-px': css`
+      scroll-margin: 1px;
+    `,
+    'scroll-m-0.5': css`
+      scroll-margin: 0.125rem;
+    `,
+    'scroll-m-1': css`
+      scroll-margin: 0.25rem;
+    `,
+    'scroll-m-2': css`
+      scroll-margin: 0.5rem;
+    `,
+    'scroll-m-3': css`
+      scroll-margin: 0.75rem;
+    `,
+    'scroll-m-4': css`
+      scroll-margin: 1rem;
+    `,
+    'scroll-m-5': css`
+      scroll-margin: 1.25rem;
+    `,
+    'scroll-m-6': css`
+      scroll-margin: 1.5rem;
+    `,
+    'scroll-m-8': css`
+      scroll-margin: 2rem;
+    `,
+    'scroll-my-0': css`
+      scroll-margin-top: 0;
+      scroll-margin-bottom: 0;
+    `,
+    'scroll-my-px': css`
+      scroll-margin-top: 1px;
+      scroll-margin-bottom: 1px;
+    `,
+    'scroll-my-0.5': css`
+      scroll-margin-top: 0.125rem;
+      scroll-margin-bottom: 0.125rem;
+    `,
+    'scroll-my-1': css`
+      scroll-margin-top: 0.25rem;
+      scroll-margin-bottom: 0.25rem;
+    `,
+    'scroll-my-2': css`
+      scroll-margin-top: 0.5rem;
+      scroll-margin-bottom: 0.5rem;
+    `,
+    'scroll-my-3': css`
+      scroll-margin-top: 0.75rem;
+      scroll-margin-bottom: 0.75rem;
+    `,
+    'scroll-my-4': css`
+      scroll-margin-top: 1rem;
+      scroll-margin-bottom: 1rem;
+    `,
+    'scroll-my-5': css`
+      scroll-margin-top: 1.25rem;
+      scroll-margin-bottom: 1.25rem;
+    `,
+    'scroll-my-6': css`
+      scroll-margin-top: 1.5rem;
+      scroll-margin-bottom: 1.5rem;
+    `,
+    'scroll-my-8': css`
+      scroll-margin-top: 2rem;
+      scroll-margin-bottom: 2rem;
+    `,
+    'scroll-mx-0': css`
+      scroll-margin-left: 0;
+      scroll-margin-right: 0;
+    `,
+    'scroll-mx-px': css`
+      scroll-margin-left: 1px;
+      scroll-margin-right: 1px;
+    `,
+    'scroll-mx-0.5': css`
+      scroll-margin-left: 0.125rem;
+      scroll-margin-right: 0.125rem;
+    `,
+    'scroll-mx-1': css`
+      scroll-margin-left: 0.25rem;
+      scroll-margin-right: 0.25rem;
+    `,
+    'scroll-mx-2': css`
+      scroll-margin-left: 0.5rem;
+      scroll-margin-right: 0.5rem;
+    `,
+    'scroll-mx-3': css`
+      scroll-margin-left: 0.75rem;
+      scroll-margin-right: 0.75rem;
+    `,
+    'scroll-mx-4': css`
+      scroll-margin-left: 1rem;
+      scroll-margin-right: 1rem;
+    `,
+    'scroll-mx-5': css`
+      scroll-margin-left: 1.25rem;
+      scroll-margin-right: 1.25rem;
+    `,
+    'scroll-mx-6': css`
+      scroll-margin-left: 1.5rem;
+      scroll-margin-right: 1.5rem;
+    `,
+    'scroll-mx-8': css`
+      scroll-margin-left: 2rem;
+      scroll-margin-right: 2rem;
+    `,
+    'scroll-mt-0': css`
+      scroll-margin-top: 0;
+    `,
+    'scroll-mt-px': css`
+      scroll-margin-top: 1px;
+    `,
+    'scroll-mt-0.5': css`
+      scroll-margin-top: 0.125rem;
+    `,
+    'scroll-mt-1': css`
+      scroll-margin-top: 0.25rem;
+    `,
+    'scroll-mt-2': css`
+      scroll-margin-top: 0.5rem;
+    `,
+    'scroll-mt-3': css`
+      scroll-margin-top: 0.75rem;
+    `,
+    'scroll-mt-4': css`
+      scroll-margin-top: 1rem;
+    `,
+    'scroll-mt-5': css`
+      scroll-margin-top: 1.25rem;
+    `,
+    'scroll-mt-6': css`
+      scroll-margin-top: 1.5rem;
+    `,
+    'scroll-mt-8': css`
+      scroll-margin-top: 2rem;
+    `,
+    'scroll-mr-0': css`
+      scroll-margin-right: 0;
+    `,
+    'scroll-mr-px': css`
+      scroll-margin-right: 1px;
+    `,
+    'scroll-mr-0.5': css`
+      scroll-margin-right: 0.125rem;
+    `,
+    'scroll-mr-1': css`
+      scroll-margin-right: 0.25rem;
+    `,
+    'scroll-mr-2': css`
+      scroll-margin-right: 0.5rem;
+    `,
+    'scroll-mr-3': css`
+      scroll-margin-right: 0.75rem;
+    `,
+    'scroll-mr-4': css`
+      scroll-margin-right: 1rem;
+    `,
+    'scroll-mr-5': css`
+      scroll-margin-right: 1.25rem;
+    `,
+    'scroll-mr-6': css`
+      scroll-margin-right: 1.5rem;
+    `,
+    'scroll-mr-8': css`
+      scroll-margin-right: 2rem;
+    `,
+    'scroll-mb-0': css`
+      scroll-margin-bottom: 0;
+    `,
+    'scroll-mb-px': css`
+      scroll-margin-bottom: 1px;
+    `,
+    'scroll-mb-0.5': css`
+      scroll-margin-bottom: 0.125rem;
+    `,
+    'scroll-mb-1': css`
+      scroll-margin-bottom: 0.25rem;
+    `,
+    'scroll-mb-2': css`
+      scroll-margin-bottom: 0.5rem;
+    `,
+    'scroll-mb-3': css`
+      scroll-margin-bottom: 0.75rem;
+    `,
+    'scroll-mb-4': css`
+      scroll-margin-bottom: 1rem;
+    `,
+    'scroll-mb-5': css`
+      scroll-margin-bottom: 1.25rem;
+    `,
+    'scroll-mb-6': css`
+      scroll-margin-bottom: 1.5rem;
+    `,
+    'scroll-mb-8': css`
+      scroll-margin-bottom: 2rem;
+    `,
+    'scroll-ml-0': css`
+      scroll-margin-left: 0;
+    `,
+    'scroll-ml-px': css`
+      scroll-margin-left: 1px;
+    `,
+    'scroll-ml-0.5': css`
+      scroll-margin-left: 0.125rem;
+    `,
+    'scroll-ml-1': css`
+      scroll-margin-left: 0.25rem;
+    `,
+    'scroll-ml-2': css`
+      scroll-margin-left: 0.5rem;
+    `,
+    'scroll-ml-3': css`
+      scroll-margin-left: 0.75rem;
+    `,
+    'scroll-ml-4': css`
+      scroll-margin-left: 1rem;
+    `,
+    'scroll-ml-5': css`
+      scroll-margin-left: 1.25rem;
+    `,
+    'scroll-ml-6': css`
+      scroll-margin-left: 1.5rem;
+    `,
+    'scroll-ml-8': css`
+      scroll-margin-left: 2rem;
+    `,
+
     '-m-px': css`
       margin: -1px;
     `,

@@ -37,6 +37,7 @@ type standardColors =
   | '-black'
 
 type customColors =
+  | '-Type'
   | '-Comment'
   | '-Argument'
   | '-FunctionName'
@@ -80,6 +81,14 @@ export type CssClass =
   | `-mr${Exclude<sizes, '-0'>}`
   | `-mb${Exclude<sizes, '-0'>}`
   | `-ml${Exclude<sizes, '-0'>}`
+
+  | `scroll-m${sizes}`
+  | `scroll-mx${sizes}`
+  | `scroll-my${sizes}`
+  | `scroll-mt${sizes}`
+  | `scroll-mr${sizes}`
+  | `scroll-mb${sizes}`
+  | `scroll-ml${sizes}`
 
   | `p${sizes}`
   | `px${sizes}`

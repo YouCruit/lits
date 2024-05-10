@@ -1,8 +1,10 @@
+/* eslint-disable ts/no-duplicate-enum-values */
 import type { CssTemplateFunction, Styles } from '.'
 
-enum Color {
+export enum Color {
   Argument = '#c586c0',
   Name = '#4ec9b0',
+  Type = '#d16969',
   FunctionName = '#569cd6',
   Number = '#dcdcaa',
   String = '#cc8f77',
@@ -29,6 +31,9 @@ export function getColorStyles(css: CssTemplateFunction) {
     `,
     'text-color-Argument': css`
       color: ${Color.Argument};
+    `,
+    'text-color-Type': css`
+      color: ${Color.Type};
     `,
     'text-color-Name': css`
       color: ${Color.Name};

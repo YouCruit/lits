@@ -1,11 +1,12 @@
-import { type Category, type Reference, functionReference, isNormalExpressionArgument, isSpecialExpressionArgument } from '../../../reference'
+import { type Category, type Reference, functionReference } from '../../../reference'
 import { styles } from '../../styles'
+import { externalLink } from '../../icons'
 import { getClojureDocsLink } from './clojureDocs'
 import { formatDescription } from './description'
 import { getFunctionExamples } from './functionExamples'
 import { getArgumentInfo } from './argumentInfo'
-import { getReturnType } from './returnType'
 import { getSection } from './section'
+import { getFunctionSignature } from './functionSignature'
 
 export function getFunctionDocumentations() {
   return Object.values(functionReference)
@@ -25,7 +26,10 @@ function getFunctionDocumentation(reference: Reference<Category>) {
       <div>
         ${
           clojureDocsLink
-            ? `<a target="_blank" ${styles('text-color-gray-400', 'text-lg')} href="${clojureDocsLink}">Clojure docs</a>`
+            ? `<a target="_blank" ${styles('flex', 'gap-1', 'items-center', 'text-lg')} href="${clojureDocsLink}">
+                <span>Clojure docs</span>
+                <span ${styles('pt-1')}>${externalLink}</span>
+              </a>`
             : ''
         }
       </div>
@@ -33,34 +37,14 @@ function getFunctionDocumentation(reference: Reference<Category>) {
   
     ${category === 'Special expression' ? '<h3>Special Expression</h3>' : ''}
 
-    <div ${styles('mb-6', 'mt-4', 'font-mono')}>${getSyntax(reference)}</div>
+    <div ${styles('mb-6', 'mt-4', 'font-mono', 'text-base')}>${getFunctionSignature(reference)}</div>
   
     ${getSection('Description', formatDescription(reference.description, reference))}
   
-    ${getSection('Returns', getReturnType(reference))}
- 
     ${getSection('Arguments', getArgumentInfo(reference))}
 
     ${getSection('Examples', getFunctionExamples(reference))}
 
   </div>
   `
-}
-
-function getSyntax({ name, variants, args }: Reference<Category>) {
-  return variants.map(variant =>
-    `(<span ${styles('text-color-FunctionName')}>${name}</span> ${variant.argumentNames.map((argName) => {
-      let result = ''
-      const arg = args[argName]
-      if (isNormalExpressionArgument(arg)) {
-        if (arg.rest)
-          result += '& '
-        result += `<span ${styles('text-color-Argument')}>${argName}</span>`
-      }
-      else if (isSpecialExpressionArgument(arg)) {
-        result += `<span ${styles('text-color-Argument')}>${argName}</span>`
-      }
-      return result
-    }).join(' ')})`).join('<br>',
-  )
 }

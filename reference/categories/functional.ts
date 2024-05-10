@@ -1,117 +1,192 @@
-// import type { Reference } from '..'
+import type { Reference } from '..'
 
-// export const functionalReference: Record<string, Reference<'Functional'>> = {
-//   'apply': {
-//     name: 'apply',
-//     category: 'Functional',
-//     linkName: 'apply',
-//     returns: {
-//       type: 'boolean',
-//     },
-//     arguments: [
-//       {
-//         type: 'function',
-//       },
-//       {
-//         type: 'array',
-//       },
-//     ],
-//     description: 'Call supplied function with specified arguments.',
-//     examples: ['(apply + [1 2 3])', '(apply (fn [x y] (sqrt (+ (* x x) (* y y)))) [3 4])'],
-//   },
-//   'identity': {
-//     name: 'identity',
-//     category: 'Functional',
-//     linkName: 'identity',
-//     returns: {
-//       type: 'any',
-//     },
-//     arguments: [
-//       {
-//         type: 'any',
-//       },
-//     ],
-//     description: 'Returns `value`.',
-//     examples: ['(identity 1)', '(identity "Albert")', '(identity {:a 1})', '(identity nil)'],
-//   },
-//   'partial': {
-//     name: 'partial',
-//     category: 'Functional',
-//     linkName: 'partial',
-//     returns: {
-//       type: 'function',
-//     },
-//     arguments: [
-//       {
-//         type: 'function',
-//       },
-//       {
-//         type: 'any',
-//       },
-//     ],
-//     description: 'Takes a function `fn` and fewer (or equal) than the normal arguments to `fn`, and returns a function that takes a variable number of additional args. When called, the returned function calls f with `args` + additional args.',
-//     examples: ['(partial + 100)', '(def addHundred (partial + 100)) (addHundred 10)'],
-//   },
-//   'comp': {
-//     name: 'comp',
-//     category: 'Functional',
-//     linkName: 'comp',
-//     returns: {
-//       type: 'function',
-//     },
-//     arguments: [
-//       {
-//         type: 'function',
-//       },
-//       {
-//         type: 'function',
-//         array: true,
-//       },
-//     ],
-//     description: 'Takes a set of functions and returns a fn that is the composition of those. The returned functions takes a variable number of arguments, applies the rightmost function to the args, the next function (right-to-left) to the result, etc.',
-//     examples: [
-//       '(def negative-quotient (comp - /)) (negative-quotient 9 3)',
-//       '(#((apply comp first (repeat %2 rest)) %1) [1 2 3 4 5 6 7] 3)',
-//       '(def x {"bar" {"foo" 42}}) ((comp "foo" "bar") x)',
-//     ],
-//   },
-//   'constantly': {
-//     name: 'constantly',
-//     category: 'Functional',
-//     linkName: 'constantly',
-//     returns: {
-//       type: 'function',
-//     },
-//     arguments: [
-//       {
-//         type: 'any',
-//       },
-//     ],
-//     description: 'Returns a function that takes any number of arguments and returns `value`.',
-//     examples: [
-//       '(def always-true (constantly true)) (always-true 9 3)',
-//       '(#((apply constantly first (repeat %2 rest)) %1) [1 2 3 4 5 6 7] 3)',
-//     ],
-//   },
-//   'juxt': {
-//     name: 'juxt',
-//     category: 'Functional',
-//     linkName: 'juxt',
-//     returns: {
-//       type: 'function',
-//     },
-//     arguments: [
-//       {
-//         type: 'function',
-//       },
-//     ],
-//     description: 'Takes variable number of `functions` and returns a function that is the juxtaposition of those `functions`.  The returned function takes a variable number of args, and returns a vector containing the result of applying each `function` to the args (left-to-right).',
-//     examples: [
-//       '((juxt + * min max) 3 4 6)',
-//       '((juxt :a :b) {:a 1, :b 2, :c 3, :d 4})',
-//       '(apply (juxt + * min max) (range 1 11))',
-//     ],
-//   },
+export const functionalReference: Record<string, Reference<'Functional'>> = {
+  apply: {
+    name: 'apply',
+    category: 'Functional',
+    linkName: 'apply',
+    returns: {
+      type: 'any',
+    },
+    args: {
+      fn: {
+        type: 'function',
+      },
+      args: {
+        type: 'array',
+      },
+    },
+    variants: [
+      { argumentNames: ['fn', 'args'] },
+    ],
+    description: 'Call supplied function $fn with specified arguments $args.',
+    examples: [
+      `
+(apply + [1 2 3])`,
+      `
+(apply
+  (fn [x y]
+    (sqrt
+      (+
+        (* x x)
+        (* y y))))
+  [3 4])`,
+    ],
+  },
+  identity: {
+    name: 'identity',
+    category: 'Functional',
+    linkName: 'identity',
+    returns: {
+      type: 'any',
+    },
+    args: {
+      x: {
+        type: 'any',
+      },
+    },
+    variants: [
+      { argumentNames: ['x'] },
+    ],
+    description: 'Returns $x.',
+    examples: ['(identity 1)', '(identity "Albert")', '(identity {:a 1})', '(identity nil)'],
+  },
+  partial: {
+    name: 'partial',
+    category: 'Functional',
+    linkName: 'partial',
+    returns: {
+      type: 'function',
+    },
+    args: {
+      fn: {
+        type: 'function',
+      },
+      args: {
+        type: 'any',
+        rest: true,
+      },
+    },
+    variants: [
+      { argumentNames: ['fn', 'args'] },
+    ],
+    description: `Takes a function $fn and a optional number arguments $args to $fn.
+It returns a function that takes the additional additional arguments.
+When called, the returned function calls \`(\`$fn \`...\`$args\` ...additional_arguments)\`.`,
+    examples: [
+      '(partial + 100)',
+      `
+(def plusMany (partial + 100 1000))
+(plusMany 1 10)`,
+      `
+(def addHundred (partial + 100))
+(addHundred 10)`,
+    ],
+  },
+  comp: {
+    name: 'comp',
+    category: 'Functional',
+    linkName: 'comp',
+    returns: {
+      type: 'function',
+    },
+    args: {
+      fns: {
+        type: 'function',
+        rest: true,
+      },
+    },
+    variants: [
+      { argumentNames: ['fns'] },
+    ],
+    description: `Takes a variable number of functions and returns a function that is the composition of those.
+
+  The returned function takes a variable number of arguments,
+  applies the rightmost function to the args,
+  the next function (right-to-left) to the result, etc.`,
+    examples: [
+      `
+(def negative-quotient (comp - /))
+(negative-quotient 9 3)`,
+      `
+(
+  #((apply comp first (repeat %2 rest)) %1)
+  [1 2 3 4 5 6 7]
+  3)`,
+      `
+(def x {"bar" {"foo" 42}})
+((comp "foo" "bar") x)`,
+    ],
+  },
+  'constantly': {
+    name: 'constantly',
+    category: 'Functional',
+    linkName: 'constantly',
+    returns: {
+      type: 'function',
+    },
+    args: {
+      x: {
+        type: 'any',
+      },
+    },
+    variants: [
+      { argumentNames: ['x'] },
+    ],
+    description: 'Returns a function that takes any number of arguments and always returns $x.',
+    examples: [
+      `
+(def always-true (constantly true))
+(always-true 9 3)`,
+      `
+(
+  #((apply constantly first (repeat %2 rest)) %1)
+  [1 2 3 4 5 6 7]
+  3)`,
+    ],
+  },
+
+  'juxt': {
+    name: 'juxt',
+    category: 'Functional',
+    linkName: 'juxt',
+    returns: {
+      type: 'function',
+    },
+    args: {
+      fn: {
+        type: 'function',
+      },
+      fns: {
+        type: 'function',
+        rest: true,
+      },
+    },
+    variants: [
+      { argumentNames: ['fn',] },
+      { argumentNames: ['fn', 'fns'] },
+    ],
+    description: `Takes one or many function and returns a function that is the juxtaposition of those functions.  
+The returned function takes a variable number of args,
+and returns a vector containing the result of applying each function to the args (left-to-right).`,
+    examples: [
+      `
+(
+  (juxt + * min max)
+  3
+  4
+  6)`,
+      `
+(
+  (juxt :a :b)
+  {:a 1, :b 2, :c 3, :d 4})`,
+      `
+(apply
+  (juxt + * min max)
+  (range 1 11))`,
+    ],
+  },
+}
 //   'complement': {
 //     name: 'complement',
 //     category: 'Functional',

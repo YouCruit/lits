@@ -1,5 +1,6 @@
 import type { Category, Reference } from '../../reference'
 import { categorizedFunctions, functionReference } from '../../reference'
+import { searchIcon } from '../icons'
 import { styles } from '../styles'
 
 export function getSideBar() {
@@ -11,9 +12,12 @@ export function getSideBar() {
 
   return `
   <nav id="sidebar" class="fancy-scroll">
-    <div ${styles('p-1', 'pl-2', 'text-color-gray-500', 'flex', 'items-center', 'justify-between', 'gap-2', 'mb-4', 'cursor-pointer', 'border-gray-500', 'border', 'border-solid')} onclick="Playground.Search.openSearch()">
-      <span>Search</span>
-      <span>F3</span>
+    <div ${styles('py-1', 'px-2', 'text-color-gray-400', 'flex', 'items-center', 'justify-between', 'gap-2', 'mb-4', 'cursor-pointer', 'border-gray-300', 'border', 'border-solid')} onclick="Playground.Search.openSearch()">
+      <span ${styles('flex', 'items-center', 'gap-1')}>
+        ${searchIcon}
+        <span>Search</span>
+      </span>
+      <span ${styles('text-sm')}>F3</span>
     </div>
     <label class="link" onclick="showPage('index')">Home</label>
     <br />
@@ -31,7 +35,7 @@ export function getSideBar() {
                     .map((obj) => {
                       const linkName = obj.linkName
                       const name = escape(obj.name)
-                      return `<li id="${linkName}_link" onclick="showPage('${linkName}')">${name}</li>`
+                      return `<li id="${linkName}_link" ${styles('scroll-my-2')}onclick="showPage('${linkName}')">${name}</li>`
                     })
                     .join('\n')
                 : ''

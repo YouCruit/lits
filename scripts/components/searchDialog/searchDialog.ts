@@ -12,7 +12,7 @@ const styles = createStyles({
 
   SearchResult: css`
     @apply hidden;
-    @apply flex-col;
+    @apply flex-col;  
     @apply gap-4;
     @apply w-full;
     @apply px-4;
@@ -29,7 +29,6 @@ const styles = createStyles({
     @apply border-gray-600;
     @apply border-solid;
     width: 600px;
-    border-radius: 3px;
   `,
   SearchIntro: css`
     flex: 0;
@@ -66,7 +65,7 @@ export function getSearchDialog() {
           <div ${styles('flex', 'flex-col', 'gap-4', 'py-4', 'h-full')}>
             <div ${styles('px-4')}>
               <form autocomplete="off">
-                <input placeholder="Search" id="search-input" ${styles('w-full', 'px-3', 'pt-2')}/>
+                <input placeholder="Search" id="search-input" ${styles('w-full', 'px-3', 'py-2')}/>
               </form>
             </div>
             <div id="search-intro" ${styles('SearchIntro')}>

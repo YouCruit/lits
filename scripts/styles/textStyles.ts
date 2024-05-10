@@ -41,6 +41,18 @@ export function getTextStyles(css: CssTemplateFunction) {
     'font-serif': css`
     font-family: 'Merriweather', serif;
   `,
+    'underline': css`
+    text-decoration: underline;
+  `,
+    'overline': css`
+    text-decoration: overline;
+  `,
+    'line-through': css`
+    text-decoration: line-through;
+  `,
+    'no-underline': css`
+    text-decoration: none;
+  `,
   } satisfies Partial<Styles>
   return textStyles
 }

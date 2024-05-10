@@ -3,7 +3,7 @@
 
 const DEFAULT_PLAYGROUND_HEIGHT = 350
 const DEFAULT_RESIZE_DIVIDER1_X_PERCENT = 15
-const DEFAULT_RESIZE_DIVIDER2_X_PERCENT = 80
+const DEFAULT_RESIZE_DIVIDER2_X_PERCENT = 70
 
 let moveParams = null
 let playgroundHeight = null
@@ -554,8 +554,10 @@ function showPage(id, historyEvent) {
 
   if (page) {
     page.classList.add('active-content')
-    if (link)
+    if (link) {
       link.classList.add('active-sidebar-entry')
+      link.scrollIntoView({ block: 'nearest' })
+    }
   }
   else {
     showPage('index', 'replace')

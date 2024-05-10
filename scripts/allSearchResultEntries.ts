@@ -6,6 +6,7 @@ import { styles } from './styles'
 const shortDescriptionRegExp = /(.*?)(  \n|\n\n|$)/
 export interface SearchResultEntry {
   name: string
+  search: string
   html: string
 }
 
@@ -18,6 +19,7 @@ export const allSearchResultEntries: SearchResultEntry[] = searchables.map((refe
   const description = match?.[1] ?? reference.description
   return {
     name: reference.name,
+    search: `${reference.name} ${reference.category}`,
     html: `
       <div onclick="showPage('${reference.linkName}')" class="search-entry" ${styles('w-full', 'flex', 'flex-col', 'p-4', 'scroll-my-4', 'bg-gray-600', 'cursor-pointer')}>
         <div ${styles('mb-4', 'flex', 'justify-between', 'items-baseline')}>

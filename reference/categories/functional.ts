@@ -186,84 +186,124 @@ and returns a vector containing the result of applying each function to the args
   (range 1 11))`,
     ],
   },
+  'complement': {
+    name: 'complement',
+    category: 'Functional',
+    linkName: 'complement',
+    returns: {
+      type: 'function',
+    },
+    args: {
+      fn: {
+        type: 'function',
+      },
+    },
+    variants: [
+      { argumentNames: ['fn'] },
+    ],
+    description: 'Takes a function $fn and returns a new function that takes the same arguments as f, has the same effects, if any, and returns the opposite truth value.',
+    examples: ['((complement >) 1 3)', '((complement <) 1 3)', '((complement +) 1 3)', '((complement +) 0 0)'],
+  },
+  'every-pred': {
+    name: 'every-pred',
+    category: 'Functional',
+    linkName: 'every-pred',
+    returns: {
+      type: 'function',
+    },
+    args: {
+      fn:{
+        type: 'function',
+      },
+      fns:{
+        type: 'function',
+        rest: true,
+      },
+    },
+    variants: [
+      { argumentNames: ['fn'] },
+      { argumentNames: ['fn', 'fns'] },
+    ],
+    description: `
+Takes a number of predicates and returns a function that returns \`true\` if all predicates
+return a truthy value against all of its arguments, else it returns \`false\`.`,
+    examples: [
+      `
+(
+  (every-pred string? #(> (count %1) 3))
+  "Albert"
+  "Mojir")`,
+      `
+(
+  (every-pred string? #(> (count %1) 3))
+  "Albert"
+  :M)`,
+      `
+(
+  (every-pred string? #(> (count %1) 3))
+  "Albert"
+  [1 2 3])`,
+    ],
+  },
+  'some-pred': {
+    name: 'some-pred',
+    category: 'Functional',
+    linkName: 'some-pred',
+    clojureDocs: null,
+    returns: {
+      type: 'function',
+    },
+    args: {
+      fn: {
+        type: 'function',
+      },
+      fns: {
+        type: 'function',
+        rest: true,
+      },
+    },
+    variants: [
+      { argumentNames: ['fn'] },
+      { argumentNames: ['fn', 'fns'] },
+    ],
+    description: 'Takes a number of `predicates` and returns a function that returns \`true\` if at least one of the `predicates` return a truthy \`true\` value against at least one of its arguments, else it returns `false`.',
+    examples: [
+      '((some-pred string? #(> (count %1) 3)) "Albert" "Mojir")',
+      '((some-pred string? #(> (count %1) 3)) :A :M)',
+      '((some-pred string? #(> (count %1) 3)) :A [1 2 3])',
+      '((some-pred string? #(> (count %1) 3)) [1 2 3] [2])',
+    ],
+  },
+  'fnil': {
+    name: 'fnil',
+    category: 'Functional',
+    linkName: 'fnil',
+    returns: {
+      type: 'function',
+    },
+    args: {
+      fn: {
+        type: 'function',
+      },
+      arg: {
+        type: 'any',
+      },
+      args: {
+        type: 'any',
+        rest: true,
+      },
+    },
+    variants: [
+      { argumentNames: ['fn', 'arg'] },
+      { argumentNames: ['fn', 'arg', 'args'] },
+    ],
+    description: 'Takes a function $fn, and returns a function that calls $fn, replacing a nil argument to the corresponding argument.',
+    examples: [
+      '((fnil + 1 2) 0 0)',
+      '((fnil + 1 2) nil 0)',
+      '((fnil + 1 2) 0 nil)',
+      '((fnil + 1 2) nil nil)',
+      '((fnil + 1 2) nil nil 3 4)',
+    ],
+  },
 }
-//   'complement': {
-//     name: 'complement',
-//     category: 'Functional',
-//     linkName: 'complement',
-//     returns: {
-//       type: 'function',
-//     },
-//     arguments: [
-//       {
-//         type: 'function',
-//       },
-//     ],
-//     description: 'Takes a `function` and returns a new function that takes the same arguments as f, has the same effects, if any, and returns the opposite truth value.',
-//     examples: ['((complement >) 1 3)', '((complement <) 1 3)', '((complement +) 1 3)', '((complement +) 0 0)'],
-//   },
-//   'every-pred': {
-//     name: 'every-pred',
-//     category: 'Functional',
-//     linkName: 'every-pred',
-//     returns: {
-//       type: 'function',
-//     },
-//     arguments: [
-//       {
-//         type: 'function',
-//       },
-//     ],
-//     description: 'Takes a number of `predicates` and returns a function that returns true if all of the `predicates` return a truthy true value against all of its arguments, else it returns false.',
-//     examples: [
-//       '((every-pred string? #(> (count %1) 3)) "Albert" "Mojir")',
-//       '((every-pred string? #(> (count %1) 3)) "Albert" :M)',
-//       '((every-pred string? #(> (count %1) 3)) "Albert" [1 2 3])',
-//     ],
-//   },
-//   'some-pred': {
-//     name: 'some-pred',
-//     category: 'Functional',
-//     linkName: 'some-pred',
-//     clojureDocs: null,
-//     returns: {
-//       type: 'function',
-//     },
-//     arguments: [
-//       {
-//         type: 'function',
-//       },
-//     ],
-//     description: 'Takes a number of `predicates` and returns a function that returns true if at least one of the `predicates` return a truthy true value against at least one of its arguments, else it returns false.',
-//     examples: [
-//       '((some-pred string? #(> (count %1) 3)) "Albert" "Mojir")',
-//       '((some-pred string? #(> (count %1) 3)) :A :M)',
-//       '((some-pred string? #(> (count %1) 3)) :A [1 2 3])',
-//       '((some-pred string? #(> (count %1) 3)) [1 2 3] [2])',
-//     ],
-//   },
-//   'fnil': {
-//     name: 'fnil',
-//     category: 'Functional',
-//     linkName: 'fnil',
-//     returns: {
-//       type: 'function',
-//     },
-//     arguments: [
-//       {
-//         type: 'function',
-//       },
-//       {
-//         type: 'any',
-//       },
-//     ],
-//     description: 'Takes a function `fn`, and returns a function that calls `fn`, replacing a nil argument to `fn` with the corresponding `param`.',
-//     examples: [
-//       '((fnil + 1 2) 0 0)',
-//       '((fnil + 1 2) nil 0)',
-//       '((fnil + 1 2) 0 nil)',
-//       '((fnil + 1 2) nil nil)',
-//       '((fnil + 1 2) nil nil 3 4)',
-//     ],
-//   },
-// }

@@ -112,6 +112,11 @@ export type CssClass =
   | 'font-serif'
   | 'italic'
 
+  | 'underline'
+  | 'overline'
+  | 'line-through'
+  | 'no-underline'
+  
   | 'border-solid'
   | 'border-dashed'
   | 'border-dotted'

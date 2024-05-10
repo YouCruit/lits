@@ -4,10 +4,14 @@ import { styles } from '../../styles'
 import { createFormatter } from '../../formatter/createFormatter'
 import { createVariableRule, mdRules, numberRule } from '../../formatter/rules'
 import { findAllOccurrences } from '../../utils/utils'
+import { externalLinkIcon } from '../../icons'
+import { getClojureDocsLink } from './clojureDocs'
 
 const variableRegExp = new RegExp(`\\$${nameCharacters}+`, 'g')
 
 export function formatDescription(description: string, reference: Reference<Category>) {
+  const clojureDocsLink = getClojureDocsLink(reference.name, reference.clojureDocs)
+
   const descriptionVariables = findAllOccurrences(description, variableRegExp)
 
   const currentFunctionNameRule = createVariableRule(
@@ -22,7 +26,17 @@ export function formatDescription(description: string, reference: Reference<Cate
 
   checkVariables(reference, descriptionVariables)
   const formattedDescription = createFormatter([...mdRules, currentFunctionNameRule, argumentRule, numberRule])(description)
-  return `<span ${styles('Description')}>${formattedDescription}</span>`
+  return `<div ${styles('Description')}>
+    ${formattedDescription}
+    ${
+      clojureDocsLink
+        ? `<a target="_blank" ${styles('flex', 'gap-1', 'items-center', 'text-sm', 'underline', 'mt-3')} href="${clojureDocsLink}">
+        <span ${styles('pt-1')}>${externalLinkIcon}</span>
+        <span>Clojure docs</span>
+          </a>`
+        : ''
+    }
+  </div>`
 }
 
 function checkVariables(reference: Reference<Category>, variables: Set<string>) {

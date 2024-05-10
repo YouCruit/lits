@@ -1,17 +1,13 @@
 import type { Category, Reference } from '../../../reference'
 import { nameCharacters } from '../../../src/tokenizer/tokenizers'
-import { styles } from '../../styles'
 import { createFormatter } from '../../formatter/createFormatter'
 import { createVariableRule, mdRules, numberRule } from '../../formatter/rules'
+import { styles } from '../../styles'
 import { findAllOccurrences } from '../../utils/utils'
-import { externalLinkIcon } from '../../icons'
-import { getClojureDocsLink } from './clojureDocs'
 
 const variableRegExp = new RegExp(`\\$${nameCharacters}+`, 'g')
 
 export function formatDescription(description: string, reference: Reference<Category>) {
-  const clojureDocsLink = getClojureDocsLink(reference.name, reference.clojureDocs)
-
   const descriptionVariables = findAllOccurrences(description, variableRegExp)
 
   const currentFunctionNameRule = createVariableRule(
@@ -26,16 +22,8 @@ export function formatDescription(description: string, reference: Reference<Cate
 
   checkVariables(reference, descriptionVariables)
   const formattedDescription = createFormatter([...mdRules, currentFunctionNameRule, argumentRule, numberRule])(description)
-  return `<div ${styles('Description')}>
+  return `<div ${styles('text-color-gray-400')}>
     ${formattedDescription}
-    ${
-      clojureDocsLink
-        ? `<a target="_blank" ${styles('flex', 'gap-1', 'items-center', 'text-sm', 'underline', 'mt-3')} href="${clojureDocsLink}">
-        <span ${styles('pt-1')}>${externalLinkIcon}</span>
-        <span>Clojure docs</span>
-          </a>`
-        : ''
-    }
   </div>`
 }
 

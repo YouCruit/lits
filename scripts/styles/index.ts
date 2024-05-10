@@ -3,7 +3,6 @@ import { getColorStyles } from './colorStyles'
 import { getSpacingStyles } from './spacingStyles'
 import { getTextStyles } from './textStyles'
 import { getFlexStyles } from './flexStyles'
-import { getUtilityStyles } from './utilityStyles'
 import { getAlignAndJustifyStyles } from './alignAndJustifyStyles'
 import { getWhitespaceStyles } from './whitespaceStyles'
 import { getCursorStyles } from './cursorStyles'
@@ -17,10 +16,10 @@ import { getTopRightBottomLeftStyles } from './topRightBottomLeftStyles'
 
 export type Styles = Record<CssClass, string[]>
 export type CssTemplateFunction = ReturnType<typeof createCssTag>
+export type StylesParam = CssClass | `${string}: ${string};`
 
 const basicCss = createCssTag()
-
-const basicStyles = {
+const basicStyles: Styles = {
   ...getColorStyles(basicCss),
   ...getTextStyles(basicCss),
   ...getSpacingStyles(basicCss),
@@ -35,14 +34,9 @@ const basicStyles = {
   ...getDisplayStyles(basicCss),
   ...getTopRightBottomLeftStyles(basicCss),
   ...getFloatStyles(basicCss),
-} satisfies Partial<Styles>
+}
 
 export const css = createCssTag(basicStyles)
-const utilityStyles = getUtilityStyles(css)
-
-const allStyles: Styles = { ...basicStyles, ...utilityStyles }
-
-type StylesParam = CssClass | `${string}: ${string};`
 
 export function createStyles<T extends string>(extraStyles: Record<T, string[]>): (...classes: (StylesParam | T)[]) => string {
   return (...classes: (StylesParam | T)[]): string => {
@@ -50,14 +44,14 @@ export function createStyles<T extends string>(extraStyles: Record<T, string[]>)
       if (c.includes(':'))
         return c
       else
-      return allStyles[c as CssClass] || extraStyles[c as T]
+      return basicStyles[c as CssClass] || extraStyles[c as T]
     }).join(' ')}"`
   }
 }
 
 export const styles = createStyles({})
 
-export function createCssTag(dependencies: Record<string, string[]> = {}) {
+function createCssTag(dependencies: Record<string, string[]> = {}) {
   return (strings: TemplateStringsArray, ...values: string[]): string[] => {
     const rawString = String.raw({ raw: strings }, ...values)
     return rawString

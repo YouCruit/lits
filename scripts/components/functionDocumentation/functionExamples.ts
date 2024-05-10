@@ -5,7 +5,7 @@ import { styles } from '../../styles'
 import type { Category, Reference } from '../../../reference'
 import { penIcon } from '../../icons'
 
-const lits = new Lits({ debug: true })
+const lits = new Lits({ debug: false })
 
 export function getFunctionExamples(reference: Reference<Category>) {
   const { examples, name } = reference
@@ -21,7 +21,7 @@ export function getFunctionExamples(reference: Reference<Category>) {
           let result
           const encodedUriExample = btoa(example)
           try {
-            result = lits.run(example)
+            result = lits.run(`(try (do ${example}) (catch e e))`)
             const stringifiedResult = stringifyValue(result)
 
             const formattedExample = formatLitsExpression(example)
@@ -31,7 +31,7 @@ export function getFunctionExamples(reference: Reference<Category>) {
               <a onclick="addToPlayground(';; ${name} example', '${encodedUriExample}')"> ${penIcon} </a>
               <div ${styles('text-sm', 'font-mono', 'flex', 'flex-col', 'gap-3')} >
                 <div ${styles('whitespace-pre')}>${formattedExample}</div>
-                <div ${styles('whitespace-pre', 'text-color-gray-400')}>${stringifiedResult}</div>
+                <div ${styles('whitespace-pre-wrap', 'text-color-gray-400')}>${stringifiedResult}</div>
               </div>
               </div>`
           }

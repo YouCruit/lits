@@ -8,6 +8,7 @@ import { getExamplePage } from './components/examplePage'
 import { getPlayground } from './components/playground'
 import { getSideBar } from './components/sideBar'
 import { allSearchResultEntries } from './allSearchResultEntries'
+import { styles } from './styles'
 
 const DOC_DIR = path.resolve(__dirname, '../docs')
 setupPredictability()
@@ -29,7 +30,7 @@ function writeIndexPage() {
 
 </head>
 <body>
-  <div id="wrapper">
+  <div id="wrapper" ${styles('hidden')}>
     <main id="main-panel" class="fancy-scroll">
       ${getStartPage()}
       ${getExamplePage()}

@@ -6,8 +6,8 @@ const styles = createStyles({
     display: flex;
     justify-content: center;
     align-items: top;
-    padding-top: 100px;
-    max-height: calc(100% - 100px);
+    padding-top: 80px;
+    max-height: calc(100% - 80px);
   `,
 
   SearchResult: css`
@@ -25,14 +25,14 @@ const styles = createStyles({
   Dialog: css`
     @apply text-color-gray-500;
     @apply bg-gray-700;
-    @apply border;
+    @apply border-8;
     @apply border-gray-600;
     @apply border-solid;
+    border-radius: 8px;
     width: 600px;
   `,
   SearchIntro: css`
     flex: 0;
-    @apply hidden;
     @apply self-center;
     @apply text-xl;
     @apply h-full;
@@ -51,11 +51,18 @@ const styles = createStyles({
 export function getSearchDialog() {
   return `
     <style>
-      .search-entry:hover {
+      .search-entry {
         box-shadow: 0 0 10px ${Color.Gray_900};
+        background-color: ${Color.Gray_800};
+        outline: 1px solid ${Color.Gray_600};
+      }
+      .search-entry:hover {
+        background-color: ${Color.Gray_750};
+        box-shadow: none;
       }
       .search-entry.selected {
-        outline: 1px solid ${Color.Gray_300};
+        outline: 2px solid ${Color.Gray_400};
+        box-shadow: none;
       }
     </style>
     <div id="search-dialog-overlay" class="dialog-overlay">
@@ -63,13 +70,13 @@ export function getSearchDialog() {
       <div ${styles('Wrapper')}>
         <div id="search-dialog" ${styles('Dialog')}>
           <div ${styles('flex', 'flex-col', 'gap-4', 'py-4', 'h-full')}>
-            <div ${styles('px-4')}>
+            <div id="search-intro" ${styles('SearchIntro')}>
+              Search for functions and special expressions
+            </div>
+            <div ${styles('flex', 'justify-center')}>
               <form autocomplete="off">
                 <input placeholder="Search" id="search-input" ${styles('w-full', 'px-3', 'py-2')}/>
               </form>
-            </div>
-            <div id="search-intro" ${styles('SearchIntro')}>
-              Search for functions and special expressions
             </div>
             <div id="no-search-result" ${styles('NoResult')}>
               Nothing found

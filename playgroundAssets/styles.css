@@ -1,14 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
-#wrapper {
-  display: none;
-}
-
 body {
   margin: 0;
   padding: 1rem;
-  font-family: Roboto;
-  font-size: 1.1rem;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1rem;
   background-color: #222222;
   color: #cccccc;
 }
@@ -45,12 +41,6 @@ input {
   box-sizing: border-box;
 }
 
-.search-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 label {
   display: block;
   margin-top: 1.5rem;
@@ -63,14 +53,17 @@ pre {
 }
 
 ::-moz-selection {
-  background: #777777;
+  background: rgb(82 82 82);
 }
 
 ::selection {
-  background: #777777;
+  background: rgb(82 82 82);
 }
 
-a:link, a:visited, a:hover, a:active {
+a:link,
+a:visited,
+a:hover,
+a:active {
   color: rgb(163 163 163);
   text-decoration: none;
   cursor: pointer;
@@ -80,96 +73,22 @@ a:hover {
   color: rgb(245 245 245);
 }
 
-.mt-1 {
-  margin-top: 1rem;
-}
-.mr-1 {
-  margin-right: 1rem;
-}
-.mb-1 {
-  margin-bottom: 1rem;
-}
-.ml-1 {
-  margin-left: 1rem;
-}
-
-.mt-2 {
-  margin-top: 2rem;
-}
-.mr-2 {
-  margin-right: 2rem;
-}
-.mb-2 {
-  margin-bottom: 2rem;
-}
-.ml-2 {
-  margin-left: 2rem;
-}
-
-#output-column {
-  height: 500px;
-}
-
-.space-between {
-  justify-content: space-between;
-}
-
-.row {
-  display: flex;
-}
-
-.column {
-  flex: 15;
-}
-
-.column.shrink {
-  flex: 0;
-
-}
-
-.column.scoll {
-  overflow: auto;
-}
-
-/* .r-row {
-  flex-direction: column;
-}
-
-.r-column {
-  flex: 1;
-}
-
-.column.wide {
-  flex: 25;
-}
-
-.column.wider {
-  flex: 35;
-}
-*/
-.column.right {
-  text-align: right;
-}
-/*
-.column.small {
-  flex: 0;
-} */
-
-.gray {
-  color: gray;
-}
 .error {
-  color: #b10000;
+  color: #cf2b2b;
 }
 
 .button {
-  -webkit-user-select: none; /* Safari */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE10+/Edge */
-  user-select: none; /* Standard */
+  -webkit-user-select: none;
+  /* Safari */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* IE10+/Edge */
+  user-select: none;
+  /* Standard */
   margin: 0 0.5rem;
-	cursor: pointer;
-  border:solid 1px #555555;
+  cursor: pointer;
+  border: solid 1px #555555;
   background: #444444;
   color: #cccccc;
   border-radius: 5px;
@@ -186,25 +105,16 @@ a:hover {
 }
 
 .button:hover,
-input[type="submit"]:hover{
+input[type="submit"]:hover {
   -webkit-transition: all .2s ease-in-out;
   -moz-transition: all .2s ease-in-out;
   -ms-transition: all .2s ease-in-out;
   -o-transition: all .2s ease-in-out;
   transition: all .2s ease-in-out;
-  border:solid 1px #cccccc;
+  border: solid 1px #cccccc;
   background: #444444;
   color: #cccccc;
   box-shadow: #222222 0px 0px 0px;
-}
-
-.icon-button {
-  color: #bbbbbb;
-  cursor: pointer;
-}
-
-.icon-button:hover {
-  color: white;
 }
 
 .fancy-scroll::-webkit-scrollbar-track {
@@ -223,14 +133,8 @@ input[type="submit"]:hover{
   border-right: none;
 }
 
-.no-scroll::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
-  background-color: transparent;
-}
-
 .fancy-scroll::-webkit-scrollbar-corner {
-  background-color: black;
+  background-color: transparent;
 }
 
 /************ LAYOUT **********/
@@ -277,10 +181,6 @@ input[type="submit"]:hover{
   border-right: 1px solid rgb(115 115 115);
 }
 
-.text {
-  font-family: Roboto;
-  font-size: 1.2rem;
-}
 
 
 /************ EXAMPLE PAGE **********/
@@ -325,7 +225,8 @@ input[type="submit"]:hover{
 
 /************ SIDEBAR **********/
 
-#sidebar .active-sidebar-entry, #sidebar li:hover.active-sidebar-entry {
+#sidebar .active-sidebar-entry,
+#sidebar li:hover.active-sidebar-entry {
   background-color: #444444;
   font-weight: bold;
 }
@@ -388,7 +289,9 @@ div {
   color: white;
 }
 
-h4, h2, h1 {
+h4,
+h2,
+h1 {
   margin: 0;
   padding: 0;
 }
@@ -416,11 +319,13 @@ h4, h2, h1 {
   align-self: end;
 }
 
-#playground #params-textarea, #playground #lits-textarea {
+#playground #params-textarea,
+#playground #lits-textarea {
   background-color: #222222;
 }
 
-#index pre, span.pre {
+#index pre,
+span.pre {
   font-family: monospace;
   margin: 0;
   display: inline;
@@ -467,7 +372,7 @@ h4, h2, h1 {
   margin-left: 1rem;
 }
 
-#clear1{
+#clear1 {
   font-size: 0.8rem;
   text-decoration: underline;
 }
@@ -494,7 +399,7 @@ table {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0,0,0,0);
+  background-color: rgba(0, 0, 0, 0);
   backdrop-filter: blur(12px);
   animation: fade-in 0.2s ease-in-out;
 }
@@ -503,6 +408,7 @@ table {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

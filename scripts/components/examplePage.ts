@@ -1,4 +1,5 @@
 import { examples } from '../../reference/examples'
+import { styles } from '../styles'
 
 export function getExamplePage(): string {
   return `
@@ -11,14 +12,12 @@ export function getExamplePage(): string {
         const uriEncodedExample = btoa(JSON.stringify(example))
         return `
         <li>
-          <div class="row example-item">
-            <div class="column wide">
+          <div ${styles('flex', 'justify-between', 'items-center')}>
+            <div ${styles('flex', 'flex-col')}>
               <div class="example-name">${example.name}</div>
               <div class="example-description">${example.description}</div>
             </div>
-            <div class="column right">
-              <span class="button" onclick="setPlayground(\`${uriEncodedExample}\`)">Show in playground</span>
-            </div>
+            <span class="button" onclick="setPlayground(\`${uriEncodedExample}\`)">Show in playground</span>
           </div>
         </li>
       `

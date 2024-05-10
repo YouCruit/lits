@@ -27,48 +27,64 @@ window.Playground.Search = (() => {
       handleCtrlKey()
 
     if (isOpen()) {
-      if (event.key === 'Escape') {
-        if (event.target.closest('#search-input') && searchInput.value)
-          clearSearch()
-        else
-          closeSearch()
-      }
-
-      if (event.key === 'ArrowDown')
-        selectNext()
-
-      if (event.key === 'ArrowUp')
-        selectPrevious()
-
-      if (event.key === 'PageDown')
-        selectPageDown()
-
-      if (event.key === 'PageUp')
-        selectPageUp()
-
-      if (event.key === 'Home')
-        selectFirst()
-
-      if (event.key === 'End')
-        selectLast()
-
-      if (event.key === 'Enter') {
-        event.preventDefault()
-        searchResult.children[selectedIndex]?.click()
+      switch (event.key) {
+        case 'Escape':
+          if (event.target.closest('#search-input') && searchInput.value)
+            clearSearch()
+          else
+            closeSearch()
+          break
+        case 'ArrowDown':
+          selectNext()
+          break
+        case 'ArrowUp':
+          selectPrevious()
+          break
+        case 'PageDown':
+          selectPageDown()
+          break
+        case 'PageUp':
+          selectPageUp()
+          break
+        case 'Home':
+          selectFirst()
+          break
+        case 'End':
+          selectLast()
+          break
+        case 'Enter':
+          event.preventDefault()
+          searchResult.children[selectedIndex]?.click()
+          break
+        case 'k':
+        case 'K':
+          if (event.ctrlKey || event.metaKey) {
+            event.preventDefault()
+            Playground.Search.openSearch()
+          }
+          break
+        case 'F3':
+          event.preventDefault()
+          Playground.Search.openSearch()
+          break
       }
 
       return 'stop'
     }
     else {
-      if (event.key === 'k' || event.key === 'K') {
-        if (event.ctrlKey || event.metaKey) {
-          Playground.Search.openSearch()
+      switch (event.key) {
+        case 'k':
+        case 'K':
+          if (event.ctrlKey || event.metaKey) {
+            event.preventDefault()
+            Playground.Search.openSearch()
+          }
+          break
+
+        case 'F3':
           event.preventDefault()
-        }
-      }
-      if (event.key === 'F3') {
-        Playground.Search.openSearch()
-        event.preventDefault()
+          Playground.Search.openSearch()
+          break
       }
     }
   }
@@ -192,7 +208,6 @@ window.Playground.Search = (() => {
   }
 
   function updateSearchResult(searchString) {
-    searchIntro.style.display = 'none'
     searchResult.style.display = 'none'
     noSearchResult.style.display = 'none'
     searchResult.innerHTML = ''
@@ -200,9 +215,6 @@ window.Playground.Search = (() => {
     const searchResults = Playground.allSearchResultEntries.filter(
       entry => entry.search.toLowerCase().includes(searchString.toLowerCase()),
     )
-
-    if (!searchInput.value)
-      searchIntro.style.display = 'flex'
 
     if (searchResults.length === 0) {
       noSearchResult.style.display = 'flex'

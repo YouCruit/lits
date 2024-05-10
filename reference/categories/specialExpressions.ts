@@ -264,9 +264,9 @@
 //   ],
 //   description: 'Throws `UserDefinedError` with message set to `message` evaluated. `message` must evaluate to a `string`.',
 //   examples: [
-//     '(try (throw "You shall not pass!") (catch e e))',
-//     '(try (throw (subs "You shall not pass!" 0 3)) (catch e e))',
-//     '(try (throw "You shall not pass!") (catch error error))',
+//     '(throw "You shall not pass!")',
+//     '(throw (subs "You shall not pass!" 0 3))',
+//     '(throw "You shall not pass!")',
 //   ],
 // }, 'if': {
 //   name: 'if',

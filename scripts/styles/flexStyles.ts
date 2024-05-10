@@ -11,6 +11,18 @@ export function getFlexStyles(css: CssTemplateFunction) {
     'flex-col': css`
       flex-direction: column;
     `,
+    'flex-1': css`
+      flex: 1 1 0%;
+    `,
+    'flex-auto': css`
+      flex: 1 1 auto;
+    `,
+    'flex-initial': css`
+      flex: 0 1 auto;
+    `,
+    'flex-none': css`
+      flex: none;
+    `,
     'gap-0': css`
       gap: 0;
     `,

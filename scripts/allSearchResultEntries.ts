@@ -21,7 +21,7 @@ export const allSearchResultEntries: SearchResultEntry[] = searchables.map((refe
     name: reference.name,
     search: `${reference.name} ${reference.category}`,
     html: `
-      <div onclick="showPage('${reference.linkName}')" class="search-entry" ${styles('w-full', 'flex', 'flex-col', 'p-4', 'scroll-my-4', 'bg-gray-600', 'cursor-pointer')}>
+      <div onclick="showPage('${reference.linkName}')" class="search-entry" ${styles('w-full', 'flex', 'flex-col', 'p-4', 'scroll-my-4', 'cursor-pointer')}>
         <div ${styles('mb-4', 'flex', 'justify-between', 'items-baseline')}>
           <div ${styles('text-lg', 'font-bold', 'text-color-gray-300')}>${reference.name}</div>
           <div ${styles('text-base', 'text-color-gray-400')}>${reference.category}</div>
@@ -29,7 +29,7 @@ export const allSearchResultEntries: SearchResultEntry[] = searchables.map((refe
         <div ${styles('text-base', 'mb-4')}>
           ${getFunctionSignature(reference)}
         </div>
-        <div ${styles('text-base', 'mb-4')}>
+        <div ${styles('text-base')}>
           ${formatDescription(description, reference)}
         </div>
       </div>

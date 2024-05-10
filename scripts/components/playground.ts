@@ -37,32 +37,24 @@ export function getPlayground() {
               <a onclick="toggleMoreMenu()" ${styles('text-xl')}>${hamburgerIcon}</a>
               <div id="more-menu" ${styles('hidden', 'max-width: 20rem;', 'absolute', 'right-0', 'p-2', 'border-0', 'border-solid', 'border-gray-300', 'bg-gray-700')}>
                 <div ${styles('flex', 'flex-col', 'gap-2', 'text-base')}>
-                  <a ${styles('flex', 'justify-between', 'w-full')} onclick="run()">
+                  <a ${styles('flex', 'justify-between', 'w-full')} onclick="closeMoreMenu(); run()">
                     <div ${styles('flex', 'gap-2', 'w-full')}>
                       ${playIcon}
                       Run
                     </div>
                     F5
                   </a>
-                  <a ${styles('flex', 'gap-2', 'w-full')} onclick="analyze()">
+                  <a ${styles('flex', 'gap-2', 'w-full')} onclick="closeMoreMenu(); analyze()">
                     ${labIcon}
                     Analyze
                   </a>
-                  <a ${styles('flex', 'gap-2', 'w-full')} onclick="tokenize(false)">
+                  <a ${styles('flex', 'gap-2', 'w-full')} onclick="closeMoreMenu(); tokenize(false)">
                     ${tokenIcon}
                     Tokenize
                   </a>
-                  <a ${styles('flex', 'gap-2', 'w-full')} onclick="tokenize(true)">
-                    ${tokenIcon}
-                    Tokenize (debug)
-                  </a>
-                  <a ${styles('flex', 'gap-2', 'w-full')} onclick="parse(false)">
+                  <a ${styles('flex', 'gap-2', 'w-full')} onclick="closeMoreMenu(); parse(false)">
                     ${treeIcon}
                     Parse
-                  </a>
-                  <a ${styles('flex', 'gap-2', 'w-full')} onclick="parse(true)">
-                    ${treeIcon}
-                    Parse (debug)
                   </a>
                 </div>
               </div>

@@ -183,7 +183,7 @@ export const collectionReference: Record<string, Reference<'Collection'>> = {
       },
       value: {
         type: ['any'],
-        description: 'Only support primitive values: `number`, `string`, `boolean`, or `null`.',
+        description: 'Only support primitive values: `number`, `string`, `boolean`, or `nil`.',
       },
     },
     variants: [
@@ -236,7 +236,7 @@ export const collectionReference: Record<string, Reference<'Collection'>> = {
       values: {
         type: 'any',
         array: true,
-        description: 'Only support primitive values: `number`, `string`, `boolean`, or `null`.',
+        description: 'Only support primitive values: `number`, `string`, `boolean`, or `nil`.',
       },
     },
     variants: [
@@ -309,7 +309,7 @@ export const collectionReference: Record<string, Reference<'Collection'>> = {
       values: {
         type: 'any',
         array: true,
-        description: 'Only support primitive values: `number`, `string`, `boolean`, or `null`.',
+        description: 'Only support primitive values: `number`, `string`, `boolean`, or `nil`.',
       },
     },
     variants: [

@@ -16,7 +16,7 @@ export function getStartPage(): string {
   </center>
                                                   
     <br />
-      <div class="text">
+    <div>
       <p>Lits is a Lisp dialect made to work well in a browser or Node environment. It's heavily inspired by Clojure, most of the core functions from Clojure have been ported.</p>
       <p>Some outstanding features / shortcommings worth mentioning.</p>
       <ul>

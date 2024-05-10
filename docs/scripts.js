@@ -24,6 +24,11 @@ function toggleMoreMenu() {
   moreMenu.style.display = moreMenu.style.display === 'block' ? 'none' : 'block'
 }
 
+function closeMoreMenu() {
+  const moreMenu = document.getElementById('more-menu')
+  moreMenu.style.display = 'none'
+}
+
 function onDocumentClick(event) {
   if (event.target.closest('#more-menu'))
     return
@@ -32,11 +37,6 @@ function onDocumentClick(event) {
     event.stopPropagation()
     closeMoreMenu()
   }
-}
-
-function closeMoreMenu() {
-  const moreMenu = document.getElementById('more-menu')
-  moreMenu.style.display = 'none'
 }
 
 function layout() {

@@ -198,7 +198,7 @@ window.Playground.Search = (() => {
     searchResult.innerHTML = ''
 
     const searchResults = Playground.allSearchResultEntries.filter(
-      entry => entry.name.toLowerCase().includes(searchString.toLowerCase()),
+      entry => entry.search.toLowerCase().includes(searchString.toLowerCase()),
     )
 
     if (!searchInput.value)

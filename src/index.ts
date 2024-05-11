@@ -1,5 +1,6 @@
 export { AstNodeType, TokenType, FunctionType } from './constants/constants'
 export {
+  isBuiltinFunction,
   isLitsFunction,
   asLitsFunction,
   assertLitsFunction,

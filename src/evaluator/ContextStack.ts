@@ -1,5 +1,4 @@
 import type { BuiltinFunction, ExtraData, NameNode, NativeJsFunction } from '../parser/interface'
-import { isBuiltinFunction } from '../parser/interface'
 import { builtin } from '../builtin'
 import { toAny } from '../utils'
 import type { Any } from '../interface'
@@ -11,6 +10,7 @@ import { asNonUndefined } from '../typeGuards'
 import { isContextEntry } from './interface'
 import type { Context, LookUpResult } from './interface'
 import { contextToString } from '.'
+import { isBuiltinFunction } from '../typeGuards/litsFunction'
 
 export class ContextStack {
   private contexts: Context[]

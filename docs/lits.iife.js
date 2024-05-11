@@ -306,6 +306,53 @@ var Lits = (function (exports) {
       return new LitsError("Expected ".concat(typeName, ", got ").concat(valueToString(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
   }
 
+  function assertEventNumberOfParams(node) {
+      var _a;
+      var length = node.p.length;
+      if (length % 2 !== 0) {
+          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString(length), "."), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
+      }
+  }
+  function isNonUndefined(value) {
+      return value !== undefined;
+  }
+  function asNonUndefined(value, sourceCodeInfo) {
+      assertNonUndefined(value, sourceCodeInfo);
+      return value;
+  }
+  function assertNonUndefined(value, sourceCodeInfo) {
+      if (!isNonUndefined(value))
+          throw new LitsError('Unexpected undefined', getSourceCodeInfo(value, sourceCodeInfo));
+  }
+  /* v8 ignore next 3 */
+  function assertUnreachable(_) {
+      throw new Error('This should not be reached');
+  }
+  function isUnknownRecord(value) {
+      return value !== null && typeof value === 'object' && !Array.isArray(value);
+  }
+  function assertNumberOfParams(count, node) {
+      var _a, _b;
+      var length = node.p.length;
+      var sourceCodeInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo;
+      if (typeof count === 'number') {
+          if (length !== count) {
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected ").concat(count, ", got ").concat(valueToString(length), "."), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
+          }
+      }
+      else {
+          var min = count.min, max = count.max;
+          if (min === undefined && max === undefined)
+              throw new LitsError('Min or max must be specified.', sourceCodeInfo);
+          if (typeof min === 'number' && length < min) {
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at least ").concat(min, ", got ").concat(valueToString(length), "."), sourceCodeInfo);
+          }
+          if (typeof max === 'number' && length > max) {
+              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at most ").concat(max, ", got ").concat(valueToString(length), "."), sourceCodeInfo);
+          }
+      }
+  }
+
   function isLitsFunction(value) {
       if (value === null || typeof value !== 'object')
           return false;
@@ -340,6 +387,9 @@ var Lits = (function (exports) {
   function assertNativeJsFunction(value, sourceCodeInfo) {
       if (!isNativeJsFunction(value))
           throw getAssertionError('NativeJsFunction', value, sourceCodeInfo);
+  }
+  function isBuiltinFunction(value) {
+      return isUnknownRecord(value) && value.t === exports.FunctionType.Builtin;
   }
 
   function isToken(value, options) {
@@ -953,53 +1003,6 @@ var Lits = (function (exports) {
           b: bindings,
       };
       return [position, args];
-  }
-
-  function assertEventNumberOfParams(node) {
-      var _a;
-      var length = node.p.length;
-      if (length % 2 !== 0) {
-          throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString(length), "."), (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
-      }
-  }
-  function isNonUndefined(value) {
-      return value !== undefined;
-  }
-  function asNonUndefined(value, sourceCodeInfo) {
-      assertNonUndefined(value, sourceCodeInfo);
-      return value;
-  }
-  function assertNonUndefined(value, sourceCodeInfo) {
-      if (!isNonUndefined(value))
-          throw new LitsError('Unexpected undefined', getSourceCodeInfo(value, sourceCodeInfo));
-  }
-  /* v8 ignore next 3 */
-  function assertUnreachable(_) {
-      throw new Error('This should not be reached');
-  }
-  function isUnknownRecord(value) {
-      return value !== null && typeof value === 'object' && !Array.isArray(value);
-  }
-  function assertNumberOfParams(count, node) {
-      var _a, _b;
-      var length = node.p.length;
-      var sourceCodeInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo;
-      if (typeof count === 'number') {
-          if (length !== count) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected ").concat(count, ", got ").concat(valueToString(length), "."), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
-          }
-      }
-      else {
-          var min = count.min, max = count.max;
-          if (min === undefined && max === undefined)
-              throw new LitsError('Min or max must be specified.', sourceCodeInfo);
-          if (typeof min === 'number' && length < min) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at least ").concat(min, ", got ").concat(valueToString(length), "."), sourceCodeInfo);
-          }
-          if (typeof max === 'number' && length > max) {
-              throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at most ").concat(max, ", got ").concat(valueToString(length), "."), sourceCodeInfo);
-          }
-      }
   }
 
   var defSpecialExpression = {
@@ -6050,10 +6053,6 @@ var Lits = (function (exports) {
       return JSON.stringify(contextEntry.value);
   }
 
-  function isBuiltinFunction(value) {
-      return isUnknownRecord(value) && value.t === exports.FunctionType.Builtin;
-  }
-
   function isContextEntry(value) {
       return isUnknownRecord(value) && value.value !== undefined;
   }
@@ -7124,6 +7123,7 @@ var Lits = (function (exports) {
   exports.assertNativeJsFunction = assertNativeJsFunction;
   exports.assertUserDefinedFunction = assertUserDefinedFunction;
   exports.createNativeJsFunction = createNativeJsFunction;
+  exports.isBuiltinFunction = isBuiltinFunction;
   exports.isLitsError = isLitsError;
   exports.isLitsFunction = isLitsFunction;
   exports.isNativeJsFunction = isNativeJsFunction;

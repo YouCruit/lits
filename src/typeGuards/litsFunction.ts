@@ -1,8 +1,9 @@
 import { getAssertionError } from '../utils/getAssertionError'
-import type { LitsFunction, NativeJsFunction, UserDefinedFunction } from '../parser/interface'
+import type { BuiltinFunction, LitsFunction, NativeJsFunction, UserDefinedFunction } from '../parser/interface'
 import type { SourceCodeInfo } from '../tokenizer/interface'
 import { FUNCTION_SYMBOL } from '../utils/symbols'
 import { FunctionType } from '../constants/constants'
+import { isUnknownRecord } from '.'
 
 export function isLitsFunction(value: unknown): value is LitsFunction {
   if (value === null || typeof value !== 'object')
@@ -47,4 +48,8 @@ export function assertNativeJsFunction(
 ): asserts value is NativeJsFunction {
   if (!isNativeJsFunction(value))
     throw getAssertionError('NativeJsFunction', value, sourceCodeInfo)
+}
+
+export function isBuiltinFunction(value: unknown): value is BuiltinFunction {
+  return isUnknownRecord(value) && value.t === FunctionType.Builtin
 }

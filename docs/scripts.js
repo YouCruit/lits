@@ -582,9 +582,11 @@ function inactivateAll() {
 }
 
 function stringifyValue(value) {
+  console.log(value)
+
   if (Lits.isLitsFunction(value)) {
-    if (value.builtin)
-      return `<builtin function ${value.builtin}>`
+    if (Lits.isBuiltinFunction(value))
+      return `<builtin ${value.n}>`
     else
       return `<function ${value.name || '\u03BB'}>`
   }
@@ -606,7 +608,7 @@ function stringifyValue(value) {
   if (typeof value === 'number' && Number.isNaN(value))
     return 'NaN'
 
-  return JSON.stringify(value)
+  return JSON.stringify(value, null, 2)
 }
 
 function addToPlayground(comment, uriEncodedExample) {

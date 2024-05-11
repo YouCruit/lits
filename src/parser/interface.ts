@@ -7,8 +7,7 @@ import type { Any, Arr } from '../interface'
 import type { ReservedName } from '../reservedNames'
 import type { SourceCodeInfo, Token, TokenStream } from '../tokenizer/interface'
 import type { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
-import { type AstNodeType, FunctionType } from '../constants/constants'
-import { isUnknownRecord } from '../typeGuards'
+import type { AstNodeType, FunctionType } from '../constants/constants'
 import type { JsFunction, LazyValue } from '../Lits/Lits'
 
 export interface EvaluatedFunctionArguments {
@@ -96,10 +95,6 @@ export interface FNilFunction extends GenericLitsFunction {
 export interface BuiltinFunction extends GenericLitsFunction {
   t: FunctionType.Builtin
   n: string // name
-}
-
-export function isBuiltinFunction(value: unknown): value is BuiltinFunction {
-  return isUnknownRecord(value) && value.t === FunctionType.Builtin
 }
 
 export type LitsFunction =

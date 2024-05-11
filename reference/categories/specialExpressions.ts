@@ -60,46 +60,67 @@ If all forms evaluate to falsy values, the value of the last form is returned.`,
       '(or 1 2 3 4)',
     ],
   },
+  def: {
+    name: 'def',
+    category: 'Special expression',
+    linkName: 'def',
+    returns: {
+      type: 'any',
+    },
+    args: {
+      n: {
+        type: '*name',
+      },
+      value: {
+        type: '*form',
+      },
+    },
+    variants: [
+      { argumentNames: ['n', 'value'] },
+    ],
+    description: `Bind $value to variable $n.
+
+If $n is already defined, an error is thrown.`,
+    examples: [
+      '(def a (object))',
+      `(def a (object :x 10 :y true :z "A string"))`,
+    ],
+  },
+  defs: {
+    name: 'defs',
+    category: 'Special expression',
+    linkName: 'defs',
+    clojureDocs: null,
+    returns: {
+      type: 'any',
+    },
+    args: {
+      name: {
+        type: '*form',
+      },
+      value: {
+        type: '*form',
+      },
+    },
+    variants: [
+      { argumentNames: ['name', 'value'] },
+    ],
+    description: `
+Creates a variable with name set to $name evaluated and value set to $value.
+
+If a variable with name $name is already defined, an error is thrown.`,
+    examples: [
+      '(defs :a :b)',
+      `
+(defs (str :a :1) (object :x 10 :y true :z "A string"))
+a1`,
+      `
+(defs :a :b)
+(defs a :c)
+b`,
+    ],
+  },
 }
-// }, 'def': {
-//   name: 'def',
-//   category: 'Special expression',
-//   linkName: 'def',
-//   returns: {
-//     type: 'any',
-//   },
-//   arguments: [
-//     {
-//       type: '*name',
-//     },
-//     {
-//       type: 'any',
-//     },
-//   ],
-//   description: 'Bind `value` to `variable`. If `variable` isn\'t defined, a new global variable is created.',
-//   examples: ['(def a (object))', '(def a (object :x 10 :y true :z "A string"))'],
-// }, 'defs': {
-//   name: 'defs',
-//   category: 'Special expression',
-//   linkName: 'defs',
-//   clojureDocs: null,
-//   returns: {
-//     type: 'any',
-//   },
-//   arguments: [
-//     {
-//       type: '*expression',
-//     },
-//     {
-//       type: 'any',
-//     },
-//   ],
-//   description: 'Creates a variable with name set to `variable` evaluated and value set to `value`. If a variable with name `variable` isn\'t found a new global variable is created.',
-//   examples: [
-//     '(defs :a :b)',
-//     '(defs (str :a :1) (object :x 10 :y true :z "A string")) a1',
-//     '(defs :a :b) (defs a :c) b',
-//   ],
 // }, 'let': {
 //   name: 'let',
 //   category: 'Special expression',

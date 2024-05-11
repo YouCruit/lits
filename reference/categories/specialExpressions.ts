@@ -1,45 +1,66 @@
-// import type { Reference } from '..'
+import type { Reference } from '..'
 
-// export const specialExpressionsReference: Record<string, Reference<'Special expression'>> = { 'and': {
-//   name: 'and',
-//   category: 'Special expression',
-//   linkName: 'and',
-//   returns: {
-//     type: 'boolean',
-//   },
-//   arguments: [
-//     {
-//       type: '*expressions',
-//     },
-//   ],
-//   description: 'Computes logical \'and\' function. `expressions` evaluation starts from left. Value from the first form that decides result is returned so `expressions` at end of argument array may not evaluated.',
-//   examples: [
-//     '(and 1 1)',
-//     '(and (> 3 2) "string")',
-//     '(and (< 3 2) "string")',
-//     '(and true true true true)',
-//     '(and true true 0 true)',
-//   ],
-// }, 'or': {
-//   name: 'or',
-//   category: 'Special expression',
-//   linkName: 'or',
-//   returns: {
-//     type: 'boolean',
-//   },
-//   arguments: [
-//     {
-//       type: '*expressions',
-//     },
-//   ],
-//   description: 'Computes logical \'or\' function. `expressions` evaluation starts from left. Value from the first form that decides result is returned so forms at end of argument array may not evaluated.',
-//   examples: [
-//     '(or 1 1)',
-//     '(or (> 3 2) "string")',
-//     '(or (< 3 2) "string")',
-//     '(or true true true true)',
-//     '(or 1 2 3 4)',
-//   ],
+export const specialExpressionsReference: Record<string, Reference<'Special expression'>> = {
+  and: {
+    name: 'and',
+    category: 'Special expression',
+    linkName: 'and',
+    returns: {
+      type: 'boolean',
+    },
+    args: {
+      forms: {
+        type: '*form',
+        rest: true,
+      },
+    },
+    variants: [
+      { argumentNames: ['forms'] },
+    ],
+    description: `
+Computes logical \`and\` function. Evaluation of $forms starts from left.
+As soon as a \`form\` evaluates to a falsy value, the result is returned.
+
+If all forms evaluate to truthy values, the value of the last form is returned.`,
+    examples: [
+      '(and 1 1)',
+      '(and (> 3 2) "string")',
+      '(and (< 3 2) "string")',
+      '(and true true true true)',
+      '(and true true 0 true)',
+    ],
+  },
+
+  or: {
+    name: 'or',
+    category: 'Special expression',
+    linkName: 'or',
+    returns: {
+      type: 'boolean',
+    },
+    args: {
+      forms: {
+        type: '*form',
+        rest: true,
+      },
+    },
+    variants: [
+      { argumentNames: ['forms'] },
+    ],
+    description: `
+Computes logical \`or\` function. Evaluation of $forms evaluation starts from left.
+As soon as a \`form\` evaluates to a truthy value, the result is returned.
+
+If all forms evaluate to falsy values, the value of the last form is returned.`,
+    examples: [
+      '(or 1 1)',
+      '(or (> 3 2) "string")',
+      '(or (< 3 2) "string")',
+      '(or true true true true)',
+      '(or 1 2 3 4)',
+    ],
+  },
+}
 // }, 'def': {
 //   name: 'def',
 //   category: 'Special expression',

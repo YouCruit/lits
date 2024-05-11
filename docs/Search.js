@@ -5,7 +5,6 @@ window.Playground.Search = (() => {
   let onCloseCallback = null
 
   const searchInput = document.getElementById('search-input')
-  const searchIntro = document.getElementById('search-intro')
   const searchResult = document.getElementById('search-result')
   const noSearchResult = document.getElementById('no-search-result')
   const searchOverlay = document.getElementById('search-dialog-overlay')

@@ -9,7 +9,7 @@ import { assertReference } from './categories/assert'
 // import { objectReference } from './categories/object'
 // import { predicateReference } from './categories/predicate'
 // import { regularExpressionReference } from './categories/regularExpression'
-// import { specialExpressionsReference } from './categories/specialExpressions'
+import { specialExpressionsReference } from './categories/specialExpressions'
 // import { stringReference } from './categories/string'
 import { bitwiseReference } from './categories/bitwise'
 
@@ -28,7 +28,9 @@ type NormalExpressionArgument = TypedValue & {
   description?: string
 }
 interface SpecialExpressionArgument {
-  type: '*expression' | '*expressions' | '*name' | '*bindings' | '*arguments' | '*catch' | '*never' | '*cond-cases'
+  type: '*form' | '*name' | '*bindings' | '*arguments' | '*catch' | '*never' | '*cond-cases'
+  rest?: true
+  array?: true
   description?: string
 }
 
@@ -72,7 +74,7 @@ export const functionReference: Record<string, Reference<Category>> = {
   // ...objectReference,
   // ...predicateReference,
   // ...regularExpressionReference,
-  // ...specialExpressionsReference,
+  ...specialExpressionsReference,
   // ...stringReference,
   ...bitwiseReference,
   ...assertReference,

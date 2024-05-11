@@ -52,7 +52,7 @@ export function getSearchDialog() {
   return `
     <style>
       .search-entry {
-        box-shadow: 0 0 10px ${Color.Gray_900};
+        box-shadow: 5px 5px 10px ${Color.Gray_900};
         background-color: ${Color.Gray_800};
         outline: 1px solid ${Color.Gray_600};
       }

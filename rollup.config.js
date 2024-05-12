@@ -73,4 +73,22 @@ module.exports = [
     ],
     plugins,
   },
+  {
+    onwarn(warning, warn) {
+      // suppress eval warnings
+      if (warning.code === 'EVAL')
+        return
+
+      warn(warning)
+    },
+    input: 'scripts/www/playground.ts',
+    output: [
+      {
+        file: 'build/www/playground.js',
+        format: 'iife',
+        name: 'Playground',
+      },
+    ],
+    plugins,
+  },
 ]

@@ -1,4 +1,4 @@
-import type { Reference } from '..'
+import type { Reference } from '../index.ts'
 
 export const arrayReference: Record<string, Reference<'Array'>> = {
   array: {

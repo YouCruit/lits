@@ -2,7 +2,7 @@ import { formatLitsExpression } from '../../formatter/formatters'
 import { stringifyValue } from '../../utils/utils'
 import { Lits } from '../../../src'
 import { styles } from '../../styles'
-import type { Category, Reference } from '../../../reference'
+import type { Category, Reference } from '../../../reference/index.ts'
 import { penIcon } from '../../icons'
 
 const lits = new Lits({ debug: false })
@@ -28,7 +28,7 @@ export function getFunctionExamples(reference: Reference<Category>) {
 
             return `
               <div ${styles('flex', 'gap-3')} >
-              <a onclick="addToPlayground(';; ${name} example', '${encodedUriExample}')"> ${penIcon} </a>
+              <a onclick="Playground.addToPlayground(';; ${name} example', '${encodedUriExample}')"> ${penIcon} </a>
               <div ${styles('text-sm', 'font-mono', 'flex', 'flex-col', 'gap-3')} >
                 <div ${styles('whitespace-pre-wrap')}>${formattedExample}</div>
                 <div ${styles('whitespace-pre-wrap', 'text-color-gray-400')}>${stringifiedResult}</div>

@@ -1,4 +1,4 @@
-import type { Reference } from '..'
+import type { Reference } from '../index.ts'
 
 export const bitwiseReference: Record<string, Reference<'Bitwise'>> = { 'bit-shift-left': {
   name: 'bit-shift-left',

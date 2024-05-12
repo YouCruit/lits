@@ -17,7 +17,7 @@ export function getExamplePage(): string {
               <div class="example-name">${example.name}</div>
               <div class="example-description">${example.description}</div>
             </div>
-            <span class="button" onclick="setPlayground(\`${encodedExample}\`)">Show in playground</span>
+            <span class="button" onclick="Playground.setPlayground(\`${encodedExample}\`)">Show in playground</span>
           </div>
         </li>
       `

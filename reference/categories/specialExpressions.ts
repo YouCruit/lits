@@ -1,4 +1,4 @@
-import type { Reference } from '..'
+import type { Reference } from '../index.ts'
 
 export const specialExpressionsReference: Record<string, Reference<'Special expression'>> = {
   'and': {

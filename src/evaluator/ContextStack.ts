@@ -7,10 +7,10 @@ import type { LazyValue } from '../Lits/Lits'
 import { FUNCTION_SYMBOL } from '../utils/symbols'
 import { FunctionType } from '../constants/constants'
 import { asNonUndefined } from '../typeGuards'
+import { isBuiltinFunction } from '../typeGuards/litsFunction'
 import { isContextEntry } from './interface'
 import type { Context, LookUpResult } from './interface'
 import { contextToString } from '.'
-import { isBuiltinFunction } from '../typeGuards/litsFunction'
 
 export class ContextStack {
   private contexts: Context[]

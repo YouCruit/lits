@@ -1,4 +1,4 @@
-import type { Reference } from '..'
+import type { Reference } from '../index.ts'
 
 export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': {
   name: 'assert',

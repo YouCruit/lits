@@ -1,4 +1,4 @@
-import type { Reference } from '..'
+import type { Reference } from '../index.ts'
 
 export const collectionReference: Record<string, Reference<'Collection'>> = {
   'count': {

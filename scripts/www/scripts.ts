@@ -1,60 +1,77 @@
-/* eslint-disable no-console */
 /* eslint-disable unused-imports/no-unused-vars */
 
+import type { Example } from '../../reference/examples'
+import type { LitsParams } from '../../src'
+import { Lits, isBuiltinFunction, isLitsFunction, isNativeJsFunction, isUserDefinedFunction } from '../../src'
+import type { UnknownRecord } from '../../src/interface'
+import { Search } from './Search'
+
+const lits = new Lits({ debug: true })
+const litsNoDebug = new Lits({ debug: false })
 const DEFAULT_PLAYGROUND_HEIGHT = 350
 const DEFAULT_RESIZE_DIVIDER1_X_PERCENT = 15
 const DEFAULT_RESIZE_DIVIDER2_X_PERCENT = 70
 
-let moveParams = null
-let playgroundHeight = null
-let resizeDivider1XPercent = null
-let resizeDivider2XPercent = null
-let windowHeight = null
-let windowWidth = null
-let availablePanelsWidth = null
-
-function calculateDimensions() {
-  windowHeight = window.innerHeight
-  windowWidth = window.innerWidth
-  availablePanelsWidth = windowWidth
+type MoveParams = {
+  id: 'playground'
+  startMoveY: number
+  heightBeforeMove: number
+} | {
+  id: 'resize-divider-1' | 'resize-divider-2'
+  startMoveX: number
+  percentBeforeMove: number
 }
 
-function toggleMoreMenu() {
-  const moreMenu = document.getElementById('more-menu')
+let moveParams: MoveParams | null = null
+let playgroundHeight = 0
+let resizeDivider1XPercent = DEFAULT_RESIZE_DIVIDER1_X_PERCENT
+let resizeDivider2XPercent = DEFAULT_RESIZE_DIVIDER2_X_PERCENT
+
+function calculateDimensions() {
+  return {
+    windowHeight: window.innerHeight,
+    windowWidth: window.innerWidth,
+  }
+}
+
+export function toggleMoreMenu() {
+  const moreMenu = document.getElementById('more-menu') as HTMLElement
   moreMenu.style.display = moreMenu.style.display === 'block' ? 'none' : 'block'
 }
 
-function closeMoreMenu() {
-  const moreMenu = document.getElementById('more-menu')
+export function closeMoreMenu() {
+  const moreMenu = document.getElementById('more-menu') as HTMLElement
   moreMenu.style.display = 'none'
 }
 
-function onDocumentClick(event) {
-  if (event.target.closest('#more-menu'))
+function onDocumentClick(event: Event) {
+  const target = event.target as HTMLInputElement | undefined
+  if (target?.closest('#more-menu'))
     return
 
-  if (document.getElementById('more-menu').style.display === 'block') {
+  const moreMenu = document.getElementById('more-menu') as HTMLElement
+  if (moreMenu.style.display === 'block') {
     event.stopPropagation()
     closeMoreMenu()
   }
 }
 
 function layout() {
-  calculateDimensions()
+  const { windowWidth } = calculateDimensions()
 
-  const wrapper = document.getElementById('wrapper')
-  const playground = document.getElementById('playground')
-  const sidebar = document.getElementById('sidebar')
-  const mainPanel = document.getElementById('main-panel')
-  const paramsPanel = document.getElementById('params-panel')
-  const litsPanel = document.getElementById('lits-panel')
-  const outputPanel = document.getElementById('output-panel')
+  const wrapper = document.getElementById('wrapper') as HTMLElement
+  const playground = document.getElementById('playground') as HTMLElement
+  const sidebar = document.getElementById('sidebar') as HTMLElement
+  const mainPanel = document.getElementById('main-panel') as HTMLElement
+  const paramsPanel = document.getElementById('params-panel') as HTMLElement
+  const litsPanel = document.getElementById('lits-panel') as HTMLElement
+  const outputPanel = document.getElementById('output-panel') as HTMLElement
 
   const topPanelsBottom = playgroundHeight
 
-  const paramsPanelWidth = (availablePanelsWidth * resizeDivider1XPercent) / 100
-  const outputPanelWidth = (availablePanelsWidth * (100 - resizeDivider2XPercent)) / 100
-  const litsPanelWidth = availablePanelsWidth - paramsPanelWidth - outputPanelWidth
+  const paramsPanelWidth = (windowWidth * resizeDivider1XPercent) / 100
+  const outputPanelWidth = (windowWidth * (100 - resizeDivider2XPercent)) / 100
+  const litsPanelWidth = windowWidth - paramsPanelWidth - outputPanelWidth
 
   playground.style.height = `${playgroundHeight}px`
 
@@ -68,12 +85,12 @@ function layout() {
   wrapper.style.display = 'block'
 }
 
-function resetPlayground() {
+export function resetPlayground() {
   resetParams()
   resetLitsCode()
   resetOutput()
-  Playground.Search.closeSearch()
-  Playground.Search.clearSearch()
+  Search.closeSearch()
+  Search.clearSearch()
 
   localStorage.removeItem('playground-height')
   localStorage.removeItem('resize-divider-1-percent')
@@ -84,33 +101,35 @@ function resetPlayground() {
   layout()
 }
 
-function resetParams() {
-  document.getElementById('params-textarea').value = ''
+export function resetParams() {
+  const paramsTextArea = document.getElementById('params-textarea') as HTMLTextAreaElement
+  paramsTextArea.value = ''
   localStorage.removeItem('params-textarea')
   updateParamsLinks()
 }
 
-function setParams(value) {
-  const paramsTextArea = document.getElementById('params-textarea')
+function setParams(value: string) {
+  const paramsTextArea = document.getElementById('params-textarea') as HTMLTextAreaElement
   paramsTextArea.value = value
   localStorage.setItem('params-textarea', value)
   updateParamsLinks()
 }
 
 function getParams() {
-  return document.getElementById('params-textarea').value
+  const paramsTextArea = document.getElementById('params-textarea') as HTMLTextAreaElement
+  return paramsTextArea.value
 }
 
-function resetLitsCode() {
-  const litsTextArea = document.getElementById('lits-textarea')
+export function resetLitsCode() {
+  const litsTextArea = document.getElementById('lits-textarea') as HTMLTextAreaElement
   litsTextArea.value = ''
   localStorage.removeItem('lits-textarea')
   litsTextArea.focus()
   updateLitsCodeLinks()
 }
 
-function setLitsCode(value) {
-  const litsTextArea = document.getElementById('lits-textarea')
+function setLitsCode(value: string) {
+  const litsTextArea = document.getElementById('lits-textarea') as HTMLTextAreaElement
   litsTextArea.value = value
   localStorage.setItem('lits-textarea', value)
   litsTextArea.scrollTop = litsTextArea.scrollHeight
@@ -118,8 +137,8 @@ function setLitsCode(value) {
   litsTextArea.focus()
 }
 
-function appendLitsCode(value) {
-  const litsTextArea = document.getElementById('lits-textarea')
+function appendLitsCode(value: string) {
+  const litsTextArea = document.getElementById('lits-textarea') as HTMLTextAreaElement
   const oldContent = litsTextArea.value.trimEnd()
 
   const newContent = oldContent ? `${oldContent}\n\n${value}` : value.trim()
@@ -131,26 +150,33 @@ function appendLitsCode(value) {
 }
 
 function getLitsCode() {
-  return document.getElementById('lits-textarea').value
+  const litsTextArea = document.getElementById('lits-textarea') as HTMLTextAreaElement
+  return litsTextArea.value
 }
 
-function resetOutput() {
-  document.getElementById('output-placeholder').style.display = 'block'
-  document.getElementById('output-result').innerHTML = ''
+export function resetOutput() {
+  const outputPlaceholder = document.getElementById('output-placeholder') as HTMLElement
+  outputPlaceholder.style.display = 'block'
+  const outputResult = document.getElementById('output-result') as HTMLElement
+  outputResult.innerHTML = ''
   updateOutputLinks()
 }
 
 function hasOutput() {
-  return document.getElementById('output-result').children.length > 0
+  const outputResult = document.getElementById('output-result') as HTMLElement
+  return outputResult.children.length > 0
 }
 
-function appendOutput(output, className) {
-  document.getElementById('output-placeholder').style.display = 'none'
+function appendOutput(output: unknown, className: 'error' | 'output' | 'result') {
+  const outputPlaceholder = document.getElementById('output-placeholder') as HTMLElement
+  outputPlaceholder.style.display = 'none'
   const outputElement = document.createElement('span')
+
   outputElement.className = className
-  outputElement.textContent = output
-  document.getElementById('output-result').appendChild(outputElement)
-  const outputPanel = document.getElementById('output-panel')
+  outputElement.textContent = `${output}`
+  const outputResult = document.getElementById('output-result') as HTMLElement
+  outputResult.appendChild(outputElement)
+  const outputPanel = document.getElementById('output-panel') as HTMLElement
   outputPanel.scrollTop = outputPanel.scrollHeight
   updateOutputLinks()
 }
@@ -162,7 +188,7 @@ function updateLinks() {
 }
 
 function updateParamsLinks() {
-  const paramsLinks = document.getElementById('params-links')
+  const paramsLinks = document.getElementById('params-links') as HTMLElement
 
   if (getParams())
     paramsLinks.style.display = 'block'
@@ -171,7 +197,7 @@ function updateParamsLinks() {
 }
 
 function updateLitsCodeLinks() {
-  const litsLinks = document.getElementById('lits-links')
+  const litsLinks = document.getElementById('lits-links') as HTMLElement
 
   if (getLitsCode())
     litsLinks.style.display = 'block'
@@ -180,7 +206,7 @@ function updateLitsCodeLinks() {
 }
 
 function updateOutputLinks() {
-  const outputLinks = document.getElementById('output-links')
+  const outputLinks = document.getElementById('output-links') as HTMLElement
 
   if (hasOutput())
     outputLinks.style.display = 'block'
@@ -203,10 +229,8 @@ window.onload = function () {
     ? Number(storedResizeDivider2XPercent)
     : DEFAULT_RESIZE_DIVIDER2_X_PERCENT
 
-  lits = new Lits.Lits({ debug: true })
-  litsNoDebug = new Lits.Lits({ debug: false })
-
-  document.getElementById('resize-playground').onmousedown = (event) => {
+  const resizePlayground = document.getElementById('resize-playground') as HTMLElement
+  resizePlayground.onmousedown = (event) => {
     moveParams = {
       id: 'playground',
       startMoveY: event.clientY,
@@ -214,7 +238,8 @@ window.onload = function () {
     }
   }
 
-  document.getElementById('resize-divider-1').onmousedown = (event) => {
+  const resizeDevider1 = document.getElementById('resize-divider-1') as HTMLElement
+  resizeDevider1.onmousedown = (event) => {
     moveParams = {
       id: 'resize-divider-1',
       startMoveX: event.clientX,
@@ -222,7 +247,8 @@ window.onload = function () {
     }
   }
 
-  document.getElementById('resize-divider-2').onmousedown = (event) => {
+  const resizeDevider2 = document.getElementById('resize-divider-2') as HTMLElement
+  resizeDevider2.onmousedown = (event) => {
     moveParams = {
       id: 'resize-divider-2',
       startMoveX: event.clientX,
@@ -237,6 +263,7 @@ window.onload = function () {
   }
 
   window.onmousemove = (event) => {
+    const { windowHeight, windowWidth } = calculateDimensions()
     if (moveParams === null)
       return
 
@@ -250,35 +277,35 @@ window.onload = function () {
       if (playgroundHeight > windowHeight - 89)
         playgroundHeight = windowHeight - 89
 
-      localStorage.setItem('playground-height', playgroundHeight)
+      localStorage.setItem('playground-height', `${playgroundHeight}`)
     }
     else if (moveParams.id === 'resize-divider-1') {
       resizeDivider1XPercent
-        = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / availablePanelsWidth) * 100
+        = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / windowWidth) * 100
       if (resizeDivider1XPercent < 10)
         resizeDivider1XPercent = 10
 
       if (resizeDivider1XPercent > resizeDivider2XPercent - 10)
         resizeDivider1XPercent = resizeDivider2XPercent - 10
 
-      localStorage.setItem('resize-divider-1-percent', resizeDivider1XPercent)
+      localStorage.setItem('resize-divider-1-percent', `${resizeDivider1XPercent}`)
     }
     else if (moveParams.id === 'resize-divider-2') {
       resizeDivider2XPercent
-        = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / availablePanelsWidth) * 100
+        = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / windowWidth) * 100
       if (resizeDivider2XPercent < resizeDivider1XPercent + 10)
         resizeDivider2XPercent = resizeDivider1XPercent + 10
 
       if (resizeDivider2XPercent > 90)
         resizeDivider2XPercent = 90
 
-      localStorage.setItem('resize-divider-2-percent', resizeDivider2XPercent)
+      localStorage.setItem('resize-divider-2-percent', `${resizeDivider2XPercent}`)
     }
     layout()
   }
 
   window.addEventListener('keydown', (evt) => {
-    if (Playground.Search.handleKeyDown(evt))
+    if (Search.handleKeyDown(evt))
       return
 
     if (evt.key === 'F5') {
@@ -290,14 +317,22 @@ window.onload = function () {
       evt.preventDefault()
     }
   })
-  document.getElementById('lits-textarea').addEventListener('keydown', keydownHandler)
-  document
-    .getElementById('lits-textarea')
-    .addEventListener('input', e => setLitsCode(e.target.value))
-  document.getElementById('params-textarea').addEventListener('keydown', keydownHandler)
-  document
-    .getElementById('params-textarea')
-    .addEventListener('input', e => setParams(e.target.value))
+  const litsTextarea = document.getElementById('lits-textarea') as HTMLElement
+  litsTextarea.addEventListener('keydown', keydownHandler)
+  litsTextarea.addEventListener('keydown', keydownHandler)
+  litsTextarea.addEventListener('input', (event: Event) => {
+    const target = event.target as HTMLInputElement | undefined
+    if (target)
+      setLitsCode(target.value)
+  })
+
+  const paramsTextarea = document.getElementById('params-textarea') as HTMLElement
+  paramsTextarea.addEventListener('keydown', keydownHandler)
+  paramsTextarea.addEventListener('input', (event: Event) => {
+    const target = event.target as HTMLInputElement | undefined
+    if (target)
+      setParams(target.value)
+  })
 
   const id = location.hash.substring(1) || 'index'
   showPage(id, 'replace')
@@ -314,43 +349,47 @@ window.onload = function () {
 
   layout()
 
-  Playground.Search.onClose(() => document.getElementById('lits-textarea').focus())
-  document.getElementById('lits-textarea').focus()
+  Search.onClose(() => {
+    (document.getElementById('lits-textarea') as HTMLTextAreaElement).focus()
+  })
+
+  ;(document.getElementById('lits-textarea') as HTMLTextAreaElement).focus()
 }
 
-function keydownHandler(e) {
+function keydownHandler(e: KeyboardEvent) {
   if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(e.key)) {
-    const start = this.selectionStart
-    const end = this.selectionEnd
+    const target = e.target as HTMLTextAreaElement
+    const start = target.selectionStart
+    const end = target.selectionEnd
 
-    const indexOfReturn = this.value.lastIndexOf('\n', start - 1)
+    const indexOfReturn = target.value.lastIndexOf('\n', start - 1)
     const rowLength = start - indexOfReturn - 1
     const onTabStop = rowLength % 2 === 0
     if (e.key === 'Tab') {
       e.preventDefault()
       if (!e.shiftKey) {
-        this.value = this.value.substring(0, start) + (onTabStop ? '  ' : ' ') + this.value.substring(end)
-        this.selectionStart = this.selectionEnd = start + (onTabStop ? 2 : 1)
+        target.value = target.value.substring(0, start) + (onTabStop ? '  ' : ' ') + target.value.substring(end)
+        target.selectionStart = target.selectionEnd = start + (onTabStop ? 2 : 1)
       }
     }
     if (e.key === 'Backspace') {
-      if (onTabStop && start === end && this.value.substr(start - 2, 2) === '  ') {
+      if (onTabStop && start === end && target.value.substr(start - 2, 2) === '  ') {
         e.preventDefault()
-        this.value = this.value.substring(0, start - 2) + this.value.substring(end)
-        this.selectionStart = this.selectionEnd = start - 2
+        target.value = target.value.substring(0, start - 2) + target.value.substring(end)
+        target.selectionStart = target.selectionEnd = start - 2
       }
     }
     if (e.key === 'Enter') {
       e.preventDefault()
-      const spaceCount = this.value.substring(indexOfReturn + 1, start).replace(/^( *).*/, '$1').length
-      this.value = `${this.value.substring(0, start)}\n${' '.repeat(spaceCount)}${this.value.substring(end)}`
-      this.selectionStart = this.selectionEnd = start + 1 + spaceCount
+      const spaceCount = target.value.substring(indexOfReturn + 1, start).replace(/^( *).*/, '$1').length
+      target.value = `${target.value.substring(0, start)}\n${' '.repeat(spaceCount)}${target.value.substring(end)}`
+      target.selectionStart = target.selectionEnd = start + 1 + spaceCount
     }
     if (e.key === 'Delete') {
-      if (onTabStop && start === end && this.value.substr(start, 2) === '  ') {
+      if (onTabStop && start === end && target.value.substr(start, 2) === '  ') {
         e.preventDefault()
-        this.value = this.value.substring(0, start) + this.value.substring(end + 2)
-        this.selectionStart = this.selectionEnd = start
+        target.value = target.value.substring(0, start) + target.value.substring(end + 2)
+        target.selectionStart = target.selectionEnd = start
       }
     }
   }
@@ -361,16 +400,16 @@ window.addEventListener('popstate', () => {
   showPage(id, 'none')
 })
 
-function run() {
+export function run() {
   const code = getLitsCode()
   const paramsString = getParams()
-  let params
+  let params: LitsParams
   try {
     params
       = paramsString.trim().length > 0
         ? JSON.parse(paramsString, (_, val) =>
-          // eslint-disable-next-line no-eval
-          typeof val === 'string' && val.startsWith('EVAL:') ? eval(val.substring(5)) : val)
+          // eslint-disable-next-line no-eval, ts/no-unsafe-return
+          typeof val === 'string' && val.startsWith('EVAL:') ? eval(val.substring(5)) : val) as LitsParams
         : {}
   }
   catch {
@@ -380,15 +419,13 @@ function run() {
   let result
   const oldLog = console.log
   console.log = function (...args) {
-    oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
     appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn
-  console.warn = function (...args) {
+  console.warn = function (...args: unknown[]) {
     oldWarn.apply(console, args)
-    const logRow = args[0]
-    appendOutput(logRow, 'output')
+    appendOutput(args[0], 'output')
   }
   try {
     result = lits.run(code, params)
@@ -406,20 +443,18 @@ function run() {
   appendOutput(content, 'result')
 }
 
-function analyze() {
+export function analyze() {
   const code = getLitsCode()
   let result
   const oldLog = console.log
   console.log = function (...args) {
-    oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
     appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn
-  console.warn = function (...args) {
+  console.warn = function (...args: unknown[]) {
     oldWarn.apply(console, args)
-    const logRow = args[0]
-    appendOutput(logRow, 'output')
+    appendOutput(args[0], 'output')
   }
   try {
     result = lits.analyze(code)
@@ -440,30 +475,22 @@ function analyze() {
   appendOutput(content, 'result')
 }
 
-function parse(debug) {
+export function parse() {
   const code = getLitsCode()
   let result
   const oldLog = console.log
   console.log = function (...args) {
-    oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
     appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn
   console.warn = function (...args) {
     oldWarn.apply(console, args)
-    const logRow = args[0]
-    appendOutput(logRow, 'output')
+    appendOutput(args[0], 'output')
   }
   try {
-    if (debug) {
-      const tokens = lits.tokenize(code)
-      result = lits.parse(tokens)
-    }
-    else {
-      const tokens = litsNoDebug.tokenize(code, { debug: false })
-      result = litsNoDebug.parse(tokens)
-    }
+    const tokens = litsNoDebug.tokenize(code)
+    result = litsNoDebug.parse(tokens)
   }
   catch (error) {
     appendOutput(error, 'error')
@@ -478,26 +505,21 @@ function parse(debug) {
   appendOutput(content, 'result')
 }
 
-function tokenize(debug) {
+export function tokenize() {
   const code = getLitsCode()
   let result
   const oldLog = console.log
-  console.log = function (...args) {
-    oldLog.apply(console, args)
+  console.log = function (...args: unknown[]) {
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
     appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn
-  console.warn = function (...args) {
+  console.warn = function (...args: unknown[]) {
     oldWarn.apply(console, args)
-    const logRow = args[0]
-    appendOutput(logRow, 'output')
+    appendOutput(args[0], 'output')
   }
   try {
-    if (debug)
-      result = lits.tokenize(code)
-    else
-      result = litsNoDebug.tokenize(code, { debug: false })
+    result = litsNoDebug.tokenize(code)
   }
   catch (error) {
     appendOutput(error, 'error')
@@ -512,10 +534,10 @@ function tokenize(debug) {
   appendOutput(content, 'result')
 }
 
-function showPage(id, historyEvent) {
+export function showPage(id: string, historyEvent: 'replace' | 'push' | 'none' = 'push') {
   inactivateAll()
 
-  Playground.Search.closeSearch()
+  Search.closeSearch()
   const page = document.getElementById(id)
   const link = document.getElementById(`${id}_link`)
 
@@ -548,12 +570,16 @@ function inactivateAll() {
     els[0].classList.remove('active-sidebar-entry')
 }
 
-function stringifyValue(value) {
-  if (Lits.isLitsFunction(value)) {
-    if (Lits.isBuiltinFunction(value))
+function stringifyValue(value: unknown) {
+  if (isLitsFunction(value)) {
+    if (isBuiltinFunction(value))
       return `<builtin ${value.n}>`
+    else if (isNativeJsFunction(value))
+      return '<js \u03BB>'
+    else if (isUserDefinedFunction(value))
+      return `<function ${value.n || '\u03BB'}>`
     else
-      return `<function ${value.name || '\u03BB'}>`
+      return `<function ${(value as unknown as UnknownRecord).n || '\u03BB'}>`
   }
   if (value === null)
     return 'null'
@@ -576,17 +602,18 @@ function stringifyValue(value) {
   return JSON.stringify(value, null, 2)
 }
 
-function addToPlayground(comment, encodedExample) {
+export function addToPlayground(comment: string, encodedExample: string) {
   const example = atob(encodedExample)
   appendLitsCode(`${comment}\n${example}`)
 
   run()
 }
 
-function setPlayground(encodedExample) {
-  const example = JSON.parse(atob(encodedExample))
+export function setPlayground(encodedExample: string) {
+  const example = JSON.parse(atob(encodedExample)) as Example
 
   const params = example.params
+    // eslint-disable-next-line ts/no-unsafe-return
     ? JSON.stringify(example.params, (_k, v) => (v === undefined ? null : v), 2)
     : ''
 

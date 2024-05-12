@@ -1,4 +1,4 @@
-import type { Category, Reference } from '../../reference'
+import type { Category, Reference } from '../../reference/index.ts'
 import { categorizedFunctions, functionReference } from '../../reference'
 import { searchIcon } from '../icons'
 import { styles } from '../styles'
@@ -19,9 +19,9 @@ export function getSideBar() {
       </span>
       <span ${styles('text-sm')}>F3</span>
     </div>
-    <label class="link" onclick="showPage('index')">Home</label>
+    <label class="link" onclick="Playground.showPage('index')">Home</label>
     <br />
-    <label class="link" onclick="showPage('example-page')">Examples</label>
+    <label class="link" onclick="Playground.showPage('example-page')">Examples</label>
     <br />
     ${categorizedFunctions
       .map((categoryKey) => {
@@ -35,7 +35,7 @@ export function getSideBar() {
                     .map((obj) => {
                       const linkName = obj.linkName
                       const name = escape(obj.name)
-                      return `<li id="${linkName}_link" ${styles('scroll-my-2')}onclick="showPage('${linkName}')">${name}</li>`
+                      return `<li id="${linkName}_link" ${styles('scroll-my-2')}onclick="Playground.showPage('${linkName}')">${name}</li>`
                     })
                     .join('\n')
                 : ''

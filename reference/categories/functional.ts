@@ -1,7 +1,7 @@
-import type { Reference } from '..'
+import type { Reference } from '../index.ts'
 
 export const functionalReference: Record<string, Reference<'Functional'>> = {
-  apply: {
+  'apply': {
     name: 'apply',
     category: 'Functional',
     linkName: 'apply',
@@ -33,7 +33,7 @@ export const functionalReference: Record<string, Reference<'Functional'>> = {
   [3 4])`,
     ],
   },
-  identity: {
+  'identity': {
     name: 'identity',
     category: 'Functional',
     linkName: 'identity',
@@ -51,7 +51,7 @@ export const functionalReference: Record<string, Reference<'Functional'>> = {
     description: 'Returns $x.',
     examples: ['(identity 1)', '(identity "Albert")', '(identity {:a 1})', '(identity nil)'],
   },
-  partial: {
+  'partial': {
     name: 'partial',
     category: 'Functional',
     linkName: 'partial',
@@ -83,7 +83,7 @@ When called, the returned function calls \`(\`$fn \`...\`$args\` ...additional_a
 (addHundred 10)`,
     ],
   },
-  comp: {
+  'comp': {
     name: 'comp',
     category: 'Functional',
     linkName: 'comp',
@@ -163,7 +163,7 @@ When called, the returned function calls \`(\`$fn \`...\`$args\` ...additional_a
       },
     },
     variants: [
-      { argumentNames: ['fn',] },
+      { argumentNames: ['fn'] },
       { argumentNames: ['fn', 'fns'] },
     ],
     description: `Takes one or many function and returns a function that is the juxtaposition of those functions.  
@@ -212,10 +212,10 @@ and returns a vector containing the result of applying each function to the args
       type: 'function',
     },
     args: {
-      fn:{
+      fn: {
         type: 'function',
       },
-      fns:{
+      fns: {
         type: 'function',
         rest: true,
       },

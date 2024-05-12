@@ -7,13 +7,12 @@ import { getStartPage } from './components/startPage'
 import { getExamplePage } from './components/examplePage'
 import { getPlayground } from './components/playground'
 import { getSideBar } from './components/sideBar'
-import { allSearchResultEntries } from './allSearchResultEntries'
+import { allSearchResultEntries } from './www/allSearchResultEntries'
 import { styles } from './styles'
 
 const DOC_DIR = path.resolve(__dirname, '../docs')
 setupPredictability()
 setupDocDir()
-copyLitsScript()
 copyAssets()
 writeIndexPage()
 
@@ -41,15 +40,10 @@ function writeIndexPage() {
   </div>
   ${getSearchDialog()}
 
-  <script src="lits.iife.js"></script>
-
+  <script src='playground.js'></script>
   <script>
-    window.Playground = {}
     window.Playground.allSearchResultEntries = JSON.parse(atob('${btoa(JSON.stringify(allSearchResultEntries))}'))
   </script>
-
-  <script src='scripts.js'></script>
-  <script src='Search.js'></script>
 </body>
 </html>
 `
@@ -61,12 +55,9 @@ function setupDocDir() {
   fs.mkdirSync(DOC_DIR)
 }
 
-function copyLitsScript() {
-  fs.copyFileSync(path.join(__dirname, '../dist/lits.iife.js'), path.join(DOC_DIR, 'lits.iife.js'))
-}
-
 function copyAssets() {
   fs.cpSync(path.join(__dirname, '../playgroundAssets/'), path.join(DOC_DIR), { recursive: true })
+  fs.copyFileSync(path.join(__dirname, '../build/www/playground.js'), path.join(DOC_DIR, 'playground.js'))
 }
 
 function setupPredictability() {

@@ -6,6 +6,20 @@ export function findAllOccurrences(input: string, pattern: RegExp): Set<string> 
   return new Set(matches.map(match => match[0]))
 }
 
+export function isNotNull<T>(value: T | null | undefined): value is T {
+  return value !== null && value !== undefined
+}
+
+export function assertNotNull<T>(value: T | null | undefined): asserts value is T {
+  if (!isNotNull(value))
+    throw new Error('Value is null or undefined')
+}
+
+export function asNotNull<T>(value: T | null | undefined): T {
+  assertNotNull(value)
+  return value
+}
+
 export function stringifyValue(value: unknown): string {
   if (isLitsFunction(value)) {
     if (value.t === FunctionType.Builtin)

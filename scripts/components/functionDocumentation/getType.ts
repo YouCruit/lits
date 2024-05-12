@@ -7,7 +7,7 @@ export function getType(arg: Argument | TypedValue) {
   const typeString = types.map((type) => {
     return `<span ${styles('text-color-Type')}>${type}</span>`
   }).join(' | ')
-  const result = arg.array
+  const result = arg.array || arg.rest
     ? `<span ${
       styles('text-color-Name')
     }>Array</span><span ${
@@ -17,13 +17,7 @@ export function getType(arg: Argument | TypedValue) {
     }<span ${
       styles('text-color-Operator')
     }>&gt;`
-    : arg.rest
-      ? `<span ${
-      styles('text-color-Operator')
-    }>...</span>${
-      typeString
-    }`
-      : typeString
+    : typeString
 
   return `<span ${styles('font-mono', 'text-color-gray-300')}>${result}</span>`
 }

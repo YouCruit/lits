@@ -135,38 +135,24 @@ function getLitsCode() {
 }
 
 function resetOutput() {
-  setOutput('')
+  document.getElementById('output-placeholder').style.display = 'block'
+  document.getElementById('output-result').innerHTML = ''
   updateOutputLinks()
 }
 
-function appendOutput(value) {
-  const output = document.getElementById('output-textarea')
-  output.classList.remove('error')
-  const oldContent = output.value
-  const newContent = oldContent ? `${oldContent}\n${value}` : value
-  output.value = newContent
-  output.scrollTop = output.scrollHeight
-  updateOutputLinks()
+function hasOutput() {
+  return document.getElementById('output-result').children.length > 0
 }
 
-function setOutput(value) {
-  const output = document.getElementById('output-textarea')
-  output.classList.remove('error')
-  output.value = value
-  output.scrollTop = output.scrollHeight
+function appendOutput(output, className) {
+  document.getElementById('output-placeholder').style.display = 'none'
+  const outputElement = document.createElement('span')
+  outputElement.className = className
+  outputElement.textContent = output
+  document.getElementById('output-result').appendChild(outputElement)
+  const outputPanel = document.getElementById('output-panel')
+  outputPanel.scrollTop = outputPanel.scrollHeight
   updateOutputLinks()
-}
-
-function setOutputError(value) {
-  const output = document.getElementById('output-textarea')
-  output.classList.add('error')
-  output.value = value
-  output.scrollTop = output.scrollHeight
-  updateOutputLinks()
-}
-
-function getOutput() {
-  return document.getElementById('output-textarea').value
 }
 
 function updateLinks() {
@@ -196,7 +182,7 @@ function updateLitsCodeLinks() {
 function updateOutputLinks() {
   const outputLinks = document.getElementById('output-links')
 
-  if (getOutput())
+  if (hasOutput())
     outputLinks.style.display = 'block'
   else
     outputLinks.style.display = 'none'
@@ -325,9 +311,9 @@ window.onload = function () {
   setParams(localStorage.getItem('params-textarea') || '')
 
   updateLinks()
-  
+
   layout()
-  
+
   Playground.Search.onClose(() => document.getElementById('lits-textarea').focus())
   document.getElementById('lits-textarea').focus()
 }
@@ -378,7 +364,6 @@ window.addEventListener('popstate', () => {
 function run() {
   const code = getLitsCode()
   const paramsString = getParams()
-  setOutput('')
   let params
   try {
     params
@@ -388,8 +373,8 @@ function run() {
           typeof val === 'string' && val.startsWith('EVAL:') ? eval(val.substring(5)) : val)
         : {}
   }
-  catch (_e) {
-    setOutputError(`Error: Could not parse params: ${paramsString}`)
+  catch {
+    appendOutput(`Error: Could not parse params: ${paramsString}`, 'error')
     return
   }
   let result
@@ -397,22 +382,19 @@ function run() {
   console.log = function (...args) {
     oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
-    appendOutput(logRow)
+    appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn
   console.warn = function (...args) {
     oldWarn.apply(console, args)
     const logRow = args[0]
-    appendOutput(logRow)
-    const oldContent = getOutput()
-    const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    setOutput(newContent)
+    appendOutput(logRow, 'output')
   }
   try {
     result = lits.run(code, params)
   }
   catch (error) {
-    setOutputError(error)
+    appendOutput(error, 'error')
     return
   }
   finally {
@@ -421,34 +403,29 @@ function run() {
   }
   const content = stringifyValue(result)
 
-  appendOutput(content)
+  appendOutput(content, 'result')
 }
 
 function analyze() {
   const code = getLitsCode()
-  resetOutput()
   let result
   const oldLog = console.log
   console.log = function (...args) {
     oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
-    const oldContent = getOutput()
-    const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    setOutput(newContent)
+    appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn
   console.warn = function (...args) {
     oldWarn.apply(console, args)
     const logRow = args[0]
-    const oldContent = getOutput()
-    const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    setOutput(newContent)
+    appendOutput(logRow, 'output')
   }
   try {
     result = lits.analyze(code)
   }
   catch (error) {
-    setOutputError(error)
+    appendOutput(error, 'error')
     return
   }
   finally {
@@ -460,28 +437,23 @@ function analyze() {
     ? `Undefined symbols: ${undefinedSymbols}`
     : 'No undefined symbols'
 
-  appendOutput(content)
+  appendOutput(content, 'result')
 }
 
 function parse(debug) {
   const code = getLitsCode()
-  resetOutput()
   let result
   const oldLog = console.log
   console.log = function (...args) {
     oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
-    const oldContent = getOutput()
-    const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    setOutput(newContent)
+    appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn
   console.warn = function (...args) {
     oldWarn.apply(console, args)
     const logRow = args[0]
-    const oldContent = getOutput()
-    const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    setOutput(newContent)
+    appendOutput(logRow, 'output')
   }
   try {
     if (debug) {
@@ -494,7 +466,7 @@ function parse(debug) {
     }
   }
   catch (error) {
-    setOutputError(error)
+    appendOutput(error, 'error')
     return
   }
   finally {
@@ -503,28 +475,23 @@ function parse(debug) {
   }
   const content = JSON.stringify(result, null, 2)
 
-  appendOutput(content)
+  appendOutput(content, 'result')
 }
 
 function tokenize(debug) {
   const code = getLitsCode()
-  resetOutput()
   let result
   const oldLog = console.log
   console.log = function (...args) {
     oldLog.apply(console, args)
     const logRow = args.map(arg => stringifyValue(arg)).join(' ')
-    const oldContent = getOutput()
-    const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    setOutput(newContent)
+    appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn
   console.warn = function (...args) {
     oldWarn.apply(console, args)
     const logRow = args[0]
-    const oldContent = getOutput()
-    const newContent = oldContent ? `${oldContent}\n${logRow}` : logRow
-    setOutput(newContent)
+    appendOutput(logRow, 'output')
   }
   try {
     if (debug)
@@ -533,7 +500,7 @@ function tokenize(debug) {
       result = litsNoDebug.tokenize(code, { debug: false })
   }
   catch (error) {
-    setOutputError(error)
+    appendOutput(error, 'error')
     return
   }
   finally {
@@ -542,7 +509,7 @@ function tokenize(debug) {
   }
   const content = JSON.stringify(result, null, 2)
 
-  appendOutput(content)
+  appendOutput(content, 'result')
 }
 
 function showPage(id, historyEvent) {
@@ -582,8 +549,6 @@ function inactivateAll() {
 }
 
 function stringifyValue(value) {
-  console.log(value)
-
   if (Lits.isLitsFunction(value)) {
     if (Lits.isBuiltinFunction(value))
       return `<builtin ${value.n}>`
@@ -611,15 +576,15 @@ function stringifyValue(value) {
   return JSON.stringify(value, null, 2)
 }
 
-function addToPlayground(comment, uriEncodedExample) {
-  const example = atob(uriEncodedExample)
+function addToPlayground(comment, encodedExample) {
+  const example = atob(encodedExample)
   appendLitsCode(`${comment}\n${example}`)
 
   run()
 }
 
-function setPlayground(uriEncodedExample) {
-  const example = JSON.parse(decodeURIComponent(uriEncodedExample))
+function setPlayground(encodedExample) {
+  const example = JSON.parse(atob(encodedExample))
 
   const params = example.params
     ? JSON.stringify(example.params, (_k, v) => (v === undefined ? null : v), 2)

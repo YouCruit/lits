@@ -4,7 +4,7 @@ export function getStartPage(): string {
   return `
   <div id="index" class="content">
     <center>
-    <span ${styles('whitespace-pre', 'font-mono', 'text-xl')}>
+    <span ${styles('whitespace-pre-wrap', 'font-mono', 'text-xl')}>
     ░▒▓█▓▒░      ░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░ 
     ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        
     ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        

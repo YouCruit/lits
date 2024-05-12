@@ -1,7 +1,7 @@
 import type { Reference } from '..'
 
 export const specialExpressionsReference: Record<string, Reference<'Special expression'>> = {
-  and: {
+  'and': {
     name: 'and',
     category: 'Special expression',
     linkName: 'and',
@@ -9,19 +9,19 @@ export const specialExpressionsReference: Record<string, Reference<'Special expr
       type: 'boolean',
     },
     args: {
-      forms: {
-        type: '*form',
+      expressions: {
+        type: '*expression',
         rest: true,
       },
     },
     variants: [
-      { argumentNames: ['forms'] },
+      { argumentNames: ['expressions'] },
     ],
     description: `
-Computes logical \`and\` function. Evaluation of $forms starts from left.
-As soon as a \`form\` evaluates to a falsy value, the result is returned.
+Computes logical \`and\` function. Evaluation of $expressions starts from left.
+As soon as a \`expression\` evaluates to a falsy value, the result is returned.
 
-If all forms evaluate to truthy values, the value of the last form is returned.`,
+If all expressions evaluate to truthy values, the value of the last expression is returned.`,
     examples: [
       '(and 1 1)',
       '(and (> 3 2) "string")',
@@ -31,7 +31,7 @@ If all forms evaluate to truthy values, the value of the last form is returned.`
     ],
   },
 
-  or: {
+  'or': {
     name: 'or',
     category: 'Special expression',
     linkName: 'or',
@@ -39,19 +39,19 @@ If all forms evaluate to truthy values, the value of the last form is returned.`
       type: 'boolean',
     },
     args: {
-      forms: {
-        type: '*form',
+      expressions: {
+        type: '*expression',
         rest: true,
       },
     },
     variants: [
-      { argumentNames: ['forms'] },
+      { argumentNames: ['expressions'] },
     ],
     description: `
-Computes logical \`or\` function. Evaluation of $forms evaluation starts from left.
-As soon as a \`form\` evaluates to a truthy value, the result is returned.
+Computes logical \`or\` function. Evaluation of $expressions evaluation starts from left.
+As soon as a \`expression\` evaluates to a truthy value, the result is returned.
 
-If all forms evaluate to falsy values, the value of the last form is returned.`,
+If all expressions evaluate to falsy values, the value of the last expression is returned.`,
     examples: [
       '(or 1 1)',
       '(or (> 3 2) "string")',
@@ -60,7 +60,7 @@ If all forms evaluate to falsy values, the value of the last form is returned.`,
       '(or 1 2 3 4)',
     ],
   },
-  def: {
+  'def': {
     name: 'def',
     category: 'Special expression',
     linkName: 'def',
@@ -72,7 +72,7 @@ If all forms evaluate to falsy values, the value of the last form is returned.`,
         type: '*name',
       },
       value: {
-        type: '*form',
+        type: '*expression',
       },
     },
     variants: [
@@ -83,10 +83,10 @@ If all forms evaluate to falsy values, the value of the last form is returned.`,
 If $n is already defined, an error is thrown.`,
     examples: [
       '(def a (object))',
-      `(def a (object :x 10 :y true :z "A string"))`,
+      '(def a (object :x 10 :y true :z "A string"))',
     ],
   },
-  defs: {
+  'defs': {
     name: 'defs',
     category: 'Special expression',
     linkName: 'defs',
@@ -96,10 +96,10 @@ If $n is already defined, an error is thrown.`,
     },
     args: {
       name: {
-        type: '*form',
+        type: '*expression',
       },
       value: {
-        type: '*form',
+        type: '*expression',
       },
     },
     variants: [
@@ -120,67 +120,102 @@ a1`,
 b`,
     ],
   },
+  'let': {
+    name: 'let',
+    category: 'Special expression',
+    linkName: 'let',
+    returns: {
+      type: 'any',
+    },
+    args: {
+      bindings: {
+        type: '*binding',
+        rest: true,
+      },
+      expressions: {
+        type: '*expression',
+        rest: true,
+      },
+    },
+    variants: [
+      { argumentNames: ['bindings', 'expressions'] },
+    ],
+    description: `
+Binds local variables. The variables lives only within $expressions.
+It returns evaluation of the last expression in $expressions.`,
+    examples: [`
+  (let [a (+ 1 2 3 4) 
+        b (* 1 2 3 4)]
+    (write! a b))`],
+  },
+  'if-let': {
+    name: 'if-let',
+    category: 'Special expression',
+    linkName: 'if-let',
+    returns: {
+      type: 'any',
+    },
+    args: {
+      'binding': {
+        type: '*binding',
+      },
+      'if-expr': {
+        type: '*expression',
+      },
+      'else-expr': {
+        type: '*expression',
+      },
+    },
+    variants: [
+      { argumentNames: ['binding', 'if-expr'] },
+      { argumentNames: ['binding', 'if-expr', 'else-expr'] },
+    ],
+    description: `
+Binds one local variable. If it evaluates to a truthy value
+$if-expr is executed with the variable accessable.
+If the bound variable evaluates to false, the $else-expr is evaluated
+(without variable accessable).`,
+    examples: [
+      `
+(if-let [a (> (count "Albert") 4)]
+  (write! (str a "is big enough"))
+  (write! "Sorry, not big enough."))`,
+      `
+(if-let [a (> (count "Albert") 10)]
+  (write! (str a "is big enough"))
+  (write! "Sorry, not big enough."))`,
+    ],
+  },
+  'when-let': {
+    name: 'when-let',
+    category: 'Special expression',
+    linkName: 'when-let',
+    returns: {
+      type: 'any',
+    },
+    args: {
+      binding: {
+        type: '*binding',
+      },
+      expressions: {
+        type: '*expression',
+        rest: true,
+      },
+    },
+    variants: [
+      { argumentNames: ['binding', 'expressions'] },
+    ],
+    description: `
+Binds one local variable. If it evaluates to a truthy value
+$expressions is executed with the variable accessable.
+If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
+    examples: [
+      `
+(when-let [a (> (count "Albert") 4)]
+  (write! a))`,
+    ],
+  },
 }
-// }, 'let': {
-//   name: 'let',
-//   category: 'Special expression',
-//   linkName: 'let',
-//   returns: {
-//     type: 'any',
-//   },
-//   arguments: [
-//     {
-//       type: '*bindings',
-//     },
-//     {
-//       type: '*expressions',
-//     },
-//   ],
-//   description: 'Binds local variables. The variables lives only within the body. It returns evaluation of the last expression in the body.',
-//   examples: ['(let [a (+ 1 2 3 4) b (* 1 2 3 4)] (write! a b))'],
-// }, 'if-let': {
-//   name: 'if-let',
-//   category: 'Special expression',
-//   linkName: 'if-let',
-//   returns: {
-//     type: 'any',
-//   },
-//   arguments: [
-//     {
-//       type: '*bindings',
-//     },
-//     {
-//       type: 'any',
-//     },
-//     {
-//       type: 'any',
-//     },
-//   ],
-//   description: 'Binds one local variable. If it evaluates to a truthy value the then-form is executed with the variable accessable. If the bound variable evaluates to false, the then-form is evaluated (without variable accessable).',
-//   examples: [
-//     '(if-let [a (> (count "Albert") 4)] (write! (str a "is big enough")) (write! "Sorry, not big enough."))',
-//     '(if-let [a (> (count "Albert") 10)] (write! (str a "is big enough")) (write! "Sorry, not big enough."))',
-//   ],
-// }, 'when-let': {
-//   name: 'when-let',
-//   category: 'Special expression',
-//   linkName: 'when-let',
-//   returns: {
-//     type: 'any',
-//   },
-//   arguments: [
-//     {
-//       type: '*bindings',
-//     },
-//     {
-//       type: 'any',
-//     },
-//   ],
-//   description: 'Binds one local variable. If it evaluates to a truthy value the then-form is executed with the variable accessable. If the bound variable evaluates to false, `nil` is returned.',
-//   examples: [
-//     '(when-let [a (> (count "Albert") 4)] (write! (str a "is big enough")) (write! "Sorry, not big enough."))',
-//     '(when-let [a (> (count "Albert") 10)] (write! (str a "is big enough")) (write! "Sorry, not big enough."))',
-//   ],
 // }, 'when-first': {
 //   name: 'when-first',
 //   category: 'Special expression',
@@ -392,7 +427,7 @@ b`,
 //       type: '*expression',
 //     },
 //   ],
-//   description: 'If `test` yields a thruthy value, the forms are evaluated in order from left to right and the value returned by the last `form` is returned. Otherwise, if `test` yields a falsy value, the forms are not evaluated, and `nil` is returned. If no `form` is provided, `nil` is returned.',
+//   description: 'If `test` yields a thruthy value, the expressions are evaluated in order from left to right and the value returned by the last `expression` is returned. Otherwise, if `test` yields a falsy value, the expressions are not evaluated, and `nil` is returned. If no `expression` is provided, `nil` is returned.',
 //   examples: [
 //     '(when true (write! "Hi") (write! "There"))',
 //     '(when false (write! "Hi") (write! "There"))',
@@ -414,7 +449,7 @@ b`,
 //       type: '*expression',
 //     },
 //   ],
-//   description: 'If `test` yields a falsy value, the forms are evaluated in order from left to right and the value returned by the last `form` is returned. Otherwise, if `test` yields a truthy value, the forms are not evaluated, and `nil` is returned. If no `form` is provided, `nil` is returned.',
+//   description: 'If `test` yields a falsy value, the expressions are evaluated in order from left to right and the value returned by the last `expression` is returned. Otherwise, if `test` yields a truthy value, the expressions are not evaluated, and `nil` is returned. If no `expression` is provided, `nil` is returned.',
 //   examples: [
 //     '(when-not true (write! "Hi") (write! "There"))',
 //     '(when-not false (write! "Hi") (write! "There"))',
@@ -447,7 +482,7 @@ b`,
 //       type: '*expressions',
 //     },
 //   ],
-//   description: 'Calls `expressions` in the order they have been written. Resulting value is the value of the last form.',
+//   description: 'Calls `expressions` in the order they have been written. Resulting value is the value of the last expression.',
 //   examples: ['(do (write! "Hi") (write! "Albert"))', '(do)'],
 // }, 'recur': {
 //   name: 'recur',
@@ -500,7 +535,7 @@ b`,
 //       type: 'any',
 //     },
 //   ],
-//   description: 'Prints the time it took to evaluate `form`. Returns `form` evaluated.',
+//   description: 'Prints the time it took to evaluate `expression`. Returns `expression` evaluated.',
 //   examples: ['(defn fib [x] (if (<= x 2) 1 (+ (fib (dec x)) (fib (- x 2))))) (time! (fib 10))'],
 // }, 'doseq': {
 //   name: 'doseq',

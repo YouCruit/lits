@@ -73,8 +73,23 @@ a:hover {
   color: rgb(245 245 245);
 }
 
-.error {
+#output-result .error {
   color: #cf2b2b;
+  font-family: 'Fira Code', monospace;
+  white-space: pre-wrap;
+}
+
+#output-result .output {
+  color: #cc8f77;
+  font-family: 'Fira Code', monospace;
+  white-space: pre-wrap;
+}
+
+#output-result .result {
+  color: rgb(229 229 229);
+  font-family: 'Fira Code', monospace;
+  white-space: pre-wrap;
+  margin-bottom: 0.25rem;
 }
 
 .button {

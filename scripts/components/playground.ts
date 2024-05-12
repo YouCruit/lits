@@ -29,7 +29,11 @@ export function getPlayground() {
       ><div id="resize-divider-1" ${styles('width: 5px;', 'h-full', 'cursor-col-resize', 'bg-gray-600')}></div
   
       ><div id="lits-panel" ${styles('h-full')}>
-        <div id="lits-links" ${styles('relative', 'top: 6px;', 'float-right', 'mr-2', 'text-color-gray-400')}>
+        <div
+          id="lits-links"
+          onclick="console.log(event); event.preventDefault(); event.stopPropagation()"
+          ${styles('relative', 'top: 6px;', 'float-right', 'mr-2', 'text-color-gray-400')}
+        >
           <div ${styles('flex', 'flex-row', 'gap-1', 'text-sm', 'text-color-gray-400')}>
             <a onclick="run()" ${styles('text-xl')}>${playIcon}</a>
             <a onclick="resetLitsCode()" ${styles('text-xl')}>${clearIcon}</a>
@@ -66,13 +70,20 @@ export function getPlayground() {
   
       ><div id="resize-divider-2" ${styles('width: 5px;', 'h-full', 'cursor-col-resize', 'bg-gray-600', 'h-full')}></div
   
-      ><div id="output-panel" ${styles('h-full')}>
-        <div id="output-links" ${styles('relative', 'top-1', 'float-right', 'mr-2', 'text-color-gray-400')}>
+      ><div class="fancy-scroll" id="output-panel" ${styles('h-full', 'overflow-y: auto;')}>
+        <div
+          id="output-links"
+          onclick="event => event.preventDefault()"
+          ${styles('relative', 'top-1', 'float-right', 'mr-2', 'text-color-gray-400')}
+        >
           <div ${styles('flex', 'flex-row', 'gap-2', 'text-sm', 'text-color-gray-400')}>
           <a onclick="resetOutput()" ${styles('text-xl')}>${clearIcon}</a>
           </div>
         </div>
-        <textarea ${styles('h-full', 'border-0')} id="output-textarea" class="fancy-scroll" readonly spellcheck="false" placeholder="Output" ></textarea>
+        <div ${styles('h-full', 'p-2')}>
+          <div id="output-placeholder" ${styles('text-color-gray-500', 'text-base', 'font-mono')}>Output</div>
+          <div ${styles('text-sm', 'flex', 'flex-col', 'gap-2')} id="output-result"></div>
+        </div>
       </div>
     </div>
   </div>

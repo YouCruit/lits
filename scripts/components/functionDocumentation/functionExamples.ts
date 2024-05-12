@@ -30,7 +30,7 @@ export function getFunctionExamples(reference: Reference<Category>) {
               <div ${styles('flex', 'gap-3')} >
               <a onclick="addToPlayground(';; ${name} example', '${encodedUriExample}')"> ${penIcon} </a>
               <div ${styles('text-sm', 'font-mono', 'flex', 'flex-col', 'gap-3')} >
-                <div ${styles('whitespace-pre')}>${formattedExample}</div>
+                <div ${styles('whitespace-pre-wrap')}>${formattedExample}</div>
                 <div ${styles('whitespace-pre-wrap', 'text-color-gray-400')}>${stringifiedResult}</div>
               </div>
               </div>`

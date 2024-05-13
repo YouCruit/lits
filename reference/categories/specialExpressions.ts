@@ -215,70 +215,79 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
   (write! a))`,
     ],
   },
+  'when-first': {
+    name: 'when-first',
+    category: 'Special expression',
+    linkName: 'when-first',
+    returns: {
+      type: 'any',
+    },
+    args: {
+      binding: {
+        type: '*binding',
+        rest: true,
+      },
+      expressions: {
+        type: '*expression',
+        rest: true,
+      },
+    },
+    variants: [
+      { argumentNames: ['binding', 'expressions'] },
+    ],
+    description: 'When the binding value in $binding is truthy, first element of that sequence (instead of the sequence itself) is bound to the variable.',
+    examples: [
+      '(when-first [x [1 2 3]] (write! 10) (write! 20) x)',
+      '(when-first [x "Albert"] x)',
+      '(when-first [x ""] x)',
+      '(when-first [x []] x)',
+    ],
+  },
 }
-// }, 'when-first': {
-//   name: 'when-first',
-//   category: 'Special expression',
-//   linkName: 'when-first',
-//   returns: {
-//     type: 'any',
+//   'fn': {
+//     name: 'fn',
+//     category: 'Special expression',
+//     linkName: 'fn',
+//     returns: {
+//       type: 'function',
+//     },
+//     args: {
+//       {
+//         type: '*arguments',
+//       },
+//       {
+//         type: '*expressions',
+//       },
+//     },
+//     description: 'Creates a function. When called, evaluation of the last expression in the body is returned.',
+//     examples: ['(fn [a b] (sqrt (+ (* a a) (* b b))))', '((fn [a b] (sqrt (+ (* a a) (* b b)))) 3 4)'],
 //   },
-//   arguments: [
-//     {
-//       type: '*bindings',
+//   'defn': {
+//     name: 'defn',
+//     category: 'Special expression',
+//     linkName: 'defn',
+//     returns: {
+//       type: 'function',
 //     },
-//     {
-//       type: 'any',
+//     args: {
+//       {
+//         type: '*name',
+//       },
+//       {
+//         type: '*arguments',
+//       },
+//       {
+//         type: '*expressions',
+//       },
 //     },
-//   ],
-//   description: 'Roughly the same as `(when (seq xs) (let [x (first xs)] body))`.',
-//   examples: [
-//     '(when-first [x [1 2 3]] (write! 10) (write! 20) x)',
-//     '(when-first [x "Albert"] x)',
-//     '(when-first [x ""] x)',
-//     '(when-first [x []] x)',
-//   ],
-// }, 'fn': {
-//   name: 'fn',
-//   category: 'Special expression',
-//   linkName: 'fn',
-//   returns: {
-//     type: 'function',
+//     description: 'Creates a named global function. When called, evaluation of the last expression in the body is returned.',
+//     examples: [
+//       '(defn hyp [a b] (sqrt (+ (* a a) (* b b)))) hyp',
+//       '(defn hyp [a b] (sqrt (+ (* a a) (* b b)))) (hyp 3 4)',
+//       '(defn sumOfSquares [& s] (apply + (map (fn [x] (* x x)) s))) (sumOfSquares 1 2 3 4 5)',
+//     ],
 //   },
-//   arguments: [
-//     {
-//       type: '*arguments',
-//     },
-//     {
-//       type: '*expressions',
-//     },
-//   ],
-//   description: 'Creates a function. When called, evaluation of the last expression in the body is returned.',
-//   examples: ['(fn [a b] (sqrt (+ (* a a) (* b b))))', '((fn [a b] (sqrt (+ (* a a) (* b b)))) 3 4)'],
-// }, 'defn': {
-//   name: 'defn',
-//   category: 'Special expression',
-//   linkName: 'defn',
-//   returns: {
-//     type: 'function',
-//   },
-//   arguments: [
-//     {
-//       type: '*name',
-//     },
-//     {
-//       type: '*arguments',
-//     },
-//     {
-//       type: '*expressions',
-//     },
-//   ],
-//   description: 'Creates a named global function. When called, evaluation of the last expression in the body is returned.',
-//   examples: [
-//     '(defn hyp [a b] (sqrt (+ (* a a) (* b b)))) hyp',
-//     '(defn hyp [a b] (sqrt (+ (* a a) (* b b)))) (hyp 3 4)',
-//     '(defn sumOfSquares [& s] (apply + (map (fn [x] (* x x)) s))) (sumOfSquares 1 2 3 4 5)',
-//   ],
+// }
 // }, 'defns': {
 //   name: 'defns',
 //   category: 'Special expression',
@@ -287,7 +296,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'function',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*expression',
 //     },
@@ -312,7 +321,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'any',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*expression',
 //     },
@@ -334,7 +343,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: '*never',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*expression',
 //     },
@@ -352,7 +361,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'any',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: 'any',
 //     },
@@ -377,7 +386,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'any',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: 'any',
 //     },
@@ -402,7 +411,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'any',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*cond-cases',
 //     },
@@ -419,7 +428,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'any',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*expression',
 //     },
@@ -441,7 +450,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'any',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*expression',
 //     },
@@ -463,7 +472,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'nil',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*expressions',
 //     },
@@ -477,7 +486,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'any',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*expressions',
 //     },
@@ -491,7 +500,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'nil',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*expressions',
 //     },
@@ -509,7 +518,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'any',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*bindings',
 //     },
@@ -530,7 +539,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'any',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: 'any',
 //     },
@@ -544,7 +553,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'nil',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*bindings',
 //     },
@@ -562,7 +571,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //     type: 'any',
 //     array: true,
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: '*bindings',
 //     },
@@ -589,7 +598,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'boolean',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: 'string',
 //     },
@@ -609,7 +618,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
 //   returns: {
 //     type: 'any',
 //   },
-//   arguments: [
+//   args: {
 //     {
 //       type: 'any',
 //     },

@@ -166,6 +166,40 @@ const inlineCodeRule: FormatterRule = (text, index) => {
   return { count: 0, formattedText: '' }
 }
 
+export const litsExpressionRules: FormatterRule[] = [
+  commentRule,
+  stringRule,
+  shortcutStringRule,
+  functionNameRule,
+  numberRule,
+  litsKeywordRule,
+  nameRule,
+]
+
+export const formatLitsExpression = createFormatter(litsExpressionRules, {
+  prefix: `<span ${styles('text-color-gray-200', 'font-mono')}>`,
+  suffix: '</span>',
+})
+
+const inlineLitsExpressionRule: FormatterRule = (text, index) => {
+  if (text.slice(index, index + 2) === '``') {
+    let count = 2
+    let body = ''
+
+    while (index + count < text.length && text.slice(index + count, index + count + 2) !== '``') {
+      body += text[index + count]
+      count += 1
+    }
+    if (text.slice(index + count, index + count + 2) !== '``')
+      throw new Error(`No end \` found for rule inlineLitsCodeRule: ${text}`)
+
+    count += 2
+    const formattedText = formatLitsExpression(body)
+    return { count, formattedText }
+  }
+  return { count: 0, formattedText: '' }
+}
+
 const italicRule = createRule({
   name: 'italic',
   startPattern: /^\*\*\*/,
@@ -204,22 +238,13 @@ const paragraphRule = createRule({
 })
 
 export const mdRules: FormatterRule[] = [
+  inlineLitsExpressionRule,
   inlineCodeRule,
   italicRule,
   boldRule,
   newLineRule,
   newParagraphRule,
   paragraphRule,
-]
-
-export const litsExpressionRules: FormatterRule[] = [
-  commentRule,
-  stringRule,
-  shortcutStringRule,
-  functionNameRule,
-  numberRule,
-  litsKeywordRule,
-  nameRule,
 ]
 
 function createRule({

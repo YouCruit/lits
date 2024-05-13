@@ -16,7 +16,7 @@ import { bitwiseReference } from './categories/bitwise'
 export { } from './examples'
 export type Category = 'Collection' | 'Array' | 'Sequence' | 'Math' | 'Functional' | 'Misc' | 'Object' | 'Predicate' | 'Regular expression' | 'Special expression' | 'String' | 'Bitwise' | 'Assert'
 
-type DataType = 'number' | 'string' | 'object' | 'array' | 'boolean' | 'function' | 'integer' | 'any' | 'nil' | 'collection' | 'sequence' | 'regexp'
+type DataType = 'number' | 'string' | 'object' | 'array' | 'boolean' | 'function' | 'integer' | 'any' | 'nil' | 'collection' | 'sequence' | 'regexp' | 'never'
 
 export interface TypedValue {
   type: DataType[] | DataType
@@ -28,7 +28,7 @@ type NormalExpressionArgument = TypedValue & {
   description?: string
 }
 interface SpecialExpressionArgument {
-  type: '*expression' | '*name' | '*binding' | '*arguments' | '*catch' | '*never' | '*conditions'
+  type: '*expression' | '*name' | '*binding' | '*arguments' | '*catch-expression' | '*conditions'
   rest?: true
   array?: true
   description?: string

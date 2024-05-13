@@ -10,7 +10,7 @@ import { getSideBar } from './components/sideBar'
 import { allSearchResultEntries } from './allSearchResultEntries'
 import { styles } from './styles'
 
-const DOC_DIR = path.resolve(__dirname, '../docs')
+const DOC_DIR = path.resolve(__dirname, '../../docs')
 setupPredictability()
 setupDocDir()
 copyAssets()
@@ -56,8 +56,8 @@ function setupDocDir() {
 }
 
 function copyAssets() {
-  fs.cpSync(path.join(__dirname, '../playground/public/'), path.join(DOC_DIR), { recursive: true })
-  fs.copyFileSync(path.join(__dirname, '../build/www/playground.js'), path.join(DOC_DIR, 'playground.js'))
+  fs.cpSync(path.join(__dirname, '../../playground-www/public/'), path.join(DOC_DIR), { recursive: true })
+  fs.copyFileSync(path.join(__dirname, '../../playground-www/build/playground.js'), path.join(DOC_DIR, 'playground.js'))
 }
 
 function setupPredictability() {

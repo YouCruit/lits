@@ -51,44 +51,4 @@ module.exports = [
     ],
     plugins,
   },
-  {
-    input: 'reference/index.ts',
-    output: [
-      {
-        file: 'dist/reference.js',
-        format: 'cjs',
-        sourcemap: true,
-      },
-    ],
-    plugins,
-  },
-  {
-    input: 'playgroundBuilder/src/buildPlaygroundSite.ts',
-    external: ['node:fs', 'node:path'],
-    output: [
-      {
-        file: 'build/buildPlaygroundSite.js',
-        format: 'cjs',
-      },
-    ],
-    plugins,
-  },
-  {
-    onwarn(warning, warn) {
-      // suppress eval warnings
-      if (warning.code === 'EVAL')
-        return
-
-      warn(warning)
-    },
-    input: 'playground/src/playground.ts',
-    output: [
-      {
-        file: 'build/www/playground.js',
-        format: 'iife',
-        name: 'Playground',
-      },
-    ],
-    plugins,
-  },
 ]

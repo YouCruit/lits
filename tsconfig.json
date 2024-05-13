@@ -32,10 +32,7 @@
   "include": [
     "src/**/*",
     "types/**/*",
-    "cli/**/*",
-    "playground/src/**/*",
-    "playgroundBuilder/src/**/*",
-    "reference/**/*"
+    "cli/**/*"
   ],
   "exclude": [
     "**/*.test.ts",

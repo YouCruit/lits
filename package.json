@@ -32,7 +32,9 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build": "rm -rf dist build && rollup -c && node ./build/buildPlaygroundSite.js",
+    "build": "rm -rf dist build && rollup -c",
+    "build-playground-builder": "rm -rf playground-builder/build && rollup -c rollup.config.playground-builder.js",
+    "build-playground": "npm run build-playground-builder && rm -rf playground-www/build && rollup -c rollup.config.playground-www.js && node ./playground-builder/build/buildPlaygroundSite.js",
     "vitest": "vitest",
     "test": "vitest run --coverage",
     "compile": "tsc -p ./tsconfig.compile.json --noEmit",

@@ -193,7 +193,7 @@ const newParagraphRule = createRule({
   name: 'new-line',
   startPattern: /^\n{2}/,
   startTag: '',
-  endTag: `<p>`,
+  endTag: '<p>',
 })
 
 const paragraphRule = createRule({

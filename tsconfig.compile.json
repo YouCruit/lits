@@ -5,10 +5,10 @@
     "types/**/*",
     "__tests__/**/*.test.ts",
     "cli/**/*",
-    "playgroundBuilder/**/*",
-    "playground/**/*",
+    "playground-builder/**/*",
+    "playground-www/**/*",
     "reference/**/*",
-    "playgroundAssets/**/*",
+    "playground-assets/**/*",
     "vite.config.mts"
   ],
   "exclude": []

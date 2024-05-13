@@ -156,8 +156,6 @@ function getLitsCode() {
 }
 
 export function resetOutput() {
-  const outputPlaceholder = document.getElementById('output-placeholder') as HTMLElement
-  outputPlaceholder.style.display = 'block'
   const outputResult = document.getElementById('output-result') as HTMLElement
   outputResult.innerHTML = ''
   updateOutputLinks()
@@ -169,16 +167,13 @@ function hasOutput() {
 }
 
 function appendOutput(output: unknown, className: OutputType) {
-  const outputPlaceholder = document.getElementById('output-placeholder') as HTMLElement
-  outputPlaceholder.style.display = 'none'
   const outputElement = document.createElement('span')
 
   outputElement.className = className
   outputElement.textContent = `${output}`
   const outputResult = document.getElementById('output-result') as HTMLElement
   outputResult.appendChild(outputElement)
-  const outputPanel = document.getElementById('output-panel') as HTMLElement
-  outputPanel.scrollTop = outputPanel.scrollHeight
+  outputResult.scrollTop = outputResult.scrollHeight
   updateOutputLinks()
 }
 
@@ -194,7 +189,7 @@ function updateParamsLinks() {
   if (getParams())
     paramsLinks.style.display = 'block'
   else
-    paramsLinks.style.display = 'none'
+    paramsLinks.style.display = 'block'
 }
 
 function updateLitsCodeLinks() {
@@ -203,7 +198,7 @@ function updateLitsCodeLinks() {
   if (getLitsCode())
     litsLinks.style.display = 'block'
   else
-    litsLinks.style.display = 'none'
+    litsLinks.style.display = 'block'
 }
 
 function updateOutputLinks() {
@@ -212,7 +207,7 @@ function updateOutputLinks() {
   if (hasOutput())
     outputLinks.style.display = 'block'
   else
-    outputLinks.style.display = 'none'
+    outputLinks.style.display = 'block'
 }
 
 window.onload = function () {
@@ -272,11 +267,11 @@ window.onload = function () {
 
     if (moveParams.id === 'playground') {
       playgroundHeight = moveParams.heightBeforeMove + moveParams.startMoveY - event.clientY
-      if (playgroundHeight < 26)
-        playgroundHeight = 26
+      if (playgroundHeight < 30)
+        playgroundHeight = 30
 
-      if (playgroundHeight > windowHeight - 89)
-        playgroundHeight = windowHeight - 89
+      if (playgroundHeight > windowHeight)
+        playgroundHeight = windowHeight
 
       localStorage.setItem('playground-height', `${playgroundHeight}`)
     }

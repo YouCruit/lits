@@ -7415,8 +7415,6 @@ var Playground = (function (exports) {
         return litsTextArea.value;
     }
     function resetOutput() {
-        var outputPlaceholder = document.getElementById('output-placeholder');
-        outputPlaceholder.style.display = 'block';
         var outputResult = document.getElementById('output-result');
         outputResult.innerHTML = '';
         updateOutputLinks();
@@ -7426,15 +7424,12 @@ var Playground = (function (exports) {
         return outputResult.children.length > 0;
     }
     function appendOutput(output, className) {
-        var outputPlaceholder = document.getElementById('output-placeholder');
-        outputPlaceholder.style.display = 'none';
         var outputElement = document.createElement('span');
         outputElement.className = className;
         outputElement.textContent = "".concat(output);
         var outputResult = document.getElementById('output-result');
         outputResult.appendChild(outputElement);
-        var outputPanel = document.getElementById('output-panel');
-        outputPanel.scrollTop = outputPanel.scrollHeight;
+        outputResult.scrollTop = outputResult.scrollHeight;
         updateOutputLinks();
     }
     function updateLinks() {
@@ -7447,21 +7442,21 @@ var Playground = (function (exports) {
         if (getParams())
             paramsLinks.style.display = 'block';
         else
-            paramsLinks.style.display = 'none';
+            paramsLinks.style.display = 'block';
     }
     function updateLitsCodeLinks() {
         var litsLinks = document.getElementById('lits-links');
         if (getLitsCode())
             litsLinks.style.display = 'block';
         else
-            litsLinks.style.display = 'none';
+            litsLinks.style.display = 'block';
     }
     function updateOutputLinks() {
         var outputLinks = document.getElementById('output-links');
         if (hasOutput())
             outputLinks.style.display = 'block';
         else
-            outputLinks.style.display = 'none';
+            outputLinks.style.display = 'block';
     }
     window.onload = function () {
         document.addEventListener('click', onDocumentClick, true);
@@ -7511,10 +7506,10 @@ var Playground = (function (exports) {
             document.body.classList.add('no-select');
             if (moveParams.id === 'playground') {
                 playgroundHeight = moveParams.heightBeforeMove + moveParams.startMoveY - event.clientY;
-                if (playgroundHeight < 26)
-                    playgroundHeight = 26;
-                if (playgroundHeight > windowHeight - 89)
-                    playgroundHeight = windowHeight - 89;
+                if (playgroundHeight < 30)
+                    playgroundHeight = 30;
+                if (playgroundHeight > windowHeight)
+                    playgroundHeight = windowHeight;
                 localStorage.setItem('playground-height', "".concat(playgroundHeight));
             }
             else if (moveParams.id === 'resize-divider-1') {

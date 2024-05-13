@@ -5,17 +5,17 @@ export function getType(arg: Argument | TypedValue) {
   const argType = isSpecialExpressionArgument(arg) ? arg.type.slice(1) : arg.type
   const types = Array.isArray(argType) ? argType : [argType]
   const typeString = types.map((type) => {
-    return `<span ${styles('text-color-Type')}>${type}</span>`
+    return `<span ${styles('text-color-Rose')}>${type}</span>`
   }).join(' | ')
   const result = arg.array || arg.rest
     ? `<span ${
-      styles('text-color-Name')
+      styles('text-color-Mint')
     }>Array</span><span ${
-      styles('text-color-Operator')
+      styles('text-color-gray-200')
     }>&lt;</span>${
       typeString
     }<span ${
-      styles('text-color-Operator')
+      styles('text-color-gray-200')
     }>&gt;`
     : typeString
 

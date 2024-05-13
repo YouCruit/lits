@@ -1,6 +1,24 @@
-import { clearIcon, hamburgerIcon, labIcon, playIcon, tokenIcon, treeIcon } from '../icons'
-import { styles } from '../styles'
+import { clearIcon, hamburgerIcon, labIcon, playIcon, resetIcon, tokenIcon, treeIcon } from '../icons'
+import { createStyles, css } from '../styles'
 
+const styles = createStyles({
+  PanelHeader: css`
+    @apply px-2;
+    @apply w-full;
+    @apply text-color-gray-400;
+    @apply bg-gray-800;
+    @apply justify-between;
+    @apply flex;
+    @apply flex-row;
+    @apply items-center;
+    @apply border-0;
+    @apply border-b;
+    @apply border-solid;
+    @apply border-gray-600;
+    height: 1.6rem;
+    user-select: none;
+  `,
+})
 export function getPlayground() {
   return `
   <div id="playground" ${styles(
@@ -12,78 +30,83 @@ export function getPlayground() {
     'bg-transparent',
   )}>
     <div id="resize-playground" ${styles('height: 5px;', 'bg-gray-600', 'cursor-row-resize')}></div>
-    <div ${styles('inline-block', 'absolute', 'right-0', 'top: -23px;', 'justify-end', 'bg-transparent', 'text-sm', 'text-color-gray-400')}>
-      <a ${styles('pr-4', 'p-1', 'background-color: #222222;', 'mr-2')} onclick="Playground.resetPlayground()">Reset Playground</a>
-    </div>
-
     <div id="panels-container" ${styles('h-full', 'w-full', 'flex', 'flex-row', 'whitespace-nowrap')}>
       <div id="params-panel" ${styles('h-full')}>
-        <div id="params-links" ${styles('relative', 'top-1', 'float-right', 'mr-2', 'text-color-gray-400')}>
-          <div ${styles('flex', 'flex-row', 'gap-2', 'text-sm', 'text-color-gray-400')}>
-            <a onclick="Playground.resetParams()" ${styles('text-xl')}>${clearIcon}</a>
+        <div ${styles('PanelHeader')}>
+          <div ${styles('text-lg', 'font-sans')}>Parameters</div>
+          <div id="params-links" ${styles('h-full', 'text-color-gray-400', 'bg-gray-800')}>
+            <div ${styles('flex', 'flex-row', 'gap-2', 'text-sm', 'text-color-gray-400', 'h-full', 'items-center')}>
+              <a onclick="Playground.resetParams()" ${styles('text-xl', 'flex', 'items-center')}>${clearIcon}</a>
+            </div>
           </div>
         </div>
-        <textarea ${styles('h-full', 'border-0', 'pb-1')} id="params-textarea" placeholder="Parameters" class="fancy-scroll" spellcheck="false"></textarea>
+        <textarea ${styles('height: calc(100% - 38px);', 'border-0', 'pb-1')} id="params-textarea" class="fancy-scroll" spellcheck="false"></textarea>
       </div
   
       ><div id="resize-divider-1" ${styles('width: 5px;', 'h-full', 'cursor-col-resize', 'bg-gray-600')}></div
   
       ><div id="lits-panel" ${styles('h-full')}>
-        <div
-          id="lits-links"
-          onclick="event.preventDefault(); event.stopPropagation()"
-          ${styles('relative', 'top: 6px;', 'float-right', 'mr-2', 'text-color-gray-400')}
-        >
-          <div ${styles('flex', 'flex-row', 'gap-1', 'text-sm', 'text-color-gray-400')}>
-            <a onclick="Playground.run()" ${styles('text-xl')}>${playIcon}</a>
-            <a onclick="Playground.resetLitsCode()" ${styles('text-xl')}>${clearIcon}</a>
-            <div>
-              <a onclick="Playground.toggleMoreMenu()" ${styles('text-xl')}>${hamburgerIcon}</a>
-              <div id="more-menu" ${styles('hidden', 'max-width: 20rem;', 'absolute', 'right-0', 'p-2', 'border-0', 'border-solid', 'border-gray-300', 'bg-gray-700')}>
-                <div ${styles('flex', 'flex-col', 'gap-2', 'text-base')}>
-                  <a ${styles('flex', 'justify-between', 'w-full')} onclick="Playground.closeMoreMenu(); Playground.run()">
-                    <div ${styles('flex', 'gap-2', 'w-full')}>
-                      <span ${styles('text-color-gray-200')}>${playIcon}</span>
-                      Run
-                    </div>
-                    F5
-                  </a>
-                  <a ${styles('flex', 'gap-2', 'w-full')} onclick="Playground.closeMoreMenu(); Playground.analyze()">
-                    <span ${styles('text-color-FunctionName')}>${labIcon}</span>
-                    Analyze
-                  </a>
-                  <a ${styles('flex', 'gap-2', 'w-full')} onclick="Playground.closeMoreMenu(); Playground.tokenize(false)">
-                    <span ${styles('text-color-Name')}>${tokenIcon}</span>
-                    Tokenize
-                  </a>
-                  <a ${styles('flex', 'gap-2', 'w-full')} onclick="Playground.closeMoreMenu(); Playground.parse(false)">
-                    <span ${styles('text-color-Argument')}>${treeIcon}</span>
-                    Parse
-                  </a>
+        <div ${styles('PanelHeader')}>
+          <div ${styles('text-lg', 'font-sans')}>Lits Code</div>
+          <div
+            id="lits-links"
+            onclick="event.preventDefault(); event.stopPropagation()"
+            ${styles('text-color-gray-400', 'bg-gray-800', 'h-full')}
+          >
+            <div ${styles('h-full', 'flex', 'flex-row', 'gap-1', 'text-sm', 'text-color-gray-400', 'items-center')}>
+              <a onclick="Playground.run()" ${styles('text-xl', 'flex', 'items-center')}>${playIcon}</a>
+              <a onclick="Playground.resetLitsCode()" ${styles('text-xl', 'flex', 'items-center')}>${clearIcon}</a>
+              <div>
+                <a onclick="Playground.toggleMoreMenu()" ${styles('text-xl', 'flex', 'items-center')}>${hamburgerIcon}</a>
+                <div id="more-menu" ${styles('hidden', 'max-width: 20rem;', 'absolute', 'p-2', 'border-0', 'border-solid', 'border-gray-300', 'bg-gray-700')}>
+                  <div ${styles('flex', 'flex-col', 'gap-2', 'text-base')}>
+                    <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.run()">
+                      <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
+                        <span ${styles('text-color-Beige', 'items-center', 'flex')}>${playIcon}</span>
+                        <span ${styles('mr-8')}>Run</span>
+                      </div>
+                      F5
+                    </a>
+                    <a ${styles('flex', 'gap-2', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.analyze()">
+                      <span ${styles('text-color-Blue', 'items-center', 'flex')}>${labIcon}</span>
+                      <span ${styles('mr-8')}>Analyze</span>
+                    </a>
+                    <a ${styles('flex', 'gap-2', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.tokenize(false)">
+                      <span ${styles('text-color-Mint', 'items-center', 'flex')}>${tokenIcon}</span>
+                      <span ${styles('mr-8')}>Tokenize</span>
+                    </a>
+                    <a ${styles('flex', 'gap-2', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.parse(false)">
+                      <span ${styles('text-color-Viola', 'items-center', 'flex')}>${treeIcon}</span>
+                      <span ${styles('mr-8')}>Parse</span>
+                    </a>
+                    <a ${styles('flex', 'gap-2', 'w-full', 'items-center', 'pt-2', 'border-0', 'border-t', 'border-solid', 'border-gray-500')} onclick="Playground.closeMoreMenu(); Playground.resetPlayground();">
+                      <span ${styles('text-color-Rose', 'items-center', 'flex')}>${resetIcon}</span>
+                      <span>Reset Playground</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <textarea ${styles('h-full', 'border-0', 'pb-8')} id="lits-textarea" placeholder="Lits code" class="fancy-scroll" spellcheck="false"></textarea>
+        <textarea ${styles('height: calc(100% - 38px);', 'border-0')} id="lits-textarea" class="fancy-scroll" spellcheck="false"></textarea>
       </div
   
       ><div id="resize-divider-2" ${styles('width: 5px;', 'h-full', 'cursor-col-resize', 'bg-gray-600', 'h-full')}></div
   
-      ><div class="fancy-scroll" id="output-panel" ${styles('h-full', 'overflow-y: auto;')}>
-        <div
-          id="output-links"
-          onclick="event => event.preventDefault()"
-          ${styles('relative', 'top-1', 'float-right', 'mr-2', 'text-color-gray-400')}
-        >
-          <div ${styles('flex', 'flex-row', 'gap-2', 'text-sm', 'text-color-gray-400')}>
-          <a onclick="Playground.resetOutput()" ${styles('text-xl')}>${clearIcon}</a>
+      ><div id="output-panel" ${styles('h-full')}>
+        <div ${styles('PanelHeader')}>
+          <div ${styles('text-lg', 'font-sans')}>Output</div>
+          <div
+            id="output-links"
+            onclick="event => event.preventDefault()"
+          >
+            <div ${styles('flex', 'flex-row', 'gap-2', 'text-sm', 'text-color-gray-400')}>
+              <a onclick="Playground.resetOutput()" ${styles('text-xl', 'flex', 'items-center')}>${clearIcon}</a>
+            </div>
           </div>
         </div>
-        <div ${styles('h-full', 'p-2')}>
-          <div id="output-placeholder" ${styles('text-color-gray-500', 'text-base', 'font-mono')}>Output</div>
-          <div ${styles('text-sm', 'flex', 'flex-col', 'gap-2')} id="output-result"></div>
-        </div>
+        <div class="fancy-scroll" ${styles('bg-gray-850', 'p-2', 'text-sm', 'flex', 'flex-col', 'gap-2', 'height: calc(100% - 38px);', 'overflow-y: auto;')} id="output-result"></div>
       </div>
     </div>
   </div>

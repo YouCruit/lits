@@ -1,14 +1,12 @@
-/* eslint-disable ts/no-duplicate-enum-values */
 import type { CssTemplateFunction, Styles } from '.'
 
 export enum Color {
-  Argument = '#c586c0',
-  Name = '#4ec9b0',
-  Type = '#d16969',
-  FunctionName = '#569cd6',
-  Number = '#dcdcaa',
-  String = '#cc8f77',
-  Keyword = '#d16969',
+  Viola = '#c586c0',
+  Mint = '#4ec9b0',
+  Rose = '#d16969',
+  Blue = '#569cd6',
+  Beige = '#dcdcaa',
+  Pink = '#cc8f77',
   White = '#ffffff',
   Gray_50 = 'rgb(250 250 250)',
   Gray_100 = 'rgb(245 245 245)',
@@ -34,32 +32,23 @@ export enum Color {
 
 export function getColorStyles(css: CssTemplateFunction) {
   const colorStyles = {
-    'text-color-Comment': css`
-      color: ${Color.Gray_500};
+    'text-color-Viola': css`
+      color: ${Color.Viola};
     `,
-    'text-color-Argument': css`
-      color: ${Color.Argument};
+    'text-color-Rose': css`
+      color: ${Color.Rose};
     `,
-    'text-color-Type': css`
-      color: ${Color.Type};
+    'text-color-Mint': css`
+      color: ${Color.Mint};
     `,
-    'text-color-Name': css`
-      color: ${Color.Name};
+    'text-color-Blue': css`
+      color: ${Color.Blue};
     `,
-    'text-color-FunctionName': css`
-      color: ${Color.FunctionName};
+    'text-color-Beige': css`
+      color: ${Color.Beige};
     `,
-    'text-color-Number': css`
-      color: ${Color.Number};
-    `,
-    'text-color-String': css`
-      color: ${Color.String};
-    `,
-    'text-color-Operator': css`
-      color: ${Color.Gray_200};
-    `,
-    'text-color-Keyword': css`
-      color: ${Color.Keyword};
+    'text-color-Pink': css`
+      color: ${Color.Pink};
     `,
     'text-color-inherit': css`
       color: inherit;

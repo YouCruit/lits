@@ -6,24 +6,24 @@ export function getFunctionSignature({ name, variants, args, returns }: Referenc
   return `<table>
   ${variants.map((variant) => {
     const form = (variant.argumentNames.length === 0)
-      ? `<span ${styles('text-color-Operator')}>(</span><span ${styles('text-color-FunctionName')}>${name}</span><span ${styles('text-color-Operator')}>)</span>`
-      : `<span ${styles('text-color-Operator')}>(</span><span ${styles('text-color-FunctionName')}>${name}</span> ${variant.argumentNames.map((argName) => {
+      ? `<span ${styles('text-color-gray-500')}>(</span><span ${styles('text-color-Blue')}>${name}</span><span ${styles('text-color-gray-500')}>)</span>`
+      : `<span ${styles('text-color-gray-500')}>(</span><span ${styles('text-color-Blue')}>${name}</span> ${variant.argumentNames.map((argName) => {
             let result = ''
             const arg = args[argName]
             if (arg) {
               if (arg.rest)
                 result += '& '
-              result += `<span ${styles('text-color-Argument')}>${argName}</span>`
+              result += `<span ${styles('text-color-Viola')}>${argName}</span>`
               if (arg.type === '*binding')
-                result = `<span ${styles('text-color-Operator')}>[</span>${result}<span ${styles('text-color-Operator')}>]</span>`
+                result = `<span ${styles('text-color-gray-500')}>[</span>${result}<span ${styles('text-color-gray-500')}>]</span>`
             }
             return result
-          }).join(' ')}<span ${styles('text-color-Operator')}>)</span>`
+          }).join(' ')}<span ${styles('text-color-gray-500')}>)</span>`
 
     return `
       <tr>
         <td>${form}</td>
-        <td><span ${styles('text-color-Comment', 'mx-4')}>&rarr;</span></td>
+        <td><span ${styles('text-color-gray-400', 'mx-4', 'text-2xl', 'line-height: 1rem;')}>&rarr;</span></td>
         <td><span>${getType(returns)}</span></td>
       </tr>`
   }).join('')}

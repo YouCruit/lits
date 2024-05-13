@@ -12,7 +12,7 @@ const styles = createStyles({
   Description_argument: css`
     @apply px-0.5; 
     @apply font-mono;
-    @apply text-color-Argument;
+    @apply text-color-Viola;
   `,
 })
 

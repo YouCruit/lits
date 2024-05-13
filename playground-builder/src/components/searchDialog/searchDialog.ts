@@ -28,7 +28,7 @@ const styles = createStyles({
     @apply border-8;
     @apply border-gray-600;
     @apply border-solid;
-    border-radius: 8px;
+    border-radius: 4px;
     width: 600px;
   `,
   SearchIntro: css`
@@ -52,13 +52,13 @@ export function getSearchDialog() {
   return `
     <style>
       .search-entry {
-        box-shadow: 5px 5px 10px ${Color.Gray_900};
+        box-shadow: 5px 5px 10px ${Color.Gray_850};
         background-color: ${Color.Gray_800};
-        outline: 1px solid ${Color.Gray_600};
       }
       .search-entry:hover {
         background-color: ${Color.Gray_750};
         box-shadow: none;
+        outline: 1px solid ${Color.Gray_600};
       }
       .search-entry.selected {
         outline: 2px solid ${Color.Gray_400};

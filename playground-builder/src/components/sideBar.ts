@@ -11,7 +11,7 @@ export function getSideBar() {
   }, {})
 
   return `
-  <nav id="sidebar" class="fancy-scroll">
+  <nav id="sidebar" class="fancy-scroll-background">
     <div ${styles('py-1', 'px-2', 'text-color-gray-400', 'flex', 'items-center', 'justify-between', 'gap-2', 'mb-4', 'cursor-pointer', 'border-gray-300', 'border', 'border-solid')} onclick="Playground.Search.openSearch()">
       <span ${styles('flex', 'items-center', 'gap-1')}>
         ${searchIcon}

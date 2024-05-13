@@ -45,15 +45,12 @@ type standardColors =
   | '-black'
 
 type customColors =
-  | '-Type'
-  | '-Comment'
-  | '-Argument'
-  | '-FunctionName'
-  | '-Name'
-  | '-Number'
-  | '-String'
-  | '-Operator'
-  | '-Keyword'
+  | '-Rose'
+  | '-Viola'
+  | '-Blue'
+  | '-Mint'
+  | '-Beige'
+  | '-Pink'
 
 export type CssClass =
   | 'flex'

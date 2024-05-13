@@ -1,4 +1,4 @@
-import { asNotNull } from '../utils/utils'
+import { asNotNull } from './utils'
 
 type OnCloseCallback = () => void
 

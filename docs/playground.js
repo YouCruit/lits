@@ -1,6 +1,226 @@
 var Playground = (function (exports) {
     'use strict';
 
+    function isNotNull(value) {
+        return value !== null && value !== undefined;
+    }
+    function assertNotNull(value) {
+        if (!isNotNull(value))
+            throw new Error('Value is null or undefined');
+    }
+    function asNotNull(value) {
+        assertNotNull(value);
+        return value;
+    }
+
+    var ctrlKeyTimer = 0;
+    var ctrlKeyStarted = null;
+    var selectedIndex = null;
+    var onCloseCallback = null;
+    var searchInput = asNotNull(document.getElementById('search-input'));
+    var searchResult = asNotNull(document.getElementById('search-result'));
+    var noSearchResult = asNotNull(document.getElementById('no-search-result'));
+    var searchOverlay = asNotNull(document.getElementById('search-dialog-overlay'));
+    var searchDialog = asNotNull(document.getElementById('search-dialog'));
+    searchInput.addEventListener('input', onSearch);
+    searchOverlay.addEventListener('click', closeSearch);
+    searchDialog.addEventListener('click', function (event) {
+        searchInput.focus();
+        event.stopPropagation();
+    });
+    function onClose(callback) {
+        onCloseCallback = callback;
+    }
+    function handleKeyDown(event) {
+        var _a;
+        if (event.key === 'Control')
+            handleCtrlKey();
+        if (isOpen()) {
+            switch (event.key) {
+                case 'Escape':
+                    if (((_a = event.target) === null || _a === void 0 ? void 0 : _a.closest('#search-input')) && searchInput.value)
+                        clearSearch();
+                    else
+                        closeSearch();
+                    break;
+                case 'ArrowDown':
+                    selectNext();
+                    break;
+                case 'ArrowUp':
+                    selectPrevious();
+                    break;
+                case 'PageDown':
+                    selectPageDown();
+                    break;
+                case 'PageUp':
+                    selectPageUp();
+                    break;
+                case 'Home':
+                    selectFirst();
+                    break;
+                case 'End':
+                    selectLast();
+                    break;
+                case 'Enter':
+                    event.preventDefault();
+                    if (typeof selectedIndex === 'number') {
+                        var x = searchResult.children[selectedIndex];
+                        x === null || x === void 0 ? void 0 : x.click();
+                    }
+                    break;
+                case 'k':
+                case 'K':
+                    if (event.ctrlKey || event.metaKey) {
+                        event.preventDefault();
+                        openSearch();
+                    }
+                    break;
+                case 'F3':
+                    event.preventDefault();
+                    openSearch();
+                    break;
+            }
+            return 'stop';
+        }
+        else {
+            switch (event.key) {
+                case 'k':
+                case 'K':
+                    if (event.ctrlKey || event.metaKey) {
+                        event.preventDefault();
+                        openSearch();
+                    }
+                    break;
+                case 'F3':
+                    event.preventDefault();
+                    openSearch();
+                    break;
+            }
+        }
+    }
+    function handleCtrlKey() {
+        if (ctrlKeyStarted === null) {
+            ctrlKeyStarted = Date.now();
+            ctrlKeyTimer = window.setTimeout(resetCtrlKey, 400);
+        }
+        else {
+            resetCtrlKey();
+            if (isOpen())
+                closeSearch();
+            else
+                openSearch();
+        }
+    }
+    function resetCtrlKey() {
+        window.clearTimeout(ctrlKeyTimer);
+        ctrlKeyStarted = null;
+        ctrlKeyTimer = 0;
+    }
+    function openSearch() {
+        resetSelection();
+        searchOverlay.style.display = 'block';
+        updateSearchResult(searchInput.value);
+        searchInput.focus();
+    }
+    function closeSearch() {
+        searchOverlay.style.display = 'none';
+        onCloseCallback === null || onCloseCallback === void 0 ? void 0 : onCloseCallback();
+    }
+    function isOpen() {
+        return searchOverlay.style.display === 'block';
+    }
+    function clearSearch() {
+        searchInput.value = '';
+        updateSearchResult('');
+    }
+    function resetSelection() {
+        if (searchInput.value)
+            selectedIndex = 0;
+        else
+            selectedIndex = null;
+        updateSelection();
+        searchResult.scrollTo(0, 0);
+    }
+    function updateSelection() {
+        Array.from(searchResult.getElementsByClassName('selected'))
+            .forEach(function (el) { return el.classList.remove('selected'); });
+        if (selectedIndex !== null) {
+            var count = searchResult.children.length;
+            if (count) {
+                if (selectedIndex >= count)
+                    selectedIndex = count - 1;
+                else if (selectedIndex < 0)
+                    selectedIndex = 0;
+                var element = searchResult.children[selectedIndex];
+                element.classList.add('selected');
+                element.scrollIntoView({ block: 'nearest' });
+            }
+            else {
+                selectedIndex = null;
+            }
+        }
+    }
+    function selectPrevious() {
+        if (selectedIndex !== null)
+            selectedIndex -= 1;
+        updateSelection();
+    }
+    function selectNext() {
+        if (selectedIndex !== null)
+            selectedIndex += 1;
+        else
+            selectedIndex = 0;
+        updateSelection();
+    }
+    function selectPageUp() {
+        if (selectedIndex !== null)
+            selectedIndex -= 10;
+        updateSelection();
+    }
+    function selectPageDown() {
+        if (selectedIndex !== null)
+            selectedIndex += 10;
+        else
+            selectedIndex = 10;
+        updateSelection();
+    }
+    function selectFirst() {
+        selectedIndex = 0;
+        updateSelection();
+    }
+    function selectLast() {
+        selectedIndex = searchResult.children.length - 1;
+        updateSelection();
+    }
+    function onSearch(event) {
+        var _a;
+        var target = event.target;
+        var searchString = (_a = target === null || target === void 0 ? void 0 : target.value) !== null && _a !== void 0 ? _a : '';
+        updateSearchResult(searchString);
+    }
+    function updateSearchResult(searchString) {
+        searchResult.style.display = 'none';
+        noSearchResult.style.display = 'none';
+        searchResult.innerHTML = '';
+        // eslint-disable-next-line ts/no-unsafe-member-access
+        var searchResults = window.Playground.allSearchResultEntries.filter(function (entry) { return entry.search.toLowerCase().includes(searchString.toLowerCase()); });
+        if (searchResults.length === 0) {
+            noSearchResult.style.display = 'flex';
+        }
+        else {
+            searchResult.style.display = 'flex';
+            searchResult.innerHTML = searchResults.map(function (entry) { return entry.html; }).join('');
+        }
+        resetSelection();
+    }
+    var Search = {
+        openSearch: openSearch,
+        closeSearch: closeSearch,
+        clearSearch: clearSearch,
+        handleKeyDown: handleKeyDown,
+        onClose: onClose,
+    };
+
     /******************************************************************************
     Copyright (c) Microsoft Corporation.
 
@@ -7081,227 +7301,6 @@ var Playground = (function (exports) {
         return contextStack;
     }
 
-    function isNotNull(value) {
-        return value !== null && value !== undefined;
-    }
-    function assertNotNull(value) {
-        if (!isNotNull(value))
-            throw new Error('Value is null or undefined');
-    }
-    function asNotNull(value) {
-        assertNotNull(value);
-        return value;
-    }
-
-    var ctrlKeyTimer = 0;
-    var ctrlKeyStarted = null;
-    var selectedIndex = null;
-    var onCloseCallback = null;
-    var searchInput = asNotNull(document.getElementById('search-input'));
-    var searchResult = asNotNull(document.getElementById('search-result'));
-    var noSearchResult = asNotNull(document.getElementById('no-search-result'));
-    var searchOverlay = asNotNull(document.getElementById('search-dialog-overlay'));
-    var searchDialog = asNotNull(document.getElementById('search-dialog'));
-    searchInput.addEventListener('input', onSearch);
-    searchOverlay.addEventListener('click', closeSearch);
-    searchDialog.addEventListener('click', function (event) {
-        searchInput.focus();
-        event.stopPropagation();
-    });
-    function onClose(callback) {
-        onCloseCallback = callback;
-    }
-    function handleKeyDown(event) {
-        var _a;
-        if (event.key === 'Control')
-            handleCtrlKey();
-        if (isOpen()) {
-            switch (event.key) {
-                case 'Escape':
-                    if (((_a = event.target) === null || _a === void 0 ? void 0 : _a.closest('#search-input')) && searchInput.value)
-                        clearSearch();
-                    else
-                        closeSearch();
-                    break;
-                case 'ArrowDown':
-                    selectNext();
-                    break;
-                case 'ArrowUp':
-                    selectPrevious();
-                    break;
-                case 'PageDown':
-                    selectPageDown();
-                    break;
-                case 'PageUp':
-                    selectPageUp();
-                    break;
-                case 'Home':
-                    selectFirst();
-                    break;
-                case 'End':
-                    selectLast();
-                    break;
-                case 'Enter':
-                    event.preventDefault();
-                    if (typeof selectedIndex === 'number') {
-                        var x = searchResult.children[selectedIndex];
-                        x === null || x === void 0 ? void 0 : x.click();
-                    }
-                    break;
-                case 'k':
-                case 'K':
-                    if (event.ctrlKey || event.metaKey) {
-                        event.preventDefault();
-                        openSearch();
-                    }
-                    break;
-                case 'F3':
-                    event.preventDefault();
-                    openSearch();
-                    break;
-            }
-            return 'stop';
-        }
-        else {
-            switch (event.key) {
-                case 'k':
-                case 'K':
-                    if (event.ctrlKey || event.metaKey) {
-                        event.preventDefault();
-                        openSearch();
-                    }
-                    break;
-                case 'F3':
-                    event.preventDefault();
-                    openSearch();
-                    break;
-            }
-        }
-    }
-    function handleCtrlKey() {
-        if (ctrlKeyStarted === null) {
-            ctrlKeyStarted = Date.now();
-            ctrlKeyTimer = window.setTimeout(resetCtrlKey, 400);
-        }
-        else {
-            resetCtrlKey();
-            if (isOpen())
-                closeSearch();
-            else
-                openSearch();
-        }
-    }
-    function resetCtrlKey() {
-        window.clearTimeout(ctrlKeyTimer);
-        ctrlKeyStarted = null;
-        ctrlKeyTimer = 0;
-    }
-    function openSearch() {
-        resetSelection();
-        searchOverlay.style.display = 'block';
-        updateSearchResult(searchInput.value);
-        searchInput.focus();
-    }
-    function closeSearch() {
-        searchOverlay.style.display = 'none';
-        onCloseCallback === null || onCloseCallback === void 0 ? void 0 : onCloseCallback();
-    }
-    function isOpen() {
-        return searchOverlay.style.display === 'block';
-    }
-    function clearSearch() {
-        searchInput.value = '';
-        updateSearchResult('');
-    }
-    function resetSelection() {
-        if (searchInput.value)
-            selectedIndex = 0;
-        else
-            selectedIndex = null;
-        updateSelection();
-        searchResult.scrollTo(0, 0);
-    }
-    function updateSelection() {
-        Array.from(searchResult.getElementsByClassName('selected'))
-            .forEach(function (el) { return el.classList.remove('selected'); });
-        if (selectedIndex !== null) {
-            var count = searchResult.children.length;
-            if (count) {
-                if (selectedIndex >= count)
-                    selectedIndex = count - 1;
-                else if (selectedIndex < 0)
-                    selectedIndex = 0;
-                var element = searchResult.children[selectedIndex];
-                element.classList.add('selected');
-                element.scrollIntoView({ block: 'nearest' });
-            }
-            else {
-                selectedIndex = null;
-            }
-        }
-    }
-    function selectPrevious() {
-        if (selectedIndex !== null)
-            selectedIndex -= 1;
-        updateSelection();
-    }
-    function selectNext() {
-        if (selectedIndex !== null)
-            selectedIndex += 1;
-        else
-            selectedIndex = 0;
-        updateSelection();
-    }
-    function selectPageUp() {
-        if (selectedIndex !== null)
-            selectedIndex -= 10;
-        updateSelection();
-    }
-    function selectPageDown() {
-        if (selectedIndex !== null)
-            selectedIndex += 10;
-        else
-            selectedIndex = 10;
-        updateSelection();
-    }
-    function selectFirst() {
-        selectedIndex = 0;
-        updateSelection();
-    }
-    function selectLast() {
-        selectedIndex = searchResult.children.length - 1;
-        updateSelection();
-    }
-    function onSearch(event) {
-        var _a;
-        var target = event.target;
-        var searchString = (_a = target === null || target === void 0 ? void 0 : target.value) !== null && _a !== void 0 ? _a : '';
-        updateSearchResult(searchString);
-    }
-    function updateSearchResult(searchString) {
-        searchResult.style.display = 'none';
-        noSearchResult.style.display = 'none';
-        searchResult.innerHTML = '';
-        // eslint-disable-next-line ts/no-unsafe-member-access
-        var searchResults = window.Playground.allSearchResultEntries.filter(function (entry) { return entry.search.toLowerCase().includes(searchString.toLowerCase()); });
-        if (searchResults.length === 0) {
-            noSearchResult.style.display = 'flex';
-        }
-        else {
-            searchResult.style.display = 'flex';
-            searchResult.innerHTML = searchResults.map(function (entry) { return entry.html; }).join('');
-        }
-        resetSelection();
-    }
-    var Search = {
-        openSearch: openSearch,
-        closeSearch: closeSearch,
-        clearSearch: clearSearch,
-        handleKeyDown: handleKeyDown,
-        onClose: onClose,
-    };
-
-    /* eslint-disable unused-imports/no-unused-vars */
     var lits = new Lits({ debug: true });
     var litsNoDebug = new Lits({ debug: false });
     var DEFAULT_PLAYGROUND_HEIGHT = 350;
@@ -7706,7 +7705,7 @@ var Playground = (function (exports) {
         var content = undefinedSymbols
             ? "Undefined symbols: ".concat(undefinedSymbols)
             : 'No undefined symbols';
-        appendOutput(content, 'result');
+        appendOutput(content, 'analyze');
     }
     function parse() {
         var code = getLitsCode();
@@ -7742,7 +7741,7 @@ var Playground = (function (exports) {
             console.warn = oldWarn;
         }
         var content = JSON.stringify(result, null, 2);
-        appendOutput(content, 'result');
+        appendOutput(content, 'parse');
     }
     function tokenize() {
         var code = getLitsCode();
@@ -7777,7 +7776,7 @@ var Playground = (function (exports) {
             console.warn = oldWarn;
         }
         var content = JSON.stringify(result, null, 2);
-        appendOutput(content, 'result');
+        appendOutput(content, 'tokenize');
     }
     function showPage(id, historyEvent) {
         if (historyEvent === void 0) { historyEvent = 'push'; }

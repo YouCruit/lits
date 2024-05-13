@@ -1,4 +1,4 @@
-const typescript = require('rollup-plugin-typescript2')
+const typescript = require('@rollup/plugin-typescript')
 const jsonPlugin = require('@rollup/plugin-json')
 const pkg = require('./package.json')
 
@@ -6,7 +6,7 @@ const input = 'src/index.ts'
 
 const plugins = [
   typescript({
-    typescript: require('typescript'),
+    tsconfig: 'tsconfig.json',
   }),
   jsonPlugin(),
 ]
@@ -63,7 +63,7 @@ module.exports = [
     plugins,
   },
   {
-    input: 'scripts/buildPlaygroundSite.ts',
+    input: 'playgroundBuilder/src/buildPlaygroundSite.ts',
     external: ['node:fs', 'node:path'],
     output: [
       {
@@ -81,7 +81,7 @@ module.exports = [
 
       warn(warning)
     },
-    input: 'scripts/www/playground.ts',
+    input: 'playground/src/playground.ts',
     output: [
       {
         file: 'build/www/playground.js',

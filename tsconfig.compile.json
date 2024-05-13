@@ -5,7 +5,8 @@
     "types/**/*",
     "__tests__/**/*.test.ts",
     "cli/**/*",
-    "scripts/**/*",
+    "playgroundBuilder/**/*",
+    "playground/**/*",
     "reference/**/*",
     "playgroundAssets/**/*",
     "vite.config.mts"

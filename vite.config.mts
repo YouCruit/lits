@@ -7,7 +7,7 @@ export default defineConfig({
         '**/[.]**',
         '__tests__/**',
         '**/*.test.ts',
-        'scripts/**',
+        'playgroundBuilder/**',
         'dist/**',
         'node_modules/**',
         'build/**',

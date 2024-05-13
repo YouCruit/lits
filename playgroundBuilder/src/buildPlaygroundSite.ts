@@ -7,7 +7,7 @@ import { getStartPage } from './components/startPage'
 import { getExamplePage } from './components/examplePage'
 import { getPlayground } from './components/playground'
 import { getSideBar } from './components/sideBar'
-import { allSearchResultEntries } from './www/allSearchResultEntries'
+import { allSearchResultEntries } from './allSearchResultEntries'
 import { styles } from './styles'
 
 const DOC_DIR = path.resolve(__dirname, '../docs')
@@ -56,7 +56,7 @@ function setupDocDir() {
 }
 
 function copyAssets() {
-  fs.cpSync(path.join(__dirname, '../playgroundAssets/'), path.join(DOC_DIR), { recursive: true })
+  fs.cpSync(path.join(__dirname, '../playground/public/'), path.join(DOC_DIR), { recursive: true })
   fs.copyFileSync(path.join(__dirname, '../build/www/playground.js'), path.join(DOC_DIR, 'playground.js'))
 }
 

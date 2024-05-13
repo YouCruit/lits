@@ -85,6 +85,24 @@ a:hover {
   white-space: pre-wrap;
 }
 
+#output-result .analyze {
+  color: #569cd6;
+  font-family: 'Fira Code', monospace;
+  white-space: pre-wrap;
+}
+
+#output-result .tokenize {
+  color: #4ec9b0;
+  font-family: 'Fira Code', monospace;
+  white-space: pre-wrap;
+}
+
+#output-result .parse {
+  color: #c586c0;
+  font-family: 'Fira Code', monospace;
+  white-space: pre-wrap;
+}
+
 #output-result .result {
   color: rgb(229 229 229);
   font-family: 'Fira Code', monospace;

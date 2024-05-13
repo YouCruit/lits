@@ -1,5 +1,5 @@
-import type { Category, Reference } from '../../reference/index.ts'
-import { categorizedFunctions, functionReference } from '../../reference'
+import type { Category, Reference } from '../../../reference'
+import { categorizedFunctions, functionReference } from '../../../reference'
 import { searchIcon } from '../icons'
 import { styles } from '../styles'
 

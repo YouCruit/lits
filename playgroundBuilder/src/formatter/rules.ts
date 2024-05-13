@@ -1,4 +1,4 @@
-import { nameCharacters } from '../../src/tokenizer/tokenizers'
+import { nameCharacters } from '../../../src/tokenizer/tokenizers'
 import { styles } from '../styles'
 import { type TextFormatter, createFormatter } from './createFormatter'
 

@@ -1,4 +1,4 @@
-import type { Category, Reference } from '../../../reference/index.ts'
+import type { Category, Reference } from '../../../../reference'
 import { styles } from '../../styles'
 import { getType } from './getType'
 

@@ -1,4 +1,4 @@
-import { type Argument, type TypedValue, isSpecialExpressionArgument } from '../../../reference'
+import { type Argument, type TypedValue, isSpecialExpressionArgument } from '../../../../reference'
 import { styles } from '../../styles'
 
 export function getType(arg: Argument | TypedValue) {

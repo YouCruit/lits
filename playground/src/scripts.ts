@@ -1,5 +1,4 @@
-/* eslint-disable unused-imports/no-unused-vars */
-
+/* eslint-disable no-console */
 import type { Example } from '../../reference/examples'
 import type { LitsParams } from '../../src'
 import { Lits, isBuiltinFunction, isLitsFunction, isNativeJsFunction, isUserDefinedFunction } from '../../src'
@@ -21,6 +20,8 @@ type MoveParams = {
   startMoveX: number
   percentBeforeMove: number
 }
+
+type OutputType = 'error' | 'output' | 'result' | 'analyze' | 'tokenize' | 'parse'
 
 let moveParams: MoveParams | null = null
 let playgroundHeight = 0
@@ -167,7 +168,7 @@ function hasOutput() {
   return outputResult.children.length > 0
 }
 
-function appendOutput(output: unknown, className: 'error' | 'output' | 'result') {
+function appendOutput(output: unknown, className: OutputType) {
   const outputPlaceholder = document.getElementById('output-placeholder') as HTMLElement
   outputPlaceholder.style.display = 'none'
   const outputElement = document.createElement('span')
@@ -472,7 +473,7 @@ export function analyze() {
     ? `Undefined symbols: ${undefinedSymbols}`
     : 'No undefined symbols'
 
-  appendOutput(content, 'result')
+  appendOutput(content, 'analyze')
 }
 
 export function parse() {
@@ -502,7 +503,7 @@ export function parse() {
   }
   const content = JSON.stringify(result, null, 2)
 
-  appendOutput(content, 'result')
+  appendOutput(content, 'parse')
 }
 
 export function tokenize() {
@@ -531,7 +532,7 @@ export function tokenize() {
   }
   const content = JSON.stringify(result, null, 2)
 
-  appendOutput(content, 'result')
+  appendOutput(content, 'tokenize')
 }
 
 export function showPage(id: string, historyEvent: 'replace' | 'push' | 'none' = 'push') {

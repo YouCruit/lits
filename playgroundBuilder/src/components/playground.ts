@@ -43,21 +43,21 @@ export function getPlayground() {
                 <div ${styles('flex', 'flex-col', 'gap-2', 'text-base')}>
                   <a ${styles('flex', 'justify-between', 'w-full')} onclick="Playground.closeMoreMenu(); Playground.run()">
                     <div ${styles('flex', 'gap-2', 'w-full')}>
-                      ${playIcon}
+                      <span ${styles('text-color-gray-200')}>${playIcon}</span>
                       Run
                     </div>
                     F5
                   </a>
                   <a ${styles('flex', 'gap-2', 'w-full')} onclick="Playground.closeMoreMenu(); Playground.analyze()">
-                    ${labIcon}
+                    <span ${styles('text-color-FunctionName')}>${labIcon}</span>
                     Analyze
                   </a>
                   <a ${styles('flex', 'gap-2', 'w-full')} onclick="Playground.closeMoreMenu(); Playground.tokenize(false)">
-                    ${tokenIcon}
+                    <span ${styles('text-color-Name')}>${tokenIcon}</span>
                     Tokenize
                   </a>
                   <a ${styles('flex', 'gap-2', 'w-full')} onclick="Playground.closeMoreMenu(); Playground.parse(false)">
-                    ${treeIcon}
+                    <span ${styles('text-color-Argument')}>${treeIcon}</span>
                     Parse
                   </a>
                 </div>

@@ -1,4 +1,4 @@
-import { type Category, type Reference, functionReference } from '../../../reference'
+import { type Category, type Reference, functionReference } from '../../../../reference'
 import { styles } from '../../styles'
 import { externalLinkIcon } from '../../icons'
 import { formatDescription } from './description'

@@ -1,4 +1,4 @@
-import { examples } from '../../reference/examples'
+import { examples } from '../../../reference/examples'
 import { styles } from '../styles'
 
 export function getExamplePage(): string {

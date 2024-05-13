@@ -1,7 +1,7 @@
 import { type Category, type Reference, functionReference } from '../../reference'
-import { formatDescription } from '../components/functionDocumentation/description'
-import { getFunctionSignature } from '../components/functionDocumentation/functionSignature'
-import { styles } from '../styles'
+import { formatDescription } from './components/functionDocumentation/description'
+import { getFunctionSignature } from './components/functionDocumentation/functionSignature'
+import { styles } from './styles'
 
 const shortDescriptionRegExp = /(.*?)( {2}\n|\n\n|$)/
 export interface SearchResultEntry {

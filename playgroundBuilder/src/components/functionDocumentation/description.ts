@@ -1,5 +1,5 @@
-import type { Category, Reference } from '../../../reference/index.ts'
-import { nameCharacters } from '../../../src/tokenizer/tokenizers'
+import type { Category, Reference } from '../../../../reference'
+import { nameCharacters } from '../../../../src/tokenizer/tokenizers'
 import { createFormatter } from '../../formatter/createFormatter'
 import { createVariableRule, mdRules, numberRule } from '../../formatter/rules'
 import { styles } from '../../styles'

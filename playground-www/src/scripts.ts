@@ -106,14 +106,12 @@ export function resetParams() {
   const paramsTextArea = document.getElementById('params-textarea') as HTMLTextAreaElement
   paramsTextArea.value = ''
   localStorage.removeItem('params-textarea')
-  updateParamsLinks()
 }
 
 function setParams(value: string) {
   const paramsTextArea = document.getElementById('params-textarea') as HTMLTextAreaElement
   paramsTextArea.value = value
   localStorage.setItem('params-textarea', value)
-  updateParamsLinks()
 }
 
 function getParams() {
@@ -126,7 +124,6 @@ export function resetLitsCode() {
   litsTextArea.value = ''
   localStorage.removeItem('lits-textarea')
   litsTextArea.focus()
-  updateLitsCodeLinks()
 }
 
 function setLitsCode(value: string) {
@@ -134,7 +131,6 @@ function setLitsCode(value: string) {
   litsTextArea.value = value
   localStorage.setItem('lits-textarea', value)
   litsTextArea.scrollTop = litsTextArea.scrollHeight
-  updateLitsCodeLinks()
   litsTextArea.focus()
 }
 
@@ -143,11 +139,7 @@ function appendLitsCode(value: string) {
   const oldContent = litsTextArea.value.trimEnd()
 
   const newContent = oldContent ? `${oldContent}\n\n${value}` : value.trim()
-  litsTextArea.value = newContent
-  localStorage.setItem('lits-textarea', newContent)
-  litsTextArea.scrollTop = litsTextArea.scrollHeight
-  updateLitsCodeLinks()
-  litsTextArea.focus()
+  setLitsCode(newContent)
 }
 
 function getLitsCode() {
@@ -158,7 +150,8 @@ function getLitsCode() {
 export function resetOutput() {
   const outputResult = document.getElementById('output-result') as HTMLElement
   outputResult.innerHTML = ''
-  updateOutputLinks()
+  localStorage.removeItem('output')
+
 }
 
 function hasOutput() {
@@ -167,59 +160,26 @@ function hasOutput() {
 }
 
 function appendOutput(output: unknown, className: OutputType) {
-  const outputResult = document.getElementById('output-result') as HTMLElement
-
   const outputElement = document.createElement('span')
   outputElement.className = className
   outputElement.textContent = `${output}`
-  outputResult.appendChild(outputElement)
-  outputResult.scrollTop = outputResult.scrollHeight
-
-  updateOutputLinks()
+  addOutputElement(outputElement)
 }
 
 function addOutputSeparator() {
   if (hasOutput()) {
-    const outputResult = document.getElementById('output-result') as HTMLElement
     const separator = document.createElement('div')
     separator.className = 'separator'
-
-    outputResult.appendChild(separator)
+    addOutputElement(separator)
   }
-  updateOutputLinks()
 }
 
-function updateLinks() {
-  updateLitsCodeLinks()
-  updateOutputLinks()
-  updateParamsLinks()
-}
+function addOutputElement(element: HTMLElement) {
+  const outputResult = document.getElementById('output-result') as HTMLElement
+  outputResult.appendChild(element)
+  outputResult.scrollTop = outputResult.scrollHeight
 
-function updateParamsLinks() {
-  const paramsLinks = document.getElementById('params-links') as HTMLElement
-
-  if (getParams())
-    paramsLinks.style.display = 'block'
-  else
-    paramsLinks.style.display = 'block'
-}
-
-function updateLitsCodeLinks() {
-  const litsLinks = document.getElementById('lits-links') as HTMLElement
-
-  if (getLitsCode())
-    litsLinks.style.display = 'block'
-  else
-    litsLinks.style.display = 'block'
-}
-
-function updateOutputLinks() {
-  const outputLinks = document.getElementById('output-links') as HTMLElement
-
-  if (hasOutput())
-    outputLinks.style.display = 'block'
-  else
-    outputLinks.style.display = 'block'
+  localStorage.setItem('output', outputResult.innerHTML)
 }
 
 window.onload = function () {
@@ -348,12 +308,16 @@ window.onload = function () {
   const urlParams = new URLSearchParams(window.location.search)
 
   const program = urlParams.get('program')
-  const litsCode = program ? atob(program) : localStorage.getItem('lits-textarea') || ''
+  const litsCode = program ? decodeURIComponent(program) : localStorage.getItem('lits-textarea') || ''
   setLitsCode(litsCode)
 
-  setParams(localStorage.getItem('params-textarea') || '')
+  setParams(!program && localStorage.getItem('params-textarea') || '')
 
-  updateLinks()
+  const outputResult = document.getElementById('output-result') as HTMLElement
+  outputResult.innerHTML = !program ? localStorage.getItem('output') || '' : ''
+
+  if (program)
+    run()
 
   layout()
 

@@ -306,7 +306,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
       type: 'function',
     },
     args: {
-      name: {
+      n: {
         type: '*name',
       },
       args: {
@@ -318,7 +318,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
       },
     },
     variants: [
-      { argumentNames: ['name', 'args', 'expressions'] },
+      { argumentNames: ['n', 'args', 'expressions'] },
     ],
     description: 'Creates a named global function. When called, evaluation of the last expression in the body is returned.',
     examples: [
@@ -866,14 +866,14 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
     type: 'boolean',
   },
   args: {
-    name: {
+    n: {
       type: '*name',
     },
   },
   variants: [
-    { argumentNames: ['name'] },
+    { argumentNames: ['n'] },
   ],
-  description: 'Returns `true` if name is a declared variable or a builtin function.',
+  description: 'Returns `true` if $n is a declared variable or a builtin function, otherwise `false`.',
   examples: [
     '(declared? foo)',
     `
@@ -901,8 +901,8 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
     },
   },
   variants: [
-    { argumentNames: ['test', 'default'] },
     { argumentNames: ['test'] },
+    { argumentNames: ['test', 'default'] },
   ],
   description: 'If $test is declared and evaluated to non `nil` value $test is result, else $default is returned. If $default is not provided, `nil` is returned.',
   examples: [

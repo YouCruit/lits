@@ -3,7 +3,7 @@ import { collectionReference } from './categories/collection'
 import { functionalReference } from './categories/functional'
 import { arrayReference } from './categories/array'
 // import { sequenceReference } from './categories/sequence'
-// import { mathReference } from './categories/math'
+import { mathReference } from './categories/math'
 // import { miscReference } from './categories/misc'
 import { assertReference } from './categories/assert'
 // import { objectReference } from './categories/object'
@@ -68,7 +68,7 @@ export const functionReference: Record<string, Reference<Category>> = {
   ...collectionReference,
   ...arrayReference,
   // ...sequenceReference,
-  // ...mathReference,
+  ...mathReference,
   ...functionalReference,
   // ...miscReference,
   // ...objectReference,

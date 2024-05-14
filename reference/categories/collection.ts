@@ -456,7 +456,10 @@ If $coll is an \'array\', $key must be \`number\` satisfying \`0 <=\` $key \`<= 
     variants: [
       { argumentNames: ['coll', 'keys', 'value'] },
     ],
-    description: 'Associates a value in the nested collection $coll, where $keys is an array of keys and $value is the new value. If any levels do not exist, objects will be created - and the corresponding keys must be of type string.',
+    description: `
+Associates a value in the nested collection $coll, where $keys is an array of keys and $value is the new value.
+
+If any levels do not exist, objects will be created - and the corresponding keys must be of type string.`,
     examples: [
       `
 (assoc-in

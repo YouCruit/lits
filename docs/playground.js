@@ -7373,13 +7373,11 @@ var Playground = (function (exports) {
         var paramsTextArea = document.getElementById('params-textarea');
         paramsTextArea.value = '';
         localStorage.removeItem('params-textarea');
-        updateParamsLinks();
     }
     function setParams(value) {
         var paramsTextArea = document.getElementById('params-textarea');
         paramsTextArea.value = value;
         localStorage.setItem('params-textarea', value);
-        updateParamsLinks();
     }
     function getParams() {
         var paramsTextArea = document.getElementById('params-textarea');
@@ -7390,25 +7388,19 @@ var Playground = (function (exports) {
         litsTextArea.value = '';
         localStorage.removeItem('lits-textarea');
         litsTextArea.focus();
-        updateLitsCodeLinks();
     }
     function setLitsCode(value) {
         var litsTextArea = document.getElementById('lits-textarea');
         litsTextArea.value = value;
         localStorage.setItem('lits-textarea', value);
         litsTextArea.scrollTop = litsTextArea.scrollHeight;
-        updateLitsCodeLinks();
         litsTextArea.focus();
     }
     function appendLitsCode(value) {
         var litsTextArea = document.getElementById('lits-textarea');
         var oldContent = litsTextArea.value.trimEnd();
         var newContent = oldContent ? "".concat(oldContent, "\n\n").concat(value) : value.trim();
-        litsTextArea.value = newContent;
-        localStorage.setItem('lits-textarea', newContent);
-        litsTextArea.scrollTop = litsTextArea.scrollHeight;
-        updateLitsCodeLinks();
-        litsTextArea.focus();
+        setLitsCode(newContent);
     }
     function getLitsCode() {
         var litsTextArea = document.getElementById('lits-textarea');
@@ -7417,55 +7409,30 @@ var Playground = (function (exports) {
     function resetOutput() {
         var outputResult = document.getElementById('output-result');
         outputResult.innerHTML = '';
-        updateOutputLinks();
+        localStorage.removeItem('output');
     }
     function hasOutput() {
         var outputResult = document.getElementById('output-result');
         return outputResult.children.length > 0;
     }
     function appendOutput(output, className) {
-        var outputResult = document.getElementById('output-result');
         var outputElement = document.createElement('span');
         outputElement.className = className;
         outputElement.textContent = "".concat(output);
-        outputResult.appendChild(outputElement);
-        outputResult.scrollTop = outputResult.scrollHeight;
-        updateOutputLinks();
+        addOutputElement(outputElement);
     }
     function addOutputSeparator() {
         if (hasOutput()) {
-            var outputResult = document.getElementById('output-result');
             var separator = document.createElement('div');
-            separator.className = "separator";
-            outputResult.appendChild(separator);
+            separator.className = 'separator';
+            addOutputElement(separator);
         }
-        updateOutputLinks();
     }
-    function updateLinks() {
-        updateLitsCodeLinks();
-        updateOutputLinks();
-        updateParamsLinks();
-    }
-    function updateParamsLinks() {
-        var paramsLinks = document.getElementById('params-links');
-        if (getParams())
-            paramsLinks.style.display = 'block';
-        else
-            paramsLinks.style.display = 'block';
-    }
-    function updateLitsCodeLinks() {
-        var litsLinks = document.getElementById('lits-links');
-        if (getLitsCode())
-            litsLinks.style.display = 'block';
-        else
-            litsLinks.style.display = 'block';
-    }
-    function updateOutputLinks() {
-        var outputLinks = document.getElementById('output-links');
-        if (hasOutput())
-            outputLinks.style.display = 'block';
-        else
-            outputLinks.style.display = 'block';
+    function addOutputElement(element) {
+        var outputResult = document.getElementById('output-result');
+        outputResult.appendChild(element);
+        outputResult.scrollTop = outputResult.scrollHeight;
+        localStorage.setItem('output', outputResult.innerHTML);
     }
     window.onload = function () {
         document.addEventListener('click', onDocumentClick, true);
@@ -7572,10 +7539,13 @@ var Playground = (function (exports) {
         showPage(id, 'replace');
         var urlParams = new URLSearchParams(window.location.search);
         var program = urlParams.get('program');
-        var litsCode = program ? atob(program) : localStorage.getItem('lits-textarea') || '';
+        var litsCode = program ? decodeURIComponent(program) : localStorage.getItem('lits-textarea') || '';
         setLitsCode(litsCode);
-        setParams(localStorage.getItem('params-textarea') || '');
-        updateLinks();
+        setParams(!program && localStorage.getItem('params-textarea') || '');
+        var outputResult = document.getElementById('output-result');
+        outputResult.innerHTML = !program ? localStorage.getItem('output') || '' : '';
+        if (program)
+            run();
         layout();
         Search.onClose(function () {
             document.getElementById('lits-textarea').focus();

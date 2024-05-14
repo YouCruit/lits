@@ -5,6 +5,7 @@ import { Lits } from '../../../src'
 describe('misc functions', () => {
   let oldLog: () => void
   let oldWarn: () => void
+  // eslint-disable-next-line unused-imports/no-unused-vars
   let lastLog: unknown
   let logSpy: (...args: unknown[]) => void
   beforeEach(() => {

@@ -6,7 +6,7 @@ import { arrayReference } from './categories/array'
 import { mathReference } from './categories/math'
 import { miscReference } from './categories/misc'
 import { assertReference } from './categories/assert'
-// import { objectReference } from './categories/object'
+import { objectReference } from './categories/object'
 // import { predicateReference } from './categories/predicate'
 // import { regularExpressionReference } from './categories/regularExpression'
 import { specialExpressionsReference } from './categories/specialExpressions'
@@ -71,7 +71,7 @@ export const functionReference: Record<string, Reference<Category>> = {
   ...mathReference,
   ...functionalReference,
   ...miscReference,
-  // ...objectReference,
+  ...objectReference,
   // ...predicateReference,
   // ...regularExpressionReference,
   ...specialExpressionsReference,

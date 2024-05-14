@@ -14,7 +14,7 @@ export function getFunctionSignature({ name, variants, args, returns }: Referenc
               if (arg.rest)
                 result += '& '
               result += `<span ${styles('text-color-Viola')}>${argName}</span>`
-              if (arg.type === '*binding')
+              if (arg.type === '*binding' || arg.type === '*for-binding')
                 result = `<span ${styles('text-color-gray-500')}>[</span>${result}<span ${styles('text-color-gray-500')}>]</span>`
               else if (arg.type === '*arguments')
                 result = `<span ${styles('text-color-gray-500')}>[</span>${result}<span ${styles('text-color-gray-500')}>]</span>`

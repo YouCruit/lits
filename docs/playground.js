@@ -5778,7 +5778,7 @@ var Playground = (function (exports) {
             }
             assertAny(firstNode, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
             var firstResult = evaluateAstNode(firstNode, contextStack);
-            return firstResult || (secondNode ? evaluateAstNode(secondNode, contextStack) : firstResult);
+            return firstResult !== null && firstResult !== void 0 ? firstResult : (secondNode ? evaluateAstNode(secondNode, contextStack) : null);
         },
         validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
         analyze: function (node, contextStack, _a) {
@@ -7424,12 +7424,21 @@ var Playground = (function (exports) {
         return outputResult.children.length > 0;
     }
     function appendOutput(output, className) {
+        var outputResult = document.getElementById('output-result');
         var outputElement = document.createElement('span');
         outputElement.className = className;
         outputElement.textContent = "".concat(output);
-        var outputResult = document.getElementById('output-result');
         outputResult.appendChild(outputElement);
         outputResult.scrollTop = outputResult.scrollHeight;
+        updateOutputLinks();
+    }
+    function addOutputSeparator() {
+        if (hasOutput()) {
+            var outputResult = document.getElementById('output-result');
+            var separator = document.createElement('div');
+            separator.className = "separator";
+            outputResult.appendChild(separator);
+        }
         updateOutputLinks();
     }
     function updateLinks() {
@@ -7615,6 +7624,7 @@ var Playground = (function (exports) {
         showPage(id, 'none');
     });
     function run() {
+        addOutputSeparator();
         var code = getLitsCode();
         var paramsString = getParams();
         var params;
@@ -7665,6 +7675,7 @@ var Playground = (function (exports) {
         appendOutput(content, 'result');
     }
     function analyze() {
+        addOutputSeparator();
         var code = getLitsCode();
         var result;
         var oldLog = console.log;
@@ -7703,6 +7714,7 @@ var Playground = (function (exports) {
         appendOutput(content, 'analyze');
     }
     function parse() {
+        addOutputSeparator();
         var code = getLitsCode();
         var result;
         var oldLog = console.log;
@@ -7739,6 +7751,7 @@ var Playground = (function (exports) {
         appendOutput(content, 'parse');
     }
     function tokenize() {
+        addOutputSeparator();
         var code = getLitsCode();
         var result;
         var oldLog = console.log;

@@ -761,97 +761,166 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
       (fib (- x 2)))))
 (time! (fib 20))`],
   },
-}
-// }, 'doseq': {
-//   name: 'doseq',
-//   category: 'Special expression',
-//   linkName: 'doseq',
-//   returns: {
-//     type: 'nil',
-//   },
-//   args: {
-//     {
-//       type: '*bindings',
-//     },
-//     {
-//       type: '*expression',
-//     },
-//   ],
-//   description: 'Same syntax as `for`, but returns `nil`. Use for side effects. Consumes less memory than `for`.',
-//   examples: ['(doseq [x [1 2 4]] (write! x))'],
-// }, 'for': {
-//   name: 'for',
-//   category: 'Special expression',
-//   linkName: 'for',
-//   returns: {
-//     type: 'any',
-//     array: true,
-//   },
-//   args: {
-//     {
-//       type: '*bindings',
-//     },
-//     {
-//       type: '*expression',
-//     },
-//   ],
-//   description: 'List comprehension. Takes an array of one or more $bindings, each followed by zero or more modifiers, and returns an array of evaluations of `expression`. Collections are iterated in a nested fashion, rightmost fastest. Supported modifiers are: &let &while and &when.',
-//   examples: [
-//     '(for [x "Al" y [1 2]] (repeat y x))',
-//     '(for [x {:a 10 :b 20} y [1 2]] (repeat y x))',
-//     '(for [x [1 2] y [1 10]] (* x y))',
-//     '(for [x [1 2] &let [z (* x x x)]] z)',
-//     '(for [x [0 1 2 3 4 5] &let [y (* x 3)] &when (even? y)] y)',
-//     '(for [x [0 1 2 3 4 5] &let [y (* x 3)] &while (even? y)] y)',
-//     '(for [x [0 1 2 3 4 5] &let [y (* x 3)] &while (odd? y)] y)',
-//     '(for [x [1 2 3] y [1 2 3] &while (<= x y) z [1 2 3]] [x y z])',
-//     '(for [x [1 2 3] y [1 2 3] z [1 2 3] &while (<= x y)] [x y z])',
-//   ],
-// }, 'declared?': {
-//   name: 'declared?',
-//   category: 'Special expression',
-//   linkName: 'declared_question',
-//   returns: {
-//     type: 'boolean',
-//   },
-//   args: {
-//     {
-//       type: 'string',
-//     },
-//   ],
-//   description: 'Returns `true` if name is a declared variable or a builtin function.',
-//   examples: [
-//     '(declared? foo)',
-//     '(def foo :foo) (declared? foo)',
-//     '(declared? +)',
-//     '(def foo nil) (declared? foo)',
-//     '(declared? if)',
-//   ],
-// }, '??': {
-//   name: '??',
-//   category: 'Special expression',
-//   linkName: '_question_question',
-//   returns: {
-//     type: 'any',
-//   },
-//   args: {
-//     {
-//       type: 'any',
-//     },
-//     {
-//       type: 'any',
-//     },
-//   ],
-//   description: 'Sort of like `or` with a couple of differences.\n\n1. `test` does not need to be declared (defaults to `nil`)\n2. Accept exactly one or two parameters.',
-//   examples: [
-//     '(?? foo)',
-//     '(def foo :foo) (?? foo)',
-//     '(?? +)',
-//     '(def foo nil) (?? foo)',
-//     '(?? foo 1)',
-//     '(?? "")',
-//     '(?? 0)',
-//     '(?? 0 1)',
-//     '(?? 2 1)',
-//   ],
-// } }
+
+  'doseq': {
+  name: 'doseq',
+  category: 'Special expression',
+  linkName: 'doseq',
+  returns: {
+    type: 'nil',
+  },
+  args: {
+    bindings: {
+      type: '*for-binding',
+      rest: true,
+    },
+    expr: {
+      type: '*expression',
+    },
+  },
+  variants: [
+    { argumentNames: ['vars', 'expr'] },
+  ],
+  description: 'Same syntax as `for`, but returns `nil`. Use for side effects. Consumes less memory than `for`.',
+  examples: ['(doseq [x [1 2 4]] (write! x))'],
+}, 'for': {
+  name: 'for',
+  category: 'Special expression',
+  linkName: 'for',
+  returns: {
+    type: 'any',
+    array: true,
+  },
+  args: {
+    bindings: {
+      type: '*for-binding',
+      rest: true,
+    },
+    expr: {
+      type: '*expression',
+    },
+  },
+  variants: [
+    { argumentNames: ['vars', 'expr'] },
+  ],
+  description: `List comprehension. Takes one or more $bindings, each followed by zero or more modifiers, and returns an array of evaluations of $expr.
+  
+  Collections are iterated in a nested fashion, rightmost fastest. Supported modifiers are: &let &while and &when.`,
+  examples: [
+    `
+(for [x "Al" y [1 2]]
+  (repeat y x))`,
+    `
+(for [x {:a 10 :b 20} y [1 2]]
+  (repeat y x))`,
+    `
+(for [x [1 2] y [1 10]]
+  (* x y))`,
+    `
+(for
+  [x [1 2]
+  &let [z (* x x x)]]
+  
+  z)`,
+    `
+(for
+  [x [0 1 2 3 4 5]
+  &let [y (* x 3)]
+  &when (even? y)]
+  
+  y)`,
+    `
+(for
+  [x [0 1 2 3 4 5]
+  &let [y (* x 3)]
+  &while (even? y)]
+  
+  y)`,
+    `
+(for
+  [x [0 1 2 3 4 5]
+  &let [y (* x 3)]
+  &while (odd? y)]
+  
+  y)`,
+    `
+(for
+  [x [1 2 3] y [1 2 3]
+  &while (<= x y)
+  z [1 2 3]]
+  
+  [x y z])`,
+    `
+(for
+  [x [1 2 3] y [1 2 3] z [1 2 3]
+  &while (<= x y)]
+  
+  [x y z])`,
+  ],
+},
+  'declared?': {
+  name: 'declared?',
+  category: 'Special expression',
+  linkName: 'declared_question',
+  returns: {
+    type: 'boolean',
+  },
+  args: {
+    name: {
+      type: '*name',
+    },
+  },
+  variants: [
+    { argumentNames: ['name'] },
+  ],
+  description: 'Returns `true` if name is a declared variable or a builtin function.',
+  examples: [
+    '(declared? foo)',
+    `
+(def foo :foo)
+(declared? foo)`,
+    '(declared? +)',
+    `
+(def foo nil)
+(declared? foo)`,
+    '(declared? if)',
+  ],
+}, '??': {
+  name: '??',
+  category: 'Special expression',
+  linkName: '_question_question',
+  returns: {
+    type: 'any',
+  },
+  args: {
+    test: {
+      type: '*expression',
+    },
+    default:{
+      type: '*expression',
+    },
+  },
+  variants: [
+    { argumentNames: ['test', 'default'] },
+    { argumentNames: ['test'] },
+  ],
+  description: 'If $test is declared and evaluated to non `nil` value $test is result, else $default is returned. If $default is not provided, `nil` is returned.',
+  examples: [
+    '(?? foo)',
+    `
+(def foo :foo)
+(?? foo)`,
+    '(?? +)',
+    `
+(def foo nil)
+(?? foo)`,
+`
+(def foo nil)
+(?? foo :bar)`,
+    '(?? foo 1)',
+    '(?? "")',
+    '(?? 0)',
+    '(?? 0 1)',
+    '(?? 2 1)',
+  ],
+} }

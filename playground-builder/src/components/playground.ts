@@ -106,7 +106,7 @@ export function getPlayground() {
             </div>
           </div>
         </div>
-        <div class="fancy-scroll" ${styles('bg-gray-850', 'p-2', 'text-sm', 'flex', 'flex-col', 'gap-2', 'height: calc(100% - 38px);', 'overflow-y: auto;')} id="output-result"></div>
+        <div class="fancy-scroll" ${styles('font-mono', 'bg-gray-850', 'p-2', 'text-sm', 'flex', 'flex-col', 'gap-2', 'height: calc(100% - 38px);', 'overflow-y: auto;')} id="output-result"></div>
       </div>
     </div>
   </div>

@@ -110,6 +110,17 @@ a:hover {
   margin-bottom: 0.25rem;
 }
 
+#output-result .separator {
+  font-size: 0.875rem;
+  border-bottom: solid 1px rgb(82 82 82);
+  height: 0px;
+  margin: 0;
+  padding: 0;
+
+  width: 15rem;
+  max-width: 100%;
+}
+
 .button {
   -webkit-user-select: none;
   /* Safari */

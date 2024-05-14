@@ -28,7 +28,7 @@ type NormalExpressionArgument = TypedValue & {
   description?: string
 }
 interface SpecialExpressionArgument {
-  type: '*expression' | '*name' | '*binding' | '*arguments' | '*catch-expression' | '*conditions'
+  type: '*expression' | '*name' | '*binding' | '*arguments' | '*catch-expression' | '*conditions' | '*for-binding'
   rest?: true
   array?: true
   description?: string

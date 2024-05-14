@@ -167,13 +167,25 @@ function hasOutput() {
 }
 
 function appendOutput(output: unknown, className: OutputType) {
-  const outputElement = document.createElement('span')
+  const outputResult = document.getElementById('output-result') as HTMLElement
 
+  const outputElement = document.createElement('span')
   outputElement.className = className
   outputElement.textContent = `${output}`
-  const outputResult = document.getElementById('output-result') as HTMLElement
   outputResult.appendChild(outputElement)
   outputResult.scrollTop = outputResult.scrollHeight
+
+  updateOutputLinks()
+}
+
+function addOutputSeparator() {
+  if (hasOutput()) {
+    const outputResult = document.getElementById('output-result') as HTMLElement
+    const separator = document.createElement('div')
+    separator.className = 'separator'
+
+    outputResult.appendChild(separator)
+  }
   updateOutputLinks()
 }
 
@@ -397,6 +409,7 @@ window.addEventListener('popstate', () => {
 })
 
 export function run() {
+  addOutputSeparator()
   const code = getLitsCode()
   const paramsString = getParams()
   let params: LitsParams
@@ -440,6 +453,7 @@ export function run() {
 }
 
 export function analyze() {
+  addOutputSeparator()
   const code = getLitsCode()
   let result
   const oldLog = console.log
@@ -472,6 +486,7 @@ export function analyze() {
 }
 
 export function parse() {
+  addOutputSeparator()
   const code = getLitsCode()
   let result
   const oldLog = console.log
@@ -502,6 +517,7 @@ export function parse() {
 }
 
 export function tokenize() {
+  addOutputSeparator()
   const code = getLitsCode()
   let result
   const oldLog = console.log

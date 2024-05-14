@@ -2,15 +2,15 @@ import { isUnknownRecord } from '../src/typeGuards'
 import { collectionReference } from './categories/collection'
 import { functionalReference } from './categories/functional'
 import { arrayReference } from './categories/array'
-// import { sequenceReference } from './categories/sequence'
+import { sequenceReference } from './categories/sequence'
 import { mathReference } from './categories/math'
 import { miscReference } from './categories/misc'
 import { assertReference } from './categories/assert'
 import { objectReference } from './categories/object'
-// import { predicateReference } from './categories/predicate'
-// import { regularExpressionReference } from './categories/regularExpression'
+import { predicateReference } from './categories/predicate'
+import { regularExpressionReference } from './categories/regularExpression'
 import { specialExpressionsReference } from './categories/specialExpressions'
-// import { stringReference } from './categories/string'
+import { stringReference } from './categories/string'
 import { bitwiseReference } from './categories/bitwise'
 
 export { } from './examples'
@@ -67,15 +67,15 @@ export interface Reference<T extends Category> {
 export const functionReference: Record<string, Reference<Category>> = {
   ...collectionReference,
   ...arrayReference,
-  // ...sequenceReference,
+  ...sequenceReference,
   ...mathReference,
   ...functionalReference,
   ...miscReference,
   ...objectReference,
-  // ...predicateReference,
-  // ...regularExpressionReference,
+  ...predicateReference,
+  ...regularExpressionReference,
   ...specialExpressionsReference,
-  // ...stringReference,
+  ...stringReference,
   ...bitwiseReference,
   ...assertReference,
 }

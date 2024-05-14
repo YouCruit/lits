@@ -133,18 +133,6 @@ export const miscNormalExpression: BuiltinNormalExpressions = {
       return null
     },
   },
-  'debug!': {
-    evaluate: (params, sourceCodeInfo, contextStack): Any => {
-      if (params.length === 0) {
-        console.warn(`*** LITS DEBUG ***\n${contextStack.toString()}\n`)
-        return null
-      }
-
-      console.warn(`*** LITS DEBUG ***\n${JSON.stringify(params[0], null, 2)}\n`)
-      return asAny(params[0], sourceCodeInfo)
-    },
-    validate: node => assertNumberOfParams({ max: 1 }, node),
-  },
   'boolean': {
     evaluate: ([value]): boolean => {
       return !!value

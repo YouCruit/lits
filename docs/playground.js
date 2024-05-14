@@ -4674,17 +4674,6 @@ var Playground = (function (exports) {
                 return null;
             },
         },
-        'debug!': {
-            evaluate: function (params, sourceCodeInfo, contextStack) {
-                if (params.length === 0) {
-                    console.warn("*** LITS DEBUG ***\n".concat(contextStack.toString(), "\n"));
-                    return null;
-                }
-                console.warn("*** LITS DEBUG ***\n".concat(JSON.stringify(params[0], null, 2), "\n"));
-                return asAny(params[0], sourceCodeInfo);
-            },
-            validate: function (node) { return assertNumberOfParams({ max: 1 }, node); },
-        },
         'boolean': {
             evaluate: function (_a) {
                 var _b = __read(_a, 1), value = _b[0];
@@ -7540,8 +7529,13 @@ var Playground = (function (exports) {
             layout();
         };
         window.addEventListener('keydown', function (evt) {
+            console.log('keydown', evt.key);
             if (Search.handleKeyDown(evt))
                 return;
+            if (evt.key === 'F5') {
+                evt.preventDefault();
+                run();
+            }
             if (evt.key === 'Escape') {
                 closeMoreMenu();
                 evt.preventDefault();
@@ -7567,7 +7561,7 @@ var Playground = (function (exports) {
         var program = urlParams.get('program');
         var litsCode = program ? decodeURIComponent(program) : localStorage.getItem('lits-textarea') || '';
         setLitsCode(litsCode);
-        setParams(!program && localStorage.getItem('params-textarea') || '');
+        setParams((!program && localStorage.getItem('params-textarea')) || '');
         var outputResult = document.getElementById('output-result');
         outputResult.innerHTML = !program ? localStorage.getItem('output') || '' : '';
         setTimeout(function () {

@@ -179,6 +179,26 @@ input[type="submit"]:hover {
   background-color: transparent;
 }
 
+.fancy-scroll-background::-webkit-scrollbar-track {
+  background-color: rgb(64 64 64);
+}
+
+.fancy-scroll-background::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.fancy-scroll-background::-webkit-scrollbar-thumb {
+  background-color: rgb(30 30 30);
+  cursor: default;
+  border: none;
+  /* border-right: none; */
+}
+
+.fancy-scroll-background::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
 .fancy-scroll::-webkit-scrollbar-track {
   background-color: transparent;
 }

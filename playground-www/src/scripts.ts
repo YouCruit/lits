@@ -307,6 +307,7 @@ window.onload = function () {
   }
 
   window.addEventListener('keydown', (evt) => {
+    console.log('keydown', evt.key)
     if (Search.handleKeyDown(evt))
       return
 

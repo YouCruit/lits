@@ -81,7 +81,7 @@ export function getSearchDialog() {
             <div id="no-search-result" ${styles('NoResult')}>
               Nothing found
             </div>
-            <div id="search-result" ${styles('SearchResult')} class="fancy-scroll">
+            <div id="search-result" ${styles('SearchResult')} class="fancy-scroll-invert">
             </div>
           </div>
         </div>

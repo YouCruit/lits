@@ -273,24 +273,6 @@ describe('misc functions', () => {
       })
     })
 
-    describe('debug!', () => {
-      it('samples', () => {
-        expect(lits.run('(debug!)')).toBe(null)
-        expect(lits.run('(debug! +)')).toBeTruthy()
-        expect(() => lits.run('(debug! "" 0)')).toThrow()
-      })
-      it('multiple contexts', () => {
-        const context = lits.context('(def x 10) (defn foo [] "foo") (def bar (fn [] "bar")) (def plus +)')
-        lits.run('((fn [z] (debug!) (+ z 1)) 10)', { values: { y: 20 }, contexts: [context] })
-        console.log(lastLog)
-        expect(lastLog).toMatchSnapshot()
-      })
-      it('debug value.', () => {
-        lits.run('(debug! #(> %1 2))')
-        expect(lastLog).toMatchSnapshot()
-      })
-    })
-
     describe('boolean', () => {
       it('samples', () => {
         expect(lits.run('(boolean 0)')).toBe(false)

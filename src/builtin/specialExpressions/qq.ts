@@ -29,7 +29,7 @@ export const qqSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
     assertAny(firstNode, node.tkn?.sourceCodeInfo)
     const firstResult = evaluateAstNode(firstNode, contextStack)
-    return firstResult || (secondNode ? evaluateAstNode(secondNode, contextStack) : firstResult)
+    return firstResult ?? (secondNode ? evaluateAstNode(secondNode, contextStack) : null)
   },
   validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.p, contextStack, builtin),

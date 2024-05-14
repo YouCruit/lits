@@ -861,7 +861,7 @@ describe('specialExpressions', () => {
       expect(lits.run('(?? foo)')).toBe(null)
       expect(lits.run('(?? foo 0)')).toBe(0)
       expect(lits.run('(?? foo 0)')).toBe(0)
-      expect(lits.run('(?? 0 1)')).toBe(1)
+      expect(lits.run('(?? 0 1)')).toBe(0)
       expect(lits.run('(?? "")')).toBe('')
       expect(lits.run('(?? false)')).toBe(false)
       expect(lits.run('(def foo :foo) (?? foo)')).toBe('foo')

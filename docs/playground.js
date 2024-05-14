@@ -7383,6 +7383,37 @@ var Playground = (function (exports) {
         var paramsTextArea = document.getElementById('params-textarea');
         return paramsTextArea.value;
     }
+    function getParsedParams() {
+        try {
+            // eslint-disable-next-line ts/no-unsafe-return
+            return JSON.parse(getParams());
+        }
+        catch (e) {
+            return {};
+        }
+    }
+    function addParam() {
+        var params = getParsedParams();
+        var values = {
+            n: 42,
+            s: 'foo bar',
+            arr: ['foo', 'bar', 1, 2, true, false, null],
+            obj: {
+                name: 'John Doe',
+                age: 42,
+                married: true,
+                children: ['Alice', 'Bob'],
+                address: {
+                    street: '123 Main St',
+                    city: 'Springfield',
+                    state: 'IL',
+                    zip: '62701',
+                },
+            },
+        };
+        params.values = Object.assign(values, params.values);
+        setParams(JSON.stringify(params, null, 2));
+    }
     function resetLitsCode() {
         var litsTextArea = document.getElementById('lits-textarea');
         litsTextArea.value = '';
@@ -7511,17 +7542,12 @@ var Playground = (function (exports) {
         window.addEventListener('keydown', function (evt) {
             if (Search.handleKeyDown(evt))
                 return;
-            if (evt.key === 'F5') {
-                evt.preventDefault();
-                run();
-            }
             if (evt.key === 'Escape') {
                 closeMoreMenu();
                 evt.preventDefault();
             }
         });
         var litsTextarea = document.getElementById('lits-textarea');
-        litsTextarea.addEventListener('keydown', keydownHandler);
         litsTextarea.addEventListener('keydown', keydownHandler);
         litsTextarea.addEventListener('input', function (event) {
             var target = event.target;
@@ -7544,6 +7570,9 @@ var Playground = (function (exports) {
         setParams(!program && localStorage.getItem('params-textarea') || '');
         var outputResult = document.getElementById('output-result');
         outputResult.innerHTML = !program ? localStorage.getItem('output') || '' : '';
+        setTimeout(function () {
+            outputResult.scrollTop = outputResult.scrollHeight;
+        }, 0);
         if (program)
             run();
         layout();
@@ -7552,37 +7581,50 @@ var Playground = (function (exports) {
         });
         document.getElementById('lits-textarea').focus();
     };
-    function keydownHandler(e) {
-        if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(e.key)) {
-            var target = e.target;
+    function keydownHandler(evt) {
+        if (evt.key === 'Enter' && evt.ctrlKey) {
+            evt.preventDefault();
+            var target = evt.target;
+            var selectionStart = target.selectionStart, selectionEnd = target.selectionEnd;
+            if (selectionEnd > selectionStart) {
+                var program = target.value.substring(selectionStart, selectionEnd);
+                run(program);
+            }
+            else {
+                run();
+            }
+            return;
+        }
+        if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(evt.key)) {
+            var target = evt.target;
             var start = target.selectionStart;
             var end = target.selectionEnd;
             var indexOfReturn = target.value.lastIndexOf('\n', start - 1);
             var rowLength = start - indexOfReturn - 1;
             var onTabStop = rowLength % 2 === 0;
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                if (!e.shiftKey) {
+            if (evt.key === 'Tab') {
+                evt.preventDefault();
+                if (!evt.shiftKey) {
                     target.value = target.value.substring(0, start) + (onTabStop ? '  ' : ' ') + target.value.substring(end);
                     target.selectionStart = target.selectionEnd = start + (onTabStop ? 2 : 1);
                 }
             }
-            if (e.key === 'Backspace') {
+            if (evt.key === 'Backspace') {
                 if (onTabStop && start === end && target.value.substr(start - 2, 2) === '  ') {
-                    e.preventDefault();
+                    evt.preventDefault();
                     target.value = target.value.substring(0, start - 2) + target.value.substring(end);
                     target.selectionStart = target.selectionEnd = start - 2;
                 }
             }
-            if (e.key === 'Enter') {
-                e.preventDefault();
+            if (evt.key === 'Enter') {
+                evt.preventDefault();
                 var spaceCount = target.value.substring(indexOfReturn + 1, start).replace(/^( *).*/, '$1').length;
                 target.value = "".concat(target.value.substring(0, start), "\n").concat(' '.repeat(spaceCount)).concat(target.value.substring(end));
                 target.selectionStart = target.selectionEnd = start + 1 + spaceCount;
             }
-            if (e.key === 'Delete') {
+            if (evt.key === 'Delete') {
                 if (onTabStop && start === end && target.value.substr(start, 2) === '  ') {
-                    e.preventDefault();
+                    evt.preventDefault();
                     target.value = target.value.substring(0, start) + target.value.substring(end + 2);
                     target.selectionStart = target.selectionEnd = start;
                 }
@@ -7593,9 +7635,26 @@ var Playground = (function (exports) {
         var id = location.hash.substring(1) || 'index';
         showPage(id, 'none');
     });
-    function run() {
+    function truncateCode(text, count) {
+        if (count === void 0) { count = 45; }
+        var oneLiner = text
+            .split('\n')
+            .map(function (line) { return line.trim(); })
+            .filter(function (line) { return line.length > 0; })
+            .filter(function (line) { return !line.startsWith(';'); })
+            .join(' ');
+        if (oneLiner.length <= count)
+            return oneLiner;
+        else
+            return "".concat(oneLiner.substring(0, count - 3), "...");
+    }
+    function run(program) {
         addOutputSeparator();
-        var code = getLitsCode();
+        var code = program || getLitsCode();
+        if (program)
+            appendOutput("Run selection: ".concat(truncateCode(code)), 'comment');
+        else
+            appendOutput("Run: ".concat(truncateCode(code)), 'comment');
         var paramsString = getParams();
         var params;
         try {
@@ -7647,6 +7706,7 @@ var Playground = (function (exports) {
     function analyze() {
         addOutputSeparator();
         var code = getLitsCode();
+        appendOutput("Analyze: ".concat(truncateCode(code)), 'comment');
         var result;
         var oldLog = console.log;
         console.log = function () {
@@ -7686,6 +7746,7 @@ var Playground = (function (exports) {
     function parse() {
         addOutputSeparator();
         var code = getLitsCode();
+        appendOutput("Parse: ".concat(truncateCode(code)), 'comment');
         var result;
         var oldLog = console.log;
         console.log = function () {
@@ -7723,6 +7784,7 @@ var Playground = (function (exports) {
     function tokenize() {
         addOutputSeparator();
         var code = getLitsCode();
+        appendOutput("Tokenize: ".concat(truncateCode(code)), 'comment');
         var result;
         var oldLog = console.log;
         console.log = function () {
@@ -7829,6 +7891,7 @@ var Playground = (function (exports) {
     }
 
     exports.Search = Search;
+    exports.addParam = addParam;
     exports.addToPlayground = addToPlayground;
     exports.analyze = analyze;
     exports.closeMoreMenu = closeMoreMenu;

@@ -7,11 +7,18 @@
 //   returns: {
 //     type: 'boolean',
 //   },
-//   arguments: [
-//     {
+//   args: {
+//     x: {
 //       type: 'any',
-//       array: true,
 //     },
+//     ys: {
+//       type: 'any',
+//       rest: true,
+//     },
+//   },
+//   variants: [
+//     { argumentNames: ['x'] },
+//     { argumentNames: ['x', 'ys'] },
 //   ],
 //   description: 'Result is `true` if no two `values` are equal to each other, otherwise result is `false`. Note that only two argument version result is negation of `=` function, that is `(not= a b)` is same as `(not (= a b))`.',
 //   examples: ['(not= 3)', '(not= 3 2)', '(not= :3 3)', '(not= 3 3 2)', '(not= :3 :2 :1 :0)', '(not= 0 -0)'],
@@ -22,11 +29,18 @@
 //   returns: {
 //     type: 'boolean',
 //   },
-//   arguments: [
-//     {
+//   args: {
+//     x: {
 //       type: 'any',
-//       array: true,
 //     },
+//     ys: {
+//       type: 'any',
+//       rest: true,
+//     },
+//   },
+//   variants: [
+//     { argumentNames: ['x'] },
+//     { argumentNames: ['x', 'ys'] },
 //   ],
 //   description: 'Compares `values` according to \'equal\' predicate. Result is `true` if every specified value is equal to each other, otherwise result is `false`.',
 //   examples: ['(= 1 1)', '(= 1.01 1)', '(= :1 1)', '(= :2 :2 :2 :2)', '(= 2 2 1 2)'],

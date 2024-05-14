@@ -1,4 +1,4 @@
-import { clearIcon, hamburgerIcon, labIcon, playIcon, resetIcon, tokenIcon, treeIcon } from '../icons'
+import { clearIcon, hamburgerIcon, labIcon, playIcon, plusIcon, resetIcon, tokenIcon, treeIcon } from '../icons'
 import { createStyles, css } from '../styles'
 
 const styles = createStyles({
@@ -36,6 +36,7 @@ export function getPlayground() {
           <div ${styles('text-lg', 'font-sans')}>Parameters</div>
           <div id="params-links" ${styles('h-full', 'text-color-gray-400', 'bg-gray-800')}>
             <div ${styles('flex', 'flex-row', 'gap-2', 'text-sm', 'text-color-gray-400', 'h-full', 'items-center')}>
+              <a onclick="Playground.addParam()" ${styles('text-xl', 'flex', 'items-center')}>${plusIcon}</a>
               <a onclick="Playground.resetParams()" ${styles('text-xl', 'flex', 'items-center')}>${clearIcon}</a>
             </div>
           </div>

@@ -21,7 +21,7 @@ type MoveParams = {
   percentBeforeMove: number
 }
 
-type OutputType = 'error' | 'output' | 'result' | 'analyze' | 'tokenize' | 'parse'
+type OutputType = 'error' | 'output' | 'result' | 'analyze' | 'tokenize' | 'parse' | 'comment'
 
 let moveParams: MoveParams | null = null
 let playgroundHeight = 0
@@ -119,6 +119,41 @@ function getParams() {
   return paramsTextArea.value
 }
 
+function getParsedParams(): Record<string, unknown> {
+  try {
+    // eslint-disable-next-line ts/no-unsafe-return
+    return JSON.parse(getParams())
+  }
+  catch (e) {
+    return {}
+  }
+}
+
+export function addParam() {
+  const params = getParsedParams()
+  const values = {
+    n: 42,
+    s: 'foo bar',
+    arr: ['foo', 'bar', 1, 2, true, false, null],
+    obj: {
+      name: 'John Doe',
+      age: 42,
+      married: true,
+      children: ['Alice', 'Bob'],
+      address: {
+        street: '123 Main St',
+        city: 'Springfield',
+        state: 'IL',
+        zip: '62701',
+      },
+    },
+  }
+
+  params.values = Object.assign(values, params.values)
+
+  setParams(JSON.stringify(params, null, 2))
+}
+
 export function resetLitsCode() {
   const litsTextArea = document.getElementById('lits-textarea') as HTMLTextAreaElement
   litsTextArea.value = ''
@@ -151,7 +186,6 @@ export function resetOutput() {
   const outputResult = document.getElementById('output-result') as HTMLElement
   outputResult.innerHTML = ''
   localStorage.removeItem('output')
-
 }
 
 function hasOutput() {
@@ -287,7 +321,6 @@ window.onload = function () {
   })
   const litsTextarea = document.getElementById('lits-textarea') as HTMLElement
   litsTextarea.addEventListener('keydown', keydownHandler)
-  litsTextarea.addEventListener('keydown', keydownHandler)
   litsTextarea.addEventListener('input', (event: Event) => {
     const target = event.target as HTMLInputElement | undefined
     if (target)
@@ -311,10 +344,14 @@ window.onload = function () {
   const litsCode = program ? decodeURIComponent(program) : localStorage.getItem('lits-textarea') || ''
   setLitsCode(litsCode)
 
-  setParams(!program && localStorage.getItem('params-textarea') || '')
+  setParams((!program && localStorage.getItem('params-textarea')) || '')
 
   const outputResult = document.getElementById('output-result') as HTMLElement
   outputResult.innerHTML = !program ? localStorage.getItem('output') || '' : ''
+
+  setTimeout(() => {
+    outputResult.scrollTop = outputResult.scrollHeight
+  }, 0)
 
   if (program)
     run()
@@ -328,38 +365,52 @@ window.onload = function () {
   ;(document.getElementById('lits-textarea') as HTMLTextAreaElement).focus()
 }
 
-function keydownHandler(e: KeyboardEvent) {
-  if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(e.key)) {
-    const target = e.target as HTMLTextAreaElement
+function keydownHandler(evt: KeyboardEvent) {
+  if (evt.key === 'Enter' && evt.ctrlKey) {
+    evt.preventDefault()
+    const target = evt.target as HTMLTextAreaElement
+    const { selectionStart, selectionEnd } = target
+    if (selectionEnd > selectionStart) {
+      const program = target.value.substring(selectionStart, selectionEnd)
+      run(program)
+    }
+    else {
+      run()
+    }
+    return
+  }
+
+  if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(evt.key)) {
+    const target = evt.target as HTMLTextAreaElement
     const start = target.selectionStart
     const end = target.selectionEnd
 
     const indexOfReturn = target.value.lastIndexOf('\n', start - 1)
     const rowLength = start - indexOfReturn - 1
     const onTabStop = rowLength % 2 === 0
-    if (e.key === 'Tab') {
-      e.preventDefault()
-      if (!e.shiftKey) {
+    if (evt.key === 'Tab') {
+      evt.preventDefault()
+      if (!evt.shiftKey) {
         target.value = target.value.substring(0, start) + (onTabStop ? '  ' : ' ') + target.value.substring(end)
         target.selectionStart = target.selectionEnd = start + (onTabStop ? 2 : 1)
       }
     }
-    if (e.key === 'Backspace') {
+    if (evt.key === 'Backspace') {
       if (onTabStop && start === end && target.value.substr(start - 2, 2) === '  ') {
-        e.preventDefault()
+        evt.preventDefault()
         target.value = target.value.substring(0, start - 2) + target.value.substring(end)
         target.selectionStart = target.selectionEnd = start - 2
       }
     }
-    if (e.key === 'Enter') {
-      e.preventDefault()
+    if (evt.key === 'Enter') {
+      evt.preventDefault()
       const spaceCount = target.value.substring(indexOfReturn + 1, start).replace(/^( *).*/, '$1').length
       target.value = `${target.value.substring(0, start)}\n${' '.repeat(spaceCount)}${target.value.substring(end)}`
       target.selectionStart = target.selectionEnd = start + 1 + spaceCount
     }
-    if (e.key === 'Delete') {
+    if (evt.key === 'Delete') {
       if (onTabStop && start === end && target.value.substr(start, 2) === '  ') {
-        e.preventDefault()
+        evt.preventDefault()
         target.value = target.value.substring(0, start) + target.value.substring(end + 2)
         target.selectionStart = target.selectionEnd = start
       }
@@ -372,9 +423,27 @@ window.addEventListener('popstate', () => {
   showPage(id, 'none')
 })
 
-export function run() {
+function truncateCode(text: string, count = 45) {
+  const oneLiner = text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .filter(line => !line.startsWith(';'))
+    .join(' ')
+  if (oneLiner.length <= count)
+    return oneLiner
+  else
+    return `${oneLiner.substring(0, count - 3)}...`
+}
+export function run(program?: string) {
   addOutputSeparator()
-  const code = getLitsCode()
+  const code = program || getLitsCode()
+
+  if (program)
+    appendOutput(`Run selection: ${truncateCode(code)}`, 'comment')
+  else
+    appendOutput(`Run: ${truncateCode(code)}`, 'comment')
+
   const paramsString = getParams()
   let params: LitsParams
   try {
@@ -419,6 +488,7 @@ export function run() {
 export function analyze() {
   addOutputSeparator()
   const code = getLitsCode()
+  appendOutput(`Analyze: ${truncateCode(code)}`, 'comment')
   let result
   const oldLog = console.log
   console.log = function (...args) {
@@ -452,6 +522,7 @@ export function analyze() {
 export function parse() {
   addOutputSeparator()
   const code = getLitsCode()
+  appendOutput(`Parse: ${truncateCode(code)}`, 'comment')
   let result
   const oldLog = console.log
   console.log = function (...args) {
@@ -483,6 +554,8 @@ export function parse() {
 export function tokenize() {
   addOutputSeparator()
   const code = getLitsCode()
+  appendOutput(`Tokenize: ${truncateCode(code)}`, 'comment')
+
   let result
   const oldLog = console.log
   console.log = function (...args: unknown[]) {

@@ -75,39 +75,38 @@ a:hover {
 
 #output-result .error {
   color: #cf2b2b;
-  font-family: 'Fira Code', monospace;
   white-space: pre-wrap;
 }
 
 #output-result .output {
   color: #cc8f77;
-  font-family: 'Fira Code', monospace;
   white-space: pre-wrap;
 }
 
 #output-result .analyze {
   color: #569cd6;
-  font-family: 'Fira Code', monospace;
   white-space: pre-wrap;
 }
 
 #output-result .tokenize {
   color: #4ec9b0;
-  font-family: 'Fira Code', monospace;
   white-space: pre-wrap;
 }
 
 #output-result .parse {
   color: #c586c0;
-  font-family: 'Fira Code', monospace;
   white-space: pre-wrap;
 }
 
 #output-result .result {
   color: #dcdcaa;
-  font-family: 'Fira Code', monospace;
   white-space: pre-wrap;
   margin-bottom: 0.25rem;
+}
+
+#output-result .comment {
+  color: rgb(115 115 115);
+  white-space: pre-wrap;
 }
 
 #output-result .separator {
@@ -117,8 +116,7 @@ a:hover {
   margin: 0;
   padding: 0;
 
-  width: 15rem;
-  max-width: 100%;
+  width: 100%;
 }
 
 .button {

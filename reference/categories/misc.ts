@@ -1,8 +1,9 @@
-import type { Reference } from '..'
+import type { FunctionReference } from '..'
+import type { MiscApiName } from '../api'
 
-export const miscReference: Record<string, Reference<'Misc'>> = {
+export const miscReference: Record<MiscApiName, FunctionReference<'Misc'>> = {
   'not=': {
-    name: 'not=',
+    title: 'not=',
     category: 'Misc',
     linkName: 'not_equal',
     returns: {
@@ -25,7 +26,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     examples: ['(not= 3)', '(not= 3 2)', '(not= :3 3)', '(not= 3 3 2)', '(not= :3 :2 :1 :0)', '(not= 0 -0)'],
   },
   '=': {
-    name: '=',
+    title: '=',
     category: 'Misc',
     linkName: '_equal',
     returns: {
@@ -48,7 +49,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     examples: ['(= 1 1)', '(= 1.01 1)', '(= :1 1)', '(= :2 :2 :2 :2)', '(= 2 2 1 2)'],
   },
   '<': {
-    name: '<',
+    title: '<',
     category: 'Misc',
     linkName: '_lt',
     returns: {
@@ -71,7 +72,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     examples: ['(< 0 1)', '(< 1 1.01)', '(< 1 1)', '(< 1 2 2 3)', '(< :a :b)', '(< [9] [1 2])'],
   },
   '>': {
-    name: '>',
+    title: '>',
     category: 'Misc',
     linkName: '_gt',
     returns: {
@@ -94,7 +95,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     examples: ['(> 1 0)', '(> 1.01 1)', '(> 1 1)', '(> 4 3 2 1)', '(> 3 2 2 1)'],
   },
   '<=': {
-    name: '<=',
+    title: '<=',
     category: 'Misc',
     linkName: '_lte',
     returns: {
@@ -117,7 +118,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     examples: ['(<= 0 1)', '(<= 1 1.01)', '(<= 1 1)', '(<= 1 2 3 4)', '(<= 1 2 2 3)'],
   },
   '>=': {
-    name: '>=',
+    title: '>=',
     category: 'Misc',
     linkName: '_gte',
     returns: {
@@ -140,7 +141,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     examples: ['(>= 1 0)', '(>= 1.01 1)', '(>= 1 1)', '(>= 4 3 2 1)', '(>= 3 2 2 1)'],
   },
   'not': {
-    name: 'not',
+    title: 'not',
     category: 'Misc',
     linkName: 'not',
     returns: {
@@ -158,7 +159,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     examples: ['(not 3)', '(not true)', '(not "A string")', '(not 0)', '(not false)', '(not nil)', '(not "")'],
   },
   'write!': {
-    name: 'write!',
+    title: 'write!',
     category: 'Misc',
     linkName: 'write_exclamation',
     clojureDocs: null,
@@ -185,7 +186,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     ],
   },
   'inst-ms!': {
-    name: 'inst-ms!',
+    title: 'inst-ms!',
     category: 'Misc',
     linkName: 'inst-ms_exclamation',
     clojureDocs: 'inst-ms',
@@ -200,7 +201,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     examples: ['(inst-ms!)'],
   },
   'iso-date-time->inst-ms': {
-    name: 'iso-date-time->inst-ms',
+    title: 'iso-date-time->inst-ms',
     category: 'Misc',
     linkName: 'iso-date-time-_gtinst-ms',
     returns: {
@@ -221,7 +222,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     ],
   },
   'inst-ms->iso-date-time': {
-    name: 'inst-ms->iso-date-time',
+    title: 'inst-ms->iso-date-time',
     category: 'Misc',
     linkName: 'inst-ms-_gtiso-date-time',
     returns: {
@@ -242,7 +243,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     ],
   },
   'boolean': {
-    name: 'boolean',
+    title: 'boolean',
     category: 'Misc',
     linkName: 'boolean',
     returns: {
@@ -265,7 +266,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     ],
   },
   'compare': {
-    name: 'compare',
+    title: 'compare',
     category: 'Misc',
     linkName: 'compare',
     returns: {
@@ -295,7 +296,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     ],
   },
   'lits-version!': {
-    name: 'lits-version!',
+    title: 'lits-version!',
     category: 'Misc',
     linkName: 'lits-version_exclamation',
     returns: {
@@ -309,7 +310,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     examples: ['(lits-version!)'],
   },
   'uuid!': {
-    name: 'uuid!',
+    title: 'uuid!',
     category: 'Misc',
     linkName: 'uuid_exclamation',
     returns: {
@@ -323,7 +324,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     examples: ['(uuid!)'],
   },
   'equal?': {
-    name: 'equal?',
+    title: 'equal?',
     category: 'Misc',
     linkName: 'equal_question',
     clojureDocs: null,
@@ -352,7 +353,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     ],
   },
   'json-parse': {
-    name: 'json-parse',
+    title: 'json-parse',
     category: 'Misc',
     linkName: 'json-parse',
     clojureDocs: null,
@@ -373,7 +374,7 @@ export const miscReference: Record<string, Reference<'Misc'>> = {
     ],
   },
   'json-stringify': {
-    name: 'json-stringify',
+    title: 'json-stringify',
     category: 'Misc',
     linkName: 'json-stringify',
     clojureDocs: null,

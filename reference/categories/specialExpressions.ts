@@ -1,8 +1,9 @@
-import type { Reference } from '../index.ts'
+import type { SpecialExpressionsApiName } from '../api.ts'
+import type { FunctionReference } from '../index.ts'
 
-export const specialExpressionsReference: Record<string, Reference<'Special expression'>> = {
+export const specialExpressionsReference: Record<SpecialExpressionsApiName, FunctionReference<'Special expression'>> = {
   'and': {
-    name: 'and',
+    title: 'and',
     category: 'Special expression',
     linkName: 'and',
     returns: {
@@ -32,7 +33,7 @@ If all expressions evaluate to truthy values, the value of the last expression i
   },
 
   'or': {
-    name: 'or',
+    title: 'or',
     category: 'Special expression',
     linkName: 'or',
     returns: {
@@ -61,7 +62,7 @@ If all expressions evaluate to falsy values, the value of the last expression is
     ],
   },
   'def': {
-    name: 'def',
+    title: 'def',
     category: 'Special expression',
     linkName: 'def',
     returns: {
@@ -87,7 +88,7 @@ If $n is already defined, an error is thrown.`,
     ],
   },
   'defs': {
-    name: 'defs',
+    title: 'defs',
     category: 'Special expression',
     linkName: 'defs',
     clojureDocs: null,
@@ -121,7 +122,7 @@ b`,
     ],
   },
   'let': {
-    name: 'let',
+    title: 'let',
     category: 'Special expression',
     linkName: 'let',
     returns: {
@@ -149,7 +150,7 @@ It returns evaluation of the last expression in $expressions.`,
     (write! a b))`],
   },
   'if-let': {
-    name: 'if-let',
+    title: 'if-let',
     category: 'Special expression',
     linkName: 'if-let',
     returns: {
@@ -187,7 +188,7 @@ If the bound variable evaluates to false, the $else-expr is evaluated
     ],
   },
   'when-let': {
-    name: 'when-let',
+    title: 'when-let',
     category: 'Special expression',
     linkName: 'when-let',
     returns: {
@@ -216,7 +217,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
     ],
   },
   'when-first': {
-    name: 'when-first',
+    title: 'when-first',
     category: 'Special expression',
     linkName: 'when-first',
     returns: {
@@ -261,7 +262,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
   },
 
   'fn': {
-    name: 'fn',
+    title: 'fn',
     category: 'Special expression',
     linkName: 'fn',
     returns: {
@@ -299,7 +300,7 @@ If the bound variable evaluates to a falsy value, \`nil\` is returned.`,
     ],
   },
   'defn': {
-    name: 'defn',
+    title: 'defn',
     category: 'Special expression',
     linkName: 'defn',
     returns: {
@@ -347,7 +348,7 @@ hyp`,
     ],
   },
   'defns': {
-    name: 'defns',
+    title: 'defns',
     category: 'Special expression',
     linkName: 'defns',
     clojureDocs: null,
@@ -398,7 +399,7 @@ hyp`,
     ],
   },
   'try': {
-    name: 'try',
+    title: 'try',
     category: 'Special expression',
     linkName: 'try',
     clojureDocs: null,
@@ -433,7 +434,7 @@ hyp`,
     ],
   },
   'throw': {
-    name: 'throw',
+    title: 'throw',
     category: 'Special expression',
     linkName: 'throw',
     clojureDocs: null,
@@ -455,7 +456,7 @@ hyp`,
     ],
   },
   'if': {
-    name: 'if',
+    title: 'if',
     category: 'Special expression',
     linkName: 'if',
     returns: {
@@ -485,7 +486,7 @@ hyp`,
     ],
   },
   'if-not': {
-    name: 'if-not',
+    title: 'if-not',
     category: 'Special expression',
     linkName: 'if-not',
     returns: {
@@ -515,7 +516,7 @@ hyp`,
     ],
   },
   'cond': {
-    name: 'cond',
+    title: 'cond',
     category: 'Special expression',
     linkName: 'cond',
     returns: {
@@ -548,7 +549,7 @@ hyp`,
     ],
   },
   'when': {
-    name: 'when',
+    title: 'when',
     category: 'Special expression',
     linkName: 'when',
     returns: {
@@ -582,7 +583,7 @@ and \`nil\` is returned. If no $expressions are provided, \`nil\` is returned.`,
     ],
   },
   'when-not': {
-    name: 'when-not',
+    title: 'when-not',
     category: 'Special expression',
     linkName: 'when-not',
     returns: {
@@ -612,7 +613,7 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
     ],
   },
   'comment': {
-    name: 'comment',
+    title: 'comment',
     category: 'Special expression',
     linkName: 'comment',
     returns: {
@@ -631,7 +632,7 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
     examples: ['(comment (write! "Hi") (write! "Albert"))', '(comment)'],
   },
   'do': {
-    name: 'do',
+    title: 'do',
     category: 'Special expression',
     linkName: 'do',
     returns: {
@@ -656,7 +657,7 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
     ],
   },
   'recur': {
-    name: 'recur',
+    title: 'recur',
     category: 'Special expression',
     linkName: 'recur',
     returns: {
@@ -698,7 +699,7 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
     ],
   },
   'loop': {
-    name: 'loop',
+    title: 'loop',
     category: 'Special expression',
     linkName: 'loop',
     returns: {
@@ -735,7 +736,7 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
     ],
   },
   'time!': {
-    name: 'time!',
+    title: 'time!',
     category: 'Special expression',
     linkName: 'time_exclamation',
     clojureDocs: 'time',
@@ -763,7 +764,7 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
   },
 
   'doseq': {
-    name: 'doseq',
+    title: 'doseq',
     category: 'Special expression',
     linkName: 'doseq',
     returns: {
@@ -785,7 +786,7 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
     examples: ['(doseq [x [1 2 4]] (write! x))'],
   },
   'for': {
-    name: 'for',
+    title: 'for',
     category: 'Special expression',
     linkName: 'for',
     returns: {
@@ -860,7 +861,7 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
     ],
   },
   'declared?': {
-    name: 'declared?',
+    title: 'declared?',
     category: 'Special expression',
     linkName: 'declared_question',
     returns: {
@@ -888,7 +889,7 @@ and \`nil\` is returned. If no \`expression\` is provided, \`nil\` is returned.`
     ],
   },
   '??': {
-    name: '??',
+    title: '??',
     category: 'Special expression',
     linkName: '_question_question',
     returns: {

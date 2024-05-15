@@ -1,8 +1,9 @@
-import type { Reference } from '..'
+import type { FunctionReference } from '..'
+import type { ObjectApiName } from '../api'
 
-export const objectReference: Record<string, Reference<'Object'>> = {
+export const objectReference: Record<ObjectApiName, FunctionReference<'Object'>> = {
   'dissoc': {
-    name: 'dissoc',
+    title: 'dissoc',
     category: 'Object',
     linkName: 'dissoc',
     returns: {
@@ -29,7 +30,7 @@ o`,
     ],
   },
   'object': {
-    name: 'object',
+    title: 'object',
     category: 'Object',
     linkName: 'object',
     clojureDocs: null,
@@ -55,7 +56,7 @@ o`,
     ],
   },
   'keys': {
-    name: 'keys',
+    title: 'keys',
     category: 'Object',
     linkName: 'keys',
     returns: {
@@ -77,7 +78,7 @@ o`,
     ],
   },
   'vals': {
-    name: 'vals',
+    title: 'vals',
     category: 'Object',
     linkName: 'vals',
     returns: {
@@ -99,7 +100,7 @@ o`,
     ],
   },
   'entries': {
-    name: 'entries',
+    title: 'entries',
     category: 'Object',
     linkName: 'entries',
     clojureDocs: null,
@@ -121,7 +122,7 @@ o`,
     ],
   },
   'find': {
-    name: 'find',
+    title: 'find',
     category: 'Object',
     linkName: 'find',
     returns: {
@@ -145,7 +146,7 @@ o`,
     ],
   },
   'merge': {
-    name: 'merge',
+    title: 'merge',
     category: 'Object',
     linkName: 'merge',
     returns: {
@@ -170,7 +171,7 @@ If no arguments are provided \`nil\` is returned.`,
     ],
   },
   'merge-with': {
-    name: 'merge-with',
+    title: 'merge-with',
     category: 'Object',
     linkName: 'merge-with',
     returns: {
@@ -192,8 +193,7 @@ If no arguments are provided \`nil\` is returned.`,
 Returns a new object created by merging together all arguments.
 If two keys appears in more than one object $fn is used to calculate the new value.
 
-If no arguments are provided \`nil\` is returned.
-`,
+If no arguments are provided \`nil\` is returned.`,
     examples: [
       '(merge-with + (object :x 10) (object :y 20))',
       '(merge-with + (object :x 10) (object :x 15 :y 20))',
@@ -201,7 +201,7 @@ If no arguments are provided \`nil\` is returned.
     ],
   },
   'zipmap': {
-    name: 'zipmap',
+    title: 'zipmap',
     category: 'Object',
     linkName: 'zipmap',
     returns: {
@@ -228,7 +228,7 @@ If no arguments are provided \`nil\` is returned.
     ],
   },
   'select-keys': {
-    name: 'select-keys',
+    title: 'select-keys',
     category: 'Object',
     linkName: 'select-keys',
     returns: {

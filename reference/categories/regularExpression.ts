@@ -1,8 +1,9 @@
-import type { Reference } from '..'
+import type { FunctionReference } from '..'
+import type { RegularExpressionApiName } from '../api'
 
-export const regularExpressionReference: Record<string, Reference<'Regular expression'>> = {
+export const regularExpressionReference: Record<RegularExpressionApiName, FunctionReference<'Regular expression'>> = {
   regexp: {
-    name: 'regexp',
+    title: 'regexp',
     category: 'Regular expression',
     linkName: 'regexp',
     clojureDocs: null,
@@ -31,7 +32,7 @@ export const regularExpressionReference: Record<string, Reference<'Regular expre
     ],
   },
   match: {
-    name: 'match',
+    title: 'match',
     category: 'Regular expression',
     linkName: 'match',
     clojureDocs: null,
@@ -62,7 +63,7 @@ If $s is a string and matches the regular expression, a \`match\`-array is retur
     ],
   },
   replace: {
-    name: 'replace',
+    title: 'replace',
     category: 'Regular expression',
     linkName: 'replace',
     clojureDocs: null,

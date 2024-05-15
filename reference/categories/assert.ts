@@ -1,7 +1,8 @@
-import type { Reference } from '../index.ts'
+import type { AssertApiName } from '../api.ts'
+import type { FunctionReference } from '../index.ts'
 
-export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': {
-  name: 'assert',
+export const assertReference: Record<AssertApiName, FunctionReference<'Assert'>> = { 'assert': {
+  title: 'assert',
   category: 'Assert',
   linkName: 'assert',
   returns: {
@@ -22,7 +23,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   description: 'If $value is falsy it throws `AssertionError` with $message. If no $message is provided, message is set to $value.',
   examples: ['(assert 0 "Expected a positive value")'],
 }, 'assert=': {
-  name: 'assert=',
+  title: 'assert=',
   category: 'Assert',
   linkName: 'assert_equal',
   clojureDocs: null,
@@ -51,7 +52,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert= 1 1)',
   ],
 }, 'assert-not=': {
-  name: 'assert-not=',
+  title: 'assert-not=',
   category: 'Assert',
   linkName: 'assert-not_equal',
   clojureDocs: null,
@@ -80,7 +81,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert-not= 0 1)',
   ],
 }, 'assert-equal': {
-  name: 'assert-equal',
+  title: 'assert-equal',
   category: 'Assert',
   linkName: 'assert-equal',
   clojureDocs: null,
@@ -109,7 +110,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert-equal { :a 1 } { :a 1 })',
   ],
 }, 'assert-not-equal': {
-  name: 'assert-not-equal',
+  title: 'assert-not-equal',
   category: 'Assert',
   linkName: 'assert-not-equal',
   clojureDocs: null,
@@ -138,7 +139,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert-not-equal { :a 1 } { :a 2 })',
   ],
 }, 'assert>': {
-  name: 'assert>',
+  title: 'assert>',
   category: 'Assert',
   linkName: 'assert_gt',
   clojureDocs: null,
@@ -167,7 +168,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert> 1 0)',
   ],
 }, 'assert<': {
-  name: 'assert<',
+  title: 'assert<',
   category: 'Assert',
   linkName: 'assert_lt',
   clojureDocs: null,
@@ -196,7 +197,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert< 0 1)',
   ],
 }, 'assert>=': {
-  name: 'assert>=',
+  title: 'assert>=',
   category: 'Assert',
   linkName: 'assert_gte',
   clojureDocs: null,
@@ -225,7 +226,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert>= 1 1)',
   ],
 }, 'assert<=': {
-  name: 'assert<=',
+  title: 'assert<=',
   category: 'Assert',
   linkName: 'assert_lte',
   clojureDocs: null,
@@ -254,7 +255,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert<= 1 1)',
   ],
 }, 'assert-true': {
-  name: 'assert-true',
+  title: 'assert-true',
   category: 'Assert',
   linkName: 'assert-true',
   clojureDocs: null,
@@ -280,7 +281,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert-true true)',
   ],
 }, 'assert-false': {
-  name: 'assert-false',
+  title: 'assert-false',
   category: 'Assert',
   linkName: 'assert-false',
   clojureDocs: null,
@@ -306,7 +307,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert-false false)',
   ],
 }, 'assert-truthy': {
-  name: 'assert-truthy',
+  title: 'assert-truthy',
   category: 'Assert',
   linkName: 'assert-truthy',
   clojureDocs: null,
@@ -339,7 +340,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert-truthy {})',
   ],
 }, 'assert-falsy': {
-  name: 'assert-falsy',
+  title: 'assert-falsy',
   category: 'Assert',
   linkName: 'assert-falsy',
   clojureDocs: null,
@@ -371,7 +372,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert-falsy "")',
   ],
 }, 'assert-nil': {
-  name: 'assert-nil',
+  title: 'assert-nil',
   category: 'Assert',
   linkName: 'assert-nil',
   clojureDocs: null,
@@ -403,7 +404,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert-nil "")',
   ],
 }, 'assert-throws': {
-  name: 'assert-throws',
+  title: 'assert-throws',
   category: 'Assert',
   linkName: 'assert-throws',
   clojureDocs: null,
@@ -425,7 +426,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
   description: 'If $fn does not throw, it throws `AssertionError`.',
   examples: ['(assert-throws #(throw "Error"))', '(assert-throws #(identity "Error"))'],
 }, 'assert-throws-error': {
-  name: 'assert-throws-error',
+  title: 'assert-throws-error',
   category: 'Assert',
   linkName: 'assert-throws-error',
   clojureDocs: null,
@@ -454,7 +455,7 @@ export const assertReference: Record<string, Reference<'Assert'>> = { 'assert': 
     '(assert-throws-error #(identity :Error) :Error)',
   ],
 }, 'assert-not-throws': {
-  name: 'assert-not-throws',
+  title: 'assert-not-throws',
   category: 'Assert',
   linkName: 'assert-not-throws',
   clojureDocs: null,

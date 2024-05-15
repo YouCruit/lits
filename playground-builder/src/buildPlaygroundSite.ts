@@ -1,6 +1,6 @@
 import path from 'node:path'
 import fs from 'node:fs'
-import { getFunctionDocumentations } from './components/functionDocumentation'
+import { getAllDocumentationItems } from './components/functionDocumentation'
 import { getSearchDialog } from './components/searchDialog/searchDialog'
 import { randomNumbers } from './utils/utils'
 import { getStartPage } from './components/startPage'
@@ -33,7 +33,7 @@ function writeIndexPage() {
     <main id="main-panel" class="fancy-scroll">
       ${getStartPage()}
       ${getExamplePage()}
-      ${getFunctionDocumentations()}
+      ${getAllDocumentationItems()}
     </main>
     ${getSideBar()}
     ${getPlayground()}

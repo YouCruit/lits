@@ -1,8 +1,9 @@
-import type { Reference } from '../index.ts'
+import type { ArrayApiName } from '../api.ts'
+import type { FunctionReference } from '../index.ts'
 
-export const arrayReference: Record<string, Reference<'Array'>> = {
+export const arrayReference: Record<ArrayApiName, FunctionReference<'Array'>> = {
   array: {
-    name: 'array',
+    title: 'array',
     category: 'Array',
     linkName: 'array',
     clojureDocs: 'vector',
@@ -32,7 +33,7 @@ export const arrayReference: Record<string, Reference<'Array'>> = {
     ],
   },
   range: {
-    name: 'range',
+    title: 'range',
     category: 'Array',
     linkName: 'range',
     returns: {
@@ -57,8 +58,8 @@ export const arrayReference: Record<string, Reference<'Array'>> = {
     ],
     description: `$range creates an array with a range of numbers from $start to $end (exclusive), by $step.
 
-$start defaults to 0  
-$step defaults to 1`,
+$start defaults to 0.  
+$step defaults to 1.`,
     examples: [
       '(range 4)',
       '(range 1 4)',
@@ -72,7 +73,7 @@ $step defaults to 1`,
     ],
   },
   repeat: {
-    name: 'repeat',
+    title: 'repeat',
     category: 'Array',
     linkName: 'repeat',
     returns: {
@@ -98,7 +99,7 @@ $step defaults to 1`,
     ],
   },
   flatten: {
-    name: 'flatten',
+    title: 'flatten',
     category: 'Array',
     linkName: 'flatten',
     returns: {
@@ -128,7 +129,7 @@ $step defaults to 1`,
     ],
   },
   mapcat: {
-    name: 'mapcat',
+    title: 'mapcat',
     category: 'Array',
     linkName: 'mapcat',
     returns: {

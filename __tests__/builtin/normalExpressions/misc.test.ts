@@ -5,8 +5,7 @@ import { Lits } from '../../../src'
 describe('misc functions', () => {
   let oldLog: () => void
   let oldWarn: () => void
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  let lastLog: unknown
+
   let logSpy: (...args: unknown[]) => void
   beforeEach(() => {
     oldLog = console.log
@@ -14,10 +13,8 @@ describe('misc functions', () => {
     logSpy = vitest.fn()
     console.log = (...args) => {
       logSpy(...args)
-      lastLog = args[0]
     }
-    console.warn = (...args) => {
-      lastLog = args[0]
+    console.warn = (..._args) => {
     }
   })
   afterEach(() => {

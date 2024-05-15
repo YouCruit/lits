@@ -1,8 +1,9 @@
-import type { Reference } from '..'
+import type { FunctionReference } from '..'
+import type { PredicateApiName } from '../api'
 
-export const predicateReference: Record<string, Reference<'Predicate'>> = {
+export const predicateReference: Record<PredicateApiName, FunctionReference<'Predicate'>> = {
   'boolean?': {
-    name: 'boolean?',
+    title: 'boolean?',
     category: 'Predicate',
     linkName: 'boolean_question',
     returns: {
@@ -26,7 +27,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'nil?': {
-    name: 'nil?',
+    title: 'nil?',
     category: 'Predicate',
     linkName: 'nil_question',
     returns: {
@@ -50,7 +51,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'number?': {
-    name: 'number?',
+    title: 'number?',
     category: 'Predicate',
     linkName: 'number_question',
     returns: {
@@ -75,7 +76,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'string?': {
-    name: 'string?',
+    title: 'string?',
     category: 'Predicate',
     linkName: 'string_question',
     returns: {
@@ -100,7 +101,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'function?': {
-    name: 'function?',
+    title: 'function?',
     category: 'Predicate',
     linkName: 'function_question',
     clojureDocs: null,
@@ -126,7 +127,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'integer?': {
-    name: 'integer?',
+    title: 'integer?',
     category: 'Predicate',
     linkName: 'integer_question',
     returns: {
@@ -153,7 +154,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'array?': {
-    name: 'array?',
+    title: 'array?',
     category: 'Predicate',
     linkName: 'array_question',
     clojureDocs: 'vector_q',
@@ -179,7 +180,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'object?': {
-    name: 'object?',
+    title: 'object?',
     category: 'Predicate',
     linkName: 'object_question',
     clojureDocs: null,
@@ -207,7 +208,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'coll?': {
-    name: 'coll?',
+    title: 'coll?',
     category: 'Predicate',
     linkName: 'coll_question',
     clojureDocs: null,
@@ -234,7 +235,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'seq?': {
-    name: 'seq?',
+    title: 'seq?',
     category: 'Predicate',
     linkName: 'seq_question',
     clojureDocs: null,
@@ -261,7 +262,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'regexp?': {
-    name: 'regexp?',
+    title: 'regexp?',
     category: 'Predicate',
     linkName: 'regexp_question',
     clojureDocs: null,
@@ -290,7 +291,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'zero?': {
-    name: 'zero?',
+    title: 'zero?',
     category: 'Predicate',
     linkName: 'zero_question',
     returns: {
@@ -313,7 +314,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'pos?': {
-    name: 'pos?',
+    title: 'pos?',
     category: 'Predicate',
     linkName: 'pos_question',
     returns: {
@@ -336,7 +337,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'neg?': {
-    name: 'neg?',
+    title: 'neg?',
     category: 'Predicate',
     linkName: 'neg_question',
     returns: {
@@ -359,7 +360,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'even?': {
-    name: 'even?',
+    title: 'even?',
     category: 'Predicate',
     linkName: 'even_question',
     returns: {
@@ -382,7 +383,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'odd?': {
-    name: 'odd?',
+    title: 'odd?',
     category: 'Predicate',
     linkName: 'odd_question',
     returns: {
@@ -405,7 +406,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'finite?': {
-    name: 'finite?',
+    title: 'finite?',
     category: 'Predicate',
     linkName: 'finite_question',
     clojureDocs: null,
@@ -429,7 +430,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'nan?': {
-    name: 'nan?',
+    title: 'nan?',
     category: 'Predicate',
     linkName: 'nan_question',
     clojureDocs: null,
@@ -453,7 +454,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'negative-infinity?': {
-    name: 'negative-infinity?',
+    title: 'negative-infinity?',
     category: 'Predicate',
     linkName: 'negative-infinity_question',
     clojureDocs: null,
@@ -477,7 +478,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'positive-infinity?': {
-    name: 'positive-infinity?',
+    title: 'positive-infinity?',
     category: 'Predicate',
     linkName: 'positive-infinity_question',
     clojureDocs: null,
@@ -501,7 +502,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'false?': {
-    name: 'false?',
+    title: 'false?',
     category: 'Predicate',
     linkName: 'false_question',
     returns: {
@@ -524,7 +525,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'true?': {
-    name: 'true?',
+    title: 'true?',
     category: 'Predicate',
     linkName: 'true_question',
     returns: {
@@ -547,7 +548,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'empty?': {
-    name: 'empty?',
+    title: 'empty?',
     category: 'Predicate',
     linkName: 'empty_question',
     returns: {
@@ -573,7 +574,7 @@ export const predicateReference: Record<string, Reference<'Predicate'>> = {
     ],
   },
   'not-empty?': {
-    name: 'not-empty?',
+    title: 'not-empty?',
     category: 'Predicate',
     linkName: 'not-empty_question',
     clojureDocs: null,

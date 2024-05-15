@@ -1,8 +1,9 @@
-import type { Reference } from '../index.ts'
+import type { CollectionApiName } from '../api.ts'
+import type { FunctionReference } from '../index.ts'
 
-export const collectionReference: Record<string, Reference<'Collection'>> = {
+export const collectionReference: Record<CollectionApiName, FunctionReference<'Collection'>> = {
   'count': {
-    name: 'count',
+    title: 'count',
     category: 'Collection',
     linkName: 'count',
     returns: {
@@ -27,7 +28,7 @@ export const collectionReference: Record<string, Reference<'Collection'>> = {
     ],
   },
   'get': {
-    name: 'get',
+    title: 'get',
     category: 'Collection',
     linkName: 'get',
     returns: {
@@ -89,7 +90,7 @@ export const collectionReference: Record<string, Reference<'Collection'>> = {
     ],
   },
   'get-in': {
-    name: 'get-in',
+    title: 'get-in',
     category: 'Collection',
     linkName: 'get-in',
     returns: {
@@ -128,7 +129,7 @@ export const collectionReference: Record<string, Reference<'Collection'>> = {
     ],
   },
   'contains?': {
-    name: 'contains?',
+    title: 'contains?',
     category: 'Collection',
     linkName: 'contains_question',
     returns: {
@@ -170,7 +171,7 @@ export const collectionReference: Record<string, Reference<'Collection'>> = {
     ],
   },
   'has?': {
-    name: 'has?',
+    title: 'has?',
     category: 'Collection',
     linkName: 'has_question',
     clojureDocs: null,
@@ -222,7 +223,7 @@ export const collectionReference: Record<string, Reference<'Collection'>> = {
     ],
   },
   'has-some?': {
-    name: 'has-some?',
+    title: 'has-some?',
     category: 'Collection',
     linkName: 'has-some_question',
     clojureDocs: null,
@@ -295,7 +296,7 @@ export const collectionReference: Record<string, Reference<'Collection'>> = {
     ],
   },
   'has-every?': {
-    name: 'has-every?',
+    title: 'has-every?',
     category: 'Collection',
     linkName: 'has-every_question',
     clojureDocs: null,
@@ -376,7 +377,7 @@ export const collectionReference: Record<string, Reference<'Collection'>> = {
     ],
   },
   'assoc': {
-    name: 'assoc',
+    title: 'assoc',
     category: 'Collection',
     linkName: 'assoc',
     returns: {
@@ -404,8 +405,7 @@ export const collectionReference: Record<string, Reference<'Collection'>> = {
     ],
     description: `
 Add or replace the value of element $key to $value in $coll. Repeated for all key-value pairs in $kvs.  
-If $coll is an \'array\', $key must be \`number\` satisfying \`0 <=\` $key \`<= length\`.
-`,
+If $coll is an \'array\', $key must be \`number\` satisfying \`0 <=\` $key \`<= length\`.`,
     examples: [
       `
 (assoc
@@ -435,7 +435,7 @@ If $coll is an \'array\', $key must be \`number\` satisfying \`0 <=\` $key \`<= 
     ],
   },
   'assoc-in': {
-    name: 'assoc-in',
+    title: 'assoc-in',
     category: 'Collection',
     linkName: 'assoc-in',
     returns: {
@@ -479,7 +479,7 @@ If any levels do not exist, objects will be created - and the corresponding keys
     ],
   },
   'concat': {
-    name: 'concat',
+    title: 'concat',
     category: 'Collection',
     linkName: 'concat',
     returns: {
@@ -511,7 +511,7 @@ If any levels do not exist, objects will be created - and the corresponding keys
     ],
   },
   'not-empty': {
-    name: 'not-empty',
+    title: 'not-empty',
     category: 'Collection',
     linkName: 'not-empty',
     returns: {
@@ -537,7 +537,7 @@ If any levels do not exist, objects will be created - and the corresponding keys
     ],
   },
   'every?': {
-    name: 'every?',
+    title: 'every?',
     category: 'Collection',
     linkName: 'every_question',
     returns: {
@@ -587,7 +587,7 @@ If any levels do not exist, objects will be created - and the corresponding keys
     ],
   },
   'not-every?': {
-    name: 'not-every?',
+    title: 'not-every?',
     category: 'Collection',
     linkName: 'not-every_question',
     returns: {
@@ -637,7 +637,7 @@ If any levels do not exist, objects will be created - and the corresponding keys
     ],
   },
   'any?': {
-    name: 'any?',
+    title: 'any?',
     category: 'Collection',
     linkName: 'any_question',
     returns: {
@@ -687,7 +687,7 @@ If any levels do not exist, objects will be created - and the corresponding keys
     ],
   },
   'not-any?': {
-    name: 'not-any?',
+    title: 'not-any?',
     category: 'Collection',
     linkName: 'not-any_question',
     returns: {
@@ -737,7 +737,7 @@ If any levels do not exist, objects will be created - and the corresponding keys
     ],
   },
   'update': {
-    name: 'update',
+    title: 'update',
     category: 'Collection',
     linkName: 'update',
     returns: {
@@ -781,7 +781,7 @@ If the key does not exist, \`nil\` is passed as the old value.`,
     ],
   },
   'update-in': {
-    name: 'update-in',
+    title: 'update-in',
     category: 'Collection',
     linkName: 'update-in',
     returns: {

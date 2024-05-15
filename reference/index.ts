@@ -12,11 +12,9 @@ import { regularExpressionReference } from './categories/regularExpression'
 import { specialExpressionsReference } from './categories/specialExpressions'
 import { stringReference } from './categories/string'
 import { bitwiseReference } from './categories/bitwise'
-
-export { } from './examples'
-export type Category = 'Collection' | 'Array' | 'Sequence' | 'Math' | 'Functional' | 'Misc' | 'Object' | 'Predicate' | 'Regular expression' | 'Special expression' | 'String' | 'Bitwise' | 'Assert'
-
-type DataType = 'number' | 'string' | 'object' | 'array' | 'boolean' | 'function' | 'integer' | 'any' | 'nil' | 'collection' | 'sequence' | 'regexp' | 'never'
+import { shorthand } from './shorthand'
+import { datatype } from './datatype'
+import type { ApiName, Category, DataType, FunctionName } from './api'
 
 export interface TypedValue {
   type: DataType[] | DataType
@@ -52,19 +50,46 @@ interface Variant {
   argumentNames: string[]
 }
 
-export interface Reference<T extends Category> {
-  name: string
+export interface CommonReference<T extends Category> {
+  title: string
   category: T
   linkName: string
+  examples: string[]
+  description: string
   clojureDocs?: string | null
+  seeAlso?: ApiName[]
+}
+export interface FunctionReference<T extends Category = Category> extends CommonReference<T> {
   returns: TypedValue
   args: Record<string, Argument>
   variants: Variant[]
-  description: string
-  examples: string[]
 }
 
-export const functionReference: Record<string, Reference<Category>> = {
+export interface ShorthandReference extends CommonReference<'Shorthand'> {
+  shorthand: true
+  linkName: `_short_${string}`
+}
+
+export interface DatatypeReference extends CommonReference<'Datatype'> {
+  datatype: true
+  linkName: `_type_${string}`
+}
+
+export type Reference<T extends Category = Category> = FunctionReference<T> | ShorthandReference | DatatypeReference
+
+export function isFunctionReference<T extends Category>(ref: Reference<T>): ref is FunctionReference<T> {
+  return 'returns' in ref && 'args' in ref && 'variants' in ref
+}
+
+export function isShorthandReference<T extends Category>(ref: Reference<T>): ref is ShorthandReference {
+  return 'shorthand' in ref
+}
+
+export function isDatatypeReference<T extends Category>(ref: Reference<T>): ref is DatatypeReference {
+  return 'datatype' in ref
+}
+
+const functionReference: Record<FunctionName, FunctionReference> = {
   ...collectionReference,
   ...arrayReference,
   ...sequenceReference,
@@ -80,33 +105,8 @@ export const functionReference: Record<string, Reference<Category>> = {
   ...assertReference,
 }
 
-export const categories = [
-  'Special expression',
-  'Predicate',
-  'Sequence',
-  'Collection',
-  'Array',
-  'Object',
-  'String',
-  'Math',
-  'Functional',
-  'Regular expression',
-  'Bitwise',
-  'Misc',
-  'Assert',
-]
+export const apiReference: Record<ApiName, Reference> = { ...functionReference, ...shorthand, ...datatype }
 
-export const categorizedFunctions = Object.values(functionReference)
-  .reduce((result: Category[], item) => {
-    if (!result.includes(item.category))
-      result.push(item.category)
-
-    return result
-  }, [])
-  .sort((a, b) => categories.indexOf(a) - categories.indexOf(b))
-
-module.exports = {
-  functionReference,
-  categorizedFunctions,
-  categories,
-}
+Object.values(apiReference).forEach((ref) => {
+  ref.title = ref.title.replace(/"/g, '&quot;')
+})

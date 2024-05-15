@@ -36,14 +36,6 @@ export class ContextStack {
     this.nativeJsFunctions = nativeJsFunctions
   }
 
-  public toString() {
-    return this.contexts.reduce((result, context, index) => {
-      return `${result}Context ${index}${
-        index === this.contexts.length - 1 ? ' - Global context' : ''
-      }\n${contextToString(context)}\n`
-    }, '')
-  }
-
   public create(context: Context, extraData?: ExtraData): ContextStack {
     const globalContext = this.globalContext
     const contextStack = new ContextStack({

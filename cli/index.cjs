@@ -12,7 +12,7 @@ const { runTest } = require('../dist/testFramework')
 
 const historyResults = []
 const lits = new Lits({ debug: true })
-const { functionReference } = require('../dist/reference')
+const { apiReference } = require('../dist/reference')
 
 const commands = ['`help', '`quit', '`builtins', '`globalContext', '`GlobalContext', '`resetGlobalContext']
 const nameCharacters = '@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>.+*/-'
@@ -324,7 +324,7 @@ function printBuiltins() {
 }
 
 function getDocString(name) {
-  const doc = functionReference[name]
+  const doc = apiReference[name]
   if (!doc)
     return ''
 
@@ -332,7 +332,7 @@ function getDocString(name) {
 }
 
 function getFullDocumentation(name) {
-  const doc = functionReference[name]
+  const doc = apiReference[name]
   if (!doc)
     return `No documentation available for ${name}`
 

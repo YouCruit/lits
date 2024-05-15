@@ -1,8 +1,9 @@
-import type { Reference } from '..'
+import type { FunctionReference } from '..'
+import type { StringApiName } from '../api'
 
-export const stringReference: Record<string, Reference<'String'>> = {
+export const stringReference: Record<StringApiName, FunctionReference<'String'>> = {
   'subs': {
-    name: 'subs',
+    title: 'subs',
     category: 'String',
     linkName: 'subs',
     returns: {
@@ -32,7 +33,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'string-repeat': {
-    name: 'string-repeat',
+    title: 'string-repeat',
     category: 'String',
     linkName: 'string-repeat',
     clojureDocs: null,
@@ -57,7 +58,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'str': {
-    name: 'str',
+    title: 'str',
     category: 'String',
     linkName: 'str',
     returns: {
@@ -81,7 +82,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'number': {
-    name: 'number',
+    title: 'number',
     category: 'String',
     linkName: 'number',
     clojureDocs: null,
@@ -104,7 +105,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'number-to-string': {
-    name: 'number-to-string',
+    title: 'number-to-string',
     category: 'String',
     linkName: 'number-to-string',
     clojureDocs: null,
@@ -135,7 +136,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'lower-case': {
-    name: 'lower-case',
+    title: 'lower-case',
     category: 'String',
     linkName: 'lower-case',
     returns: {
@@ -156,7 +157,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'upper-case': {
-    name: 'upper-case',
+    title: 'upper-case',
     category: 'String',
     linkName: 'upper-case',
     clojureDocs: null,
@@ -178,7 +179,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'trim': {
-    name: 'trim',
+    title: 'trim',
     category: 'String',
     linkName: 'trim',
     clojureDocs: null,
@@ -201,7 +202,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'trim-left': {
-    name: 'trim-left',
+    title: 'trim-left',
     category: 'String',
     linkName: 'trim-left',
     clojureDocs: null,
@@ -224,7 +225,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'trim-right': {
-    name: 'trim-right',
+    title: 'trim-right',
     category: 'String',
     linkName: 'trim-right',
     clojureDocs: null,
@@ -247,7 +248,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'pad-left': {
-    name: 'pad-left',
+    title: 'pad-left',
     category: 'String',
     linkName: 'pad-left',
     clojureDocs: null,
@@ -278,7 +279,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'pad-right': {
-    name: 'pad-right',
+    title: 'pad-right',
     category: 'String',
     linkName: 'pad-right',
     clojureDocs: null,
@@ -309,7 +310,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'split': {
-    name: 'split',
+    title: 'split',
     category: 'String',
     linkName: 'split',
     clojureDocs: null,
@@ -340,7 +341,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'template': {
-    name: 'template',
+    title: 'template',
     category: 'String',
     linkName: 'template',
     clojureDocs: null,
@@ -377,7 +378,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'to-char-code': {
-    name: 'to-char-code',
+    title: 'to-char-code',
     category: 'String',
     linkName: 'to-char-code',
     clojureDocs: null,
@@ -399,7 +400,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'from-char-code': {
-    name: 'from-char-code',
+    title: 'from-char-code',
     category: 'String',
     linkName: 'from-char-code',
     clojureDocs: null,
@@ -421,7 +422,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'encode-base64': {
-    name: 'encode-base64',
+    title: 'encode-base64',
     category: 'String',
     linkName: 'encode-base64',
     clojureDocs: null,
@@ -442,7 +443,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'decode-base64': {
-    name: 'decode-base64',
+    title: 'decode-base64',
     category: 'String',
     linkName: 'decode-base64',
     clojureDocs: null,
@@ -463,7 +464,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'encode-uri-component': {
-    name: 'encode-uri-component',
+    title: 'encode-uri-component',
     category: 'String',
     linkName: 'encode-uri-component',
     clojureDocs: null,
@@ -484,7 +485,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
     ],
   },
   'decode-uri-component': {
-    name: 'decode-uri-component',
+    title: 'decode-uri-component',
     category: 'String',
     linkName: 'decode-uri-component',
     clojureDocs: null,
@@ -506,7 +507,7 @@ export const stringReference: Record<string, Reference<'String'>> = {
   },
 
   'join': {
-    name: 'join',
+    title: 'join',
     category: 'String',
     linkName: 'join',
     clojureDocs: null,

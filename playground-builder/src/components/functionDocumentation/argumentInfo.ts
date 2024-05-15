@@ -1,4 +1,4 @@
-import type { Category, Reference } from '../../../../reference'
+import type { FunctionReference } from '../../../../reference'
 import { createStyles, css } from '../../styles'
 import { formatDescription } from './description'
 import { getType } from './getType'
@@ -16,7 +16,7 @@ const styles = createStyles({
   `,
 })
 
-export function getArgumentInfo(reference: Reference<Category>) {
+export function getArgumentInfo(reference: FunctionReference) {
   const { args } = reference
   return `<table ${styles('text-sm')}>
   ${Object.entries(args).map(([argName, arg]) => {

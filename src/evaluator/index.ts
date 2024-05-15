@@ -162,28 +162,3 @@ function evaluateNumberAsFunction(fn: number, params: Arr, sourceCodeInfo?: Sour
   assertSeq(param, sourceCodeInfo)
   return toAny(param[fn])
 }
-
-export function contextToString(context: Context) {
-  if (Object.keys(context).length === 0)
-    return '  <empty>\n'
-
-  const maxKeyLength = Math.max(...Object.keys(context).map(key => key.length))
-  return Object.entries(context).reduce((result, entry) => {
-    const key = `${entry[0]}`.padEnd(maxKeyLength + 2, ' ')
-    return `${result}  ${key}${contextEntryToString(entry[1])}\n`
-  }, '')
-}
-
-function contextEntryToString(contextEntry: ContextEntry): string {
-  const { value } = contextEntry
-  if (isLitsFunction(value)) {
-    // eslint-disable-next-line ts/no-unsafe-member-access, ts/no-unsafe-assignment
-    const name: string | undefined = (value as any).n
-    // TODO value.t makes littl sence, should be mapped to a type name
-    if (name)
-      return `<${value.t} function ${name}>`
-    else
-      return `<${value.t} function \u03BB>`
-  }
-  return JSON.stringify(contextEntry.value)
-}

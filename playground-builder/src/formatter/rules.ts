@@ -245,6 +245,7 @@ export const mdRules: FormatterRule[] = [
   newLineRule,
   newParagraphRule,
   paragraphRule,
+  numberRule,
 ]
 
 function createRule({

@@ -1,8 +1,9 @@
-import type { Reference } from '..'
+import type { FunctionReference } from '..'
+import type { SequenceApiName } from '../api'
 
-export const sequenceReference: Record<string, Reference<'Sequence'>> = {
+export const sequenceReference: Record<SequenceApiName, FunctionReference<'Sequence'>> = {
   'nth': {
-    name: 'nth',
+    title: 'nth',
     category: 'Sequence',
     linkName: 'nth',
     returns: {
@@ -38,7 +39,7 @@ export const sequenceReference: Record<string, Reference<'Sequence'>> = {
     ],
   },
   'push': {
-    name: 'push',
+    title: 'push',
     category: 'Sequence',
     linkName: 'push',
     clojureDocs: null,
@@ -68,7 +69,7 @@ export const sequenceReference: Record<string, Reference<'Sequence'>> = {
     ],
   },
   'pop': {
-    name: 'pop',
+    title: 'pop',
     category: 'Sequence',
     linkName: 'pop',
     returns: {
@@ -91,7 +92,7 @@ export const sequenceReference: Record<string, Reference<'Sequence'>> = {
     ],
   },
   'unshift': {
-    name: 'unshift',
+    title: 'unshift',
     category: 'Sequence',
     linkName: 'unshift',
     clojureDocs: null,
@@ -123,7 +124,7 @@ l`,
     ],
   },
   'shift': {
-    name: 'shift',
+    title: 'shift',
     category: 'Sequence',
     linkName: 'shift',
     clojureDocs: null,
@@ -147,7 +148,7 @@ l`,
     ],
   },
   'slice': {
-    name: 'slice',
+    title: 'slice',
     category: 'Sequence',
     linkName: 'slice',
     clojureDocs: null,
@@ -181,7 +182,7 @@ l`,
     ],
   },
   'reductions': {
-    name: 'reductions',
+    title: 'reductions',
     category: 'Sequence',
     linkName: 'reductions',
     returns: {
@@ -217,7 +218,7 @@ l`,
     ],
   },
   'reduce': {
-    name: 'reduce',
+    title: 'reduce',
     category: 'Sequence',
     linkName: 'reduce',
     returns: {
@@ -251,7 +252,7 @@ l`,
     ],
   },
   'reduce-right': {
-    name: 'reduce-right',
+    title: 'reduce-right',
     category: 'Sequence',
     linkName: 'reduce-right',
     clojureDocs: null,
@@ -279,7 +280,7 @@ l`,
     ],
   },
   'map': {
-    name: 'map',
+    title: 'map',
     category: 'Sequence',
     linkName: 'map',
     returns: {
@@ -306,7 +307,7 @@ l`,
     ],
   },
   'filter': {
-    name: 'filter',
+    title: 'filter',
     category: 'Sequence',
     linkName: 'filter',
     returns: {
@@ -336,7 +337,7 @@ l`,
     ],
   },
   'position': {
-    name: 'position',
+    title: 'position',
     category: 'Sequence',
     linkName: 'position',
     clojureDocs: null,
@@ -375,7 +376,7 @@ l`,
     ],
   },
   'index-of': {
-    name: 'index-of',
+    title: 'index-of',
     category: 'Sequence',
     linkName: 'index-of',
     clojureDocs: null,
@@ -402,7 +403,7 @@ l`,
     ],
   },
   'some': {
-    name: 'some',
+    title: 'some',
     category: 'Sequence',
     linkName: 'some',
     returns: {
@@ -444,7 +445,7 @@ l`,
     ],
   },
   'reverse': {
-    name: 'reverse',
+    title: 'reverse',
     category: 'Sequence',
     linkName: 'reverse',
     returns: {
@@ -467,7 +468,7 @@ l`,
     ],
   },
   'first': {
-    name: 'first',
+    title: 'first',
     category: 'Sequence',
     linkName: 'first',
     returns: {
@@ -489,7 +490,7 @@ l`,
     ],
   },
   'second': {
-    name: 'second',
+    title: 'second',
     category: 'Sequence',
     linkName: 'second',
     returns: {
@@ -512,7 +513,7 @@ l`,
     ],
   },
   'last': {
-    name: 'last',
+    title: 'last',
     category: 'Sequence',
     linkName: 'last',
     returns: {
@@ -536,7 +537,7 @@ l`,
     ],
   },
   'rest': {
-    name: 'rest',
+    title: 'rest',
     category: 'Sequence',
     linkName: 'rest',
     returns: {
@@ -563,7 +564,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'nthrest': {
-    name: 'nthrest',
+    title: 'nthrest',
     category: 'Sequence',
     linkName: 'nthrest',
     returns: {
@@ -591,7 +592,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'next': {
-    name: 'next',
+    title: 'next',
     category: 'Sequence',
     linkName: 'next',
     returns: {
@@ -616,7 +617,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'nthnext': {
-    name: 'nthnext',
+    title: 'nthnext',
     category: 'Sequence',
     linkName: 'nthnext',
     returns: {
@@ -644,7 +645,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'cons': {
-    name: 'cons',
+    title: 'cons',
     category: 'Sequence',
     linkName: 'cons',
     returns: {
@@ -669,7 +670,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'take': {
-    name: 'take',
+    title: 'take',
     category: 'Sequence',
     linkName: 'take',
     returns: {
@@ -695,7 +696,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'take-last': {
-    name: 'take-last',
+    title: 'take-last',
     category: 'Sequence',
     linkName: 'take-last',
     returns: {
@@ -719,7 +720,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'take-while': {
-    name: 'take-while',
+    title: 'take-while',
     category: 'Sequence',
     linkName: 'take-while',
     returns: {
@@ -749,7 +750,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'drop': {
-    name: 'drop',
+    title: 'drop',
     category: 'Sequence',
     linkName: 'drop',
     returns: {
@@ -775,7 +776,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'drop-last': {
-    name: 'drop-last',
+    title: 'drop-last',
     category: 'Sequence',
     linkName: 'drop-last',
     returns: {
@@ -799,7 +800,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'drop-while': {
-    name: 'drop-while',
+    title: 'drop-while',
     category: 'Sequence',
     linkName: 'drop-while',
     returns: {
@@ -829,7 +830,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'sort': {
-    name: 'sort',
+    title: 'sort',
     category: 'Sequence',
     linkName: 'sort',
     returns: {
@@ -862,7 +863,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'sort-by': {
-    name: 'sort-by',
+    title: 'sort-by',
     category: 'Sequence',
     linkName: 'sort-by',
     returns: {
@@ -891,7 +892,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'random-sample!': {
-    name: 'random-sample!',
+    title: 'random-sample!',
     category: 'Sequence',
     linkName: 'random-sample_exclamation',
     clojureDocs: 'random-sample',
@@ -917,7 +918,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'rand-nth!': {
-    name: 'rand-nth!',
+    title: 'rand-nth!',
     category: 'Sequence',
     linkName: 'rand-nth_exclamation',
     clojureDocs: 'rand-nth',
@@ -940,7 +941,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'shuffle!': {
-    name: 'shuffle!',
+    title: 'shuffle!',
     category: 'Sequence',
     linkName: 'shuffle_exclamation',
     clojureDocs: 'shuffle',
@@ -965,7 +966,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'distinct': {
-    name: 'distinct',
+    title: 'distinct',
     category: 'Sequence',
     linkName: 'distinct',
     returns: {
@@ -988,7 +989,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'remove': {
-    name: 'remove',
+    title: 'remove',
     category: 'Sequence',
     linkName: 'remove',
     returns: {
@@ -1012,7 +1013,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'remove-at': {
-    name: 'remove-at',
+    title: 'remove-at',
     category: 'Sequence',
     linkName: 'remove-at',
     clojureDocs: null,
@@ -1038,7 +1039,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'split-at': {
-    name: 'split-at',
+    title: 'split-at',
     category: 'Sequence',
     linkName: 'split-at',
     returns: {
@@ -1063,7 +1064,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'split-with': {
-    name: 'split-with',
+    title: 'split-with',
     category: 'Sequence',
     linkName: 'split-with',
     returns: {
@@ -1088,7 +1089,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'frequencies': {
-    name: 'frequencies',
+    title: 'frequencies',
     category: 'Sequence',
     linkName: 'frequencies',
     returns: {
@@ -1109,7 +1110,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'group-by': {
-    name: 'group-by',
+    title: 'group-by',
     category: 'Sequence',
     linkName: 'group-by',
     returns: {
@@ -1133,7 +1134,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'partition': {
-    name: 'partition',
+    title: 'partition',
     category: 'Sequence',
     linkName: 'partition',
     returns: {
@@ -1178,7 +1179,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'partition-all': {
-    name: 'partition-all',
+    title: 'partition-all',
     category: 'Sequence',
     linkName: 'partition-all',
     returns: {
@@ -1207,7 +1208,7 @@ For string $seq returns all but the first characters in $seq.`,
     ],
   },
   'partition-by': {
-    name: 'partition-by',
+    title: 'partition-by',
     category: 'Sequence',
     linkName: 'partition-by',
     returns: {

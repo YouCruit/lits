@@ -2,8 +2,9 @@
 /* eslint-disable ts/no-unsafe-member-access */
 
 import { describe, expect, it } from 'vitest'
-import { categories, functionReference } from '../reference'
+import { apiReference, isFunctionReference } from '../reference'
 import { normalExpressionKeys, specialExpressionKeys } from '../src/builtin'
+import { isUnknownRecord } from '../src/typeGuards'
 
 function getLinkName(name: string): string {
   name = name.replace(/<=/g, '_lte')
@@ -20,18 +21,19 @@ function getLinkName(name: string): string {
   return name
 }
 
-describe('functionReference', () => {
-  Object.entries(functionReference).forEach(([key, obj]) => {
+describe('apiReference', () => {
+  Object.entries(apiReference).forEach(([key, obj]) => {
+    if (!isFunctionReference(obj))
+      return
     it(key, () => {
-      expect(obj.name).toBe(key)
-      expect(categories.includes(obj.category)).toBe(true)
+      expect(obj.title).toBe(key)
       expect(obj.linkName).toEqual(getLinkName(key))
       expect(obj.description.length).toBeGreaterThanOrEqual(1)
       expect(obj.returns.type.length).toBeGreaterThanOrEqual(1)
       expect(obj.description[obj.description.length - 1]).toBe('.')
 
       expect(obj.examples.length).toBeGreaterThan(0)
-      expect(Array.isArray(obj.args)).toBe(true)
+      expect(isUnknownRecord(obj.args)).toBe(true)
       if (normalExpressionKeys.includes(key))
         expect(obj.category).not.toBe('Special expression')
       else if (specialExpressionKeys.includes(key))
@@ -42,14 +44,14 @@ describe('functionReference', () => {
   })
 
   it('unique linkNames', () => {
-    const linkNames = Object.values(functionReference).map((obj: any) => obj.linkName)
+    const linkNames = Object.values(apiReference).map((obj: any) => obj.linkName)
     const linkNameSet = new Set(linkNames)
     linkNameSet.forEach(linkName => linkNames.splice(linkNames.indexOf(linkName), 1))
     expect(linkNames).toEqual([])
   })
 
   it('everything documented', () => {
-    const referenceKeys = Object.keys(functionReference)
+    const referenceKeys = Object.keys(apiReference)
     const builtinKeys = [...specialExpressionKeys, ...normalExpressionKeys]
     referenceKeys.forEach(key => builtinKeys.splice(builtinKeys.indexOf(key), 1))
     expect(builtinKeys).toEqual([])

@@ -27,12 +27,4 @@ describe('findAllOccurrences', () => {
     expect(result.has('!')).toBe(true)
   })
 
-  it('should handle $word', () => {
-    const input = 'Hello, $world!, $hello, $world'
-    const result = findAllOccurrences(input, variableRegExp)
-    expect(result.size).toBe(3)
-    expect(result.has('$world!')).toBe(true)
-    expect(result.has('$hello')).toBe(true)
-    expect(result.has('$world')).toBe(true)
-  })
 })

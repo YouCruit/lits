@@ -1,18 +1,32 @@
-import type { Category, Reference } from '../../../../reference'
+import { type FunctionReference, type Reference, isFunctionReference, isShorthandReference } from '../../../../reference'
 import { nameCharacters } from '../../../../src/tokenizer/tokenizers'
 import { createFormatter } from '../../formatter/createFormatter'
-import { createVariableRule, mdRules, numberRule } from '../../formatter/rules'
+import { createVariableRule, mdRules } from '../../formatter/rules'
 import { styles } from '../../styles'
 import { findAllOccurrences } from '../../utils/utils'
 
 const variableRegExp = new RegExp(`\\$${nameCharacters}+`, 'g')
 
-export function formatDescription(description: string, reference: Reference<Category>) {
+export function formatDescription(description: string, reference: Reference): string {
+  if (isFunctionReference(reference))
+    return formatFunctionDescription(description, reference)
+  else
+    return formatCommonDescription(description)
+}
+
+function formatCommonDescription(description: string) {
+  const formattedDescription = createFormatter(mdRules)(description)
+  return `<div ${styles('text-color-gray-400')}>
+    ${formattedDescription}
+  </div>`
+}
+
+function formatFunctionDescription(description: string, reference: FunctionReference) {
   const descriptionVariables = findAllOccurrences(description, variableRegExp)
 
   const currentFunctionNameRule = createVariableRule(
     variableName => `<span ${styles('text-color-Blue')}>${variableName}</span>`,
-    variableName => variableName === reference.name,
+    variableName => variableName === reference.title,
   )
 
   const argumentRule = createVariableRule(
@@ -21,16 +35,16 @@ export function formatDescription(description: string, reference: Reference<Cate
   )
 
   checkVariables(reference, descriptionVariables)
-  const formattedDescription = createFormatter([...mdRules, currentFunctionNameRule, argumentRule, numberRule])(description)
+  const formattedDescription = createFormatter([...mdRules, currentFunctionNameRule, argumentRule])(description)
   return `<div ${styles('text-color-gray-400')}>
     ${formattedDescription}
   </div>`
 }
 
-function checkVariables(reference: Reference<Category>, variables: Set<string>) {
+function checkVariables(reference: FunctionReference, variables: Set<string>) {
   variables.forEach((variable) => {
     const variableName = variable.slice(1)
-    if (variableName === reference.name)
+    if (variableName === reference.title)
       return
 
     if (!isArgumentName(variableName, reference)) {
@@ -40,6 +54,6 @@ function checkVariables(reference: Reference<Category>, variables: Set<string>) 
   })
 }
 
-function isArgumentName(variableName: string, reference: Reference<Category>) {
+function isArgumentName(variableName: string, reference: FunctionReference) {
   return Object.keys(reference.args).includes(variableName)
 }

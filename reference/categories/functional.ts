@@ -1,8 +1,9 @@
-import type { Reference } from '../index.ts'
+import type { FunctionalApiName } from '../api.ts'
+import type { FunctionReference } from '../index.ts'
 
-export const functionalReference: Record<string, Reference<'Functional'>> = {
+export const functionalReference: Record<FunctionalApiName, FunctionReference<'Functional'>> = {
   'apply': {
-    name: 'apply',
+    title: 'apply',
     category: 'Functional',
     linkName: 'apply',
     returns: {
@@ -34,7 +35,7 @@ export const functionalReference: Record<string, Reference<'Functional'>> = {
     ],
   },
   'identity': {
-    name: 'identity',
+    title: 'identity',
     category: 'Functional',
     linkName: 'identity',
     returns: {
@@ -52,7 +53,7 @@ export const functionalReference: Record<string, Reference<'Functional'>> = {
     examples: ['(identity 1)', '(identity "Albert")', '(identity {:a 1})', '(identity nil)'],
   },
   'partial': {
-    name: 'partial',
+    title: 'partial',
     category: 'Functional',
     linkName: 'partial',
     returns: {
@@ -84,7 +85,7 @@ When called, the returned function calls \`(\`$fn \`...\`$args\` ...additional_a
     ],
   },
   'comp': {
-    name: 'comp',
+    title: 'comp',
     category: 'Functional',
     linkName: 'comp',
     returns: {
@@ -119,7 +120,7 @@ When called, the returned function calls \`(\`$fn \`...\`$args\` ...additional_a
     ],
   },
   'constantly': {
-    name: 'constantly',
+    title: 'constantly',
     category: 'Functional',
     linkName: 'constantly',
     returns: {
@@ -147,7 +148,7 @@ When called, the returned function calls \`(\`$fn \`...\`$args\` ...additional_a
   },
 
   'juxt': {
-    name: 'juxt',
+    title: 'juxt',
     category: 'Functional',
     linkName: 'juxt',
     returns: {
@@ -187,7 +188,7 @@ and returns a vector containing the result of applying each function to the args
     ],
   },
   'complement': {
-    name: 'complement',
+    title: 'complement',
     category: 'Functional',
     linkName: 'complement',
     returns: {
@@ -205,7 +206,7 @@ and returns a vector containing the result of applying each function to the args
     examples: ['((complement >) 1 3)', '((complement <) 1 3)', '((complement +) 1 3)', '((complement +) 0 0)'],
   },
   'every-pred': {
-    name: 'every-pred',
+    title: 'every-pred',
     category: 'Functional',
     linkName: 'every-pred',
     returns: {
@@ -246,7 +247,7 @@ return a truthy value against all of its arguments, else it returns \`false\`.`,
     ],
   },
   'some-pred': {
-    name: 'some-pred',
+    title: 'some-pred',
     category: 'Functional',
     linkName: 'some-pred',
     clojureDocs: null,
@@ -275,7 +276,7 @@ return a truthy value against all of its arguments, else it returns \`false\`.`,
     ],
   },
   'fnil': {
-    name: 'fnil',
+    title: 'fnil',
     category: 'Functional',
     linkName: 'fnil',
     returns: {

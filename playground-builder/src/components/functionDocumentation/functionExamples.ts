@@ -2,14 +2,14 @@
 import { stringifyValue } from '../../utils/utils'
 import { Lits } from '../../../../src'
 import { styles } from '../../styles/index'
-import type { Category, Reference } from '../../../../reference'
+import type { Reference } from '../../../../reference'
 import { penIcon } from '../../icons'
 import { formatLitsExpression } from '../../formatter/rules'
 
 const lits = new Lits({ debug: false })
 
-export function getFunctionExamples(reference: Reference<Category>) {
-  const { examples, name } = reference
+export function getFunctionExamples(reference: Reference) {
+  const { examples, title: name } = reference
   return `
     <div ${styles('flex', 'flex-col', 'gap-8')}>
       ${examples

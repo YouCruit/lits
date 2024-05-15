@@ -1,8 +1,8 @@
-import type { Category, Reference } from '../../../../reference'
+import type { FunctionReference } from '../../../../reference'
 import { styles } from '../../styles'
 import { getType } from './getType'
 
-export function getFunctionSignature({ name, variants, args, returns }: Reference<Category>) {
+export function getFunctionSignature({ title: name, variants, args, returns }: FunctionReference) {
   return `<table>
   ${variants.map((variant) => {
     const form = (variant.argumentNames.length === 0)

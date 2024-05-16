@@ -6205,28 +6205,6 @@ var Playground = (function (exports) {
         assertSeq(param, sourceCodeInfo);
         return toAny(param[fn]);
     }
-    function contextToString(context) {
-        if (Object.keys(context).length === 0)
-            return '  <empty>\n';
-        var maxKeyLength = Math.max.apply(Math, __spreadArray([], __read(Object.keys(context).map(function (key) { return key.length; })), false));
-        return Object.entries(context).reduce(function (result, entry) {
-            var key = "".concat(entry[0]).padEnd(maxKeyLength + 2, ' ');
-            return "".concat(result, "  ").concat(key).concat(contextEntryToString(entry[1]), "\n");
-        }, '');
-    }
-    function contextEntryToString(contextEntry) {
-        var value = contextEntry.value;
-        if (isLitsFunction(value)) {
-            // eslint-disable-next-line ts/no-unsafe-member-access, ts/no-unsafe-assignment
-            var name_1 = value.n;
-            // TODO value.t makes littl sence, should be mapped to a type name
-            if (name_1)
-                return "<".concat(value.t, " function ").concat(name_1, ">");
-            else
-                return "<".concat(value.t, " function \u03BB>");
-        }
-        return JSON.stringify(contextEntry.value);
-    }
 
     function isContextEntry(value) {
         return isUnknownRecord(value) && value.value !== undefined;
@@ -6241,12 +6219,6 @@ var Playground = (function (exports) {
             this.lazyValues = lazyHostValues;
             this.nativeJsFunctions = nativeJsFunctions;
         }
-        ContextStack.prototype.toString = function () {
-            var _this = this;
-            return this.contexts.reduce(function (result, context, index) {
-                return "".concat(result, "Context ").concat(index).concat(index === _this.contexts.length - 1 ? ' - Global context' : '', "\n").concat(contextToString(context), "\n");
-            }, '');
-        };
         ContextStack.prototype.create = function (context, extraData) {
             var globalContext = this.globalContext;
             var contextStack = new ContextStack({

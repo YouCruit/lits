@@ -1,4 +1,4 @@
-import { type FunctionReference, type Reference, isFunctionReference, isShorthandReference } from '../../../../reference'
+import { type FunctionReference, type Reference, isFunctionReference } from '../../../../reference'
 import { nameCharacters } from '../../../../src/tokenizer/tokenizers'
 import { createFormatter } from '../../formatter/createFormatter'
 import { createVariableRule, mdRules } from '../../formatter/rules'

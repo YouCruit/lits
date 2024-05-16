@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { variableRegExp } from '../formatter/rules'
 import { findAllOccurrences } from './utils'
 
 describe('findAllOccurrences', () => {
@@ -26,5 +25,4 @@ describe('findAllOccurrences', () => {
     expect(result.size).toBe(1)
     expect(result.has('!')).toBe(true)
   })
-
 })

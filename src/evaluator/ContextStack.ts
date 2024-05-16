@@ -10,7 +10,6 @@ import { asNonUndefined } from '../typeGuards'
 import { isBuiltinFunction } from '../typeGuards/litsFunction'
 import { isContextEntry } from './interface'
 import type { Context, LookUpResult } from './interface'
-import { contextToString } from '.'
 
 export class ContextStack {
   private contexts: Context[]

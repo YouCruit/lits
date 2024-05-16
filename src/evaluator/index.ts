@@ -24,7 +24,6 @@ import { asAny, assertSeq, isObj } from '../typeGuards/lits'
 import { assertString } from '../typeGuards/string'
 import type { ContextStack } from './ContextStack'
 import { functionExecutors } from './functionExecutors'
-import type { Context, ContextEntry } from './interface'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null

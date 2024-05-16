@@ -4492,7 +4492,7 @@ var Playground = (function (exports) {
         },
     };
 
-    var version = "1.0.63-alpha.1";
+    var version = "1.0.63";
 
     var uuidTemplate = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
     var xyRegexp = /[xy]/g;

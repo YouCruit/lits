@@ -1,9 +1,8 @@
 /* eslint-disable no-console */
-import { throttle } from '../../common/utils'
+import { stringifyValue, throttle } from '../../common/utils'
 import type { Example } from '../../reference/examples'
 import type { LitsParams } from '../../src'
-import { Lits, isBuiltinFunction, isLitsFunction, isNativeJsFunction, isUserDefinedFunction } from '../../src'
-import type { UnknownRecord } from '../../src/interface'
+import { Lits } from '../../src'
 import { asUnknownRecord } from '../../src/typeGuards'
 import { Search } from './Search'
 import { decodeState as applyEncodedState, clearAllStates, clearState, encodeState, getState, saveState } from './state'
@@ -59,7 +58,7 @@ export function closeMoreMenu() {
 
 export function share() {
   addOutputSeparator()
-  appendOutput(`Sharable link:`, 'comment')
+  appendOutput('Sharable link:', 'comment')
   const href = `${location.origin}${location.pathname}?state=${encodeState()}`
   const a = document.createElement('a')
   a.textContent = href
@@ -642,37 +641,37 @@ function inactivateAll() {
     els[0].classList.remove('active-sidebar-entry')
 }
 
-function stringifyValue(value: unknown) {
-  if (isLitsFunction(value)) {
-    if (isBuiltinFunction(value))
-      return `<builtin ${value.n}>`
-    else if (isNativeJsFunction(value))
-      return '<js \u03BB>'
-    else if (isUserDefinedFunction(value))
-      return `<function ${value.n || '\u03BB'}>`
-    else
-      return `<function ${(value as unknown as UnknownRecord).n || '\u03BB'}>`
-  }
-  if (value === null)
-    return 'null'
+// function stringifyValue(value: unknown) {
+//   if (isLitsFunction(value)) {
+//     if (isBuiltinFunction(value))
+//       return `<builtin ${value.n}>`
+//     else if (isNativeJsFunction(value))
+//       return '<js \u03BB>'
+//     else if (isUserDefinedFunction(value))
+//       return `<function ${value.n || '\u03BB'}>`
+//     else
+//       return `<function ${(value as unknown as UnknownRecord).n || '\u03BB'}>`
+//   }
+//   if (value === null)
+//     return 'null'
 
-  if (typeof value === 'object' && value instanceof RegExp)
-    return `${value}`
+//   if (typeof value === 'object' && value instanceof RegExp)
+//     return `${value}`
 
-  if (typeof value === 'object' && value instanceof Error)
-    return value.toString()
+//   if (typeof value === 'object' && value instanceof Error)
+//     return value.toString()
 
-  if (value === Number.POSITIVE_INFINITY)
-    return Number.POSITIVE_INFINITY
+//   if (value === Number.POSITIVE_INFINITY)
+//     return Number.POSITIVE_INFINITY
 
-  if (value === Number.NEGATIVE_INFINITY)
-    return Number.NEGATIVE_INFINITY
+//   if (value === Number.NEGATIVE_INFINITY)
+//     return Number.NEGATIVE_INFINITY
 
-  if (typeof value === 'number' && Number.isNaN(value))
-    return 'NaN'
+//   if (typeof value === 'number' && Number.isNaN(value))
+//     return 'NaN'
 
-  return JSON.stringify(value, null, 2)
-}
+//   return JSON.stringify(value, null, 2)
+// }
 
 export function addToPlayground(name: string, encodedExample: string) {
   const example = atob(encodedExample)

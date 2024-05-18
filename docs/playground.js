@@ -316,21 +316,6 @@ var Playground = (function (exports) {
         return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
     };
 
-    function throttle(func) {
-        var openForBusiness = true;
-        return function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            if (openForBusiness) {
-                requestAnimationFrame(function () { return openForBusiness = true; });
-                openForBusiness = false;
-                func.apply(this, args);
-            }
-        };
-    }
-
     var AstNodeType;
     (function (AstNodeType) {
         AstNodeType[AstNodeType["Number"] = 201] = "Number";
@@ -612,14 +597,45 @@ var Playground = (function (exports) {
         if (!isLitsFunction(value))
             throw getAssertionError('LitsFunction', value, sourceCodeInfo);
     }
-    function isUserDefinedFunction(value) {
-        return isLitsFunction(value) && value.t === FunctionType.UserDefined;
-    }
-    function isNativeJsFunction(value) {
-        return isLitsFunction(value) && value.t === FunctionType.NativeJsFunction;
-    }
     function isBuiltinFunction(value) {
         return isUnknownRecord(value) && value.t === FunctionType.Builtin;
+    }
+
+    function throttle(func) {
+        var openForBusiness = true;
+        return function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            if (openForBusiness) {
+                requestAnimationFrame(function () { return openForBusiness = true; });
+                openForBusiness = false;
+                func.apply(this, args);
+            }
+        };
+    }
+    function stringifyValue(value) {
+        var _a;
+        if (isLitsFunction(value)) {
+            if (value.t === FunctionType.Builtin)
+                return "&lt;builtin function ".concat(value.n, "&gt;");
+            else
+                return "&lt;function ".concat((_a = value.n) !== null && _a !== void 0 ? _a : '\u03BB', "&gt;");
+        }
+        if (value === null)
+            return 'null';
+        if (typeof value === 'object' && value instanceof Error)
+            return value.toString();
+        if (typeof value === 'object' && value instanceof RegExp)
+            return "".concat(value);
+        if (value === Number.POSITIVE_INFINITY)
+            return "".concat(Number.POSITIVE_INFINITY);
+        if (value === Number.NEGATIVE_INFINITY)
+            return "".concat(Number.NEGATIVE_INFINITY);
+        if (typeof value === 'number' && Number.isNaN(value))
+            return 'NaN';
+        return JSON.stringify(value, null, 2);
     }
 
     function isToken(value, options) {
@@ -7345,7 +7361,6 @@ var Playground = (function (exports) {
             var decodedState = JSON.parse(atob(encodedState));
             Object.entries(decodedState).forEach(function (_a) {
                 var _b = __read(_a, 2), key = _b[0], value = _b[1];
-                console.log("".concat(key, ": ").concat(value));
                 if (keys.includes(key))
                     saveState(key, value);
             });
@@ -7389,7 +7404,7 @@ var Playground = (function (exports) {
     }
     function share() {
         addOutputSeparator();
-        appendOutput("Sharable link:", 'comment');
+        appendOutput('Sharable link:', 'comment');
         var href = "".concat(location.origin).concat(location.pathname, "?state=").concat(encodeState());
         var a = document.createElement('a');
         a.textContent = href;
@@ -7929,31 +7944,31 @@ var Playground = (function (exports) {
         while (els[0])
             els[0].classList.remove('active-sidebar-entry');
     }
-    function stringifyValue(value) {
-        if (isLitsFunction(value)) {
-            if (isBuiltinFunction(value))
-                return "<builtin ".concat(value.n, ">");
-            else if (isNativeJsFunction(value))
-                return '<js \u03BB>';
-            else if (isUserDefinedFunction(value))
-                return "<function ".concat(value.n || '\u03BB', ">");
-            else
-                return "<function ".concat(value.n || '\u03BB', ">");
-        }
-        if (value === null)
-            return 'null';
-        if (typeof value === 'object' && value instanceof RegExp)
-            return "".concat(value);
-        if (typeof value === 'object' && value instanceof Error)
-            return value.toString();
-        if (value === Number.POSITIVE_INFINITY)
-            return Number.POSITIVE_INFINITY;
-        if (value === Number.NEGATIVE_INFINITY)
-            return Number.NEGATIVE_INFINITY;
-        if (typeof value === 'number' && Number.isNaN(value))
-            return 'NaN';
-        return JSON.stringify(value, null, 2);
-    }
+    // function stringifyValue(value: unknown) {
+    //   if (isLitsFunction(value)) {
+    //     if (isBuiltinFunction(value))
+    //       return `<builtin ${value.n}>`
+    //     else if (isNativeJsFunction(value))
+    //       return '<js \u03BB>'
+    //     else if (isUserDefinedFunction(value))
+    //       return `<function ${value.n || '\u03BB'}>`
+    //     else
+    //       return `<function ${(value as unknown as UnknownRecord).n || '\u03BB'}>`
+    //   }
+    //   if (value === null)
+    //     return 'null'
+    //   if (typeof value === 'object' && value instanceof RegExp)
+    //     return `${value}`
+    //   if (typeof value === 'object' && value instanceof Error)
+    //     return value.toString()
+    //   if (value === Number.POSITIVE_INFINITY)
+    //     return Number.POSITIVE_INFINITY
+    //   if (value === Number.NEGATIVE_INFINITY)
+    //     return Number.NEGATIVE_INFINITY
+    //   if (typeof value === 'number' && Number.isNaN(value))
+    //     return 'NaN'
+    //   return JSON.stringify(value, null, 2)
+    // }
     function addToPlayground(name, encodedExample) {
         var example = atob(encodedExample);
         appendLitsCode(";; Example - ".concat(name, " ;;\n\n").concat(example, "\n"));

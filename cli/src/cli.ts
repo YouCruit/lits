@@ -8,8 +8,13 @@ import path from 'node:path'
 import fs from 'node:fs'
 import os from 'node:os'
 import { version } from '../../package.json'
-import type { Context, LitsFunction } from '../../src'
-import { Lits, isBuiltinFunction, isLitsFunction, normalExpressionKeys, reservedNames, specialExpressionKeys } from '../../src'
+import type { Context } from '../../src'
+import {
+  Lits,
+  normalExpressionKeys,
+  reservedNames,
+  specialExpressionKeys,
+} from '../../src'
 import { runTest } from '../../src/testFramework'
 import type { Reference } from '../../reference'
 import { apiReference, isFunctionReference } from '../../reference'
@@ -17,6 +22,7 @@ import { asAny } from '../../src/typeGuards/lits'
 import type { UnknownRecord } from '../../src/interface'
 import { isApiName } from '../../reference/api'
 import { nameCharacters } from '../../src/tokenizer/tokenizers'
+import { stringifyValue } from '../../common/utils'
 import { createTextFormatter } from './textFormatter'
 import { getFunctionSignature } from './functionDocumentation/functionSignature'
 
@@ -106,7 +112,7 @@ function execute(expression: string) {
       historyResults.length = 9
 
     setReplHistoryVariables()
-    console.log(formatValue(result))
+    console.log(stringifyValue(result))
   }
   catch (error) {
     console.log(`${error}`)
@@ -156,28 +162,8 @@ function setReplHistoryVariables() {
 //   }
 // }
 
-function stringifyValue(value: unknown, indent: boolean) {
+function jsonStringify(value: unknown, indent: boolean) {
   return JSON.stringify(value, null, indent ? 2 : undefined)
-}
-
-function formatValue(value: unknown) {
-  if (isLitsFunction(value))
-    return functionToString(value)
-
-  if (typeof value === 'object' && value instanceof Error)
-    return value.toString()
-
-  if (value === null)
-    return 'null'
-
-  if (
-    typeof value === 'string'
-    || Array.isArray(value)
-    || (value !== null && typeof value === 'object' && !(value instanceof RegExp))
-  )
-    return `${stringifyValue(value, false)}`
-
-  return `${value}`
 }
 
 function processArguments(args: string[]): Config {
@@ -423,20 +409,12 @@ function printGlobalContext(stringify: boolean) {
   else {
     keys.sort().forEach((x) => {
       if (stringify)
-        console.log(`${x} = ${stringifyValue(context[x], true)}`)
+        console.log(`${x} = ${jsonStringify(context[x], true)}`)
       else
-        console.log(`${x} = ${formatValue(context[x]!.value)}`)
+        console.log(`${x} = ${stringifyValue(context[x]!.value)}`)
     })
     console.log()
   }
-}
-
-function functionToString(fn: LitsFunction) {
-  if (isBuiltinFunction(fn))
-    return `<BUILTIN FUNCTION ${fn.n}>`
-  else
-    return `<FUNCTION ${/* fn.name || */'\u03BB'}>`
-    // return `<FUNCTION ${fn.name || '\u03BB'}>`
 }
 
 function completer(line: string) {

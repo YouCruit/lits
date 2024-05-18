@@ -32,8 +32,8 @@
   "include": [
     "src/**/*",
     "types/**/*",
-    "cli/**/*"
-, "dist/functionDocumentation"  ],
+    "cli/**/*",
+    "dist/functionDocumentation"],
   "exclude": [
     "**/*.test.ts",
     "__tests__"

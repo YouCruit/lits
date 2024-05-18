@@ -3,6 +3,6 @@
   "include": [
     "playground-www/**/*",
     "reference/**/*",
-    "common/**/*",
+    "common/**/*"
   ]
 }

@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import { stringifyValue } from '../../utils/utils'
 import { Lits } from '../../../../src'
 import { styles } from '../../styles/index'
 import type { Reference } from '../../../../reference'
 import { penIcon } from '../../icons'
 import { formatLitsExpression } from '../../formatter/rules'
+import { stringifyValue } from '../../../../common/utils'
 
 const lits = new Lits({ debug: false })
 

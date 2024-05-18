@@ -57,7 +57,7 @@ export function getTextStyles(css: CssTemplateFunction) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  `,    
+  `,
   } satisfies Partial<Styles>
   return textStyles
 }

@@ -10,7 +10,9 @@
     "playground-www/**/*",
     "reference/**/*",
     "playground-assets/**/*",
-    "vite.config.mts"
+    "vite.config.mts",
+    "./*.js",
+    "./*.json"
   ],
   "exclude": []
 }

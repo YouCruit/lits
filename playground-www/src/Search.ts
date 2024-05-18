@@ -168,7 +168,7 @@ function updateSelection() {
 
       const element = searchResult.children[selectedIndex]!
       element.classList.add('selected')
-      element.scrollIntoView({ block: 'center'})
+      element.scrollIntoView({ block: 'center' })
     }
     else {
       selectedIndex = null

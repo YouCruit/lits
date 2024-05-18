@@ -69,7 +69,6 @@ export function decodeState(encodedState: string) {
   try {
     const decodedState = JSON.parse(atob(encodedState)) as Partial<State>
     Object.entries(decodedState).forEach(([key, value]) => {
-      console.log(`${key}: ${value}`)
       if (keys.includes(key as Key))
         saveState(key as Key, value)
     })

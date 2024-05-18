@@ -20,11 +20,11 @@ import type { Reference } from '../../reference'
 import { apiReference, isFunctionReference } from '../../reference'
 import { asAny } from '../../src/typeGuards/lits'
 import type { UnknownRecord } from '../../src/interface'
-import { isApiName } from '../../reference/api'
 import { nameCharacters } from '../../src/tokenizer/tokenizers'
 import { stringifyValue } from '../../common/utils'
-import { createTextFormatter } from './textFormatter'
+import { createTextFormatter } from '../../common/textFormatter'
 import { getFunctionSignature } from './functionDocumentation/functionSignature'
+import { getDocumentation } from './functionDocumentation'
 
 const fmt = createTextFormatter(true)
 
@@ -56,7 +56,7 @@ console.log(historyFile)
 const config = processArguments(process.argv.slice(2))
 
 if (config.help) {
-  console.log(getFullDocumentation(config.help))
+  console.log(getDocumentation(fmt, config.help))
   process.exit(0)
 }
 
@@ -277,7 +277,7 @@ function processArguments(args: string[]): Config {
 }
 
 function runREPL(rl: ReadLine) {
-  console.log(`Type "\`help" for more ${fmt.bgCyan.red.bright('information')}.`)
+  console.log('Type "`help" for more information.')
   rl.prompt()
 
   rl.on('line', (line) => {
@@ -286,7 +286,7 @@ function runREPL(rl: ReadLine) {
     const helpMatch = helpRegExp.exec(line)
     if (helpMatch) {
       const name = helpMatch[1]!
-      console.log(getFullDocumentation(name))
+      console.log(getDocumentation(fmt, name))
     }
     else if (line.startsWith('`')) {
       switch (line) {
@@ -324,55 +324,20 @@ function runREPL(rl: ReadLine) {
 }
 
 function printBuiltins() {
-  const maxTitleLength = Object
-    .values(apiReference)
-    .reduce((max, reference) => Math.max(max, reference.title.length), 0)
-
   Object
     .values(apiReference)
     .sort((a, b) => a.title.localeCompare(b.title))
     .forEach((reference) => {
       console.log(`
-${fmt.bright.blue.rightPad(maxTitleLength + 2, '*').yellow.underscore.reverse(reference.title)} ${fmt.gray(reference.category)}
-${getDocString(reference)}
-`)
+${fmt.bright.blue(reference.title)} - ${fmt.gray(reference.category)}
+${getDocString(reference)}`)
     })
 }
 
 function getDocString(reference: Reference) {
   if (isFunctionReference(reference))
     return `${getFunctionSignature(fmt, reference)}`
-  return 'TODO'
-}
-
-function getFullDocumentation(name: string) {
-  console.log(name, '   xxx')
-  if (!isApiName(name))
-    return `No documentation available for ${name}`
-
-  const doc = apiReference[name]
-
-  const header = `${fmt.bright.blue(name)} - ${doc.category}`
-
-  return header
-
-  //   return `${header}
-
-  // ${doc.description}
-
-  // Syntax
-  //   ${getSyntax(doc)}
-
-  // ${'Arguments'}
-  // ${doc.arguments.length === 0 ? '  None' : doc.arguments.map(arg => `  ${arg.name}: ${arg.type}`).join('\n')}
-
-// ${'Examples'}
-// ${
-//   doc.examples.length === 0
-//     ? '[no examples]'
-//     : doc.examples.map(example => `  ${example} => ${executeExample(example)}`).join('\n')
-// }
-// `
+  return ''
 }
 
 function printHelp() {

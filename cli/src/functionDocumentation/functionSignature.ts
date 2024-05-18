@@ -1,7 +1,8 @@
 import type { FunctionReference } from '../../../reference'
-import type { TextFormatter } from '../textFormatter'
+import type { TextFormatter } from '../../../common/textFormatter'
+import { getType } from './getType'
 
-export function getFunctionSignature(fmt: TextFormatter, { title: name, variants, args }: FunctionReference) {
+export function getFunctionSignature(fmt: TextFormatter, { title: name, variants, args, returns }: FunctionReference) {
   return variants.map((variant) => {
     const form = (variant.argumentNames.length === 0)
       ? `${fmt.white('(')}${fmt.blue(name)}${fmt.white(')')}`
@@ -22,9 +23,6 @@ export function getFunctionSignature(fmt: TextFormatter, { title: name, variants
             return result
           }).join(' ')}${fmt.white(')')}`
 
-    return `${form}  ${fmt.gray('=>')}`
-    // ${getType(returns)}`
-    //   <td><span>${getType(returns)}</span></td>
-    // </tr>`
+    return `${form} ${fmt.gray('=>')} ${getType(fmt, returns)}`
   }).join('\n')
 }

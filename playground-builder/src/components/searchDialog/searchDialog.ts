@@ -29,7 +29,7 @@ const styles = createStyles({
     @apply border-gray-600;
     @apply border-solid;
     border-radius: 4px;
-    width: 600px;
+    width: 800px;
   `,
   SearchIntro: css`
     flex: 0;

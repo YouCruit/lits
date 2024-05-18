@@ -3,7 +3,7 @@ export interface Example {
   name: string
   description: string
   code: string
-  params?: {
+  context?: {
     values?: Record<string, unknown>
     lazyValues?: Record<string, { read: string }>
     jsFunctions?: Record<string, { fn: string }>
@@ -42,7 +42,7 @@ export const examples: Example[] = [
     id: 'simple-params-example',
     name: 'Params in use',
     description: 'Simple example using params.',
-    params: {
+    context: {
       values: { x: 15 },
       lazyValues: { y: { read: 'EVAL:() => 42' } },
       jsFunctions: { plus: { fn: 'EVAL:(a, b) => a + b' } },
@@ -148,7 +148,7 @@ export const examples: Example[] = [
     id: 'translations-lib',
     name: 'Translations lib',
     description: 'A Lits take on i18n.',
-    params: {
+    context: {
       values: {
         TRANSLATIONS: {
           'welcome-message': 'Welcome, $1',

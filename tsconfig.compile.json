@@ -5,6 +5,7 @@
     "types/**/*",
     "__tests__/**/*.test.ts",
     "cli/**/*",
+    "common/**/*",
     "playground-builder/**/*",
     "playground-www/**/*",
     "reference/**/*",

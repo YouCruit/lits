@@ -6,6 +6,7 @@ export enum Color {
   Rose = '#d16969',
   Blue = '#569cd6',
   Beige = '#dcdcaa',
+  SkyLavender = '#c5cbe3',
   Pink = '#cc8f77',
   White = '#ffffff',
   Gray_50 = 'rgb(250 250 250)',
@@ -46,6 +47,9 @@ export function getColorStyles(css: CssTemplateFunction) {
     `,
     'text-color-Beige': css`
       color: ${Color.Beige};
+    `,
+    'text-color-SkyLavender': css`
+      color: ${Color.SkyLavender};
     `,
     'text-color-Pink': css`
       color: ${Color.Pink};

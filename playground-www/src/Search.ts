@@ -31,27 +31,36 @@ function handleKeyDown(event: KeyboardEvent): 'stop' | void {
   if (isOpen()) {
     switch (event.key) {
       case 'Escape':
-        if ((event.target as HTMLElement)?.closest('#search-input') && searchInput.value)
+        event.preventDefault()
+        if (selectedIndex !== null && selectedIndex > 0)
+          resetSelection()
+        else if ((event.target as HTMLElement)?.closest('#search-input') && searchInput.value)
           clearSearch()
         else
           closeSearch()
         break
       case 'ArrowDown':
+        event.preventDefault()
         selectNext()
         break
       case 'ArrowUp':
+        event.preventDefault()
         selectPrevious()
         break
       case 'PageDown':
+        event.preventDefault()
         selectPageDown()
         break
       case 'PageUp':
+        event.preventDefault()
         selectPageUp()
         break
       case 'Home':
+        event.preventDefault()
         selectFirst()
         break
       case 'End':
+        event.preventDefault()
         selectLast()
         break
       case 'Enter':
@@ -117,9 +126,9 @@ function resetCtrlKey() {
 }
 
 function openSearch() {
-  resetSelection()
   searchOverlay.style.display = 'block'
-  updateSearchResult(searchInput.value)
+  if (searchResult.children.length === 0)
+    updateSearchResult(searchInput.value)
   searchInput.focus()
 }
 
@@ -159,7 +168,7 @@ function updateSelection() {
 
       const element = searchResult.children[selectedIndex]!
       element.classList.add('selected')
-      element.scrollIntoView({ block: 'nearest' })
+      element.scrollIntoView({ block: 'center'})
     }
     else {
       selectedIndex = null

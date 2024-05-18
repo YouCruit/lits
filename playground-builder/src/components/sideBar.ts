@@ -1,7 +1,7 @@
 import type { Reference } from '../../../reference'
 import { apiReference } from '../../../reference'
 import { categories } from '../../../reference/api'
-import { searchIcon } from '../icons'
+import { homeIcon, lampIcon, searchIcon } from '../icons'
 import { styles } from '../styles'
 
 export function getSideBar() {
@@ -20,30 +20,44 @@ export function getSideBar() {
       </span>
       <span ${styles('text-sm')}>F3</span>
     </div>
-    <label class="link" onclick="Playground.showPage('index')">Home</label>
-    <br />
-    <label class="link" onclick="Playground.showPage('example-page')">Examples</label>
-    <br />
+    <div ${styles('flex', 'mb-2', 'text-color-gray-400', 'text-base')}>
+      <a ${styles('flex', 'items-center', 'gap-1')} class="link" onclick="Playground.showPage('index', 'smooth')">
+        ${homeIcon}
+        <span>Home</span>
+      </a>
+    </div>
+    <div ${styles('flex', 'mb-2', 'text-color-gray-400', 'text-base')}>
+      <a ${styles('flex', 'items-center', 'gap-1')} class="link" onclick="Playground.showPage('example-page', 'smooth')">
+        ${lampIcon}
+        <span>Examples</span>
+    </a>
+    </div>
+    <div ${styles('flex', 'flex-col', 'gap-4', 'mt-4')}>
     ${categories
       .map((categoryKey) => {
         return `
-          <label>${categoryKey}</label>
-          <ul>
-            ${
-              categoryCollections[categoryKey]
-                ? categoryCollections[categoryKey]!
-                    .sort((a, b) => (a.title < b.title ? -1 : a.title > b.title ? 1 : 0))
-                    .map((obj) => {
-                      const linkName = obj.linkName
-                      const name = escape(obj.title)
-                      return `<li id="${linkName}_link" ${styles('scroll-my-2')}onclick="Playground.showPage('${linkName}')">${name}</li>`
-                    })
-                    .join('\n')
-                : ''
-            }
-          </ul>`
+          <div ${styles('flex', 'flex-col', 'gap-1')}>
+            <div ${styles('text-color-gray-200')}>
+              ${categoryKey}
+            </div>
+            <div ${styles('flex', 'flex-col', 'ml-2', 'text-color-gray-400', 'text-base')}>
+              ${
+                categoryCollections[categoryKey]
+                  ? categoryCollections[categoryKey]!
+                      .sort((a, b) => (a.title < b.title ? -1 : a.title > b.title ? 1 : 0))
+                      .map((obj) => {
+                        const linkName = obj.linkName
+                        const name = escape(obj.title)
+                        return `<a id="${linkName}_link" ${styles('scroll-my-2', 'pl-2')} onclick="Playground.showPage('${linkName}', 'smooth')">${name}</a>`
+                      })
+                      .join('\n')
+                  : ''
+              }
+            </div>
+          </div>`
       })
       .join('\n')}
+      </div>
   </nav>
   `
 }

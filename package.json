@@ -35,10 +35,11 @@
     "build": "rm -rf dist build && rollup -c && npm run build-playground",
     "build-playground": "npm run build-playground-builder && rm -rf playground-www/build && rollup -c rollup.config.playground-www.js && node ./playground-builder/build/buildPlaygroundSite.js",
     "build-playground-builder": "rm -rf playground-builder/build && rollup -c rollup.config.playground-builder.js",
+    "build-cli": "rollup -c rollup.config.cli.js",
     "vitest": "vitest",
     "test": "vitest run --coverage",
     "compile": "tsc -p ./tsconfig.compile.json --noEmit",
-    "lits": "node ./cli/index.cjs",
+    "lits": "node ./dist/cli/cli.js",
     "playground": "open-cli ./docs/index.html",
     "open-lcov": "open-cli ./coverage/index.html"
   },

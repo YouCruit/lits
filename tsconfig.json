@@ -33,7 +33,7 @@
     "src/**/*",
     "types/**/*",
     "cli/**/*"
-  ],
+, "dist/functionDocumentation"  ],
   "exclude": [
     "**/*.test.ts",
     "__tests__"

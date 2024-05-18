@@ -38,27 +38,36 @@ var Playground = (function (exports) {
         if (isOpen()) {
             switch (event.key) {
                 case 'Escape':
-                    if (((_a = event.target) === null || _a === void 0 ? void 0 : _a.closest('#search-input')) && searchInput.value)
+                    event.preventDefault();
+                    if (selectedIndex !== null && selectedIndex > 0)
+                        resetSelection();
+                    else if (((_a = event.target) === null || _a === void 0 ? void 0 : _a.closest('#search-input')) && searchInput.value)
                         clearSearch();
                     else
                         closeSearch();
                     break;
                 case 'ArrowDown':
+                    event.preventDefault();
                     selectNext();
                     break;
                 case 'ArrowUp':
+                    event.preventDefault();
                     selectPrevious();
                     break;
                 case 'PageDown':
+                    event.preventDefault();
                     selectPageDown();
                     break;
                 case 'PageUp':
+                    event.preventDefault();
                     selectPageUp();
                     break;
                 case 'Home':
+                    event.preventDefault();
                     selectFirst();
                     break;
                 case 'End':
+                    event.preventDefault();
                     selectLast();
                     break;
                 case 'Enter':
@@ -117,9 +126,9 @@ var Playground = (function (exports) {
         ctrlKeyTimer = 0;
     }
     function openSearch() {
-        resetSelection();
         searchOverlay.style.display = 'block';
-        updateSearchResult(searchInput.value);
+        if (searchResult.children.length === 0)
+            updateSearchResult(searchInput.value);
         searchInput.focus();
     }
     function closeSearch() {
@@ -153,7 +162,7 @@ var Playground = (function (exports) {
                     selectedIndex = 0;
                 var element = searchResult.children[selectedIndex];
                 element.classList.add('selected');
-                element.scrollIntoView({ block: 'nearest' });
+                element.scrollIntoView({ block: 'center' });
             }
             else {
                 selectedIndex = null;
@@ -306,6 +315,21 @@ var Playground = (function (exports) {
         var e = new Error(message);
         return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
     };
+
+    function throttle(func) {
+        var openForBusiness = true;
+        return function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            if (openForBusiness) {
+                requestAnimationFrame(function () { return openForBusiness = true; });
+                openForBusiness = false;
+                func.apply(this, args);
+            }
+        };
+    }
 
     var AstNodeType;
     (function (AstNodeType) {
@@ -547,6 +571,15 @@ var Playground = (function (exports) {
     }
     function isUnknownRecord(value) {
         return value !== null && typeof value === 'object' && !Array.isArray(value);
+    }
+    function assertUnknownRecord(value, sourceCodeInfo) {
+        if (!isUnknownRecord(value)) {
+            throw new LitsError("Expected ".concat('UnknownRecord', ", got ").concat(valueToString(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
+        }
+    }
+    function asUnknownRecord(value, sourceCodeInfo) {
+        assertUnknownRecord(value, sourceCodeInfo);
+        return value;
     }
     function assertNumberOfParams(count, node) {
         var _a, _b;
@@ -7262,15 +7295,86 @@ var Playground = (function (exports) {
         return contextStack;
     }
 
+    var defaultState = {
+        'playground-height': 350,
+        'resize-divider-1-percent': 20,
+        'resize-divider-2-percent': 60,
+        'context-trash-bin': '',
+        'context': '',
+        'context-scroll-top': 0,
+        'lits-code-trash-bin': '',
+        'lits-code': '',
+        'lits-code-scroll-top': 0,
+        'output-trash-bin': '',
+        'output': '',
+        'output-scroll-top': 0,
+    };
+    var keys = Object.keys(defaultState);
+    var state = __assign({}, defaultState);
+    function getStorageKey(key) {
+        return "playground-".concat(key);
+    }
+    keys.forEach(function (key) {
+        var value = localStorage.getItem(getStorageKey(key));
+        state[key] = typeof value === 'string' ? JSON.parse(value) : defaultState[key];
+    });
+    function saveState(key, value) {
+        state[key] = value;
+        localStorage.setItem(getStorageKey(key), JSON.stringify(value));
+    }
+    function clearAllStates() {
+        localStorage.clear();
+        Object.assign(state, defaultState);
+    }
+    function clearState(key) {
+        localStorage.removeItem(getStorageKey(key));
+        state[key] = defaultState[key];
+    }
+    function getState(key) {
+        return state[key];
+    }
+    function encodeState() {
+        var sharedState = {
+            'lits-code': state['lits-code'],
+            'context': state.context,
+        };
+        return btoa(JSON.stringify(sharedState));
+    }
+    function decodeState(encodedState) {
+        try {
+            var decodedState = JSON.parse(atob(encodedState));
+            Object.entries(decodedState).forEach(function (_a) {
+                var _b = __read(_a, 2), key = _b[0], value = _b[1];
+                console.log("".concat(key, ": ").concat(value));
+                if (keys.includes(key))
+                    saveState(key, value);
+            });
+        }
+        catch (error) {
+            console.error('Invalid state', encodedState);
+            throw error;
+        }
+    }
+
     var lits = new Lits({ debug: true });
     var litsNoDebug = new Lits({ debug: false });
-    var DEFAULT_PLAYGROUND_HEIGHT = 350;
-    var DEFAULT_RESIZE_DIVIDER1_X_PERCENT = 15;
-    var DEFAULT_RESIZE_DIVIDER2_X_PERCENT = 70;
+    var elements = {
+        wrapper: document.getElementById('wrapper'),
+        playground: document.getElementById('playground'),
+        sidebar: document.getElementById('sidebar'),
+        mainPanel: document.getElementById('main-panel'),
+        contextPanel: document.getElementById('context-panel'),
+        litsPanel: document.getElementById('lits-panel'),
+        outputPanel: document.getElementById('output-panel'),
+        moreMenu: document.getElementById('more-menu'),
+        contextTextArea: document.getElementById('context-textarea'),
+        outputResult: document.getElementById('output-result'),
+        litsTextArea: document.getElementById('lits-textarea'),
+        resizePlayground: document.getElementById('resize-playground'),
+        resizeDevider1: document.getElementById('resize-divider-1'),
+        resizeDevider2: document.getElementById('resize-divider-2'),
+    };
     var moveParams = null;
-    var playgroundHeight = 0;
-    var resizeDivider1XPercent = DEFAULT_RESIZE_DIVIDER1_X_PERCENT;
-    var resizeDivider2XPercent = DEFAULT_RESIZE_DIVIDER2_X_PERCENT;
     function calculateDimensions() {
         return {
             windowHeight: window.innerHeight,
@@ -7278,83 +7382,79 @@ var Playground = (function (exports) {
         };
     }
     function toggleMoreMenu() {
-        var moreMenu = document.getElementById('more-menu');
-        moreMenu.style.display = moreMenu.style.display === 'block' ? 'none' : 'block';
+        elements.moreMenu.style.display = elements.moreMenu.style.display === 'block' ? 'none' : 'block';
     }
     function closeMoreMenu() {
-        var moreMenu = document.getElementById('more-menu');
-        moreMenu.style.display = 'none';
+        elements.moreMenu.style.display = 'none';
+    }
+    function share() {
+        addOutputSeparator();
+        appendOutput("Sharable link:", 'comment');
+        var href = "".concat(location.origin).concat(location.pathname, "?state=").concat(encodeState());
+        var a = document.createElement('a');
+        a.textContent = href;
+        a.className = 'share-link';
+        a.href = href;
+        addOutputElement(a);
     }
     function onDocumentClick(event) {
         var target = event.target;
         if (target === null || target === void 0 ? void 0 : target.closest('#more-menu'))
             return;
-        var moreMenu = document.getElementById('more-menu');
-        if (moreMenu.style.display === 'block') {
+        if (elements.moreMenu.style.display === 'block') {
             event.stopPropagation();
             closeMoreMenu();
         }
     }
     function layout() {
         var windowWidth = calculateDimensions().windowWidth;
-        var wrapper = document.getElementById('wrapper');
-        var playground = document.getElementById('playground');
-        var sidebar = document.getElementById('sidebar');
-        var mainPanel = document.getElementById('main-panel');
-        var paramsPanel = document.getElementById('params-panel');
-        var litsPanel = document.getElementById('lits-panel');
-        var outputPanel = document.getElementById('output-panel');
-        var topPanelsBottom = playgroundHeight;
-        var paramsPanelWidth = (windowWidth * resizeDivider1XPercent) / 100;
-        var outputPanelWidth = (windowWidth * (100 - resizeDivider2XPercent)) / 100;
-        var litsPanelWidth = windowWidth - paramsPanelWidth - outputPanelWidth;
-        playground.style.height = "".concat(playgroundHeight, "px");
-        paramsPanel.style.width = "".concat(paramsPanelWidth, "px");
-        litsPanel.style.width = "".concat(litsPanelWidth, "px");
-        outputPanel.style.width = "".concat(outputPanelWidth, "px");
-        sidebar.style.bottom = "".concat(topPanelsBottom, "px");
-        mainPanel.style.bottom = "".concat(topPanelsBottom, "px");
-        wrapper.style.display = 'block';
+        var playgroundHeight = getState('playground-height');
+        var contextPanelWidth = (windowWidth * getState('resize-divider-1-percent')) / 100;
+        var outputPanelWidth = (windowWidth * (100 - getState('resize-divider-2-percent'))) / 100;
+        var litsPanelWidth = windowWidth - contextPanelWidth - outputPanelWidth;
+        elements.playground.style.height = "".concat(playgroundHeight, "px");
+        elements.contextPanel.style.width = "".concat(contextPanelWidth, "px");
+        elements.litsPanel.style.width = "".concat(litsPanelWidth, "px");
+        elements.outputPanel.style.width = "".concat(outputPanelWidth, "px");
+        elements.sidebar.style.bottom = "".concat(playgroundHeight, "px");
+        elements.mainPanel.style.bottom = "".concat(playgroundHeight, "px");
+        elements.wrapper.style.display = 'block';
     }
     function resetPlayground() {
-        resetParams();
+        clearAllStates();
+        resetContext();
         resetLitsCode();
         resetOutput();
         Search.closeSearch();
         Search.clearSearch();
-        localStorage.removeItem('playground-height');
-        localStorage.removeItem('resize-divider-1-percent');
-        localStorage.removeItem('resize-divider-2-percent');
-        playgroundHeight = DEFAULT_PLAYGROUND_HEIGHT;
-        resizeDivider1XPercent = DEFAULT_RESIZE_DIVIDER1_X_PERCENT;
-        resizeDivider2XPercent = DEFAULT_RESIZE_DIVIDER2_X_PERCENT;
         layout();
     }
-    function resetParams() {
-        var paramsTextArea = document.getElementById('params-textarea');
-        paramsTextArea.value = '';
-        localStorage.removeItem('params-textarea');
+    function resetContext() {
+        var context = getState('context');
+        if (context === '') {
+            setContext(getState('context-trash-bin'));
+        }
+        else {
+            saveState('context-trash-bin', context);
+            elements.contextTextArea.value = '';
+            clearState('context');
+        }
     }
-    function setParams(value) {
-        var paramsTextArea = document.getElementById('params-textarea');
-        paramsTextArea.value = value;
-        localStorage.setItem('params-textarea', value);
+    function setContext(value) {
+        elements.contextTextArea.value = value;
+        elements.contextTextArea.scrollTop = 0;
+        saveState('context', value);
     }
-    function getParams() {
-        var paramsTextArea = document.getElementById('params-textarea');
-        return paramsTextArea.value;
-    }
-    function getParsedParams() {
+    function getParsedContext() {
         try {
-            // eslint-disable-next-line ts/no-unsafe-return
-            return JSON.parse(getParams());
+            return asUnknownRecord(JSON.parse(getState('context')));
         }
         catch (e) {
             return {};
         }
     }
     function addParam() {
-        var params = getParsedParams();
+        var context = getParsedContext();
         var values = {
             n: 42,
             s: 'foo bar',
@@ -7372,40 +7472,61 @@ var Playground = (function (exports) {
                 },
             },
         };
-        params.values = Object.assign(values, params.values);
-        setParams(JSON.stringify(params, null, 2));
+        context.values = Object.assign(values, context.values);
+        setContext(JSON.stringify(context, null, 2));
     }
-    function resetLitsCode() {
-        var litsTextArea = document.getElementById('lits-textarea');
-        litsTextArea.value = '';
-        localStorage.removeItem('lits-textarea');
-        litsTextArea.focus();
+    function resetLitsCode(force) {
+        if (force === void 0) { force = false; }
+        var litsCode = getState('lits-code');
+        if (litsCode === '' && !force) {
+            setLitsCode(getState('lits-code-trash-bin'), 'top');
+        }
+        else {
+            if (force)
+                saveState('lits-code-trash-bin', '');
+            else
+                saveState('lits-code-trash-bin', litsCode);
+            elements.litsTextArea.value = '';
+            clearState('lits-code');
+        }
     }
-    function setLitsCode(value) {
-        var litsTextArea = document.getElementById('lits-textarea');
-        litsTextArea.value = value;
-        localStorage.setItem('lits-textarea', value);
-        litsTextArea.scrollTop = litsTextArea.scrollHeight;
-        litsTextArea.focus();
+    function setLitsCode(value, scroll) {
+        elements.litsTextArea.value = value;
+        saveState('lits-code', value);
+        if (scroll === 'top')
+            elements.litsTextArea.scrollTo(0, 0);
+        else if (scroll === 'bottom')
+            elements.litsTextArea.scrollTo({ top: elements.litsTextArea.scrollHeight, behavior: 'smooth' });
     }
     function appendLitsCode(value) {
-        var litsTextArea = document.getElementById('lits-textarea');
-        var oldContent = litsTextArea.value.trimEnd();
+        var oldContent = getState('lits-code').trimEnd();
         var newContent = oldContent ? "".concat(oldContent, "\n\n").concat(value) : value.trim();
-        setLitsCode(newContent);
+        setLitsCode(newContent, 'bottom');
     }
-    function getLitsCode() {
-        var litsTextArea = document.getElementById('lits-textarea');
-        return litsTextArea.value;
-    }
-    function resetOutput() {
-        var outputResult = document.getElementById('output-result');
-        outputResult.innerHTML = '';
-        localStorage.removeItem('output');
+    function resetOutput(force) {
+        if (force === void 0) { force = false; }
+        var output = getState('output');
+        if (output === '' && !force) {
+            var trash = getState('output-trash-bin');
+            elements.outputResult.innerHTML = trash;
+            saveState('output', trash);
+            elements.outputResult.scrollTop = elements.outputResult.scrollHeight;
+        }
+        else {
+            if (force)
+                saveState('output-trash-bin', '');
+            else
+                saveState('output-trash-bin', output);
+            elements.outputResult.innerHTML = '';
+            clearState('output');
+        }
     }
     function hasOutput() {
-        var outputResult = document.getElementById('output-result');
-        return outputResult.children.length > 0;
+        return getState('output').trim() !== '';
+    }
+    function setOutput(value) {
+        elements.outputResult.innerHTML = value;
+        saveState('output', value);
     }
     function appendOutput(output, className) {
         var outputElement = document.createElement('span');
@@ -7421,87 +7542,70 @@ var Playground = (function (exports) {
         }
     }
     function addOutputElement(element) {
-        var outputResult = document.getElementById('output-result');
-        outputResult.appendChild(element);
-        outputResult.scrollTop = outputResult.scrollHeight;
-        localStorage.setItem('output', outputResult.innerHTML);
+        elements.outputResult.appendChild(element);
+        elements.outputResult.scrollTop = elements.outputResult.scrollHeight;
+        saveState('output', elements.outputResult.innerHTML);
     }
     window.onload = function () {
         document.addEventListener('click', onDocumentClick, true);
-        var storedPlaygroundHeight = localStorage.getItem('playground-height');
-        var storedResizeDivider1XPercent = localStorage.getItem('resize-divider-1-percent');
-        var storedResizeDivider2XPercent = localStorage.getItem('resize-divider-2-percent');
-        playgroundHeight = storedPlaygroundHeight ? Number(storedPlaygroundHeight) : DEFAULT_PLAYGROUND_HEIGHT;
-        resizeDivider1XPercent = storedResizeDivider1XPercent
-            ? Number(storedResizeDivider1XPercent)
-            : DEFAULT_RESIZE_DIVIDER1_X_PERCENT;
-        resizeDivider2XPercent = storedResizeDivider2XPercent
-            ? Number(storedResizeDivider2XPercent)
-            : DEFAULT_RESIZE_DIVIDER2_X_PERCENT;
-        var resizePlayground = document.getElementById('resize-playground');
-        resizePlayground.onmousedown = function (event) {
+        elements.resizePlayground.onmousedown = function (event) {
             moveParams = {
                 id: 'playground',
                 startMoveY: event.clientY,
-                heightBeforeMove: playgroundHeight,
+                heightBeforeMove: getState('playground-height'),
             };
         };
-        var resizeDevider1 = document.getElementById('resize-divider-1');
-        resizeDevider1.onmousedown = function (event) {
+        elements.resizeDevider1.onmousedown = function (event) {
             moveParams = {
                 id: 'resize-divider-1',
                 startMoveX: event.clientX,
-                percentBeforeMove: resizeDivider1XPercent,
+                percentBeforeMove: getState('resize-divider-1-percent'),
             };
         };
-        var resizeDevider2 = document.getElementById('resize-divider-2');
-        resizeDevider2.onmousedown = function (event) {
+        elements.resizeDevider2.onmousedown = function (event) {
             moveParams = {
                 id: 'resize-divider-2',
                 startMoveX: event.clientX,
-                percentBeforeMove: resizeDivider2XPercent,
+                percentBeforeMove: getState('resize-divider-2-percent'),
             };
         };
-        window.onresize = layout;
+        window.onresize = throttle(layout);
         window.onmouseup = function () {
             document.body.classList.remove('no-select');
             moveParams = null;
         };
-        window.onmousemove = function (event) {
+        window.onmousemove = throttle(function (event) {
             var _a = calculateDimensions(), windowHeight = _a.windowHeight, windowWidth = _a.windowWidth;
             if (moveParams === null)
                 return;
             document.body.classList.add('no-select');
             if (moveParams.id === 'playground') {
-                playgroundHeight = moveParams.heightBeforeMove + moveParams.startMoveY - event.clientY;
+                var playgroundHeight = moveParams.heightBeforeMove + moveParams.startMoveY - event.clientY;
                 if (playgroundHeight < 30)
                     playgroundHeight = 30;
                 if (playgroundHeight > windowHeight)
                     playgroundHeight = windowHeight;
-                localStorage.setItem('playground-height', "".concat(playgroundHeight));
+                saveState('playground-height', playgroundHeight);
             }
             else if (moveParams.id === 'resize-divider-1') {
-                resizeDivider1XPercent
-                    = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / windowWidth) * 100;
+                var resizeDivider1XPercent = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / windowWidth) * 100;
                 if (resizeDivider1XPercent < 10)
                     resizeDivider1XPercent = 10;
-                if (resizeDivider1XPercent > resizeDivider2XPercent - 10)
-                    resizeDivider1XPercent = resizeDivider2XPercent - 10;
-                localStorage.setItem('resize-divider-1-percent', "".concat(resizeDivider1XPercent));
+                if (resizeDivider1XPercent > getState('resize-divider-2-percent') - 10)
+                    resizeDivider1XPercent = getState('resize-divider-2-percent') - 10;
+                saveState('resize-divider-1-percent', resizeDivider1XPercent);
             }
             else if (moveParams.id === 'resize-divider-2') {
-                resizeDivider2XPercent
-                    = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / windowWidth) * 100;
-                if (resizeDivider2XPercent < resizeDivider1XPercent + 10)
-                    resizeDivider2XPercent = resizeDivider1XPercent + 10;
+                var resizeDivider2XPercent = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / windowWidth) * 100;
+                if (resizeDivider2XPercent < getState('resize-divider-1-percent') + 10)
+                    resizeDivider2XPercent = getState('resize-divider-1-percent') + 10;
                 if (resizeDivider2XPercent > 90)
                     resizeDivider2XPercent = 90;
-                localStorage.setItem('resize-divider-2-percent', "".concat(resizeDivider2XPercent));
+                saveState('resize-divider-2-percent', resizeDivider2XPercent);
             }
             layout();
-        };
+        });
         window.addEventListener('keydown', function (evt) {
-            console.log('keydown', evt.key);
             if (Search.handleKeyDown(evt))
                 return;
             if (evt.key === 'F5') {
@@ -7513,39 +7617,45 @@ var Playground = (function (exports) {
                 evt.preventDefault();
             }
         });
-        var litsTextarea = document.getElementById('lits-textarea');
-        litsTextarea.addEventListener('keydown', keydownHandler);
-        litsTextarea.addEventListener('input', function (event) {
+        elements.contextTextArea.addEventListener('keydown', keydownHandler);
+        elements.contextTextArea.addEventListener('input', function (event) {
+            var target = event.target;
+            if (target)
+                setContext(target.value);
+        });
+        elements.contextTextArea.addEventListener('scroll', function () {
+            saveState('context-scroll-top', elements.contextTextArea.scrollTop);
+        });
+        elements.litsTextArea.addEventListener('keydown', keydownHandler);
+        elements.litsTextArea.addEventListener('input', function (event) {
             var target = event.target;
             if (target)
                 setLitsCode(target.value);
         });
-        var paramsTextarea = document.getElementById('params-textarea');
-        paramsTextarea.addEventListener('keydown', keydownHandler);
-        paramsTextarea.addEventListener('input', function (event) {
-            var target = event.target;
-            if (target)
-                setParams(target.value);
+        elements.litsTextArea.addEventListener('scroll', function () {
+            saveState('lits-code-scroll-top', elements.litsTextArea.scrollTop);
         });
-        var id = location.hash.substring(1) || 'index';
-        showPage(id, 'replace');
+        elements.outputResult.addEventListener('scroll', function () {
+            saveState('output-scroll-top', elements.outputResult.scrollTop);
+        });
         var urlParams = new URLSearchParams(window.location.search);
-        var program = urlParams.get('program');
-        var litsCode = program ? decodeURIComponent(program) : localStorage.getItem('lits-textarea') || '';
-        setLitsCode(litsCode);
-        setParams((!program && localStorage.getItem('params-textarea')) || '');
-        var outputResult = document.getElementById('output-result');
-        outputResult.innerHTML = !program ? localStorage.getItem('output') || '' : '';
+        var urlState = urlParams.get('state');
+        if (urlState) {
+            decodeState(urlState);
+            urlParams.delete('state');
+            history.replaceState(null, '', "".concat(location.pathname).concat(urlParams.toString() ? '?' : '').concat(urlParams.toString()));
+        }
+        setContext(getState('context'));
+        setLitsCode(getState('lits-code'), 'top');
+        setOutput(getState('output'));
         setTimeout(function () {
-            outputResult.scrollTop = outputResult.scrollHeight;
+            elements.contextTextArea.scrollTop = getState('context-scroll-top');
+            elements.litsTextArea.scrollTop = getState('lits-code-scroll-top');
+            elements.outputResult.scrollTop = getState('output-scroll-top');
         }, 0);
-        if (program)
-            run();
+        var id = location.hash.substring(1) || 'index';
+        showPage(id, 'instant', 'replace');
         layout();
-        Search.onClose(function () {
-            document.getElementById('lits-textarea').focus();
-        });
-        document.getElementById('lits-textarea').focus();
     };
     function keydownHandler(evt) {
         if (evt.key === 'Enter' && evt.ctrlKey) {
@@ -7599,10 +7709,10 @@ var Playground = (function (exports) {
     }
     window.addEventListener('popstate', function () {
         var id = location.hash.substring(1) || 'index';
-        showPage(id, 'none');
+        showPage(id, 'instant', 'none');
     });
     function truncateCode(text, count) {
-        if (count === void 0) { count = 45; }
+        if (count === void 0) { count = 80; }
         var oneLiner = text
             .split('\n')
             .map(function (line) { return line.trim(); })
@@ -7616,24 +7726,24 @@ var Playground = (function (exports) {
     }
     function run(program) {
         addOutputSeparator();
-        var code = program || getLitsCode();
+        var code = program || getState('lits-code');
         if (program)
             appendOutput("Run selection: ".concat(truncateCode(code)), 'comment');
         else
             appendOutput("Run: ".concat(truncateCode(code)), 'comment');
-        var paramsString = getParams();
-        var params;
+        var contextString = getState('context');
+        var context;
         try {
-            params
-                = paramsString.trim().length > 0
-                    ? JSON.parse(paramsString, function (_, val) {
+            context
+                = contextString.trim().length > 0
+                    ? JSON.parse(contextString, function (_, val) {
                         // eslint-disable-next-line no-eval, ts/no-unsafe-return
                         return typeof val === 'string' && val.startsWith('EVAL:') ? eval(val.substring(5)) : val;
                     })
                     : {};
         }
         catch (_a) {
-            appendOutput("Error: Could not parse params: ".concat(paramsString), 'error');
+            appendOutput("Error: Could not parse context: ".concat(contextString), 'error');
             return;
         }
         var result;
@@ -7656,7 +7766,7 @@ var Playground = (function (exports) {
             appendOutput(args[0], 'output');
         };
         try {
-            result = lits.run(code, params);
+            result = lits.run(code, context);
         }
         catch (error) {
             appendOutput(error, 'error');
@@ -7671,7 +7781,7 @@ var Playground = (function (exports) {
     }
     function analyze() {
         addOutputSeparator();
-        var code = getLitsCode();
+        var code = getState('lits-code');
         appendOutput("Analyze: ".concat(truncateCode(code)), 'comment');
         var result;
         var oldLog = console.log;
@@ -7711,7 +7821,7 @@ var Playground = (function (exports) {
     }
     function parse() {
         addOutputSeparator();
-        var code = getLitsCode();
+        var code = getState('lits-code');
         appendOutput("Parse: ".concat(truncateCode(code)), 'comment');
         var result;
         var oldLog = console.log;
@@ -7749,7 +7859,7 @@ var Playground = (function (exports) {
     }
     function tokenize() {
         addOutputSeparator();
-        var code = getLitsCode();
+        var code = getState('lits-code');
         appendOutput("Tokenize: ".concat(truncateCode(code)), 'comment');
         var result;
         var oldLog = console.log;
@@ -7784,27 +7894,32 @@ var Playground = (function (exports) {
         var content = JSON.stringify(result, null, 2);
         appendOutput(content, 'tokenize');
     }
-    function showPage(id, historyEvent) {
+    function showPage(id, scroll, historyEvent) {
         if (historyEvent === void 0) { historyEvent = 'push'; }
-        inactivateAll();
-        Search.closeSearch();
-        var page = document.getElementById(id);
-        var link = document.getElementById("".concat(id, "_link"));
-        if (page) {
-            page.classList.add('active-content');
-            if (link) {
-                link.classList.add('active-sidebar-entry');
-                link.scrollIntoView({ block: 'nearest' });
+        setTimeout(function () {
+            inactivateAll();
+            Search.closeSearch();
+            var page = document.getElementById(id);
+            var link = document.getElementById("".concat(id, "_link"));
+            if (page) {
+                page.classList.add('active-content');
+                if (link) {
+                    link.classList.add('active-sidebar-entry');
+                    if (scroll !== 'none')
+                        link.scrollIntoView({ block: 'center', behavior: scroll });
+                }
             }
-        }
-        else {
-            showPage('index', 'replace');
-            return;
-        }
-        if (historyEvent === 'replace')
-            history.replaceState(null, '', "#".concat(id));
-        else if (historyEvent !== 'none')
-            history.pushState(null, '', "#".concat(id));
+            else {
+                showPage('index', scroll, 'replace');
+                return;
+            }
+            if (id === 'index')
+                history.replaceState(null, 'Lits', window.location.pathname + window.location.search);
+            else if (historyEvent === 'replace')
+                history.replaceState(null, '', "#".concat(id));
+            else if (historyEvent !== 'none')
+                history.pushState(null, '', "#".concat(id));
+        }, 0);
     }
     function inactivateAll() {
         var els = document.getElementsByClassName('active-content');
@@ -7839,21 +7954,23 @@ var Playground = (function (exports) {
             return 'NaN';
         return JSON.stringify(value, null, 2);
     }
-    function addToPlayground(comment, encodedExample) {
+    function addToPlayground(name, encodedExample) {
         var example = atob(encodedExample);
-        appendLitsCode("".concat(comment, "\n").concat(example));
-        run();
+        appendLitsCode(";; Example - ".concat(name, " ;;\n\n").concat(example, "\n"));
     }
-    function setPlayground(encodedExample) {
+    function setPlayground(name, encodedExample) {
         var example = JSON.parse(atob(encodedExample));
-        var params = example.params
+        var context = example.context
             // eslint-disable-next-line ts/no-unsafe-return
-            ? JSON.stringify(example.params, function (_k, v) { return (v === undefined ? null : v); }, 2)
+            ? JSON.stringify(example.context, function (_k, v) { return (v === undefined ? null : v); }, 2)
             : '';
-        setParams(params);
+        setContext(context);
         var code = example.code ? example.code : '';
-        setLitsCode(code);
-        run();
+        var size = Math.max(name.length + 10, 40);
+        var paddingLeft = Math.floor((size - name.length) / 2);
+        var paddingRight = Math.ceil((size - name.length) / 2);
+        setLitsCode("\n".concat(";;".concat('-'.repeat(size), ";;"), "\n").concat(";;".concat(' '.repeat(paddingLeft)).concat(name).concat(' '.repeat(paddingRight), ";;"), "\n").concat(";;".concat('-'.repeat(size), ";;"), "\n\n").concat(code, "\n").trimStart(), 'top');
+        resetOutput(true);
     }
 
     exports.Search = Search;
@@ -7862,12 +7979,13 @@ var Playground = (function (exports) {
     exports.analyze = analyze;
     exports.closeMoreMenu = closeMoreMenu;
     exports.parse = parse;
+    exports.resetContext = resetContext;
     exports.resetLitsCode = resetLitsCode;
     exports.resetOutput = resetOutput;
-    exports.resetParams = resetParams;
     exports.resetPlayground = resetPlayground;
     exports.run = run;
     exports.setPlayground = setPlayground;
+    exports.share = share;
     exports.showPage = showPage;
     exports.toggleMoreMenu = toggleMoreMenu;
     exports.tokenize = tokenize;

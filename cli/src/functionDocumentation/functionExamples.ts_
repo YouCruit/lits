@@ -1,10 +1,4 @@
 /* eslint-disable no-console */
-import { stringifyValue } from '../../utils/utils'
-import { Lits } from '../../../../src'
-import { styles } from '../../styles/index'
-import type { Reference } from '../../../../reference'
-import { penIcon } from '../../icons'
-import { formatLitsExpression } from '../../formatter/rules'
 
 const lits = new Lits({ debug: false })
 
@@ -29,7 +23,7 @@ export function getFunctionExamples(reference: Reference) {
 
             return `
               <div ${styles('flex', 'gap-3')} >
-              <a onclick="Playground.addToPlayground('${name}', '${encodedUriExample}')"> ${penIcon} </a>
+              <a onclick="Playground.addToPlayground(';; ${name} example', '${encodedUriExample}')"> ${penIcon} </a>
               <div ${styles('text-sm', 'font-mono', 'flex', 'flex-col', 'gap-3')} >
                 <div ${styles('whitespace-pre-wrap')}>${formattedExample}</div>
                 <div ${styles('whitespace-pre-wrap', 'text-color-gray-400')}>${stringifiedResult}</div>

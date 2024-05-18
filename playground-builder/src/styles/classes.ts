@@ -51,6 +51,7 @@ type customColors =
   | '-Mint'
   | '-Beige'
   | '-Pink'
+  | '-SkyLavender'
 
 export type CssClass =
   | 'flex'
@@ -122,6 +123,7 @@ export type CssClass =
   | 'overline'
   | 'line-through'
   | 'no-underline'
+  | 'truncate'
 
   | 'border-solid'
   | 'border-dashed'

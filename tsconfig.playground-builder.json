@@ -2,6 +2,7 @@
   "extends": "./tsconfig.json",
   "include": [
     "playground-builder/**/*",
-    "reference/**/*"
+    "reference/**/*",
+    "common/**/*",
   ]
 }

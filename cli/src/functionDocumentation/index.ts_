@@ -3,8 +3,8 @@ import type { FunctionReference, Reference } from '../../../../reference'
 import { styles } from '../../styles'
 import { externalLinkIcon } from '../../icons'
 import { formatDescription } from './description'
-import { getFunctionExamples } from './functionExamples'
-import { getArgumentInfo } from './argumentInfo'
+import { getFunctionExamples } from './functionExamples.ts_'
+import { getArgumentInfo } from './argumentInfo.ts_'
 import { getSection } from './section'
 import { getFunctionSignature } from './functionSignature'
 import { getClojureDocsLink } from './clojureDocs'
@@ -24,7 +24,7 @@ function getDocumentation(reference: Reference) {
   return `
   <div id="${linkName}" class="content function">
     <div ${styles('flex', 'justify-between', 'text-2xl', 'items-center', 'bg-gray-700', 'p-2', 'px-4')}">
-      <div ${styles('text-color-gray-200', 'font-mono')}><a onclick="Playground.showPage('${reference.linkName}', 'smooth')">${title}</a></div>
+      <div ${styles('text-color-gray-200', 'font-mono')}>${title}</div>
       <div ${styles('text-color-gray-400')}>${category}</div>
     </div>
 
@@ -66,7 +66,7 @@ function getSignature(reference: FunctionReference) {
 function getSeeAlsoLinks(references: Reference[]) {
   return `<div ${styles('flex', 'flex-col')}>
     ${references.map((reference) => {
-      return `<a onclick="Playground.showPage('${reference.linkName}', 'smooth')"><span>${escapeTitle(reference.title)}</span></a>`
+      return `<a onclick="Playground.showPage('${reference.linkName}')"><span>${escapeTitle(reference.title)}</span></a>`
     }).join('')}
   </div>`
 }

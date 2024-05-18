@@ -1,3 +1,5 @@
+import { normalExpressionKeys, specialExpressionKeys } from '../src'
+
 export const api = {
   collection: [
     'count',
@@ -337,7 +339,45 @@ export type ShorthandName = typeof api.shorthand[number]
 
 export type DatatypeName = typeof api.datatype[number]
 
-export type ApiName = FunctionName | ShorthandName
+const functionNames = [
+  ...api.collection,
+  ...api.array,
+  ...api.sequence,
+  ...api.math,
+  ...api.functional,
+  ...api.misc,
+  ...api.object,
+  ...api.predicate,
+  ...api.regularExpression,
+  ...api.specialExpressions,
+  ...api.string,
+  ...api.bitwise,
+  ...api.assert,
+] as const
+
+const apiNames = [
+  ...functionNames,
+  ...api.shorthand,
+  ...api.datatype,
+] as const
+
+const functionNamesFromLitsSrc = [...normalExpressionKeys, ...specialExpressionKeys] as const
+
+for (const functionName of functionNamesFromLitsSrc) {
+  if (!apiNames.includes(functionName as ApiName))
+    throw new Error(`Function name "${functionName}" is not included in the API`)
+}
+
+for (const functionName of functionNames) {
+  if (!functionNamesFromLitsSrc.includes(functionName as FunctionName))
+    throw new Error(`Function name "${functionName}" is not included in the Lits source`)
+}
+
+export type ApiName = typeof apiNames[number]
+
+export function isApiName(arg: string): arg is ApiName {
+  return apiNames.includes(arg as ApiName)
+}
 
 export const categoryRecord = {
   'Special expression': true,

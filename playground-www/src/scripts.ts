@@ -1,15 +1,32 @@
 /* eslint-disable no-console */
+import { throttle } from '../../common/utils'
 import type { Example } from '../../reference/examples'
 import type { LitsParams } from '../../src'
 import { Lits, isBuiltinFunction, isLitsFunction, isNativeJsFunction, isUserDefinedFunction } from '../../src'
 import type { UnknownRecord } from '../../src/interface'
+import { asUnknownRecord } from '../../src/typeGuards'
 import { Search } from './Search'
+import { decodeState as applyEncodedState, clearAllStates, clearState, encodeState, getState, saveState } from './state'
 
 const lits = new Lits({ debug: true })
 const litsNoDebug = new Lits({ debug: false })
-const DEFAULT_PLAYGROUND_HEIGHT = 350
-const DEFAULT_RESIZE_DIVIDER1_X_PERCENT = 15
-const DEFAULT_RESIZE_DIVIDER2_X_PERCENT = 70
+
+const elements = {
+  wrapper: document.getElementById('wrapper') as HTMLElement,
+  playground: document.getElementById('playground') as HTMLElement,
+  sidebar: document.getElementById('sidebar') as HTMLElement,
+  mainPanel: document.getElementById('main-panel') as HTMLElement,
+  contextPanel: document.getElementById('context-panel') as HTMLElement,
+  litsPanel: document.getElementById('lits-panel') as HTMLElement,
+  outputPanel: document.getElementById('output-panel') as HTMLElement,
+  moreMenu: document.getElementById('more-menu') as HTMLElement,
+  contextTextArea: document.getElementById('context-textarea') as HTMLTextAreaElement,
+  outputResult: document.getElementById('output-result') as HTMLElement,
+  litsTextArea: document.getElementById('lits-textarea') as HTMLTextAreaElement,
+  resizePlayground: document.getElementById('resize-playground') as HTMLElement,
+  resizeDevider1: document.getElementById('resize-divider-1') as HTMLElement,
+  resizeDevider2: document.getElementById('resize-divider-2') as HTMLElement,
+}
 
 type MoveParams = {
   id: 'playground'
@@ -24,9 +41,6 @@ type MoveParams = {
 type OutputType = 'error' | 'output' | 'result' | 'analyze' | 'tokenize' | 'parse' | 'comment'
 
 let moveParams: MoveParams | null = null
-let playgroundHeight = 0
-let resizeDivider1XPercent = DEFAULT_RESIZE_DIVIDER1_X_PERCENT
-let resizeDivider2XPercent = DEFAULT_RESIZE_DIVIDER2_X_PERCENT
 
 function calculateDimensions() {
   return {
@@ -36,13 +50,22 @@ function calculateDimensions() {
 }
 
 export function toggleMoreMenu() {
-  const moreMenu = document.getElementById('more-menu') as HTMLElement
-  moreMenu.style.display = moreMenu.style.display === 'block' ? 'none' : 'block'
+  elements.moreMenu.style.display = elements.moreMenu.style.display === 'block' ? 'none' : 'block'
 }
 
 export function closeMoreMenu() {
-  const moreMenu = document.getElementById('more-menu') as HTMLElement
-  moreMenu.style.display = 'none'
+  elements.moreMenu.style.display = 'none'
+}
+
+export function share() {
+  addOutputSeparator()
+  appendOutput(`Sharable link:`, 'comment')
+  const href = `${location.origin}${location.pathname}?state=${encodeState()}`
+  const a = document.createElement('a')
+  a.textContent = href
+  a.className = 'share-link'
+  a.href = href
+  addOutputElement(a)
 }
 
 function onDocumentClick(event: Event) {
@@ -50,8 +73,7 @@ function onDocumentClick(event: Event) {
   if (target?.closest('#more-menu'))
     return
 
-  const moreMenu = document.getElementById('more-menu') as HTMLElement
-  if (moreMenu.style.display === 'block') {
+  if (elements.moreMenu.style.display === 'block') {
     event.stopPropagation()
     closeMoreMenu()
   }
@@ -60,69 +82,54 @@ function onDocumentClick(event: Event) {
 function layout() {
   const { windowWidth } = calculateDimensions()
 
-  const wrapper = document.getElementById('wrapper') as HTMLElement
-  const playground = document.getElementById('playground') as HTMLElement
-  const sidebar = document.getElementById('sidebar') as HTMLElement
-  const mainPanel = document.getElementById('main-panel') as HTMLElement
-  const paramsPanel = document.getElementById('params-panel') as HTMLElement
-  const litsPanel = document.getElementById('lits-panel') as HTMLElement
-  const outputPanel = document.getElementById('output-panel') as HTMLElement
+  const playgroundHeight = getState('playground-height')
 
-  const topPanelsBottom = playgroundHeight
+  const contextPanelWidth = (windowWidth * getState('resize-divider-1-percent')) / 100
+  const outputPanelWidth = (windowWidth * (100 - getState('resize-divider-2-percent'))) / 100
+  const litsPanelWidth = windowWidth - contextPanelWidth - outputPanelWidth
 
-  const paramsPanelWidth = (windowWidth * resizeDivider1XPercent) / 100
-  const outputPanelWidth = (windowWidth * (100 - resizeDivider2XPercent)) / 100
-  const litsPanelWidth = windowWidth - paramsPanelWidth - outputPanelWidth
-
-  playground.style.height = `${playgroundHeight}px`
-
-  paramsPanel.style.width = `${paramsPanelWidth}px`
-  litsPanel.style.width = `${litsPanelWidth}px`
-  outputPanel.style.width = `${outputPanelWidth}px`
-
-  sidebar.style.bottom = `${topPanelsBottom}px`
-  mainPanel.style.bottom = `${topPanelsBottom}px`
-
-  wrapper.style.display = 'block'
+  elements.playground.style.height = `${playgroundHeight}px`
+  elements.contextPanel.style.width = `${contextPanelWidth}px`
+  elements.litsPanel.style.width = `${litsPanelWidth}px`
+  elements.outputPanel.style.width = `${outputPanelWidth}px`
+  elements.sidebar.style.bottom = `${playgroundHeight}px`
+  elements.mainPanel.style.bottom = `${playgroundHeight}px`
+  elements.wrapper.style.display = 'block'
 }
 
 export function resetPlayground() {
-  resetParams()
+  clearAllStates()
+
+  resetContext()
   resetLitsCode()
   resetOutput()
   Search.closeSearch()
   Search.clearSearch()
 
-  localStorage.removeItem('playground-height')
-  localStorage.removeItem('resize-divider-1-percent')
-  localStorage.removeItem('resize-divider-2-percent')
-  playgroundHeight = DEFAULT_PLAYGROUND_HEIGHT
-  resizeDivider1XPercent = DEFAULT_RESIZE_DIVIDER1_X_PERCENT
-  resizeDivider2XPercent = DEFAULT_RESIZE_DIVIDER2_X_PERCENT
   layout()
 }
 
-export function resetParams() {
-  const paramsTextArea = document.getElementById('params-textarea') as HTMLTextAreaElement
-  paramsTextArea.value = ''
-  localStorage.removeItem('params-textarea')
+export function resetContext() {
+  const context = getState('context')
+  if (context === '') {
+    setContext(getState('context-trash-bin'))
+  }
+  else {
+    saveState('context-trash-bin', context)
+    elements.contextTextArea.value = ''
+    clearState('context')
+  }
 }
 
-function setParams(value: string) {
-  const paramsTextArea = document.getElementById('params-textarea') as HTMLTextAreaElement
-  paramsTextArea.value = value
-  localStorage.setItem('params-textarea', value)
+function setContext(value: string) {
+  elements.contextTextArea.value = value
+  elements.contextTextArea.scrollTop = 0
+  saveState('context', value)
 }
 
-function getParams() {
-  const paramsTextArea = document.getElementById('params-textarea') as HTMLTextAreaElement
-  return paramsTextArea.value
-}
-
-function getParsedParams(): Record<string, unknown> {
+function getParsedContext(): Record<string, unknown> {
   try {
-    // eslint-disable-next-line ts/no-unsafe-return
-    return JSON.parse(getParams())
+    return asUnknownRecord(JSON.parse(getState('context')))
   }
   catch (e) {
     return {}
@@ -130,7 +137,7 @@ function getParsedParams(): Record<string, unknown> {
 }
 
 export function addParam() {
-  const params = getParsedParams()
+  const context = getParsedContext()
   const values = {
     n: 42,
     s: 'foo bar',
@@ -149,48 +156,70 @@ export function addParam() {
     },
   }
 
-  params.values = Object.assign(values, params.values)
+  context.values = Object.assign(values, context.values)
 
-  setParams(JSON.stringify(params, null, 2))
+  setContext(JSON.stringify(context, null, 2))
 }
 
-export function resetLitsCode() {
-  const litsTextArea = document.getElementById('lits-textarea') as HTMLTextAreaElement
-  litsTextArea.value = ''
-  localStorage.removeItem('lits-textarea')
-  litsTextArea.focus()
+export function resetLitsCode(force = false) {
+  const litsCode = getState('lits-code')
+  if (litsCode === '' && !force) {
+    setLitsCode(getState('lits-code-trash-bin'), 'top')
+  }
+  else {
+    if (force)
+      saveState('lits-code-trash-bin', '')
+    else
+      saveState('lits-code-trash-bin', litsCode)
+
+    elements.litsTextArea.value = ''
+    clearState('lits-code')
+  }
 }
 
-function setLitsCode(value: string) {
-  const litsTextArea = document.getElementById('lits-textarea') as HTMLTextAreaElement
-  litsTextArea.value = value
-  localStorage.setItem('lits-textarea', value)
-  litsTextArea.scrollTop = litsTextArea.scrollHeight
-  litsTextArea.focus()
+function setLitsCode(value: string, scroll?: 'top' | 'bottom') {
+  elements.litsTextArea.value = value
+  saveState('lits-code', value)
+  if (scroll === 'top')
+    elements.litsTextArea.scrollTo(0, 0)
+  else if (scroll === 'bottom')
+    elements.litsTextArea.scrollTo({ top: elements.litsTextArea.scrollHeight, behavior: 'smooth' })
 }
 
 function appendLitsCode(value: string) {
-  const litsTextArea = document.getElementById('lits-textarea') as HTMLTextAreaElement
-  const oldContent = litsTextArea.value.trimEnd()
+  const oldContent = getState('lits-code').trimEnd()
 
   const newContent = oldContent ? `${oldContent}\n\n${value}` : value.trim()
-  setLitsCode(newContent)
+  setLitsCode(newContent, 'bottom')
 }
 
-function getLitsCode() {
-  const litsTextArea = document.getElementById('lits-textarea') as HTMLTextAreaElement
-  return litsTextArea.value
-}
+export function resetOutput(force = false) {
+  const output = getState('output')
+  if (output === '' && !force) {
+    const trash = getState('output-trash-bin')
+    elements.outputResult.innerHTML = trash
+    saveState('output', trash)
 
-export function resetOutput() {
-  const outputResult = document.getElementById('output-result') as HTMLElement
-  outputResult.innerHTML = ''
-  localStorage.removeItem('output')
+    elements.outputResult.scrollTop = elements.outputResult.scrollHeight
+  }
+  else {
+    if (force)
+      saveState('output-trash-bin', '')
+    else
+      saveState('output-trash-bin', output)
+
+    elements.outputResult.innerHTML = ''
+    clearState('output')
+  }
 }
 
 function hasOutput() {
-  const outputResult = document.getElementById('output-result') as HTMLElement
-  return outputResult.children.length > 0
+  return getState('output').trim() !== ''
+}
+
+function setOutput(value: string) {
+  elements.outputResult.innerHTML = value
+  saveState('output', value)
 }
 
 function appendOutput(output: unknown, className: OutputType) {
@@ -209,62 +238,46 @@ function addOutputSeparator() {
 }
 
 function addOutputElement(element: HTMLElement) {
-  const outputResult = document.getElementById('output-result') as HTMLElement
-  outputResult.appendChild(element)
-  outputResult.scrollTop = outputResult.scrollHeight
+  elements.outputResult.appendChild(element)
+  elements.outputResult.scrollTop = elements.outputResult.scrollHeight
 
-  localStorage.setItem('output', outputResult.innerHTML)
+  saveState('output', elements.outputResult.innerHTML)
 }
 
 window.onload = function () {
   document.addEventListener('click', onDocumentClick, true)
 
-  const storedPlaygroundHeight = localStorage.getItem('playground-height')
-  const storedResizeDivider1XPercent = localStorage.getItem('resize-divider-1-percent')
-  const storedResizeDivider2XPercent = localStorage.getItem('resize-divider-2-percent')
-
-  playgroundHeight = storedPlaygroundHeight ? Number(storedPlaygroundHeight) : DEFAULT_PLAYGROUND_HEIGHT
-  resizeDivider1XPercent = storedResizeDivider1XPercent
-    ? Number(storedResizeDivider1XPercent)
-    : DEFAULT_RESIZE_DIVIDER1_X_PERCENT
-  resizeDivider2XPercent = storedResizeDivider2XPercent
-    ? Number(storedResizeDivider2XPercent)
-    : DEFAULT_RESIZE_DIVIDER2_X_PERCENT
-
-  const resizePlayground = document.getElementById('resize-playground') as HTMLElement
-  resizePlayground.onmousedown = (event) => {
+  elements.resizePlayground.onmousedown = (event) => {
     moveParams = {
       id: 'playground',
       startMoveY: event.clientY,
-      heightBeforeMove: playgroundHeight,
+      heightBeforeMove: getState('playground-height'),
     }
   }
 
-  const resizeDevider1 = document.getElementById('resize-divider-1') as HTMLElement
-  resizeDevider1.onmousedown = (event) => {
+  elements.resizeDevider1.onmousedown = (event) => {
     moveParams = {
       id: 'resize-divider-1',
       startMoveX: event.clientX,
-      percentBeforeMove: resizeDivider1XPercent,
+      percentBeforeMove: getState('resize-divider-1-percent'),
     }
   }
 
-  const resizeDevider2 = document.getElementById('resize-divider-2') as HTMLElement
-  resizeDevider2.onmousedown = (event) => {
+  elements.resizeDevider2.onmousedown = (event) => {
     moveParams = {
       id: 'resize-divider-2',
       startMoveX: event.clientX,
-      percentBeforeMove: resizeDivider2XPercent,
+      percentBeforeMove: getState('resize-divider-2-percent'),
     }
   }
 
-  window.onresize = layout
+  window.onresize = throttle(layout)
   window.onmouseup = () => {
     document.body.classList.remove('no-select')
     moveParams = null
   }
 
-  window.onmousemove = (event) => {
+  window.onmousemove = throttle((event: MouseEvent) => {
     const { windowHeight, windowWidth } = calculateDimensions()
     if (moveParams === null)
       return
@@ -272,42 +285,41 @@ window.onload = function () {
     document.body.classList.add('no-select')
 
     if (moveParams.id === 'playground') {
-      playgroundHeight = moveParams.heightBeforeMove + moveParams.startMoveY - event.clientY
+      let playgroundHeight = moveParams.heightBeforeMove + moveParams.startMoveY - event.clientY
       if (playgroundHeight < 30)
         playgroundHeight = 30
 
       if (playgroundHeight > windowHeight)
         playgroundHeight = windowHeight
 
-      localStorage.setItem('playground-height', `${playgroundHeight}`)
+      saveState('playground-height', playgroundHeight)
     }
     else if (moveParams.id === 'resize-divider-1') {
-      resizeDivider1XPercent
+      let resizeDivider1XPercent
         = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / windowWidth) * 100
       if (resizeDivider1XPercent < 10)
         resizeDivider1XPercent = 10
 
-      if (resizeDivider1XPercent > resizeDivider2XPercent - 10)
-        resizeDivider1XPercent = resizeDivider2XPercent - 10
+      if (resizeDivider1XPercent > getState('resize-divider-2-percent') - 10)
+        resizeDivider1XPercent = getState('resize-divider-2-percent') - 10
 
-      localStorage.setItem('resize-divider-1-percent', `${resizeDivider1XPercent}`)
+      saveState('resize-divider-1-percent', resizeDivider1XPercent)
     }
     else if (moveParams.id === 'resize-divider-2') {
-      resizeDivider2XPercent
+      let resizeDivider2XPercent
         = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / windowWidth) * 100
-      if (resizeDivider2XPercent < resizeDivider1XPercent + 10)
-        resizeDivider2XPercent = resizeDivider1XPercent + 10
+      if (resizeDivider2XPercent < getState('resize-divider-1-percent') + 10)
+        resizeDivider2XPercent = getState('resize-divider-1-percent') + 10
 
       if (resizeDivider2XPercent > 90)
         resizeDivider2XPercent = 90
 
-      localStorage.setItem('resize-divider-2-percent', `${resizeDivider2XPercent}`)
+      saveState('resize-divider-2-percent', resizeDivider2XPercent)
     }
     layout()
-  }
+  })
 
   window.addEventListener('keydown', (evt) => {
-    console.log('keydown', evt.key)
     if (Search.handleKeyDown(evt))
       return
 
@@ -320,50 +332,53 @@ window.onload = function () {
       evt.preventDefault()
     }
   })
-  const litsTextarea = document.getElementById('lits-textarea') as HTMLElement
-  litsTextarea.addEventListener('keydown', keydownHandler)
-  litsTextarea.addEventListener('input', (event: Event) => {
+  elements.contextTextArea.addEventListener('keydown', keydownHandler)
+  elements.contextTextArea.addEventListener('input', (event: Event) => {
+    const target = event.target as HTMLInputElement | undefined
+    if (target)
+      setContext(target.value)
+  })
+  elements.contextTextArea.addEventListener('scroll', () => {
+    saveState('context-scroll-top', elements.contextTextArea.scrollTop)
+  })
+
+  elements.litsTextArea.addEventListener('keydown', keydownHandler)
+  elements.litsTextArea.addEventListener('input', (event: Event) => {
     const target = event.target as HTMLInputElement | undefined
     if (target)
       setLitsCode(target.value)
   })
-
-  const paramsTextarea = document.getElementById('params-textarea') as HTMLElement
-  paramsTextarea.addEventListener('keydown', keydownHandler)
-  paramsTextarea.addEventListener('input', (event: Event) => {
-    const target = event.target as HTMLInputElement | undefined
-    if (target)
-      setParams(target.value)
+  elements.litsTextArea.addEventListener('scroll', () => {
+    saveState('lits-code-scroll-top', elements.litsTextArea.scrollTop)
   })
 
-  const id = location.hash.substring(1) || 'index'
-  showPage(id, 'replace')
+  elements.outputResult.addEventListener('scroll', () => {
+    saveState('output-scroll-top', elements.outputResult.scrollTop)
+  })
 
   const urlParams = new URLSearchParams(window.location.search)
 
-  const program = urlParams.get('program')
-  const litsCode = program ? decodeURIComponent(program) : localStorage.getItem('lits-textarea') || ''
-  setLitsCode(litsCode)
+  const urlState = urlParams.get('state')
+  if (urlState) {
+    applyEncodedState(urlState)
+    urlParams.delete('state')
+    history.replaceState(null, '', `${location.pathname}${urlParams.toString() ? '?' : ''}${urlParams.toString()}`)
+  }
 
-  setParams((!program && localStorage.getItem('params-textarea')) || '')
-
-  const outputResult = document.getElementById('output-result') as HTMLElement
-  outputResult.innerHTML = !program ? localStorage.getItem('output') || '' : ''
+  setContext(getState('context'))
+  setLitsCode(getState('lits-code'), 'top')
+  setOutput(getState('output'))
 
   setTimeout(() => {
-    outputResult.scrollTop = outputResult.scrollHeight
+    elements.contextTextArea.scrollTop = getState('context-scroll-top')
+    elements.litsTextArea.scrollTop = getState('lits-code-scroll-top')
+    elements.outputResult.scrollTop = getState('output-scroll-top')
   }, 0)
 
-  if (program)
-    run()
+  const id = location.hash.substring(1) || 'index'
+  showPage(id, 'instant', 'replace')
 
   layout()
-
-  Search.onClose(() => {
-    (document.getElementById('lits-textarea') as HTMLTextAreaElement).focus()
-  })
-
-  ;(document.getElementById('lits-textarea') as HTMLTextAreaElement).focus()
 }
 
 function keydownHandler(evt: KeyboardEvent) {
@@ -421,10 +436,10 @@ function keydownHandler(evt: KeyboardEvent) {
 
 window.addEventListener('popstate', () => {
   const id = location.hash.substring(1) || 'index'
-  showPage(id, 'none')
+  showPage(id, 'instant', 'none')
 })
 
-function truncateCode(text: string, count = 45) {
+function truncateCode(text: string, count = 80) {
   const oneLiner = text
     .split('\n')
     .map(line => line.trim())
@@ -438,25 +453,25 @@ function truncateCode(text: string, count = 45) {
 }
 export function run(program?: string) {
   addOutputSeparator()
-  const code = program || getLitsCode()
+  const code = program || getState('lits-code')
 
   if (program)
     appendOutput(`Run selection: ${truncateCode(code)}`, 'comment')
   else
     appendOutput(`Run: ${truncateCode(code)}`, 'comment')
 
-  const paramsString = getParams()
-  let params: LitsParams
+  const contextString = getState('context')
+  let context: LitsParams
   try {
-    params
-      = paramsString.trim().length > 0
-        ? JSON.parse(paramsString, (_, val) =>
+    context
+      = contextString.trim().length > 0
+        ? JSON.parse(contextString, (_, val) =>
           // eslint-disable-next-line no-eval, ts/no-unsafe-return
           typeof val === 'string' && val.startsWith('EVAL:') ? eval(val.substring(5)) : val) as LitsParams
         : {}
   }
   catch {
-    appendOutput(`Error: Could not parse params: ${paramsString}`, 'error')
+    appendOutput(`Error: Could not parse context: ${contextString}`, 'error')
     return
   }
   let result
@@ -471,7 +486,7 @@ export function run(program?: string) {
     appendOutput(args[0], 'output')
   }
   try {
-    result = lits.run(code, params)
+    result = lits.run(code, context)
   }
   catch (error) {
     appendOutput(error, 'error')
@@ -488,7 +503,7 @@ export function run(program?: string) {
 
 export function analyze() {
   addOutputSeparator()
-  const code = getLitsCode()
+  const code = getState('lits-code')
   appendOutput(`Analyze: ${truncateCode(code)}`, 'comment')
   let result
   const oldLog = console.log
@@ -522,7 +537,7 @@ export function analyze() {
 
 export function parse() {
   addOutputSeparator()
-  const code = getLitsCode()
+  const code = getState('lits-code')
   appendOutput(`Parse: ${truncateCode(code)}`, 'comment')
   let result
   const oldLog = console.log
@@ -554,7 +569,7 @@ export function parse() {
 
 export function tokenize() {
   addOutputSeparator()
-  const code = getLitsCode()
+  const code = getState('lits-code')
   appendOutput(`Tokenize: ${truncateCode(code)}`, 'comment')
 
   let result
@@ -584,30 +599,37 @@ export function tokenize() {
   appendOutput(content, 'tokenize')
 }
 
-export function showPage(id: string, historyEvent: 'replace' | 'push' | 'none' = 'push') {
-  inactivateAll()
+export function showPage(id: string, scroll: 'smooth' | 'instant' | 'none', historyEvent: 'replace' | 'push' | 'none' = 'push') {
+  setTimeout(() => {
+    inactivateAll()
 
-  Search.closeSearch()
-  const page = document.getElementById(id)
-  const link = document.getElementById(`${id}_link`)
+    Search.closeSearch()
+    const page = document.getElementById(id)
+    const link = document.getElementById(`${id}_link`)
 
-  if (page) {
-    page.classList.add('active-content')
-    if (link) {
-      link.classList.add('active-sidebar-entry')
-      link.scrollIntoView({ block: 'nearest' })
+    if (page) {
+      page.classList.add('active-content')
+      if (link) {
+        link.classList.add('active-sidebar-entry')
+        if (scroll !== 'none')
+          link.scrollIntoView({ block: 'center', behavior: scroll })
+      }
     }
-  }
-  else {
-    showPage('index', 'replace')
-    return
-  }
+    else {
+      showPage('index', scroll, 'replace')
 
-  if (historyEvent === 'replace')
-    history.replaceState(null, '', `#${id}`)
+      return
+    }
 
-  else if (historyEvent !== 'none')
-    history.pushState(null, '', `#${id}`)
+    if (id === 'index')
+      history.replaceState(null, 'Lits', window.location.pathname + window.location.search)
+
+    else if (historyEvent === 'replace')
+      history.replaceState(null, '', `#${id}`)
+
+    else if (historyEvent !== 'none')
+      history.pushState(null, '', `#${id}`)
+  }, 0)
 }
 
 function inactivateAll() {
@@ -652,25 +674,32 @@ function stringifyValue(value: unknown) {
   return JSON.stringify(value, null, 2)
 }
 
-export function addToPlayground(comment: string, encodedExample: string) {
+export function addToPlayground(name: string, encodedExample: string) {
   const example = atob(encodedExample)
-  appendLitsCode(`${comment}\n${example}`)
-
-  run()
+  appendLitsCode(`;; Example - ${name} ;;\n\n${example}\n`)
 }
 
-export function setPlayground(encodedExample: string) {
+export function setPlayground(name: string, encodedExample: string) {
   const example = JSON.parse(atob(encodedExample)) as Example
 
-  const params = example.params
+  const context = example.context
     // eslint-disable-next-line ts/no-unsafe-return
-    ? JSON.stringify(example.params, (_k, v) => (v === undefined ? null : v), 2)
+    ? JSON.stringify(example.context, (_k, v) => (v === undefined ? null : v), 2)
     : ''
 
-  setParams(params)
+  setContext(context)
 
   const code = example.code ? example.code : ''
-  setLitsCode(code)
+  const size = Math.max(name.length + 10, 40)
+  const paddingLeft = Math.floor((size - name.length) / 2)
+  const paddingRight = Math.ceil((size - name.length) / 2)
+  setLitsCode(`
+${`;;${'-'.repeat(size)};;`}
+${`;;${' '.repeat(paddingLeft)}${name}${' '.repeat(paddingRight)};;`}
+${`;;${'-'.repeat(size)};;`}
 
-  run()
+${code}
+`.trimStart(), 'top')
+
+  resetOutput(true)
 }

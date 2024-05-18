@@ -16,6 +16,7 @@ import { shorthand } from './shorthand'
 import { datatype } from './datatype'
 import type { ApiName, Category, DataType, FunctionName } from './api'
 
+
 export interface TypedValue {
   type: DataType[] | DataType
   rest?: true

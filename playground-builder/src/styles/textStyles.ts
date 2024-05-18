@@ -53,6 +53,11 @@ export function getTextStyles(css: CssTemplateFunction) {
     'no-underline': css`
     text-decoration: none;
   `,
+    'truncate': css`
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  `,    
   } satisfies Partial<Styles>
   return textStyles
 }

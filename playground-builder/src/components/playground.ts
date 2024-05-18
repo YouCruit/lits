@@ -1,4 +1,4 @@
-import { clearIcon, hamburgerIcon, labIcon, playIcon, plusIcon, resetIcon, tokenIcon, treeIcon } from '../icons'
+import { hamburgerIcon, labIcon, linkIcon, playIcon, plusIcon, resetIcon, tokenIcon, trashIcon, treeIcon } from '../icons'
 import { createStyles, css } from '../styles'
 
 const styles = createStyles({
@@ -31,17 +31,17 @@ export function getPlayground() {
   )}>
     <div id="resize-playground" ${styles('height: 5px;', 'bg-gray-600', 'cursor-row-resize')}></div>
     <div id="panels-container" ${styles('h-full', 'w-full', 'flex', 'flex-row', 'whitespace-nowrap')}>
-      <div id="params-panel" ${styles('h-full')}>
+      <div id="context-panel" ${styles('h-full')}>
         <div ${styles('PanelHeader')}>
           <div ${styles('text-lg', 'font-sans')}>Context</div>
-          <div id="params-links" ${styles('h-full', 'text-color-gray-400', 'bg-gray-800')}>
+          <div id="context-links" ${styles('h-full', 'text-color-gray-400', 'bg-gray-800')}>
             <div ${styles('flex', 'flex-row', 'gap-1', 'text-sm', 'text-color-gray-400', 'h-full', 'items-center')}>
               <a onclick="Playground.addParam()" ${styles('text-xl', 'flex', 'items-center')}>${plusIcon}</a>
-              <a onclick="Playground.resetParams()" ${styles('text-xl', 'flex', 'items-center')}>${clearIcon}</a>
+              <a onclick="Playground.resetContext()" ${styles('text-xl', 'flex', 'items-center')}>${trashIcon}</a>
             </div>
           </div>
         </div>
-        <textarea ${styles('height: calc(100% - 38px);', 'border-0', 'pb-1')} id="params-textarea" class="fancy-scroll" spellcheck="false"></textarea>
+        <textarea ${styles('height: calc(100% - 38px);', 'border-0', 'pb-1')} id="context-textarea" class="fancy-scroll" spellcheck="false"></textarea>
       </div
   
       ><div id="resize-divider-1" ${styles('width: 5px;', 'h-full', 'cursor-col-resize', 'bg-gray-600')}></div
@@ -56,14 +56,14 @@ export function getPlayground() {
           >
             <div ${styles('h-full', 'flex', 'flex-row', 'gap-1', 'text-sm', 'text-color-gray-400', 'items-center')}>
               <a onclick="Playground.run()" ${styles('text-xl', 'flex', 'items-center')}>${playIcon}</a>
-              <a onclick="Playground.resetLitsCode()" ${styles('text-xl', 'flex', 'items-center')}>${clearIcon}</a>
+              <a onclick="Playground.resetLitsCode()" ${styles('text-xl', 'flex', 'items-center')}>${trashIcon}</a>
               <div>
                 <a onclick="Playground.toggleMoreMenu()" ${styles('text-xl', 'flex', 'items-center')}>${hamburgerIcon}</a>
                 <div id="more-menu" ${styles('hidden', 'max-width: 20rem;', 'absolute', 'p-2', 'border-0', 'border-solid', 'border-gray-300', 'bg-gray-700')}>
                   <div ${styles('flex', 'flex-col', 'gap-2', 'text-base')}>
                     <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.run()">
                       <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
-                        <span ${styles('text-color-Beige', 'items-center', 'flex')}>${playIcon}</span>
+                        <span ${styles('text-color-SkyLavender', 'items-center', 'flex')}>${playIcon}</span>
                         <span ${styles('mr-8')}>Run</span>
                       </div>
                       F5
@@ -79,6 +79,10 @@ export function getPlayground() {
                     <a ${styles('flex', 'gap-2', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.parse(false)">
                       <span ${styles('text-color-Viola', 'items-center', 'flex')}>${treeIcon}</span>
                       <span ${styles('mr-8')}>Parse</span>
+                    </a>
+                    <a ${styles('flex', 'gap-2', 'w-full', 'items-center', 'pt-2', 'border-0', 'border-t', 'border-solid', 'border-gray-500')} onclick="Playground.closeMoreMenu(); Playground.share();">
+                      <span ${styles('text-color-Pink', 'items-center', 'flex')}>${linkIcon}</span>
+                      <span>Share</span>
                     </a>
                     <a ${styles('flex', 'gap-2', 'w-full', 'items-center', 'pt-2', 'border-0', 'border-t', 'border-solid', 'border-gray-500')} onclick="Playground.closeMoreMenu(); Playground.resetPlayground();">
                       <span ${styles('text-color-Rose', 'items-center', 'flex')}>${resetIcon}</span>
@@ -103,7 +107,7 @@ export function getPlayground() {
             onclick="event => event.preventDefault()"
           >
             <div ${styles('flex', 'flex-row', 'gap-2', 'text-sm', 'text-color-gray-400')}>
-              <a onclick="Playground.resetOutput()" ${styles('text-xl', 'flex', 'items-center')}>${clearIcon}</a>
+              <a onclick="Playground.resetOutput()" ${styles('text-xl', 'flex', 'items-center')}>${trashIcon}</a>
             </div>
           </div>
         </div>

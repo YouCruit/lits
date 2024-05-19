@@ -1,6 +1,6 @@
 {
   "name": "@youcruit/lits",
-  "version": "1.0.63",
+  "version": "1.0.64",
   "description": "A lisp implementation in Typescript",
   "author": "Albert Mojir",
   "license": "MIT",

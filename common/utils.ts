@@ -13,12 +13,14 @@ export function throttle<T extends (...args: any[]) => void>(func: T) {
   }
 }
 
-export function stringifyValue(value: unknown): string {
+export function stringifyValue(value: unknown, html = true): string {
+  const gt = html ? '&gt;' : '>'
+  const lt = html ? '&lt;' : '<'
   if (isLitsFunction(value)) {
     if (value.t === FunctionType.Builtin)
-      return `&lt;builtin function ${value.n}&gt;`
+      return `${lt}builtin function ${value.n}${gt}`
     else
-      return `&lt;function ${(value as unknown as UnknownRecord).n ?? '\u03BB'}&gt;`
+      return `${lt}function ${(value as unknown as UnknownRecord).n ?? '\u03BB'}${gt}`
   }
   if (value === null)
     return 'null'
@@ -39,4 +41,9 @@ export function stringifyValue(value: unknown): string {
     return 'NaN'
 
   return JSON.stringify(value, null, 2)
+}
+
+export function findAllOccurrences(input: string, pattern: RegExp): Set<string> {
+  const matches = [...input.matchAll(pattern)]
+  return new Set(matches.map(match => match[0]))
 }

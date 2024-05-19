@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { findAllOccurrences } from './utils'
+import { findAllOccurrences } from '../../../common/utils'
 
 describe('findAllOccurrences', () => {
   it('should find all occurrences of a pattern in the input string', () => {

@@ -1,6 +1,6 @@
-import { nameCharacters } from '../../../src/tokenizer/tokenizers'
-import { styles } from '../styles'
-import { type TextFormatter, createFormatter } from '../../../common/createFormatter'
+import { nameCharacters } from '../../src/tokenizer/tokenizers'
+import { type TextFormatter, createFormatter } from '../../common/createFormatter'
+import { ColorEnum, type Colorizer } from './colorizer'
 
 export type FormatterRule = (text: string, index: number, formatter: TextFormatter) => {
   count: number
@@ -31,7 +31,7 @@ export function createVariableRule(
 }
 
 const numberRegExp = /^[0-9]+(\.[0-9]+)?/
-export const numberRule: FormatterRule = (text, index) => {
+export const getNumberRule: (cli: Colorizer) => FormatterRule = fmt => (text, index) => {
   const startMatch = numberRegExp.exec(text.slice(index))
   if (startMatch) {
     const count = startMatch[0].length
@@ -47,7 +47,7 @@ export const numberRule: FormatterRule = (text, index) => {
       return noMatch
 
     const number = startMatch[0]
-    const formattedText = `<span ${styles('text-color-Beige')}>${number}</span>`
+    const formattedText = fmt.yellow.bright(number)
     return { count, formattedText }
   }
   return { count: 0, formattedText: '' }
@@ -56,8 +56,8 @@ export const numberRule: FormatterRule = (text, index) => {
 const operatorRule = createRule({
   name: 'string',
   startPattern: /^[<>\-+/*=?.,():]+/,
-  startTag: `<span ${styles('text-color-gray-200')}>`,
-  endTag: '</span>',
+  startTag: `${ColorEnum.Bright}${ColorEnum.FgWhite}`,
+  endTag: ColorEnum.Reset,
   keepPatterns: true,
   formatPatterns: true,
   stopRecursion: true,
@@ -67,8 +67,8 @@ const stringRule = createRule({
   name: 'string',
   startPattern: /^"/,
   endPattern: /^"/,
-  startTag: `<span ${styles('text-color-Pink')}>`,
-  endTag: '</span>',
+  startTag: ColorEnum.FgRed,
+  endTag: ColorEnum.Reset,
   keepPatterns: true,
   formatPatterns: true,
   stopRecursion: true,
@@ -77,8 +77,8 @@ const stringRule = createRule({
 const shortcutStringRule = createRule({
   name: 'string',
   startPattern: new RegExp(`^:${nameCharacters}+`),
-  startTag: `<span ${styles('text-color-Pink')}>`,
-  endTag: '</span>',
+  startTag: ColorEnum.FgRed,
+  endTag: ColorEnum.Reset,
   keepPatterns: true,
   formatPatterns: true,
   stopRecursion: true,
@@ -88,8 +88,8 @@ const functionNameRule = createRule({
   name: 'functionName',
   startPattern: new RegExp(`^\\((?=${nameCharacters}+)`),
   endPattern: /^[) \n]/,
-  startTag: `<span ${styles('text-color-Blue')}>`,
-  endTag: '</span>',
+  startTag: ColorEnum.FgBlue,
+  endTag: ColorEnum.Reset,
   keepPatterns: true,
   formatPatterns: false,
   stopRecursion: true,
@@ -98,8 +98,8 @@ const functionNameRule = createRule({
 const nameRule = createRule({
   name: 'functionName',
   startPattern: new RegExp(`^${nameCharacters}+`),
-  startTag: `<span ${styles('text-color-Mint')}>`,
-  endTag: '</span>',
+  startTag: `${ColorEnum.Bright}${ColorEnum.FgBlue}`,
+  endTag: ColorEnum.Reset,
   keepPatterns: true,
   formatPatterns: true,
   stopRecursion: true,
@@ -108,8 +108,8 @@ const nameRule = createRule({
 const commentRule = createRule({
   name: 'comment',
   startPattern: /^;.*/,
-  startTag: `<span ${styles('text-color-gray-500', 'italic')}>`,
-  endTag: '</span>',
+  startTag: `${ColorEnum.FgGray}${ColorEnum.Italic}`,
+  endTag: ColorEnum.Reset,
   keepPatterns: true,
   formatPatterns: true,
   stopRecursion: true,
@@ -118,8 +118,8 @@ const commentRule = createRule({
 const litsKeywordRule = createRule({
   name: 'functionName',
   startPattern: /^\b(nil|true|false)\b/,
-  startTag: `<span ${styles('text-color-gray-200')}>`,
-  endTag: '</span>',
+  startTag: `${ColorEnum.Bright}${ColorEnum.FgGray}`,
+  endTag: ColorEnum.Reset,
   keepPatterns: true,
   formatPatterns: true,
   stopRecursion: true,
@@ -128,26 +128,25 @@ const litsKeywordRule = createRule({
 const inlineCodeKeywordRule = createRule({
   name: 'inlineCodeKeywordRule',
   startPattern: /^\b(null|true|false|nil|falsy|truthy)\b/,
-  startTag: `<span ${styles('text-color-gray-200')}>`,
-  endTag: '</span>',
+  startTag: `${ColorEnum.Bright}${ColorEnum.FgGray}`,
+  endTag: ColorEnum.Reset,
   keepPatterns: true,
   formatPatterns: true,
   stopRecursion: true,
 })
 
-const formatInlineCode = createFormatter([
-  operatorRule,
-  stringRule,
-  shortcutStringRule,
-  numberRule,
-  inlineCodeKeywordRule,
-  nameRule,
-], {
-  prefix: `<span ${styles('text-color-gray-200')}>`,
-  suffix: '</span>',
-})
+export function getInlineCodeFormatter(cli: Colorizer) {
+  return createFormatter([
+    operatorRule,
+    stringRule,
+    shortcutStringRule,
+    getNumberRule(cli),
+    inlineCodeKeywordRule,
+    nameRule,
+  ])
+}
 
-const inlineCodeRule: FormatterRule = (text, index) => {
+const getInlineCodeRule: (fmt: Colorizer) => FormatterRule = fmt => (text, index) => {
   if (text[index] === '`') {
     let count = 1
     let body = ''
@@ -160,93 +159,74 @@ const inlineCodeRule: FormatterRule = (text, index) => {
       throw new Error(`No end \` found for rule inlineCodeRule: ${text}`)
 
     count += 1
-    const formattedText = formatInlineCode(body)
+    const formattedText = getInlineCodeFormatter(fmt)(body)
     return { count, formattedText }
   }
   return { count: 0, formattedText: '' }
 }
 
-export const litsExpressionRules: FormatterRule[] = [
-  commentRule,
-  stringRule,
-  shortcutStringRule,
-  functionNameRule,
-  numberRule,
-  litsKeywordRule,
-  nameRule,
-]
+export function getLitsExpressionRules(cli: Colorizer): FormatterRule[] {
+  return [
+    commentRule,
+    stringRule,
+    shortcutStringRule,
+    functionNameRule,
+    getNumberRule(cli),
+    litsKeywordRule,
+    nameRule,
+  ]
+}
 
-export const formatLitsExpression = createFormatter(litsExpressionRules, {
-  prefix: `<span ${styles('text-color-gray-200', 'font-mono')}>`,
-  suffix: '</span>',
-})
+export function getLitsFormatter(fmt: Colorizer) {
+  return createFormatter(getLitsExpressionRules(fmt))
+}
 
-const inlineLitsExpressionRule: FormatterRule = (text, index) => {
-  if (text.slice(index, index + 2) === '``') {
-    let count = 2
-    let body = ''
+function getInlineLitsExpressionRule(fmt: Colorizer): FormatterRule {
+  return (text, index) => {
+    if (text.slice(index, index + 2) === '``') {
+      let count = 2
+      let body = ''
 
-    while (index + count < text.length && text.slice(index + count, index + count + 2) !== '``') {
-      body += text[index + count]
-      count += 1
+      while (index + count < text.length && text.slice(index + count, index + count + 2) !== '``') {
+        body += text[index + count]
+        count += 1
+      }
+      if (text.slice(index + count, index + count + 2) !== '``')
+        throw new Error(`No end \` found for rule inlineLitsCodeRule: ${text}`)
+
+      count += 2
+      const formattedText = getLitsFormatter(fmt)(body)
+      return { count, formattedText }
     }
-    if (text.slice(index + count, index + count + 2) !== '``')
-      throw new Error(`No end \` found for rule inlineLitsCodeRule: ${text}`)
-
-    count += 2
-    const formattedText = formatLitsExpression(body)
-    return { count, formattedText }
+    return { count: 0, formattedText: '' }
   }
-  return { count: 0, formattedText: '' }
 }
 
 const italicRule = createRule({
   name: 'italic',
   startPattern: /^\*\*\*/,
   endPattern: /^\*\*\*/,
-  startTag: `<span ${styles('italic')}>`,
-  endTag: '</span>',
+  startTag: ColorEnum.Italic,
+  endTag: ColorEnum.Reset,
 })
 
 const boldRule = createRule({
   name: 'bold',
   startPattern: /^\*\*/,
   endPattern: /^\*\*/,
-  startTag: `<span ${styles('font-bold')}>`,
-  endTag: '</span>',
+  startTag: ColorEnum.Bright,
+  endTag: ColorEnum.Reset,
 })
 
-const newLineRule = createRule({
-  name: 'new-line',
-  startPattern: /^ {2}\n/,
-  startTag: '',
-  endTag: '<br>',
-})
-
-const newParagraphRule = createRule({
-  name: 'new-line',
-  startPattern: /^\n{2}/,
-  startTag: '',
-  endTag: '<p>',
-})
-
-const paragraphRule = createRule({
-  name: 'paragraph',
-  startPattern: /^\n{2}/,
-  startTag: `<div ${styles('mb-2')}>`,
-  endTag: '</div>',
-})
-
-export const mdRules: FormatterRule[] = [
-  inlineLitsExpressionRule,
-  inlineCodeRule,
-  italicRule,
-  boldRule,
-  newLineRule,
-  newParagraphRule,
-  paragraphRule,
-  numberRule,
-]
+export function getMdRules(fmt: Colorizer): FormatterRule[] {
+  return [
+    getInlineLitsExpressionRule(fmt),
+    getInlineCodeRule(fmt),
+    italicRule,
+    boldRule,
+    getNumberRule(fmt),
+  ]
+}
 
 function createRule({
   name,

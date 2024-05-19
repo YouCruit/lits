@@ -1,11 +1,21 @@
-enum ColorEnum {
+export type Colorizer = ReturnType<typeof createColorizer>
+
+export enum ColorEnum {
   Reset = '\x1B[0m',
   Bright = '\x1B[1m',
+  ResetBright = '\x1B[21m',
   Dim = '\x1B[2m',
+  ResetDim = '\x1B[22m',
+  Italic = '\x1B[3m',
+  ResetItalic = '\x1B[23m',
   Underscore = '\x1B[4m',
+  ResetUnderscore = '\x1B[24m',
   Blink = '\x1B[5m',
+  ResetBlink = '\x1B[25m',
   Reverse = '\x1B[7m',
+  ResetReverse = '\x1B[27m',
   Hidden = '\x1B[8m',
+  ResetHidden = '\x1B[28m',
 
   FgBlack = '\x1B[30m',
   FgRed = '\x1B[31m',
@@ -65,6 +75,7 @@ function createFormatter(enableColors: boolean, colors: ColorEnum[], formatters:
   reset: ReturnType<typeof createFormatter>
   bright: ReturnType<typeof createFormatter>
   dim: ReturnType<typeof createFormatter>
+  italic: ReturnType<typeof createFormatter>
   underscore: ReturnType<typeof createFormatter>
   blink: ReturnType<typeof createFormatter>
   reverse: ReturnType<typeof createFormatter>
@@ -144,6 +155,9 @@ function createFormatter(enableColors: boolean, colors: ColorEnum[], formatters:
   Object.defineProperty(fn, 'dim', {
     get: () => createFormatter(enableColors, [...colors, ColorEnum.Dim], formatters),
   })
+  Object.defineProperty(fn, 'italic', {
+    get: () => createFormatter(enableColors, [...colors, ColorEnum.Dim], formatters),
+  })
   Object.defineProperty(fn, 'underscore', {
     get: () => createFormatter(enableColors, [...colors, ColorEnum.Underscore], formatters),
   })
@@ -162,9 +176,7 @@ function createFormatter(enableColors: boolean, colors: ColorEnum[], formatters:
   return fn as ReturnType<typeof createFormatter>
 }
 
-export type TextFormatter = ReturnType<typeof createTextFormatter>
-
-export function createTextFormatter(enableColors: boolean = true) {
+export function createColorizer(enableColors: boolean = true) {
   return {
     black: createFormatter(enableColors, [ColorEnum.FgBlack], []),
     red: createFormatter(enableColors, [ColorEnum.FgRed], []),
@@ -189,6 +201,7 @@ export function createTextFormatter(enableColors: boolean = true) {
     reset: createFormatter(enableColors, [ColorEnum.Reset], []),
     bright: createFormatter(enableColors, [ColorEnum.Bright], []),
     dim: createFormatter(enableColors, [ColorEnum.Dim], []),
+    italic: createFormatter(enableColors, [ColorEnum.Italic], []),
     underscore: createFormatter(enableColors, [ColorEnum.Underscore], []),
     blink: createFormatter(enableColors, [ColorEnum.Blink], []),
     reverse: createFormatter(enableColors, [ColorEnum.Reverse], []),

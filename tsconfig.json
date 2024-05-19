@@ -32,8 +32,8 @@
   "include": [
     "src/**/*",
     "types/**/*",
-    "cli/**/*"
-  ],
+    "cli/**/*",
+    "common/clojureDocs.ts"],
   "exclude": [
     "**/*.test.ts",
     "__tests__"

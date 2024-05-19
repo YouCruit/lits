@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { styles } from '../styles'
-import { mdRules } from './rules'
+import { styles } from '../playground-builder/src/styles'
+import { mdRules } from '../playground-builder/src/formatter/rules'
 import { createFormatter } from './createFormatter'
 
 describe('textFormatter', () => {

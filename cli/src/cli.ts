@@ -1,12 +1,8 @@
 #!/usr/bin/env node
 /* eslint-disable node/prefer-global/process */
-
 /* eslint-disable no-console */
-import type { ReadLine, ReadLineOptions } from 'node:readline'
-import readline from 'node:readline'
-import path from 'node:path'
+
 import fs from 'node:fs'
-import os from 'node:os'
 import { version } from '../../package.json'
 import type { Context } from '../../src'
 import {
@@ -22,71 +18,67 @@ import { asAny } from '../../src/typeGuards/lits'
 import type { UnknownRecord } from '../../src/interface'
 import { nameCharacters } from '../../src/tokenizer/tokenizers'
 import { stringifyValue } from '../../common/utils'
-import { createTextFormatter } from '../../common/textFormatter'
-import { getFunctionSignature } from './functionDocumentation/functionSignature'
-import { getDocumentation } from './functionDocumentation'
+import { ColorEnum, createColorizer } from './colorizer'
+import { getCliFunctionSignature } from './cliDocumentation/getCliFunctionSignature'
+import { getCliDocumentation } from './cliDocumentation/getCliDocumentation'
+import { getInlineCodeFormatter } from './cliFormatterRules'
+import { createReadlineInterface } from './createReadlineInterface'
 
-const fmt = createTextFormatter(true)
+const fmt = createColorizer()
+
+const HIST_SIZE = 1000
+const PROMPT = fmt.bright.gray('> ')
 
 type Maybe<T> = T | null
 
 interface Config {
-  testNamePattern: Maybe<string>
+  testPattern: Maybe<string>
   testFilename: Maybe<string>
-  test: Maybe<string>
-  filename: Maybe<string>
-  globalContext: Context
-  expression: Maybe<string>
-  help: Maybe<string>
+  evalFilename: Maybe<string>
+  loadFilename: Maybe<string>
+  context: Context
+  eval: Maybe<string>
 }
 
 const historyResults: unknown[] = []
 const lits = new Lits({ debug: true })
+const formatValue = getInlineCodeFormatter(fmt)
 
-const commands = ['`help', '`quit', '`builtins', '`globalContext', '`GlobalContext', '`resetGlobalContext']
+const commands = ['`help', '`quit', '`builtins', '`context']
 const expressionRegExp = new RegExp(`^(.*\\(\\s*)(${nameCharacters}*)$`)
 const nameRegExp = new RegExp(`^(.*?)(${nameCharacters}*)$`)
 const helpRegExp = new RegExp(`^\`help\\s+(${nameCharacters}+)\\s*$`)
 const expressions = [...normalExpressionKeys, ...specialExpressionKeys]
 
-const historyDir = path.join(os.homedir(), '.config')
-const historyFile = path.join(historyDir, 'lits_history.txt')
-console.log(historyFile)
-
 const config = processArguments(process.argv.slice(2))
 
-if (config.help) {
-  console.log(getDocumentation(fmt, config.help))
+if (config.eval) {
+  execute(config.eval)
   process.exit(0)
 }
-
-if (config.expression) {
-  execute(config.expression)
-  process.exit(0)
-}
-else if (config.filename) {
-  const content = fs.readFileSync(config.filename, { encoding: 'utf-8' })
+else if (config.evalFilename) {
+  const content = fs.readFileSync(config.evalFilename, { encoding: 'utf-8' })
   execute(content)
   process.exit(0)
 }
+else if (config.loadFilename) {
+  const content = fs.readFileSync(config.loadFilename, { encoding: 'utf-8' })
+  config.context = lits.context(content, {
+    globalContext: config.context ?? undefined,
+  })
+  runREPL()
+}
 else if (config.testFilename) {
-  runLitsTest(config.testFilename, config.testNamePattern)
+  runLitsTest(config.testFilename, config.testPattern)
   process.exit(0)
 }
 else {
-  const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    prompt: 'LITS> ',
-    completer,
-    historySize: 100,
-  })
-  runREPL(rl)
+  runREPL()
 }
 
 function runLitsTest(testPath: string, testNamePattern: Maybe<string>) {
   if (!testPath.match(/\.test\.lits/)) {
-    console.error('Test file must end with .test.lits')
+    printErrorMessage('Test file must end with .test.lits')
     process.exit(1)
   }
   const { success, tap } = runTest({
@@ -103,20 +95,18 @@ function runLitsTest(testPath: string, testNamePattern: Maybe<string>) {
 function execute(expression: string) {
   try {
     const result = lits.run(expression, {
-      contexts: config.globalContext !== null
-        ? [config.globalContext]
-        : undefined,
+      globalContext: config.context ?? undefined,
     })
     historyResults.unshift(result)
     if (historyResults.length > 9)
       historyResults.length = 9
 
     setReplHistoryVariables()
-    console.log(stringifyValue(result))
+    console.log(formatValue(stringifyValue(result, false)))
   }
   catch (error) {
-    console.log(`${error}`)
-    config.globalContext['*e*'] = { value: getErrorMessage(error) }
+    printErrorMessage(`${error}`)
+    config.context['*e*'] = { value: getErrorMessage(error) }
   }
 }
 
@@ -128,156 +118,176 @@ function getErrorMessage(error: unknown) {
 }
 
 function setReplHistoryVariables() {
-  delete config.globalContext['*1*']
-  delete config.globalContext['*2*']
-  delete config.globalContext['*3*']
-  delete config.globalContext['*4*']
-  delete config.globalContext['*5*']
-  delete config.globalContext['*6*']
-  delete config.globalContext['*7*']
-  delete config.globalContext['*8*']
-  delete config.globalContext['*9*']
+  delete config.context['*1*']
+  delete config.context['*2*']
+  delete config.context['*3*']
+  delete config.context['*4*']
+  delete config.context['*5*']
+  delete config.context['*6*']
+  delete config.context['*7*']
+  delete config.context['*8*']
+  delete config.context['*9*']
   historyResults.forEach((value, i) => {
-    config.globalContext[`*${i + 1}*`] = { value: asAny(value) }
+    config.context[`*${i + 1}*`] = { value: asAny(value) }
   })
 }
 
-// function executeExample(expression: string) {
-//   const outputs: string[][] = []
-//   const oldLog = console.log
-//   const oldError = console.error
-//   console.log = (...values) => outputs.push(values.map(value => formatValue(value)))
-//   console.error = (...values) => outputs.push(values.map(value => formatValue(value)))
-//   try {
-//     const result = lits.run(expression)
-//     const outputString = `Console: ${outputs.map(output => output.join(', ')).join('  ')}`
-//     return `${formatValue(result)}    ${outputs.length > 0 ? outputString : ''}`
-//   }
-//   catch (error) {
-//     return 'ERROR!'
-//   }
-//   finally {
-//     console.log = oldLog
-//     console.error = oldError
-//   }
-// }
+function parseOption(args: string[], i: number) {
+  const option = args[i]!
 
-function jsonStringify(value: unknown, indent: boolean) {
-  return JSON.stringify(value, null, indent ? 2 : undefined)
+  if (/^-[a-zA-Z]$/.test(option))
+    return { option, argument: args[i + 1], count: 2 }
+
+  const match = /^(--[a-zA-Z-]+)(?:=(.*))?$/.exec(option)
+  if (match)
+    return { option: match[1], argument: match[2], count: 1 }
+
+  return null
 }
-
 function processArguments(args: string[]): Config {
   const defaultConfig: Config = {
-    testNamePattern: null,
+    testPattern: null,
     testFilename: null,
-    test: null,
-    filename: null,
-    globalContext: {},
-    expression: null,
-    help: null,
+    evalFilename: null,
+    loadFilename: null,
+    context: {},
+    eval: null,
   }
-  for (let i = 0; i < args.length; i += 2) {
-    const option = args[i]
-    const argument = args[i + 1]
+  let i = 0
+  while (i < args.length) {
+    const parsedOption = parseOption(args, i)
+    if (!parsedOption) {
+      printErrorMessage(`Unknown argument "${args[i]}"`)
+      process.exit(1)
+    }
+
+    const { option, argument, count } = parsedOption
+    i += count
+
     switch (option) {
-      case 'test':
+      case '-t':
+      case '--test':
         if (!argument) {
-          console.error('Missing filename after test')
+          printErrorMessage(`Missing filename after ${option}`)
           process.exit(1)
         }
         defaultConfig.testFilename = argument
         break
-      case '-t':
-      case '--testNamePattern':
+      case '-p':
+      case '--test-pattern':
         if (!argument) {
-          console.error('Missing test name pattern after -t')
+          printErrorMessage(`Missing test name pattern after ${option}`)
           process.exit(1)
         }
-        defaultConfig.testNamePattern = argument
+        defaultConfig.testPattern = argument
         break
       case '-f':
+      case '--file':
         if (!argument) {
-          console.error('Missing filename after -f')
+          printErrorMessage(`Missing filename after ${option}`)
           process.exit(1)
         }
-        defaultConfig.filename = argument
+        defaultConfig.evalFilename = argument
         break
-      case '-g':
+      case '-l':
+      case '--load':
         if (!argument) {
-          console.error('Missing global variables after -g')
+          printErrorMessage(`Missing filename after ${option}`)
+          process.exit(1)
+        }
+        defaultConfig.loadFilename = argument
+        break
+      case '-c':
+      case '--context':
+        if (!argument) {
+          printErrorMessage(`Missing global variables after ${option}`)
           process.exit(1)
         }
         try {
           Object.entries(JSON.parse(argument) as UnknownRecord).forEach(([key, value]) => {
-            defaultConfig.globalContext[key] = { value: asAny(value) }
+            defaultConfig.context[key] = { value: asAny(value) }
           })
         }
         catch (e) {
-          console.error(`Couldn\`t parse global variables: ${getErrorMessage(e)}`)
+          printErrorMessage(`Couldn\`t parse context: ${getErrorMessage(e)}`)
           process.exit(1)
         }
         break
-      case '-G':
+      case '-C':
+      case '--context-file':
         if (!argument) {
-          console.error('Missing global variables filename after -G')
+          printErrorMessage(`Missing context filename after ${option}`)
           process.exit(1)
         }
         try {
           const contextString = fs.readFileSync(argument, { encoding: 'utf-8' })
           Object.entries(JSON.parse(contextString) as UnknownRecord).forEach(([key, value]) => {
-            defaultConfig.globalContext[key] = { value: asAny(value) }
+            defaultConfig.context[key] = { value: asAny(value) }
           })
         }
         catch (e) {
-          console.error(`Couldn\`t parse global variables: ${getErrorMessage(e)}`)
+          printErrorMessage(`Couldn\`t parse context: ${getErrorMessage(e)}`)
           process.exit(1)
         }
         break
       case '-e':
+      case '--eval':
         if (!argument) {
-          console.error('Missing lits expression after -e')
+          printErrorMessage(`Missing lits expression after ${option}`)
           process.exit(1)
         }
-        defaultConfig.expression = argument
+        defaultConfig.eval = argument
         break
-      case '-h':
       case '--help':
-        if (argument) {
-          defaultConfig.help = argument
-        }
-        else {
-          printUsage()
-          process.exit(0)
-        }
+        printUsage()
+        process.exit(0)
         break
-      case '-v':
       case '--version':
         console.log(version)
         process.exit(0)
         break
       default:
-        console.error(`Unknown argument "${argument}"`)
+        printErrorMessage(`Unknown option "${option}"`)
+        process.exit(1)
     }
   }
-  if (defaultConfig.filename && defaultConfig.expression) {
-    console.error('Cannot both specify -f and -e')
+  if (defaultConfig.evalFilename && defaultConfig.eval) {
+    printErrorMessage('Cannot both specify -f (--file) and -e (--eval)')
     process.exit(1)
   }
-  if (defaultConfig.test) {
-    if (defaultConfig.filename) {
-      console.error('Illegal option -f')
-      process.exit(1)
-    }
-    if (defaultConfig.expression) {
-      console.error('Illegal option -e')
-      process.exit(1)
-    }
+  if (defaultConfig.testFilename && defaultConfig.eval) {
+    printErrorMessage('Cannot both specify -t (--test) and -e (--eval)')
+    process.exit(1)
   }
+
+  if (defaultConfig.testFilename && defaultConfig.context) {
+    printErrorMessage('Cannot both specify -t (--test) and -c (--context)')
+    process.exit(1)
+  }
+
+  if (defaultConfig.testFilename && defaultConfig.evalFilename) {
+    printErrorMessage('Cannot both specify -t (--test) and -f (--file)')
+    process.exit(1)
+  }
+
+  if (defaultConfig.testFilename && defaultConfig.loadFilename) {
+    printErrorMessage('Cannot both specify -t (--test) and -l (--load)')
+    process.exit(1)
+  }
+
   return defaultConfig
 }
 
-function runREPL(rl: ReadLine) {
-  console.log('Type "`help" for more information.')
+function runREPL() {
+  console.log(`Welcome to Lits v${version}.
+Type ${fmt.italic('`help')} for more information.`)
+
+  const rl = createReadlineInterface({
+    completer,
+    historySize: HIST_SIZE,
+    prompt: PROMPT,
+  })
+
   rl.prompt()
 
   rl.on('line', (line) => {
@@ -286,7 +296,7 @@ function runREPL(rl: ReadLine) {
     const helpMatch = helpRegExp.exec(line)
     if (helpMatch) {
       const name = helpMatch[1]!
-      console.log(getDocumentation(fmt, name))
+      console.log(getCliDocumentation(fmt, name))
     }
     else if (line.startsWith('`')) {
       switch (line) {
@@ -296,21 +306,14 @@ function runREPL(rl: ReadLine) {
         case '`help':
           printHelp()
           break
-        case '`globalContext':
-          printGlobalContext(false)
-          break
-        case '`GlobalContext':
-          printGlobalContext(true)
-          break
-        case '`resetGlobalContext':
-          config.globalContext = {}
-          console.log('Global context is now empty\n')
+        case '`context':
+          printContext()
           break
         case '`quit':
           rl.close()
           break
         default:
-          console.error(`Unrecognized command "${line}", try "\`help"\n`)
+          printErrorMessage(`Unrecognized command ${ColorEnum.Italic}${line}${ColorEnum.ResetItalic}, try ${ColorEnum.Italic}\`help${ColorEnum.ResetItalic}`)
       }
     }
     else if (line) {
@@ -336,47 +339,46 @@ ${getDocString(reference)}`)
 
 function getDocString(reference: Reference) {
   if (isFunctionReference(reference))
-    return `${getFunctionSignature(fmt, reference)}`
+    return `${getCliFunctionSignature(fmt, reference)}`
   return ''
 }
 
 function printHelp() {
-  console.log(`\`builtins                 Print all builtin functions
-\`globalContext            Print all global variables
-\`GlobalContext            Print all global variables (JSON.stringify)
-\`resetGlobalContext       Reset all global variables
+  console.log(`
+\`builtins                 Print all builtin functions
+\`context                  Print context
 \`help                     Print this help message
 \`help [builtin function]  Print help for [builtin function]
 \`quit                     Quit
-`)
+`.trim())
 }
 
 function printUsage() {
-  console.log(`Usage: lits [options]
+  console.log(`
+Usage: lits [options]
 
 Options:
-  -g ...                          Global variables as a JSON string
-  -G ...                          Global variables file (.json file)
-  -f ...                          .lits file
-  -e ...                          Lits expression
-  -h, --help                      Show this help
-  -h, --help <builtin function>   Show help for <builtin function>
-  -v, --version                   Print lits version
-`)
+  -c, --context=...               Context as a JSON string
+  -C, --context-file=...          Context file (.json file)
+  -e, --eval=...                  Evaluate Lits expression
+  -f, --file=...                  Evaluate .lits file
+  -p, --test-pattern=...          Test name pattern, used together with --test
+  -t, --test=...                  Test .test.lits file
+  --help                          Show this help
+  --version                       Print lits version
+`.trim())
 }
 
-function printGlobalContext(stringify: boolean) {
-  const context = config.globalContext
-  const keys = Object.keys(context)
+function printContext() {
+  const { context } = config
+  const keys = Object.keys(config.context)
+
   if (keys.length === 0) {
     console.log('[empty]\n')
   }
   else {
     keys.sort().forEach((x) => {
-      if (stringify)
-        console.log(`${x} = ${jsonStringify(context[x], true)}`)
-      else
-        console.log(`${x} = ${stringifyValue(context[x]!.value)}`)
+      console.log(`${x} = ${formatValue(stringifyValue(context[x]!.value, false))}`)
     })
     console.log()
   }
@@ -395,7 +397,7 @@ function completer(line: string) {
   if (expressionMatch)
     return [expressions.filter(c => c.startsWith(expressionMatch[2]!)).map(c => `${expressionMatch[1]}${c} `), line]
 
-  const names = Array.from(new Set([...reservedNames, ...Object.keys(config.globalContext)]))
+  const names = Array.from(new Set([...reservedNames, ...Object.keys(config.context)]))
   const nameMatch = nameRegExp.exec(line)
 
   if (nameMatch)
@@ -404,54 +406,6 @@ function completer(line: string) {
   return [[], line]
 }
 
-// function isHistoryEnabled() {
-//   if (fs.existsSync(historyFile))
-//     return true
-
-//   try {
-//     fs.openSync(historyFile, 'w')
-//   }
-//   catch (e) {
-//     console.error(`No history for you!
-// If you would like to enable history persistence, make sure the directory "${path.resolve(
-//       historyDir,
-//     )}" exists and is writable.
-// `)
-//     return false
-//   }
-// }
-
-function createInterface(options: ReadLineOptions) {
-  // const historyEnabled = isHistoryEnabled()
-  // const history = historyEnabled
-  //   ? fs.readFileSync(historyFile, 'utf8')
-  //     .toString()
-  //     .split('\n')
-  //     .slice(0, -1)
-  //     .reverse()
-  //     .slice(0, 100)
-  //   : []
-
-  // readline.kHistorySize = Math.max(readline.kHistorySize, 100)
-
-  const rl = readline.createInterface(options)
-
-  // if (historyEnabled) {
-  //   const oldAddHistory = rl._addHistory
-
-  //   rl._addHistory = function () {
-  //     const last = rl.history[0]
-  //     const line = oldAddHistory.call(rl)
-
-  //     if (line.length > 0 && line !== last)
-  //       fs.appendFileSync(historyFile, `${line}\n`)
-
-  //     return line
-  //   }
-
-  //   if (Array.isArray(rl.history))
-  //     rl.history.push(...history)
-  // }
-
-  return rl
+function printErrorMessage(message: string) {
+  console.error(fmt.bright.red(message))
 }

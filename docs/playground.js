@@ -615,13 +615,16 @@ var Playground = (function (exports) {
             }
         };
     }
-    function stringifyValue(value) {
+    function stringifyValue(value, html) {
         var _a;
+        if (html === void 0) { html = true; }
+        var gt = html ? '&gt;' : '>';
+        var lt = html ? '&lt;' : '<';
         if (isLitsFunction(value)) {
             if (value.t === FunctionType.Builtin)
-                return "&lt;builtin function ".concat(value.n, "&gt;");
+                return "".concat(lt, "builtin function ").concat(value.n).concat(gt);
             else
-                return "&lt;function ".concat((_a = value.n) !== null && _a !== void 0 ? _a : '\u03BB', "&gt;");
+                return "".concat(lt, "function ").concat((_a = value.n) !== null && _a !== void 0 ? _a : '\u03BB').concat(gt);
         }
         if (value === null)
             return 'null';
@@ -7280,10 +7283,11 @@ var Playground = (function (exports) {
         return Lits;
     }());
     function createContextStack(params) {
+        var _a;
         if (params === void 0) { params = {}; }
-        // Insert an empty context (globalContext), before provided contexts
+        var globalContext = (_a = params.globalContext) !== null && _a !== void 0 ? _a : {};
         // Contexts are checked from left to right
-        var contexts = params.contexts ? __spreadArray([{}], __read(params.contexts), false) : [{}];
+        var contexts = params.contexts ? __spreadArray([globalContext], __read(params.contexts), false) : [globalContext];
         var contextStack = new ContextStack({
             contexts: contexts,
             values: params.values,

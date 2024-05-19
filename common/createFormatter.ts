@@ -1,4 +1,4 @@
-import type { FormatterRule } from './rules'
+import type { FormatterRule } from '../cli/src/cliFormatterRules'
 
 export type TextFormatter = (text: string) => string
 

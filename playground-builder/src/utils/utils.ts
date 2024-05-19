@@ -1,8 +1,3 @@
-export function findAllOccurrences(input: string, pattern: RegExp): Set<string> {
-  const matches = [...input.matchAll(pattern)]
-  return new Set(matches.map(match => match[0]))
-}
-
 export const randomNumbers = [
   0.724649596918931,
   0.1388249643867875,

@@ -29,6 +29,7 @@ export interface JsFunction {
 }
 
 export interface LitsParams {
+  globalContext?: Context
   contexts?: Context[]
   values?: Record<string, unknown>
   lazyValues?: Record<string, LazyValue>
@@ -142,9 +143,9 @@ export class Lits {
 }
 
 export function createContextStack(params: LitsParams = {}): ContextStack {
-  // Insert an empty context (globalContext), before provided contexts
+  const globalContext = params.globalContext ?? {}
   // Contexts are checked from left to right
-  const contexts = params.contexts ? [{}, ...params.contexts] : [{}]
+  const contexts = params.contexts ? [globalContext, ...params.contexts] : [globalContext]
   const contextStack = new ContextStack({
     contexts,
     values: params.values,

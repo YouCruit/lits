@@ -1,9 +1,9 @@
 import { type FunctionReference, type Reference, isFunctionReference } from '../../../../reference'
 import { nameCharacters } from '../../../../src/tokenizer/tokenizers'
-import { createFormatter } from '../../formatter/createFormatter'
+import { createFormatter } from '../../../../common/createFormatter'
 import { createVariableRule, mdRules } from '../../formatter/rules'
 import { styles } from '../../styles'
-import { findAllOccurrences } from '../../utils/utils'
+import { findAllOccurrences } from '../../../../common/utils'
 
 const variableRegExp = new RegExp(`\\$${nameCharacters}+`, 'g')
 

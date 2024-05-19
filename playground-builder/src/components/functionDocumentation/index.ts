@@ -2,12 +2,12 @@ import { apiReference, isFunctionReference } from '../../../../reference'
 import type { FunctionReference, Reference } from '../../../../reference'
 import { styles } from '../../styles'
 import { externalLinkIcon } from '../../icons'
+import { getClojureDocsLink } from '../../../../common/clojureDocs'
 import { formatDescription } from './description'
 import { getFunctionExamples } from './functionExamples'
 import { getArgumentInfo } from './argumentInfo'
 import { getSection } from './section'
 import { getFunctionSignature } from './functionSignature'
-import { getClojureDocsLink } from './clojureDocs'
 
 export function getAllDocumentationItems() {
   return Object.values(apiReference)

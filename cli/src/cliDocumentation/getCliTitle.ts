@@ -1,6 +1,6 @@
-import type { TextFormatter } from '../../../common/textFormatter'
+import type { Colorizer } from '../colorizer'
 import type { Reference } from '../../../reference'
 
-export function getTitle(fmt: TextFormatter, reference: Reference) {
+export function getCliTitle(fmt: Colorizer, reference: Reference) {
   return `${fmt.bright.blue(reference.title)} - ${fmt.gray(reference.category)}`
 }

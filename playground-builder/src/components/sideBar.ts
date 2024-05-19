@@ -20,14 +20,14 @@ export function getSideBar() {
       </span>
       <span ${styles('text-sm')}>F3</span>
     </div>
-    <div ${styles('flex', 'mb-2', 'text-color-gray-400', 'text-base')}>
-      <a ${styles('flex', 'items-center', 'gap-1')} class="link" onclick="Playground.showPage('index', 'smooth')">
+    <div id='home-page_link' onclick="Playground.showPage('index', 'smooth')" ${styles('flex', 'mb-2', 'text-color-gray-400', 'text-base', 'cursor-pointer')}>
+      <a ${styles('flex', 'items-center', 'gap-1')} class="link">
         ${homeIcon}
         <span>Home</span>
       </a>
     </div>
-    <div ${styles('flex', 'mb-2', 'text-color-gray-400', 'text-base')}>
-      <a ${styles('flex', 'items-center', 'gap-1')} class="link" onclick="Playground.showPage('example-page', 'smooth')">
+    <div id='example-page_link' onclick="Playground.showPage('example-page', 'smooth')" ${styles('flex', 'mb-2', 'text-color-gray-400', 'text-base', 'cursor-pointer')}>
+      <a ${styles('flex', 'items-center', 'gap-1')} class="link">
         ${lampIcon}
         <span>Examples</span>
     </a>

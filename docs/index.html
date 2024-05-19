@@ -14,36 +14,75 @@
     <main id="main-panel" class="fancy-scroll">
       
   <div id="index" class="content">
-    <center>
-    <span style="white-space: pre-wrap; font-family: 'Fira Code', monospace; font-size: 1.25rem;">
-    ░▒▓█▓▒░      ░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░ 
-    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        
-    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        
-    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░   ░▒▓██████▓▒░  
-    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░ 
-    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░ 
-    ░▒▓████████▓▒░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░  
-    </span>
-  </center>
-                                                  
-    <br />
-    <div>
-      <p>Lits is a Lisp dialect made to work well in a browser or Node environment. It's heavily inspired by Clojure, most of the core functions from Clojure have been ported.</p>
-      <p>Some outstanding features / shortcommings worth mentioning.</p>
-      <ul>
-        <li>All datatypes in Lits are immutable.</li>
-        <li>All functions are <a href="https://www.sitepoint.com/functional-programming-pure-functions/">pure</a>, unless the built-in function name ends with a !. See <pre>write!</pre> or <pre>rand!</pre> for example.</li>
-        <li>All datatypes in Lits mapps directly to Javascript's types.</li>
-        <li>No lazy evaluation.</li>
-        <li>No quotes.</li>
-        <li>No macros.</li>
-        <li>No keyword symbols. <pre>:foo</pre> is just a shorthand for <pre>"foo"</pre>.</li>
-        <li>Dynamic scoping, no lexical scoping</li>
-      </ul>
-      <p>You can see some examples and find documentation of all built-in function to the left.</p>
-      <p>For more instruction on how to install and use Lits as a cli or a typescript lib, checkout <a href="https://github.com/YouCruit/lits">https://github.com/YouCruit/lits</a></p>
-      <p>
-      <p>Happy coding!</p>
+    <div style="display: flex; justify-content: center;">
+      <span style="white-space: pre; font-family: 'Fira Code', monospace; font-size: 1.25rem;">
+ ░▒▓█▓▒░      ░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░
+ ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░       
+ ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░       
+ ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░   ░▒▓██████▓▒░ 
+ ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░
+ ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░
+ ░▒▓████████▓▒░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░ 
+      </span>
+    </div>
+    <div style="display: flex; justify-content: center; margin-top: 2rem;">
+      <div style="font-family: 'Roboto', sans-serif; max-width: 600px; color: rgb(212 212 212); display: flex; flex-direction: column;">
+        <div style="margin-top: 1rem;">Lits is a Lisp dialect implemented in TypeScript, drawing heavy inspiration from Clojure. Most core functions have been ported to Lits, ensuring a robust and familiar experience for Clojure users.</div>
+        <div style="margin-top: 1rem;">Key features of Lits include:</div>
+        <div style="margin-top: 1rem; margin-left: 2rem; display: flex; flex-direction: column; font-size: 1rem; gap: 0.5rem;">
+          <div style="display: flex; flex-direction: row; gap: 1rem; align-items: start;">
+            <div style="margin-top: 1px;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M21.546 5.111a1.5 1.5 0 0 1 0 2.121L10.303 18.475a1.6 1.6 0 0 1-2.263 0L2.454 12.89a1.5 1.5 0 1 1 2.121-2.121l4.596 4.596L19.424 5.111a1.5 1.5 0 0 1 2.122 0"/></g></svg></div>
+            <div>
+              <span style="font-weight: bold;">Immutability:</span>
+              <span style="color: rgb(163 163 163);">All datatypes in Lits are immutable.</span>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: row; gap: 1rem; align-items: start;">
+            <div style="margin-top: 1px;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M21.546 5.111a1.5 1.5 0 0 1 0 2.121L10.303 18.475a1.6 1.6 0 0 1-2.263 0L2.454 12.89a1.5 1.5 0 1 1 2.121-2.121l4.596 4.596L19.424 5.111a1.5 1.5 0 0 1 2.122 0"/></g></svg></div>
+            <div>
+              <span style="font-weight: bold;">Pure Functions:</span>
+              <span style="color: rgb(163 163 163);">Functions are <a class="external-link" href="https://en.wikipedia.org/wiki/Pure_function">pure</a> by default. Functions with side effects have names ending in an exclamation mark (!), such as <span style="color: #569cd6;"><a onclick="Playground.showPage('write_exclamation')">write!</a></span> or <span style="color: #569cd6;"><a onclick="Playground.showPage('rand_exclamation')">rand!</a></span>.</span>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: row; gap: 1rem; align-items: start;">
+            <div style="margin-top: 1px;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M21.546 5.111a1.5 1.5 0 0 1 0 2.121L10.303 18.475a1.6 1.6 0 0 1-2.263 0L2.454 12.89a1.5 1.5 0 1 1 2.121-2.121l4.596 4.596L19.424 5.111a1.5 1.5 0 0 1 2.122 0"/></g></svg></div>
+            <div>
+              <span style="font-weight: bold;">Type Mapping:</span>
+              <span style="color: rgb(163 163 163);">All datatypes in Lits map directly to JavaScript types.</span>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: row; gap: 1rem; align-items: start;">
+            <div style="margin-top: 1px;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M21.546 5.111a1.5 1.5 0 0 1 0 2.121L10.303 18.475a1.6 1.6 0 0 1-2.263 0L2.454 12.89a1.5 1.5 0 1 1 2.121-2.121l4.596 4.596L19.424 5.111a1.5 1.5 0 0 1 2.122 0"/></g></svg></div>
+            <div>
+              <span style="font-weight: bold;">Evaluation:</span>
+              <span style="color: rgb(163 163 163);">Lits does not support lazy evaluation.</span>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: row; gap: 1rem; align-items: start;">
+            <div style="margin-top: 1px;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M21.546 5.111a1.5 1.5 0 0 1 0 2.121L10.303 18.475a1.6 1.6 0 0 1-2.263 0L2.454 12.89a1.5 1.5 0 1 1 2.121-2.121l4.596 4.596L19.424 5.111a1.5 1.5 0 0 1 2.122 0"/></g></svg></div>
+            <div>
+              <span style="font-weight: bold;">Macros:</span>
+              <span style="color: rgb(163 163 163);">Macros are not supported in Lits.</span>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: row; gap: 1rem; align-items: start;">
+            <div style="margin-top: 1px;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M21.546 5.111a1.5 1.5 0 0 1 0 2.121L10.303 18.475a1.6 1.6 0 0 1-2.263 0L2.454 12.89a1.5 1.5 0 1 1 2.121-2.121l4.596 4.596L19.424 5.111a1.5 1.5 0 0 1 2.122 0"/></g></svg></div>
+            <div>
+              <span style="font-weight: bold;">Keyword Symbols:</span>
+              <span style="color: rgb(163 163 163);">There are no keyword symbols. The notation <span style="color: #cc8f77;">:foo</span> is simply shorthand for the string <span style="color: #cc8f77;">"foo"</span>.</span>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: row; gap: 1rem; align-items: start;">
+            <div style="margin-top: 1px;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M21.546 5.111a1.5 1.5 0 0 1 0 2.121L10.303 18.475a1.6 1.6 0 0 1-2.263 0L2.454 12.89a1.5 1.5 0 1 1 2.121-2.121l4.596 4.596L19.424 5.111a1.5 1.5 0 0 1 2.122 0"/></g></svg></div>
+            <div>
+              <span style="font-weight: bold;">Scoping:</span>
+              <span style="color: rgb(163 163 163);">Lits uses <a class="external-link" href="https://en.wikipedia.org/wiki/Scope_(computer_science)#Dynamic_scope">dynamic scoping</a>, not <a class="external-link" href="https://en.wikipedia.org/wiki/Scope_(computer_science)#Lexical_scope">lexical scoping</a>.</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 1rem;">For more information, visit the <a class="external-link" href="https://github.com/YouCruit/lits">Lits GitHub repository</a></div>
+        <div style="margin-top: 1rem;">Happy coding!</div>
+      </div>
     </div>
   </div>
   
@@ -24776,14 +24815,14 @@ If the function takes only one argument, <span style="color: rgb(229 229 229);">
       </span>
       <span style="font-size: 0.875rem;">F3</span>
     </div>
-    <div style="display: flex; margin-bottom: 0.5rem; color: rgb(163 163 163); font-size: 1rem;">
-      <a style="display: flex; align-items: center; gap: 0.25rem;" class="link" onclick="Playground.showPage('index', 'smooth')">
+    <div id='home-page_link' onclick="Playground.showPage('index', 'smooth')" style="display: flex; margin-bottom: 0.5rem; color: rgb(163 163 163); font-size: 1rem; cursor: pointer;">
+      <a style="display: flex; align-items: center; gap: 0.25rem;" class="link">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M6 19h3v-6h6v6h3v-9l-6-4.5L6 10zm-2 2V9l8-6l8 6v12h-7v-6h-2v6zm8-8.75"/></svg>
         <span>Home</span>
       </a>
     </div>
-    <div style="display: flex; margin-bottom: 0.5rem; color: rgb(163 163 163); font-size: 1rem;">
-      <a style="display: flex; align-items: center; gap: 0.25rem;" class="link" onclick="Playground.showPage('example-page', 'smooth')">
+    <div id='example-page_link' onclick="Playground.showPage('example-page', 'smooth')" style="display: flex; margin-bottom: 0.5rem; color: rgb(163 163 163); font-size: 1rem; cursor: pointer;">
+      <a style="display: flex; align-items: center; gap: 0.25rem;" class="link">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none"><path fill="currentColor" d="M10.211 20.106L9.764 21zm-1.067-4.42l-.924.382zm-.226-.452l-.79.613zm6.164 0l.79.613zM17 10c0 1.637-.785 3.09-2.004 4.003l1.2 1.6A6.991 6.991 0 0 0 19 10zm-5-5a5 5 0 0 1 5 5h2a7 7 0 0 0-7-7zm-5 5a5 5 0 0 1 5-5V3a7 7 0 0 0-7 7zm2.004 4.003A4.991 4.991 0 0 1 7 10H5a6.991 6.991 0 0 0 2.804 5.603zm1.993 5.74a12.296 12.296 0 0 0-.929-4.44l-1.848.765c.486 1.177.751 2.437.778 3.717zm2.345-.532a3 3 0 0 1-2.684 0L9.764 21a5 5 0 0 0 4.472 0zm.59-3.907a12.296 12.296 0 0 0-.93 4.439l2 .042c.027-1.28.292-2.54.778-3.717zM14.236 21a1.39 1.39 0 0 0 .766-1.215l-2-.042a.61.61 0 0 1 .34-.532zm-5.238-1.215c.01.504.294.979.766 1.215l.894-1.789a.61.61 0 0 1 .34.532zm-1.194-4.182c.15.114.239.18.301.23c.063.052.051.05.023.014l1.58-1.226c-.187-.242-.477-.448-.704-.618zm2.264-.3c-.078-.189-.177-.447-.36-.682l-1.58 1.226c-.013-.018-.016-.027-.003 0a14.989 14.989 0 0 1 .094.22zm4.928-1.3c-.227.17-.518.377-.705.618l1.58 1.226c-.027.035-.039.038.024-.013c.062-.051.15-.117.301-.23zm.784 2.065l.06-.143l.035-.078c.013-.027.01-.018-.003 0l-1.58-1.226c-.183.236-.282.493-.36.683z"/><path stroke="currentColor" stroke-width="2" d="M14.992 16a5.384 5.384 0 0 1-5.984 0"/></g></svg>
         <span>Examples</span>
     </a>

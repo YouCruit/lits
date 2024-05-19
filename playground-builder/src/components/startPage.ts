@@ -1,38 +1,88 @@
+import { checkIcon } from '../icons'
 import { styles } from '../styles'
+
+// Pure Functions: Functions are pure by default. Functions with side effects have names ending in an exclamation mark (!), such as write! or rand!.
+// Type Mapping: All datatypes in Lits map directly to JavaScript types.
+// Evaluation: Lits does not support lazy evaluation.
+// Macros: Macros are not supported in Lits.
+// Keyword Symbols: There are no keyword symbols. The notation :foo is simply shorthand for the string "foo".
+// Scoping: Lits uses dynamic scoping, not lexical scoping.
+// For more information, visit the Lits GitHub repository.
+
+// Happy coding!
 
 export function getStartPage(): string {
   return `
   <div id="index" class="content">
-    <center>
-    <span ${styles('whitespace-pre-wrap', 'font-mono', 'text-xl')}>
-    ░▒▓█▓▒░      ░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░ 
-    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        
-    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░        
-    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░   ░▒▓██████▓▒░  
-    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░ 
-    ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░ 
-    ░▒▓████████▓▒░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░  
-    </span>
-  </center>
-                                                  
-    <br />
-    <div>
-      <p>Lits is a Lisp dialect made to work well in a browser or Node environment. It's heavily inspired by Clojure, most of the core functions from Clojure have been ported.</p>
-      <p>Some outstanding features / shortcommings worth mentioning.</p>
-      <ul>
-        <li>All datatypes in Lits are immutable.</li>
-        <li>All functions are <a href="https://www.sitepoint.com/functional-programming-pure-functions/">pure</a>, unless the built-in function name ends with a !. See <pre>write!</pre> or <pre>rand!</pre> for example.</li>
-        <li>All datatypes in Lits mapps directly to Javascript's types.</li>
-        <li>No lazy evaluation.</li>
-        <li>No quotes.</li>
-        <li>No macros.</li>
-        <li>No keyword symbols. <pre>:foo</pre> is just a shorthand for <pre>"foo"</pre>.</li>
-        <li>Dynamic scoping, no lexical scoping</li>
-      </ul>
-      <p>You can see some examples and find documentation of all built-in function to the left.</p>
-      <p>For more instruction on how to install and use Lits as a cli or a typescript lib, checkout <a href="https://github.com/YouCruit/lits">https://github.com/YouCruit/lits</a></p>
-      <p>
-      <p>Happy coding!</p>
+    <div ${styles('flex', 'justify-center')}>
+      <span ${styles('whitespace-pre', 'font-mono', 'text-xl')}>
+ ░▒▓█▓▒░      ░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░
+ ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░       
+ ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░       
+ ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░   ░▒▓██████▓▒░ 
+ ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░
+ ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░
+ ░▒▓████████▓▒░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░ 
+      </span>
+    </div>
+    <div ${styles('flex', 'justify-center', 'mt-8')}>
+      <div ${styles('font-sans', 'max-width: 600px;', 'text-color-gray-300', 'flex', 'flex-col')}>
+        <div ${styles('mt-4')}>Lits is a Lisp dialect implemented in TypeScript, drawing heavy inspiration from Clojure. Most core functions have been ported to Lits, ensuring a robust and familiar experience for Clojure users.</div>
+        <div ${styles('mt-4')}>Key features of Lits include:</div>
+        <div ${styles('mt-4', 'ml-8', 'flex', 'flex-col', 'text-base', 'gap-2')}>
+          <div ${styles('flex', 'flex-row', 'gap-4', 'items-start')}>
+            <div ${styles('mt-px')}>${checkIcon}</div>
+            <div>
+              <span ${styles('font-bold')}>Immutability:</span>
+              <span ${styles('text-color-gray-400')}>All datatypes in Lits are immutable.</span>
+            </div>
+          </div>
+          <div ${styles('flex', 'flex-row', 'gap-4', 'items-start')}>
+            <div ${styles('mt-px')}>${checkIcon}</div>
+            <div>
+              <span ${styles('font-bold')}>Pure Functions:</span>
+              <span ${styles('text-color-gray-400')}>Functions are <a class="external-link" href="https://en.wikipedia.org/wiki/Pure_function">pure</a> by default. Functions with side effects have names ending in an exclamation mark (!), such as <span ${styles('text-color-Blue')}><a onclick="Playground.showPage('write_exclamation')">write!</a></span> or <span ${styles('text-color-Blue')}><a onclick="Playground.showPage('rand_exclamation')">rand!</a></span>.</span>
+            </div>
+          </div>
+          <div ${styles('flex', 'flex-row', 'gap-4', 'items-start')}>
+            <div ${styles('mt-px')}>${checkIcon}</div>
+            <div>
+              <span ${styles('font-bold')}>Type Mapping:</span>
+              <span ${styles('text-color-gray-400')}>All datatypes in Lits map directly to JavaScript types.</span>
+            </div>
+          </div>
+          <div ${styles('flex', 'flex-row', 'gap-4', 'items-start')}>
+            <div ${styles('mt-px')}>${checkIcon}</div>
+            <div>
+              <span ${styles('font-bold')}>Evaluation:</span>
+              <span ${styles('text-color-gray-400')}>Lits does not support lazy evaluation.</span>
+            </div>
+          </div>
+          <div ${styles('flex', 'flex-row', 'gap-4', 'items-start')}>
+            <div ${styles('mt-px')}>${checkIcon}</div>
+            <div>
+              <span ${styles('font-bold')}>Macros:</span>
+              <span ${styles('text-color-gray-400')}>Macros are not supported in Lits.</span>
+            </div>
+          </div>
+          <div ${styles('flex', 'flex-row', 'gap-4', 'items-start')}>
+            <div ${styles('mt-px')}>${checkIcon}</div>
+            <div>
+              <span ${styles('font-bold')}>Keyword Symbols:</span>
+              <span ${styles('text-color-gray-400')}>There are no keyword symbols. The notation <span ${styles('text-color-Pink')}>:foo</span> is simply shorthand for the string <span ${styles('text-color-Pink')}>"foo"</span>.</span>
+            </div>
+          </div>
+          <div ${styles('flex', 'flex-row', 'gap-4', 'items-start')}>
+            <div ${styles('mt-px')}>${checkIcon}</div>
+            <div>
+              <span ${styles('font-bold')}>Scoping:</span>
+              <span ${styles('text-color-gray-400')}>Lits uses <a class="external-link" href="https://en.wikipedia.org/wiki/Scope_(computer_science)#Dynamic_scope">dynamic scoping</a>, not <a class="external-link" href="https://en.wikipedia.org/wiki/Scope_(computer_science)#Lexical_scope">lexical scoping</a>.</span>
+            </div>
+          </div>
+        </div>
+        <div ${styles('mt-4')}>For more information, visit the <a class="external-link" href="https://github.com/YouCruit/lits">Lits GitHub repository</a></div>
+        <div ${styles('mt-4')}>Happy coding!</div>
+      </div>
     </div>
   </div>
   `

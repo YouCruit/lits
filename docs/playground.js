@@ -7919,7 +7919,7 @@ var Playground = (function (exports) {
             inactivateAll();
             Search.closeSearch();
             var page = document.getElementById(id);
-            var link = document.getElementById("".concat(id, "_link"));
+            var link = document.getElementById("".concat(!id || id === 'index' ? 'home-page' : id, "_link"));
             if (page) {
                 page.classList.add('active-content');
                 if (link) {

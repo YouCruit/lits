@@ -604,7 +604,7 @@ export function showPage(id: string, scroll: 'smooth' | 'instant' | 'none', hist
 
     Search.closeSearch()
     const page = document.getElementById(id)
-    const link = document.getElementById(`${id}_link`)
+    const link = document.getElementById(`${!id || id === 'index' ? 'home-page' : id}_link`)
 
     if (page) {
       page.classList.add('active-content')

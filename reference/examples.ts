@@ -27,7 +27,11 @@ export const examples: Example[] = [
 ;; Access object properies with .
 ;; Access string and array elements with #
 
-(def data {:numbers [1 2 3], :chars [:a :b :c], :string "Albert"})
+(def
+  data 
+  {:numbers [1 2 3],
+   :chars [:a :b :c],
+   :string "Albert"})
 
 (write! data.numbers#0)
 (write! data.chars#2)
@@ -58,7 +62,10 @@ export const examples: Example[] = [
     code: `
 (defn formatPhoneNumber [$data]
   (if (string? $data)
-    (let [phoneNumber (if (= "+" (nth $data 0)) (subs $data 2) $data)]
+    (let [phoneNumber
+          (if (= "+" (nth $data 0))
+            (subs $data 2)
+            $data)]
       (cond
         (> (count phoneNumber) 6)
           (str
@@ -70,7 +77,11 @@ export const examples: Example[] = [
             (subs phoneNumber 6))
 
         (> (count phoneNumber) 3)
-          (str "(" (subs phoneNumber 0 3) ") " (subs phoneNumber 3))
+          (str
+            "("
+            (subs phoneNumber 0 3)
+            ") "
+            (subs phoneNumber 3))
 
         (> (count phoneNumber) 0)
           (str "(" (subs phoneNumber 0))
@@ -180,7 +191,11 @@ export const examples: Example[] = [
     description: 'Check if string is formatted as an ISO date string.',
     code: `
 (defn isoDateString? [$data]
-  (if-let [m (match (regexp "^(\\d{4})-(\\d{2})-(\\d{2})$") $data)]
+  (if-let [m
+           (match
+             (regexp
+               "^(\\d{4})-(\\d{2})-(\\d{2})$")
+               $data)]
     (let
       [
         year (number (m 1))
@@ -200,7 +215,11 @@ export const examples: Example[] = [
         (or (< month 1) (> month 12))
         (or (< day 1) (> day 31))
         (and
-          (or (= month 4) (= month 6) (= month 9) (= month 11))
+          (or
+            (= month 4)
+            (= month 6)
+            (= month 9)
+            (= month 11))
           (> day 30)
         )
         (and
@@ -253,8 +272,14 @@ export const examples: Example[] = [
       $values
       &let [
         label
-        (let [entry (some #(= value (%1 :value)) $array)]
-          (if (nil? entry) (str value) (entry :label))
+        (let [entry
+               (some
+                 #(= value (%1 :value))
+                 $array)]
+          (if
+            (nil? entry)
+            (str value)
+            (entry :label))
         )
       ]
       &when (boolean label)

@@ -7919,18 +7919,19 @@ var Playground = (function (exports) {
             inactivateAll();
             Search.closeSearch();
             var page = document.getElementById(id);
-            var link = document.getElementById("".concat(!id || id === 'index' ? 'home-page' : id, "_link"));
-            if (page) {
-                page.classList.add('active-content');
-                if (link) {
-                    link.classList.add('active-sidebar-entry');
-                    if (scroll !== 'none')
-                        link.scrollIntoView({ block: 'center', behavior: scroll });
-                }
-            }
-            else {
+            var linkElementId = "".concat((!id || id === 'index') ? 'home-page' : id, "_link");
+            var link = document.getElementById(linkElementId);
+            if (!id || id === 'index' || id === 'example-page')
+                elements.mainPanel.scrollTo({ top: 0 });
+            if (!page) {
                 showPage('index', scroll, 'replace');
                 return;
+            }
+            page.classList.add('active-content');
+            if (link) {
+                link.classList.add('active-sidebar-entry');
+                if (scroll !== 'none')
+                    link.scrollIntoView({ block: 'center', behavior: scroll });
             }
             if (id === 'index')
                 history.replaceState(null, 'Lits', window.location.pathname + window.location.search);
@@ -7938,7 +7939,6 @@ var Playground = (function (exports) {
                 history.replaceState(null, '', "#".concat(id));
             else if (historyEvent !== 'none')
                 history.pushState(null, '', "#".concat(id));
-            elements.mainPanel.scrollTo({ top: 0 });
         }, 0);
     }
     function inactivateAll() {

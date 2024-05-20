@@ -1,18 +1,22 @@
 import { checkIcon } from '../icons'
 import { styles } from '../styles'
+import { version } from '../../../package.json'
 
 export function getStartPage(): string {
   return `
   <div id="index" class="content">
+    <div ${styles('flex', 'justify-end', 'mr-2')}>
+      v${version}
+    </div>
     <div ${styles('flex', 'justify-center')}>
-      <span ${styles('whitespace-pre', 'font-mono', 'text-xl')}>
- ░▒▓█▓▒░      ░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░
- ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░       
- ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░       
- ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░   ░▒▓██████▓▒░ 
- ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░
- ░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░
- ░▒▓████████▓▒░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░ 
+      <span ${styles('whitespace-pre', 'font-mono', 'text-xl')}>${`
+░▒▓█▓▒░      ░▒▓█▓▒░▒▓████████▓▒░▒▓███████▓▒░
+░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░       
+░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓█▓▒░       
+░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░   ░▒▓██████▓▒░ 
+░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░
+░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░         ░▒▓█▓▒░
+░▒▓████████▓▒░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░ `.trimStart()}
       </span>
     </div>
     <div ${styles('flex', 'justify-center', 'my-4')}>

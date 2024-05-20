@@ -4,7 +4,9 @@ import { styles } from '../styles'
 export function getExamplePage(): string {
   return `
   <div id="example-page" class="content">
-    <h1>Examples</h1>
+    <center>
+      <h1>Examples</h1>
+    </center>
     <br />
     <ul>
     ${examples

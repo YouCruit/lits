@@ -1,6 +1,6 @@
 {
   "name": "@youcruit/lits",
-  "version": "1.0.64",
+  "version": "1.0.65",
   "description": "A lisp implementation in Typescript",
   "author": "Albert Mojir",
   "license": "MIT",
@@ -23,7 +23,7 @@
   "module": "dist/index.esm.js",
   "iife": "dist/lits.iife.js",
   "bin": {
-    "lits": "cli/index.cjs"
+    "lits": "dist/cli/cli.js"
   },
   "files": [
     "cli/**/*",

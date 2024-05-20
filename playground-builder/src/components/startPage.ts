@@ -25,7 +25,7 @@ export function getStartPage(): string {
  ░▒▓████████▓▒░▒▓█▓▒░  ░▒▓█▓▒░  ░▒▓███████▓▒░ 
       </span>
     </div>
-    <div ${styles('flex', 'justify-center', 'mt-8')}>
+    <div ${styles('flex', 'justify-center', 'my-4')}>
       <div ${styles('font-sans', 'max-width: 600px;', 'text-color-gray-300', 'flex', 'flex-col')}>
         <div ${styles('mt-4')}>Lits is a Lisp dialect implemented in TypeScript, drawing heavy inspiration from Clojure. Most core functions have been ported to Lits, ensuring a robust and familiar experience for Clojure users.</div>
         <div ${styles('mt-4')}>Key features of Lits include:</div>

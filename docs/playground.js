@@ -4544,7 +4544,7 @@ var Playground = (function (exports) {
         },
     };
 
-    var version = "1.0.64";
+    var version = "1.0.65";
 
     var uuidTemplate = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
     var xyRegexp = /[xy]/g;
@@ -7938,6 +7938,7 @@ var Playground = (function (exports) {
                 history.replaceState(null, '', "#".concat(id));
             else if (historyEvent !== 'none')
                 history.pushState(null, '', "#".concat(id));
+            elements.mainPanel.scrollTo({ top: 0 });
         }, 0);
     }
     function inactivateAll() {

@@ -628,6 +628,8 @@ export function showPage(id: string, scroll: 'smooth' | 'instant' | 'none', hist
 
     else if (historyEvent !== 'none')
       history.pushState(null, '', `#${id}`)
+
+    elements.mainPanel.scrollTo({ top: 0 })
   }, 0)
 }
 

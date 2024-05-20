@@ -4544,7 +4544,7 @@ var Playground = (function (exports) {
         },
     };
 
-    var version = "1.0.65";
+    var version = "1.0.66";
 
     var uuidTemplate = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
     var xyRegexp = /[xy]/g;
@@ -7949,31 +7949,6 @@ var Playground = (function (exports) {
         while (els[0])
             els[0].classList.remove('active-sidebar-entry');
     }
-    // function stringifyValue(value: unknown) {
-    //   if (isLitsFunction(value)) {
-    //     if (isBuiltinFunction(value))
-    //       return `<builtin ${value.n}>`
-    //     else if (isNativeJsFunction(value))
-    //       return '<js \u03BB>'
-    //     else if (isUserDefinedFunction(value))
-    //       return `<function ${value.n || '\u03BB'}>`
-    //     else
-    //       return `<function ${(value as unknown as UnknownRecord).n || '\u03BB'}>`
-    //   }
-    //   if (value === null)
-    //     return 'null'
-    //   if (typeof value === 'object' && value instanceof RegExp)
-    //     return `${value}`
-    //   if (typeof value === 'object' && value instanceof Error)
-    //     return value.toString()
-    //   if (value === Number.POSITIVE_INFINITY)
-    //     return Number.POSITIVE_INFINITY
-    //   if (value === Number.NEGATIVE_INFINITY)
-    //     return Number.NEGATIVE_INFINITY
-    //   if (typeof value === 'number' && Number.isNaN(value))
-    //     return 'NaN'
-    //   return JSON.stringify(value, null, 2)
-    // }
     function addToPlayground(name, encodedExample) {
         var example = atob(encodedExample);
         appendLitsCode(";; Example - ".concat(name, " ;;\n\n").concat(example, "\n"));

@@ -643,38 +643,6 @@ function inactivateAll() {
     els[0].classList.remove('active-sidebar-entry')
 }
 
-// function stringifyValue(value: unknown) {
-//   if (isLitsFunction(value)) {
-//     if (isBuiltinFunction(value))
-//       return `<builtin ${value.n}>`
-//     else if (isNativeJsFunction(value))
-//       return '<js \u03BB>'
-//     else if (isUserDefinedFunction(value))
-//       return `<function ${value.n || '\u03BB'}>`
-//     else
-//       return `<function ${(value as unknown as UnknownRecord).n || '\u03BB'}>`
-//   }
-//   if (value === null)
-//     return 'null'
-
-//   if (typeof value === 'object' && value instanceof RegExp)
-//     return `${value}`
-
-//   if (typeof value === 'object' && value instanceof Error)
-//     return value.toString()
-
-//   if (value === Number.POSITIVE_INFINITY)
-//     return Number.POSITIVE_INFINITY
-
-//   if (value === Number.NEGATIVE_INFINITY)
-//     return Number.NEGATIVE_INFINITY
-
-//   if (typeof value === 'number' && Number.isNaN(value))
-//     return 'NaN'
-
-//   return JSON.stringify(value, null, 2)
-// }
-
 export function addToPlayground(name: string, encodedExample: string) {
   const example = atob(encodedExample)
   appendLitsCode(`;; Example - ${name} ;;\n\n${example}\n`)

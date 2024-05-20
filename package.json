@@ -1,7 +1,7 @@
 {
   "name": "@youcruit/lits",
-  "version": "1.0.65",
-  "description": "A lisp implementation in Typescript",
+  "version": "1.0.66",
+  "description": "Lits is a Lisp dialect implemented in TypeScript",
   "author": "Albert Mojir",
   "license": "MIT",
   "homepage": "https://youcruit.github.io/lits",
@@ -17,6 +17,8 @@
     "Typescript",
     "Web",
     "Compiler",
+    "AST",
+    "Interpreter",
     "Clojure"
   ],
   "main": "dist/index.js",
@@ -26,7 +28,6 @@
     "lits": "dist/cli/cli.js"
   },
   "files": [
-    "cli/**/*",
     "dist"
   ],
   "scripts": {
@@ -43,7 +44,7 @@
     "build-lits": "npm run clean-lits && rollup -c",
     "build-playground": "npm run clean-playground && rollup -c rollup.config.playground-builder.js && rollup -c rollup.config.playground-www.js && node ./playground-builder/build/buildPlaygroundSite.js",
     "build-cli": "rollup -c rollup.config.cli.js",
-    "cli": "node ./dist/cli/cli.js",
+    "lits": "node ./dist/cli/cli.js",
     "playground": "open-cli ./docs/index.html",
     "lcov": "open-cli ./coverage/index.html"
   },

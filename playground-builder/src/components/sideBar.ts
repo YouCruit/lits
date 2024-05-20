@@ -32,7 +32,7 @@ export function getSideBar() {
         <span>Examples</span>
     </a>
     </div>
-    <div ${styles('flex', 'flex-col', 'gap-4', 'mt-4')}>
+    <div ${styles('flex', 'flex-col', 'gap-4', 'my-4')}>
     ${categories
       .map((categoryKey) => {
         return `

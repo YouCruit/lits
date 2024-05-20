@@ -1,16 +1,6 @@
 import { checkIcon } from '../icons'
 import { styles } from '../styles'
 
-// Pure Functions: Functions are pure by default. Functions with side effects have names ending in an exclamation mark (!), such as write! or rand!.
-// Type Mapping: All datatypes in Lits map directly to JavaScript types.
-// Evaluation: Lits does not support lazy evaluation.
-// Macros: Macros are not supported in Lits.
-// Keyword Symbols: There are no keyword symbols. The notation :foo is simply shorthand for the string "foo".
-// Scoping: Lits uses dynamic scoping, not lexical scoping.
-// For more information, visit the Lits GitHub repository.
-
-// Happy coding!
-
 export function getStartPage(): string {
   return `
   <div id="index" class="content">
@@ -30,6 +20,13 @@ export function getStartPage(): string {
         <div ${styles('mt-4')}>Lits is a Lisp dialect implemented in TypeScript, drawing heavy inspiration from Clojure. Most core functions have been ported to Lits, ensuring a robust and familiar experience for Clojure users.</div>
         <div ${styles('mt-4')}>Key features of Lits include:</div>
         <div ${styles('mt-4', 'ml-8', 'flex', 'flex-col', 'text-base', 'gap-2')}>
+          <div ${styles('flex', 'flex-row', 'gap-4', 'items-start')}>
+            <div ${styles('mt-px')}>${checkIcon}</div>
+            <div>
+              <span ${styles('font-bold')}>Dependencies:</span>
+              <span ${styles('text-color-gray-400')}>No third party dependencies.</span>
+            </div>
+          </div>
           <div ${styles('flex', 'flex-row', 'gap-4', 'items-start')}>
             <div ${styles('mt-px')}>${checkIcon}</div>
             <div>

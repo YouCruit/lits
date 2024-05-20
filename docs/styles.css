@@ -117,15 +117,11 @@ a:hover {
 
 #output-result .comment {
   color: rgb(115 115 115);
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 #output-result a.share-link {
   color: #cc8f77;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

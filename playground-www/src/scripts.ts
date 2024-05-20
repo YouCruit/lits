@@ -438,7 +438,7 @@ window.addEventListener('popstate', () => {
   showPage(id, 'instant', 'none')
 })
 
-function truncateCode(text: string, count = 80) {
+function truncateCode(text: string, count = 1000) {
   const oneLiner = text
     .split('\n')
     .map(line => line.trim())

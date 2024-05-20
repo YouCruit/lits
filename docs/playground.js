@@ -7730,7 +7730,7 @@ var Playground = (function (exports) {
         showPage(id, 'instant', 'none');
     });
     function truncateCode(text, count) {
-        if (count === void 0) { count = 80; }
+        if (count === void 0) { count = 1000; }
         var oneLiner = text
             .split('\n')
             .map(function (line) { return line.trim(); })

@@ -19,11 +19,10 @@ export function getFunctionExamples(reference: Reference) {
           console.log = function () {}
           const oldWarn = console.warn
           console.warn = function () {}
-          let result
           const encodedUriExample = btoa(example)
           try {
-            result = lits.run(`(try (do ${example}) (catch e e))`)
-            const stringifiedResult = stringifyValue(result)
+            const result = lits.run(`(try (do ${example}) (catch e e))`)
+            const stringifiedResult = stringifyValue(result, true)
 
             const formattedExample = formatLitsExpression(example)
 

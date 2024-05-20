@@ -476,7 +476,7 @@ export function run(program?: string) {
   let result
   const oldLog = console.log
   console.log = function (...args) {
-    const logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
     appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn
@@ -495,7 +495,7 @@ export function run(program?: string) {
     console.log = oldLog
     console.warn = oldWarn
   }
-  const content = stringifyValue(result)
+  const content = stringifyValue(result, false)
 
   appendOutput(content, 'result')
 }
@@ -507,7 +507,7 @@ export function analyze() {
   let result
   const oldLog = console.log
   console.log = function (...args) {
-    const logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
     appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn
@@ -541,7 +541,7 @@ export function parse() {
   let result
   const oldLog = console.log
   console.log = function (...args) {
-    const logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
     appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn
@@ -574,7 +574,7 @@ export function tokenize() {
   let result
   const oldLog = console.log
   console.log = function (...args: unknown[]) {
-    const logRow = args.map(arg => stringifyValue(arg)).join(' ')
+    const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
     appendOutput(logRow, 'output')
   }
   const oldWarn = console.warn

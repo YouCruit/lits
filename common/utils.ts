@@ -13,7 +13,7 @@ export function throttle<T extends (...args: any[]) => void>(func: T) {
   }
 }
 
-export function stringifyValue(value: unknown, html = true): string {
+export function stringifyValue(value: unknown, html: boolean): string {
   const gt = html ? '&gt;' : '>'
   const lt = html ? '&lt;' : '<'
   if (isLitsFunction(value)) {

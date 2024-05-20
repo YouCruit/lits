@@ -617,9 +617,8 @@ var Playground = (function (exports) {
     }
     function stringifyValue(value, html) {
         var _a;
-        if (html === void 0) { html = true; }
-        var gt = html ? '&gt;' : '>';
-        var lt = html ? '&lt;' : '<';
+        var gt = '>';
+        var lt = '<';
         if (isLitsFunction(value)) {
             if (value.t === FunctionType.Builtin)
                 return "".concat(lt, "builtin function ").concat(value.n).concat(gt);

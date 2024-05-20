@@ -58,6 +58,9 @@ export function getTextStyles(css: CssTemplateFunction) {
     text-overflow: ellipsis;
     white-space: nowrap;
   `,
+    'select-none': css`
+    user-select: none;
+  `,
   } satisfies Partial<Styles>
   return textStyles
 }

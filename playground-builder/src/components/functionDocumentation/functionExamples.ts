@@ -2,7 +2,6 @@
 import { Lits } from '../../../../src'
 import { styles } from '../../styles/index'
 import type { Reference } from '../../../../reference'
-import { penIcon } from '../../icons'
 import { formatLitsExpression } from '../../formatter/rules'
 import { stringifyValue } from '../../../../common/utils'
 
@@ -27,13 +26,14 @@ export function getFunctionExamples(reference: Reference) {
             const formattedExample = formatLitsExpression(example)
 
             return `
+            <div ${styles('text-sm', 'font-mono', 'flex', 'flex-col')}>
               <div ${styles('flex', 'gap-3')} >
-              <a onclick="Playground.addToPlayground('${name}', '${encodedUriExample}')"> ${penIcon} </a>
-              <div ${styles('text-sm', 'font-mono', 'flex', 'flex-col', 'gap-3')} >
-                <div ${styles('whitespace-pre-wrap')}>${formattedExample}</div>
-                <div ${styles('whitespace-pre-wrap', 'text-color-gray-400')}>${stringifiedResult}</div>
+                <span ${styles('font-bold', 'select-none')}>&gt;</span>
+                <span ${styles('cursor-pointer', 'whitespace-pre-wrap')} onclick="Playground.addToPlayground('${name}', '${encodedUriExample}')">${formattedExample}</span>
               </div>
-              </div>`
+              <div ${styles('whitespace-pre-wrap', 'text-color-gray-400', 'mt-1')}>${stringifiedResult}</div>
+            </div>
+              `
           }
           finally {
             console.log = oldLog

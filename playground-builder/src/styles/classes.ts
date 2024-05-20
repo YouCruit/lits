@@ -118,6 +118,7 @@ export type CssClass =
   | 'font-mono'
   | 'font-serif'
   | 'italic'
+  | 'select-none'
 
   | 'underline'
   | 'overline'

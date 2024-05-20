@@ -179,11 +179,11 @@ If the bound variable evaluates to false, the $else-expr is evaluated
     examples: [
       `
 (if-let [a (> (count "Albert") 4)]
-  (write! (str a "is big enough"))
+  (write! (str a ", is big enough"))
   (write! "Sorry, not big enough."))`,
       `
 (if-let [a (> (count "Albert") 10)]
-  (write! (str a "is big enough"))
+  (write! (str a ", is big enough"))
   (write! "Sorry, not big enough."))`,
     ],
   },

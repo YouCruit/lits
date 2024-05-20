@@ -41,7 +41,7 @@ export function getPlayground() {
             </div>
           </div>
         </div>
-        <textarea ${styles('height: calc(100% - 38px);', 'border-0', 'pb-1')} id="context-textarea" class="fancy-scroll" spellcheck="false"></textarea>
+        <textarea ${styles('height: calc(100% - 32px);', 'border-0', 'pb-1')} id="context-textarea" class="fancy-scroll" spellcheck="false"></textarea>
       </div
   
       ><div id="resize-divider-1" ${styles('width: 5px;', 'h-full', 'cursor-col-resize', 'bg-gray-600')}></div
@@ -94,7 +94,7 @@ export function getPlayground() {
             </div>
           </div>
         </div>
-        <textarea ${styles('height: calc(100% - 38px);', 'border-0')} id="lits-textarea" class="fancy-scroll" spellcheck="false"></textarea>
+        <textarea ${styles('height: calc(100% - 32px);', 'border-0')} id="lits-textarea" class="fancy-scroll" spellcheck="false"></textarea>
       </div
   
       ><div id="resize-divider-2" ${styles('width: 5px;', 'h-full', 'cursor-col-resize', 'bg-gray-600', 'h-full')}></div
@@ -111,7 +111,7 @@ export function getPlayground() {
             </div>
           </div>
         </div>
-        <div class="fancy-scroll" ${styles('font-mono', 'bg-gray-850', 'p-2', 'text-sm', 'flex', 'flex-col', 'gap-2', 'height: calc(100% - 38px);', 'overflow-y: auto;')} id="output-result"></div>
+        <div class="fancy-scroll" ${styles('font-mono', 'bg-gray-850', 'p-2', 'text-sm', 'flex', 'flex-col', 'gap-2', 'height: calc(100% - 32px);', 'overflow-y: auto;')} id="output-result"></div>
       </div>
     </div>
   </div>

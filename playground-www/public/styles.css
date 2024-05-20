@@ -282,49 +282,6 @@ input[type="submit"]:hover {
   white-space: nowrap;
   overflow-y: scroll;
   padding-right: 1rem;
-  /* border-right: 1px solid rgb(115 115 115); */
-}
-
-
-
-/************ EXAMPLE PAGE **********/
-
-#example-page ul {
-  list-style-type: none;
-  list-style-position: inside;
-  padding: 0;
-  margin: 0;
-  margin-left: 0.25rem;
-}
-
-#example-page li {
-  font-size: 1rem;
-  cursor: default;
-  white-space: nowrap;
-  padding: 0.8rem 1rem;
-  margin-bottom: 0.5rem;
-}
-
-#example-page .column:last-child {
-  align-self: center;
-}
-
-#example-page li:nth-child(odd) {
-  background-color: #333333;
-}
-
-#example-page li:nth-child(even) {
-  background-color: #444444;
-}
-
-#example-page .example-name {
-  font-size: 1.5rem;
-  margin-bottom: 0.4rem;
-}
-
-#example-page .example-description {
-  font-size: 1rem;
-  font-style: italic;
 }
 
 /************ SIDEBAR **********/
@@ -351,11 +308,20 @@ div {
 }
 
 .content .example {
+  box-shadow: 1px 1px 3px rgb(23 23 23);
   cursor: pointer;
 }
 
-.content .example:hover {
+.content .example:active:hover {
+  box-shadow: inset 1px 1px 3px rgb(23 23 23);
+  padding-top: 2px;
+  padding-left: 2px;
+  margin-bottom: -2px;
+}
+
+.content .example:hover svg {
   color: white;
+  font-size: 4rem;
 }
 
 h4,

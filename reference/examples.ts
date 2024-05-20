@@ -39,9 +39,9 @@ export const examples: Example[] = [
     `.trim(),
   },
   {
-    id: 'simple-params-example',
-    name: 'Params in use',
-    description: 'Simple example using params.',
+    id: 'simple-context-example',
+    name: 'Using context',
+    description: 'Simple example using a context.',
     context: {
       values: { x: 15 },
       lazyValues: { y: { read: 'EVAL:() => 42' } },
@@ -116,7 +116,7 @@ export const examples: Example[] = [
   (cond
     (< a b) -1
     (> a b) 1
-    true 0
+    :else 0
   )
 )
 

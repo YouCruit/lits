@@ -7964,7 +7964,6 @@ var Playground = (function (exports) {
         var paddingLeft = Math.floor((size - name.length) / 2);
         var paddingRight = Math.ceil((size - name.length) / 2);
         setLitsCode("\n".concat(";;".concat('-'.repeat(size), ";;"), "\n").concat(";;".concat(' '.repeat(paddingLeft)).concat(name).concat(' '.repeat(paddingRight), ";;"), "\n").concat(";;".concat('-'.repeat(size), ";;"), "\n\n").concat(code, "\n").trimStart(), 'top');
-        resetOutput(true);
     }
 
     exports.Search = Search;

@@ -669,6 +669,4 @@ ${`;;${'-'.repeat(size)};;`}
 
 ${code}
 `.trimStart(), 'top')
-
-  resetOutput(true)
 }

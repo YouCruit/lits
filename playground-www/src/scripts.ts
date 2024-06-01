@@ -3,6 +3,7 @@ import { stringifyValue, throttle } from '../../common/utils'
 import type { Example } from '../../reference/examples'
 import type { LitsParams } from '../../src'
 import { Lits } from '../../src'
+import type { Analysis } from '../../src/analyze'
 import { asUnknownRecord } from '../../src/typeGuards'
 import { Search } from './Search'
 import { decodeState as applyEncodedState, clearAllStates, clearState, encodeState, getState, saveState } from './state'
@@ -504,7 +505,7 @@ export function analyze() {
   addOutputSeparator()
   const code = getState('lits-code')
   appendOutput(`Analyze: ${truncateCode(code)}`, 'comment')
-  let result
+  let result: Analysis
   const oldLog = console.log
   console.log = function (...args) {
     const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
@@ -526,12 +527,13 @@ export function analyze() {
     console.log = oldLog
     console.warn = oldWarn
   }
-  const undefinedSymbols = [...result.undefinedSymbols].map(s => s.symbol).join(', ')
-  const content = undefinedSymbols
-    ? `Undefined symbols: ${undefinedSymbols}`
-    : 'No undefined symbols'
+  const unresolvedIdentifiers = [...result.unresolvedIdentifiers].map(s => s.symbol).join(', ')
+  const unresolvedIdentifiersOutput = `Unresolved identifiers: ${unresolvedIdentifiers || 'No unresolved identifiers'}`
 
-  appendOutput(content, 'analyze')
+  const possibleOutcomes = result.outcomes && [...result.outcomes].map(o => stringifyValue(o, false)).join(', ')
+  const possibleOutcomesString = `Possible outcomes: ${possibleOutcomes || '?'}`
+
+  appendOutput(`${unresolvedIdentifiersOutput}\n${possibleOutcomesString}`, 'analyze')
 }
 
 export function parse() {

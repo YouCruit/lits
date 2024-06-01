@@ -1,15 +1,23 @@
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, SpecialExpressionNode } from '../../parser/interface'
+import type { AstNode } from '../../parser/interface'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import type { Token } from '../../tokenizer/interface'
+
+export interface DoNode {
+  t: AstNodeType.SpecialExpression
+  n: 'do'
+  p: AstNode[] // params
+  tkn?: Token
+}
 
 export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
   parse: (tokenStream, position, { parseToken }) => {
     let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
 
-    const node: SpecialExpressionNode = {
+    const node: DoNode = {
       t: AstNodeType.SpecialExpression,
       n: 'do',
       p: [],
@@ -34,5 +42,5 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     return result
   },
-  analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.p, contextStack, builtin),
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers(node.p, contextStack, builtin),
 }

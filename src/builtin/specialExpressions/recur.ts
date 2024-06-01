@@ -23,5 +23,5 @@ export const recurSpecialExpression: BuiltinSpecialExpression<null> = {
     const params = node.p.map(paramNode => evaluateAstNode(paramNode, contextStack))
     throw new RecurSignal(params)
   },
-  analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.p, contextStack, builtin),
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers(node.p, contextStack, builtin),
 }

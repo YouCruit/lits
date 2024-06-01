@@ -35,8 +35,8 @@ export const defsSpecialExpression: BuiltinSpecialExpression<Any> = {
     return value
   },
   validate: node => assertNumberOfParams(2, node),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
     const subNode = asAstNode(node.p[1], node.tkn?.sourceCodeInfo)
-    return analyzeAst(subNode, contextStack, builtin)
+    return findUnresolvedIdentifiers([subNode], contextStack, builtin)
   },
 }

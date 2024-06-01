@@ -59,8 +59,8 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
     return null
   },
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
     const astNodes = (node as CondNode).c.flatMap(condition => [condition.t, condition.f])
-    return analyzeAst(astNodes, contextStack, builtin)
+    return findUnresolvedIdentifiers(astNodes, contextStack, builtin)
   },
 }

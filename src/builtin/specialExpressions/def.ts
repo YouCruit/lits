@@ -34,10 +34,10 @@ export const defSpecialExpression: BuiltinSpecialExpression<Any> = {
     return value
   },
   validate: node => assertNumberOfParams(2, node),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
     const sourceCodeInfo = node.tkn?.sourceCodeInfo
     const subNode = asAstNode(node.p[1], sourceCodeInfo)
-    const result = analyzeAst(subNode, contextStack, builtin)
+    const result = findUnresolvedIdentifiers([subNode], contextStack, builtin)
     const name = asNameNode(node.p[0], sourceCodeInfo).v
     assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo)
     contextStack.globalContext[name] = { value: true }

@@ -1,5 +1,5 @@
-import { analyzeAst } from '../analyze'
-import type { AnalyzeResult } from '../analyze/interface'
+import { analyze } from '../analyze'
+import type { Analysis } from '../analyze'
 import { builtin, normalExpressionKeys, specialExpressionKeys } from '../builtin'
 import { FunctionType } from '../constants/constants'
 import { evaluate } from '../evaluator'
@@ -83,12 +83,11 @@ export class Lits {
     return contextStack.globalContext
   }
 
-  public analyze(program: string): AnalyzeResult {
+  public analyze(program: string): Analysis {
     const params: LitsParams = {}
-    const contextStack = createContextStack(params)
     const ast = this.generateAst(program, params.filePath)
 
-    return analyzeAst(ast.b, contextStack, builtin)
+    return analyze(ast, params, builtin)
   }
 
   public tokenize(program: string, filePath?: string): TokenStream {

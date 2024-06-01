@@ -56,10 +56,10 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     return null
   },
   validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
     const newContext: Context = { [(node as IfLetNode).b.n]: { value: true } }
-    const bindingResult = analyzeAst((node as IfLetNode).b.v, contextStack, builtin)
-    const paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin)
+    const bindingResult = findUnresolvedIdentifiers([(node as IfLetNode).b.v], contextStack, builtin)
+    const paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin)
     return joinAnalyzeResults(bindingResult, paramsResult)
   },
 }

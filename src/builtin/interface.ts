@@ -11,7 +11,7 @@ import type {
 } from '../parser/interface'
 import type { SourceCodeInfo, TokenStream } from '../tokenizer/interface'
 import type { Any, Arr } from '../interface'
-import type { AnalyzeAst, AnalyzeResult } from '../analyze/interface'
+import type { FindUnresolvedIdentifiers, UnresolvedIdentifiers } from '../analyze'
 import type { ContextStack } from '../evaluator/ContextStack'
 
 export type NormalExpressionEvaluator<T> = (
@@ -47,11 +47,11 @@ export interface BuiltinSpecialExpression<T> {
   parse: (tokenStream: TokenStream, position: number, parsers: ParserHelpers) => [number, SpecialExpressionNode]
   evaluate: (node: SpecialExpressionNode, contextStack: ContextStack, helpers: EvaluateHelpers) => T
   validate?: (node: SpecialExpressionNode) => void
-  analyze: (
+  findUnresolvedIdentifiers: (
     node: SpecialExpressionNode,
     contextStack: ContextStack,
-    params: { analyzeAst: AnalyzeAst, builtin: Builtin },
-  ) => AnalyzeResult
+    params: { findUnresolvedIdentifiers: FindUnresolvedIdentifiers, builtin: Builtin },
+  ) => UnresolvedIdentifiers
 }
 
 export type SpecialExpressionName =

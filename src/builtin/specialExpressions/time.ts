@@ -32,5 +32,5 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
     return result
   },
   validate: node => assertNumberOfParams(1, node),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.p, contextStack, builtin),
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers(node.p, contextStack, builtin),
 }

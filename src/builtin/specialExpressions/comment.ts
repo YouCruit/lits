@@ -23,5 +23,5 @@ export const commentSpecialExpression: BuiltinSpecialExpression<null> = {
     return [position + 1, node]
   },
   evaluate: () => null,
-  analyze: () => ({ undefinedSymbols: new Set() }),
+  findUnresolvedIdentifiers: () => new Set(),
 }

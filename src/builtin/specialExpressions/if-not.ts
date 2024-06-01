@@ -34,5 +34,5 @@ export const ifNotSpecialExpression: BuiltinSpecialExpression<Any> = {
     }
   },
   validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst(node.p, contextStack, builtin),
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers(node.p, contextStack, builtin),
 }

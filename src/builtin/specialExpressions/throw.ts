@@ -33,5 +33,5 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null> = {
     })
     throw new UserDefinedError(message, node.tkn?.sourceCodeInfo)
   },
-  analyze: (node, contextStack, { analyzeAst, builtin }) => analyzeAst((node as ThrowNode).m, contextStack, builtin),
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers([(node as ThrowNode).m], contextStack, builtin),
 }

@@ -65,11 +65,11 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
     return result
   },
   validate: node => assertNumberOfParams({ min: 0 }, node),
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
     const { b: binding } = node as WhenFirstNode
     const newContext: Context = { [binding.n]: { value: true } }
-    const bindingResult = analyzeAst(binding.v, contextStack, builtin)
-    const paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin)
+    const bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin)
+    const paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin)
     return joinAnalyzeResults(bindingResult, paramsResult)
   },
 }

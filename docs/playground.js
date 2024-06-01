@@ -708,9 +708,9 @@ var Playground = (function (exports) {
             }
             return value;
         },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.p, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
         },
     };
 
@@ -767,10 +767,10 @@ var Playground = (function (exports) {
             }
             return null;
         },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             var astNodes = node.c.flatMap(function (condition) { return [condition.t, condition.f]; });
-            return analyzeAst(astNodes, contextStack, builtin);
+            return findUnresolvedIdentifiers(astNodes, contextStack, builtin);
         },
     };
 
@@ -780,13 +780,11 @@ var Playground = (function (exports) {
         for (var _i = 0; _i < arguments.length; _i++) {
             results[_i] = arguments[_i];
         }
-        var result = {
-            undefinedSymbols: new Set(),
-        };
+        var result = new Set();
         try {
             for (var results_1 = __values(results), results_1_1 = results_1.next(); !results_1_1.done; results_1_1 = results_1.next()) {
-                var input = results_1_1.value;
-                input.undefinedSymbols.forEach(function (symbol) { return result.undefinedSymbols.add(symbol); });
+                var identifier = results_1_1.value;
+                identifier.forEach(function (symbol) { return result.add(symbol); });
             }
         }
         catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -799,7 +797,12 @@ var Playground = (function (exports) {
         return result;
     }
     function addAnalyzeResults(target, source) {
-        source.undefinedSymbols.forEach(function (symbol) { return target.undefinedSymbols.add(symbol); });
+        source.forEach(function (symbol) { return target.add(symbol); });
+    }
+    function combinate(arrays) {
+        return arrays.reduce(function (acc, curr) {
+            return acc.flatMap(function (a) { return curr.map(function (c) { return __spreadArray(__spreadArray([], __read(a), false), [c], false); }); });
+        }, [[]]);
     }
 
     function isAstNode(value) {
@@ -943,12 +946,12 @@ var Playground = (function (exports) {
             contextStack.globalContext[name] = { value: litsFunction };
             return null;
         },
-        analyze: function (node, contextStack, _a) {
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             contextStack.globalContext[node.f.v] = { value: true };
             var newContext = (_b = {}, _b[node.f.v] = { value: true }, _b);
-            return addOverloadsUndefinedSymbols(node.o, contextStack, analyzeAst, builtin, newContext);
+            return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin, newContext);
         },
     };
     var defnsSpecialExpression = {
@@ -989,9 +992,9 @@ var Playground = (function (exports) {
             contextStack.globalContext[name] = { value: litsFunction };
             return null;
         },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return addOverloadsUndefinedSymbols(node.o, contextStack, analyzeAst, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin);
         },
     };
     var fnSpecialExpression = {
@@ -1025,9 +1028,9 @@ var Playground = (function (exports) {
                 _b);
             return litsFunction;
         },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return addOverloadsUndefinedSymbols(node.o, contextStack, analyzeAst, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin);
         },
     };
     function getFunctionName(expressionName, node, contextStack, evaluateAstNode) {
@@ -1081,14 +1084,14 @@ var Playground = (function (exports) {
         }
         return evaluatedFunctionOverloades;
     }
-    function addOverloadsUndefinedSymbols(overloads, contextStack, analyzeAst, builtin, functionNameContext) {
+    function addOverloadsUnresolvedIdentifiers(overloads, contextStack, findUnresolvedIdentifiers, builtin, functionNameContext) {
         var e_3, _a;
-        var result = { undefinedSymbols: new Set() };
+        var result = new Set();
         var contextStackWithFunctionName = functionNameContext ? contextStack.create(functionNameContext) : contextStack;
         var _loop_1 = function (overload) {
             var newContext = {};
             overload.as.b.forEach(function (binding) {
-                var bindingResult = analyzeAst(binding.v, contextStack, builtin);
+                var bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin);
                 addAnalyzeResults(result, bindingResult);
                 newContext[binding.n] = { value: true };
             });
@@ -1098,7 +1101,7 @@ var Playground = (function (exports) {
             if (typeof overload.as.r === 'string')
                 newContext[overload.as.r] = { value: true };
             var newContextStack = contextStackWithFunctionName.create(newContext);
-            var overloadResult = analyzeAst(overload.b, newContextStack, builtin);
+            var overloadResult = findUnresolvedIdentifiers(overload.b, newContextStack, builtin);
             addAnalyzeResults(result, overloadResult);
         };
         try {
@@ -1279,12 +1282,12 @@ var Playground = (function (exports) {
             return value;
         },
         validate: function (node) { return assertNumberOfParams(2, node); },
-        analyze: function (node, contextStack, _a) {
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
             var subNode = asAstNode(node.p[1], sourceCodeInfo);
-            var result = analyzeAst(subNode, contextStack, builtin);
+            var result = findUnresolvedIdentifiers([subNode], contextStack, builtin);
             var name = asNameNode(node.p[0], sourceCodeInfo).v;
             assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
             contextStack.globalContext[name] = { value: true };
@@ -1319,11 +1322,11 @@ var Playground = (function (exports) {
             return value;
         },
         validate: function (node) { return assertNumberOfParams(2, node); },
-        analyze: function (node, contextStack, _a) {
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             var subNode = asAstNode(node.p[1], (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
-            return analyzeAst(subNode, contextStack, builtin);
+            return findUnresolvedIdentifiers([subNode], contextStack, builtin);
         },
     };
 
@@ -1367,9 +1370,9 @@ var Playground = (function (exports) {
             }
             return result;
         },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.p, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
         },
     };
 
@@ -1584,39 +1587,37 @@ var Playground = (function (exports) {
         }
         return returnResult ? result : null;
     }
-    function analyze$1(node, contextStack, analyzeAst, builtin) {
-        var result = {
-            undefinedSymbols: new Set(),
-        };
+    function analyze$2(node, contextStack, findUnresolvedIdentifiers, builtin) {
+        var result = new Set();
         var newContext = {};
         var loopBindings = node.l;
         loopBindings.forEach(function (loopBinding) {
             var binding = loopBinding.b, letBindings = loopBinding.l, whenNode = loopBinding.wn, whileNode = loopBinding.we;
-            analyzeAst(binding.v, contextStack.create(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
-                return result.undefinedSymbols.add(symbol);
+            findUnresolvedIdentifiers([binding.v], contextStack.create(newContext), builtin).forEach(function (symbol) {
+                return result.add(symbol);
             });
             newContext[binding.n] = { value: true };
             if (letBindings) {
                 letBindings.forEach(function (letBinding) {
-                    analyzeAst(letBinding.v, contextStack.create(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
-                        return result.undefinedSymbols.add(symbol);
+                    findUnresolvedIdentifiers([letBinding.v], contextStack.create(newContext), builtin).forEach(function (symbol) {
+                        return result.add(symbol);
                     });
                     newContext[letBinding.n] = { value: true };
                 });
             }
             if (whenNode) {
-                analyzeAst(whenNode, contextStack.create(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
-                    return result.undefinedSymbols.add(symbol);
+                findUnresolvedIdentifiers([whenNode], contextStack.create(newContext), builtin).forEach(function (symbol) {
+                    return result.add(symbol);
                 });
             }
             if (whileNode) {
-                analyzeAst(whileNode, contextStack.create(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
-                    return result.undefinedSymbols.add(symbol);
+                findUnresolvedIdentifiers([whileNode], contextStack.create(newContext), builtin).forEach(function (symbol) {
+                    return result.add(symbol);
                 });
             }
         });
-        analyzeAst(node.p, contextStack.create(newContext), builtin).undefinedSymbols.forEach(function (symbol) {
-            return result.undefinedSymbols.add(symbol);
+        findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin).forEach(function (symbol) {
+            return result.add(symbol);
         });
         return result;
     }
@@ -1640,9 +1641,9 @@ var Playground = (function (exports) {
             return [position + 1, node];
         },
         evaluate: function (node, contextStack, helpers) { return evaluateLoop(true, node, contextStack, helpers.evaluateAstNode); },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyze$1(node, contextStack, analyzeAst, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return analyze$2(node, contextStack, findUnresolvedIdentifiers, builtin);
         },
     };
     var doseqSpecialExpression = {
@@ -1668,9 +1669,9 @@ var Playground = (function (exports) {
             evaluateLoop(false, node, contextStack, helpers.evaluateAstNode);
             return null;
         },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyze$1(node, contextStack, analyzeAst, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return analyze$2(node, contextStack, findUnresolvedIdentifiers, builtin);
         },
     };
 
@@ -1714,12 +1715,12 @@ var Playground = (function (exports) {
             return null;
         },
         validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-        analyze: function (node, contextStack, _a) {
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             var newContext = (_b = {}, _b[node.b.n] = { value: true }, _b);
-            var bindingResult = analyzeAst(node.b.v, contextStack, builtin);
-            var paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin);
+            var bindingResult = findUnresolvedIdentifiers([node.b.v], contextStack, builtin);
+            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
             return joinAnalyzeResults(bindingResult, paramsResult);
         },
     };
@@ -1755,9 +1756,9 @@ var Playground = (function (exports) {
             }
         },
         validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.p, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
         },
     };
 
@@ -1792,9 +1793,9 @@ var Playground = (function (exports) {
             }
         },
         validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.p, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
         },
     };
 
@@ -1852,8 +1853,8 @@ var Playground = (function (exports) {
             }
             return result;
         },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             var newContext = node.bs
                 .map(function (binding) { return binding.n; })
                 .reduce(function (context, name) {
@@ -1863,11 +1864,11 @@ var Playground = (function (exports) {
             var bindingContext = {};
             var bindingResults = node.bs.map(function (bindingNode) {
                 var valueNode = bindingNode.v;
-                var bindingsResult = analyzeAst(valueNode, contextStack.create(bindingContext), builtin);
+                var bindingsResult = findUnresolvedIdentifiers([valueNode], contextStack.create(bindingContext), builtin);
                 bindingContext[bindingNode.n] = { value: true };
                 return bindingsResult;
             });
-            var paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin);
+            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
             return joinAnalyzeResults.apply(void 0, __spreadArray(__spreadArray([], __read(bindingResults), false), [paramsResult], false));
         },
     };
@@ -1938,8 +1939,8 @@ var Playground = (function (exports) {
                     return state_1.value;
             }
         },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             var newContext = node.bs
                 .map(function (binding) { return binding.n; })
                 .reduce(function (context, name) {
@@ -1947,8 +1948,8 @@ var Playground = (function (exports) {
                 return context;
             }, {});
             var bindingValueNodes = node.bs.map(function (binding) { return binding.v; });
-            var bindingsResult = analyzeAst(bindingValueNodes, contextStack, builtin);
-            var paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin);
+            var bindingsResult = findUnresolvedIdentifiers(bindingValueNodes, contextStack, builtin);
+            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
             return joinAnalyzeResults(bindingsResult, paramsResult);
         },
     };
@@ -1989,9 +1990,9 @@ var Playground = (function (exports) {
             }
             return value;
         },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.p, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
         },
     };
 
@@ -2015,9 +2016,9 @@ var Playground = (function (exports) {
             var params = node.p.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
             throw new RecurSignal(params);
         },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.p, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
         },
     };
 
@@ -2046,9 +2047,9 @@ var Playground = (function (exports) {
             });
             throw new UserDefinedError(message, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
         },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.m, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers([node.m], contextStack, builtin);
         },
     };
 
@@ -2078,9 +2079,9 @@ var Playground = (function (exports) {
             return result;
         },
         validate: function (node) { return assertNumberOfParams(1, node); },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.p, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
         },
     };
 
@@ -2135,15 +2136,15 @@ var Playground = (function (exports) {
                 return evaluateAstNode(catchExpression, contextStack.create(newContext));
             }
         },
-        analyze: function (node, contextStack, _a) {
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             var _c = node, tryExpression = _c.te, catchExpression = _c.ce, errorNode = _c.e;
-            var tryResult = analyzeAst(tryExpression, contextStack, builtin);
+            var tryResult = findUnresolvedIdentifiers([tryExpression], contextStack, builtin);
             var newContext = (_b = {},
                 _b[errorNode.v] = { value: true },
                 _b);
-            var catchResult = analyzeAst(catchExpression, contextStack.create(newContext), builtin);
+            var catchResult = findUnresolvedIdentifiers([catchExpression], contextStack.create(newContext), builtin);
             return joinAnalyzeResults(tryResult, catchResult);
         },
     };
@@ -2419,13 +2420,13 @@ var Playground = (function (exports) {
             return result;
         },
         validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
-        analyze: function (node, contextStack, _a) {
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             var binding = node.b;
             var newContext = (_b = {}, _b[binding.n] = { value: true }, _b);
-            var bindingResult = analyzeAst(binding.v, contextStack, builtin);
-            var paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin);
+            var bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin);
+            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
             return joinAnalyzeResults(bindingResult, paramsResult);
         },
     };
@@ -2478,13 +2479,13 @@ var Playground = (function (exports) {
             return result;
         },
         validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
-        analyze: function (node, contextStack, _a) {
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             var binding = node.b;
             var newContext = (_b = {}, _b[binding.n] = { value: true }, _b);
-            var bindingResult = analyzeAst(binding.v, contextStack, builtin);
-            var paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin);
+            var bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin);
+            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
             return joinAnalyzeResults(bindingResult, paramsResult);
         },
     };
@@ -2527,9 +2528,9 @@ var Playground = (function (exports) {
             return result;
         },
         validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.p, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
         },
     };
 
@@ -2571,9 +2572,9 @@ var Playground = (function (exports) {
             return result;
         },
         validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.p, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
         },
     };
 
@@ -5765,7 +5766,7 @@ var Playground = (function (exports) {
             return [position + 1, node];
         },
         evaluate: function () { return null; },
-        analyze: function () { return ({ undefinedSymbols: new Set() }); },
+        findUnresolvedIdentifiers: function () { return new Set(); },
     };
 
     var declaredSpecialExpression = {
@@ -5789,9 +5790,9 @@ var Playground = (function (exports) {
             return lookUpResult !== null;
         },
         validate: function (node) { return assertNumberOfParams(1, node); },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.p, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
         },
     };
 
@@ -5821,9 +5822,9 @@ var Playground = (function (exports) {
             return firstResult !== null && firstResult !== void 0 ? firstResult : (secondNode ? evaluateAstNode(secondNode, contextStack) : null);
         },
         validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-        analyze: function (node, contextStack, _a) {
-            var analyzeAst = _a.analyzeAst, builtin = _a.builtin;
-            return analyzeAst(node.p, contextStack, builtin);
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
         },
     };
 
@@ -5867,92 +5868,6 @@ var Playground = (function (exports) {
     };
     var normalExpressionKeys = Object.keys(normalExpressions);
     var specialExpressionKeys = Object.keys(specialExpressions);
-
-    var analyzeAst = function (astNode, contextStack, builtin) {
-        var e_1, _a;
-        var astNodes = Array.isArray(astNode) ? astNode : [astNode];
-        var analyzeResult = {
-            undefinedSymbols: new Set(),
-        };
-        try {
-            for (var astNodes_1 = __values(astNodes), astNodes_1_1 = astNodes_1.next(); !astNodes_1_1.done; astNodes_1_1 = astNodes_1.next()) {
-                var subNode = astNodes_1_1.value;
-                var result = analyzeAstNode(subNode, contextStack, builtin);
-                result.undefinedSymbols.forEach(function (symbol) { return analyzeResult.undefinedSymbols.add(symbol); });
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (astNodes_1_1 && !astNodes_1_1.done && (_a = astNodes_1.return)) _a.call(astNodes_1);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-        return analyzeResult;
-    };
-    function analyzeAstNode(astNode, contextStack, builtin) {
-        var e_2, _a;
-        var _b;
-        var emptySet = new Set();
-        switch (astNode.t) {
-            case AstNodeType.Name: {
-                var lookUpResult = contextStack.lookUp(astNode);
-                if (lookUpResult === null)
-                    return { undefinedSymbols: new Set([{ symbol: astNode.v, token: astNode.tkn }]) };
-                return { undefinedSymbols: emptySet };
-            }
-            case AstNodeType.String:
-            case AstNodeType.Number:
-            case AstNodeType.Modifier:
-            case AstNodeType.ReservedName:
-                return { undefinedSymbols: emptySet };
-            case AstNodeType.NormalExpression: {
-                var undefinedSymbols_1 = new Set();
-                var expression = astNode.e, name_1 = astNode.n, token = astNode.tkn;
-                if (typeof name_1 === 'string') {
-                    var lookUpResult = contextStack.lookUp({ t: AstNodeType.Name, v: name_1, tkn: token });
-                    if (lookUpResult === null)
-                        undefinedSymbols_1.add({ symbol: name_1, token: astNode.tkn });
-                }
-                if (expression) {
-                    switch (expression.t) {
-                        case AstNodeType.String:
-                        case AstNodeType.Number:
-                            break;
-                        case AstNodeType.NormalExpression:
-                        case AstNodeType.SpecialExpression: {
-                            var subResult = analyzeAstNode(expression, contextStack, builtin);
-                            subResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
-                            break;
-                        }
-                    }
-                }
-                try {
-                    for (var _c = __values(astNode.p), _d = _c.next(); !_d.done; _d = _c.next()) {
-                        var subNode = _d.value;
-                        var subNodeResult = analyzeAst(subNode, contextStack, builtin);
-                        subNodeResult.undefinedSymbols.forEach(function (symbol) { return undefinedSymbols_1.add(symbol); });
-                    }
-                }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                finally {
-                    try {
-                        if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-                    }
-                    finally { if (e_2) throw e_2.error; }
-                }
-                return { undefinedSymbols: undefinedSymbols_1 };
-            }
-            case AstNodeType.SpecialExpression: {
-                var specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], (_b = astNode.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
-                var result = specialExpression.analyze(astNode, contextStack, {
-                    analyzeAst: analyzeAst,
-                    builtin: builtin,
-                });
-                return result;
-            }
-        }
-    }
 
     var _a;
     function findOverloadFunction(overloads, nbrOfParams, sourceCodeInfo) {
@@ -6255,6 +6170,256 @@ var Playground = (function (exports) {
         var param = params[0];
         assertSeq(param, sourceCodeInfo);
         return toAny(param[fn]);
+    }
+
+    var findUnresolvedIdentifiers = function (ast, contextStack, builtin) {
+        var e_1, _a;
+        var astNodes = Array.isArray(ast) ? ast : ast.b;
+        var unresolvedIdentifiers = new Set();
+        try {
+            for (var astNodes_1 = __values(astNodes), astNodes_1_1 = astNodes_1.next(); !astNodes_1_1.done; astNodes_1_1 = astNodes_1.next()) {
+                var subNode = astNodes_1_1.value;
+                var result = findUnresolvedIdentifiersInAstNode(subNode, contextStack, builtin);
+                result.forEach(function (symbol) { return unresolvedIdentifiers.add(symbol); });
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (astNodes_1_1 && !astNodes_1_1.done && (_a = astNodes_1.return)) _a.call(astNodes_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        return unresolvedIdentifiers;
+    };
+    function findUnresolvedIdentifiersInAstNode(astNode, contextStack, builtin) {
+        var e_2, _a;
+        var _b;
+        var emptySet = new Set();
+        switch (astNode.t) {
+            case AstNodeType.Name: {
+                var lookUpResult = contextStack.lookUp(astNode);
+                if (lookUpResult === null)
+                    return new Set([{ symbol: astNode.v, token: astNode.tkn }]);
+                return emptySet;
+            }
+            case AstNodeType.String:
+            case AstNodeType.Number:
+            case AstNodeType.Modifier:
+            case AstNodeType.ReservedName:
+                return emptySet;
+            case AstNodeType.NormalExpression: {
+                var unresolvedIdentifiers_1 = new Set();
+                var expression = astNode.e, name_1 = astNode.n, token = astNode.tkn;
+                if (typeof name_1 === 'string') {
+                    var lookUpResult = contextStack.lookUp({ t: AstNodeType.Name, v: name_1, tkn: token });
+                    if (lookUpResult === null)
+                        unresolvedIdentifiers_1.add({ symbol: name_1, token: astNode.tkn });
+                }
+                if (expression) {
+                    switch (expression.t) {
+                        case AstNodeType.String:
+                        case AstNodeType.Number:
+                            break;
+                        case AstNodeType.NormalExpression:
+                        case AstNodeType.SpecialExpression: {
+                            var subResult = findUnresolvedIdentifiersInAstNode(expression, contextStack, builtin);
+                            subResult.forEach(function (symbol) { return unresolvedIdentifiers_1.add(symbol); });
+                            break;
+                        }
+                    }
+                }
+                try {
+                    for (var _c = __values(astNode.p), _d = _c.next(); !_d.done; _d = _c.next()) {
+                        var subNode = _d.value;
+                        var innerUnresolvedIdentifiers = findUnresolvedIdentifiersInAstNode(subNode, contextStack, builtin);
+                        innerUnresolvedIdentifiers.forEach(function (symbol) { return unresolvedIdentifiers_1.add(symbol); });
+                    }
+                }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                finally {
+                    try {
+                        if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                    }
+                    finally { if (e_2) throw e_2.error; }
+                }
+                return unresolvedIdentifiers_1;
+            }
+            case AstNodeType.SpecialExpression: {
+                var specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], (_b = astNode.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
+                var unresolvedIdentifiers = specialExpression.findUnresolvedIdentifiers(astNode, contextStack, {
+                    findUnresolvedIdentifiers: findUnresolvedIdentifiers,
+                    builtin: builtin,
+                });
+                return unresolvedIdentifiers;
+            }
+        }
+    }
+
+    function isIdempotent(normalExpressionName) {
+        return !normalExpressionName.endsWith('!')
+            || normalExpressionName === 'write!';
+    }
+    function calculateOutcomes(astNode, contextStack, builtin) {
+        var e_1, _a;
+        var possibleAsts;
+        try {
+            possibleAsts = combinate(astNode.b.map(calculatePossibleAsts))
+                .map(function (b) {
+                return __assign(__assign({}, astNode), { b: b });
+            });
+        }
+        catch (e) {
+            return null;
+        }
+        var outcomes = new Set();
+        var _loop_1 = function (ast) {
+            var unresolvedIdentifiers = findUnresolvedIdentifiers(ast, contextStack, builtin);
+            if (unresolvedIdentifiers.size !== 0)
+                return { value: null };
+            var outcome = evaluate(ast, contextStack);
+            if (__spreadArray([], __read(outcomes), false).some(function (o) { return JSON.stringify(o) === JSON.stringify(outcome); }))
+                return "continue";
+            outcomes.add(outcome);
+        };
+        try {
+            for (var possibleAsts_1 = __values(possibleAsts), possibleAsts_1_1 = possibleAsts_1.next(); !possibleAsts_1_1.done; possibleAsts_1_1 = possibleAsts_1.next()) {
+                var ast = possibleAsts_1_1.value;
+                var state_1 = _loop_1(ast);
+                if (typeof state_1 === "object")
+                    return state_1.value;
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (possibleAsts_1_1 && !possibleAsts_1_1.done && (_a = possibleAsts_1.return)) _a.call(possibleAsts_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        return outcomes;
+    }
+    var nilNode = { t: AstNodeType.ReservedName, v: 'nil' };
+    var trueNode = { t: AstNodeType.ReservedName, v: 'true' };
+    var falseNode = { t: AstNodeType.ReservedName, v: 'false' };
+    function calculatePossibleAsts(astNode) {
+        var _a, _b;
+        if (astNode.t === AstNodeType.SpecialExpression) {
+            switch (astNode.n) {
+                case '??': {
+                    var qqNode = {
+                        t: AstNodeType.SpecialExpression,
+                        n: '??',
+                        p: [astNode.p[0]],
+                    };
+                    return astNode.p.length === 2
+                        ? __spreadArray([qqNode], __read(calculatePossibleAsts(astNode.p[1])), false) : [qqNode];
+                }
+                case 'and':
+                case 'or': {
+                    return astNode.p.map(calculatePossibleAsts).flat();
+                }
+                case 'comment':
+                    return [nilNode];
+                case 'cond': {
+                    var conditionsValues = astNode.c.map(function (c) { return c.f; });
+                    return conditionsValues.map(calculatePossibleAsts).flat();
+                }
+                case 'declared?':
+                    return [trueNode, falseNode];
+                case 'do': {
+                    var doNodes = combinate(astNode.p.map(calculatePossibleAsts))
+                        .map(function (p) { return ({
+                        n: 'do',
+                        t: AstNodeType.SpecialExpression,
+                        p: p,
+                        tkn: astNode.tkn,
+                    }); });
+                    return __spreadArray(__spreadArray([], __read(doNodes), false), [nilNode], false);
+                }
+                case 'doseq': {
+                    return [nilNode];
+                }
+                case 'if-not':
+                case 'if': {
+                    var thenBranch = astNode.p[1];
+                    var elseBranch = (_a = astNode.p[2]) !== null && _a !== void 0 ? _a : nilNode;
+                    return __spreadArray(__spreadArray([], __read(calculatePossibleAsts(thenBranch)), false), __read(calculatePossibleAsts(elseBranch)), false);
+                }
+                case 'if-let': {
+                    var thenBranch = astNode.p[0];
+                    var elseBranch = (_b = astNode.p[1]) !== null && _b !== void 0 ? _b : nilNode;
+                    var letNodes = calculatePossibleAsts(thenBranch)
+                        .flatMap(function (then) { return calculatePossibleAsts(astNode.b.v).map(function (v) {
+                        return {
+                            t: AstNodeType.SpecialExpression,
+                            n: 'let',
+                            bs: [__assign(__assign({}, astNode.b), { v: v })],
+                            p: [then],
+                        };
+                    }); });
+                    return __spreadArray(__spreadArray([], __read(letNodes), false), [
+                        elseBranch,
+                    ], false);
+                }
+                case 'when': {
+                    var doNodes = combinate(astNode.p.map(calculatePossibleAsts))
+                        .map(function (p) { return ({
+                        n: 'do',
+                        t: AstNodeType.SpecialExpression,
+                        p: p,
+                        tkn: astNode.tkn,
+                    }); });
+                    return __spreadArray(__spreadArray([], __read(doNodes), false), [nilNode], false);
+                }
+                case 'when-let': {
+                    var letNodes = combinate(astNode.p.map(calculatePossibleAsts))
+                        .flatMap(function (p) { return calculatePossibleAsts(astNode.b.v).map(function (v) {
+                        var letNode = {
+                            n: 'let',
+                            bs: [__assign(__assign({}, astNode.b), { v: v })],
+                            t: AstNodeType.SpecialExpression,
+                            p: p,
+                            tkn: astNode.tkn,
+                        };
+                        return letNode;
+                    }); });
+                    return __spreadArray(__spreadArray([], __read(letNodes), false), [nilNode], false);
+                }
+                case 'let': {
+                    var letNodes = combinate(astNode.p.map(calculatePossibleAsts))
+                        .flatMap(function (p) { return combinate(astNode.bs
+                        .map(function (b) { return calculatePossibleAsts(b.v).map(function (v) { return (__assign(__assign({}, b), { v: v })); }); })).map(function (bs) {
+                        return {
+                            n: 'let',
+                            bs: bs,
+                            t: AstNodeType.SpecialExpression,
+                            p: p,
+                            tkn: astNode.tkn,
+                        };
+                    }); });
+                    return letNodes;
+                }
+                default:
+                    return [astNode];
+            }
+        }
+        else if (astNode.t === AstNodeType.NormalExpression) {
+            if (astNode.n && !isIdempotent(astNode.n))
+                throw new Error("NormalExpressionNode with name ".concat(astNode.n, " is not idempotent. Cannot calculate possible ASTs."));
+            return combinate(astNode.p.map(calculatePossibleAsts))
+                .map(function (p) { return (__assign(__assign({}, astNode), { p: p })); });
+        }
+        else {
+            return [astNode];
+        }
+    }
+
+    function analyze$1(ast, contextStack, builtin) {
+        return {
+            unresolvedIdentifiers: findUnresolvedIdentifiers(ast, contextStack, builtin),
+            outcomes: calculateOutcomes(ast, contextStack, builtin),
+        };
     }
 
     function isContextEntry(value) {
@@ -7236,7 +7401,7 @@ var Playground = (function (exports) {
             var params = {};
             var contextStack = createContextStack(params);
             var ast = this.generateAst(program, params.filePath);
-            return analyzeAst(ast.b, contextStack, builtin);
+            return analyze$1(ast, contextStack, builtin);
         };
         Lits.prototype.tokenize = function (program, filePath) {
             return tokenize$1(program, { debug: this.debug, filePath: filePath });
@@ -7831,11 +7996,11 @@ var Playground = (function (exports) {
             console.log = oldLog;
             console.warn = oldWarn;
         }
-        var undefinedSymbols = __spreadArray([], __read(result.undefinedSymbols), false).map(function (s) { return s.symbol; }).join(', ');
-        var content = undefinedSymbols
-            ? "Undefined symbols: ".concat(undefinedSymbols)
-            : 'No undefined symbols';
-        appendOutput(content, 'analyze');
+        var unresolvedIdentifiers = __spreadArray([], __read(result.unresolvedIdentifiers), false).map(function (s) { return s.symbol; }).join(', ');
+        var unresolvedIdentifiersOutput = "Unresolved identifiers: ".concat(unresolvedIdentifiers || 'No unresolved identifiers');
+        var possibleOutcomes = result.outcomes && __spreadArray([], __read(result.outcomes), false).map(function (o) { return stringifyValue(o); }).join(', ');
+        var possibleOutcomesString = "Possible outcomes: ".concat(possibleOutcomes || '?');
+        appendOutput("".concat(unresolvedIdentifiersOutput, "\n").concat(possibleOutcomesString), 'analyze');
     }
     function parse() {
         addOutputSeparator();

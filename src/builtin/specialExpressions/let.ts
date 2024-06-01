@@ -2,12 +2,17 @@ import { joinAnalyzeResults } from '../../analyze/utils'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
-import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
+import type { AstNode, BindingNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import type { Token } from '../../tokenizer/interface'
 
-type LetNode = SpecialExpressionNode & {
+export interface LetNode {
+  t: AstNodeType.SpecialExpression
+  n: 'let'
+  p: AstNode[]
   bs: BindingNode[]
+  tkn?: Token
 }
 
 export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
@@ -43,7 +48,7 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
 
     return result
   },
-  analyze: (node, contextStack, { analyzeAst, builtin }) => {
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
     const newContext = (node as LetNode).bs
       .map(binding => binding.n)
       .reduce((context: Context, name) => {
@@ -53,12 +58,12 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
     const bindingContext: Context = {}
     const bindingResults = (node as LetNode).bs.map((bindingNode) => {
       const valueNode = bindingNode.v
-      const bindingsResult = analyzeAst(valueNode, contextStack.create(bindingContext), builtin)
+      const bindingsResult = findUnresolvedIdentifiers([valueNode], contextStack.create(bindingContext), builtin)
       bindingContext[bindingNode.n] = { value: true }
       return bindingsResult
     })
 
-    const paramsResult = analyzeAst(node.p, contextStack.create(newContext), builtin)
+    const paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin)
     return joinAnalyzeResults(...bindingResults, paramsResult)
   },
 }

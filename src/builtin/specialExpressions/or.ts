@@ -2,8 +2,18 @@ import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import type { AstNode } from '../../parser/interface'
+import type { Token } from '../../tokenizer/interface'
+import type { SpecialExpressionNode } from '..'
 
-export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
+export interface OrNode {
+  t: AstNodeType.SpecialExpression
+  n: 'or'
+  p: AstNode[]
+  tkn?: Token
+}
+
+export const orSpecialExpression: BuiltinSpecialExpression<Any, OrNode> = {
   parse: (tokenStream, position, { parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)
@@ -14,7 +24,7 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any> = {
         n: 'or',
         p: params,
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-      },
+      } satisfies OrNode,
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {

@@ -7,6 +7,7 @@ import type { BuiltinSpecialExpression } from '../interface'
 import { assertAny } from '../../typeGuards/lits'
 import { assertNumberOfParams } from '../../typeGuards'
 import type { Token } from '../../tokenizer/interface'
+import type { SpecialExpressionNode } from '..'
 
 export interface QqNode {
   t: AstNodeType.SpecialExpression
@@ -15,7 +16,7 @@ export interface QqNode {
   tkn?: Token
 }
 
-export const qqSpecialExpression: BuiltinSpecialExpression<Any> = {
+export const qqSpecialExpression: BuiltinSpecialExpression<Any, QqNode> = {
   parse: (tokenStream, position, { parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)

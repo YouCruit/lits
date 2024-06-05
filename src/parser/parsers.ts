@@ -1,3 +1,4 @@
+import type { SpecialExpressionName, SpecialExpressionNode } from '../builtin'
 import { builtin } from '../builtin'
 import type { FnNode } from '../builtin/specialExpressions/functions'
 import type { FunctionArguments } from '../builtin/utils'
@@ -20,7 +21,6 @@ import type {
   ParseArgument,
   ParseExpression,
   ReservedNameNode,
-  SpecialExpressionNode,
   StringNode,
 } from './interface'
 
@@ -63,7 +63,7 @@ const parseExpression: ParseExpression = (tokenStream, position) => {
   position += 1 // Skip parenthesis
 
   const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
-  if (tkn.t === TokenType.Name && builtin.specialExpressions[tkn.v])
+  if (tkn.t === TokenType.Name && builtin.specialExpressions[tkn.v as SpecialExpressionName])
     return parseSpecialExpression(tokenStream, position)
 
   return parseNormalExpression(tokenStream, position)
@@ -299,7 +299,7 @@ function parseSpecialExpression(tokenStream: TokenStream, position: number): [nu
   )
   position += 1
 
-  const { parse, validate } = asNonUndefined(builtin.specialExpressions[expressionName], sourceCodeInfo)
+  const { parse, validate } = asNonUndefined(builtin.specialExpressions[expressionName as SpecialExpressionName], sourceCodeInfo)
 
   const [positionAfterParse, node] = parse(tokenStream, position, {
     parseExpression,
@@ -310,7 +310,8 @@ function parseSpecialExpression(tokenStream: TokenStream, position: number): [nu
     parseArgument,
   })
 
-  validate?.(node)
+  // eslint-disable-next-line ts/no-unsafe-argument
+  validate?.(node as any)
 
   return [positionAfterParse, node]
 }

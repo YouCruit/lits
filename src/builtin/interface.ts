@@ -7,12 +7,12 @@ import type {
   ParseExpression,
   ParseToken,
   ParseTokens,
-  SpecialExpressionNode,
 } from '../parser/interface'
 import type { SourceCodeInfo, TokenStream } from '../tokenizer/interface'
 import type { Any, Arr } from '../interface'
 import type { FindUnresolvedIdentifiers, UnresolvedIdentifiers } from '../analyze'
 import type { ContextStack } from '../evaluator/ContextStack'
+import type { BuiltinSpecialExpressions, SpecialExpressionNode } from '.'
 
 export type NormalExpressionEvaluator<T> = (
   params: Arr,
@@ -37,56 +37,21 @@ export interface ParserHelpers {
 }
 
 export type BuiltinNormalExpressions = Record<string, BuiltinNormalExpression<Any>>
-export type BuiltinSpecialExpressions = Record<string, BuiltinSpecialExpression<Any>>
 
 interface EvaluateHelpers {
   evaluateAstNode: EvaluateAstNode
   builtin: Builtin
 }
-export interface BuiltinSpecialExpression<T> {
-  parse: (tokenStream: TokenStream, position: number, parsers: ParserHelpers) => [number, SpecialExpressionNode]
-  evaluate: (node: SpecialExpressionNode, contextStack: ContextStack, helpers: EvaluateHelpers) => T
-  validate?: (node: SpecialExpressionNode) => void
+export interface BuiltinSpecialExpression<T, N extends SpecialExpressionNode> {
+  parse: (tokenStream: TokenStream, position: number, parsers: ParserHelpers) => [number, N]
+  evaluate: (node: N, contextStack: ContextStack, helpers: EvaluateHelpers) => T
+  validate?: (node: N) => void
   findUnresolvedIdentifiers: (
-    node: SpecialExpressionNode,
+    node: N,
     contextStack: ContextStack,
-    params: { findUnresolvedIdentifiers: FindUnresolvedIdentifiers, builtin: Builtin },
+    params: { findUnresolvedIdentifiers: FindUnresolvedIdentifiers, builtin: Builtin, evaluateAstNode: EvaluateAstNode },
   ) => UnresolvedIdentifiers
 }
-
-export type SpecialExpressionName =
-  | 'and'
-  | 'block'
-  | 'comment'
-  | 'cond'
-  | 'def'
-  | 'defn'
-  | 'defns'
-  | 'defs'
-  | 'do'
-  | 'doseq'
-  | 'fn'
-  | 'for'
-  | 'function'
-  | 'if-let'
-  | 'if-not'
-  | 'if'
-  | 'let'
-  | 'loop'
-  | 'or'
-  | 'partial'
-  | 'recur'
-  | 'return-from'
-  | 'return'
-  | 'throw'
-  | 'time!'
-  | 'try'
-  | 'when-first'
-  | 'when-let'
-  | 'when-not'
-  | 'when'
-  | 'declared?'
-  | '??'
 
 export interface Builtin {
   normalExpressions: BuiltinNormalExpressions

@@ -1,14 +1,12 @@
-import type { SpecialExpressionName } from '../builtin/interface'
-import type { Condition } from '../builtin/specialExpressions/cond'
-import type { LoopBindingNode } from '../builtin/specialExpressions/loops'
-import type { Arity, FunctionOverload } from '../builtin/utils'
+import type { JsFunction, LazyValue } from '../Lits/Lits'
+import type { SpecialExpressionNode } from '../builtin'
+import type { Arity } from '../builtin/utils'
+import type { AstNodeType, FunctionType } from '../constants/constants'
 import type { Context } from '../evaluator/interface'
 import type { Any, Arr } from '../interface'
 import type { ReservedName } from '../reservedNames'
 import type { SourceCodeInfo, Token, TokenStream } from '../tokenizer/interface'
 import type { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../utils/symbols'
-import type { AstNodeType, FunctionType } from '../constants/constants'
-import type { JsFunction, LazyValue } from '../Lits/Lits'
 
 export interface EvaluatedFunctionArguments {
   mandatoryArguments: string[]
@@ -177,21 +175,21 @@ export interface ArgumentNode extends GenericNode {
   d?: AstNode // defaultValue
 }
 
-export interface SpecialExpressionNode extends GenericNode {
-  t: AstNodeType.SpecialExpression // type
-  n: SpecialExpressionName // name
-  p: AstNode[] // params
-  b?: BindingNode // binding
-  bs?: BindingNode[] // bindings
-  c?: Condition[] // conditions
-  f?: AstNode // functionName
-  o?: FunctionOverload[] // overloads
-  l?: LoopBindingNode[] // loopBindings
-  m?: AstNode // messageNode
-  te?: AstNode // tryExpression
-  e?: NameNode // error
-  ce?: AstNode // catchExpression
-}
+// export interface SpecialExpressionNode extends GenericNode {
+//   t: AstNodeType.SpecialExpression // type
+//   n: SpecialExpressionName // name
+//   p: AstNode[] // params
+//   b?: BindingNode // binding
+//   bs?: BindingNode[] // bindings
+//   c?: Condition[] // conditions
+//   f?: AstNode // functionName
+//   o?: FunctionOverload[] // overloads
+//   l?: LoopBindingNode[] // loopBindings
+//   m?: AstNode // messageNode
+//   te?: AstNode // tryExpression
+//   e?: NameNode // error
+//   ce?: AstNode // catchExpression
+// }
 
 export type AstNode =
   | NumberNode

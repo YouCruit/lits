@@ -5,6 +5,7 @@ import type { AstNode } from '../../parser/interface'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import type { Token } from '../../tokenizer/interface'
+import type { SpecialExpressionNode } from '..'
 
 export interface DoNode {
   t: AstNodeType.SpecialExpression
@@ -13,7 +14,7 @@ export interface DoNode {
   tkn?: Token
 }
 
-export const doSpecialExpression: BuiltinSpecialExpression<Any> = {
+export const doSpecialExpression: BuiltinSpecialExpression<Any, DoNode> = {
   parse: (tokenStream, position, { parseToken }) => {
     let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
 

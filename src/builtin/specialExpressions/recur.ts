@@ -1,16 +1,25 @@
 import { RecurSignal } from '../../errors'
 import { AstNodeType } from '../../constants/constants'
-import type { SpecialExpressionNode } from '../../parser/interface'
+import type { AstNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import type { Token } from '../../tokenizer/interface'
+import type { SpecialExpressionNode } from '..'
 
-export const recurSpecialExpression: BuiltinSpecialExpression<null> = {
+export interface RecurNode {
+  t: AstNodeType.SpecialExpression
+  n: 'recur'
+  p: AstNode[]
+  tkn?: Token
+}
+
+export const recurSpecialExpression: BuiltinSpecialExpression<null, RecurNode> = {
   parse: (tokenStream, position, { parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let params
     ;[position, params] = parseTokens(tokenStream, position)
 
-    const node: SpecialExpressionNode = {
+    const node: RecurNode = {
       t: AstNodeType.SpecialExpression,
       n: 'recur',
       p: params,

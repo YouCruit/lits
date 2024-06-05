@@ -492,6 +492,7 @@ var Playground = (function (exports) {
         __extends(UserDefinedError, _super);
         function UserDefinedError(message, sourceCodeInfo) {
             var _this = _super.call(this, message, sourceCodeInfo) || this;
+            _this.userMessage = typeof message === 'string' ? message : '';
             Object.setPrototypeOf(_this, UserDefinedError.prototype);
             _this.name = 'UserDefinedError';
             return _this;
@@ -672,6 +673,9 @@ var Playground = (function (exports) {
         return value;
     }
 
+    function isAndNode(value) {
+        return value.n === 'and';
+    }
     var andSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -714,6 +718,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isCondNode(value) {
+        return value.n === 'cond';
+    }
     function parseConditions(tokenStream, position, parseToken) {
         var _a, _b;
         var conditions = [];
@@ -906,6 +913,15 @@ var Playground = (function (exports) {
             throw getAssertionError('string or number', value, sourceCodeInfo);
     }
 
+    function isDefnNode(value) {
+        return value.n === 'defn';
+    }
+    function isDefnsNode(value) {
+        return value.n === 'defns';
+    }
+    function isFnNode(value) {
+        return value.n === 'fn';
+    }
     var defnSpecialExpression = {
         parse: function (tokenStream, position, parsers) {
             var _a, _b;
@@ -993,8 +1009,16 @@ var Playground = (function (exports) {
             return null;
         },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin);
+            var _b;
+            var _c;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
+            var sourceCodeInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
+            var name = evaluateAstNode(asAstNode(node.f, sourceCodeInfo), contextStack);
+            assertString(name, sourceCodeInfo);
+            assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
+            contextStack.globalContext[name] = { value: true };
+            var newContext = (_b = {}, _b[name] = { value: true }, _b);
+            return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin, newContext);
         },
     };
     var fnSpecialExpression = {
@@ -1037,7 +1061,7 @@ var Playground = (function (exports) {
         var _a;
         var sourceCodeInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo;
         if (expressionName === 'defn')
-            return node.f.v;
+            return (node.f).v;
         var name = evaluateAstNode(node.f, contextStack);
         return asString(name, sourceCodeInfo);
     }
@@ -1255,6 +1279,9 @@ var Playground = (function (exports) {
         return [position, args];
     }
 
+    function isDefNode(value) {
+        return value.n === 'def';
+    }
     var defSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -1277,9 +1304,10 @@ var Playground = (function (exports) {
             var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
             var name = asNameNode(node.p[0], sourceCodeInfo).v;
             assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
-            var value = evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack);
-            contextStack.globalContext[name] = { value: value };
-            return value;
+            contextStack.globalContext[name] = {
+                value: evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack),
+            };
+            return null;
         },
         validate: function (node) { return assertNumberOfParams(2, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
@@ -1295,6 +1323,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isDefsNode(value) {
+        return value.n === 'defs';
+    }
     var defsSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -1317,19 +1348,29 @@ var Playground = (function (exports) {
             var name = evaluateAstNode(asAstNode(node.p[0], sourceCodeInfo), contextStack);
             assertString(name, sourceCodeInfo);
             assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
-            var value = evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack);
-            contextStack.globalContext[name] = { value: value };
-            return value;
+            contextStack.globalContext[name] = {
+                value: evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack),
+            };
+            return null;
         },
         validate: function (node) { return assertNumberOfParams(2, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            var subNode = asAstNode(node.p[1], (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
-            return findUnresolvedIdentifiers([subNode], contextStack, builtin);
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
+            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+            var subNode = asAstNode(node.p[1], sourceCodeInfo);
+            var result = findUnresolvedIdentifiers([subNode], contextStack, builtin);
+            var name = evaluateAstNode(asAstNode(node.p[0], sourceCodeInfo), contextStack);
+            assertString(name, sourceCodeInfo);
+            assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
+            contextStack.globalContext[name] = { value: true };
+            return result;
         },
     };
 
+    function isDoNode(value) {
+        return value.n === 'do';
+    }
     var doSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var _b;
@@ -1439,6 +1480,12 @@ var Playground = (function (exports) {
             throw getAssertionError('string or RegularExpression', value, sourceCodeInfo);
     }
 
+    function isForNode(value) {
+        return value.n === 'for';
+    }
+    function isDoSeqNode(value) {
+        return value.n === 'doseq';
+    }
     function parseLoopBinding(tokenStream, position, _a) {
         var _b, _c, _d, _e;
         var parseBinding = _a.parseBinding, parseBindings = _a.parseBindings, parseToken = _a.parseToken;
@@ -1675,6 +1722,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isIfLetNode(value) {
+        return value.n === 'if-let';
+    }
     var ifLetSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var _b, _c;
@@ -1725,6 +1775,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isIfNotNode(value) {
+        return value.n === 'if-not';
+    }
     var ifNotSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -1762,6 +1815,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isIfNode(value) {
+        return value.n === 'if';
+    }
     var ifSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -1799,6 +1855,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isLetNode(value) {
+        return value.n === 'let';
+    }
     var letSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var _b, _c;
@@ -1873,6 +1932,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isLoopNode(value) {
+        return value.n === 'loop';
+    }
     var loopSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var _b, _c;
@@ -1954,6 +2016,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isOrNode(value) {
+        return value.n === 'or';
+    }
     var orSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -1996,6 +2061,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isRecurNode(value) {
+        return value.n === 'recur';
+    }
     var recurSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var _b;
@@ -2022,6 +2090,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isThrowNode(value) {
+        return value.n === 'throw';
+    }
     var throwSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseToken = _a.parseToken;
@@ -2053,6 +2124,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isTimeNode(value) {
+        return value.n === 'time!';
+    }
     var timeSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseToken = _a.parseToken;
@@ -2085,6 +2159,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isTryNode(value) {
+        return value.n === 'try';
+    }
     var trySpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var _b, _c, _d, _e;
@@ -2125,7 +2202,7 @@ var Playground = (function (exports) {
             var _b;
             var _c;
             var evaluateAstNode = _a.evaluateAstNode;
-            var _d = node, tryExpression = _d.te, catchExpression = _d.ce, errorNode = _d.e;
+            var tryExpression = node.te, catchExpression = node.ce, errorNode = node.e;
             try {
                 return evaluateAstNode(tryExpression, contextStack);
             }
@@ -2139,7 +2216,7 @@ var Playground = (function (exports) {
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            var _c = node, tryExpression = _c.te, catchExpression = _c.ce, errorNode = _c.e;
+            var tryExpression = node.te, catchExpression = node.ce, errorNode = node.e;
             var tryResult = findUnresolvedIdentifiers([tryExpression], contextStack, builtin);
             var newContext = (_b = {},
                 _b[errorNode.v] = { value: true },
@@ -2367,6 +2444,9 @@ var Playground = (function (exports) {
         return clone(value);
     }
 
+    function isWhenFirstNode(value) {
+        return value.n === 'when-first';
+    }
     var whenFirstSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var _b, _c;
@@ -2431,6 +2511,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isWhenLetNode(value) {
+        return value.n === 'when-let';
+    }
     var whenLetSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var _b, _c;
@@ -2490,6 +2573,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isWhenNotNode(value) {
+        return value.n === 'when-not';
+    }
     var whenNotSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -2534,6 +2620,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isWhenNode(value) {
+        return value.n === 'when';
+    }
     var whenSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -5746,6 +5835,9 @@ var Playground = (function (exports) {
 
     var normalExpressions = __assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign({}, bitwiseNormalExpression), collectionNormalExpression), arrayNormalExpression), sequenceNormalExpression), mathNormalExpression), miscNormalExpression), assertNormalExpression), objectNormalExpression), predicatesNormalExpression), regexpNormalExpression), stringNormalExpression), functionalNormalExpression);
 
+    function isCommentNode(value) {
+        return value.n === 'comment';
+    }
     var commentSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var _b;
@@ -5769,6 +5861,9 @@ var Playground = (function (exports) {
         findUnresolvedIdentifiers: function () { return new Set(); },
     };
 
+    function isDeclaredNode(value) {
+        return value.n === 'declared?';
+    }
     var declaredSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -5796,6 +5891,9 @@ var Playground = (function (exports) {
         },
     };
 
+    function isQqNode(value) {
+        return value.n === '??';
+    }
     var qqSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -5868,6 +5966,160 @@ var Playground = (function (exports) {
     };
     var normalExpressionKeys = Object.keys(normalExpressions);
     var specialExpressionKeys = Object.keys(specialExpressions);
+
+    function isContextEntry(value) {
+        return isUnknownRecord(value) && value.value !== undefined;
+    }
+
+    var ContextStackImpl = /** @class */ (function () {
+        function ContextStackImpl(_a) {
+            var contexts = _a.contexts, hostValues = _a.values, lazyHostValues = _a.lazyValues, nativeJsFunctions = _a.nativeJsFunctions;
+            this.contexts = contexts;
+            this.globalContext = asNonUndefined(contexts[0]);
+            this.values = hostValues;
+            this.lazyValues = lazyHostValues;
+            this.nativeJsFunctions = nativeJsFunctions;
+        }
+        ContextStackImpl.prototype.create = function (context, extraData) {
+            var globalContext = this.globalContext;
+            var contextStack = new ContextStackImpl({
+                contexts: __spreadArray([context], __read(this.contexts), false),
+                values: this.values,
+                lazyValues: extraData ? __assign(__assign({}, this.lazyValues), extraData) : this.lazyValues,
+                nativeJsFunctions: this.nativeJsFunctions,
+            });
+            contextStack.globalContext = globalContext;
+            return contextStack;
+        };
+        ContextStackImpl.prototype.clone = function () {
+            // eslint-disable-next-line ts/no-unsafe-argument
+            return new ContextStackImpl(JSON.parse(JSON.stringify({
+                contexts: this.contexts,
+                values: this.values,
+                lazyValues: this.lazyValues,
+                nativeJsFunctions: this.nativeJsFunctions,
+            })));
+        };
+        ContextStackImpl.prototype.getValue = function (name) {
+            var e_1, _a;
+            var _b, _c, _d;
+            try {
+                for (var _e = __values(this.contexts), _f = _e.next(); !_f.done; _f = _e.next()) {
+                    var context = _f.value;
+                    var contextEntry = context[name];
+                    if (contextEntry)
+                        return contextEntry.value;
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_f && !_f.done && (_a = _e.return)) _a.call(_e);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            var lazyHostValue = (_b = this.lazyValues) === null || _b === void 0 ? void 0 : _b[name];
+            if (lazyHostValue)
+                return lazyHostValue.read();
+            var nativeJsFunction = (_c = this.nativeJsFunctions) === null || _c === void 0 ? void 0 : _c[name];
+            if (nativeJsFunction)
+                return nativeJsFunction;
+            return (_d = this.values) === null || _d === void 0 ? void 0 : _d[name];
+        };
+        ContextStackImpl.prototype.lookUp = function (node) {
+            var e_2, _a, _b;
+            var _c, _d, _e, _f;
+            var value = node.v;
+            var sourceCodeInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
+            try {
+                for (var _g = __values(this.contexts), _h = _g.next(); !_h.done; _h = _g.next()) {
+                    var context = _h.value;
+                    var contextEntry = context[value];
+                    if (contextEntry)
+                        return contextEntry;
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_h && !_h.done && (_a = _g.return)) _a.call(_g);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+            var lazyHostValue = (_d = this.lazyValues) === null || _d === void 0 ? void 0 : _d[value];
+            if (lazyHostValue !== undefined) {
+                return {
+                    value: toAny(lazyHostValue.read()),
+                };
+            }
+            var hostValue = (_e = this.values) === null || _e === void 0 ? void 0 : _e[value];
+            if (hostValue !== undefined) {
+                return {
+                    value: toAny(hostValue),
+                };
+            }
+            if (builtin.normalExpressions[value]) {
+                var builtinFunction = (_b = {},
+                    _b[FUNCTION_SYMBOL] = true,
+                    _b.sourceCodeInfo = sourceCodeInfo,
+                    _b.t = FunctionType.Builtin,
+                    _b.n = value,
+                    _b);
+                return builtinFunction;
+            }
+            if (builtin.specialExpressions[value])
+                return 'specialExpression';
+            var nativeJsFunction = (_f = this.nativeJsFunctions) === null || _f === void 0 ? void 0 : _f[value];
+            if (nativeJsFunction) {
+                return {
+                    value: nativeJsFunction,
+                };
+            }
+            return null;
+        };
+        ContextStackImpl.prototype.evaluateName = function (node) {
+            var _a;
+            var lookUpResult = this.lookUp(node);
+            if (isContextEntry(lookUpResult))
+                return lookUpResult.value;
+            else if (isBuiltinFunction(lookUpResult))
+                return lookUpResult;
+            throw new UndefinedSymbolError(node.v, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
+        };
+        return ContextStackImpl;
+    }());
+    function createContextStack(params) {
+        var _a;
+        if (params === void 0) { params = {}; }
+        var globalContext = (_a = params.globalContext) !== null && _a !== void 0 ? _a : {};
+        // Contexts are checked from left to right
+        var contexts = params.contexts ? __spreadArray([globalContext], __read(params.contexts), false) : [globalContext];
+        var contextStack = new ContextStackImpl({
+            contexts: contexts,
+            values: params.values,
+            lazyValues: params.lazyValues,
+            nativeJsFunctions: params.jsFunctions
+                && Object.entries(params.jsFunctions).reduce(function (acc, _a) {
+                    var _b = __read(_a, 2), name = _b[0], jsFunction = _b[1];
+                    if (specialExpressionKeys.includes(name)) {
+                        console.warn("Cannot shadow special expression \"".concat(name, "\", ignoring."));
+                        return acc;
+                    }
+                    if (normalExpressionKeys.includes(name)) {
+                        console.warn("Cannot shadow builtin function \"".concat(name, "\", ignoring."));
+                        return acc;
+                    }
+                    acc[name] = {
+                        t: FunctionType.NativeJsFunction,
+                        f: jsFunction,
+                        n: name,
+                        __fn: true,
+                    };
+                    return acc;
+                }, {}),
+        });
+        return contextStack;
+    }
 
     var _a;
     function findOverloadFunction(overloads, nbrOfParams, sourceCodeInfo) {
@@ -6250,42 +6502,411 @@ var Playground = (function (exports) {
                 var unresolvedIdentifiers = specialExpression.findUnresolvedIdentifiers(astNode, contextStack, {
                     findUnresolvedIdentifiers: findUnresolvedIdentifiers,
                     builtin: builtin,
+                    evaluateAstNode: evaluateAstNode,
                 });
                 return unresolvedIdentifiers;
             }
         }
     }
 
+    var calculateAndOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes;
+        return combinateAstNodes(astNode.p)
+            .map(function (p) { return ({
+            n: 'and',
+            t: AstNodeType.SpecialExpression,
+            p: p,
+            tkn: astNode.tkn,
+        }); });
+    };
+
+    var calculateCondOutcomes = function (_a) {
+        var astNode = _a.astNode, nilNode = _a.nilNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes, isAstComputable = _a.isAstComputable;
+        var testNodes = astNode.c.map(function (_a) {
+            var t = _a.t;
+            return t;
+        });
+        if (isAstComputable(testNodes)) {
+            return combinate(astNode.c
+                // Create a list of ast nodes from the test and form of each condition
+                .reduce(function (acc, condition) {
+                acc.push(calculatePossibleAstNodes(condition.t), calculatePossibleAstNodes(condition.f));
+                return acc;
+            }, []))
+                // Create a new CondNode for each combination of test and form outcomes
+                .map(function (conditionAsts) { return (__assign(__assign({}, astNode), { c: arrayToPairs(conditionAsts).map(function (_a) {
+                    var _b = __read(_a, 2), t = _b[0], f = _b[1];
+                    return ({ t: t, f: f });
+                }) })); });
+        }
+        return __spreadArray(__spreadArray([], __read(astNode.c.flatMap(function (condition) { return calculatePossibleAstNodes(condition.f); })), false), [
+            nilNode,
+        ], false);
+    };
+    function arrayToPairs(arr) {
+        var pairs = [];
+        for (var i = 0; i < arr.length; i += 2)
+            pairs.push([arr[i], arr[i + 1]]);
+        return pairs;
+    }
+
+    var trueNode = { t: AstNodeType.ReservedName, v: 'true' };
+    var falseNode = { t: AstNodeType.ReservedName, v: 'false' };
+    var calculateDeclaredOutcomes = function (_a) {
+        var astNode = _a.astNode, isAstComputable = _a.isAstComputable;
+        if (isAstComputable(astNode.p[0]))
+            return [trueNode];
+        return [trueNode, falseNode];
+    };
+
+    var calculateDefOutcomes = function (_a) {
+        var astNode = _a.astNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes, addGlobalIdentifier = _a.addGlobalIdentifier;
+        var nameNode = asNameNode(astNode.p[0]);
+        var valueNode = astNode.p[1];
+        addGlobalIdentifier(nameNode.v);
+        return calculatePossibleAstNodes(valueNode)
+            .map(function (node) { return (__assign(__assign({}, astNode), { p: [nameNode, node] })); });
+    };
+
+    var calculateDefsOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes;
+        return combinateAstNodes(astNode.p)
+            .map(function (p) { return (__assign(__assign({}, astNode), { p: p })); });
+    };
+
+    var calculateDoOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes;
+        return combinateAstNodes(astNode.p).map(function (p) { return (__assign(__assign({}, astNode), { p: p })); });
+    };
+
+    function calculateFunctionOverloadOutcomes(combinateAstNodes, functionOverloads) {
+        return combinate(functionOverloads
+            // For each overload, calculate the possible outcomes for each parameter
+            .map(function (functionOverload) { return combinateAstNodes(functionOverload.b)
+            // For each combination of parameter outcomes, create a new overload
+            .map(function (body) { return (__assign(__assign({}, functionOverload), { b: body })); }); }));
+    }
+    var calculateDefnOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes, addGlobalIdentifier = _a.addGlobalIdentifier;
+        addGlobalIdentifier(astNode.f.v);
+        // astNode.o is an array of overloads
+        return calculateFunctionOverloadOutcomes(combinateAstNodes, astNode.o).map(function (functionOverloads) { return (__assign(__assign({}, astNode), { o: functionOverloads })); });
+    };
+    var calculateDefnsOutcomes = function (_a) {
+        var astNode = _a.astNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes, combinateAstNodes = _a.combinateAstNodes;
+        // astNode.o is an array of overloads
+        return calculatePossibleAstNodes(astNode.f).flatMap(function (functionName) {
+            return calculateFunctionOverloadOutcomes(combinateAstNodes, astNode.o).map(function (functionOverloads) { return (__assign(__assign({}, astNode), { f: functionName, o: functionOverloads })); });
+        });
+    };
+    var calculateFnOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes;
+        // astNode.o is an array of overloads
+        return calculateFunctionOverloadOutcomes(combinateAstNodes, astNode.o).map(function (functionOverloads) { return (__assign(__assign({}, astNode), { o: functionOverloads })); });
+    };
+
+    var calculateIfLetOutcomes = function (_a) {
+        var _b;
+        var astNode = _a.astNode, nilNode = _a.nilNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes, combinateAstNodes = _a.combinateAstNodes, isAstComputable = _a.isAstComputable;
+        var bindingNode = astNode.b;
+        var thenBranch = astNode.p[0];
+        var elseBranch = (_b = astNode.p[1]) !== null && _b !== void 0 ? _b : nilNode;
+        if (!isAstComputable(bindingNode.v)) {
+            return __spreadArray(__spreadArray([], __read(calculatePossibleAstNodes(thenBranch)), false), __read(calculatePossibleAstNodes(elseBranch)), false);
+        }
+        var newIdentifier = bindingNode.n;
+        return calculatePossibleAstNodes(bindingNode.v)
+            .map(function (bindingValue) { return (__assign(__assign({}, bindingNode), { v: bindingValue })); })
+            .flatMap(function (b) { return combinateAstNodes(astNode.p, [newIdentifier])
+            .map(function (p) { return (__assign(__assign({}, astNode), { b: b, p: p })); }); });
+    };
+
+    var calculateIfNotOutcomes = function (_a) {
+        var _b;
+        var astNode = _a.astNode, nilNode = _a.nilNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes, combinateAstNodes = _a.combinateAstNodes, isAstComputable = _a.isAstComputable;
+        var condition = astNode.p[0];
+        var thenBranch = astNode.p[1];
+        var elseBranch = (_b = astNode.p[2]) !== null && _b !== void 0 ? _b : nilNode;
+        if (isAstComputable(condition)) {
+            return combinateAstNodes(astNode.p)
+                .map(function (p) { return ({
+                n: 'if-not',
+                t: astNode.t,
+                p: p,
+                tkn: astNode.tkn,
+            }); });
+        }
+        return __spreadArray(__spreadArray([], __read(calculatePossibleAstNodes(thenBranch)), false), __read(calculatePossibleAstNodes(elseBranch)), false);
+    };
+
+    var calculateIfOutcomes = function (_a) {
+        var _b;
+        var astNode = _a.astNode, nilNode = _a.nilNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes, combinateAstNodes = _a.combinateAstNodes, isAstComputable = _a.isAstComputable;
+        var condition = astNode.p[0];
+        var thenBranch = astNode.p[1];
+        var elseBranch = (_b = astNode.p[2]) !== null && _b !== void 0 ? _b : nilNode;
+        if (isAstComputable(condition)) {
+            return combinateAstNodes(astNode.p)
+                .map(function (p) { return ({
+                n: 'if',
+                t: astNode.t,
+                p: p,
+                tkn: astNode.tkn,
+            }); });
+        }
+        return __spreadArray(__spreadArray([], __read(calculatePossibleAstNodes(thenBranch)), false), __read(calculatePossibleAstNodes(elseBranch)), false);
+    };
+
+    var calculateLetOutcomes = function (_a) {
+        var astNode = _a.astNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes, combinateAstNodes = _a.combinateAstNodes, isAstComputable = _a.isAstComputable;
+        try {
+            // check bindings, if any binding value cannot be calculated, convert the whole let to a do-expression
+            if (!isAstComputable(astNode.bs.map(function (b) { return calculatePossibleAstNodes(b.v); })))
+                throw new Error('Could not calculate binding value');
+        }
+        catch (_b) {
+            var doNodes = combinateAstNodes(astNode.p)
+                .map(function (p) {
+                return {
+                    n: 'do',
+                    t: AstNodeType.SpecialExpression,
+                    p: p,
+                    tkn: astNode.tkn,
+                };
+            });
+            return doNodes;
+        }
+        var newIdentifiers = astNode.bs.map(function (bindingNode) { return bindingNode.n; });
+        var letNodes = combinate(astNode.bs.map(function (bindingNode) {
+            return calculatePossibleAstNodes(bindingNode.v)
+                .map(function (bindingValues) { return (__assign(__assign({}, bindingNode), { v: bindingValues })); });
+        }))
+            .flatMap(function (bindingNodes) { return combinate(astNode.p.map(function (p) { return calculatePossibleAstNodes(p, newIdentifiers); }))
+            .map(function (p) {
+            return {
+                n: 'let',
+                bs: bindingNodes,
+                t: AstNodeType.SpecialExpression,
+                p: p,
+                tkn: astNode.tkn,
+            };
+        }); });
+        return letNodes;
+    };
+
+    var calculateForOutcomes = function (_a) {
+        var astNode = _a.astNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes;
+        if (!isDeterministic(calculatePossibleAstNodes, astNode))
+            throw new Error('Could not calculate for loop, not deterministic');
+        return [astNode];
+    };
+    var calculateDoSeqOutcomes = function (_a) {
+        var astNode = _a.astNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes;
+        if (!isDeterministic(calculatePossibleAstNodes, astNode))
+            throw new Error('Could not calculate doSeq node, not deterministic');
+        return [astNode];
+    };
+    function isDeterministic(calculatePossibleAstNodes, astNode) {
+        var e_1, _a, e_2, _b;
+        try {
+            for (var _c = __values(astNode.l), _d = _c.next(); !_d.done; _d = _c.next()) {
+                var _e = _d.value, b = _e.b, l = _e.l, wn = _e.wn, we = _e.we;
+                if (l && l.some(function (_a) {
+                    var v = _a.v;
+                    return !astIsDeterministic(calculatePossibleAstNodes, v);
+                }))
+                    return false;
+                if (!astIsDeterministic(calculatePossibleAstNodes, b.v))
+                    return false;
+                if (wn && !astIsDeterministic(calculatePossibleAstNodes, wn))
+                    return false;
+                if (we && !astIsDeterministic(calculatePossibleAstNodes, we))
+                    return false;
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        try {
+            for (var _f = __values(astNode.p), _g = _f.next(); !_g.done; _g = _f.next()) {
+                var p = _g.value;
+                if (!astIsDeterministic(calculatePossibleAstNodes, p))
+                    return false;
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
+            }
+            finally { if (e_2) throw e_2.error; }
+        }
+        return true;
+    }
+    function astIsDeterministic(calculatePossibleAstNodes, astNode) {
+        return calculatePossibleAstNodes(astNode).length === 1;
+    }
+
+    var calculateOrOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes;
+        return combinateAstNodes(astNode.p)
+            .map(function (p) { return ({
+            n: 'or',
+            t: AstNodeType.SpecialExpression,
+            p: p,
+            tkn: astNode.tkn,
+        }); });
+    };
+
+    var calculateQqOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes, isAstComputable = _a.isAstComputable;
+        if (!isAstComputable(astNode.p[0]))
+            throw new Error('First argument of ?? not computable');
+        return combinateAstNodes(astNode.p)
+            .map(function (p) { return (__assign(__assign({}, astNode), { p: p })); });
+    };
+
+    var calculateThrowOutcomes = function (_a) {
+        var astNode = _a.astNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes;
+        return calculatePossibleAstNodes(astNode.m).map(function (m) { return (__assign(__assign({}, astNode), { m: m })); });
+    };
+
+    var calculateTimeOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes;
+        return combinateAstNodes(astNode.p)
+            .map(function (p) { return (__assign(__assign({}, astNode), { n: 'do', p: p })); });
+    };
+
+    var calculateTryOutcomes = function (_a) {
+        var astNode = _a.astNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes;
+        return combinate([
+            calculatePossibleAstNodes(astNode.te),
+            calculatePossibleAstNodes(astNode.ce),
+            calculatePossibleAstNodes(astNode.e),
+        ])
+            .map(function (combination) { return (__assign(__assign({}, astNode), { te: combination[0], ce: combination[1], e: asNameNode(combination[2]) })); });
+    };
+
+    var calculateWhenFirstOutcomes = function (_a) {
+        var astNode = _a.astNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes, combinateAstNodes = _a.combinateAstNodes, isAstComputable = _a.isAstComputable;
+        var bindingNode = astNode.b;
+        if (!isAstComputable(bindingNode.v))
+            throw new Error('Could not calculate binding value');
+        var newIdentifier = bindingNode.n;
+        return calculatePossibleAstNodes(bindingNode.v)
+            .map(function (bindingValue) { return (__assign(__assign({}, bindingNode), { v: bindingValue })); })
+            .flatMap(function (b) {
+            return combinateAstNodes(astNode.p, [newIdentifier])
+                .map(function (p) { return (__assign(__assign({}, astNode), { b: b, p: p })); });
+        });
+    };
+
+    var calculateWhenLetOutcomes = function (_a) {
+        var astNode = _a.astNode, nilNode = _a.nilNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes, combinateAstNodes = _a.combinateAstNodes, isAstComputable = _a.isAstComputable;
+        var bindingNode = astNode.b;
+        if (!isAstComputable(bindingNode.v)) {
+            return __spreadArray(__spreadArray([], __read(combinateAstNodes(astNode.p)
+                .map(function (p) { return ({
+                n: 'do',
+                t: astNode.t,
+                p: p,
+                tkn: astNode.tkn,
+            }); })), false), [
+                nilNode,
+            ], false);
+        }
+        var newIdentifier = bindingNode.n;
+        return calculatePossibleAstNodes(bindingNode.v)
+            .map(function (bindingValue) { return (__assign(__assign({}, bindingNode), { v: bindingValue })); })
+            .flatMap(function (b) {
+            return combinateAstNodes(astNode.p, [newIdentifier])
+                .map(function (p) { return (__assign(__assign({}, astNode), { b: b, p: p })); });
+        });
+    };
+
+    var calculateWhenNotOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes, nilNode = _a.nilNode, isAstComputable = _a.isAstComputable;
+        var condition = astNode.p[0];
+        if (isAstComputable(condition)) {
+            return combinateAstNodes(astNode.p)
+                .map(function (p) { return ({
+                n: 'when-not',
+                t: astNode.t,
+                p: p,
+                tkn: astNode.tkn,
+            }); });
+        }
+        var body = astNode.p.slice(1);
+        return __spreadArray(__spreadArray([], __read(combinateAstNodes(body)
+            .map(function (p) { return ({
+            n: 'do',
+            t: astNode.t,
+            p: p,
+            tkn: astNode.tkn,
+        }); })), false), [
+            nilNode,
+        ], false);
+    };
+
+    var calculateWhenOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes, nilNode = _a.nilNode, isAstComputable = _a.isAstComputable;
+        var condition = astNode.p[0];
+        if (isAstComputable(condition)) {
+            return combinateAstNodes(astNode.p)
+                .map(function (p) { return ({
+                n: 'when',
+                t: astNode.t,
+                p: p,
+                tkn: astNode.tkn,
+            }); });
+        }
+        var body = astNode.p.slice(1);
+        return __spreadArray(__spreadArray([], __read(combinateAstNodes(body)
+            .map(function (p) { return ({
+            n: 'do',
+            t: astNode.t,
+            p: p,
+            tkn: astNode.tkn,
+        }); })), false), [
+            nilNode,
+        ], false);
+    };
+
     function isIdempotent(normalExpressionName) {
         return !normalExpressionName.endsWith('!')
             || normalExpressionName === 'write!';
     }
-    function calculateOutcomes(astNode, contextStack, builtin) {
+    function calculateOutcomes(contextStack, astNodes) {
         var e_1, _a;
-        var possibleAsts;
-        try {
-            possibleAsts = combinate(astNode.b.map(calculatePossibleAsts))
-                .map(function (b) {
-                return __assign(__assign({}, astNode), { b: b });
-            });
-        }
-        catch (e) {
+        var possibleAsts = calculatePossibleAsts(contextStack.clone(), astNodes);
+        if (possibleAsts === null)
             return null;
-        }
-        var outcomes = new Set();
-        var _loop_1 = function (ast) {
-            var unresolvedIdentifiers = findUnresolvedIdentifiers(ast, contextStack, builtin);
+        var outcomes = [];
+        var _loop_1 = function (possibleAst) {
+            var unresolvedIdentifiers = findUnresolvedIdentifiers(possibleAst, contextStack.clone(), builtin);
             if (unresolvedIdentifiers.size !== 0)
                 return { value: null };
-            var outcome = evaluate(ast, contextStack);
-            if (__spreadArray([], __read(outcomes), false).some(function (o) { return JSON.stringify(o) === JSON.stringify(outcome); }))
-                return "continue";
-            outcomes.add(outcome);
+            try {
+                var outcome_1 = evaluate(possibleAst, contextStack.clone());
+                if (__spreadArray([], __read(outcomes), false).some(function (o) { return JSON.stringify(o) === JSON.stringify(outcome_1); }))
+                    return "continue";
+                outcomes.push(outcome_1);
+            }
+            catch (e) {
+                if (e instanceof LitsError)
+                    outcomes.push(e);
+                else
+                    return { value: null };
+            }
         };
         try {
             for (var possibleAsts_1 = __values(possibleAsts), possibleAsts_1_1 = possibleAsts_1.next(); !possibleAsts_1_1.done; possibleAsts_1_1 = possibleAsts_1.next()) {
-                var ast = possibleAsts_1_1.value;
-                var state_1 = _loop_1(ast);
+                var possibleAst = possibleAsts_1_1.value;
+                var state_1 = _loop_1(possibleAst);
                 if (typeof state_1 === "object")
                     return state_1.value;
             }
@@ -6299,241 +6920,115 @@ var Playground = (function (exports) {
         }
         return outcomes;
     }
-    var nilNode = { t: AstNodeType.ReservedName, v: 'nil' };
-    var trueNode = { t: AstNodeType.ReservedName, v: 'true' };
-    var falseNode = { t: AstNodeType.ReservedName, v: 'false' };
-    function calculatePossibleAsts(astNode) {
-        var _a, _b;
-        if (astNode.t === AstNodeType.SpecialExpression) {
-            switch (astNode.n) {
-                case '??': {
-                    var qqNode = {
-                        t: AstNodeType.SpecialExpression,
-                        n: '??',
-                        p: [astNode.p[0]],
-                    };
-                    return astNode.p.length === 2
-                        ? __spreadArray([qqNode], __read(calculatePossibleAsts(astNode.p[1])), false) : [qqNode];
-                }
-                case 'and':
-                case 'or': {
-                    return astNode.p.map(calculatePossibleAsts).flat();
-                }
-                case 'comment':
-                    return [nilNode];
-                case 'cond': {
-                    var conditionsValues = astNode.c.map(function (c) { return c.f; });
-                    return conditionsValues.map(calculatePossibleAsts).flat();
-                }
-                case 'declared?':
-                    return [trueNode, falseNode];
-                case 'do': {
-                    var doNodes = combinate(astNode.p.map(calculatePossibleAsts))
-                        .map(function (p) { return ({
-                        n: 'do',
-                        t: AstNodeType.SpecialExpression,
-                        p: p,
-                        tkn: astNode.tkn,
-                    }); });
-                    return __spreadArray(__spreadArray([], __read(doNodes), false), [nilNode], false);
-                }
-                case 'doseq': {
-                    return [nilNode];
-                }
-                case 'if-not':
-                case 'if': {
-                    var thenBranch = astNode.p[1];
-                    var elseBranch = (_a = astNode.p[2]) !== null && _a !== void 0 ? _a : nilNode;
-                    return __spreadArray(__spreadArray([], __read(calculatePossibleAsts(thenBranch)), false), __read(calculatePossibleAsts(elseBranch)), false);
-                }
-                case 'if-let': {
-                    var thenBranch = astNode.p[0];
-                    var elseBranch = (_b = astNode.p[1]) !== null && _b !== void 0 ? _b : nilNode;
-                    var letNodes = calculatePossibleAsts(thenBranch)
-                        .flatMap(function (then) { return calculatePossibleAsts(astNode.b.v).map(function (v) {
-                        return {
-                            t: AstNodeType.SpecialExpression,
-                            n: 'let',
-                            bs: [__assign(__assign({}, astNode.b), { v: v })],
-                            p: [then],
-                        };
-                    }); });
-                    return __spreadArray(__spreadArray([], __read(letNodes), false), [
-                        elseBranch,
-                    ], false);
-                }
-                case 'when': {
-                    var doNodes = combinate(astNode.p.map(calculatePossibleAsts))
-                        .map(function (p) { return ({
-                        n: 'do',
-                        t: AstNodeType.SpecialExpression,
-                        p: p,
-                        tkn: astNode.tkn,
-                    }); });
-                    return __spreadArray(__spreadArray([], __read(doNodes), false), [nilNode], false);
-                }
-                case 'when-let': {
-                    var letNodes = combinate(astNode.p.map(calculatePossibleAsts))
-                        .flatMap(function (p) { return calculatePossibleAsts(astNode.b.v).map(function (v) {
-                        var letNode = {
-                            n: 'let',
-                            bs: [__assign(__assign({}, astNode.b), { v: v })],
-                            t: AstNodeType.SpecialExpression,
-                            p: p,
-                            tkn: astNode.tkn,
-                        };
-                        return letNode;
-                    }); });
-                    return __spreadArray(__spreadArray([], __read(letNodes), false), [nilNode], false);
-                }
-                case 'let': {
-                    var letNodes = combinate(astNode.p.map(calculatePossibleAsts))
-                        .flatMap(function (p) { return combinate(astNode.bs
-                        .map(function (b) { return calculatePossibleAsts(b.v).map(function (v) { return (__assign(__assign({}, b), { v: v })); }); })).map(function (bs) {
-                        return {
-                            n: 'let',
-                            bs: bs,
-                            t: AstNodeType.SpecialExpression,
-                            p: p,
-                            tkn: astNode.tkn,
-                        };
-                    }); });
-                    return letNodes;
-                }
-                default:
-                    return [astNode];
-            }
+    function calculatePossibleAsts(contextStack, astNodes) {
+        var possibleAsts;
+        try {
+            possibleAsts = combinate(astNodes.map(function (astNode) { return calculatePossibleAstNodes(contextStack, astNode); })).map(function (b) { return ({ b: b }); });
         }
-        else if (astNode.t === AstNodeType.NormalExpression) {
+        catch (e) {
+            return null;
+        }
+        return possibleAsts;
+    }
+    var nilNode = { t: AstNodeType.ReservedName, v: 'nil' };
+    function calculatePossibleAstNodes(contextStack, astNode, newIndentifiers) {
+        var newContext = newIndentifiers
+            ? newIndentifiers.reduce(function (acc, identity) {
+                acc[identity] = { value: null };
+                return acc;
+            }, {})
+            : undefined;
+        var newContextStack = newContext ? contextStack.create(newContext) : contextStack;
+        if (astNode.t === AstNodeType.NormalExpression) {
             if (astNode.n && !isIdempotent(astNode.n))
                 throw new Error("NormalExpressionNode with name ".concat(astNode.n, " is not idempotent. Cannot calculate possible ASTs."));
-            return combinate(astNode.p.map(calculatePossibleAsts))
-                .map(function (p) { return (__assign(__assign({}, astNode), { p: p })); });
+            if (isNormalExpressionNodeWithName(astNode)) {
+                return combinate(astNode.p.map(function (n) { return calculatePossibleAstNodes(newContextStack, n); }))
+                    .map(function (p) { return (__assign(__assign({}, astNode), { p: p })); });
+            }
+            else {
+                return calculatePossibleAstNodes(newContextStack, astNode.e)
+                    .flatMap(function (e) { return combinate(astNode.p.map(function (n) { return calculatePossibleAstNodes(newContextStack, n); }))
+                    .map(function (p) { return (__assign(__assign({}, astNode), { e: e, p: p })); }); });
+            }
+        }
+        else if (astNode.t === AstNodeType.SpecialExpression) {
+            var helperOptions = {
+                nilNode: nilNode,
+                calculatePossibleAstNodes: function (node, identifiers) { return calculatePossibleAstNodes(newContextStack.clone(), node, identifiers); },
+                combinateAstNodes: function (nodes, identifiers) { return combinate(nodes.map(function (node) { return calculatePossibleAstNodes(newContextStack.clone(), node, identifiers); })); },
+                isAstComputable: function (node) { return calculateOutcomes(newContextStack.clone(), Array.isArray(node) ? node.flat() : [node]) !== null; },
+                addGlobalIdentifier: function (name) { return newContextStack.globalContext[name] = { value: null }; },
+            };
+            if (isAndNode(astNode))
+                return calculateAndOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isCommentNode(astNode))
+                return [nilNode];
+            if (isCondNode(astNode))
+                return calculateCondOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isDeclaredNode(astNode))
+                return calculateDeclaredOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isDefnNode(astNode))
+                return calculateDefnOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isDefnNode(astNode))
+                return calculateDefnOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isDefNode(astNode))
+                return calculateDefOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isDefnsNode(astNode))
+                return calculateDefnsOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isDefsNode(astNode))
+                return calculateDefsOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isDoNode(astNode))
+                return calculateDoOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isDoSeqNode(astNode))
+                return calculateDoSeqOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isFnNode(astNode))
+                return calculateFnOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isForNode(astNode))
+                return calculateForOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isIfLetNode(astNode))
+                return calculateIfLetOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isIfNode(astNode))
+                return calculateIfOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isIfNotNode(astNode))
+                return calculateIfNotOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isLetNode(astNode))
+                return calculateLetOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isLoopNode(astNode))
+                throw new Error('Cannot calculate outcomes for loop');
+            if (isOrNode(astNode))
+                return calculateOrOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isQqNode(astNode))
+                return calculateQqOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isRecurNode(astNode))
+                throw new Error('Cannot calculate outcomes for recursive calls');
+            if (isTimeNode(astNode))
+                return calculateTimeOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isThrowNode(astNode))
+                return calculateThrowOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isTryNode(astNode))
+                return calculateTryOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isWhenFirstNode(astNode))
+                return calculateWhenFirstOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isWhenLetNode(astNode))
+                return calculateWhenLetOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isWhenNode(astNode))
+                return calculateWhenOutcomes(__assign({ astNode: astNode }, helperOptions));
+            if (isWhenNotNode(astNode))
+                return calculateWhenNotOutcomes(__assign({ astNode: astNode }, helperOptions));
+            return [astNode];
         }
         else {
             return [astNode];
         }
     }
 
-    function analyze$1(ast, contextStack, builtin) {
+    function analyze$1(ast, params) {
         return {
-            unresolvedIdentifiers: findUnresolvedIdentifiers(ast, contextStack, builtin),
-            outcomes: calculateOutcomes(ast, contextStack, builtin),
+            unresolvedIdentifiers: findUnresolvedIdentifiers(ast, createContextStack(params), builtin),
+            outcomes: calculateOutcomes(createContextStack(params), ast.b),
         };
     }
-
-    function isContextEntry(value) {
-        return isUnknownRecord(value) && value.value !== undefined;
-    }
-
-    var ContextStack = /** @class */ (function () {
-        function ContextStack(_a) {
-            var contexts = _a.contexts, hostValues = _a.values, lazyHostValues = _a.lazyValues, nativeJsFunctions = _a.nativeJsFunctions;
-            this.contexts = contexts;
-            this.globalContext = asNonUndefined(contexts[0]);
-            this.values = hostValues;
-            this.lazyValues = lazyHostValues;
-            this.nativeJsFunctions = nativeJsFunctions;
-        }
-        ContextStack.prototype.create = function (context, extraData) {
-            var globalContext = this.globalContext;
-            var contextStack = new ContextStack({
-                contexts: __spreadArray([context], __read(this.contexts), false),
-                values: this.values,
-                lazyValues: extraData ? __assign(__assign({}, this.lazyValues), extraData) : this.lazyValues,
-                nativeJsFunctions: this.nativeJsFunctions,
-            });
-            contextStack.globalContext = globalContext;
-            return contextStack;
-        };
-        ContextStack.prototype.getValue = function (name) {
-            var e_1, _a;
-            var _b, _c, _d;
-            try {
-                for (var _e = __values(this.contexts), _f = _e.next(); !_f.done; _f = _e.next()) {
-                    var context = _f.value;
-                    var contextEntry = context[name];
-                    if (contextEntry)
-                        return contextEntry.value;
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_f && !_f.done && (_a = _e.return)) _a.call(_e);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            var lazyHostValue = (_b = this.lazyValues) === null || _b === void 0 ? void 0 : _b[name];
-            if (lazyHostValue)
-                return lazyHostValue.read();
-            var nativeJsFunction = (_c = this.nativeJsFunctions) === null || _c === void 0 ? void 0 : _c[name];
-            if (nativeJsFunction)
-                return nativeJsFunction;
-            return (_d = this.values) === null || _d === void 0 ? void 0 : _d[name];
-        };
-        ContextStack.prototype.lookUp = function (node) {
-            var e_2, _a, _b;
-            var _c, _d, _e, _f;
-            var value = node.v;
-            var sourceCodeInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
-            try {
-                for (var _g = __values(this.contexts), _h = _g.next(); !_h.done; _h = _g.next()) {
-                    var context = _h.value;
-                    var contextEntry = context[value];
-                    if (contextEntry)
-                        return contextEntry;
-                }
-            }
-            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-            finally {
-                try {
-                    if (_h && !_h.done && (_a = _g.return)) _a.call(_g);
-                }
-                finally { if (e_2) throw e_2.error; }
-            }
-            var lazyHostValue = (_d = this.lazyValues) === null || _d === void 0 ? void 0 : _d[value];
-            if (lazyHostValue !== undefined) {
-                return {
-                    value: toAny(lazyHostValue.read()),
-                };
-            }
-            var hostValue = (_e = this.values) === null || _e === void 0 ? void 0 : _e[value];
-            if (hostValue !== undefined) {
-                return {
-                    value: toAny(hostValue),
-                };
-            }
-            if (builtin.normalExpressions[value]) {
-                var builtinFunction = (_b = {},
-                    _b[FUNCTION_SYMBOL] = true,
-                    _b.sourceCodeInfo = sourceCodeInfo,
-                    _b.t = FunctionType.Builtin,
-                    _b.n = value,
-                    _b);
-                return builtinFunction;
-            }
-            if (builtin.specialExpressions[value])
-                return 'specialExpression';
-            var nativeJsFunction = (_f = this.nativeJsFunctions) === null || _f === void 0 ? void 0 : _f[value];
-            if (nativeJsFunction) {
-                return {
-                    value: nativeJsFunction,
-                };
-            }
-            return null;
-        };
-        ContextStack.prototype.evaluateName = function (node) {
-            var _a;
-            var lookUpResult = this.lookUp(node);
-            if (isContextEntry(lookUpResult))
-                return lookUpResult.value;
-            else if (isBuiltinFunction(lookUpResult))
-                return lookUpResult;
-            throw new UndefinedSymbolError(node.v, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
-        };
-        return ContextStack;
-    }());
 
     function parseNumber(tokenStream, position) {
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
@@ -7397,11 +7892,10 @@ var Playground = (function (exports) {
             evaluate(ast, contextStack);
             return contextStack.globalContext;
         };
-        Lits.prototype.analyze = function (program) {
-            var params = {};
-            var contextStack = createContextStack(params);
+        Lits.prototype.analyze = function (program, params) {
+            if (params === void 0) { params = {}; }
             var ast = this.generateAst(program, params.filePath);
-            return analyze$1(ast, contextStack, builtin);
+            return analyze$1(ast, params);
         };
         Lits.prototype.tokenize = function (program, filePath) {
             return tokenize$1(program, { debug: this.debug, filePath: filePath });
@@ -7446,38 +7940,6 @@ var Playground = (function (exports) {
         };
         return Lits;
     }());
-    function createContextStack(params) {
-        var _a;
-        if (params === void 0) { params = {}; }
-        var globalContext = (_a = params.globalContext) !== null && _a !== void 0 ? _a : {};
-        // Contexts are checked from left to right
-        var contexts = params.contexts ? __spreadArray([globalContext], __read(params.contexts), false) : [globalContext];
-        var contextStack = new ContextStack({
-            contexts: contexts,
-            values: params.values,
-            lazyValues: params.lazyValues,
-            nativeJsFunctions: params.jsFunctions
-                && Object.entries(params.jsFunctions).reduce(function (acc, _a) {
-                    var _b = __read(_a, 2), name = _b[0], jsFunction = _b[1];
-                    if (specialExpressionKeys.includes(name)) {
-                        console.warn("Cannot shadow special expression \"".concat(name, "\", ignoring."));
-                        return acc;
-                    }
-                    if (normalExpressionKeys.includes(name)) {
-                        console.warn("Cannot shadow builtin function \"".concat(name, "\", ignoring."));
-                        return acc;
-                    }
-                    acc[name] = {
-                        t: FunctionType.NativeJsFunction,
-                        f: jsFunction,
-                        n: name,
-                        __fn: true,
-                    };
-                    return acc;
-                }, {}),
-        });
-        return contextStack;
-    }
 
     var defaultState = {
         'playground-height': 350,
@@ -7966,6 +8428,21 @@ var Playground = (function (exports) {
         addOutputSeparator();
         var code = getState('lits-code');
         appendOutput("Analyze: ".concat(truncateCode(code)), 'comment');
+        var contextString = getState('context');
+        var context;
+        try {
+            context
+                = contextString.trim().length > 0
+                    ? JSON.parse(contextString, function (_, val) {
+                        // eslint-disable-next-line no-eval, ts/no-unsafe-return
+                        return typeof val === 'string' && val.startsWith('EVAL:') ? eval(val.substring(5)) : val;
+                    })
+                    : {};
+        }
+        catch (_a) {
+            appendOutput("Error: Could not parse context: ".concat(contextString), 'error');
+            return;
+        }
         var result;
         var oldLog = console.log;
         console.log = function () {
@@ -7986,7 +8463,7 @@ var Playground = (function (exports) {
             appendOutput(args[0], 'output');
         };
         try {
-            result = lits.analyze(code);
+            result = lits.analyze(code, context);
         }
         catch (error) {
             appendOutput(error, 'error');
@@ -7996,10 +8473,15 @@ var Playground = (function (exports) {
             console.log = oldLog;
             console.warn = oldWarn;
         }
-        var unresolvedIdentifiers = __spreadArray([], __read(result.unresolvedIdentifiers), false).map(function (s) { return s.symbol; }).join(', ');
-        var unresolvedIdentifiersOutput = "Unresolved identifiers: ".concat(unresolvedIdentifiers || 'No unresolved identifiers');
-        var possibleOutcomes = result.outcomes && __spreadArray([], __read(result.outcomes), false).map(function (o) { return stringifyValue(o); }).join(', ');
-        var possibleOutcomesString = "Possible outcomes: ".concat(possibleOutcomes || '?');
+        var unresolvedIdentifiers = __spreadArray([], __read(new Set(__spreadArray([], __read(result.unresolvedIdentifiers), false).map(function (s) { return s.symbol; }))), false).join(', ');
+        var unresolvedIdentifiersOutput = "Unresolved identifiers: ".concat(unresolvedIdentifiers || '-');
+        var possibleOutcomes = result.outcomes && result.outcomes
+            .map(function (o) { return o instanceof UserDefinedError
+            ? "".concat(o.name).concat(o.userMessage ? "(\"".concat(o.userMessage, "\")") : '')
+            : o instanceof LitsError
+                ? o.name
+                : stringifyValue(o); }).join(', ');
+        var possibleOutcomesString = "Possible outcomes: ".concat(possibleOutcomes || '-');
         appendOutput("".concat(unresolvedIdentifiersOutput, "\n").concat(possibleOutcomesString), 'analyze');
     }
     function parse() {

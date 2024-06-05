@@ -5,9 +5,9 @@ import type {
   NormalExpressionNodeWithName,
   NumberNode,
   ReservedNameNode,
-  SpecialExpressionNode,
   StringNode,
 } from '../parser/interface'
+import type { SpecialExpressionNode } from '../builtin'
 import { builtin } from '../builtin'
 import { reservedNamesRecord } from '../reservedNames'
 import { toAny } from '../utils'
@@ -114,7 +114,8 @@ function evaluateBuiltinNormalExpression(
 function evaluateSpecialExpression(node: SpecialExpressionNode, contextStack: ContextStack): Any {
   const specialExpression = asNonUndefined(builtin.specialExpressions[node.n], node.tkn?.sourceCodeInfo)
 
-  return specialExpression.evaluate(node, contextStack, { evaluateAstNode, builtin })
+  // eslint-disable-next-line ts/no-unsafe-argument
+  return specialExpression.evaluate(node as any, contextStack, { evaluateAstNode, builtin })
 }
 
 function evalueateObjectAsFunction(fn: Obj, params: Arr, sourceCodeInfo?: SourceCodeInfo): Any {

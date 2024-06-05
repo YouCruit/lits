@@ -8,10 +8,10 @@ import type {
   NormalExpressionNode,
   NormalExpressionNodeWithName,
   NumberNode,
-  SpecialExpressionNode,
   StringNode,
 } from '../parser/interface'
 import type { Token } from '../tokenizer/interface'
+import type { SpecialExpressionNode } from '../builtin'
 import {
   asAstNode,
   asExpressionNode,

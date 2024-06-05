@@ -1,13 +1,11 @@
-import { analyze } from '../analyze'
 import type { Analysis } from '../analyze'
-import { builtin, normalExpressionKeys, specialExpressionKeys } from '../builtin'
-import { FunctionType } from '../constants/constants'
+import { analyze } from '../analyze'
 import { evaluate } from '../evaluator'
-import { ContextStack } from '../evaluator/ContextStack'
+import { createContextStack } from '../evaluator/ContextStack'
 import type { Context } from '../evaluator/interface'
 import type { Any, Obj } from '../interface'
 import { parse } from '../parser'
-import type { Ast, LitsFunction, NativeJsFunction } from '../parser/interface'
+import type { Ast, LitsFunction } from '../parser/interface'
 import { tokenize } from '../tokenizer'
 import type { TokenStream } from '../tokenizer/interface'
 import { Cache } from './Cache'
@@ -83,11 +81,10 @@ export class Lits {
     return contextStack.globalContext
   }
 
-  public analyze(program: string): Analysis {
-    const params: LitsParams = {}
+  public analyze(program: string, params: LitsParams = {}): Analysis {
     const ast = this.generateAst(program, params.filePath)
 
-    return analyze(ast, params, builtin)
+    return analyze(ast, params)
   }
 
   public tokenize(program: string, filePath?: string): TokenStream {
@@ -139,35 +136,4 @@ export class Lits {
     this.astCache?.set(program, ast)
     return ast
   }
-}
-
-export function createContextStack(params: LitsParams = {}): ContextStack {
-  const globalContext = params.globalContext ?? {}
-  // Contexts are checked from left to right
-  const contexts = params.contexts ? [globalContext, ...params.contexts] : [globalContext]
-  const contextStack = new ContextStack({
-    contexts,
-    values: params.values,
-    lazyValues: params.lazyValues,
-    nativeJsFunctions:
-      params.jsFunctions
-      && Object.entries(params.jsFunctions).reduce((acc: Record<string, NativeJsFunction>, [name, jsFunction]) => {
-        if (specialExpressionKeys.includes(name)) {
-          console.warn(`Cannot shadow special expression "${name}", ignoring.`)
-          return acc
-        }
-        if (normalExpressionKeys.includes(name)) {
-          console.warn(`Cannot shadow builtin function "${name}", ignoring.`)
-          return acc
-        }
-        acc[name] = {
-          t: FunctionType.NativeJsFunction,
-          f: jsFunction,
-          n: name,
-          __fn: true,
-        }
-        return acc
-      }, {}),
-  })
-  return contextStack
 }

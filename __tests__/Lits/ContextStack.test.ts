@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { AstNodeType } from '../../src'
-import { ContextStack } from '../../src/evaluator/ContextStack'
+import { ContextStackImpl } from '../../src/evaluator/ContextStack'
 import type { NameNode } from '../../src/parser/interface'
 
 function getNameNode(name: string): NameNode {
@@ -12,7 +12,7 @@ function getNameNode(name: string): NameNode {
 
 describe('contextStack', () => {
   it('create', () => {
-    const contextStack = new ContextStack({
+    const contextStack = new ContextStackImpl({
       contexts: [{}],
       lazyValues: {
         foo: { read: () => 'foo' },

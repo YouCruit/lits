@@ -3,19 +3,25 @@ import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
-import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
+import type { AstNode, BindingNode } from '../../parser/interface'
 import { toAny } from '../../utils'
 import { valueToString } from '../../utils/debug/debugTools'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { asNonUndefined, assertNumberOfParams } from '../../typeGuards'
 import { isSeq } from '../../typeGuards/lits'
+import type { Token } from '../../tokenizer/interface'
+import type { SpecialExpressionNode } from '..'
 
-type WhenFirstNode = SpecialExpressionNode & {
+export interface WhenFirstNode {
+  t: AstNodeType.SpecialExpression
+  n: 'when-first'
+  p: AstNode[]
   b: BindingNode
+  tkn?: Token
 }
 
-export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
+export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any, WhenFirstNode> = {
   parse: (tokenStream, position, { parseBindings, parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let bindings: BindingNode[]
@@ -42,7 +48,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const locals: Context = {}
-    const { b: binding } = node as WhenFirstNode
+    const { b: binding } = node
     const evaluatedBindingForm = evaluateAstNode(binding.v, contextStack)
     if (!isSeq(evaluatedBindingForm)) {
       throw new LitsError(
@@ -66,7 +72,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   validate: node => assertNumberOfParams({ min: 0 }, node),
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
-    const { b: binding } = node as WhenFirstNode
+    const { b: binding } = node
     const newContext: Context = { [binding.n]: { value: true } }
     const bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin)
     const paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin)

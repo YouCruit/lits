@@ -1,6 +1,7 @@
+import type { SpecialExpressionNode } from '../builtin'
 import { LitsError } from '../errors'
 import type { UnknownRecord } from '../interface'
-import type { NormalExpressionNode, SpecialExpressionNode } from '../parser/interface'
+import type { NormalExpressionNode } from '../parser/interface'
 import type { SourceCodeInfo } from '../tokenizer/interface'
 import { valueToString } from '../utils/debug/debugTools'
 import { getSourceCodeInfo } from '../utils/debug/getSourceCodeInfo'

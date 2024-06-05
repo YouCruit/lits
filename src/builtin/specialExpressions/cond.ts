@@ -1,17 +1,22 @@
 import type { Any } from '../../interface'
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, ParseToken, SpecialExpressionNode } from '../../parser/interface'
-import type { TokenStream } from '../../tokenizer/interface'
+import type { AstNode, ParseToken } from '../../parser/interface'
+import type { Token, TokenStream } from '../../tokenizer/interface'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import type { SpecialExpressionNode } from '..'
 
 export interface Condition {
   t: AstNode // test
   f: AstNode // form
 }
 
-type CondNode = SpecialExpressionNode & {
+export interface CondNode {
+  t: AstNodeType.SpecialExpression
+  n: 'cond'
   c: Condition[]
+  p: AstNode[]
+  tkn?: Token
 }
 
 function parseConditions(tokenStream: TokenStream, position: number, parseToken: ParseToken): [number, Condition[]] {
@@ -32,7 +37,7 @@ function parseConditions(tokenStream: TokenStream, position: number, parseToken:
   return [position, conditions]
 }
 
-export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
+export const condSpecialExpression: BuiltinSpecialExpression<Any, CondNode> = {
   parse: (tokenStream, position, { parseToken }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let conditions: Condition[]
@@ -46,11 +51,11 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
         c: conditions,
         p: [],
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-      },
+      } satisfies CondNode,
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    for (const condition of (node as CondNode).c) {
+    for (const condition of node.c) {
       const value = evaluateAstNode(condition.t, contextStack)
       if (!value)
         continue
@@ -60,7 +65,7 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any> = {
     return null
   },
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
-    const astNodes = (node as CondNode).c.flatMap(condition => [condition.t, condition.f])
+    const astNodes = node.c.flatMap(condition => [condition.t, condition.f])
     return findUnresolvedIdentifiers(astNodes, contextStack, builtin)
   },
 }

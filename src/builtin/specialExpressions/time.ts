@@ -1,16 +1,25 @@
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
-import type { SpecialExpressionNode } from '../../parser/interface'
+import type { AstNode } from '../../parser/interface'
 import { assertNumberOfParams } from '../../typeGuards'
 import { assertAstNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import type { Token } from '../../tokenizer/interface'
+import type { SpecialExpressionNode } from '..'
 
-export const timeSpecialExpression: BuiltinSpecialExpression<Any> = {
+export interface TimeNode {
+  t: AstNodeType.SpecialExpression
+  n: 'time!'
+  p: AstNode[]
+  tkn?: Token
+}
+
+export const timeSpecialExpression: BuiltinSpecialExpression<Any, TimeNode> = {
   parse: (tokenStream, position, { parseToken }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, astNode] = parseToken(tokenStream, position)
-    const node: SpecialExpressionNode = {
+    const node: TimeNode = {
       t: AstNodeType.SpecialExpression,
       n: 'time!',
       p: [astNode],

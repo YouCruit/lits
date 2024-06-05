@@ -4,8 +4,18 @@ import { assertNumberOfParams } from '../../typeGuards'
 import { asAstNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import type { Token } from '../../tokenizer/interface'
+import type { AstNode } from '../../parser/interface'
+import type { SpecialExpressionNode } from '..'
 
-export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
+export interface IfNode {
+  t: AstNodeType.SpecialExpression
+  n: 'if'
+  p: AstNode[]
+  tkn?: Token
+}
+
+export const ifSpecialExpression: BuiltinSpecialExpression<Any, IfNode> = {
   parse: (tokenStream, position, { parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)
@@ -16,7 +26,7 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any> = {
         n: 'if',
         p: params,
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-      },
+      } satisfies IfNode,
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {

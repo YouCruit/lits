@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { stringifyValue, throttle } from '../../common/utils'
 import type { Example } from '../../reference/examples'
-import type { LitsParams } from '../../src'
-import { Lits } from '../../src'
+import { Lits, type LitsParams } from '../../src'
+import { LitsError, UserDefinedError } from '../../src/errors'
 import type { Analysis } from '../../src/analyze'
 import { asUnknownRecord } from '../../src/typeGuards'
 import { Search } from './Search'
@@ -474,7 +474,7 @@ export function run(program?: string) {
     appendOutput(`Error: Could not parse context: ${contextString}`, 'error')
     return
   }
-  let result
+  let result: unknown
   const oldLog = console.log
   console.log = function (...args) {
     const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
@@ -505,6 +505,22 @@ export function analyze() {
   addOutputSeparator()
   const code = getState('lits-code')
   appendOutput(`Analyze: ${truncateCode(code)}`, 'comment')
+
+  const contextString = getState('context')
+  let context: LitsParams
+  try {
+    context
+      = contextString.trim().length > 0
+        ? JSON.parse(contextString, (_, val) =>
+          // eslint-disable-next-line no-eval, ts/no-unsafe-return
+          typeof val === 'string' && val.startsWith('EVAL:') ? eval(val.substring(5)) : val) as LitsParams
+        : {}
+  }
+  catch {
+    appendOutput(`Error: Could not parse context: ${contextString}`, 'error')
+    return
+  }
+
   let result: Analysis
   const oldLog = console.log
   console.log = function (...args) {
@@ -517,7 +533,7 @@ export function analyze() {
     appendOutput(args[0], 'output')
   }
   try {
-    result = lits.analyze(code)
+    result = lits.analyze(code, context)
   }
   catch (error) {
     appendOutput(error, 'error')
@@ -527,11 +543,17 @@ export function analyze() {
     console.log = oldLog
     console.warn = oldWarn
   }
-  const unresolvedIdentifiers = [...result.unresolvedIdentifiers].map(s => s.symbol).join(', ')
-  const unresolvedIdentifiersOutput = `Unresolved identifiers: ${unresolvedIdentifiers || 'No unresolved identifiers'}`
+  const unresolvedIdentifiers = [...new Set([...result.unresolvedIdentifiers].map(s => s.symbol))].join(', ')
+  const unresolvedIdentifiersOutput = `Unresolved identifiers: ${unresolvedIdentifiers || '-'}`
 
-  const possibleOutcomes = result.outcomes && [...result.outcomes].map(o => stringifyValue(o, false)).join(', ')
-  const possibleOutcomesString = `Possible outcomes: ${possibleOutcomes || '?'}`
+  const possibleOutcomes = result.outcomes && result.outcomes
+    .map(o => o instanceof UserDefinedError
+      ? `${o.name}${o.userMessage ? `("${o.userMessage}")` : ''}`
+      : o instanceof LitsError
+        ? o.name
+        : stringifyValue(o, false),
+    ).join(', ')
+  const possibleOutcomesString = `Possible outcomes: ${possibleOutcomes || '-'}`
 
   appendOutput(`${unresolvedIdentifiersOutput}\n${possibleOutcomesString}`, 'analyze')
 }
@@ -540,7 +562,7 @@ export function parse() {
   addOutputSeparator()
   const code = getState('lits-code')
   appendOutput(`Parse: ${truncateCode(code)}`, 'comment')
-  let result
+  let result: unknown
   const oldLog = console.log
   console.log = function (...args) {
     const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')

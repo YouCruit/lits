@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Lits } from '../../src'
-import { getUndefinedSymbolNames } from '../testUtils'
+import { Lits } from '..'
+import { getUndefinedSymbolNames } from '../../__tests__/testUtils'
 
 describe('analyze', () => {
   const lits = new Lits()

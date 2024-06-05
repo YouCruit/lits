@@ -3,7 +3,7 @@ import type { Context, LitsFunction, LitsParams } from '../src'
 import { Lits } from '../src'
 import type { Analysis } from '../src/analyze'
 import type { LitsError } from '../src/errors'
-import { ContextStack } from '../src/evaluator/ContextStack'
+import { ContextStackImpl } from '../src/evaluator/ContextStack'
 import type { Obj } from '../src/interface'
 import { isUnknownRecord } from '../src/typeGuards'
 import { isLitsFunction } from '../src/typeGuards/litsFunction'
@@ -171,5 +171,5 @@ export function getLitsVariants() {
 }
 
 export function createContextStackWithGlobalContext(context: Context) {
-  return new ContextStack({ contexts: [context] })
+  return new ContextStackImpl({ contexts: [context] })
 }

@@ -1,176 +1,123 @@
 import type { Outcomes } from '..'
-import { type LitsParams, createContextStack } from '../../Lits/Lits'
-import type { Builtin } from '../../builtin/interface'
-import type { DoNode } from '../../builtin/specialExpressions/do'
-import type { LetNode } from '../../builtin/specialExpressions/let'
-import type { QqNode } from '../../builtin/specialExpressions/qq'
+import { builtin } from '../../builtin'
 import { AstNodeType } from '../../constants/constants'
+import { LitsError } from '../../errors'
 import { evaluate } from '../../evaluator'
-import type { Ast, AstNode, BindingNode } from '../../parser/interface'
+import type { ContextStack } from '../../evaluator/ContextStack'
+import type { Context } from '../../evaluator/interface'
+import type { Ast, AstNode, ExpressionNode } from '../../parser/interface'
+import { isNormalExpressionNodeWithName } from '../../typeGuards/astNode'
 import { findUnresolvedIdentifiers } from '../findUnresolvedIdentifiers'
 import { combinate } from '../utils'
+import { specialExpressionCalculator } from './specialExpressionCalculators'
+
+export type CalculatePossibleAstNodes = (astNode: AstNode, indentifiers?: string[]) => AstNode[]
+export type CombinateAstNodes = (astNodes: AstNode[], indentifiers?: string[]) => AstNode[][]
+export type IsAstComputable = (node: AstNode | AstNode[] | AstNode[][]) => boolean
+export type AddGlobaleIdentifier = (name: string) => void
+
+export interface CalculatePossibleAstNodesHelperOptions<T extends AstNode> {
+  astNode: T
+  nilNode: AstNode
+  calculatePossibleAstNodes: CalculatePossibleAstNodes
+  combinateAstNodes: CombinateAstNodes
+  isAstComputable: IsAstComputable
+  addGlobalIdentifier: AddGlobaleIdentifier
+}
+
+export type CalculatePossibleAstNodesHelper<T extends AstNode> = (
+  options: CalculatePossibleAstNodesHelperOptions<T>,
+) => AstNode[]
 
 function isIdempotent(normalExpressionName: string): boolean {
   return !normalExpressionName.endsWith('!')
     || normalExpressionName === 'write!'
 }
 
-export function calculateOutcomes(astNode: Ast, params: LitsParams, builtin: Builtin): Outcomes | null {
-  let possibleAsts: Ast[]
+export function calculateOutcomes(contextStack: ContextStack, astNodes: AstNode[]): Outcomes | null {
+  const possibleAsts = calculatePossibleAsts(contextStack.clone(), astNodes)
 
-  try {
-    possibleAsts = combinate(astNode.b.map(calculatePossibleAsts))
-      .map((b) => {
-        return {
-          ...astNode,
-          b,
-        }
-      })
-  }
-  catch (e) {
+  if (possibleAsts === null)
     return null
-  }
 
-  const outcomes = new Set<unknown>()
+  const outcomes: Outcomes = []
 
-  for (const ast of possibleAsts) {
-    const unresolvedIdentifiers = findUnresolvedIdentifiers(ast, createContextStack(params), builtin)
+  for (const possibleAst of possibleAsts) {
+    const unresolvedIdentifiers = findUnresolvedIdentifiers(possibleAst, contextStack.clone(), builtin)
     if (unresolvedIdentifiers.size !== 0)
       return null
 
-    const outcome = evaluate(ast, createContextStack(params))
+    try {
+      const outcome = evaluate(possibleAst, contextStack.clone())
 
-    if ([...outcomes].some(o => JSON.stringify(o) === JSON.stringify(outcome)))
-      continue
+      if ([...outcomes].some(o => JSON.stringify(o) === JSON.stringify(outcome)))
+        continue
 
-    outcomes.add(outcome)
+      outcomes.push(outcome)
+    }
+    catch (e) {
+      if (e instanceof LitsError)
+        outcomes.push(e)
+      else
+        return null
+    }
   }
 
   return outcomes
 }
 
-const nilNode: AstNode = { t: AstNodeType.ReservedName, v: 'nil' }
-const trueNode: AstNode = { t: AstNodeType.ReservedName, v: 'true' }
-const falseNode: AstNode = { t: AstNodeType.ReservedName, v: 'false' }
+function calculatePossibleAsts(contextStack: ContextStack, astNodes: AstNode[]) {
+  let possibleAsts: Ast[]
 
-function calculatePossibleAsts(astNode: AstNode): AstNode[] {
-  if (astNode.t === AstNodeType.SpecialExpression) {
-    switch (astNode.n) {
-      case '??': {
-        const qqNode: QqNode = {
-          t: AstNodeType.SpecialExpression,
-          n: '??',
-          p: [astNode.p[0]!],
-        }
-        return astNode.p.length === 2
-          ? [qqNode, ...calculatePossibleAsts(astNode.p[1]!)]
-          : [qqNode]
-      }
-      case 'and':
-      case 'or': {
-        return astNode.p.map(calculatePossibleAsts).flat()
-      }
-      case 'comment':
-        return [nilNode]
-      case 'cond': {
-        const conditionsValues = astNode.c!.map(c => c.f)
-        return conditionsValues.map(calculatePossibleAsts).flat()
-      }
-      case 'declared?':
-        return [trueNode, falseNode]
-      case 'do': {
-        const doNodes: DoNode[] = combinate(astNode.p.map(calculatePossibleAsts))
-          .map(p => ({
-            n: 'do',
-            t: AstNodeType.SpecialExpression,
-            p,
-            tkn: astNode.tkn,
-          }))
-        return [...doNodes, nilNode]
-      }
-      case 'doseq': {
-        return [nilNode]
-      }
-      case 'if-not':
-      case 'if': {
-        const thenBranch = astNode.p[1]!
-        const elseBranch = astNode.p[2] ?? nilNode
-        return [...calculatePossibleAsts(thenBranch), ...calculatePossibleAsts(elseBranch)]
-      }
-      case 'if-let': {
-        const thenBranch = astNode.p[0]!
-        const elseBranch = astNode.p[1] ?? nilNode
-        const letNodes: LetNode[] = calculatePossibleAsts(thenBranch)
-          .flatMap(then => calculatePossibleAsts(astNode.b!.v).map((v) => {
-            return {
-              t: AstNodeType.SpecialExpression,
-              n: 'let',
-              bs: [{
-                ...astNode.b!,
-                v,
-              }],
-              p: [then],
-            }
-          }))
-        return [
-          ...letNodes,
-          elseBranch,
-        ]
-      }
-      case 'when': {
-        const doNodes: DoNode[] = combinate(astNode.p.map(calculatePossibleAsts))
-          .map(p => ({
-            n: 'do',
-            t: AstNodeType.SpecialExpression,
-            p,
-            tkn: astNode.tkn,
-          }))
-        return [...doNodes, nilNode]
-      }
-      case 'when-let': {
-        const letNodes: LetNode[] = combinate(astNode.p.map(calculatePossibleAsts))
-          .flatMap(p => calculatePossibleAsts(astNode.b!.v).map((v) => {
-            const letNode: LetNode = {
-              n: 'let',
-              bs: [{
-                ...astNode.b!,
-                v,
-              }],
-              t: AstNodeType.SpecialExpression,
-              p,
-              tkn: astNode.tkn,
-            }
-            return letNode
-          }))
-        return [...letNodes, nilNode]
-      }
-      case 'let': {
-        const letNodes: LetNode[] = combinate(astNode.p.map(calculatePossibleAsts))
-          .flatMap(p => combinate(astNode.bs!
-            .map<BindingNode[]>(b => calculatePossibleAsts(b.v).map(v => ({ ...b, v }))),
-          ).map((bs) => {
-            return {
-              n: 'let',
-              bs,
-              t: AstNodeType.SpecialExpression,
-              p,
-              tkn: astNode.tkn,
-            }
-          }))
-        return letNodes
-      }
-      default:
-        return [astNode]
-    }
+  try {
+    possibleAsts = combinate(
+      astNodes.map(
+        astNode => calculatePossibleAstNodes(contextStack, astNode),
+      ),
+    ).map(b => ({ b }))
   }
-  else if (astNode.t === AstNodeType.NormalExpression) {
+  catch (e) {
+    return null
+  }
+  return possibleAsts
+}
+
+const nilNode: AstNode = { t: AstNodeType.ReservedName, v: 'nil' }
+
+function calculatePossibleAstNodes(contextStack: ContextStack, astNode: AstNode, newIndentifiers?: string[]): AstNode[] {
+  const newContext = newIndentifiers
+    ? newIndentifiers.reduce((acc: Context, identity) => {
+      acc[identity] = { value: null }
+      return acc
+    }, {})
+    : undefined
+  const newContextStack = newContext ? contextStack.create(newContext) : contextStack
+
+  if (astNode.t === AstNodeType.NormalExpression) {
     if (astNode.n && !isIdempotent(astNode.n))
       throw new Error(`NormalExpressionNode with name ${astNode.n} is not idempotent. Cannot calculate possible ASTs.`)
 
-    return combinate(astNode.p.map(calculatePossibleAsts))
-      .map(p => ({ ...astNode, p }))
+    if (isNormalExpressionNodeWithName(astNode)) {
+      return combinate(astNode.p.map(n => calculatePossibleAstNodes(newContextStack, n)))
+        .map(p => ({ ...astNode, p }))
+    }
+    else {
+      return calculatePossibleAstNodes(newContextStack, astNode.e)
+        .flatMap(e => combinate(astNode.p.map(n => calculatePossibleAstNodes(newContextStack, n)))
+          .map<AstNode>(p => ({ ...astNode, e: e as ExpressionNode, p })))
+    }
   }
-  else {
-    return [astNode]
+  else if (astNode.t === AstNodeType.SpecialExpression) {
+    const helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'> = {
+      nilNode,
+      calculatePossibleAstNodes: (node: AstNode, identifiers?: string[]) => calculatePossibleAstNodes(newContextStack.clone(), node, identifiers),
+      combinateAstNodes: (nodes: AstNode[], identifiers?: string[]) => combinate(nodes.map(node => calculatePossibleAstNodes(newContextStack.clone(), node, identifiers))),
+      isAstComputable: (node: AstNode | AstNode[] | AstNode[][]) => calculateOutcomes(newContextStack.clone(), Array.isArray(node) ? node.flat() : [node]) !== null,
+      addGlobalIdentifier: (name: string) => newContextStack.globalContext[name] = { value: null },
+    }
+
+    // eslint-disable-next-line ts/no-unsafe-argument
+    return specialExpressionCalculator[astNode.n](astNode as any, helperOptions)
   }
+  return [astNode]
 }

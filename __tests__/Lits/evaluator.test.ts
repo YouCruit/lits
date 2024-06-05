@@ -5,7 +5,8 @@ import { evaluate, evaluateAstNode } from '../../src/evaluator'
 import { Lits } from '../../src'
 import type { Context } from '../../src/evaluator/interface'
 import { AstNodeType, TokenType } from '../../src/constants/constants'
-import { type LazyValue, createContextStack } from '../../src/Lits/Lits'
+import type { LazyValue } from '../../src/Lits/Lits'
+import { createContextStack } from '../../src/evaluator/ContextStack'
 
 let lits: Lits
 

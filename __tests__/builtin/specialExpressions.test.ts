@@ -4,6 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vitest } from 'vitest'
 import { Lits } from '../../src'
 import { UserDefinedError } from '../../src/errors'
 import { getLitsVariants, getUndefinedSymbolNames } from '../testUtils'
+import { findUnresolvedIdentifiers } from '../../src/analyze/findUnresolvedIdentifiers'
+import { createContextStack } from '../../src/evaluator/ContextStack'
+import { builtin } from '../../src/builtin'
 
 const lits = getLitsVariants()
 
@@ -69,7 +72,7 @@ describe('specialExpressions', () => {
     describe('unresolvedIdentifiers', () => {
       it('samples', () => {
         expect(getUndefinedSymbolNames(lits.analyze('(defs "foo" (+ a b))'))).toEqual(new Set(['a', 'b']))
-        expect(getUndefinedSymbolNames(lits.analyze('(defs "foo" (+ a b)) foo'))).toEqual(new Set(['a', 'b', 'foo']))
+        expect(getUndefinedSymbolNames(lits.analyze('(defs "foo" (+ a b)) foo'))).toEqual(new Set(['a', 'b']))
       })
     })
   })
@@ -473,11 +476,11 @@ describe('specialExpressions', () => {
     describe('unresolvedIdentifiers', () => {
       it('samples', () => {
         expect(getUndefinedSymbolNames(lits.analyze('(defns :foo [a] (if (= a 1) 1 (+ a (foo (dec a)))))'))).toEqual(
-          new Set(['foo']),
+          new Set([]),
         )
         expect(getUndefinedSymbolNames(lits.analyze('(defns :foo [a b] (str a b c))'))).toEqual(new Set(['c']))
         expect(getUndefinedSymbolNames(lits.analyze('(defns :foo [a b] (str a b c)) (foo x y)'))).toEqual(
-          new Set(['c', 'x', 'y', 'foo']),
+          new Set(['c', 'x', 'y']),
         )
         expect(getUndefinedSymbolNames(lits.analyze('(defns :add ([a b & rest] (+ a b)) ([a] 10))'))).toEqual(new Set())
       })
@@ -662,12 +665,14 @@ describe('specialExpressions', () => {
 
     describe('unresolvedIdentifiers', () => {
       it('samples', () => {
+        const lits2 = new Lits()
+
         expect(
-          getUndefinedSymbolNames(lits.analyze('((fn [n] (write! n) (when (not (zero? n)) (recur (dec n)))) 3)')),
+          findUnresolvedIdentifiers(lits2.parse(lits2.tokenize('((fn [n] (write! n) (when (not (zero? n)) (recur (dec n)))) 3)')).b, createContextStack(), builtin),
         ).toEqual(new Set())
         expect(
-          getUndefinedSymbolNames(lits.analyze('((fn [n] (write! n) (when (not (zero? n)) (recur (- n a)))) 3)')),
-        ).toEqual(new Set(['a']))
+          findUnresolvedIdentifiers(lits2.parse(lits2.tokenize('((fn [n] (write! n) (when (not (zero? n)) (recur (- n a)))) 3)')).b, createContextStack(), builtin),
+        ).toEqual(new Set([{ symbol: 'a' }]))
       })
     })
   })

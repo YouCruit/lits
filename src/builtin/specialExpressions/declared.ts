@@ -1,15 +1,24 @@
 import { AstNodeType } from '../../constants/constants'
-import type { SpecialExpressionNode } from '../../parser/interface'
+import type { AstNode } from '../../parser/interface'
+import type { Token } from '../../tokenizer/interface'
 import { assertNumberOfParams } from '../../typeGuards'
 import { assertNameNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
+import type { SpecialExpressionNode } from '..'
 
-export const declaredSpecialExpression: BuiltinSpecialExpression<boolean> = {
+export interface DeclaredNode {
+  t: AstNodeType.SpecialExpression
+  n: 'declared?'
+  p: AstNode[]
+  tkn?: Token
+}
+
+export const declaredSpecialExpression: BuiltinSpecialExpression<boolean, DeclaredNode> = {
   parse: (tokenStream, position, { parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)
-    const node: SpecialExpressionNode = {
+    const node: DeclaredNode = {
       t: AstNodeType.SpecialExpression,
       n: 'declared?',
       p: params,

@@ -10,33 +10,45 @@ import type {
   EvaluatedFunctionOverload,
   LitsFunction,
   NameNode,
-  SpecialExpressionNode,
 } from '../../parser/interface'
-import type { TokenStream } from '../../tokenizer/interface'
-import { assertNameNode } from '../../typeGuards/astNode'
+import type { Token, TokenStream } from '../../tokenizer/interface'
+import { asAstNode, assertNameNode } from '../../typeGuards/astNode'
 import { valueToString } from '../../utils/debug/debugTools'
 import { FUNCTION_SYMBOL } from '../../utils/symbols'
 import { asToken } from '../../typeGuards/token'
 import type { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
 import type { Arity, FunctionArguments, FunctionOverload } from '../utils'
 import { assertNameNotDefined } from '../utils'
-import { asString } from '../../typeGuards/string'
+import { asString, assertString } from '../../typeGuards/string'
+import type { SpecialExpressionNode } from '..'
 
-type DefnNode = SpecialExpressionNode & {
+export interface DefnNode {
+  t: AstNodeType.SpecialExpression
+  n: 'defn'
+  p: AstNode[]
   f: NameNode
   o: FunctionOverload[]
+  tkn?: Token
 }
 
-type DefnsNode = SpecialExpressionNode & {
+export interface DefnsNode {
+  t: AstNodeType.SpecialExpression
+  n: 'defns'
+  p: AstNode[]
   f: AstNode
   o: FunctionOverload[]
+  tkn?: Token
 }
 
-export type FnNode = SpecialExpressionNode & {
+export interface FnNode {
+  t: AstNodeType.SpecialExpression
+  n: 'fn'
+  p: AstNode[]
   o: FunctionOverload[]
+  tkn?: Token
 }
 
-export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
+export const defnSpecialExpression: BuiltinSpecialExpression<null, DefnNode> = {
   parse: (tokenStream, position, parsers) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const { parseToken } = parsers
@@ -56,7 +68,7 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
         p: [],
         o: functionOverloades,
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-      },
+      } satisfies DefnNode,
     ]
   },
   evaluate: (node, contextStack, { builtin, evaluateAstNode }) => {
@@ -78,13 +90,13 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null> = {
     return null
   },
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
-    contextStack.globalContext[(node as DefnNode).f.v] = { value: true }
-    const newContext: Context = { [(node as DefnNode).f.v]: { value: true } }
-    return addOverloadsUnresolvedIdentifiers((node as DefnNode).o, contextStack, findUnresolvedIdentifiers, builtin, newContext)
+    contextStack.globalContext[node.f.v] = { value: true }
+    const newContext: Context = { [node.f.v]: { value: true } }
+    return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin, newContext)
   },
 }
 
-export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
+export const defnsSpecialExpression: BuiltinSpecialExpression<null, DefnsNode> = {
   parse: (tokenStream, position, parsers) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const { parseToken } = parsers
@@ -103,7 +115,7 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
         p: [],
         o: functionOverloades,
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-      },
+      } satisfies DefnsNode,
     ]
   },
   evaluate: (node, contextStack, { builtin, evaluateAstNode }) => {
@@ -124,11 +136,19 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null> = {
     contextStack.globalContext[name] = { value: litsFunction }
     return null
   },
-  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) =>
-    addOverloadsUnresolvedIdentifiers((node as DefnsNode).o, contextStack, findUnresolvedIdentifiers, builtin),
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin, evaluateAstNode }) => {
+    const sourceCodeInfo = node.tkn?.sourceCodeInfo
+    const name = evaluateAstNode(asAstNode(node.f, sourceCodeInfo), contextStack)
+    assertString(name, sourceCodeInfo)
+    assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo)
+    contextStack.globalContext[name] = { value: true }
+    const newContext = { [name]: { value: true } }
+
+    return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin, newContext)
+  },
 }
 
-export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
+export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction, FnNode> = {
   parse: (tokenStream, position, parsers) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
 
@@ -143,7 +163,7 @@ export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
         p: [],
         o: functionOverloades,
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-      },
+      } satisfies FnNode,
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
@@ -160,7 +180,7 @@ export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction> = {
     return litsFunction
   },
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) =>
-    addOverloadsUnresolvedIdentifiers((node as FnNode).o, contextStack, findUnresolvedIdentifiers, builtin),
+    addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin),
 }
 
 function getFunctionName(
@@ -171,7 +191,7 @@ function getFunctionName(
 ): string {
   const sourceCodeInfo = node.tkn?.sourceCodeInfo
   if (expressionName === 'defn')
-    return ((node as DefnNode).f as NameNode).v
+    return ((node as DefnNode).f).v
 
   const name = evaluateAstNode((node as DefnsNode).f, contextStack)
   return asString(name, sourceCodeInfo)

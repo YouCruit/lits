@@ -3,17 +3,23 @@ import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
-import type { AstNode, BindingNode, SpecialExpressionNode } from '../../parser/interface'
+import type { AstNode, BindingNode } from '../../parser/interface'
 import { valueToString } from '../../utils/debug/debugTools'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { asNonUndefined, assertNumberOfParams } from '../../typeGuards'
+import type { Token } from '../../tokenizer/interface'
+import type { SpecialExpressionNode } from '..'
 
-type WhenLetNode = SpecialExpressionNode & {
+export interface WhenLetNode {
+  t: AstNodeType.SpecialExpression
+  n: 'when-let'
+  p: AstNode[]
   b: BindingNode
+  tkn?: Token
 }
 
-export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
+export const whenLetSpecialExpression: BuiltinSpecialExpression<Any, WhenLetNode> = {
   parse: (tokenStream, position, { parseBindings, parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let bindings: BindingNode[]
@@ -39,7 +45,7 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const { b: binding } = node as WhenLetNode
+    const { b: binding } = node
     const locals: Context = {}
     const bindingValue = evaluateAstNode(binding.v, contextStack)
     if (!bindingValue)
@@ -56,7 +62,7 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any> = {
   },
   validate: node => assertNumberOfParams({ min: 0 }, node),
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
-    const { b: binding } = node as WhenLetNode
+    const { b: binding } = node
     const newContext: Context = { [binding.n]: { value: true } }
     const bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin)
     const paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin)

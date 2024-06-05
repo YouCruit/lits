@@ -6,6 +6,7 @@ import type { AstNode, BindingNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import type { Token } from '../../tokenizer/interface'
+import type { SpecialExpressionNode } from '..'
 
 export interface LetNode {
   t: AstNodeType.SpecialExpression
@@ -15,7 +16,7 @@ export interface LetNode {
   tkn?: Token
 }
 
-export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
+export const letSpecialExpression: BuiltinSpecialExpression<Any, LetNode> = {
   parse: (tokenStream, position, { parseBindings, parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let bindings: BindingNode[]
@@ -36,7 +37,7 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const locals: Context = {}
     const newContextStack = contextStack.create(locals)
-    for (const binding of (node as LetNode).bs) {
+    for (const binding of node.bs) {
       const bindingValueNode = binding.v
       const bindingValue = evaluateAstNode(bindingValueNode, newContextStack)
       locals[binding.n] = { value: bindingValue }
@@ -49,14 +50,14 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any> = {
     return result
   },
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
-    const newContext = (node as LetNode).bs
+    const newContext = node.bs
       .map(binding => binding.n)
       .reduce((context: Context, name) => {
         context[name] = { value: true }
         return context
       }, {})
     const bindingContext: Context = {}
-    const bindingResults = (node as LetNode).bs.map((bindingNode) => {
+    const bindingResults = node.bs.map((bindingNode) => {
       const valueNode = bindingNode.v
       const bindingsResult = findUnresolvedIdentifiers([valueNode], contextStack.create(bindingContext), builtin)
       bindingContext[bindingNode.n] = { value: true }

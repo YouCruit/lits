@@ -3,20 +3,26 @@ import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, NameNode, SpecialExpressionNode } from '../../parser/interface'
+import type { AstNode, NameNode } from '../../parser/interface'
 import { assertNameNode } from '../../typeGuards/astNode'
 import { asToken, assertToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { asAny } from '../../typeGuards/lits'
 import { getSourceCodeInfo } from '../../utils/debug/getSourceCodeInfo'
+import type { Token } from '../../tokenizer/interface'
+import type { SpecialExpressionNode } from '..'
 
-type TryNode = SpecialExpressionNode & {
+export interface TryNode {
+  t: AstNodeType.SpecialExpression
+  n: 'try'
+  p: AstNode[]
   te: AstNode
   e: NameNode
   ce: AstNode
+  tkn?: Token
 }
 
-export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
+export const trySpecialExpression: BuiltinSpecialExpression<Any, TryNode> = {
   parse: (tokenStream, position, { parseToken }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let tryExpression: AstNode
@@ -61,7 +67,7 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
     return [position, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const { te: tryExpression, ce: catchExpression, e: errorNode } = node as TryNode
+    const { te: tryExpression, ce: catchExpression, e: errorNode } = node
     try {
       return evaluateAstNode(tryExpression, contextStack)
     }
@@ -73,7 +79,7 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any> = {
     }
   },
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
-    const { te: tryExpression, ce: catchExpression, e: errorNode } = node as TryNode
+    const { te: tryExpression, ce: catchExpression, e: errorNode } = node
     const tryResult = findUnresolvedIdentifiers([tryExpression], contextStack, builtin)
     const newContext: Context = {
       [errorNode.v]: { value: true },

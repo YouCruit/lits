@@ -60,7 +60,6 @@ export type BuiltinSpecialExpressions = typeof specialExpressions
 export type BuiltinSpecialExpression = typeof specialExpressions[SpecialExpressionName]
 export type SpecialExpressionNode = ReturnType<typeof specialExpressions[SpecialExpressionName]['parse']>[1]
 
-
 Object.keys(specialExpressions).forEach((key) => {
   /* v8 ignore next 2 */
   if (normalExpressions[key])

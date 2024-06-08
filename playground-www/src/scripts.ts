@@ -2,7 +2,7 @@
 import { stringifyValue, throttle } from '../../common/utils'
 import type { Example } from '../../reference/examples'
 import { Lits, type LitsParams } from '../../src'
-import { LitsError, UserDefinedError } from '../../src/errors'
+import { UserDefinedError } from '../../src/errors'
 import type { Analysis } from '../../src/analyze'
 import { asUnknownRecord } from '../../src/typeGuards'
 import { Search } from './Search'
@@ -549,7 +549,7 @@ export function analyze() {
   const possibleOutcomes = result.outcomes && result.outcomes
     .map(o => o instanceof UserDefinedError
       ? `${o.name}${o.userMessage ? `("${o.userMessage}")` : ''}`
-      : o instanceof LitsError
+      : o instanceof Error
         ? o.name
         : stringifyValue(o, false),
     ).join(', ')

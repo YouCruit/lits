@@ -492,7 +492,7 @@ var Playground = (function (exports) {
         __extends(UserDefinedError, _super);
         function UserDefinedError(message, sourceCodeInfo) {
             var _this = _super.call(this, message, sourceCodeInfo) || this;
-            _this.userMessage = typeof message === 'string' ? message : '';
+            _this.userMessage = message;
             Object.setPrototypeOf(_this, UserDefinedError.prototype);
             _this.name = 'UserDefinedError';
             return _this;
@@ -641,1591 +641,6 @@ var Playground = (function (exports) {
         return JSON.stringify(value, null, 2);
     }
 
-    function isToken(value, options) {
-        if (options === void 0) { options = {}; }
-        if (typeof value !== 'object' || value === null)
-            return false;
-        var tkn = value;
-        if (typeof tkn.v !== 'string')
-            return false;
-        if (!isTokenType(tkn.t))
-            return false;
-        if (options.type && tkn.t !== options.type)
-            return false;
-        if (options.value && tkn.v !== options.value)
-            return false;
-        return true;
-    }
-    function assertToken(value, filePath, options) {
-        if (options === void 0) { options = {}; }
-        if (!isToken(value, options)) {
-            var sourceCodeInfo = isToken(value)
-                ? value.sourceCodeInfo
-                : typeof filePath === 'string'
-                    ? { filePath: filePath }
-                    : undefined;
-            throw new LitsError("Expected ".concat(options.type ? "".concat(options.type, "-") : '', "token").concat(typeof options.value === 'string' ? " value='".concat(options.value, "'") : '', ", got ").concat(valueToString(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
-        }
-    }
-    function asToken(value, filePath, options) {
-        if (options === void 0) { options = {}; }
-        assertToken(value, filePath, options);
-        return value;
-    }
-
-    function isAndNode(value) {
-        return value.n === 'and';
-    }
-    var andSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
-            return [
-                newPosition + 1,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'and',
-                    p: params,
-                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-                },
-            ];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var e_1, _b;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var value = true;
-            try {
-                for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var param = _d.value;
-                    value = evaluateAstNode(param, contextStack);
-                    if (!value)
-                        break;
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return value;
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
-        },
-    };
-
-    function isCondNode(value) {
-        return value.n === 'cond';
-    }
-    function parseConditions(tokenStream, position, parseToken) {
-        var _a, _b;
-        var conditions = [];
-        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-        while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {
-            var test = void 0;
-            _a = __read(parseToken(tokenStream, position), 2), position = _a[0], test = _a[1];
-            var form = void 0;
-            _b = __read(parseToken(tokenStream, position), 2), position = _b[0], form = _b[1];
-            conditions.push({ t: test, f: form });
-            tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-        }
-        return [position, conditions];
-    }
-    var condSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var _b;
-            var parseToken = _a.parseToken;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var conditions;
-            _b = __read(parseConditions(tokenStream, position, parseToken), 2), position = _b[0], conditions = _b[1];
-            return [
-                position + 1,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'cond',
-                    c: conditions,
-                    p: [],
-                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-                },
-            ];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var e_1, _b;
-            var evaluateAstNode = _a.evaluateAstNode;
-            try {
-                for (var _c = __values(node.c), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var condition = _d.value;
-                    var value = evaluateAstNode(condition.t, contextStack);
-                    if (!value)
-                        continue;
-                    return evaluateAstNode(condition.f, contextStack);
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return null;
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            var astNodes = node.c.flatMap(function (condition) { return [condition.t, condition.f]; });
-            return findUnresolvedIdentifiers(astNodes, contextStack, builtin);
-        },
-    };
-
-    function joinAnalyzeResults() {
-        var e_1, _a;
-        var results = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            results[_i] = arguments[_i];
-        }
-        var result = new Set();
-        try {
-            for (var results_1 = __values(results), results_1_1 = results_1.next(); !results_1_1.done; results_1_1 = results_1.next()) {
-                var identifier = results_1_1.value;
-                identifier.forEach(function (symbol) { return result.add(symbol); });
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (results_1_1 && !results_1_1.done && (_a = results_1.return)) _a.call(results_1);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-        return result;
-    }
-    function addAnalyzeResults(target, source) {
-        source.forEach(function (symbol) { return target.add(symbol); });
-    }
-    function combinate(arrays) {
-        return arrays.reduce(function (acc, curr) {
-            return acc.flatMap(function (a) { return curr.map(function (c) { return __spreadArray(__spreadArray([], __read(a), false), [c], false); }); });
-        }, [[]]);
-    }
-
-    function isAstNode(value) {
-        if (value === null || typeof value !== 'object')
-            return false;
-        if (!isAstNodeType(value.t))
-            return false;
-        return true;
-    }
-    function asAstNode(value, sourceCodeInfo) {
-        assertAstNode(value, sourceCodeInfo);
-        return value;
-    }
-    function assertAstNode(value, sourceCodeInfo) {
-        if (!isAstNode(value))
-            throw getAssertionError('AstNode', value, sourceCodeInfo);
-    }
-    function isNameNode(value) {
-        if (!isAstNode(value))
-            return false;
-        return value.t === AstNodeType.Name;
-    }
-    function asNameNode(value, sourceCodeInfo) {
-        assertNameNode(value, sourceCodeInfo);
-        return value;
-    }
-    function assertNameNode(value, sourceCodeInfo) {
-        if (!isNameNode(value))
-            throw getAssertionError('NameNode', value, sourceCodeInfo);
-    }
-    function isNormalExpressionNodeWithName(value) {
-        if (!isAstNode(value))
-            return false;
-        return value.t === AstNodeType.NormalExpression && typeof value.n === 'string';
-    }
-    function isExpressionNode(value) {
-        if (!isAstNode(value))
-            return false;
-        return (value.t === AstNodeType.NormalExpression
-            || value.t === AstNodeType.SpecialExpression
-            || value.t === AstNodeType.Number
-            || value.t === AstNodeType.String);
-    }
-
-    var reservedNamesRecord = {
-        'true': { value: true },
-        'false': { value: false },
-        'nil': { value: null },
-        'null': { value: null, forbidden: true },
-        'undefined': { value: null, forbidden: true },
-        '===': { value: null, forbidden: true },
-        '!==': { value: null, forbidden: true },
-        '&&': { value: null, forbidden: true },
-        '||': { value: null, forbidden: true },
-    };
-
-    function assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo) {
-        if (typeof name !== 'string')
-            return;
-        if (builtin.specialExpressions[name])
-            throw new LitsError("Cannot define variable ".concat(name, ", it's a special expression."), sourceCodeInfo);
-        if (builtin.normalExpressions[name])
-            throw new LitsError("Cannot define variable ".concat(name, ", it's a builtin function."), sourceCodeInfo);
-        // eslint-disable-next-line ts/no-unsafe-member-access
-        if (reservedNamesRecord[name])
-            throw new LitsError("Cannot define variable ".concat(name, ", it's a reserved name."), sourceCodeInfo);
-        if (contextStack.globalContext[name])
-            throw new LitsError("Name already defined \"".concat(name, "\"."), sourceCodeInfo);
-    }
-
-    function isString(value, options) {
-        if (options === void 0) { options = {}; }
-        if (typeof value !== 'string')
-            return false;
-        if (options.nonEmpty && value.length === 0)
-            return false;
-        if (options.char && value.length !== 1)
-            return false;
-        return true;
-    }
-    function assertString(value, sourceCodeInfo, options) {
-        if (options === void 0) { options = {}; }
-        if (!isString(value, options)) {
-            throw new LitsError(getAssertionError("".concat(options.nonEmpty ? 'non empty string' : options.char ? 'character' : 'string'), value, sourceCodeInfo));
-        }
-    }
-    function asString(value, sourceCodeInfo, options) {
-        if (options === void 0) { options = {}; }
-        assertString(value, sourceCodeInfo, options);
-        return value;
-    }
-    function isStringOrNumber(value) {
-        return typeof value === 'string' || typeof value === 'number';
-    }
-    function asStringOrNumber(value, sourceCodeInfo) {
-        assertStringOrNumber(value, sourceCodeInfo);
-        return value;
-    }
-    function assertStringOrNumber(value, sourceCodeInfo) {
-        if (!isStringOrNumber(value))
-            throw getAssertionError('string or number', value, sourceCodeInfo);
-    }
-
-    function isDefnNode(value) {
-        return value.n === 'defn';
-    }
-    function isDefnsNode(value) {
-        return value.n === 'defns';
-    }
-    function isFnNode(value) {
-        return value.n === 'fn';
-    }
-    var defnSpecialExpression = {
-        parse: function (tokenStream, position, parsers) {
-            var _a, _b;
-            var _c;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var parseToken = parsers.parseToken;
-            var functionName;
-            _a = __read(parseToken(tokenStream, position), 2), position = _a[0], functionName = _a[1];
-            assertNameNode(functionName, (_c = functionName.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
-            var functionOverloades;
-            _b = __read(parseFunctionOverloades(tokenStream, position, parsers), 2), position = _b[0], functionOverloades = _b[1];
-            return [
-                position,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'defn',
-                    f: functionName,
-                    p: [],
-                    o: functionOverloades,
-                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-                },
-            ];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b;
-            var _c, _d;
-            var builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
-            var name = getFunctionName('defn', node, contextStack, evaluateAstNode);
-            assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
-            var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
-            var litsFunction = (_b = {},
-                _b[FUNCTION_SYMBOL] = true,
-                _b.sourceCodeInfo = (_d = node.tkn) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo,
-                _b.t = FunctionType.UserDefined,
-                _b.n = name,
-                _b.o = evaluatedFunctionOverloades,
-                _b);
-            contextStack.globalContext[name] = { value: litsFunction };
-            return null;
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var _b;
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            contextStack.globalContext[node.f.v] = { value: true };
-            var newContext = (_b = {}, _b[node.f.v] = { value: true }, _b);
-            return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin, newContext);
-        },
-    };
-    var defnsSpecialExpression = {
-        parse: function (tokenStream, position, parsers) {
-            var _a, _b;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var parseToken = parsers.parseToken;
-            var functionName;
-            _a = __read(parseToken(tokenStream, position), 2), position = _a[0], functionName = _a[1];
-            var functionOverloades;
-            _b = __read(parseFunctionOverloades(tokenStream, position, parsers), 2), position = _b[0], functionOverloades = _b[1];
-            return [
-                position,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'defns',
-                    f: functionName,
-                    p: [],
-                    o: functionOverloades,
-                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-                },
-            ];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b;
-            var _c, _d;
-            var builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
-            var name = getFunctionName('defns', node, contextStack, evaluateAstNode);
-            assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
-            var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
-            var litsFunction = (_b = {},
-                _b[FUNCTION_SYMBOL] = true,
-                _b.sourceCodeInfo = (_d = node.tkn) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo,
-                _b.t = FunctionType.UserDefined,
-                _b.n = name,
-                _b.o = evaluatedFunctionOverloades,
-                _b);
-            contextStack.globalContext[name] = { value: litsFunction };
-            return null;
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var _b;
-            var _c;
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
-            var name = evaluateAstNode(asAstNode(node.f, sourceCodeInfo), contextStack);
-            assertString(name, sourceCodeInfo);
-            assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
-            contextStack.globalContext[name] = { value: true };
-            var newContext = (_b = {}, _b[name] = { value: true }, _b);
-            return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin, newContext);
-        },
-    };
-    var fnSpecialExpression = {
-        parse: function (tokenStream, position, parsers) {
-            var _a;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var functionOverloades;
-            _a = __read(parseFunctionOverloades(tokenStream, position, parsers), 2), position = _a[0], functionOverloades = _a[1];
-            return [
-                position,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'fn',
-                    p: [],
-                    o: functionOverloades,
-                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-                },
-            ];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b;
-            var _c;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
-            var litsFunction = (_b = {},
-                _b[FUNCTION_SYMBOL] = true,
-                _b.sourceCodeInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo,
-                _b.t = FunctionType.UserDefined,
-                _b.n = undefined,
-                _b.o = evaluatedFunctionOverloades,
-                _b);
-            return litsFunction;
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin);
-        },
-    };
-    function getFunctionName(expressionName, node, contextStack, evaluateAstNode) {
-        var _a;
-        var sourceCodeInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo;
-        if (expressionName === 'defn')
-            return (node.f).v;
-        var name = evaluateAstNode(node.f, contextStack);
-        return asString(name, sourceCodeInfo);
-    }
-    function evaluateFunctionOverloades(node, contextStack, evaluateAstNode) {
-        var e_1, _a, e_2, _b;
-        var evaluatedFunctionOverloades = [];
-        try {
-            for (var _c = __values(node.o), _d = _c.next(); !_d.done; _d = _c.next()) {
-                var functionOverload = _d.value;
-                var functionContext = {};
-                try {
-                    for (var _e = (e_2 = void 0, __values(functionOverload.as.b)), _f = _e.next(); !_f.done; _f = _e.next()) {
-                        var binding = _f.value;
-                        var bindingValueNode = binding.v;
-                        var bindingValue = evaluateAstNode(bindingValueNode, contextStack);
-                        functionContext[binding.n] = { value: bindingValue };
-                    }
-                }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                finally {
-                    try {
-                        if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-                    }
-                    finally { if (e_2) throw e_2.error; }
-                }
-                var evaluatedFunctionOverload = {
-                    as: {
-                        mandatoryArguments: functionOverload.as.m,
-                        restArgument: functionOverload.as.r,
-                    },
-                    a: functionOverload.a,
-                    b: functionOverload.b,
-                    f: functionContext,
-                };
-                evaluatedFunctionOverloades.push(evaluatedFunctionOverload);
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-        return evaluatedFunctionOverloades;
-    }
-    function addOverloadsUnresolvedIdentifiers(overloads, contextStack, findUnresolvedIdentifiers, builtin, functionNameContext) {
-        var e_3, _a;
-        var result = new Set();
-        var contextStackWithFunctionName = functionNameContext ? contextStack.create(functionNameContext) : contextStack;
-        var _loop_1 = function (overload) {
-            var newContext = {};
-            overload.as.b.forEach(function (binding) {
-                var bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin);
-                addAnalyzeResults(result, bindingResult);
-                newContext[binding.n] = { value: true };
-            });
-            overload.as.m.forEach(function (arg) {
-                newContext[arg] = { value: true };
-            });
-            if (typeof overload.as.r === 'string')
-                newContext[overload.as.r] = { value: true };
-            var newContextStack = contextStackWithFunctionName.create(newContext);
-            var overloadResult = findUnresolvedIdentifiers(overload.b, newContextStack, builtin);
-            addAnalyzeResults(result, overloadResult);
-        };
-        try {
-            for (var overloads_1 = __values(overloads), overloads_1_1 = overloads_1.next(); !overloads_1_1.done; overloads_1_1 = overloads_1.next()) {
-                var overload = overloads_1_1.value;
-                _loop_1(overload);
-            }
-        }
-        catch (e_3_1) { e_3 = { error: e_3_1 }; }
-        finally {
-            try {
-                if (overloads_1_1 && !overloads_1_1.done && (_a = overloads_1.return)) _a.call(overloads_1);
-            }
-            finally { if (e_3) throw e_3.error; }
-        }
-        return result;
-    }
-    function arityOk(overloadedFunctions, arity) {
-        if (typeof arity === 'number') {
-            return overloadedFunctions.every(function (fun) {
-                if (typeof fun.a === 'number')
-                    return fun.a !== arity;
-                return fun.a.min > arity;
-            });
-        }
-        return overloadedFunctions.every(function (fun) {
-            if (typeof fun.a === 'number')
-                return fun.a < arity.min;
-            return false;
-        });
-    }
-    function parseFunctionBody(tokenStream, position, _a) {
-        var _b;
-        var parseToken = _a.parseToken;
-        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-        var body = [];
-        while (!(tkn.t === TokenType.Bracket && tkn.v === ')')) {
-            var bodyNode = void 0;
-            _b = __read(parseToken(tokenStream, position), 2), position = _b[0], bodyNode = _b[1];
-            body.push(bodyNode);
-            tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-        }
-        if (body.length === 0)
-            throw new LitsError('Missing body in function', tkn.sourceCodeInfo);
-        return [position + 1, body];
-    }
-    function parseFunctionOverloades(tokenStream, position, parsers) {
-        var _a, _b, _c, _d;
-        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket });
-        if (tkn.v === '(') {
-            var functionOverloades = [];
-            while (!(tkn.t === TokenType.Bracket && tkn.v === ')')) {
-                position += 1;
-                tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-                var functionArguments = void 0;
-                _a = __read(parseFunctionArguments(tokenStream, position, parsers), 2), position = _a[0], functionArguments = _a[1];
-                var arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length;
-                if (!arityOk(functionOverloades, arity))
-                    throw new LitsError('All overloaded functions must have different arity', tkn.sourceCodeInfo);
-                var functionBody = void 0;
-                _b = __read(parseFunctionBody(tokenStream, position, parsers), 2), position = _b[0], functionBody = _b[1];
-                functionOverloades.push({
-                    as: functionArguments,
-                    b: functionBody,
-                    a: arity,
-                });
-                tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket });
-                if (tkn.v !== ')' && tkn.v !== '(')
-                    throw new LitsError("Expected ( or ) token, got ".concat(valueToString(tkn), "."), tkn.sourceCodeInfo);
-            }
-            return [position + 1, functionOverloades];
-        }
-        else if (tkn.v === '[') {
-            var functionArguments = void 0;
-            _c = __read(parseFunctionArguments(tokenStream, position, parsers), 2), position = _c[0], functionArguments = _c[1];
-            var arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length;
-            var functionBody = void 0;
-            _d = __read(parseFunctionBody(tokenStream, position, parsers), 2), position = _d[0], functionBody = _d[1];
-            return [
-                position,
-                [
-                    {
-                        as: functionArguments,
-                        b: functionBody,
-                        a: arity,
-                    },
-                ],
-            ];
-        }
-        else {
-            throw new LitsError("Expected [ or ( token, got ".concat(valueToString(tkn)), tkn.sourceCodeInfo);
-        }
-    }
-    function parseFunctionArguments(tokenStream, position, parsers) {
-        var _a;
-        var parseArgument = parsers.parseArgument, parseBindings = parsers.parseBindings;
-        var bindings = [];
-        var restArgument;
-        var mandatoryArguments = [];
-        var state = 'mandatory';
-        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-        position += 1;
-        tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-        while (!(tkn.t === TokenType.Bracket && tkn.v === ']')) {
-            if (state === 'let') {
-                _a = __read(parseBindings(tokenStream, position), 2), position = _a[0], bindings = _a[1];
-                break;
-            }
-            else {
-                var _b = __read(parseArgument(tokenStream, position), 2), newPosition = _b[0], node = _b[1];
-                position = newPosition;
-                tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-                if (node.t === AstNodeType.Modifier) {
-                    switch (node.v) {
-                        case '&':
-                            if (state === 'rest')
-                                throw new LitsError('& can only appear once', tkn.sourceCodeInfo);
-                            state = 'rest';
-                            break;
-                        case '&let':
-                            if (state === 'rest' && !restArgument)
-                                throw new LitsError('No rest argument was specified', tkn.sourceCodeInfo);
-                            state = 'let';
-                            break;
-                        default:
-                            throw new LitsError("Illegal modifier: ".concat(node.v), tkn.sourceCodeInfo);
-                    }
-                }
-                else {
-                    switch (state) {
-                        case 'mandatory':
-                            mandatoryArguments.push(node.n);
-                            break;
-                        case 'rest':
-                            if (restArgument !== undefined)
-                                throw new LitsError('Can only specify one rest argument', tkn.sourceCodeInfo);
-                            restArgument = node.n;
-                            break;
-                    }
-                }
-            }
-        }
-        if (state === 'rest' && restArgument === undefined)
-            throw new LitsError('Missing rest argument name', tkn.sourceCodeInfo);
-        position += 1;
-        var args = {
-            m: mandatoryArguments,
-            r: restArgument,
-            b: bindings,
-        };
-        return [position, args];
-    }
-
-    function isDefNode(value) {
-        return value.n === 'def';
-    }
-    var defSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
-            assertNameNode(params[0], firstToken.sourceCodeInfo);
-            return [
-                newPosition + 1,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'def',
-                    p: params,
-                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-                },
-            ];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b;
-            var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
-            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var name = asNameNode(node.p[0], sourceCodeInfo).v;
-            assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
-            contextStack.globalContext[name] = {
-                value: evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack),
-            };
-            return null;
-        },
-        validate: function (node) { return assertNumberOfParams(2, node); },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var _b;
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var subNode = asAstNode(node.p[1], sourceCodeInfo);
-            var result = findUnresolvedIdentifiers([subNode], contextStack, builtin);
-            var name = asNameNode(node.p[0], sourceCodeInfo).v;
-            assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
-            contextStack.globalContext[name] = { value: true };
-            return result;
-        },
-    };
-
-    function isDefsNode(value) {
-        return value.n === 'defs';
-    }
-    var defsSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
-            return [
-                newPosition + 1,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'defs',
-                    p: params,
-                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-                },
-            ];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b, _c;
-            var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
-            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var name = evaluateAstNode(asAstNode(node.p[0], sourceCodeInfo), contextStack);
-            assertString(name, sourceCodeInfo);
-            assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
-            contextStack.globalContext[name] = {
-                value: evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack),
-            };
-            return null;
-        },
-        validate: function (node) { return assertNumberOfParams(2, node); },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var _b;
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var subNode = asAstNode(node.p[1], sourceCodeInfo);
-            var result = findUnresolvedIdentifiers([subNode], contextStack, builtin);
-            var name = evaluateAstNode(asAstNode(node.p[0], sourceCodeInfo), contextStack);
-            assertString(name, sourceCodeInfo);
-            assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
-            contextStack.globalContext[name] = { value: true };
-            return result;
-        },
-    };
-
-    function isDoNode(value) {
-        return value.n === 'do';
-    }
-    var doSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var _b;
-            var parseToken = _a.parseToken;
-            var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'do',
-                p: [],
-                tkn: tkn.sourceCodeInfo ? tkn : undefined,
-            };
-            while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {
-                var bodyNode = void 0;
-                _b = __read(parseToken(tokenStream, position), 2), position = _b[0], bodyNode = _b[1];
-                node.p.push(bodyNode);
-                tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            }
-            return [position + 1, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var e_1, _b;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var newContext = {};
-            var newContextStack = contextStack.create(newContext);
-            var result = null;
-            try {
-                for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var form = _d.value;
-                    result = evaluateAstNode(form, newContextStack);
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return result;
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
-        },
-    };
-
-    function isAny(value) {
-        // TODO weak test
-        return value !== undefined;
-    }
-    function asAny(value, sourceCodeInfo) {
-        assertAny(value, sourceCodeInfo);
-        return value;
-    }
-    function assertAny(value, sourceCodeInfo) {
-        if (!isAny(value))
-            throw getAssertionError('not undefined', value, sourceCodeInfo);
-    }
-    function isSeq(value) {
-        return Array.isArray(value) || typeof value === 'string';
-    }
-    function asSeq(value, sourceCodeInfo) {
-        assertSeq(value, sourceCodeInfo);
-        return value;
-    }
-    function assertSeq(value, sourceCodeInfo) {
-        if (!isSeq(value))
-            throw getAssertionError('string or array', value, sourceCodeInfo);
-    }
-    function isObj(value) {
-        return !(value === null
-            || typeof value !== 'object'
-            || Array.isArray(value)
-            || value instanceof RegExp
-            || isLitsFunction(value)
-            || isRegularExpression(value));
-    }
-    function assertObj(value, sourceCodeInfo) {
-        if (!isObj(value))
-            throw getAssertionError('object', value, sourceCodeInfo);
-    }
-    function isColl(value) {
-        return isSeq(value) || isObj(value);
-    }
-    function asColl(value, sourceCodeInfo) {
-        assertColl(value, sourceCodeInfo);
-        return value;
-    }
-    function assertColl(value, sourceCodeInfo) {
-        if (!isColl(value))
-            throw getAssertionError('string, array or object', value, sourceCodeInfo);
-    }
-    function isRegularExpression(regexp) {
-        if (regexp === null || typeof regexp !== 'object')
-            return false;
-        return !!regexp[REGEXP_SYMBOL];
-    }
-    function assertRegularExpression(value, sourceCodeInfo) {
-        if (!isRegularExpression(value))
-            throw getAssertionError('RegularExpression', value, sourceCodeInfo);
-    }
-    function isStringOrRegularExpression(value) {
-        return isRegularExpression(value) || typeof value === 'string';
-    }
-    function assertStringOrRegularExpression(value, sourceCodeInfo) {
-        if (!isStringOrRegularExpression(value))
-            throw getAssertionError('string or RegularExpression', value, sourceCodeInfo);
-    }
-
-    function isForNode(value) {
-        return value.n === 'for';
-    }
-    function isDoSeqNode(value) {
-        return value.n === 'doseq';
-    }
-    function parseLoopBinding(tokenStream, position, _a) {
-        var _b, _c, _d, _e;
-        var parseBinding = _a.parseBinding, parseBindings = _a.parseBindings, parseToken = _a.parseToken;
-        var bindingNode;
-        _b = __read(parseBinding(tokenStream, position), 2), position = _b[0], bindingNode = _b[1];
-        var loopBinding = {
-            b: bindingNode,
-            m: [],
-        };
-        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-        while (tkn.t === TokenType.Modifier) {
-            switch (tkn.v) {
-                case '&let':
-                    if (loopBinding.l)
-                        throw new LitsError('Only one &let modifier allowed', tkn.sourceCodeInfo);
-                    _c = __read(parseBindings(tokenStream, position + 1), 2), position = _c[0], loopBinding.l = _c[1];
-                    loopBinding.m.push('&let');
-                    break;
-                case '&when':
-                    if (loopBinding.wn)
-                        throw new LitsError('Only one &when modifier allowed', tkn.sourceCodeInfo);
-                    _d = __read(parseToken(tokenStream, position + 1), 2), position = _d[0], loopBinding.wn = _d[1];
-                    loopBinding.m.push('&when');
-                    break;
-                case '&while':
-                    if (loopBinding.we)
-                        throw new LitsError('Only one &while modifier allowed', tkn.sourceCodeInfo);
-                    _e = __read(parseToken(tokenStream, position + 1), 2), position = _e[0], loopBinding.we = _e[1];
-                    loopBinding.m.push('&while');
-                    break;
-                default:
-                    throw new LitsError("Illegal modifier: ".concat(tkn.v), tkn.sourceCodeInfo);
-            }
-            tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-        }
-        return [position, loopBinding];
-    }
-    function addToContext(bindings, context, contextStack, evaluateAstNode, sourceCodeInfo) {
-        var e_1, _a;
-        try {
-            for (var bindings_1 = __values(bindings), bindings_1_1 = bindings_1.next(); !bindings_1_1.done; bindings_1_1 = bindings_1.next()) {
-                var binding = bindings_1_1.value;
-                if (context[binding.n])
-                    throw new LitsError("Variable already defined: ".concat(binding.n, "."), sourceCodeInfo);
-                context[binding.n] = { value: evaluateAstNode(binding.v, contextStack) };
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (bindings_1_1 && !bindings_1_1.done && (_a = bindings_1.return)) _a.call(bindings_1);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-    }
-    function parseLoopBindings(tokenStream, position, parsers) {
-        var _a;
-        assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: '[' });
-        position += 1;
-        var loopBindings = [];
-        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-        while (!isToken(tkn, { type: TokenType.Bracket, value: ']' })) {
-            var loopBinding = void 0;
-            _a = __read(parseLoopBinding(tokenStream, position, parsers), 2), position = _a[0], loopBinding = _a[1];
-            loopBindings.push(loopBinding);
-            tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
-        }
-        return [position + 1, loopBindings];
-    }
-    function evaluateLoop(returnResult, node, contextStack, evaluateAstNode) {
-        var e_2, _a;
-        var _b;
-        var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-        var _c = node, loopBindings = _c.l, params = _c.p;
-        var expression = asAstNode(params[0], sourceCodeInfo);
-        var result = [];
-        var bindingIndices = loopBindings.map(function () { return 0; });
-        var abort = false;
-        while (!abort) {
-            var context = {};
-            var newContextStack = contextStack.create(context);
-            var skip = false;
-            bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
-                var _d = asNonUndefined(loopBindings[bindingIndex], sourceCodeInfo), binding = _d.b, letBindings = _d.l, whenNode = _d.wn, whileNode = _d.we, modifiers = _d.m;
-                var coll = asColl(evaluateAstNode(binding.v, newContextStack), sourceCodeInfo);
-                var seq = isSeq(coll) ? coll : Object.entries(coll);
-                if (seq.length === 0) {
-                    skip = true;
-                    abort = true;
-                    break;
-                }
-                var index = asNonUndefined(bindingIndices[bindingIndex], sourceCodeInfo);
-                if (index >= seq.length) {
-                    skip = true;
-                    if (bindingIndex === 0) {
-                        abort = true;
-                        break;
-                    }
-                    bindingIndices[bindingIndex] = 0;
-                    bindingIndices[bindingIndex - 1] = asNonUndefined(bindingIndices[bindingIndex - 1], sourceCodeInfo) + 1;
-                    break;
-                }
-                if (context[binding.n])
-                    throw new LitsError("Variable already defined: ".concat(binding.n, "."), sourceCodeInfo);
-                context[binding.n] = {
-                    value: asAny(seq[index], sourceCodeInfo),
-                };
-                try {
-                    for (var modifiers_1 = (e_2 = void 0, __values(modifiers)), modifiers_1_1 = modifiers_1.next(); !modifiers_1_1.done; modifiers_1_1 = modifiers_1.next()) {
-                        var modifier = modifiers_1_1.value;
-                        switch (modifier) {
-                            case '&let':
-                                addToContext(asNonUndefined(letBindings, sourceCodeInfo), context, newContextStack, evaluateAstNode, sourceCodeInfo);
-                                break;
-                            case '&when':
-                                if (!evaluateAstNode(asAstNode(whenNode, sourceCodeInfo), newContextStack)) {
-                                    bindingIndices[bindingIndex] = asNonUndefined(bindingIndices[bindingIndex], sourceCodeInfo) + 1;
-                                    skip = true;
-                                    break bindingsLoop;
-                                }
-                                break;
-                            case '&while':
-                                if (!evaluateAstNode(asAstNode(whileNode, sourceCodeInfo), newContextStack)) {
-                                    bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY;
-                                    skip = true;
-                                    break bindingsLoop;
-                                }
-                                break;
-                        }
-                    }
-                }
-                catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                finally {
-                    try {
-                        if (modifiers_1_1 && !modifiers_1_1.done && (_a = modifiers_1.return)) _a.call(modifiers_1);
-                    }
-                    finally { if (e_2) throw e_2.error; }
-                }
-            }
-            if (!skip) {
-                var value = evaluateAstNode(expression, newContextStack);
-                if (returnResult)
-                    result.push(value);
-                bindingIndices[bindingIndices.length - 1] += 1;
-            }
-        }
-        return returnResult ? result : null;
-    }
-    function analyze$2(node, contextStack, findUnresolvedIdentifiers, builtin) {
-        var result = new Set();
-        var newContext = {};
-        var loopBindings = node.l;
-        loopBindings.forEach(function (loopBinding) {
-            var binding = loopBinding.b, letBindings = loopBinding.l, whenNode = loopBinding.wn, whileNode = loopBinding.we;
-            findUnresolvedIdentifiers([binding.v], contextStack.create(newContext), builtin).forEach(function (symbol) {
-                return result.add(symbol);
-            });
-            newContext[binding.n] = { value: true };
-            if (letBindings) {
-                letBindings.forEach(function (letBinding) {
-                    findUnresolvedIdentifiers([letBinding.v], contextStack.create(newContext), builtin).forEach(function (symbol) {
-                        return result.add(symbol);
-                    });
-                    newContext[letBinding.n] = { value: true };
-                });
-            }
-            if (whenNode) {
-                findUnresolvedIdentifiers([whenNode], contextStack.create(newContext), builtin).forEach(function (symbol) {
-                    return result.add(symbol);
-                });
-            }
-            if (whileNode) {
-                findUnresolvedIdentifiers([whileNode], contextStack.create(newContext), builtin).forEach(function (symbol) {
-                    return result.add(symbol);
-                });
-            }
-        });
-        findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin).forEach(function (symbol) {
-            return result.add(symbol);
-        });
-        return result;
-    }
-    var forSpecialExpression = {
-        parse: function (tokenStream, position, parsers) {
-            var _a, _b;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var parseToken = parsers.parseToken;
-            var loopBindings;
-            _a = __read(parseLoopBindings(tokenStream, position, parsers), 2), position = _a[0], loopBindings = _a[1];
-            var expression;
-            _b = __read(parseToken(tokenStream, position), 2), position = _b[0], expression = _b[1];
-            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
-            var node = {
-                n: 'for',
-                t: AstNodeType.SpecialExpression,
-                l: loopBindings,
-                p: [expression],
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [position + 1, node];
-        },
-        evaluate: function (node, contextStack, helpers) { return evaluateLoop(true, node, contextStack, helpers.evaluateAstNode); },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return analyze$2(node, contextStack, findUnresolvedIdentifiers, builtin);
-        },
-    };
-    var doseqSpecialExpression = {
-        parse: function (tokenStream, position, parsers) {
-            var _a, _b;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var parseToken = parsers.parseToken;
-            var loopBindings;
-            _a = __read(parseLoopBindings(tokenStream, position, parsers), 2), position = _a[0], loopBindings = _a[1];
-            var expression;
-            _b = __read(parseToken(tokenStream, position), 2), position = _b[0], expression = _b[1];
-            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
-            var node = {
-                n: 'doseq',
-                t: AstNodeType.SpecialExpression,
-                l: loopBindings,
-                p: [expression],
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [position + 1, node];
-        },
-        evaluate: function (node, contextStack, helpers) {
-            evaluateLoop(false, node, contextStack, helpers.evaluateAstNode);
-            return null;
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return analyze$2(node, contextStack, findUnresolvedIdentifiers, builtin);
-        },
-    };
-
-    function isIfLetNode(value) {
-        return value.n === 'if-let';
-    }
-    var ifLetSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var _b, _c;
-            var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var bindings;
-            _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
-            if (bindings.length !== 1) {
-                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
-            }
-            var params;
-            _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'if-let',
-                b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
-                p: params,
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [position + 1, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var locals = {};
-            var bindingValue = evaluateAstNode(node.b.v, contextStack);
-            if (bindingValue) {
-                locals[node.b.n] = { value: bindingValue };
-                var newContextStack = contextStack.create(locals);
-                var thenForm = asAstNode(node.p[0], sourceCodeInfo);
-                return evaluateAstNode(thenForm, newContextStack);
-            }
-            if (node.p.length === 2) {
-                var elseForm = asAstNode(node.p[1], sourceCodeInfo);
-                return evaluateAstNode(elseForm, contextStack);
-            }
-            return null;
-        },
-        validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var _b;
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            var newContext = (_b = {}, _b[node.b.n] = { value: true }, _b);
-            var bindingResult = findUnresolvedIdentifiers([node.b.v], contextStack, builtin);
-            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
-            return joinAnalyzeResults(bindingResult, paramsResult);
-        },
-    };
-
-    function isIfNotNode(value) {
-        return value.n === 'if-not';
-    }
-    var ifNotSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
-            return [
-                newPosition + 1,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'if-not',
-                    p: params,
-                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-                },
-            ];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var _c = __read(node.p, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
-            if (!evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {
-                return evaluateAstNode(asAstNode(trueNode, sourceCodeInfo), contextStack);
-            }
-            else {
-                if (node.p.length === 3)
-                    return evaluateAstNode(asAstNode(falseNode, sourceCodeInfo), contextStack);
-                else
-                    return null;
-            }
-        },
-        validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
-        },
-    };
-
-    function isIfNode(value) {
-        return value.n === 'if';
-    }
-    var ifSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
-            return [
-                newPosition + 1,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'if',
-                    p: params,
-                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-                },
-            ];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var _c = __read(node.p, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
-            if (evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {
-                return evaluateAstNode(asAstNode(trueNode, sourceCodeInfo), contextStack);
-            }
-            else {
-                if (node.p.length === 3)
-                    return evaluateAstNode(asAstNode(falseNode, sourceCodeInfo), contextStack);
-                else
-                    return null;
-            }
-        },
-        validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
-        },
-    };
-
-    function isLetNode(value) {
-        return value.n === 'let';
-    }
-    var letSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var _b, _c;
-            var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var bindings;
-            _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
-            var params;
-            _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'let',
-                p: params,
-                bs: bindings,
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [position + 1, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var e_1, _b, e_2, _c;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var locals = {};
-            var newContextStack = contextStack.create(locals);
-            try {
-                for (var _d = __values(node.bs), _e = _d.next(); !_e.done; _e = _d.next()) {
-                    var binding = _e.value;
-                    var bindingValueNode = binding.v;
-                    var bindingValue = evaluateAstNode(bindingValueNode, newContextStack);
-                    locals[binding.n] = { value: bindingValue };
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            var result = null;
-            try {
-                for (var _f = __values(node.p), _g = _f.next(); !_g.done; _g = _f.next()) {
-                    var astNode = _g.value;
-                    result = evaluateAstNode(astNode, newContextStack);
-                }
-            }
-            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-            finally {
-                try {
-                    if (_g && !_g.done && (_c = _f.return)) _c.call(_f);
-                }
-                finally { if (e_2) throw e_2.error; }
-            }
-            return result;
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            var newContext = node.bs
-                .map(function (binding) { return binding.n; })
-                .reduce(function (context, name) {
-                context[name] = { value: true };
-                return context;
-            }, {});
-            var bindingContext = {};
-            var bindingResults = node.bs.map(function (bindingNode) {
-                var valueNode = bindingNode.v;
-                var bindingsResult = findUnresolvedIdentifiers([valueNode], contextStack.create(bindingContext), builtin);
-                bindingContext[bindingNode.n] = { value: true };
-                return bindingsResult;
-            });
-            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
-            return joinAnalyzeResults.apply(void 0, __spreadArray(__spreadArray([], __read(bindingResults), false), [paramsResult], false));
-        },
-    };
-
-    function isLoopNode(value) {
-        return value.n === 'loop';
-    }
-    var loopSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var _b, _c;
-            var parseTokens = _a.parseTokens, parseBindings = _a.parseBindings;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var bindings;
-            _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
-            var params;
-            _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'loop',
-                p: params,
-                bs: bindings,
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [position + 1, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var bindingContext = node.bs.reduce(function (result, binding) {
-                result[binding.n] = { value: evaluateAstNode(binding.v, contextStack) };
-                return result;
-            }, {});
-            var newContextStack = contextStack.create(bindingContext);
-            var _loop_1 = function () {
-                var e_1, _c;
-                var result = null;
-                try {
-                    try {
-                        for (var _d = (e_1 = void 0, __values(node.p)), _e = _d.next(); !_e.done; _e = _d.next()) {
-                            var form = _e.value;
-                            result = evaluateAstNode(form, newContextStack);
-                        }
-                    }
-                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                    finally {
-                        try {
-                            if (_e && !_e.done && (_c = _d.return)) _c.call(_d);
-                        }
-                        finally { if (e_1) throw e_1.error; }
-                    }
-                }
-                catch (error) {
-                    if (error instanceof RecurSignal) {
-                        var params_1 = error.params;
-                        if (params_1.length !== node.bs.length) {
-                            throw new LitsError("recur expected ".concat(node.bs.length, " parameters, got ").concat(valueToString(params_1.length)), sourceCodeInfo);
-                        }
-                        node.bs.forEach(function (binding, index) {
-                            asNonUndefined(bindingContext[binding.n], sourceCodeInfo).value = asAny(params_1[index], sourceCodeInfo);
-                        });
-                        return "continue";
-                    }
-                    throw error;
-                }
-                return { value: result };
-            };
-            for (;;) {
-                var state_1 = _loop_1();
-                if (typeof state_1 === "object")
-                    return state_1.value;
-            }
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            var newContext = node.bs
-                .map(function (binding) { return binding.n; })
-                .reduce(function (context, name) {
-                context[name] = { value: true };
-                return context;
-            }, {});
-            var bindingValueNodes = node.bs.map(function (binding) { return binding.v; });
-            var bindingsResult = findUnresolvedIdentifiers(bindingValueNodes, contextStack, builtin);
-            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
-            return joinAnalyzeResults(bindingsResult, paramsResult);
-        },
-    };
-
-    function isOrNode(value) {
-        return value.n === 'or';
-    }
-    var orSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
-            return [
-                newPosition + 1,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'or',
-                    p: params,
-                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-                },
-            ];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var e_1, _b;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var value = false;
-            try {
-                for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var param = _d.value;
-                    value = evaluateAstNode(param, contextStack);
-                    if (value)
-                        break;
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return value;
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
-        },
-    };
-
-    function isRecurNode(value) {
-        return value.n === 'recur';
-    }
-    var recurSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var _b;
-            var parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var params;
-            _b = __read(parseTokens(tokenStream, position), 2), position = _b[0], params = _b[1];
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'recur',
-                p: params,
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [position + 1, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var evaluateAstNode = _a.evaluateAstNode;
-            var params = node.p.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
-            throw new RecurSignal(params);
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
-        },
-    };
-
-    function isThrowNode(value) {
-        return value.n === 'throw';
-    }
-    var throwSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var parseToken = _a.parseToken;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var _b = __read(parseToken(tokenStream, position), 2), newPosition = _b[0], messageNode = _b[1];
-            position = newPosition;
-            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
-            position += 1;
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'throw',
-                p: [],
-                m: messageNode,
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [position, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b, _c;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var message = asString(evaluateAstNode(node.m, contextStack), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo, {
-                nonEmpty: true,
-            });
-            throw new UserDefinedError(message, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers([node.m], contextStack, builtin);
-        },
-    };
-
-    function isTimeNode(value) {
-        return value.n === 'time!';
-    }
-    var timeSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var parseToken = _a.parseToken;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var _b = __read(parseToken(tokenStream, position), 2), newPosition = _b[0], astNode = _b[1];
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'time!',
-                p: [astNode],
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [newPosition + 1, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var _c = __read(node.p, 1), param = _c[0];
-            assertAstNode(param, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
-            var startTime = Date.now();
-            var result = evaluateAstNode(param, contextStack);
-            var totalTime = Date.now() - startTime;
-            // eslint-disable-next-line no-console
-            console.log("Elapsed time: ".concat(totalTime, " ms"));
-            return result;
-        },
-        validate: function (node) { return assertNumberOfParams(1, node); },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
-        },
-    };
-
-    function isTryNode(value) {
-        return value.n === 'try';
-    }
-    var trySpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var _b, _c, _d, _e;
-            var _f, _g, _h;
-            var parseToken = _a.parseToken;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var tryExpression;
-            _b = __read(parseToken(tokenStream, position), 2), position = _b[0], tryExpression = _b[1];
-            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: '(' });
-            position += 1;
-            var catchNode;
-            _c = __read(parseToken(tokenStream, position), 2), position = _c[0], catchNode = _c[1];
-            assertNameNode(catchNode, (_f = catchNode.tkn) === null || _f === void 0 ? void 0 : _f.sourceCodeInfo);
-            if (catchNode.v !== 'catch') {
-                throw new LitsError("Expected 'catch', got '".concat(catchNode.v, "'."), getSourceCodeInfo(catchNode, (_g = catchNode.tkn) === null || _g === void 0 ? void 0 : _g.sourceCodeInfo));
-            }
-            var error;
-            _d = __read(parseToken(tokenStream, position), 2), position = _d[0], error = _d[1];
-            assertNameNode(error, (_h = error.tkn) === null || _h === void 0 ? void 0 : _h.sourceCodeInfo);
-            var catchExpression;
-            _e = __read(parseToken(tokenStream, position), 2), position = _e[0], catchExpression = _e[1];
-            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
-            position += 1;
-            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
-            position += 1;
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'try',
-                p: [],
-                te: tryExpression,
-                ce: catchExpression,
-                e: error,
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [position, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var _b;
-            var _c;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var tryExpression = node.te, catchExpression = node.ce, errorNode = node.e;
-            try {
-                return evaluateAstNode(tryExpression, contextStack);
-            }
-            catch (error) {
-                var newContext = (_b = {},
-                    _b[errorNode.v] = { value: asAny(error, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo) },
-                    _b);
-                return evaluateAstNode(catchExpression, contextStack.create(newContext));
-            }
-        },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var _b;
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            var tryExpression = node.te, catchExpression = node.ce, errorNode = node.e;
-            var tryResult = findUnresolvedIdentifiers([tryExpression], contextStack, builtin);
-            var newContext = (_b = {},
-                _b[errorNode.v] = { value: true },
-                _b);
-            var catchResult = findUnresolvedIdentifiers([catchExpression], contextStack.create(newContext), builtin);
-            return joinAnalyzeResults(tryResult, catchResult);
-        },
-    };
-
     function getRangeString(options) {
         var hasUpperAndLowerBound = (typeof options.gt === 'number' || typeof options.gte === 'number')
             && (typeof options.lt === 'number' || typeof options.lte === 'number');
@@ -2304,6 +719,215 @@ var Playground = (function (exports) {
         if (options === void 0) { options = {}; }
         assertNumber(value, sourceCodeInfo, options);
         return value;
+    }
+
+    var bitwiseNormalExpression = {
+        'bit-shift-left': {
+            evaluate: function (_a, sourceCodeInfo) {
+                var _b = __read(_a, 2), num = _b[0], count = _b[1];
+                assertNumber(num, sourceCodeInfo, { integer: true });
+                assertNumber(count, sourceCodeInfo, { integer: true, nonNegative: true });
+                return num << count;
+            },
+            validate: function (node) { return assertNumberOfParams(2, node); },
+        },
+        'bit-shift-right': {
+            evaluate: function (_a, sourceCodeInfo) {
+                var _b = __read(_a, 2), num = _b[0], count = _b[1];
+                assertNumber(num, sourceCodeInfo, { integer: true });
+                assertNumber(count, sourceCodeInfo, { integer: true, nonNegative: true });
+                return num >> count;
+            },
+            validate: function (node) { return assertNumberOfParams(2, node); },
+        },
+        'bit-not': {
+            evaluate: function (_a, sourceCodeInfo) {
+                var _b = __read(_a, 1), num = _b[0];
+                assertNumber(num, sourceCodeInfo, { integer: true });
+                return ~num;
+            },
+            validate: function (node) { return assertNumberOfParams(1, node); },
+        },
+        'bit-and': {
+            evaluate: function (_a, sourceCodeInfo) {
+                var _b = __read(_a), first = _b[0], rest = _b.slice(1);
+                assertNumber(first, sourceCodeInfo, { integer: true });
+                return rest.reduce(function (result, value) {
+                    assertNumber(value, sourceCodeInfo, { integer: true });
+                    return result & value;
+                }, first);
+            },
+            validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+        },
+        'bit-and-not': {
+            evaluate: function (_a, sourceCodeInfo) {
+                var _b = __read(_a), first = _b[0], rest = _b.slice(1);
+                assertNumber(first, sourceCodeInfo, { integer: true });
+                return rest.reduce(function (result, value) {
+                    assertNumber(value, sourceCodeInfo, { integer: true });
+                    return result & ~value;
+                }, first);
+            },
+            validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+        },
+        'bit-or': {
+            evaluate: function (_a, sourceCodeInfo) {
+                var _b = __read(_a), first = _b[0], rest = _b.slice(1);
+                assertNumber(first, sourceCodeInfo, { integer: true });
+                return rest.reduce(function (result, value) {
+                    assertNumber(value, sourceCodeInfo, { integer: true });
+                    return result | value;
+                }, first);
+            },
+            validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+        },
+        'bit-xor': {
+            evaluate: function (_a, sourceCodeInfo) {
+                var _b = __read(_a), first = _b[0], rest = _b.slice(1);
+                assertNumber(first, sourceCodeInfo, { integer: true });
+                return rest.reduce(function (result, value) {
+                    assertNumber(value, sourceCodeInfo, { integer: true });
+                    return result ^ value;
+                }, first);
+            },
+            validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
+        },
+        'bit-flip': {
+            evaluate: function (_a, sourceCodeInfo) {
+                var _b = __read(_a, 2), num = _b[0], index = _b[1];
+                assertNumber(num, sourceCodeInfo, { integer: true });
+                assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
+                var mask = 1 << index;
+                return (num ^= mask);
+            },
+            validate: function (node) { return assertNumberOfParams(2, node); },
+        },
+        'bit-set': {
+            evaluate: function (_a, sourceCodeInfo) {
+                var _b = __read(_a, 2), num = _b[0], index = _b[1];
+                assertNumber(num, sourceCodeInfo, { integer: true });
+                assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
+                var mask = 1 << index;
+                return (num |= mask);
+            },
+            validate: function (node) { return assertNumberOfParams(2, node); },
+        },
+        'bit-clear': {
+            evaluate: function (_a, sourceCodeInfo) {
+                var _b = __read(_a, 2), num = _b[0], index = _b[1];
+                assertNumber(num, sourceCodeInfo, { integer: true });
+                assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
+                var mask = 1 << index;
+                return (num &= ~mask);
+            },
+            validate: function (node) { return assertNumberOfParams(2, node); },
+        },
+        'bit-test': {
+            evaluate: function (_a, sourceCodeInfo) {
+                var _b = __read(_a, 2), num = _b[0], index = _b[1];
+                assertNumber(num, sourceCodeInfo, { integer: true });
+                assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
+                var mask = 1 << index;
+                return !!(num & mask);
+            },
+            validate: function (node) { return assertNumberOfParams(2, node); },
+        },
+    };
+
+    function isAny(value) {
+        // TODO weak test
+        return value !== undefined;
+    }
+    function asAny(value, sourceCodeInfo) {
+        assertAny(value, sourceCodeInfo);
+        return value;
+    }
+    function assertAny(value, sourceCodeInfo) {
+        if (!isAny(value))
+            throw getAssertionError('not undefined', value, sourceCodeInfo);
+    }
+    function isSeq(value) {
+        return Array.isArray(value) || typeof value === 'string';
+    }
+    function asSeq(value, sourceCodeInfo) {
+        assertSeq(value, sourceCodeInfo);
+        return value;
+    }
+    function assertSeq(value, sourceCodeInfo) {
+        if (!isSeq(value))
+            throw getAssertionError('string or array', value, sourceCodeInfo);
+    }
+    function isObj(value) {
+        return !(value === null
+            || typeof value !== 'object'
+            || Array.isArray(value)
+            || value instanceof RegExp
+            || isLitsFunction(value)
+            || isRegularExpression(value));
+    }
+    function assertObj(value, sourceCodeInfo) {
+        if (!isObj(value))
+            throw getAssertionError('object', value, sourceCodeInfo);
+    }
+    function isColl(value) {
+        return isSeq(value) || isObj(value);
+    }
+    function asColl(value, sourceCodeInfo) {
+        assertColl(value, sourceCodeInfo);
+        return value;
+    }
+    function assertColl(value, sourceCodeInfo) {
+        if (!isColl(value))
+            throw getAssertionError('string, array or object', value, sourceCodeInfo);
+    }
+    function isRegularExpression(regexp) {
+        if (regexp === null || typeof regexp !== 'object')
+            return false;
+        return !!regexp[REGEXP_SYMBOL];
+    }
+    function assertRegularExpression(value, sourceCodeInfo) {
+        if (!isRegularExpression(value))
+            throw getAssertionError('RegularExpression', value, sourceCodeInfo);
+    }
+    function isStringOrRegularExpression(value) {
+        return isRegularExpression(value) || typeof value === 'string';
+    }
+    function assertStringOrRegularExpression(value, sourceCodeInfo) {
+        if (!isStringOrRegularExpression(value))
+            throw getAssertionError('string or RegularExpression', value, sourceCodeInfo);
+    }
+
+    function isString(value, options) {
+        if (options === void 0) { options = {}; }
+        if (typeof value !== 'string')
+            return false;
+        if (options.nonEmpty && value.length === 0)
+            return false;
+        if (options.char && value.length !== 1)
+            return false;
+        return true;
+    }
+    function assertString(value, sourceCodeInfo, options) {
+        if (options === void 0) { options = {}; }
+        if (!isString(value, options)) {
+            throw new LitsError(getAssertionError("".concat(options.nonEmpty ? 'non empty string' : options.char ? 'character' : 'string'), value, sourceCodeInfo));
+        }
+    }
+    function asString(value, sourceCodeInfo, options) {
+        if (options === void 0) { options = {}; }
+        assertString(value, sourceCodeInfo, options);
+        return value;
+    }
+    function isStringOrNumber(value) {
+        return typeof value === 'string' || typeof value === 'number';
+    }
+    function asStringOrNumber(value, sourceCodeInfo) {
+        assertStringOrNumber(value, sourceCodeInfo);
+        return value;
+    }
+    function assertStringOrNumber(value, sourceCodeInfo) {
+        if (!isStringOrNumber(value))
+            throw getAssertionError('string or number', value, sourceCodeInfo);
     }
 
     function collHasKey(coll, key) {
@@ -2443,342 +1067,6 @@ var Playground = (function (exports) {
     function cloneColl(value) {
         return clone(value);
     }
-
-    function isWhenFirstNode(value) {
-        return value.n === 'when-first';
-    }
-    var whenFirstSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var _b, _c;
-            var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var bindings;
-            _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
-            if (bindings.length !== 1) {
-                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
-            }
-            var params;
-            _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'when-first',
-                b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
-                p: params,
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [position + 1, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var e_1, _b;
-            var _c;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var locals = {};
-            var binding = node.b;
-            var evaluatedBindingForm = evaluateAstNode(binding.v, contextStack);
-            if (!isSeq(evaluatedBindingForm)) {
-                throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString(evaluatedBindingForm)), (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
-            }
-            if (evaluatedBindingForm.length === 0)
-                return null;
-            var bindingValue = toAny(evaluatedBindingForm[0]);
-            locals[binding.n] = { value: bindingValue };
-            var newContextStack = contextStack.create(locals);
-            var result = null;
-            try {
-                for (var _d = __values(node.p), _e = _d.next(); !_e.done; _e = _d.next()) {
-                    var form = _e.value;
-                    result = evaluateAstNode(form, newContextStack);
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return result;
-        },
-        validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var _b;
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            var binding = node.b;
-            var newContext = (_b = {}, _b[binding.n] = { value: true }, _b);
-            var bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin);
-            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
-            return joinAnalyzeResults(bindingResult, paramsResult);
-        },
-    };
-
-    function isWhenLetNode(value) {
-        return value.n === 'when-let';
-    }
-    var whenLetSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var _b, _c;
-            var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var bindings;
-            _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
-            if (bindings.length !== 1) {
-                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
-            }
-            var params;
-            _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'when-let',
-                b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
-                p: params,
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [position + 1, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var e_1, _b;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var binding = node.b;
-            var locals = {};
-            var bindingValue = evaluateAstNode(binding.v, contextStack);
-            if (!bindingValue)
-                return null;
-            locals[binding.n] = { value: bindingValue };
-            var newContextStack = contextStack.create(locals);
-            var result = null;
-            try {
-                for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var form = _d.value;
-                    result = evaluateAstNode(form, newContextStack);
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return result;
-        },
-        validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var _b;
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            var binding = node.b;
-            var newContext = (_b = {}, _b[binding.n] = { value: true }, _b);
-            var bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin);
-            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
-            return joinAnalyzeResults(bindingResult, paramsResult);
-        },
-    };
-
-    function isWhenNotNode(value) {
-        return value.n === 'when-not';
-    }
-    var whenNotSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'when-not',
-                p: params,
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [newPosition + 1, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var e_1, _b;
-            var _c;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var _d = __read(node.p), whenExpression = _d[0], body = _d.slice(1);
-            assertAstNode(whenExpression, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
-            if (evaluateAstNode(whenExpression, contextStack))
-                return null;
-            var result = null;
-            try {
-                for (var body_1 = __values(body), body_1_1 = body_1.next(); !body_1_1.done; body_1_1 = body_1.next()) {
-                    var form = body_1_1.value;
-                    result = evaluateAstNode(form, contextStack);
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (body_1_1 && !body_1_1.done && (_b = body_1.return)) _b.call(body_1);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return result;
-        },
-        validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
-        },
-    };
-
-    function isWhenNode(value) {
-        return value.n === 'when';
-    }
-    var whenSpecialExpression = {
-        parse: function (tokenStream, position, _a) {
-            var parseTokens = _a.parseTokens;
-            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
-            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
-            var node = {
-                t: AstNodeType.SpecialExpression,
-                n: 'when',
-                p: params,
-                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-            };
-            return [newPosition + 1, node];
-        },
-        evaluate: function (node, contextStack, _a) {
-            var e_1, _b;
-            var _c;
-            var evaluateAstNode = _a.evaluateAstNode;
-            var _d = __read(node.p), whenExpression = _d[0], body = _d.slice(1);
-            assertAstNode(whenExpression, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
-            if (!evaluateAstNode(whenExpression, contextStack))
-                return null;
-            var result = null;
-            try {
-                for (var body_1 = __values(body), body_1_1 = body_1.next(); !body_1_1.done; body_1_1 = body_1.next()) {
-                    var form = body_1_1.value;
-                    result = evaluateAstNode(form, contextStack);
-                }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (body_1_1 && !body_1_1.done && (_b = body_1.return)) _b.call(body_1);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
-            return result;
-        },
-        validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
-        findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
-        },
-    };
-
-    var bitwiseNormalExpression = {
-        'bit-shift-left': {
-            evaluate: function (_a, sourceCodeInfo) {
-                var _b = __read(_a, 2), num = _b[0], count = _b[1];
-                assertNumber(num, sourceCodeInfo, { integer: true });
-                assertNumber(count, sourceCodeInfo, { integer: true, nonNegative: true });
-                return num << count;
-            },
-            validate: function (node) { return assertNumberOfParams(2, node); },
-        },
-        'bit-shift-right': {
-            evaluate: function (_a, sourceCodeInfo) {
-                var _b = __read(_a, 2), num = _b[0], count = _b[1];
-                assertNumber(num, sourceCodeInfo, { integer: true });
-                assertNumber(count, sourceCodeInfo, { integer: true, nonNegative: true });
-                return num >> count;
-            },
-            validate: function (node) { return assertNumberOfParams(2, node); },
-        },
-        'bit-not': {
-            evaluate: function (_a, sourceCodeInfo) {
-                var _b = __read(_a, 1), num = _b[0];
-                assertNumber(num, sourceCodeInfo, { integer: true });
-                return ~num;
-            },
-            validate: function (node) { return assertNumberOfParams(1, node); },
-        },
-        'bit-and': {
-            evaluate: function (_a, sourceCodeInfo) {
-                var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-                assertNumber(first, sourceCodeInfo, { integer: true });
-                return rest.reduce(function (result, value) {
-                    assertNumber(value, sourceCodeInfo, { integer: true });
-                    return result & value;
-                }, first);
-            },
-            validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-        },
-        'bit-and-not': {
-            evaluate: function (_a, sourceCodeInfo) {
-                var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-                assertNumber(first, sourceCodeInfo, { integer: true });
-                return rest.reduce(function (result, value) {
-                    assertNumber(value, sourceCodeInfo, { integer: true });
-                    return result & ~value;
-                }, first);
-            },
-            validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-        },
-        'bit-or': {
-            evaluate: function (_a, sourceCodeInfo) {
-                var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-                assertNumber(first, sourceCodeInfo, { integer: true });
-                return rest.reduce(function (result, value) {
-                    assertNumber(value, sourceCodeInfo, { integer: true });
-                    return result | value;
-                }, first);
-            },
-            validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-        },
-        'bit-xor': {
-            evaluate: function (_a, sourceCodeInfo) {
-                var _b = __read(_a), first = _b[0], rest = _b.slice(1);
-                assertNumber(first, sourceCodeInfo, { integer: true });
-                return rest.reduce(function (result, value) {
-                    assertNumber(value, sourceCodeInfo, { integer: true });
-                    return result ^ value;
-                }, first);
-            },
-            validate: function (node) { return assertNumberOfParams({ min: 2 }, node); },
-        },
-        'bit-flip': {
-            evaluate: function (_a, sourceCodeInfo) {
-                var _b = __read(_a, 2), num = _b[0], index = _b[1];
-                assertNumber(num, sourceCodeInfo, { integer: true });
-                assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
-                var mask = 1 << index;
-                return (num ^= mask);
-            },
-            validate: function (node) { return assertNumberOfParams(2, node); },
-        },
-        'bit-set': {
-            evaluate: function (_a, sourceCodeInfo) {
-                var _b = __read(_a, 2), num = _b[0], index = _b[1];
-                assertNumber(num, sourceCodeInfo, { integer: true });
-                assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
-                var mask = 1 << index;
-                return (num |= mask);
-            },
-            validate: function (node) { return assertNumberOfParams(2, node); },
-        },
-        'bit-clear': {
-            evaluate: function (_a, sourceCodeInfo) {
-                var _b = __read(_a, 2), num = _b[0], index = _b[1];
-                assertNumber(num, sourceCodeInfo, { integer: true });
-                assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
-                var mask = 1 << index;
-                return (num &= ~mask);
-            },
-            validate: function (node) { return assertNumberOfParams(2, node); },
-        },
-        'bit-test': {
-            evaluate: function (_a, sourceCodeInfo) {
-                var _b = __read(_a, 2), num = _b[0], index = _b[1];
-                assertNumber(num, sourceCodeInfo, { integer: true });
-                assertNumber(index, sourceCodeInfo, { integer: true, nonNegative: true });
-                var mask = 1 << index;
-                return !!(num & mask);
-            },
-            validate: function (node) { return assertNumberOfParams(2, node); },
-        },
-    };
 
     // isArray not needed, use Array.isArary
     function asArray(value, sourceCodeInfo) {
@@ -5835,9 +4123,80 @@ var Playground = (function (exports) {
 
     var normalExpressions = __assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign(__assign({}, bitwiseNormalExpression), collectionNormalExpression), arrayNormalExpression), sequenceNormalExpression), mathNormalExpression), miscNormalExpression), assertNormalExpression), objectNormalExpression), predicatesNormalExpression), regexpNormalExpression), stringNormalExpression), functionalNormalExpression);
 
-    function isCommentNode(value) {
-        return value.n === 'comment';
+    function isToken(value, options) {
+        if (options === void 0) { options = {}; }
+        if (typeof value !== 'object' || value === null)
+            return false;
+        var tkn = value;
+        if (typeof tkn.v !== 'string')
+            return false;
+        if (!isTokenType(tkn.t))
+            return false;
+        if (options.type && tkn.t !== options.type)
+            return false;
+        if (options.value && tkn.v !== options.value)
+            return false;
+        return true;
     }
+    function assertToken(value, filePath, options) {
+        if (options === void 0) { options = {}; }
+        if (!isToken(value, options)) {
+            var sourceCodeInfo = isToken(value)
+                ? value.sourceCodeInfo
+                : typeof filePath === 'string'
+                    ? { filePath: filePath }
+                    : undefined;
+            throw new LitsError("Expected ".concat(options.type ? "".concat(options.type, "-") : '', "token").concat(typeof options.value === 'string' ? " value='".concat(options.value, "'") : '', ", got ").concat(valueToString(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
+        }
+    }
+    function asToken(value, filePath, options) {
+        if (options === void 0) { options = {}; }
+        assertToken(value, filePath, options);
+        return value;
+    }
+
+    var andSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            return [
+                newPosition + 1,
+                {
+                    t: AstNodeType.SpecialExpression,
+                    n: 'and',
+                    p: params,
+                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+                },
+            ];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var e_1, _b;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var value = true;
+            try {
+                for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var param = _d.value;
+                    value = evaluateAstNode(param, contextStack);
+                    if (!value)
+                        break;
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return value;
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
+        },
+    };
+
     var commentSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var _b;
@@ -5861,9 +4220,108 @@ var Playground = (function (exports) {
         findUnresolvedIdentifiers: function () { return new Set(); },
     };
 
-    function isDeclaredNode(value) {
-        return value.n === 'declared?';
+    function parseConditions(tokenStream, position, parseToken) {
+        var _a, _b;
+        var conditions = [];
+        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+        while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {
+            var test = void 0;
+            _a = __read(parseToken(tokenStream, position), 2), position = _a[0], test = _a[1];
+            var form = void 0;
+            _b = __read(parseToken(tokenStream, position), 2), position = _b[0], form = _b[1];
+            conditions.push({ t: test, f: form });
+            tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+        }
+        return [position, conditions];
     }
+    var condSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var _b;
+            var parseToken = _a.parseToken;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var conditions;
+            _b = __read(parseConditions(tokenStream, position, parseToken), 2), position = _b[0], conditions = _b[1];
+            return [
+                position + 1,
+                {
+                    t: AstNodeType.SpecialExpression,
+                    n: 'cond',
+                    c: conditions,
+                    p: [],
+                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+                },
+            ];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var e_1, _b;
+            var evaluateAstNode = _a.evaluateAstNode;
+            try {
+                for (var _c = __values(node.c), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var condition = _d.value;
+                    var value = evaluateAstNode(condition.t, contextStack);
+                    if (!value)
+                        continue;
+                    return evaluateAstNode(condition.f, contextStack);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return null;
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            var astNodes = node.c.flatMap(function (condition) { return [condition.t, condition.f]; });
+            return findUnresolvedIdentifiers(astNodes, contextStack, builtin);
+        },
+    };
+
+    function isAstNode(value) {
+        if (value === null || typeof value !== 'object')
+            return false;
+        if (!isAstNodeType(value.t))
+            return false;
+        return true;
+    }
+    function asAstNode(value, sourceCodeInfo) {
+        assertAstNode(value, sourceCodeInfo);
+        return value;
+    }
+    function assertAstNode(value, sourceCodeInfo) {
+        if (!isAstNode(value))
+            throw getAssertionError('AstNode', value, sourceCodeInfo);
+    }
+    function isNameNode(value) {
+        if (!isAstNode(value))
+            return false;
+        return value.t === AstNodeType.Name;
+    }
+    function asNameNode(value, sourceCodeInfo) {
+        assertNameNode(value, sourceCodeInfo);
+        return value;
+    }
+    function assertNameNode(value, sourceCodeInfo) {
+        if (!isNameNode(value))
+            throw getAssertionError('NameNode', value, sourceCodeInfo);
+    }
+    function isNormalExpressionNodeWithName(value) {
+        if (!isAstNode(value))
+            return false;
+        return value.t === AstNodeType.NormalExpression && typeof value.n === 'string';
+    }
+    function isExpressionNode(value) {
+        if (!isAstNode(value))
+            return false;
+        return (value.t === AstNodeType.NormalExpression
+            || value.t === AstNodeType.SpecialExpression
+            || value.t === AstNodeType.Number
+            || value.t === AstNodeType.String);
+    }
+
     var declaredSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -5891,9 +4349,1106 @@ var Playground = (function (exports) {
         },
     };
 
-    function isQqNode(value) {
-        return value.n === '??';
+    var reservedNamesRecord = {
+        'true': { value: true },
+        'false': { value: false },
+        'nil': { value: null },
+        'null': { value: null, forbidden: true },
+        'undefined': { value: null, forbidden: true },
+        '===': { value: null, forbidden: true },
+        '!==': { value: null, forbidden: true },
+        '&&': { value: null, forbidden: true },
+        '||': { value: null, forbidden: true },
+    };
+
+    function assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo) {
+        if (typeof name !== 'string')
+            return;
+        if (builtin.specialExpressions[name])
+            throw new LitsError("Cannot define variable ".concat(name, ", it's a special expression."), sourceCodeInfo);
+        if (builtin.normalExpressions[name])
+            throw new LitsError("Cannot define variable ".concat(name, ", it's a builtin function."), sourceCodeInfo);
+        // eslint-disable-next-line ts/no-unsafe-member-access
+        if (reservedNamesRecord[name])
+            throw new LitsError("Cannot define variable ".concat(name, ", it's a reserved name."), sourceCodeInfo);
+        if (contextStack.globalContext[name])
+            throw new LitsError("Name already defined \"".concat(name, "\"."), sourceCodeInfo);
     }
+
+    var defSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            assertNameNode(params[0], firstToken.sourceCodeInfo);
+            return [
+                newPosition + 1,
+                {
+                    t: AstNodeType.SpecialExpression,
+                    n: 'def',
+                    p: params,
+                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+                },
+            ];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b;
+            var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
+            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+            var name = asNameNode(node.p[0], sourceCodeInfo).v;
+            assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
+            contextStack.globalContext[name] = {
+                value: evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack),
+            };
+            return null;
+        },
+        validate: function (node) { return assertNumberOfParams(2, node); },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var _b;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+            var subNode = asAstNode(node.p[1], sourceCodeInfo);
+            var result = findUnresolvedIdentifiers([subNode], contextStack, builtin);
+            var name = asNameNode(node.p[0], sourceCodeInfo).v;
+            assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
+            contextStack.globalContext[name] = { value: true };
+            return result;
+        },
+    };
+
+    var defsSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            return [
+                newPosition + 1,
+                {
+                    t: AstNodeType.SpecialExpression,
+                    n: 'defs',
+                    p: params,
+                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+                },
+            ];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b, _c;
+            var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
+            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+            var name = evaluateAstNode(asAstNode(node.p[0], sourceCodeInfo), contextStack);
+            assertString(name, sourceCodeInfo);
+            assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
+            contextStack.globalContext[name] = {
+                value: evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack),
+            };
+            return null;
+        },
+        validate: function (node) { return assertNumberOfParams(2, node); },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var _b;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
+            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+            var subNode = asAstNode(node.p[1], sourceCodeInfo);
+            var result = findUnresolvedIdentifiers([subNode], contextStack, builtin);
+            var name = evaluateAstNode(asAstNode(node.p[0], sourceCodeInfo), contextStack);
+            assertString(name, sourceCodeInfo);
+            assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
+            contextStack.globalContext[name] = { value: true };
+            return result;
+        },
+    };
+
+    var doSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var _b;
+            var parseToken = _a.parseToken;
+            var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'do',
+                p: [],
+                tkn: tkn.sourceCodeInfo ? tkn : undefined,
+            };
+            while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {
+                var bodyNode = void 0;
+                _b = __read(parseToken(tokenStream, position), 2), position = _b[0], bodyNode = _b[1];
+                node.p.push(bodyNode);
+                tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            }
+            return [position + 1, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var e_1, _b;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var newContext = {};
+            var newContextStack = contextStack.create(newContext);
+            var result = null;
+            try {
+                for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var form = _d.value;
+                    result = evaluateAstNode(form, newContextStack);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return result;
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
+        },
+    };
+
+    function joinAnalyzeResults() {
+        var e_1, _a;
+        var results = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            results[_i] = arguments[_i];
+        }
+        var result = new Set();
+        try {
+            for (var results_1 = __values(results), results_1_1 = results_1.next(); !results_1_1.done; results_1_1 = results_1.next()) {
+                var identifier = results_1_1.value;
+                identifier.forEach(function (symbol) { return result.add(symbol); });
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (results_1_1 && !results_1_1.done && (_a = results_1.return)) _a.call(results_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        return result;
+    }
+    function addAnalyzeResults(target, source) {
+        source.forEach(function (symbol) { return target.add(symbol); });
+    }
+    function combinate(arrays) {
+        return arrays.reduce(function (acc, curr) {
+            return acc.flatMap(function (a) { return curr.map(function (c) { return __spreadArray(__spreadArray([], __read(a), false), [c], false); }); });
+        }, [[]]);
+    }
+
+    var defnSpecialExpression = {
+        parse: function (tokenStream, position, parsers) {
+            var _a, _b;
+            var _c;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var parseToken = parsers.parseToken;
+            var functionName;
+            _a = __read(parseToken(tokenStream, position), 2), position = _a[0], functionName = _a[1];
+            assertNameNode(functionName, (_c = functionName.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
+            var functionOverloades;
+            _b = __read(parseFunctionOverloades(tokenStream, position, parsers), 2), position = _b[0], functionOverloades = _b[1];
+            return [
+                position,
+                {
+                    t: AstNodeType.SpecialExpression,
+                    n: 'defn',
+                    f: functionName,
+                    p: [],
+                    o: functionOverloades,
+                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+                },
+            ];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b;
+            var _c, _d;
+            var builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
+            var name = getFunctionName('defn', node, contextStack, evaluateAstNode);
+            assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
+            var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
+            var litsFunction = (_b = {},
+                _b[FUNCTION_SYMBOL] = true,
+                _b.sourceCodeInfo = (_d = node.tkn) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo,
+                _b.t = FunctionType.UserDefined,
+                _b.n = name,
+                _b.o = evaluatedFunctionOverloades,
+                _b);
+            contextStack.globalContext[name] = { value: litsFunction };
+            return null;
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var _b;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            contextStack.globalContext[node.f.v] = { value: true };
+            var newContext = (_b = {}, _b[node.f.v] = { value: true }, _b);
+            return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin, newContext);
+        },
+    };
+    var defnsSpecialExpression = {
+        parse: function (tokenStream, position, parsers) {
+            var _a, _b;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var parseToken = parsers.parseToken;
+            var functionName;
+            _a = __read(parseToken(tokenStream, position), 2), position = _a[0], functionName = _a[1];
+            var functionOverloades;
+            _b = __read(parseFunctionOverloades(tokenStream, position, parsers), 2), position = _b[0], functionOverloades = _b[1];
+            return [
+                position,
+                {
+                    t: AstNodeType.SpecialExpression,
+                    n: 'defns',
+                    f: functionName,
+                    p: [],
+                    o: functionOverloades,
+                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+                },
+            ];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b;
+            var _c, _d;
+            var builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
+            var name = getFunctionName('defns', node, contextStack, evaluateAstNode);
+            assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
+            var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
+            var litsFunction = (_b = {},
+                _b[FUNCTION_SYMBOL] = true,
+                _b.sourceCodeInfo = (_d = node.tkn) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo,
+                _b.t = FunctionType.UserDefined,
+                _b.n = name,
+                _b.o = evaluatedFunctionOverloades,
+                _b);
+            contextStack.globalContext[name] = { value: litsFunction };
+            return null;
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var _b;
+            var _c;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
+            var sourceCodeInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
+            var name = evaluateAstNode(asAstNode(node.f, sourceCodeInfo), contextStack);
+            assertString(name, sourceCodeInfo);
+            assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
+            contextStack.globalContext[name] = { value: true };
+            var newContext = (_b = {}, _b[name] = { value: true }, _b);
+            return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin, newContext);
+        },
+    };
+    var fnSpecialExpression = {
+        parse: function (tokenStream, position, parsers) {
+            var _a;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var functionOverloades;
+            _a = __read(parseFunctionOverloades(tokenStream, position, parsers), 2), position = _a[0], functionOverloades = _a[1];
+            return [
+                position,
+                {
+                    t: AstNodeType.SpecialExpression,
+                    n: 'fn',
+                    p: [],
+                    o: functionOverloades,
+                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+                },
+            ];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b;
+            var _c;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
+            var litsFunction = (_b = {},
+                _b[FUNCTION_SYMBOL] = true,
+                _b.sourceCodeInfo = (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo,
+                _b.t = FunctionType.UserDefined,
+                _b.n = undefined,
+                _b.o = evaluatedFunctionOverloades,
+                _b);
+            return litsFunction;
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return addOverloadsUnresolvedIdentifiers(node.o, contextStack, findUnresolvedIdentifiers, builtin);
+        },
+    };
+    function getFunctionName(expressionName, node, contextStack, evaluateAstNode) {
+        var _a;
+        var sourceCodeInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo;
+        if (expressionName === 'defn')
+            return (node.f).v;
+        var name = evaluateAstNode(node.f, contextStack);
+        return asString(name, sourceCodeInfo);
+    }
+    function evaluateFunctionOverloades(node, contextStack, evaluateAstNode) {
+        var e_1, _a, e_2, _b;
+        var evaluatedFunctionOverloades = [];
+        try {
+            for (var _c = __values(node.o), _d = _c.next(); !_d.done; _d = _c.next()) {
+                var functionOverload = _d.value;
+                var functionContext = {};
+                try {
+                    for (var _e = (e_2 = void 0, __values(functionOverload.as.b)), _f = _e.next(); !_f.done; _f = _e.next()) {
+                        var binding = _f.value;
+                        var bindingValueNode = binding.v;
+                        var bindingValue = evaluateAstNode(bindingValueNode, contextStack);
+                        functionContext[binding.n] = { value: bindingValue };
+                    }
+                }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                finally {
+                    try {
+                        if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                    }
+                    finally { if (e_2) throw e_2.error; }
+                }
+                var evaluatedFunctionOverload = {
+                    as: {
+                        mandatoryArguments: functionOverload.as.m,
+                        restArgument: functionOverload.as.r,
+                    },
+                    a: functionOverload.a,
+                    b: functionOverload.b,
+                    f: functionContext,
+                };
+                evaluatedFunctionOverloades.push(evaluatedFunctionOverload);
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        return evaluatedFunctionOverloades;
+    }
+    function addOverloadsUnresolvedIdentifiers(overloads, contextStack, findUnresolvedIdentifiers, builtin, functionNameContext) {
+        var e_3, _a;
+        var result = new Set();
+        var contextStackWithFunctionName = functionNameContext ? contextStack.create(functionNameContext) : contextStack;
+        var _loop_1 = function (overload) {
+            var newContext = {};
+            overload.as.b.forEach(function (binding) {
+                var bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin);
+                addAnalyzeResults(result, bindingResult);
+                newContext[binding.n] = { value: true };
+            });
+            overload.as.m.forEach(function (arg) {
+                newContext[arg] = { value: true };
+            });
+            if (typeof overload.as.r === 'string')
+                newContext[overload.as.r] = { value: true };
+            var newContextStack = contextStackWithFunctionName.create(newContext);
+            var overloadResult = findUnresolvedIdentifiers(overload.b, newContextStack, builtin);
+            addAnalyzeResults(result, overloadResult);
+        };
+        try {
+            for (var overloads_1 = __values(overloads), overloads_1_1 = overloads_1.next(); !overloads_1_1.done; overloads_1_1 = overloads_1.next()) {
+                var overload = overloads_1_1.value;
+                _loop_1(overload);
+            }
+        }
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        finally {
+            try {
+                if (overloads_1_1 && !overloads_1_1.done && (_a = overloads_1.return)) _a.call(overloads_1);
+            }
+            finally { if (e_3) throw e_3.error; }
+        }
+        return result;
+    }
+    function arityOk(overloadedFunctions, arity) {
+        if (typeof arity === 'number') {
+            return overloadedFunctions.every(function (fun) {
+                if (typeof fun.a === 'number')
+                    return fun.a !== arity;
+                return fun.a.min > arity;
+            });
+        }
+        return overloadedFunctions.every(function (fun) {
+            if (typeof fun.a === 'number')
+                return fun.a < arity.min;
+            return false;
+        });
+    }
+    function parseFunctionBody(tokenStream, position, _a) {
+        var _b;
+        var parseToken = _a.parseToken;
+        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+        var body = [];
+        while (!(tkn.t === TokenType.Bracket && tkn.v === ')')) {
+            var bodyNode = void 0;
+            _b = __read(parseToken(tokenStream, position), 2), position = _b[0], bodyNode = _b[1];
+            body.push(bodyNode);
+            tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+        }
+        if (body.length === 0)
+            throw new LitsError('Missing body in function', tkn.sourceCodeInfo);
+        return [position + 1, body];
+    }
+    function parseFunctionOverloades(tokenStream, position, parsers) {
+        var _a, _b, _c, _d;
+        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket });
+        if (tkn.v === '(') {
+            var functionOverloades = [];
+            while (!(tkn.t === TokenType.Bracket && tkn.v === ')')) {
+                position += 1;
+                tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+                var functionArguments = void 0;
+                _a = __read(parseFunctionArguments(tokenStream, position, parsers), 2), position = _a[0], functionArguments = _a[1];
+                var arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length;
+                if (!arityOk(functionOverloades, arity))
+                    throw new LitsError('All overloaded functions must have different arity', tkn.sourceCodeInfo);
+                var functionBody = void 0;
+                _b = __read(parseFunctionBody(tokenStream, position, parsers), 2), position = _b[0], functionBody = _b[1];
+                functionOverloades.push({
+                    as: functionArguments,
+                    b: functionBody,
+                    a: arity,
+                });
+                tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket });
+                if (tkn.v !== ')' && tkn.v !== '(')
+                    throw new LitsError("Expected ( or ) token, got ".concat(valueToString(tkn), "."), tkn.sourceCodeInfo);
+            }
+            return [position + 1, functionOverloades];
+        }
+        else if (tkn.v === '[') {
+            var functionArguments = void 0;
+            _c = __read(parseFunctionArguments(tokenStream, position, parsers), 2), position = _c[0], functionArguments = _c[1];
+            var arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length;
+            var functionBody = void 0;
+            _d = __read(parseFunctionBody(tokenStream, position, parsers), 2), position = _d[0], functionBody = _d[1];
+            return [
+                position,
+                [
+                    {
+                        as: functionArguments,
+                        b: functionBody,
+                        a: arity,
+                    },
+                ],
+            ];
+        }
+        else {
+            throw new LitsError("Expected [ or ( token, got ".concat(valueToString(tkn)), tkn.sourceCodeInfo);
+        }
+    }
+    function parseFunctionArguments(tokenStream, position, parsers) {
+        var _a;
+        var parseArgument = parsers.parseArgument, parseBindings = parsers.parseBindings;
+        var bindings = [];
+        var restArgument;
+        var mandatoryArguments = [];
+        var state = 'mandatory';
+        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+        position += 1;
+        tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+        while (!(tkn.t === TokenType.Bracket && tkn.v === ']')) {
+            if (state === 'let') {
+                _a = __read(parseBindings(tokenStream, position), 2), position = _a[0], bindings = _a[1];
+                break;
+            }
+            else {
+                var _b = __read(parseArgument(tokenStream, position), 2), newPosition = _b[0], node = _b[1];
+                position = newPosition;
+                tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+                if (node.t === AstNodeType.Modifier) {
+                    switch (node.v) {
+                        case '&':
+                            if (state === 'rest')
+                                throw new LitsError('& can only appear once', tkn.sourceCodeInfo);
+                            state = 'rest';
+                            break;
+                        case '&let':
+                            if (state === 'rest' && !restArgument)
+                                throw new LitsError('No rest argument was specified', tkn.sourceCodeInfo);
+                            state = 'let';
+                            break;
+                        default:
+                            throw new LitsError("Illegal modifier: ".concat(node.v), tkn.sourceCodeInfo);
+                    }
+                }
+                else {
+                    switch (state) {
+                        case 'mandatory':
+                            mandatoryArguments.push(node.n);
+                            break;
+                        case 'rest':
+                            if (restArgument !== undefined)
+                                throw new LitsError('Can only specify one rest argument', tkn.sourceCodeInfo);
+                            restArgument = node.n;
+                            break;
+                    }
+                }
+            }
+        }
+        if (state === 'rest' && restArgument === undefined)
+            throw new LitsError('Missing rest argument name', tkn.sourceCodeInfo);
+        position += 1;
+        var args = {
+            m: mandatoryArguments,
+            r: restArgument,
+            b: bindings,
+        };
+        return [position, args];
+    }
+
+    var ifSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            return [
+                newPosition + 1,
+                {
+                    t: AstNodeType.SpecialExpression,
+                    n: 'if',
+                    p: params,
+                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+                },
+            ];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+            var _c = __read(node.p, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
+            if (evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {
+                return evaluateAstNode(asAstNode(trueNode, sourceCodeInfo), contextStack);
+            }
+            else {
+                if (node.p.length === 3)
+                    return evaluateAstNode(asAstNode(falseNode, sourceCodeInfo), contextStack);
+                else
+                    return null;
+            }
+        },
+        validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
+        },
+    };
+
+    var ifLetSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var _b, _c;
+            var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var bindings;
+            _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
+            if (bindings.length !== 1) {
+                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
+            }
+            var params;
+            _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'if-let',
+                b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
+                p: params,
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [position + 1, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+            var locals = {};
+            var bindingValue = evaluateAstNode(node.b.v, contextStack);
+            if (bindingValue) {
+                locals[node.b.n] = { value: bindingValue };
+                var newContextStack = contextStack.create(locals);
+                var thenForm = asAstNode(node.p[0], sourceCodeInfo);
+                return evaluateAstNode(thenForm, newContextStack);
+            }
+            if (node.p.length === 2) {
+                var elseForm = asAstNode(node.p[1], sourceCodeInfo);
+                return evaluateAstNode(elseForm, contextStack);
+            }
+            return null;
+        },
+        validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var _b;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            var newContext = (_b = {}, _b[node.b.n] = { value: true }, _b);
+            var bindingResult = findUnresolvedIdentifiers([node.b.v], contextStack, builtin);
+            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
+            return joinAnalyzeResults(bindingResult, paramsResult);
+        },
+    };
+
+    var ifNotSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            return [
+                newPosition + 1,
+                {
+                    t: AstNodeType.SpecialExpression,
+                    n: 'if-not',
+                    p: params,
+                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+                },
+            ];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+            var _c = __read(node.p, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
+            if (!evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {
+                return evaluateAstNode(asAstNode(trueNode, sourceCodeInfo), contextStack);
+            }
+            else {
+                if (node.p.length === 3)
+                    return evaluateAstNode(asAstNode(falseNode, sourceCodeInfo), contextStack);
+                else
+                    return null;
+            }
+        },
+        validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
+        },
+    };
+
+    var letSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var _b, _c;
+            var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var bindings;
+            _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
+            var params;
+            _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'let',
+                p: params,
+                bs: bindings,
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [position + 1, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var e_1, _b, e_2, _c;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var locals = {};
+            var newContextStack = contextStack.create(locals);
+            try {
+                for (var _d = __values(node.bs), _e = _d.next(); !_e.done; _e = _d.next()) {
+                    var binding = _e.value;
+                    var bindingValueNode = binding.v;
+                    var bindingValue = evaluateAstNode(bindingValueNode, newContextStack);
+                    locals[binding.n] = { value: bindingValue };
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            var result = null;
+            try {
+                for (var _f = __values(node.p), _g = _f.next(); !_g.done; _g = _f.next()) {
+                    var astNode = _g.value;
+                    result = evaluateAstNode(astNode, newContextStack);
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_g && !_g.done && (_c = _f.return)) _c.call(_f);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+            return result;
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            var newContext = node.bs
+                .map(function (binding) { return binding.n; })
+                .reduce(function (context, name) {
+                context[name] = { value: true };
+                return context;
+            }, {});
+            var bindingContext = {};
+            var bindingResults = node.bs.map(function (bindingNode) {
+                var valueNode = bindingNode.v;
+                var bindingsResult = findUnresolvedIdentifiers([valueNode], contextStack.create(bindingContext), builtin);
+                bindingContext[bindingNode.n] = { value: true };
+                return bindingsResult;
+            });
+            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
+            return joinAnalyzeResults.apply(void 0, __spreadArray(__spreadArray([], __read(bindingResults), false), [paramsResult], false));
+        },
+    };
+
+    var loopSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var _b, _c;
+            var parseTokens = _a.parseTokens, parseBindings = _a.parseBindings;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var bindings;
+            _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
+            var params;
+            _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'loop',
+                p: params,
+                bs: bindings,
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [position + 1, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+            var bindingContext = node.bs.reduce(function (result, binding) {
+                result[binding.n] = { value: evaluateAstNode(binding.v, contextStack) };
+                return result;
+            }, {});
+            var newContextStack = contextStack.create(bindingContext);
+            var _loop_1 = function () {
+                var e_1, _c;
+                var result = null;
+                try {
+                    try {
+                        for (var _d = (e_1 = void 0, __values(node.p)), _e = _d.next(); !_e.done; _e = _d.next()) {
+                            var form = _e.value;
+                            result = evaluateAstNode(form, newContextStack);
+                        }
+                    }
+                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                    finally {
+                        try {
+                            if (_e && !_e.done && (_c = _d.return)) _c.call(_d);
+                        }
+                        finally { if (e_1) throw e_1.error; }
+                    }
+                }
+                catch (error) {
+                    if (error instanceof RecurSignal) {
+                        var params_1 = error.params;
+                        if (params_1.length !== node.bs.length) {
+                            throw new LitsError("recur expected ".concat(node.bs.length, " parameters, got ").concat(valueToString(params_1.length)), sourceCodeInfo);
+                        }
+                        node.bs.forEach(function (binding, index) {
+                            asNonUndefined(bindingContext[binding.n], sourceCodeInfo).value = asAny(params_1[index], sourceCodeInfo);
+                        });
+                        return "continue";
+                    }
+                    throw error;
+                }
+                return { value: result };
+            };
+            for (;;) {
+                var state_1 = _loop_1();
+                if (typeof state_1 === "object")
+                    return state_1.value;
+            }
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            var newContext = node.bs
+                .map(function (binding) { return binding.n; })
+                .reduce(function (context, name) {
+                context[name] = { value: true };
+                return context;
+            }, {});
+            var bindingValueNodes = node.bs.map(function (binding) { return binding.v; });
+            var bindingsResult = findUnresolvedIdentifiers(bindingValueNodes, contextStack, builtin);
+            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
+            return joinAnalyzeResults(bindingsResult, paramsResult);
+        },
+    };
+
+    function parseLoopBinding(tokenStream, position, _a) {
+        var _b, _c, _d, _e;
+        var parseBinding = _a.parseBinding, parseBindings = _a.parseBindings, parseToken = _a.parseToken;
+        var bindingNode;
+        _b = __read(parseBinding(tokenStream, position), 2), position = _b[0], bindingNode = _b[1];
+        var loopBinding = {
+            b: bindingNode,
+            m: [],
+        };
+        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+        while (tkn.t === TokenType.Modifier) {
+            switch (tkn.v) {
+                case '&let':
+                    if (loopBinding.l)
+                        throw new LitsError('Only one &let modifier allowed', tkn.sourceCodeInfo);
+                    _c = __read(parseBindings(tokenStream, position + 1), 2), position = _c[0], loopBinding.l = _c[1];
+                    loopBinding.m.push('&let');
+                    break;
+                case '&when':
+                    if (loopBinding.wn)
+                        throw new LitsError('Only one &when modifier allowed', tkn.sourceCodeInfo);
+                    _d = __read(parseToken(tokenStream, position + 1), 2), position = _d[0], loopBinding.wn = _d[1];
+                    loopBinding.m.push('&when');
+                    break;
+                case '&while':
+                    if (loopBinding.we)
+                        throw new LitsError('Only one &while modifier allowed', tkn.sourceCodeInfo);
+                    _e = __read(parseToken(tokenStream, position + 1), 2), position = _e[0], loopBinding.we = _e[1];
+                    loopBinding.m.push('&while');
+                    break;
+                default:
+                    throw new LitsError("Illegal modifier: ".concat(tkn.v), tkn.sourceCodeInfo);
+            }
+            tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+        }
+        return [position, loopBinding];
+    }
+    function addToContext(bindings, context, contextStack, evaluateAstNode, sourceCodeInfo) {
+        var e_1, _a;
+        try {
+            for (var bindings_1 = __values(bindings), bindings_1_1 = bindings_1.next(); !bindings_1_1.done; bindings_1_1 = bindings_1.next()) {
+                var binding = bindings_1_1.value;
+                if (context[binding.n])
+                    throw new LitsError("Variable already defined: ".concat(binding.n, "."), sourceCodeInfo);
+                context[binding.n] = { value: evaluateAstNode(binding.v, contextStack) };
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (bindings_1_1 && !bindings_1_1.done && (_a = bindings_1.return)) _a.call(bindings_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+    }
+    function parseLoopBindings(tokenStream, position, parsers) {
+        var _a;
+        assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: '[' });
+        position += 1;
+        var loopBindings = [];
+        var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+        while (!isToken(tkn, { type: TokenType.Bracket, value: ']' })) {
+            var loopBinding = void 0;
+            _a = __read(parseLoopBinding(tokenStream, position, parsers), 2), position = _a[0], loopBinding = _a[1];
+            loopBindings.push(loopBinding);
+            tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
+        }
+        return [position + 1, loopBindings];
+    }
+    function evaluateLoop(returnResult, node, contextStack, evaluateAstNode) {
+        var e_2, _a;
+        var _b;
+        var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
+        var _c = node, loopBindings = _c.l, params = _c.p;
+        var expression = asAstNode(params[0], sourceCodeInfo);
+        var result = [];
+        var bindingIndices = loopBindings.map(function () { return 0; });
+        var abort = false;
+        while (!abort) {
+            var context = {};
+            var newContextStack = contextStack.create(context);
+            var skip = false;
+            bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
+                var _d = asNonUndefined(loopBindings[bindingIndex], sourceCodeInfo), binding = _d.b, letBindings = _d.l, whenNode = _d.wn, whileNode = _d.we, modifiers = _d.m;
+                var coll = asColl(evaluateAstNode(binding.v, newContextStack), sourceCodeInfo);
+                var seq = isSeq(coll) ? coll : Object.entries(coll);
+                if (seq.length === 0) {
+                    skip = true;
+                    abort = true;
+                    break;
+                }
+                var index = asNonUndefined(bindingIndices[bindingIndex], sourceCodeInfo);
+                if (index >= seq.length) {
+                    skip = true;
+                    if (bindingIndex === 0) {
+                        abort = true;
+                        break;
+                    }
+                    bindingIndices[bindingIndex] = 0;
+                    bindingIndices[bindingIndex - 1] = asNonUndefined(bindingIndices[bindingIndex - 1], sourceCodeInfo) + 1;
+                    break;
+                }
+                if (context[binding.n])
+                    throw new LitsError("Variable already defined: ".concat(binding.n, "."), sourceCodeInfo);
+                context[binding.n] = {
+                    value: asAny(seq[index], sourceCodeInfo),
+                };
+                try {
+                    for (var modifiers_1 = (e_2 = void 0, __values(modifiers)), modifiers_1_1 = modifiers_1.next(); !modifiers_1_1.done; modifiers_1_1 = modifiers_1.next()) {
+                        var modifier = modifiers_1_1.value;
+                        switch (modifier) {
+                            case '&let':
+                                addToContext(asNonUndefined(letBindings, sourceCodeInfo), context, newContextStack, evaluateAstNode, sourceCodeInfo);
+                                break;
+                            case '&when':
+                                if (!evaluateAstNode(asAstNode(whenNode, sourceCodeInfo), newContextStack)) {
+                                    bindingIndices[bindingIndex] = asNonUndefined(bindingIndices[bindingIndex], sourceCodeInfo) + 1;
+                                    skip = true;
+                                    break bindingsLoop;
+                                }
+                                break;
+                            case '&while':
+                                if (!evaluateAstNode(asAstNode(whileNode, sourceCodeInfo), newContextStack)) {
+                                    bindingIndices[bindingIndex] = Number.POSITIVE_INFINITY;
+                                    skip = true;
+                                    break bindingsLoop;
+                                }
+                                break;
+                        }
+                    }
+                }
+                catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                finally {
+                    try {
+                        if (modifiers_1_1 && !modifiers_1_1.done && (_a = modifiers_1.return)) _a.call(modifiers_1);
+                    }
+                    finally { if (e_2) throw e_2.error; }
+                }
+            }
+            if (!skip) {
+                var value = evaluateAstNode(expression, newContextStack);
+                if (returnResult)
+                    result.push(value);
+                bindingIndices[bindingIndices.length - 1] += 1;
+            }
+        }
+        return returnResult ? result : null;
+    }
+    function analyze$2(node, contextStack, findUnresolvedIdentifiers, builtin) {
+        var result = new Set();
+        var newContext = {};
+        var loopBindings = node.l;
+        loopBindings.forEach(function (loopBinding) {
+            var binding = loopBinding.b, letBindings = loopBinding.l, whenNode = loopBinding.wn, whileNode = loopBinding.we;
+            findUnresolvedIdentifiers([binding.v], contextStack.create(newContext), builtin).forEach(function (symbol) {
+                return result.add(symbol);
+            });
+            newContext[binding.n] = { value: true };
+            if (letBindings) {
+                letBindings.forEach(function (letBinding) {
+                    findUnresolvedIdentifiers([letBinding.v], contextStack.create(newContext), builtin).forEach(function (symbol) {
+                        return result.add(symbol);
+                    });
+                    newContext[letBinding.n] = { value: true };
+                });
+            }
+            if (whenNode) {
+                findUnresolvedIdentifiers([whenNode], contextStack.create(newContext), builtin).forEach(function (symbol) {
+                    return result.add(symbol);
+                });
+            }
+            if (whileNode) {
+                findUnresolvedIdentifiers([whileNode], contextStack.create(newContext), builtin).forEach(function (symbol) {
+                    return result.add(symbol);
+                });
+            }
+        });
+        findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin).forEach(function (symbol) {
+            return result.add(symbol);
+        });
+        return result;
+    }
+    var forSpecialExpression = {
+        parse: function (tokenStream, position, parsers) {
+            var _a, _b;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var parseToken = parsers.parseToken;
+            var loopBindings;
+            _a = __read(parseLoopBindings(tokenStream, position, parsers), 2), position = _a[0], loopBindings = _a[1];
+            var expression;
+            _b = __read(parseToken(tokenStream, position), 2), position = _b[0], expression = _b[1];
+            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
+            var node = {
+                n: 'for',
+                t: AstNodeType.SpecialExpression,
+                l: loopBindings,
+                p: [expression],
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [position + 1, node];
+        },
+        evaluate: function (node, contextStack, helpers) { return evaluateLoop(true, node, contextStack, helpers.evaluateAstNode); },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return analyze$2(node, contextStack, findUnresolvedIdentifiers, builtin);
+        },
+    };
+    var doseqSpecialExpression = {
+        parse: function (tokenStream, position, parsers) {
+            var _a, _b;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var parseToken = parsers.parseToken;
+            var loopBindings;
+            _a = __read(parseLoopBindings(tokenStream, position, parsers), 2), position = _a[0], loopBindings = _a[1];
+            var expression;
+            _b = __read(parseToken(tokenStream, position), 2), position = _b[0], expression = _b[1];
+            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
+            var node = {
+                n: 'doseq',
+                t: AstNodeType.SpecialExpression,
+                l: loopBindings,
+                p: [expression],
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [position + 1, node];
+        },
+        evaluate: function (node, contextStack, helpers) {
+            evaluateLoop(false, node, contextStack, helpers.evaluateAstNode);
+            return null;
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return analyze$2(node, contextStack, findUnresolvedIdentifiers, builtin);
+        },
+    };
+
+    var orSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            return [
+                newPosition + 1,
+                {
+                    t: AstNodeType.SpecialExpression,
+                    n: 'or',
+                    p: params,
+                    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+                },
+            ];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var e_1, _b;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var value = false;
+            try {
+                for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var param = _d.value;
+                    value = evaluateAstNode(param, contextStack);
+                    if (value)
+                        break;
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return value;
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
+        },
+    };
+
     var qqSpecialExpression = {
         parse: function (tokenStream, position, _a) {
             var parseTokens = _a.parseTokens;
@@ -5920,6 +5475,370 @@ var Playground = (function (exports) {
             return firstResult !== null && firstResult !== void 0 ? firstResult : (secondNode ? evaluateAstNode(secondNode, contextStack) : null);
         },
         validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
+        },
+    };
+
+    var recurSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var _b;
+            var parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var params;
+            _b = __read(parseTokens(tokenStream, position), 2), position = _b[0], params = _b[1];
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'recur',
+                p: params,
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [position + 1, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var evaluateAstNode = _a.evaluateAstNode;
+            var params = node.p.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
+            throw new RecurSignal(params);
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
+        },
+    };
+
+    var throwSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var parseToken = _a.parseToken;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var _b = __read(parseToken(tokenStream, position), 2), newPosition = _b[0], messageNode = _b[1];
+            position = newPosition;
+            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
+            position += 1;
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'throw',
+                p: [],
+                m: messageNode,
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [position, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b, _c;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var message = asString(evaluateAstNode(node.m, contextStack), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo, {
+                nonEmpty: true,
+            });
+            throw new UserDefinedError(message, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers([node.m], contextStack, builtin);
+        },
+    };
+
+    var timeSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var parseToken = _a.parseToken;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var _b = __read(parseToken(tokenStream, position), 2), newPosition = _b[0], astNode = _b[1];
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'time!',
+                p: [astNode],
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [newPosition + 1, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var _c = __read(node.p, 1), param = _c[0];
+            assertAstNode(param, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
+            var startTime = Date.now();
+            var result = evaluateAstNode(param, contextStack);
+            var totalTime = Date.now() - startTime;
+            // eslint-disable-next-line no-console
+            console.log("Elapsed time: ".concat(totalTime, " ms"));
+            return result;
+        },
+        validate: function (node) { return assertNumberOfParams(1, node); },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
+        },
+    };
+
+    var trySpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var _b, _c, _d, _e;
+            var _f, _g, _h;
+            var parseToken = _a.parseToken;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var tryExpression;
+            _b = __read(parseToken(tokenStream, position), 2), position = _b[0], tryExpression = _b[1];
+            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: '(' });
+            position += 1;
+            var catchNode;
+            _c = __read(parseToken(tokenStream, position), 2), position = _c[0], catchNode = _c[1];
+            assertNameNode(catchNode, (_f = catchNode.tkn) === null || _f === void 0 ? void 0 : _f.sourceCodeInfo);
+            if (catchNode.v !== 'catch') {
+                throw new LitsError("Expected 'catch', got '".concat(catchNode.v, "'."), getSourceCodeInfo(catchNode, (_g = catchNode.tkn) === null || _g === void 0 ? void 0 : _g.sourceCodeInfo));
+            }
+            var error;
+            _d = __read(parseToken(tokenStream, position), 2), position = _d[0], error = _d[1];
+            assertNameNode(error, (_h = error.tkn) === null || _h === void 0 ? void 0 : _h.sourceCodeInfo);
+            var catchExpression;
+            _e = __read(parseToken(tokenStream, position), 2), position = _e[0], catchExpression = _e[1];
+            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
+            position += 1;
+            assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
+            position += 1;
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'try',
+                p: [],
+                te: tryExpression,
+                ce: catchExpression,
+                e: error,
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [position, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var _b;
+            var _c;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var tryExpression = node.te, catchExpression = node.ce, errorNode = node.e;
+            try {
+                return evaluateAstNode(tryExpression, contextStack);
+            }
+            catch (error) {
+                var newContext = (_b = {},
+                    _b[errorNode.v] = { value: asAny(error, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo) },
+                    _b);
+                return evaluateAstNode(catchExpression, contextStack.create(newContext));
+            }
+        },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var _b;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            var tryExpression = node.te, catchExpression = node.ce, errorNode = node.e;
+            var tryResult = findUnresolvedIdentifiers([tryExpression], contextStack, builtin);
+            var newContext = (_b = {},
+                _b[errorNode.v] = { value: true },
+                _b);
+            var catchResult = findUnresolvedIdentifiers([catchExpression], contextStack.create(newContext), builtin);
+            return joinAnalyzeResults(tryResult, catchResult);
+        },
+    };
+
+    var whenSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'when',
+                p: params,
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [newPosition + 1, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var e_1, _b;
+            var _c;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var _d = __read(node.p), whenExpression = _d[0], body = _d.slice(1);
+            assertAstNode(whenExpression, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
+            if (!evaluateAstNode(whenExpression, contextStack))
+                return null;
+            var result = null;
+            try {
+                for (var body_1 = __values(body), body_1_1 = body_1.next(); !body_1_1.done; body_1_1 = body_1.next()) {
+                    var form = body_1_1.value;
+                    result = evaluateAstNode(form, contextStack);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (body_1_1 && !body_1_1.done && (_b = body_1.return)) _b.call(body_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return result;
+        },
+        validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
+        },
+    };
+
+    var whenFirstSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var _b, _c;
+            var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var bindings;
+            _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
+            if (bindings.length !== 1) {
+                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
+            }
+            var params;
+            _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'when-first',
+                b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
+                p: params,
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [position + 1, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var e_1, _b;
+            var _c;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var locals = {};
+            var binding = node.b;
+            var evaluatedBindingForm = evaluateAstNode(binding.v, contextStack);
+            if (!isSeq(evaluatedBindingForm)) {
+                throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString(evaluatedBindingForm)), (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
+            }
+            if (evaluatedBindingForm.length === 0)
+                return null;
+            var bindingValue = toAny(evaluatedBindingForm[0]);
+            locals[binding.n] = { value: bindingValue };
+            var newContextStack = contextStack.create(locals);
+            var result = null;
+            try {
+                for (var _d = __values(node.p), _e = _d.next(); !_e.done; _e = _d.next()) {
+                    var form = _e.value;
+                    result = evaluateAstNode(form, newContextStack);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return result;
+        },
+        validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var _b;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            var binding = node.b;
+            var newContext = (_b = {}, _b[binding.n] = { value: true }, _b);
+            var bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin);
+            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
+            return joinAnalyzeResults(bindingResult, paramsResult);
+        },
+    };
+
+    var whenLetSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var _b, _c;
+            var parseBindings = _a.parseBindings, parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var bindings;
+            _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
+            if (bindings.length !== 1) {
+                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
+            }
+            var params;
+            _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'when-let',
+                b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
+                p: params,
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [position + 1, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var e_1, _b;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var binding = node.b;
+            var locals = {};
+            var bindingValue = evaluateAstNode(binding.v, contextStack);
+            if (!bindingValue)
+                return null;
+            locals[binding.n] = { value: bindingValue };
+            var newContextStack = contextStack.create(locals);
+            var result = null;
+            try {
+                for (var _c = __values(node.p), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var form = _d.value;
+                    result = evaluateAstNode(form, newContextStack);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_b = _c.return)) _b.call(_c);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return result;
+        },
+        validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
+        findUnresolvedIdentifiers: function (node, contextStack, _a) {
+            var _b;
+            var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
+            var binding = node.b;
+            var newContext = (_b = {}, _b[binding.n] = { value: true }, _b);
+            var bindingResult = findUnresolvedIdentifiers([binding.v], contextStack, builtin);
+            var paramsResult = findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin);
+            return joinAnalyzeResults(bindingResult, paramsResult);
+        },
+    };
+
+    var whenNotSpecialExpression = {
+        parse: function (tokenStream, position, _a) {
+            var parseTokens = _a.parseTokens;
+            var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
+            var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'when-not',
+                p: params,
+                tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+            };
+            return [newPosition + 1, node];
+        },
+        evaluate: function (node, contextStack, _a) {
+            var e_1, _b;
+            var _c;
+            var evaluateAstNode = _a.evaluateAstNode;
+            var _d = __read(node.p), whenExpression = _d[0], body = _d.slice(1);
+            assertAstNode(whenExpression, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
+            if (evaluateAstNode(whenExpression, contextStack))
+                return null;
+            var result = null;
+            try {
+                for (var body_1 = __values(body), body_1_1 = body_1.next(); !body_1_1.done; body_1_1 = body_1.next()) {
+                    var form = body_1_1.value;
+                    result = evaluateAstNode(form, contextStack);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (body_1_1 && !body_1_1.done && (_b = body_1.return)) _b.call(body_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return result;
+        },
+        validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             return findUnresolvedIdentifiers(node.p, contextStack, builtin);
@@ -6389,6 +6308,7 @@ var Playground = (function (exports) {
     function evaluateSpecialExpression(node, contextStack) {
         var _a;
         var specialExpression = asNonUndefined(builtin.specialExpressions[node.n], (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
+        // eslint-disable-next-line ts/no-unsafe-argument
         return specialExpression.evaluate(node, contextStack, { evaluateAstNode: evaluateAstNode, builtin: builtin });
     }
     function evalueateObjectAsFunction(fn, params, sourceCodeInfo) {
@@ -6499,6 +6419,7 @@ var Playground = (function (exports) {
             }
             case AstNodeType.SpecialExpression: {
                 var specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], (_b = astNode.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
+                // eslint-disable-next-line ts/no-unsafe-argument
                 var unresolvedIdentifiers = specialExpression.findUnresolvedIdentifiers(astNode, contextStack, {
                     findUnresolvedIdentifiers: findUnresolvedIdentifiers,
                     builtin: builtin,
@@ -6582,9 +6503,16 @@ var Playground = (function (exports) {
     function calculateFunctionOverloadOutcomes(combinateAstNodes, functionOverloads) {
         return combinate(functionOverloads
             // For each overload, calculate the possible outcomes for each parameter
-            .map(function (functionOverload) { return combinateAstNodes(functionOverload.b)
-            // For each combination of parameter outcomes, create a new overload
-            .map(function (body) { return (__assign(__assign({}, functionOverload), { b: body })); }); }));
+            .map(function (functionOverload) {
+            var _a;
+            return combinateAstNodes(functionOverload.b, [
+                functionOverload.as.m,
+                functionOverload.as.b.map(function (bindingNode) { return bindingNode.n; }),
+                (_a = functionOverload.as.r) !== null && _a !== void 0 ? _a : [],
+            ].flat())
+                // For each combination of parameter outcomes, create a new overload
+                .map(function (body) { return (__assign(__assign({}, functionOverload), { b: body })); });
+        }));
     }
     var calculateDefnOutcomes = function (_a) {
         var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes, addGlobalIdentifier = _a.addGlobalIdentifier;
@@ -6876,6 +6804,53 @@ var Playground = (function (exports) {
         ], false);
     };
 
+    var calculateRecurOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes;
+        return combinateAstNodes(astNode.p)
+            .map(function (p) { return (__assign(__assign({}, astNode), { p: p })); });
+    };
+
+    var calculateCommentOutcomes = function (_a) {
+        var nilNode = _a.nilNode;
+        return [nilNode];
+    };
+
+    var calculateLoopOutcomes = function (_a) {
+        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes;
+        return combinateAstNodes(astNode.p, astNode.bs.map(function (bindingNode) { return bindingNode.n; }))
+            .map(function (p) { return (__assign(__assign({}, astNode), { p: p })); });
+    };
+
+    var specialExpressionCalculator = {
+        'and': function (astNode, helperOptions) { return calculateAndOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'comment': function (astNode, helperOptions) { return calculateCommentOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'cond': function (astNode, helperOptions) { return calculateCondOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'declared?': function (astNode, helperOptions) { return calculateDeclaredOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'defn': function (astNode, helperOptions) { return calculateDefnOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'def': function (astNode, helperOptions) { return calculateDefOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'defns': function (astNode, helperOptions) { return calculateDefnsOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'defs': function (astNode, helperOptions) { return calculateDefsOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'do': function (astNode, helperOptions) { return calculateDoOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'doseq': function (astNode, helperOptions) { return calculateDoSeqOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'fn': function (astNode, helperOptions) { return calculateFnOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'for': function (astNode, helperOptions) { return calculateForOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'if-let': function (astNode, helperOptions) { return calculateIfLetOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'if': function (astNode, helperOptions) { return calculateIfOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'if-not': function (astNode, helperOptions) { return calculateIfNotOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'let': function (astNode, helperOptions) { return calculateLetOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'loop': function (astNode, helperOptions) { return calculateLoopOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'or': function (astNode, helperOptions) { return calculateOrOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        '??': function (astNode, helperOptions) { return calculateQqOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'recur': function (astNode, helperOptions) { return calculateRecurOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'time!': function (astNode, helperOptions) { return calculateTimeOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'throw': function (astNode, helperOptions) { return calculateThrowOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'try': function (astNode, helperOptions) { return calculateTryOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'when-first': function (astNode, helperOptions) { return calculateWhenFirstOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'when-let': function (astNode, helperOptions) { return calculateWhenLetOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'when': function (astNode, helperOptions) { return calculateWhenOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+        'when-not': function (astNode, helperOptions) { return calculateWhenNotOutcomes(__assign({ astNode: astNode }, helperOptions)); },
+    };
+
     function isIdempotent(normalExpressionName) {
         return !normalExpressionName.endsWith('!')
             || normalExpressionName === 'write!';
@@ -6897,10 +6872,7 @@ var Playground = (function (exports) {
                 outcomes.push(outcome_1);
             }
             catch (e) {
-                if (e instanceof LitsError)
-                    outcomes.push(e);
-                else
-                    return { value: null };
+                outcomes.push(e);
             }
         };
         try {
@@ -6956,71 +6928,16 @@ var Playground = (function (exports) {
             var helperOptions = {
                 nilNode: nilNode,
                 calculatePossibleAstNodes: function (node, identifiers) { return calculatePossibleAstNodes(newContextStack.clone(), node, identifiers); },
-                combinateAstNodes: function (nodes, identifiers) { return combinate(nodes.map(function (node) { return calculatePossibleAstNodes(newContextStack.clone(), node, identifiers); })); },
+                combinateAstNodes: function (nodes, identifiers) {
+                    return combinate(nodes.map(function (node) { return calculatePossibleAstNodes(newContextStack.clone(), node, identifiers); }));
+                },
                 isAstComputable: function (node) { return calculateOutcomes(newContextStack.clone(), Array.isArray(node) ? node.flat() : [node]) !== null; },
                 addGlobalIdentifier: function (name) { return newContextStack.globalContext[name] = { value: null }; },
             };
-            if (isAndNode(astNode))
-                return calculateAndOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isCommentNode(astNode))
-                return [nilNode];
-            if (isCondNode(astNode))
-                return calculateCondOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isDeclaredNode(astNode))
-                return calculateDeclaredOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isDefnNode(astNode))
-                return calculateDefnOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isDefnNode(astNode))
-                return calculateDefnOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isDefNode(astNode))
-                return calculateDefOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isDefnsNode(astNode))
-                return calculateDefnsOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isDefsNode(astNode))
-                return calculateDefsOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isDoNode(astNode))
-                return calculateDoOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isDoSeqNode(astNode))
-                return calculateDoSeqOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isFnNode(astNode))
-                return calculateFnOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isForNode(astNode))
-                return calculateForOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isIfLetNode(astNode))
-                return calculateIfLetOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isIfNode(astNode))
-                return calculateIfOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isIfNotNode(astNode))
-                return calculateIfNotOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isLetNode(astNode))
-                return calculateLetOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isLoopNode(astNode))
-                throw new Error('Cannot calculate outcomes for loop');
-            if (isOrNode(astNode))
-                return calculateOrOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isQqNode(astNode))
-                return calculateQqOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isRecurNode(astNode))
-                throw new Error('Cannot calculate outcomes for recursive calls');
-            if (isTimeNode(astNode))
-                return calculateTimeOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isThrowNode(astNode))
-                return calculateThrowOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isTryNode(astNode))
-                return calculateTryOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isWhenFirstNode(astNode))
-                return calculateWhenFirstOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isWhenLetNode(astNode))
-                return calculateWhenLetOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isWhenNode(astNode))
-                return calculateWhenOutcomes(__assign({ astNode: astNode }, helperOptions));
-            if (isWhenNotNode(astNode))
-                return calculateWhenNotOutcomes(__assign({ astNode: astNode }, helperOptions));
-            return [astNode];
+            // eslint-disable-next-line ts/no-unsafe-argument
+            return specialExpressionCalculator[astNode.n](astNode, helperOptions);
         }
-        else {
-            return [astNode];
-        }
+        return [astNode];
     }
 
     function analyze$1(ast, params) {
@@ -7269,6 +7186,7 @@ var Playground = (function (exports) {
             parseBindings: parseBindings,
             parseArgument: parseArgument,
         }), 2), positionAfterParse = _c[0], node = _c[1];
+        // eslint-disable-next-line ts/no-unsafe-argument
         validate === null || validate === void 0 ? void 0 : validate(node);
         return [positionAfterParse, node];
     }
@@ -8478,7 +8396,7 @@ var Playground = (function (exports) {
         var possibleOutcomes = result.outcomes && result.outcomes
             .map(function (o) { return o instanceof UserDefinedError
             ? "".concat(o.name).concat(o.userMessage ? "(\"".concat(o.userMessage, "\")") : '')
-            : o instanceof LitsError
+            : o instanceof Error
                 ? o.name
                 : stringifyValue(o); }).join(', ');
         var possibleOutcomesString = "Possible outcomes: ".concat(possibleOutcomes || '-');

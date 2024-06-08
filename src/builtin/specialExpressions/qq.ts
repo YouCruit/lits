@@ -7,7 +7,6 @@ import type { BuiltinSpecialExpression } from '../interface'
 import { assertAny } from '../../typeGuards/lits'
 import { assertNumberOfParams } from '../../typeGuards'
 import type { Token } from '../../tokenizer/interface'
-import type { SpecialExpressionNode } from '..'
 
 export interface QqNode {
   t: AstNodeType.SpecialExpression

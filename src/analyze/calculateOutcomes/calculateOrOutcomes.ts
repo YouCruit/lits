@@ -7,10 +7,10 @@ export const calculateOrOutcomes: CalculatePossibleAstNodesHelper<OrNode> = ({
   combinateAstNodes,
 }) => {
   return combinateAstNodes(astNode.p)
-    .map(p => ({
+    .map<OrNode>(p => ({
       n: 'or',
       t: AstNodeType.SpecialExpression,
       p,
       tkn: astNode.tkn,
-    } satisfies OrNode))
+    }))
 }

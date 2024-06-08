@@ -9,7 +9,6 @@ import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { asNonUndefined, assertNumberOfParams } from '../../typeGuards'
 import type { Token } from '../../tokenizer/interface'
-import type { SpecialExpressionNode } from '..'
 
 export interface WhenLetNode {
   t: AstNodeType.SpecialExpression

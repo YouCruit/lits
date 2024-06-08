@@ -10,7 +10,6 @@ import type { BuiltinSpecialExpression } from '../interface'
 import { asAny } from '../../typeGuards/lits'
 import { getSourceCodeInfo } from '../../utils/debug/getSourceCodeInfo'
 import type { Token } from '../../tokenizer/interface'
-import type { SpecialExpressionNode } from '..'
 
 export interface TryNode {
   t: AstNodeType.SpecialExpression

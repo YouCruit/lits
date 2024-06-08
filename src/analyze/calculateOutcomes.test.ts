@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { Lits } from '..'
 import { createContextStack } from '../evaluator/ContextStack'
 import { isUnknownRecord } from '../typeGuards'
-import { LitsError } from '../errors'
 import { calculateOutcomes } from './calculateOutcomes'
 
 const lits = new Lits()
@@ -154,6 +153,20 @@ describe('calculateOutcomes.', () => {
     ])
   })
 
+  describe('calculateLoopOutcomes.', () => {
+    testSamples([
+      [`(loop [n 3]
+          (when
+            (not (zero? n))
+            (recur (dec n))))`, [null]],
+      [`(loop [n 2]
+          (if (< n 100)
+            (recur
+              (* n n))
+            n))`, [256]],
+    ])
+  })
+
   describe('calculateOrOutcomes.', () => {
     testSamples([
       ['(or)', [false]],
@@ -178,16 +191,16 @@ describe('calculateOutcomes.', () => {
 
   describe('calculateTryOutcomes.', () => {
     testSamples([
-      ['(throw :A)', [LitsError]],
+      ['(throw :A)', [Error]],
       ['(try 1 (catch e 2))', [1]],
       ['(try (throw :A) (catch e :X))', ['X']],
-      ['(try (throw :A) (catch e e))', [LitsError]],
+      ['(try (throw :A) (catch e e))', [Error]],
       [`(try
           (if
             (> (rand!) 0.5)
             (throw (if (> (rand!) 0.5) :A :B))
             :A)
-          (catch e e))`, [LitsError, LitsError, 'A']],
+          (catch e e))`, [Error, Error, 'A']],
     ])
   })
 
@@ -199,7 +212,12 @@ describe('calculateOutcomes.', () => {
 
   describe('calculateRecurOutcomes.', () => {
     testSamples([
-      ['(recur :A)', null],
+      [`(defn foo [n]
+          (if (< n 100)
+            (recur
+              (* n n))
+            n))
+        (foo 3)`, [6561]],
     ])
   })
 
@@ -327,7 +345,7 @@ describe('calculateOutcomes.', () => {
     })
   })
 
-  describe('x.', () => {
+  describe('misc.', () => {
     testSamples([
       // We cannot compute outcomes, because the function is recursive
       [`(defn factorial [x]
@@ -337,37 +355,34 @@ describe('calculateOutcomes.', () => {
           )
         )
 
-        (factorial 1)`, null],
-      // [`(let [foo (if (> (rand!) 0.5) 1 2)]
-      //     (if (not foo) 1 2)
-      //   )`, [2]],
+        (factorial 5)`, [120]],
+      [`(def l [7 39 45 0 23 1 50 100 12 -5])
+      (defn numberComparer [a b]
+        (cond
+          (< a b) -1
+          (> a b) 1
+          :else 0
+        )
+      )
+      
+      (sort numberComparer l)`, [[
+        -5,
+        0,
+        1,
+        7,
+        12,
+        23,
+        39,
+        45,
+        50,
+        100,
+      ]]],
+      [`(let [foo (if (> (rand!) 0.5) 1 2)]
+          (if (not foo) 1 2)
+        )`, [2]],
+      // We cannot compute outcomes, because the expression is missing an end parenthesis
+      ['(ifs false "heads" "tails")', null],
     ])
-    // ['(if false "heads" "tails")', ['tails']],
-    // ['(str "heads" (if true :- :_) "tails")', ['heads-tails', 'heads_tails']],
-    // ['(str "heads" (if true x :_) "tails")', null],
-    // ['(write! :foo)', ['foo']],
-    // [`(let
-    //     [x (cond 1 :1 2 :2 3 :3)
-    //      y (if true :A :B)]
-    //     (str x (when x y)))`, ['1A', '1']],
-    // [`(let [x (rand!)]
-    //     (cond
-    //       (< x 0.25) :A
-    //       (< x 0.5) :B
-    //       (< x 0.75) :C
-    //       :else :D))`, ['A', 'B', 'C', 'D']],
-    // [`(let [x foo]
-    //       (cond
-    //         (< x 0.25) :A
-    //         (< x 0.5) :B
-    //         (< x 0.75) :C
-    //         :else :D))`, ['A', 'B', 'C', 'D']],
-    // [`(let [x 0.3]
-    //           (cond
-    //             (< x 0.25) :A
-    //             (< x 0.5) :B
-    //             (< x 0.75) :C
-    //             :else :D))`, ['B']],
   })
 })
 
@@ -385,8 +400,8 @@ function testSamples(samples: TestSample[]) {
         const outcomes = calculateOutcomes(contextStack, ast.b)!.map((outcome) => {
           return isUnknownRecord(outcome) && outcome.__fn === true
             ? Function
-            : outcome instanceof LitsError
-              ? LitsError
+            : outcome instanceof Error
+              ? Error
               : outcome
         })
         expect(outcomes).toEqual(expectedOutcomes)

@@ -11,7 +11,6 @@ import type { BuiltinSpecialExpression } from '../interface'
 import { asNonUndefined, assertNumberOfParams } from '../../typeGuards'
 import { isSeq } from '../../typeGuards/lits'
 import type { Token } from '../../tokenizer/interface'
-import type { SpecialExpressionNode } from '..'
 
 export interface WhenFirstNode {
   t: AstNodeType.SpecialExpression

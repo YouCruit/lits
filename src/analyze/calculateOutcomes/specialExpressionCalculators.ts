@@ -45,11 +45,14 @@ import { calculateWhenFirstOutcomes } from './calculateWhenFirstOutcomes'
 import { calculateWhenLetOutcomes } from './calculateWhenLetOutcomes'
 import { calculateWhenNotOutcomes } from './calculateWhenNotOutcomes'
 import { calculateWhenOutcomes } from './calculateWhenOutcomes'
+import { calculateRecurOutcomes } from './calculateRecurOutcomes'
+import { calculateCommentOutcomes } from './calculateCommentOutcomes'
+import { calculateLoopOutcomes } from './calculateLoopOutcomes'
 import type { CalculatePossibleAstNodesHelperOptions } from '.'
 
 export const specialExpressionCalculator = {
   'and': (astNode: AndNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateAndOutcomes({ astNode, ...helperOptions }),
-  'comment': (_astNode: CommentNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => [helperOptions.nilNode],
+  'comment': (astNode: CommentNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateCommentOutcomes({ astNode, ...helperOptions }),
   'cond': (astNode: CondNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateCondOutcomes({ astNode, ...helperOptions }),
   'declared?': (astNode: DeclaredNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateDeclaredOutcomes({ astNode, ...helperOptions }),
   'defn': (astNode: DefnNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateDefnOutcomes({ astNode, ...helperOptions }),
@@ -64,10 +67,10 @@ export const specialExpressionCalculator = {
   'if': (astNode: IfNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateIfOutcomes({ astNode, ...helperOptions }),
   'if-not': (astNode: IfNotNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateIfNotOutcomes({ astNode, ...helperOptions }),
   'let': (astNode: LetNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateLetOutcomes({ astNode, ...helperOptions }),
-  'loop': (_astNode: LoopNode, _helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => { throw new Error('Cannot calculate outcomes for loop') },
+  'loop': (astNode: LoopNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateLoopOutcomes({ astNode, ...helperOptions }),
   'or': (astNode: OrNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateOrOutcomes({ astNode, ...helperOptions }),
   '??': (astNode: QqNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateQqOutcomes({ astNode, ...helperOptions }),
-  'recur': (_astNode: RecurNode, _helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => { throw new Error('Cannot calculate outcomes for recursive calls') },
+  'recur': (astNode: RecurNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateRecurOutcomes({ astNode, ...helperOptions }),
   'time!': (astNode: TimeNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateTimeOutcomes({ astNode, ...helperOptions }),
   'throw': (astNode: ThrowNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateThrowOutcomes({ astNode, ...helperOptions }),
   'try': (astNode: TryNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateTryOutcomes({ astNode, ...helperOptions }),

@@ -5,7 +5,6 @@ import { asToken, assertToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { asString } from '../../typeGuards/string'
 import type { Token } from '../../tokenizer/interface'
-import type { SpecialExpressionNode } from '..'
 
 export interface ThrowNode {
   t: AstNodeType.SpecialExpression

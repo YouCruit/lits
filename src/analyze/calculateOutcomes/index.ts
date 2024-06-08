@@ -1,7 +1,6 @@
 import type { Outcomes } from '..'
 import { builtin } from '../../builtin'
 import { AstNodeType } from '../../constants/constants'
-import { LitsError } from '../../errors'
 import { evaluate } from '../../evaluator'
 import type { ContextStack } from '../../evaluator/ContextStack'
 import type { Context } from '../../evaluator/interface'
@@ -56,10 +55,7 @@ export function calculateOutcomes(contextStack: ContextStack, astNodes: AstNode[
       outcomes.push(outcome)
     }
     catch (e) {
-      if (e instanceof LitsError)
-        outcomes.push(e)
-      else
-        return null
+      outcomes.push(e)
     }
   }
 
@@ -111,7 +107,8 @@ function calculatePossibleAstNodes(contextStack: ContextStack, astNode: AstNode,
     const helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'> = {
       nilNode,
       calculatePossibleAstNodes: (node: AstNode, identifiers?: string[]) => calculatePossibleAstNodes(newContextStack.clone(), node, identifiers),
-      combinateAstNodes: (nodes: AstNode[], identifiers?: string[]) => combinate(nodes.map(node => calculatePossibleAstNodes(newContextStack.clone(), node, identifiers))),
+      combinateAstNodes: (nodes: AstNode[], identifiers?: string[]) =>
+        combinate(nodes.map(node => calculatePossibleAstNodes(newContextStack.clone(), node, identifiers))),
       isAstComputable: (node: AstNode | AstNode[] | AstNode[][]) => calculateOutcomes(newContextStack.clone(), Array.isArray(node) ? node.flat() : [node]) !== null,
       addGlobalIdentifier: (name: string) => newContextStack.globalContext[name] = { value: null },
     }

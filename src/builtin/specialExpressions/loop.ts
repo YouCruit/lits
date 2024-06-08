@@ -10,7 +10,6 @@ import type { BuiltinSpecialExpression } from '../interface'
 import { asNonUndefined } from '../../typeGuards'
 import { asAny } from '../../typeGuards/lits'
 import type { Token } from '../../tokenizer/interface'
-import type { SpecialExpressionNode } from '..'
 
 export interface LoopNode {
   t: AstNodeType.SpecialExpression

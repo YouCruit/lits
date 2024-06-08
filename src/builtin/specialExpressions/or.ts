@@ -4,7 +4,6 @@ import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import type { AstNode } from '../../parser/interface'
 import type { Token } from '../../tokenizer/interface'
-import type { SpecialExpressionNode } from '..'
 
 export interface OrNode {
   t: AstNodeType.SpecialExpression

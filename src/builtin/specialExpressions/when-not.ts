@@ -6,7 +6,6 @@ import { assertAstNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import type { Token } from '../../tokenizer/interface'
-import type { SpecialExpressionNode } from '..'
 
 export interface WhenNotNode {
   t: AstNodeType.SpecialExpression

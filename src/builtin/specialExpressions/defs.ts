@@ -7,7 +7,6 @@ import { assertString } from '../../typeGuards/string'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { assertNameNotDefined } from '../utils'
-import type { SpecialExpressionNode } from '..'
 
 export interface DefsNode {
   t: AstNodeType.SpecialExpression

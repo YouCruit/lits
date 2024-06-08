@@ -6,13 +6,18 @@ import type { CalculatePossibleAstNodesHelper, CombinateAstNodes } from '.'
 function calculateFunctionOverloadOutcomes(combinateAstNodes: CombinateAstNodes, functionOverloads: FunctionOverload[]) {
   return combinate(functionOverloads
     // For each overload, calculate the possible outcomes for each parameter
-    .map<FunctionOverload[]>(functionOverload => combinateAstNodes(functionOverload.b)
+    .map<FunctionOverload[]>(functionOverload =>
+      combinateAstNodes(functionOverload.b, [
+        functionOverload.as.m,
+        functionOverload.as.b.map(bindingNode => bindingNode.n),
+        functionOverload.as.r ?? [],
+      ].flat())
 
       // For each combination of parameter outcomes, create a new overload
-      .map<FunctionOverload>(body => ({
-        ...functionOverload,
-        b: body,
-      })),
+        .map<FunctionOverload>(body => ({
+          ...functionOverload,
+          b: body,
+        })),
     ),
   // For each combination of overloads, create a new DefnNode
   )

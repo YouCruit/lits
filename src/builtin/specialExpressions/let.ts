@@ -6,7 +6,6 @@ import type { AstNode, BindingNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import type { Token } from '../../tokenizer/interface'
-import type { SpecialExpressionNode } from '..'
 
 export interface LetNode {
   t: AstNodeType.SpecialExpression

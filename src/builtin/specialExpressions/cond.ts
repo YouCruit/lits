@@ -4,7 +4,6 @@ import type { AstNode, ParseToken } from '../../parser/interface'
 import type { Token, TokenStream } from '../../tokenizer/interface'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import type { SpecialExpressionNode } from '..'
 
 export interface Condition {
   t: AstNode // test

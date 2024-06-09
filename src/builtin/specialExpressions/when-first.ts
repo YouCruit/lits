@@ -1,16 +1,16 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
+import { AstNodeType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import { AstNodeType } from '../../constants/constants'
 import type { AstNode, BindingNode } from '../../parser/interface'
+import type { Token } from '../../tokenizer/interface'
+import { asNonUndefined } from '../../typeGuards'
+import { isSeq } from '../../typeGuards/lits'
+import { asToken } from '../../typeGuards/token'
 import { toAny } from '../../utils'
 import { valueToString } from '../../utils/debug/debugTools'
-import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import { asNonUndefined, assertNumberOfParams } from '../../typeGuards'
-import { isSeq } from '../../typeGuards/lits'
-import type { Token } from '../../tokenizer/interface'
 
 export interface WhenFirstNode {
   t: AstNodeType.SpecialExpression
@@ -69,7 +69,6 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any, WhenFirst
 
     return result
   },
-  validate: node => assertNumberOfParams({ min: 0 }, node),
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
     const { b: binding } = node
     const newContext: Context = { [binding.n]: { value: true } }

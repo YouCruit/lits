@@ -1,5 +1,6 @@
 import { describe, it } from 'vitest'
 import { testTypeGuars } from '../../__tests__/testUtils'
+import type { QqNode } from '../builtin/specialExpressions/qq'
 import { AstNodeType, TokenType } from '../constants/constants'
 import type {
   AstNode,
@@ -11,7 +12,6 @@ import type {
   StringNode,
 } from '../parser/interface'
 import type { Token } from '../tokenizer/interface'
-import type { SpecialExpressionNode } from '../builtin'
 import {
   asAstNode,
   asExpressionNode,
@@ -51,10 +51,16 @@ describe('astNode type guards', () => {
     null,
     [],
   ]
-  const specialExpressionNode: SpecialExpressionNode = {
+  const specialExpressionNode: QqNode = {
     t: AstNodeType.SpecialExpression,
     n: '??',
-    p: [],
+    p: [{
+      t: AstNodeType.ReservedName,
+      v: 'nil',
+    }, {
+      t: AstNodeType.ReservedName,
+      v: 'nil',
+    }],
   }
   const nameNode: NameNode = {
     t: AstNodeType.Name,

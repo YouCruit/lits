@@ -14,7 +14,6 @@ import type { Token } from '../../tokenizer/interface'
 export interface TryNode {
   t: AstNodeType.SpecialExpression
   n: 'try'
-  p: AstNode[]
   te: AstNode
   e: NameNode
   ce: AstNode
@@ -56,7 +55,6 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any, TryNode> = {
     const node: TryNode = {
       t: AstNodeType.SpecialExpression,
       n: 'try',
-      p: [],
       te: tryExpression,
       ce: catchExpression,
       e: error,

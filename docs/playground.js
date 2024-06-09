@@ -568,12 +568,26 @@ var Playground = (function (exports) {
         return value;
     }
     function assertNumberOfParams(count, node) {
-        var _a, _b;
+        var _a;
         var length = node.p.length;
         var sourceCodeInfo = (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo;
+        assertCount({
+            name: node.n,
+            count: count,
+            length: length,
+            sourceCodeInfo: sourceCodeInfo,
+        });
+    }
+    function assertNumberOfParamsFromAstNodes(_a) {
+        var name = _a.name, count = _a.count, params = _a.params, sourceCodeInfo = _a.sourceCodeInfo;
+        var length = params.length;
+        assertCount({ name: name, count: count, length: length, sourceCodeInfo: sourceCodeInfo });
+    }
+    function assertCount(_a) {
+        var count = _a.count, length = _a.length, name = _a.name, sourceCodeInfo = _a.sourceCodeInfo;
         if (typeof count === 'number') {
             if (length !== count) {
-                throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected ").concat(count, ", got ").concat(valueToString(length), "."), (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
+                throw new LitsError("Wrong number of arguments to \"".concat(name, "\", expected ").concat(count, ", got ").concat(valueToString(length), "."), sourceCodeInfo);
             }
         }
         else {
@@ -581,10 +595,10 @@ var Playground = (function (exports) {
             if (min === undefined && max === undefined)
                 throw new LitsError('Min or max must be specified.', sourceCodeInfo);
             if (typeof min === 'number' && length < min) {
-                throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at least ").concat(min, ", got ").concat(valueToString(length), "."), sourceCodeInfo);
+                throw new LitsError("Wrong number of arguments to \"".concat(name, "\", expected at least ").concat(min, ", got ").concat(valueToString(length), "."), sourceCodeInfo);
             }
             if (typeof max === 'number' && length > max) {
-                throw new LitsError("Wrong number of arguments to \"".concat(node.n, "\", expected at most ").concat(max, ", got ").concat(valueToString(length), "."), sourceCodeInfo);
+                throw new LitsError("Wrong number of arguments to \"".concat(name, "\", expected at most ").concat(max, ", got ").concat(valueToString(length), "."), sourceCodeInfo);
             }
         }
     }
@@ -4247,7 +4261,6 @@ var Playground = (function (exports) {
                     t: AstNodeType.SpecialExpression,
                     n: 'cond',
                     c: conditions,
-                    p: [],
                     tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
                 },
             ];
@@ -4327,25 +4340,27 @@ var Playground = (function (exports) {
             var parseTokens = _a.parseTokens;
             var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
             var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            assertNumberOfParamsFromAstNodes({
+                name: 'declared?',
+                count: 1,
+                params: params,
+                sourceCodeInfo: firstToken.sourceCodeInfo,
+            });
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: 'declared?',
-                p: params,
+                p: asNameNode(params[0], firstToken.sourceCodeInfo),
                 tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
             };
             return [newPosition + 1, node];
         },
         evaluate: function (node, contextStack) {
-            var _a;
-            var _b = __read(node.p, 1), astNode = _b[0];
-            assertNameNode(astNode, (_a = node.tkn) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
-            var lookUpResult = contextStack.lookUp(astNode);
+            var lookUpResult = contextStack.lookUp(node.p);
             return lookUpResult !== null;
         },
-        validate: function (node) { return assertNumberOfParams(1, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
+            return findUnresolvedIdentifiers([node.p], contextStack, builtin);
         },
     };
 
@@ -4380,13 +4395,18 @@ var Playground = (function (exports) {
             var parseTokens = _a.parseTokens;
             var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
             var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
-            assertNameNode(params[0], firstToken.sourceCodeInfo);
+            assertNumberOfParamsFromAstNodes({
+                name: 'def',
+                count: 2,
+                params: params,
+                sourceCodeInfo: firstToken.sourceCodeInfo,
+            });
             return [
                 newPosition + 1,
                 {
                     t: AstNodeType.SpecialExpression,
                     n: 'def',
-                    p: params,
+                    p: [asNameNode(params[0], firstToken.sourceCodeInfo), params[1]],
                     tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
                 },
             ];
@@ -4395,21 +4415,20 @@ var Playground = (function (exports) {
             var _b;
             var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
             var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var name = asNameNode(node.p[0], sourceCodeInfo).v;
+            var name = node.p[0].v;
             assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
             contextStack.globalContext[name] = {
-                value: evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack),
+                value: evaluateAstNode(node.p[1], contextStack),
             };
             return null;
         },
-        validate: function (node) { return assertNumberOfParams(2, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var subNode = asAstNode(node.p[1], sourceCodeInfo);
+            var subNode = node.p[1];
             var result = findUnresolvedIdentifiers([subNode], contextStack, builtin);
-            var name = asNameNode(node.p[0], sourceCodeInfo).v;
+            var name = node.p[0].v;
             assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
             contextStack.globalContext[name] = { value: true };
             return result;
@@ -4421,12 +4440,18 @@ var Playground = (function (exports) {
             var parseTokens = _a.parseTokens;
             var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
             var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            assertNumberOfParamsFromAstNodes({
+                name: 'defs',
+                count: 2,
+                params: params,
+                sourceCodeInfo: firstToken.sourceCodeInfo,
+            });
             return [
                 newPosition + 1,
                 {
                     t: AstNodeType.SpecialExpression,
                     n: 'defs',
-                    p: params,
+                    p: [params[0], params[1]],
                     tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
                 },
             ];
@@ -4435,22 +4460,21 @@ var Playground = (function (exports) {
             var _b, _c;
             var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
             var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var name = evaluateAstNode(asAstNode(node.p[0], sourceCodeInfo), contextStack);
+            var name = evaluateAstNode(node.p[0], contextStack);
             assertString(name, sourceCodeInfo);
             assertNameNotDefined(name, contextStack, builtin, (_c = node.tkn) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
             contextStack.globalContext[name] = {
-                value: evaluateAstNode(asAstNode(node.p[1], sourceCodeInfo), contextStack),
+                value: evaluateAstNode(node.p[1], contextStack),
             };
             return null;
         },
-        validate: function (node) { return assertNumberOfParams(2, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
             var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-            var subNode = asAstNode(node.p[1], sourceCodeInfo);
+            var subNode = node.p[1];
             var result = findUnresolvedIdentifiers([subNode], contextStack, builtin);
-            var name = evaluateAstNode(asAstNode(node.p[0], sourceCodeInfo), contextStack);
+            var name = evaluateAstNode(node.p[0], contextStack);
             assertString(name, sourceCodeInfo);
             assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
             contextStack.globalContext[name] = { value: true };
@@ -4598,7 +4622,6 @@ var Playground = (function (exports) {
                     t: AstNodeType.SpecialExpression,
                     n: 'defns',
                     f: functionName,
-                    p: [],
                     o: functionOverloades,
                     tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
                 },
@@ -4897,6 +4920,12 @@ var Playground = (function (exports) {
             var parseTokens = _a.parseTokens;
             var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
             var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            assertNumberOfParamsFromAstNodes({
+                name: 'if',
+                count: { min: 2, max: 3 },
+                params: params,
+                sourceCodeInfo: firstToken.sourceCodeInfo,
+            });
             return [
                 newPosition + 1,
                 {
@@ -4922,7 +4951,6 @@ var Playground = (function (exports) {
                     return null;
             }
         },
-        validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             return findUnresolvedIdentifiers(node.p, contextStack, builtin);
@@ -4941,6 +4969,12 @@ var Playground = (function (exports) {
             }
             var params;
             _c = __read(parseTokens(tokenStream, position), 2), position = _c[0], params = _c[1];
+            assertNumberOfParamsFromAstNodes({
+                name: 'if-let',
+                count: { min: 1, max: 2 },
+                params: params,
+                sourceCodeInfo: firstToken.sourceCodeInfo,
+            });
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: 'if-let',
@@ -4968,7 +5002,6 @@ var Playground = (function (exports) {
             }
             return null;
         },
-        validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
@@ -4984,6 +5017,12 @@ var Playground = (function (exports) {
             var parseTokens = _a.parseTokens;
             var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
             var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            assertNumberOfParamsFromAstNodes({
+                name: 'if-not',
+                count: { min: 2, max: 3 },
+                params: params,
+                sourceCodeInfo: firstToken.sourceCodeInfo,
+            });
             return [
                 newPosition + 1,
                 {
@@ -5009,7 +5048,6 @@ var Playground = (function (exports) {
                     return null;
             }
         },
-        validate: function (node) { return assertNumberOfParams({ min: 2, max: 3 }, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             return findUnresolvedIdentifiers(node.p, contextStack, builtin);
@@ -5244,8 +5282,7 @@ var Playground = (function (exports) {
         var e_2, _a;
         var _b;
         var sourceCodeInfo = (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
-        var _c = node, loopBindings = _c.l, params = _c.p;
-        var expression = asAstNode(params[0], sourceCodeInfo);
+        var _c = node, loopBindings = _c.l, expression = _c.p;
         var result = [];
         var bindingIndices = loopBindings.map(function () { return 0; });
         var abort = false;
@@ -5348,7 +5385,7 @@ var Playground = (function (exports) {
                 });
             }
         });
-        findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin).forEach(function (symbol) {
+        findUnresolvedIdentifiers([node.p], contextStack.create(newContext), builtin).forEach(function (symbol) {
             return result.add(symbol);
         });
         return result;
@@ -5367,7 +5404,7 @@ var Playground = (function (exports) {
                 n: 'for',
                 t: AstNodeType.SpecialExpression,
                 l: loopBindings,
-                p: [expression],
+                p: expression,
                 tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
             };
             return [position + 1, node];
@@ -5392,7 +5429,7 @@ var Playground = (function (exports) {
                 n: 'doseq',
                 t: AstNodeType.SpecialExpression,
                 l: loopBindings,
-                p: [expression],
+                p: expression,
                 tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
             };
             return [position + 1, node];
@@ -5454,10 +5491,16 @@ var Playground = (function (exports) {
             var parseTokens = _a.parseTokens;
             var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
             var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            assertNumberOfParamsFromAstNodes({
+                name: '??',
+                count: { min: 1, max: 2 },
+                params: params,
+                sourceCodeInfo: firstToken.sourceCodeInfo,
+            });
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: '??',
-                p: params,
+                p: params.length === 1 ? [params[0]] : [params[0], params[1]],
                 tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
             };
             return [newPosition + 1, node];
@@ -5474,7 +5517,6 @@ var Playground = (function (exports) {
             var firstResult = evaluateAstNode(firstNode, contextStack);
             return firstResult !== null && firstResult !== void 0 ? firstResult : (secondNode ? evaluateAstNode(secondNode, contextStack) : null);
         },
-        validate: function (node) { return assertNumberOfParams({ min: 1, max: 2 }, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             return findUnresolvedIdentifiers(node.p, contextStack, builtin);
@@ -5518,7 +5560,6 @@ var Playground = (function (exports) {
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: 'throw',
-                p: [],
                 m: messageNode,
                 tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
             };
@@ -5546,7 +5587,7 @@ var Playground = (function (exports) {
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: 'time!',
-                p: [astNode],
+                p: astNode,
                 tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
             };
             return [newPosition + 1, node];
@@ -5554,7 +5595,7 @@ var Playground = (function (exports) {
         evaluate: function (node, contextStack, _a) {
             var _b;
             var evaluateAstNode = _a.evaluateAstNode;
-            var _c = __read(node.p, 1), param = _c[0];
+            var param = node.p;
             assertAstNode(param, (_b = node.tkn) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
             var startTime = Date.now();
             var result = evaluateAstNode(param, contextStack);
@@ -5563,10 +5604,9 @@ var Playground = (function (exports) {
             console.log("Elapsed time: ".concat(totalTime, " ms"));
             return result;
         },
-        validate: function (node) { return assertNumberOfParams(1, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            return findUnresolvedIdentifiers(node.p, contextStack, builtin);
+            return findUnresolvedIdentifiers([node.p], contextStack, builtin);
         },
     };
 
@@ -5598,7 +5638,6 @@ var Playground = (function (exports) {
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: 'try',
-                p: [],
                 te: tryExpression,
                 ce: catchExpression,
                 e: error,
@@ -5639,6 +5678,12 @@ var Playground = (function (exports) {
             var parseTokens = _a.parseTokens;
             var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
             var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            assertNumberOfParamsFromAstNodes({
+                name: 'when',
+                count: { min: 1 },
+                params: params,
+                sourceCodeInfo: firstToken.sourceCodeInfo,
+            });
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: 'when',
@@ -5671,7 +5716,6 @@ var Playground = (function (exports) {
             }
             return result;
         },
-        validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             return findUnresolvedIdentifiers(node.p, contextStack, builtin);
@@ -5730,7 +5774,6 @@ var Playground = (function (exports) {
             }
             return result;
         },
-        validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
@@ -5789,7 +5832,6 @@ var Playground = (function (exports) {
             }
             return result;
         },
-        validate: function (node) { return assertNumberOfParams({ min: 0 }, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
@@ -5806,6 +5848,12 @@ var Playground = (function (exports) {
             var parseTokens = _a.parseTokens;
             var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
             var _b = __read(parseTokens(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
+            assertNumberOfParamsFromAstNodes({
+                name: 'when-not',
+                count: { min: 1 },
+                params: params,
+                sourceCodeInfo: firstToken.sourceCodeInfo,
+            });
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: 'when-not',
@@ -5838,7 +5886,6 @@ var Playground = (function (exports) {
             }
             return result;
         },
-        validate: function (node) { return assertNumberOfParams({ min: 1 }, node); },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
             return findUnresolvedIdentifiers(node.p, contextStack, builtin);
@@ -6475,7 +6522,7 @@ var Playground = (function (exports) {
     var falseNode = { t: AstNodeType.ReservedName, v: 'false' };
     var calculateDeclaredOutcomes = function (_a) {
         var astNode = _a.astNode, isAstComputable = _a.isAstComputable;
-        if (isAstComputable(astNode.p[0]))
+        if (isAstComputable(astNode.p))
             return [trueNode];
         return [trueNode, falseNode];
     };
@@ -6635,10 +6682,10 @@ var Playground = (function (exports) {
         return [astNode];
     };
     function isDeterministic(calculatePossibleAstNodes, astNode) {
-        var e_1, _a, e_2, _b;
+        var e_1, _a;
         try {
-            for (var _c = __values(astNode.l), _d = _c.next(); !_d.done; _d = _c.next()) {
-                var _e = _d.value, b = _e.b, l = _e.l, wn = _e.wn, we = _e.we;
+            for (var _b = __values(astNode.l), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var _d = _c.value, b = _d.b, l = _d.l, wn = _d.wn, we = _d.we;
                 if (l && l.some(function (_a) {
                     var v = _a.v;
                     return !astIsDeterministic(calculatePossibleAstNodes, v);
@@ -6655,24 +6702,12 @@ var Playground = (function (exports) {
         catch (e_1_1) { e_1 = { error: e_1_1 }; }
         finally {
             try {
-                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
             }
             finally { if (e_1) throw e_1.error; }
         }
-        try {
-            for (var _f = __values(astNode.p), _g = _f.next(); !_g.done; _g = _f.next()) {
-                var p = _g.value;
-                if (!astIsDeterministic(calculatePossibleAstNodes, p))
-                    return false;
-            }
-        }
-        catch (e_2_1) { e_2 = { error: e_2_1 }; }
-        finally {
-            try {
-                if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
-            }
-            finally { if (e_2) throw e_2.error; }
-        }
+        if (!astIsDeterministic(calculatePossibleAstNodes, astNode.p))
+            return false;
         return true;
     }
     function astIsDeterministic(calculatePossibleAstNodes, astNode) {
@@ -6704,9 +6739,9 @@ var Playground = (function (exports) {
     };
 
     var calculateTimeOutcomes = function (_a) {
-        var astNode = _a.astNode, combinateAstNodes = _a.combinateAstNodes;
-        return combinateAstNodes(astNode.p)
-            .map(function (p) { return (__assign(__assign({}, astNode), { n: 'do', p: p })); });
+        var astNode = _a.astNode, calculatePossibleAstNodes = _a.calculatePossibleAstNodes;
+        return calculatePossibleAstNodes(astNode.p)
+            .map(function (p) { return (__assign(__assign({}, astNode), { n: 'do', p: [p] })); });
     };
 
     var calculateTryOutcomes = function (_a) {
@@ -7177,17 +7212,15 @@ var Playground = (function (exports) {
     function parseSpecialExpression(tokenStream, position) {
         var _a = asToken(tokenStream.tokens[position], tokenStream.filePath), expressionName = _a.v, sourceCodeInfo = _a.sourceCodeInfo;
         position += 1;
-        var _b = asNonUndefined(builtin.specialExpressions[expressionName], sourceCodeInfo), parse = _b.parse, validate = _b.validate;
-        var _c = __read(parse(tokenStream, position, {
+        var parse = asNonUndefined(builtin.specialExpressions[expressionName], sourceCodeInfo).parse;
+        var _b = __read(parse(tokenStream, position, {
             parseExpression: parseExpression,
             parseTokens: parseTokens,
             parseToken: parseToken,
             parseBinding: parseBinding,
             parseBindings: parseBindings,
             parseArgument: parseArgument,
-        }), 2), positionAfterParse = _c[0], node = _c[1];
-        // eslint-disable-next-line ts/no-unsafe-argument
-        validate === null || validate === void 0 ? void 0 : validate(node);
+        }), 2), positionAfterParse = _b[0], node = _b[1];
         return [positionAfterParse, node];
     }
     function parseToken(tokenStream, position) {

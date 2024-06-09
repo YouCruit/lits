@@ -1,11 +1,11 @@
-import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
+import type { Any } from '../../interface'
 import type { AstNode } from '../../parser/interface'
-import { assertNumberOfParams } from '../../typeGuards'
+import type { Token } from '../../tokenizer/interface'
+import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
 import { assertAstNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import type { Token } from '../../tokenizer/interface'
 
 export interface WhenNode {
   t: AstNodeType.SpecialExpression
@@ -18,6 +18,12 @@ export const whenSpecialExpression: BuiltinSpecialExpression<Any, WhenNode> = {
   parse: (tokenStream, position, { parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)
+    assertNumberOfParamsFromAstNodes({
+      name: 'when',
+      count: { min: 1 },
+      params,
+      sourceCodeInfo: firstToken.sourceCodeInfo,
+    })
     const node: WhenNode = {
       t: AstNodeType.SpecialExpression,
       n: 'when',
@@ -40,6 +46,5 @@ export const whenSpecialExpression: BuiltinSpecialExpression<Any, WhenNode> = {
 
     return result
   },
-  validate: node => assertNumberOfParams({ min: 1 }, node),
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers(node.p, contextStack, builtin),
 }

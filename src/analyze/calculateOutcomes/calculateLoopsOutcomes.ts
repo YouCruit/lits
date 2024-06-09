@@ -37,10 +37,8 @@ function isDeterministic(calculatePossibleAstNodes: CalculatePossibleAstNodes, a
       return false
   }
 
-  for (const p of astNode.p) {
-    if (!astIsDeterministic(calculatePossibleAstNodes, p))
-      return false
-  }
+  if (!astIsDeterministic(calculatePossibleAstNodes, astNode.p))
+    return false
 
   return true
 }

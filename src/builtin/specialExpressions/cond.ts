@@ -14,7 +14,6 @@ export interface CondNode {
   t: AstNodeType.SpecialExpression
   n: 'cond'
   c: Condition[]
-  p: AstNode[]
   tkn?: Token
 }
 
@@ -48,7 +47,6 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any, CondNode> = {
         t: AstNodeType.SpecialExpression,
         n: 'cond',
         c: conditions,
-        p: [],
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       } satisfies CondNode,
     ]

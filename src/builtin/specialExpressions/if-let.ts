@@ -1,15 +1,15 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
+import { AstNodeType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import { AstNodeType } from '../../constants/constants'
 import type { AstNode, BindingNode } from '../../parser/interface'
-import { asAstNode } from '../../typeGuards/astNode'
-import { valueToString } from '../../utils/debug/debugTools'
-import { asToken } from '../../typeGuards/token'
-import type { BuiltinSpecialExpression } from '../interface'
-import { asNonUndefined, assertNumberOfParams } from '../../typeGuards'
 import type { Token } from '../../tokenizer/interface'
+import { asNonUndefined, assertNumberOfParamsFromAstNodes } from '../../typeGuards'
+import { asAstNode } from '../../typeGuards/astNode'
+import { asToken } from '../../typeGuards/token'
+import { valueToString } from '../../utils/debug/debugTools'
+import type { BuiltinSpecialExpression } from '../interface'
 
 export interface IfLetNode {
   t: AstNodeType.SpecialExpression
@@ -34,7 +34,12 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = 
 
     let params: AstNode[]
     ;[position, params] = parseTokens(tokenStream, position)
-
+    assertNumberOfParamsFromAstNodes({
+      name: 'if-let',
+      count: { min: 1, max: 2 },
+      params,
+      sourceCodeInfo: firstToken.sourceCodeInfo,
+    })
     const node: IfLetNode = {
       t: AstNodeType.SpecialExpression,
       n: 'if-let',
@@ -60,7 +65,6 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = 
     }
     return null
   },
-  validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
     const newContext: Context = { [node.b.n]: { value: true } }
     const bindingResult = findUnresolvedIdentifiers([node.b.v], contextStack, builtin)

@@ -299,7 +299,7 @@ function parseSpecialExpression(tokenStream: TokenStream, position: number): [nu
   )
   position += 1
 
-  const { parse, validate } = asNonUndefined(builtin.specialExpressions[expressionName as SpecialExpressionName], sourceCodeInfo)
+  const { parse } = asNonUndefined(builtin.specialExpressions[expressionName as SpecialExpressionName], sourceCodeInfo)
 
   const [positionAfterParse, node] = parse(tokenStream, position, {
     parseExpression,
@@ -309,9 +309,6 @@ function parseSpecialExpression(tokenStream: TokenStream, position: number): [nu
     parseBindings,
     parseArgument,
   })
-
-  // eslint-disable-next-line ts/no-unsafe-argument
-  validate?.(node as any)
 
   return [positionAfterParse, node]
 }

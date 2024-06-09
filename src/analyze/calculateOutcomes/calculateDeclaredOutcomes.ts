@@ -12,7 +12,7 @@ export const calculateDeclaredOutcomes: CalculatePossibleAstNodesHelper<Declared
     isAstComputable,
   },
 ) => {
-  if (isAstComputable(astNode.p[0]!))
+  if (isAstComputable(astNode.p))
     return [trueNode]
 
   return [trueNode, falseNode]

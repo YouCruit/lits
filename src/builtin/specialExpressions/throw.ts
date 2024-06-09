@@ -9,7 +9,6 @@ import type { Token } from '../../tokenizer/interface'
 export interface ThrowNode {
   t: AstNodeType.SpecialExpression
   n: 'throw'
-  p: AstNode[]
   m: AstNode
   tkn?: Token
 }
@@ -26,7 +25,6 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null, ThrowNode> =
     const node: ThrowNode = {
       t: AstNodeType.SpecialExpression,
       n: 'throw',
-      p: [],
       m: messageNode,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }

@@ -34,7 +34,6 @@ export interface DefnNode {
 export interface DefnsNode {
   t: AstNodeType.SpecialExpression
   n: 'defns'
-  p: AstNode[]
   f: AstNode
   o: FunctionOverload[]
   tkn?: Token
@@ -112,7 +111,6 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null, DefnsNode> =
         t: AstNodeType.SpecialExpression,
         n: 'defns',
         f: functionName,
-        p: [],
         o: functionOverloades,
         tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
       } satisfies DefnsNode,

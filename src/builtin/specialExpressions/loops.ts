@@ -16,7 +16,7 @@ import type { SpecialExpressionNode } from '..'
 export interface ForNode {
   t: AstNodeType.SpecialExpression
   n: 'for'
-  p: AstNode[]
+  p: AstNode
   l: LoopBindingNode[]
   tkn?: Token
 }
@@ -24,7 +24,7 @@ export interface ForNode {
 export interface DoSeqNode {
   t: AstNodeType.SpecialExpression
   n: 'doseq'
-  p: AstNode[]
+  p: AstNode
   l: LoopBindingNode[]
   tkn?: Token
 }
@@ -125,8 +125,7 @@ function evaluateLoop(
   evaluateAstNode: EvaluateAstNode,
 ) {
   const sourceCodeInfo = node.tkn?.sourceCodeInfo
-  const { l: loopBindings, p: params } = node as LoopNode
-  const expression = asAstNode(params[0], sourceCodeInfo)
+  const { l: loopBindings, p: expression } = node as LoopNode
 
   const result: Arr = []
 
@@ -208,14 +207,14 @@ function evaluateLoop(
 }
 
 function analyze(
-  node: SpecialExpressionNode,
+  node: LoopNode,
   contextStack: ContextStack,
   findUnresolvedIdentifiers: FindUnresolvedIdentifiers,
   builtin: Builtin,
 ): UnresolvedIdentifiers {
   const result = new Set<UnresolvedIdentifier>()
   const newContext: Context = {}
-  const { l: loopBindings } = node as LoopNode
+  const { l: loopBindings } = node
   loopBindings.forEach((loopBinding) => {
     const { b: binding, l: letBindings, wn: whenNode, we: whileNode } = loopBinding
     findUnresolvedIdentifiers([binding.v], contextStack.create(newContext), builtin).forEach(symbol =>
@@ -241,7 +240,7 @@ function analyze(
       )
     }
   })
-  findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin).forEach(symbol =>
+  findUnresolvedIdentifiers([node.p], contextStack.create(newContext), builtin).forEach(symbol =>
     result.add(symbol),
   )
   return result
@@ -263,7 +262,7 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any, ForNode> = {
       n: 'for',
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
-      p: [expression],
+      p: expression,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
 
@@ -289,7 +288,7 @@ export const doseqSpecialExpression: BuiltinSpecialExpression<null, DoSeqNode> =
       n: 'doseq',
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
-      p: [expression],
+      p: expression,
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
 

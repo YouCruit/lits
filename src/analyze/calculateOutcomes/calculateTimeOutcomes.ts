@@ -4,12 +4,12 @@ import type { CalculatePossibleAstNodesHelper } from '.'
 
 export const calculateTimeOutcomes: CalculatePossibleAstNodesHelper<TimeNode> = ({
   astNode,
-  combinateAstNodes,
+  calculatePossibleAstNodes,
 }) => {
-  return combinateAstNodes(astNode.p)
+  return calculatePossibleAstNodes(astNode.p)
     .map<DoNode>(p => ({
       ...astNode,
       n: 'do',
-      p,
+      p: [p],
     }))
 }

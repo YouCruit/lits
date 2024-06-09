@@ -1,15 +1,15 @@
 import { AstNodeType } from '../../constants/constants'
-import type { AstNode } from '../../parser/interface'
+import type { NameNode } from '../../parser/interface'
 import type { Token } from '../../tokenizer/interface'
-import { assertNumberOfParams } from '../../typeGuards'
-import { assertNameNode } from '../../typeGuards/astNode'
+import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
+import { asNameNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
 export interface DeclaredNode {
   t: AstNodeType.SpecialExpression
   n: 'declared?'
-  p: AstNode[]
+  p: NameNode
   tkn?: Token
 }
 
@@ -17,22 +17,25 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<boolean, Declar
   parse: (tokenStream, position, { parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)
+    assertNumberOfParamsFromAstNodes({
+      name: 'declared?',
+      count: 1,
+      params,
+      sourceCodeInfo: firstToken.sourceCodeInfo,
+    })
+
     const node: DeclaredNode = {
       t: AstNodeType.SpecialExpression,
       n: 'declared?',
-      p: params,
+      p: asNameNode(params[0], firstToken.sourceCodeInfo),
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
 
     return [newPosition + 1, node]
   },
   evaluate: (node, contextStack) => {
-    const [astNode] = node.p
-    assertNameNode(astNode, node.tkn?.sourceCodeInfo)
-
-    const lookUpResult = contextStack.lookUp(astNode)
+    const lookUpResult = contextStack.lookUp(node.p)
     return lookUpResult !== null
   },
-  validate: node => assertNumberOfParams(1, node),
-  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers(node.p, contextStack, builtin),
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers([node.p], contextStack, builtin),
 }

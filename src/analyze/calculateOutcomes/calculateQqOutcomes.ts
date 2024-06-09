@@ -1,4 +1,5 @@
 import type { QqNode } from '../../builtin/specialExpressions/qq'
+import type { AstNode } from '../../parser/interface'
 import type { CalculatePossibleAstNodesHelper } from '.'
 
 export const calculateQqOutcomes: CalculatePossibleAstNodesHelper<QqNode> = ({
@@ -6,12 +7,12 @@ export const calculateQqOutcomes: CalculatePossibleAstNodesHelper<QqNode> = ({
   combinateAstNodes,
   isAstComputable,
 }) => {
-  if (!isAstComputable(astNode.p[0]!))
+  if (!isAstComputable(astNode.p[0]))
     throw new Error('First argument of ?? not computable')
 
   return combinateAstNodes(astNode.p)
     .map(p => ({
       ...astNode,
-      p,
+      p: p as [AstNode, AstNode],
     }))
 }

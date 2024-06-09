@@ -1,4 +1,5 @@
 import type { DefsNode } from '../../builtin/specialExpressions/defs'
+import type { AstNode } from '../../parser/interface'
 import type { CalculatePossibleAstNodesHelper } from '.'
 
 export const calculateDefsOutcomes: CalculatePossibleAstNodesHelper<DefsNode> = ({
@@ -8,6 +9,6 @@ export const calculateDefsOutcomes: CalculatePossibleAstNodesHelper<DefsNode> = 
   return combinateAstNodes(astNode.p)
     .map<DefsNode>(p => ({
       ...astNode,
-      p,
+      p: p as [AstNode, AstNode],
     }))
 }

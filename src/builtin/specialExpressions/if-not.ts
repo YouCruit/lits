@@ -1,11 +1,11 @@
-import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
-import { assertNumberOfParams } from '../../typeGuards'
+import type { Any } from '../../interface'
+import type { AstNode } from '../../parser/interface'
+import type { Token } from '../../tokenizer/interface'
+import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
 import { asAstNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import type { Token } from '../../tokenizer/interface'
-import type { AstNode } from '../../parser/interface'
 
 export interface IfNotNode {
   t: AstNodeType.SpecialExpression
@@ -18,6 +18,12 @@ export const ifNotSpecialExpression: BuiltinSpecialExpression<Any, IfNotNode> = 
   parse: (tokenStream, position, { parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)
+    assertNumberOfParamsFromAstNodes({
+      name: 'if-not',
+      count: { min: 2, max: 3 },
+      params,
+      sourceCodeInfo: firstToken.sourceCodeInfo,
+    })
     return [
       newPosition + 1,
       {
@@ -42,6 +48,5 @@ export const ifNotSpecialExpression: BuiltinSpecialExpression<Any, IfNotNode> = 
         return null
     }
   },
-  validate: node => assertNumberOfParams({ min: 2, max: 3 }, node),
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers(node.p, contextStack, builtin),
 }

@@ -8,7 +8,7 @@ export const calculateDefOutcomes: CalculatePossibleAstNodesHelper<DefNode> = ({
   addGlobalIdentifier,
 }) => {
   const nameNode = asNameNode(astNode.p[0])
-  const valueNode = astNode.p[1]!
+  const valueNode = astNode.p[1]
   addGlobalIdentifier(nameNode.v)
   return calculatePossibleAstNodes(valueNode)
     .map<DefNode>(node => ({

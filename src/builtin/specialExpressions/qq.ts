@@ -1,17 +1,17 @@
-import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
+import type { Any } from '../../interface'
 import type { AstNode } from '../../parser/interface'
+import type { Token } from '../../tokenizer/interface'
+import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
 import { isNameNode } from '../../typeGuards/astNode'
+import { assertAny } from '../../typeGuards/lits'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import { assertAny } from '../../typeGuards/lits'
-import { assertNumberOfParams } from '../../typeGuards'
-import type { Token } from '../../tokenizer/interface'
 
 export interface QqNode {
   t: AstNodeType.SpecialExpression
   n: '??'
-  p: AstNode[]
+  p: [AstNode] | [AstNode, AstNode]
   tkn?: Token
 }
 
@@ -19,10 +19,16 @@ export const qqSpecialExpression: BuiltinSpecialExpression<Any, QqNode> = {
   parse: (tokenStream, position, { parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)
+    assertNumberOfParamsFromAstNodes({
+      name: '??',
+      count: { min: 1, max: 2 },
+      params,
+      sourceCodeInfo: firstToken.sourceCodeInfo,
+    })
     const node: QqNode = {
       t: AstNodeType.SpecialExpression,
       n: '??',
-      p: params,
+      p: params.length === 1 ? [params[0]!] : [params[0]!, params[1]!],
       tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
     }
 
@@ -39,6 +45,5 @@ export const qqSpecialExpression: BuiltinSpecialExpression<Any, QqNode> = {
     const firstResult = evaluateAstNode(firstNode, contextStack)
     return firstResult ?? (secondNode ? evaluateAstNode(secondNode, contextStack) : null)
   },
-  validate: node => assertNumberOfParams({ min: 1, max: 2 }, node),
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers(node.p, contextStack, builtin),
 }

@@ -13,6 +13,8 @@ export const defaultState = {
   'output-trash-bin': '' as string,
   'output': '' as string,
   'output-scroll-top': 0 as number,
+  'new-context-name': '' as string,
+  'new-context-value': '' as string,
 } as const
 
 type State = {

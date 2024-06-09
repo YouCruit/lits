@@ -1,4 +1,4 @@
-import { hamburgerIcon, labIcon, linkIcon, playIcon, plusIcon, resetIcon, tokenIcon, trashIcon, treeIcon } from '../icons'
+import { hamburgerIcon, labIcon, linkIcon, objectIcon, playIcon, plusIcon, resetIcon, tokenIcon, trashIcon, treeIcon } from '../icons'
 import { createStyles, css } from '../styles'
 
 const styles = createStyles({
@@ -36,7 +36,25 @@ export function getPlayground() {
           <div ${styles('text-lg', 'font-sans')}>Context</div>
           <div id="context-links" ${styles('h-full', 'text-color-gray-400', 'bg-gray-800')}>
             <div ${styles('flex', 'flex-row', 'gap-1', 'text-sm', 'text-color-gray-400', 'h-full', 'items-center')}>
-              <a onclick="Playground.addParam()" ${styles('text-xl', 'flex', 'items-center')}>${plusIcon}</a>
+              <div>
+                <a onclick="Playground.openAddContextMenu()" ${styles('text-xl', 'flex', 'items-center')}>${plusIcon}</a>
+                <div id="add-context-menu" ${styles('hidden', 'max-width: 20rem;', 'absolute', 'p-2', 'border-0', 'border-solid', 'border-gray-300', 'bg-gray-700')}>
+                  <div ${styles('flex', 'flex-col', 'gap-4', 'text-base')}>
+                    <div ${styles('flex', 'w-full', 'flex-col')}>
+                      <span ${styles('text-xs', 'font-bold')}>Name</span>
+                      <input id="new-context-name" ${styles('bg-gray-850', 'text-color-gray-300')}></input>
+                      <span ${styles('text-xs', 'font-bold', 'mt-2')}>Value (JSON stringified)</span>
+                      <textarea class="fancy-scroll" id="new-context-value" rows="5" ${styles('border-0', 'text-color-gray-300')}></textarea>
+                      <button class="button" onclick="Playground.addContextEntry()" ${styles('bg-gray-700', 'text-color-gray-400', 'mt-1', 'font-sans')}>Add context entry</button>
+                      <span id="new-context-error" ${styles('text-color-Rose', 'text-sm', 'mt-1', 'hidden')}>Add context entry</span>
+                    </div>
+                    <a ${styles('flex', 'gap-2', 'w-full', 'items-center')} onclick="Playground.closeAddContextMenu(); Playground.addSampleContext();">
+                      <span ${styles('items-center', 'flex')}>${objectIcon}</span>
+                      <span ${styles('mr-8')}>Add sample context</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
               <a onclick="Playground.resetContext()" ${styles('text-xl', 'flex', 'items-center')}>${trashIcon}</a>
             </div>
           </div>
@@ -58,7 +76,7 @@ export function getPlayground() {
               <a onclick="Playground.run()" ${styles('text-xl', 'flex', 'items-center')}>${playIcon}</a>
               <a onclick="Playground.resetLitsCode()" ${styles('text-xl', 'flex', 'items-center')}>${trashIcon}</a>
               <div>
-                <a onclick="Playground.toggleMoreMenu()" ${styles('text-xl', 'flex', 'items-center')}>${hamburgerIcon}</a>
+                <a onclick="Playground.openMoreMenu()" ${styles('text-xl', 'flex', 'items-center')}>${hamburgerIcon}</a>
                 <div id="more-menu" ${styles('hidden', 'max-width: 20rem;', 'absolute', 'p-2', 'border-0', 'border-solid', 'border-gray-300', 'bg-gray-700')}>
                   <div ${styles('flex', 'flex-col', 'gap-2', 'text-base')}>
                     <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.run()">

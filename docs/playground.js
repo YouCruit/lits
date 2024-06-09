@@ -7905,6 +7905,8 @@ var Playground = (function (exports) {
         'output-trash-bin': '',
         'output': '',
         'output-scroll-top': 0,
+        'new-context-name': '',
+        'new-context-value': '',
     };
     var keys = Object.keys(defaultState);
     var state = __assign({}, defaultState);
@@ -7963,6 +7965,10 @@ var Playground = (function (exports) {
         litsPanel: document.getElementById('lits-panel'),
         outputPanel: document.getElementById('output-panel'),
         moreMenu: document.getElementById('more-menu'),
+        addContextMenu: document.getElementById('add-context-menu'),
+        newContextName: document.getElementById('new-context-name'),
+        newContextValue: document.getElementById('new-context-value'),
+        newContextError: document.getElementById('new-context-error'),
         contextTextArea: document.getElementById('context-textarea'),
         outputResult: document.getElementById('output-result'),
         litsTextArea: document.getElementById('lits-textarea'),
@@ -7977,11 +7983,24 @@ var Playground = (function (exports) {
             windowWidth: window.innerWidth,
         };
     }
-    function toggleMoreMenu() {
-        elements.moreMenu.style.display = elements.moreMenu.style.display === 'block' ? 'none' : 'block';
+    function openMoreMenu() {
+        elements.moreMenu.style.display = 'block';
     }
     function closeMoreMenu() {
         elements.moreMenu.style.display = 'none';
+    }
+    function openAddContextMenu() {
+        elements.newContextName.value = state['new-context-name'];
+        elements.newContextValue.value = state['new-context-value'];
+        elements.addContextMenu.style.display = 'block';
+        elements.newContextName.focus();
+    }
+    function closeAddContextMenu() {
+        elements.addContextMenu.style.display = 'none';
+        elements.newContextError.style.display = 'none';
+        elements.newContextError.textContent = '';
+        elements.newContextName.value = '';
+        elements.newContextValue.value = '';
     }
     function share() {
         addOutputSeparator();
@@ -7995,12 +8014,10 @@ var Playground = (function (exports) {
     }
     function onDocumentClick(event) {
         var target = event.target;
-        if (target === null || target === void 0 ? void 0 : target.closest('#more-menu'))
-            return;
-        if (elements.moreMenu.style.display === 'block') {
-            event.stopPropagation();
+        if (!(target === null || target === void 0 ? void 0 : target.closest('#more-menu')) && elements.moreMenu.style.display === 'block')
             closeMoreMenu();
-        }
+        if (!(target === null || target === void 0 ? void 0 : target.closest('#add-context-menu')) && elements.addContextMenu.style.display === 'block')
+            closeAddContextMenu();
     }
     function layout() {
         var windowWidth = calculateDimensions().windowWidth;
@@ -8049,7 +8066,33 @@ var Playground = (function (exports) {
             return {};
         }
     }
-    function addParam() {
+    function addContextEntry() {
+        var name = elements.newContextName.value;
+        if (name === '') {
+            elements.newContextError.textContent = 'Name is required';
+            elements.newContextError.style.display = 'block';
+            elements.newContextName.focus();
+            return;
+        }
+        var value = elements.newContextValue.value;
+        try {
+            var parsedValue = JSON.parse(value);
+            var context = getParsedContext();
+            var values = Object.assign({}, context.values);
+            values[name] = parsedValue;
+            context.values = values;
+            setContext(JSON.stringify(context, null, 2));
+            closeAddContextMenu();
+        }
+        catch (e) {
+            elements.newContextError.textContent = 'Invalid JSON';
+            elements.newContextError.style.display = 'block';
+            elements.newContextValue.focus();
+        }
+        clearState('new-context-name');
+        clearState('new-context-value');
+    }
+    function addSampleContext() {
         var context = getParsedContext();
         var values = {
             n: 42,
@@ -8210,6 +8253,7 @@ var Playground = (function (exports) {
             }
             if (evt.key === 'Escape') {
                 closeMoreMenu();
+                closeAddContextMenu();
                 evt.preventDefault();
             }
         });
@@ -8233,6 +8277,12 @@ var Playground = (function (exports) {
         });
         elements.outputResult.addEventListener('scroll', function () {
             saveState('output-scroll-top', elements.outputResult.scrollTop);
+        });
+        elements.newContextName.addEventListener('input', function () {
+            saveState('new-context-name', elements.newContextName.value);
+        });
+        elements.newContextValue.addEventListener('input', function () {
+            saveState('new-context-value', elements.newContextValue.value);
         });
         var urlParams = new URLSearchParams(window.location.search);
         var urlState = urlParams.get('state');
@@ -8565,10 +8615,14 @@ var Playground = (function (exports) {
     }
 
     exports.Search = Search;
-    exports.addParam = addParam;
+    exports.addContextEntry = addContextEntry;
+    exports.addSampleContext = addSampleContext;
     exports.addToPlayground = addToPlayground;
     exports.analyze = analyze;
+    exports.closeAddContextMenu = closeAddContextMenu;
     exports.closeMoreMenu = closeMoreMenu;
+    exports.openAddContextMenu = openAddContextMenu;
+    exports.openMoreMenu = openMoreMenu;
     exports.parse = parse;
     exports.resetContext = resetContext;
     exports.resetLitsCode = resetLitsCode;
@@ -8578,7 +8632,6 @@ var Playground = (function (exports) {
     exports.setPlayground = setPlayground;
     exports.share = share;
     exports.showPage = showPage;
-    exports.toggleMoreMenu = toggleMoreMenu;
     exports.tokenize = tokenize;
 
     return exports;

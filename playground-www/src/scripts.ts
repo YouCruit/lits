@@ -5,8 +5,9 @@ import { Lits, type LitsParams } from '../../src'
 import { UserDefinedError } from '../../src/errors'
 import type { Analysis } from '../../src/analyze'
 import { asUnknownRecord } from '../../src/typeGuards'
+import type { UnknownRecord } from '../../src/interface'
 import { Search } from './Search'
-import { decodeState as applyEncodedState, clearAllStates, clearState, encodeState, getState, saveState } from './state'
+import { decodeState as applyEncodedState, clearAllStates, clearState, encodeState, getState, saveState, state } from './state'
 
 const lits = new Lits({ debug: true })
 const litsNoDebug = new Lits({ debug: false })
@@ -20,6 +21,11 @@ const elements = {
   litsPanel: document.getElementById('lits-panel') as HTMLElement,
   outputPanel: document.getElementById('output-panel') as HTMLElement,
   moreMenu: document.getElementById('more-menu') as HTMLElement,
+  addContextMenu: document.getElementById('add-context-menu') as HTMLElement,
+  newContextName: document.getElementById('new-context-name') as HTMLInputElement,
+  newContextValue: document.getElementById('new-context-value') as HTMLTextAreaElement,
+  newContextError: document.getElementById('new-context-error') as HTMLSpanElement,
+
   contextTextArea: document.getElementById('context-textarea') as HTMLTextAreaElement,
   outputResult: document.getElementById('output-result') as HTMLElement,
   litsTextArea: document.getElementById('lits-textarea') as HTMLTextAreaElement,
@@ -49,12 +55,27 @@ function calculateDimensions() {
   }
 }
 
-export function toggleMoreMenu() {
-  elements.moreMenu.style.display = elements.moreMenu.style.display === 'block' ? 'none' : 'block'
+export function openMoreMenu() {
+  elements.moreMenu.style.display = 'block'
 }
 
 export function closeMoreMenu() {
   elements.moreMenu.style.display = 'none'
+}
+
+export function openAddContextMenu() {
+  elements.newContextName.value = state['new-context-name']
+  elements.newContextValue.value = state['new-context-value']
+  elements.addContextMenu.style.display = 'block'
+  elements.newContextName.focus()
+}
+
+export function closeAddContextMenu() {
+  elements.addContextMenu.style.display = 'none'
+  elements.newContextError.style.display = 'none'
+  elements.newContextError.textContent = ''
+  elements.newContextName.value = ''
+  elements.newContextValue.value = ''
 }
 
 export function share() {
@@ -70,13 +91,12 @@ export function share() {
 
 function onDocumentClick(event: Event) {
   const target = event.target as HTMLInputElement | undefined
-  if (target?.closest('#more-menu'))
-    return
 
-  if (elements.moreMenu.style.display === 'block') {
-    event.stopPropagation()
+  if (!target?.closest('#more-menu') && elements.moreMenu.style.display === 'block')
     closeMoreMenu()
-  }
+
+  if (!target?.closest('#add-context-menu') && elements.addContextMenu.style.display === 'block')
+    closeAddContextMenu()
 }
 
 function layout() {
@@ -136,7 +156,38 @@ function getParsedContext(): Record<string, unknown> {
   }
 }
 
-export function addParam() {
+export function addContextEntry() {
+  const name = elements.newContextName.value
+  if (name === '') {
+    elements.newContextError.textContent = 'Name is required'
+    elements.newContextError.style.display = 'block'
+    elements.newContextName.focus()
+    return
+  }
+
+  const value = elements.newContextValue.value
+
+  try {
+    const parsedValue = JSON.parse(value) as unknown
+    const context = getParsedContext()
+    const values: UnknownRecord = Object.assign({}, context.values)
+    values[name] = parsedValue
+    context.values = values
+    setContext(JSON.stringify(context, null, 2))
+
+    closeAddContextMenu()
+  }
+  catch (e) {
+    elements.newContextError.textContent = 'Invalid JSON'
+    elements.newContextError.style.display = 'block'
+    elements.newContextValue.focus()
+  }
+
+  clearState('new-context-name')
+  clearState('new-context-value')
+}
+
+export function addSampleContext() {
   const context = getParsedContext()
   const values = {
     n: 42,
@@ -329,6 +380,7 @@ window.onload = function () {
     }
     if (evt.key === 'Escape') {
       closeMoreMenu()
+      closeAddContextMenu()
       evt.preventDefault()
     }
   })
@@ -354,6 +406,13 @@ window.onload = function () {
 
   elements.outputResult.addEventListener('scroll', () => {
     saveState('output-scroll-top', elements.outputResult.scrollTop)
+  })
+
+  elements.newContextName.addEventListener('input', () => {
+    saveState('new-context-name', elements.newContextName.value)
+  })
+  elements.newContextValue.addEventListener('input', () => {
+    saveState('new-context-value', elements.newContextValue.value)
   })
 
   const urlParams = new URLSearchParams(window.location.search)

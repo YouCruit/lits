@@ -15,7 +15,7 @@ export interface DefsNode {
 }
 
 export const defsSpecialExpression: BuiltinSpecialExpression<null, DefsNode> = {
-  parse: (tokenStream, position, { parseTokens }) => {
+  parse: (tokenStream, position, { parseTokensUntilClosingBracket: parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)
     assertNumberOfParamsFromAstNodes({

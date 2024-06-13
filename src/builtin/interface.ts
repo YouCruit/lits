@@ -29,7 +29,7 @@ interface BuiltinNormalExpression<T> {
 
 export interface ParserHelpers {
   parseExpression: ParseExpression
-  parseTokens: ParseTokens
+  parseTokensUntilClosingBracket: ParseTokens
   parseToken: ParseToken
   parseBinding: ParseBinding
   parseBindings: ParseBindings

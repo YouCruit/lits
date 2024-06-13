@@ -13,7 +13,7 @@ export interface RecurNode {
 }
 
 export const recurSpecialExpression: BuiltinSpecialExpression<null, RecurNode> = {
-  parse: (tokenStream, position, { parseTokens }) => {
+  parse: (tokenStream, position, { parseTokensUntilClosingBracket: parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let params
     ;[position, params] = parseTokens(tokenStream, position)

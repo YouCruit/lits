@@ -103,6 +103,7 @@ describe('context', () => {
   it('a function - initial cache', () => {
     const initialCache: Record<string, Ast> = {
       '(pow 2 4)': {
+        debug: true,
         b: [
           {
             t: AstNodeType.NormalExpression,
@@ -182,6 +183,7 @@ describe('context', () => {
 
 function ast(n: number): Ast {
   return {
+    debug: false,
     b: [
       {
         t: AstNodeType.Number,
@@ -281,7 +283,7 @@ describe('regressions', () => {
       // eslint-disable-next-line ts/no-unsafe-member-access
       expect((error as any).sourceCodeInfo.position.line).toBe(3)
       // eslint-disable-next-line ts/no-unsafe-member-access
-      expect((error as any).sourceCodeInfo.position.column).toBe(10)
+      expect((error as any).sourceCodeInfo.position.column).toBe(9)
     }
   })
   it('name not recognized', () => {
@@ -328,7 +330,7 @@ describe('regressions', () => {
       // eslint-disable-next-line ts/no-unsafe-member-access
       expect((error as any).sourceCodeInfo.position.line).toBe(6)
       // eslint-disable-next-line ts/no-unsafe-member-access
-      expect((error as any).sourceCodeInfo.position.column).toBe(12)
+      expect((error as any).sourceCodeInfo.position.column).toBe(11)
     }
     if (failed)
       throw new Error('Expected error')

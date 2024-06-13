@@ -13,23 +13,32 @@ export const nameCharacters = '[@%0-9a-zA-Zàáâãăäāåæćčçèéêĕëē�
 
 const nameRegExp = new RegExp(`${nameCharacters}`)
 const whitespaceRegExp = /\s|,/
+const newLineRegExp = /\n/
 
-export const skipWhiteSpace: Tokenizer = (input, current) =>
-  whitespaceRegExp.test(input[current] as string) ? [1, undefined] : NO_MATCH
+export const tokenizeNewLine: Tokenizer = (input, current, sourceCodeInfo) =>
+  newLineRegExp.test(input[current] as string)
+    ? [1, { t: TokenType.NewLine, v: '\n', sourceCodeInfo }]
+    : NO_MATCH
 
-export const skipComment: Tokenizer = (input, current) => {
+export const tokenizeComment: Tokenizer = (input, current, sourceCodeInfo) => {
   if (input[current] === ';') {
-    let length = 1
-    while (input[current + length] !== '\n' && current + length < input.length)
+    let length = 0
+    let value = ''
+    while (input[current + length] !== '\n' && current + length < input.length) {
+      value += input[current + length]
       length += 1
+    }
 
     if (input[current + length] === '\n' && current + length < input.length)
       length += 1
 
-    return [length, undefined]
+    return [length, { t: TokenType.Comment, v: value.trim(), sourceCodeInfo }]
   }
   return NO_MATCH
 }
+
+export const skipWhiteSpace: Tokenizer = (input, current) =>
+  whitespaceRegExp.test(input[current] as string) ? [1, undefined] : NO_MATCH
 
 export const tokenizeLeftParen: Tokenizer = (input, position, sourceCodeInfo) =>
   tokenizeCharacter(TokenType.Bracket, '(', input, position, sourceCodeInfo)

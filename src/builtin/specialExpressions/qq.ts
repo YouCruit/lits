@@ -16,7 +16,7 @@ export interface QqNode {
 }
 
 export const qqSpecialExpression: BuiltinSpecialExpression<Any, QqNode> = {
-  parse: (tokenStream, position, { parseTokens }) => {
+  parse: (tokenStream, position, { parseTokensUntilClosingBracket: parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)
     assertNumberOfParamsFromAstNodes({

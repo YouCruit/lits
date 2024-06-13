@@ -1,6 +1,6 @@
 import type { SpecialExpressionName } from '../../builtin'
 import type { AndNode } from '../../builtin/specialExpressions/and'
-import type { CommentNode } from '../../builtin/specialExpressions/comment'
+import type { CommentExpressionNode } from '../../builtin/specialExpressions/comment'
 import type { CondNode } from '../../builtin/specialExpressions/cond'
 import type { DeclaredNode } from '../../builtin/specialExpressions/declared'
 import type { DefNode } from '../../builtin/specialExpressions/def'
@@ -52,7 +52,7 @@ import type { CalculatePossibleAstNodesHelperOptions } from '.'
 
 export const specialExpressionCalculator = {
   'and': (astNode: AndNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateAndOutcomes({ astNode, ...helperOptions }),
-  'comment': (astNode: CommentNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateCommentOutcomes({ astNode, ...helperOptions }),
+  'comment': (astNode: CommentExpressionNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateCommentOutcomes({ astNode, ...helperOptions }),
   'cond': (astNode: CondNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateCondOutcomes({ astNode, ...helperOptions }),
   'declared?': (astNode: DeclaredNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateDeclaredOutcomes({ astNode, ...helperOptions }),
   'defn': (astNode: DefnNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateDefnOutcomes({ astNode, ...helperOptions }),

@@ -5,7 +5,7 @@ import type { FunctionArguments } from '../builtin/utils'
 import { AstNodeType, TokenType } from '../constants/constants'
 import { LitsError } from '../errors'
 import type { ReservedName } from '../reservedNames'
-import type { TokenStream } from '../tokenizer/interface'
+import type { Token, TokenStream } from '../tokenizer/interface'
 import { asNonUndefined, assertEventNumberOfParams, assertNonUndefined, assertUnreachable } from '../typeGuards'
 import { assertNameNode, isExpressionNode } from '../typeGuards/astNode'
 import { asToken } from '../typeGuards/token'
@@ -13,6 +13,7 @@ import { valueToString } from '../utils/debug/debugTools'
 import type {
   AstNode,
   BindingNode,
+  CommentNode,
   ModifierName,
   NameNode,
   NormalExpressionNode,
@@ -47,7 +48,15 @@ function parseReservedName(tokenStream: TokenStream, position: number): [number,
   ]
 }
 
-function parseTokens(tokenStream: TokenStream, position: number): [number, AstNode[]] {
+function parseComment(tokenStream: TokenStream, position: number): [number, CommentNode] {
+  const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  return [
+    position + 1,
+    { t: AstNodeType.Comment, v: tkn.v as ReservedName, tkn: tkn.sourceCodeInfo ? tkn : undefined },
+  ]
+}
+
+function parseTokensUntilClosingBracket(tokenStream: TokenStream, position: number): [number, AstNode[]] {
   let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   const astNodes: AstNode[] = []
   let astNode: AstNode
@@ -60,9 +69,7 @@ function parseTokens(tokenStream: TokenStream, position: number): [number, AstNo
 }
 
 const parseExpression: ParseExpression = (tokenStream, position) => {
-  position += 1 // Skip parenthesis
-
-  const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  const tkn = asToken(tokenStream.tokens[position + 1], tokenStream.filePath)
   if (tkn.t === TokenType.Name && builtin.specialExpressions[tkn.v as SpecialExpressionName])
     return parseSpecialExpression(tokenStream, position)
 
@@ -259,18 +266,23 @@ function parseBinding(tokenStream: TokenStream, position: number): [number, Bind
 }
 
 function parseNormalExpression(tokenStream: TokenStream, position: number): [number, NormalExpressionNode] {
+  const startBracketToken = tokenStream.debug ? asToken(tokenStream.tokens[position], tokenStream.filePath) : undefined
+  position += 1
   const [newPosition, fnNode] = parseToken(tokenStream, position)
 
   let params: AstNode[]
-  ;[position, params] = parseTokens(tokenStream, newPosition)
+  ;[position, params] = parseTokensUntilClosingBracket(tokenStream, newPosition)
+  
+  const endBracketToken = tokenStream.debug ? asToken(tokenStream.tokens[position], tokenStream.filePath) : undefined
   position += 1
+
 
   if (isExpressionNode(fnNode)) {
     const node: NormalExpressionNode = {
       t: AstNodeType.NormalExpression,
       e: fnNode,
       p: params,
-      tkn: fnNode.tkn,
+      tkn: startBracketToken,
     }
 
     return [position, node]
@@ -281,7 +293,9 @@ function parseNormalExpression(tokenStream: TokenStream, position: number): [num
     t: AstNodeType.NormalExpression,
     n: fnNode.v,
     p: params,
-    tkn: fnNode.tkn,
+    tkn: startBracketToken,
+    nameToken: fnNode.tkn,
+    endBracketToken,  
   }
 
   const builtinExpression = builtin.normalExpressions[node.n]
@@ -293,6 +307,7 @@ function parseNormalExpression(tokenStream: TokenStream, position: number): [num
 }
 
 function parseSpecialExpression(tokenStream: TokenStream, position: number): [number, SpecialExpressionNode] {
+  position += 1
   const { v: expressionName, sourceCodeInfo } = asToken(
     tokenStream.tokens[position],
     tokenStream.filePath,
@@ -303,7 +318,7 @@ function parseSpecialExpression(tokenStream: TokenStream, position: number): [nu
 
   const [positionAfterParse, node] = parse(tokenStream, position, {
     parseExpression,
-    parseTokens,
+    parseTokensUntilClosingBracket,
     parseToken,
     parseBinding,
     parseBindings,
@@ -314,7 +329,7 @@ function parseSpecialExpression(tokenStream: TokenStream, position: number): [nu
 }
 
 export function parseToken(tokenStream: TokenStream, position: number): [number, AstNode] {
-  const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  const tkn = getNextParsableToken(tokenStream, position)
   switch (tkn.t) {
     case TokenType.Number:
       return parseNumber(tokenStream, position)
@@ -337,12 +352,24 @@ export function parseToken(tokenStream: TokenStream, position: number): [number,
       return parseRegexpShorthand(tokenStream, position)
     case TokenType.FnShorthand:
       return parseFnShorthand(tokenStream, position)
+    case TokenType.Comment:
+      return parseComment(tokenStream, position)
     case TokenType.CollectionAccessor:
     case TokenType.Modifier:
+    case TokenType.NewLine:
       break
     /* v8 ignore next 2 */
     default:
       assertUnreachable(tkn.t)
   }
   throw new LitsError(`Unrecognized token: ${tkn.t} value=${tkn.v}`, tkn.sourceCodeInfo)
+}
+
+function getNextParsableToken(tokenStream: TokenStream, position: number): Token {
+  let token = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  while (token.t === TokenType.NewLine) {
+    position += 1
+    token = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  }
+  return token
 }

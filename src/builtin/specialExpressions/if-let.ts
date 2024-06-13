@@ -20,7 +20,7 @@ export interface IfLetNode {
 }
 
 export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = {
-  parse: (tokenStream, position, { parseBindings, parseTokens }) => {
+  parse: (tokenStream, position, { parseBindings, parseTokensUntilClosingBracket: parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokenStream, position)

@@ -149,6 +149,8 @@ export interface ReservedNameNode extends GenericNode {
 interface NormalExpressionNodeBase extends GenericNode {
   t: AstNodeType.NormalExpression // type
   p: AstNode[] // params
+  nameToken?: Token
+  endBracketToken?: Token
 }
 
 export interface NormalExpressionNodeWithName extends NormalExpressionNodeBase {
@@ -175,6 +177,11 @@ export interface ArgumentNode extends GenericNode {
   d?: AstNode // defaultValue
 }
 
+export interface CommentNode extends GenericNode {
+  t: AstNodeType.Comment // type
+  v: string // value
+}
+
 // export interface SpecialExpressionNode extends GenericNode {
 //   t: AstNodeType.SpecialExpression // type
 //   n: SpecialExpressionName // name
@@ -196,6 +203,7 @@ export type AstNode =
   | StringNode
   | ReservedNameNode
   | NameNode
+  | CommentNode
   | NormalExpressionNode
   | ModifierNode
   | SpecialExpressionNode
@@ -203,4 +211,5 @@ export type AstNode =
 type AstBody = AstNode[]
 export interface Ast {
   b: AstBody // body
+  debug: boolean
 }

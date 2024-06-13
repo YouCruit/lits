@@ -24,9 +24,12 @@ import { asAny, assertSeq, isObj } from '../typeGuards/lits'
 import { assertString } from '../typeGuards/string'
 import type { ContextStack } from './ContextStack'
 import { functionExecutors } from './functionExecutors'
+import { removeCommenNodes } from './removeCommentNodes'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null
+  if (ast.debug)
+    removeCommenNodes(ast)
   for (const node of ast.b)
     result = evaluateAstNode(node, contextStack)
 

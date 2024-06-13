@@ -4,23 +4,23 @@ import type { Token } from '../../tokenizer/interface'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface CommentNode {
+export interface CommentExpressionNode {
   t: AstNodeType.SpecialExpression
   n: 'comment'
   p: AstNode[]
   tkn?: Token
 }
 
-export const commentSpecialExpression: BuiltinSpecialExpression<null, CommentNode> = {
+export const commentSpecialExpression: BuiltinSpecialExpression<null, CommentExpressionNode> = {
   parse: (tokenStream, position, { parseToken }) => {
     let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
 
-    const node: CommentNode = {
+    const node: CommentExpressionNode = {
       t: AstNodeType.SpecialExpression,
       n: 'comment',
       p: [],
       tkn: tkn.sourceCodeInfo ? tkn : undefined,
-    } satisfies CommentNode
+    } satisfies CommentExpressionNode
 
     while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {
       let bodyNode: AstNode

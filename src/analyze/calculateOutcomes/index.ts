@@ -46,8 +46,12 @@ export function calculateOutcomes(contextStack: ContextStack, astNodes: AstNode[
     if (unresolvedIdentifiers.size !== 0)
       return null
 
+    const ast: Ast = {
+      b: possibleAst,
+      debug: true,
+    }
     try {
-      const outcome = evaluate(possibleAst, contextStack.clone())
+      const outcome = evaluate(ast, contextStack.clone())
 
       if ([...outcomes].some(o => JSON.stringify(o) === JSON.stringify(outcome)))
         continue
@@ -62,15 +66,15 @@ export function calculateOutcomes(contextStack: ContextStack, astNodes: AstNode[
   return outcomes
 }
 
-function calculatePossibleAsts(contextStack: ContextStack, astNodes: AstNode[]) {
-  let possibleAsts: Ast[]
+function calculatePossibleAsts(contextStack: ContextStack, astNodes: AstNode[]): AstNode[][] | null {
+  let possibleAsts: AstNode[][]
 
   try {
     possibleAsts = combinate(
       astNodes.map(
         astNode => calculatePossibleAstNodes(contextStack, astNode),
       ),
-    ).map(b => ({ b }))
+    )
   }
   catch (e) {
     return null

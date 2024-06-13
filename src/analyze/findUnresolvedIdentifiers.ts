@@ -33,6 +33,7 @@ function findUnresolvedIdentifiersInAstNode(astNode: AstNode, contextStack: Cont
     case AstNodeType.Number:
     case AstNodeType.Modifier:
     case AstNodeType.ReservedName:
+    case AstNodeType.Comment:
       return emptySet
     case AstNodeType.NormalExpression: {
       const unresolvedIdentifiers = new Set<UnresolvedIdentifier>()

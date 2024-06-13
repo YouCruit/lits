@@ -20,7 +20,7 @@ export interface LoopNode {
 }
 
 export const loopSpecialExpression: BuiltinSpecialExpression<Any, LoopNode> = {
-  parse: (tokenStream, position, { parseTokens, parseBindings }) => {
+  parse: (tokenStream, position, { parseTokensUntilClosingBracket: parseTokens, parseBindings }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokenStream, position)

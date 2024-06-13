@@ -13,7 +13,7 @@ export interface AndNode {
 }
 
 export const andSpecialExpression: BuiltinSpecialExpression<Any, AndNode> = {
-  parse: (tokenStream, position, { parseTokens }) => {
+  parse: (tokenStream, position, { parseTokensUntilClosingBracket: parseTokens }) => {
     const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
     const [newPosition, params] = parseTokens(tokenStream, position)
     return [

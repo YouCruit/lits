@@ -85,8 +85,7 @@ describe('astNode type guards', () => {
   }
   const normalExpressionNodeWithoutName: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
-    p: [],
-    e: {
+    p: [{
       t: AstNodeType.NormalExpression,
       n: '+',
       p: [
@@ -96,7 +95,7 @@ describe('astNode type guards', () => {
           tkn: { t: TokenType.Name, v: 'X' },
         },
       ],
-    },
+    }],
   }
 
   const expressionNodes: ExpressionNode[] = [

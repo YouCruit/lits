@@ -4,8 +4,7 @@ import { AstNodeType } from '../../constants/constants'
 import { evaluate } from '../../evaluator'
 import type { ContextStack } from '../../evaluator/ContextStack'
 import type { Context } from '../../evaluator/interface'
-import type { Ast, AstNode, ExpressionNode } from '../../parser/interface'
-import { isNormalExpressionNodeWithName } from '../../typeGuards/astNode'
+import type { Ast, AstNode } from '../../parser/interface'
 import { findUnresolvedIdentifiers } from '../findUnresolvedIdentifiers'
 import { combinate } from '../utils'
 import { specialExpressionCalculator } from './specialExpressionCalculators'
@@ -97,15 +96,8 @@ function calculatePossibleAstNodes(contextStack: ContextStack, astNode: AstNode,
     if (astNode.n && !isIdempotent(astNode.n))
       throw new Error(`NormalExpressionNode with name ${astNode.n} is not idempotent. Cannot calculate possible ASTs.`)
 
-    if (isNormalExpressionNodeWithName(astNode)) {
-      return combinate(astNode.p.map(n => calculatePossibleAstNodes(newContextStack, n)))
-        .map(p => ({ ...astNode, p }))
-    }
-    else {
-      return calculatePossibleAstNodes(newContextStack, astNode.e)
-        .flatMap(e => combinate(astNode.p.map(n => calculatePossibleAstNodes(newContextStack, n)))
-          .map<AstNode>(p => ({ ...astNode, e: e as ExpressionNode, p })))
-    }
+    return combinate(astNode.p.map(n => calculatePossibleAstNodes(newContextStack, n)))
+      .map(p => ({ ...astNode, p }))
   }
   else if (astNode.t === AstNodeType.SpecialExpression) {
     const helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'> = {

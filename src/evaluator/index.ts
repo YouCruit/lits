@@ -78,8 +78,8 @@ function evaluateNormalExpression(node: NormalExpressionNode, contextStack: Cont
     return evaluateBuiltinNormalExpression(node, params, contextStack)
   }
   else {
-    const fn = evaluateAstNode(node.e, contextStack)
-    return executeFunction(fn, params, contextStack, sourceCodeInfo)
+    const fn = params[0]!
+    return executeFunction(fn, params.slice(1), contextStack, sourceCodeInfo)
   }
 }
 

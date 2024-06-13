@@ -1,9 +1,9 @@
 import { TokenType } from '../constants/constants'
 import { LitsError } from '../errors'
-import type { ModifierName } from '../parser/interface'
+import type { ModifierName, StringNode } from '../parser/interface'
 import { reservedNamesRecord } from '../reservedNames'
 import { asString } from '../typeGuards/string'
-import type { SourceCodeInfo, TokenDescriptor, Tokenizer } from './interface'
+import type { SourceCodeInfo, Token, TokenDescriptor, Tokenizer } from './interface'
 
 const NO_MATCH: TokenDescriptor = [0, undefined]
 
@@ -117,7 +117,7 @@ export const tokenizeSymbolString: Tokenizer = (input, position, sourceCodeInfo)
   if (length === 1)
     return NO_MATCH
 
-  return [length, { t: TokenType.String, v: value, sourceCodeInfo }]
+  return [length, { t: TokenType.String, v: value, sourceCodeInfo, o: { s: true } } satisfies Token]
 }
 
 export const tokenizeRegexpShorthand: Tokenizer = (input, position, sourceCodeInfo) => {

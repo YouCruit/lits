@@ -155,12 +155,10 @@ interface NormalExpressionNodeBase extends GenericNode {
 
 export interface NormalExpressionNodeWithName extends NormalExpressionNodeBase {
   n: string // name
-  e?: ExpressionNode // expressionNode
 }
 
 interface NormalExpressionNodeExpression extends NormalExpressionNodeBase {
   n?: never // name
-  e: ExpressionNode // expressionNode
 }
 
 export type NormalExpressionNode = NormalExpressionNodeWithName | NormalExpressionNodeExpression

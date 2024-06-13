@@ -66,17 +66,17 @@ describe('parser', () => {
       b: [
         {
           t: AstNodeType.NormalExpression,
-          e: {
-            t: AstNodeType.NormalExpression,
-            n: 'foo',
-            p: [
-              {
-                t: AstNodeType.Number,
-                v: 1,
-              },
-            ],
-          },
           p: [
+            {
+              t: AstNodeType.NormalExpression,
+              n: 'foo',
+              p: [
+                {
+                  t: AstNodeType.Number,
+                  v: 1,
+                },
+              ],
+            },
             {
               t: AstNodeType.String,
               v: 'a',
@@ -95,56 +95,56 @@ describe('parser', () => {
       b: [
         {
           t: 203,
-          e: {
-            t: 203,
-            e: {
-              t: 204,
-              n: 'fn',
-              p: [],
-              o: [
+          p: [
+            {
+              t: 203,
+              p: [
                 {
-                  as: {
-                    b: [],
-                    m: ['%1'],
-                  },
-                  b: [
+                  t: 204,
+                  n: 'fn',
+                  p: [],
+                  o: [
                     {
-                      t: 203,
-                      n: 'identity',
-                      p: [
+                      as: {
+                        b: [],
+                        m: ['%1'],
+                      },
+                      b: [
                         {
-                          t: 205,
-                          v: '%1',
+                          t: 203,
+                          n: 'identity',
+                          p: [
+                            {
+                              t: 205,
+                              v: '%1',
+                            },
+                          ],
                         },
                       ],
+                      a: 1,
                     },
                   ],
-                  a: 1,
+                },
+                {
+                  t: 203,
+                  n: 'array',
+                  p: [
+                    {
+                      t: 201,
+                      v: 1,
+                    },
+                    {
+                      t: 201,
+                      v: 2,
+                    },
+                    {
+                      t: 201,
+                      v: 3,
+                    },
+                  ],
                 },
               ],
             },
-            p: [
-              {
-                t: 203,
-                n: 'array',
-                p: [
-                  {
-                    t: 201,
-                    v: 1,
-                  },
-                  {
-                    t: 201,
-                    v: 2,
-                  },
-                  {
-                    t: 201,
-                    v: 3,
-                  },
-                ],
-              },
-            ],
-          },
-          p: [
             {
               t: 201,
               v: 1,

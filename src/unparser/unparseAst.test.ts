@@ -127,4 +127,93 @@ describe('unparseAst', () => {
 
     expect(unparseAst(ast, 80)).toEqual(program)
   })
+
+  describe('nomal expression without name', () => {
+    it('should work 1', () => {
+      const program = `
+(:Albert 0)
+`
+      const tokenStream = lits.tokenize(program)
+      const ast = lits.parse(tokenStream)
+
+      expect(unparseAst(ast, 80)).toEqual(program)
+    })
+    it('should work 2', () => {
+      const program = `
+(:Albert
+ 0)
+`
+      const tokenStream = lits.tokenize(program)
+      const ast = lits.parse(tokenStream)
+
+      expect(unparseAst(ast, 80)).toEqual(program)
+    })
+    it('should work 3', () => {
+      const program = `
+([1 2 3]
+ 0)
+`
+      const tokenStream = lits.tokenize(program)
+      const ast = lits.parse(tokenStream)
+
+      expect(unparseAst(ast, 80)).toEqual(program)
+    })
+
+    it('should work 4', () => {
+      const program = `
+([1 2 3]
+ 0)
+`
+      const tokenStream = lits.tokenize(program)
+      const ast = lits.parse(tokenStream)
+
+      expect(unparseAst(ast, 4)).toEqual(`
+([1
+  2
+  3]
+ 0)
+`)
+    })
+
+    it('should work 5', () => {
+      const program = `
+([1
+  2
+  3]
+ 0)
+`
+      const tokenStream = lits.tokenize(program)
+      const ast = lits.parse(tokenStream)
+
+      expect(unparseAst(ast, 80)).toEqual(program)
+    })
+
+    it('should work 6', () => {
+      const program = `
+([1
+  ;; Comment
+  2
+  ;; Comment
+
+  ;; Comment
+  3] ;; Comment
+ ;; Comment
+ 0)
+`
+      const tokenStream = lits.tokenize(program)
+      const ast = lits.parse(tokenStream)
+
+      expect(unparseAst(ast, 80)).toEqual(program)
+    })
+  })
+
+  describe('collection accessors', () => {
+    it.skip('should work 1', () => {
+      const program = 'a.b.c#0'
+      const tokenStream = lits.tokenize(program)
+      const ast = lits.parse(tokenStream)
+
+      expect(unparseAst(ast, 80)).toEqual(program)
+    })
+  })
 })

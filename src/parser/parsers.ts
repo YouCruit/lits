@@ -96,6 +96,7 @@ function parseArrayLitteral(tokenStream: TokenStream, position: number): [number
     n: 'array',
     p: params,
     tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+    endBracketToken: tkn.sourceCodeInfo ? tkn : undefined,
   }
 
   return [position, node]
@@ -280,9 +281,9 @@ function parseNormalExpression(tokenStream: TokenStream, position: number): [num
   if (isExpressionNode(fnNode)) {
     const node: NormalExpressionNode = {
       t: AstNodeType.NormalExpression,
-      e: fnNode,
-      p: params,
+      p: [fnNode, ...params],
       tkn: startBracketToken,
+      endBracketToken,  
     }
 
     return [position, node]

@@ -5,38 +5,6 @@ import { unparseAst } from './unparseAst'
 const lits = new Lits({ debug: true })
 
 describe('unparseAst', () => {
-  it('should unparse ast', () => {
-    const program = '(round (+ 1 2 (/ 3 4) 5))\n'
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-
-    expect(unparseAst(ast, 80)).toEqual(program)
-
-    expect(unparseAst(ast, 12)).toEqual(
-`
-(round
- (+
-  1
-  2
-  (/ 3 4)
-  5))
-`.trimStart(),
-    )
-
-    expect(unparseAst(ast, 8)).toEqual(
-`
-(round
- (+
-  1
-  2
-  (/
-   3
-   4)
-  5))
-`.trimStart(),
-    )
-  })
-
   it('should work 1', () => {
     const program = `
 (+
@@ -207,13 +175,123 @@ describe('unparseAst', () => {
     })
   })
 
-  describe('collection accessors', () => {
-    it.skip('should work 1', () => {
-      const program = 'a.b.c#0'
-      const tokenStream = lits.tokenize(program)
-      const ast = lits.parse(tokenStream)
+  // describe('collection accessors', () => {
+  //   it.skip('should work 1', () => {
+  //     const program = 'a.b.c#0'
+  //     const tokenStream = lits.tokenize(program)
+  //     const ast = lits.parse(tokenStream)
+  //     expect(unparseAst(ast, 80)).toEqual(program)
+  //   })
+  // })
 
-      expect(unparseAst(ast, 80)).toEqual(program)
-    })
+  describe('unparse sampleProgram', () => {
+    const sampleProgram = '(round (+ 1 2 (/ 3 (max 1 2 3 4)) 5))'
+
+    for (let lineLength = 10; lineLength <= 40; lineLength += 1) {
+      it(`should work unparse with line length ${lineLength}`, () => {
+        const tokenStream = lits.tokenize(sampleProgram)
+        const ast = lits.parse(tokenStream)
+        expect(unparseAst(ast, lineLength)).toEqual(formatSampleProgram(lineLength))
+      })
+    }
   })
 })
+
+function formatSampleProgram(lineLength: number): string {
+  if (lineLength >= 37 || lineLength === 0)
+    return '(round (+ 1 2 (/ 3 (max 1 2 3 4)) 5))\n'
+
+  if (lineLength >= 30 || lineLength === 0) {
+    return `
+(round
+ (+ 1 2 (/ 3 (max 1 2 3 4)) 5))
+`.trimStart()
+  }
+
+  if (lineLength >= 27) {
+    return `
+(round
+ (+ 1
+    2
+    (/ 3 (max 1 2 3 4))
+    5))
+`.trimStart()
+  }
+
+  if (lineLength >= 23) {
+    return `
+(round
+ (+ 1
+    2
+    (/ 3 (max 1 2 3 4))
+    5))
+`.trimStart()
+  }
+
+  if (lineLength >= 21) {
+    return `
+(round
+ (+
+  1
+  2
+  (/ 3 (max 1 2 3 4))
+  5))
+`.trimStart()
+  }
+
+  if (lineLength >= 19) {
+    return `
+(round
+ (+
+  1
+  2
+  (/ 3
+     (max 1 2 3 4))
+  5))
+`.trimStart()
+  }
+
+  if (lineLength >= 16) {
+    return `
+(round
+ (+
+  1
+  2
+  (/
+   3
+   (max 1 2 3 4))
+  5))
+`.trimStart()
+  }
+
+  if (lineLength >= 10) {
+    return `
+(round
+ (+
+  1
+  2
+  (/
+   3
+   (max 1
+        2
+        3
+        4))
+  5))
+`.trimStart()
+  }
+
+  return `
+(round
+ (+
+  1
+  2
+  (/
+   3
+   (max
+    1
+    2
+    3
+    4))
+  5))
+`.trimStart()
+}

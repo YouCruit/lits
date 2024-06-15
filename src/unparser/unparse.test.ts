@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Lits } from '../Lits/Lits'
-import { unparseAst } from './unparseAst'
+import { unparseAst } from './unparse'
 
 const lits = new Lits({ debug: true })
 
@@ -187,7 +187,7 @@ describe('unparseAst', () => {
   describe('unparse sampleProgram', () => {
     const sampleProgram = '(round (+ 1 2 (/ 3 (max 1 2 3 4)) 5))'
 
-    for (let lineLength = 10; lineLength <= 40; lineLength += 1) {
+    for (let lineLength = 0; lineLength <= sampleProgram.length + 1; lineLength += 1) {
       it(`should work unparse with line length ${lineLength}`, () => {
         const tokenStream = lits.tokenize(sampleProgram)
         const ast = lits.parse(tokenStream)

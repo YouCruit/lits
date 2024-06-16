@@ -273,17 +273,16 @@ function parseNormalExpression(tokenStream: TokenStream, position: number): [num
 
   let params: AstNode[]
   ;[position, params] = parseTokensUntilClosingBracket(tokenStream, newPosition)
-  
+
   const endBracketToken = tokenStream.debug ? asToken(tokenStream.tokens[position], tokenStream.filePath) : undefined
   position += 1
-
 
   if (isExpressionNode(fnNode)) {
     const node: NormalExpressionNode = {
       t: AstNodeType.NormalExpression,
       p: [fnNode, ...params],
       tkn: startBracketToken,
-      endBracketToken,  
+      endBracketToken,
     }
 
     return [position, node]
@@ -296,7 +295,7 @@ function parseNormalExpression(tokenStream: TokenStream, position: number): [num
     p: params,
     tkn: startBracketToken,
     nameToken: fnNode.tkn,
-    endBracketToken,  
+    endBracketToken,
   }
 
   const builtinExpression = builtin.normalExpressions[node.n]

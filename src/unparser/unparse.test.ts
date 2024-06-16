@@ -188,7 +188,7 @@ describe('unparseAst', () => {
     const sampleProgram = '(round (+ 1 2 (/ 3 (max 1 2 3 4)) 5))'
 
     for (let lineLength = 0; lineLength <= sampleProgram.length + 1; lineLength += 1) {
-      it(`should work unparse with line length ${lineLength}`, () => {
+      it(`should unparse with line length ${lineLength}`, () => {
         const tokenStream = lits.tokenize(sampleProgram)
         const ast = lits.parse(tokenStream)
         expect(unparseAst(ast, lineLength)).toEqual(formatSampleProgram(lineLength))
@@ -201,7 +201,7 @@ function formatSampleProgram(lineLength: number): string {
   if (lineLength >= 37 || lineLength === 0)
     return '(round (+ 1 2 (/ 3 (max 1 2 3 4)) 5))\n'
 
-  if (lineLength >= 30 || lineLength === 0) {
+  if (lineLength >= 30) {
     return `
 (round
  (+ 1 2 (/ 3 (max 1 2 3 4)) 5))

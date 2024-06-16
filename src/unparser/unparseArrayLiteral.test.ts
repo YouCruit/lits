@@ -7,6 +7,13 @@ const sampleProgram = '(flatten [1 2 [3 4] 5])'
 
 describe('unparseArrayLitteral', () => {
   it('should work 1', () => {
+    const program = '[]'
+    const tokenStream = lits.tokenize(program)
+    const ast = lits.parse(tokenStream)
+    expect(unparseAst(ast, 80)).toEqual('[]\n')
+  })
+
+  it('should work 2', () => {
     const program = `
 (flatten
  (identity
@@ -22,7 +29,7 @@ describe('unparseArrayLitteral', () => {
     expect(unparseAst(ast, 80)).toEqual(program)
   })
 
-  it('should work 2', () => {
+  it('should work 3', () => {
     const program = `
 (slice [1 2 3 4 5]
        1
@@ -34,8 +41,8 @@ describe('unparseArrayLitteral', () => {
   })
 
   describe('unparse sampleProgram', () => {
-    for (let lineLength = 1; lineLength <= sampleProgram.length + 1; lineLength += 1) {
-      it(`should work unparse with line length ${lineLength}`, () => {
+    for (let lineLength = 0; lineLength <= sampleProgram.length + 1; lineLength += 1) {
+      it(`should unparse with line length ${lineLength}`, () => {
         const tokenStream = lits.tokenize(sampleProgram)
         const ast = lits.parse(tokenStream)
         expect(unparseAst(ast, lineLength)).toEqual(formatSampleProgram(lineLength))
@@ -48,7 +55,7 @@ function formatSampleProgram(lineLength: number): string {
   if (lineLength >= sampleProgram.length || lineLength === 0)
     return `${sampleProgram}\n`
 
-  if (lineLength >= 14 || lineLength === 0) {
+  if (lineLength >= 14) {
     return `
 (flatten
  [1 2 [3 4] 5])

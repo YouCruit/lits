@@ -23,7 +23,7 @@ export function applyMetaTokens(
   options: UnparseOptions,
 ): string {
   if (!metaTokens) {
-    return `${!options.inlined ? '' : options.indent}${value}`
+    return `${options.inlined ? '' : options.indent}${value}`
   }
   else {
     const result = `${

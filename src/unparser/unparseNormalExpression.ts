@@ -1,16 +1,23 @@
 import { TokenType } from '../constants/constants'
 import type { NormalExpressionNode } from '../parser/interface'
 import type { UnparseOptions } from './UnparseOptions'
-import { unparseArrayLitteral } from './unparseArrayLiteral'
+import { unparseArrayLiteral } from './unparseArrayLiteral'
+import { unparseObjectLiteral } from './unparseObjectLiteral'
 import { unparseMultilineParams, unparseParams } from './unparseParams'
 import { applyMetaTokens, assertNotOverflown, ensureNewlineSeparator } from './utils'
 
 export function unparseNormalExpressionNode(node: NormalExpressionNode, options: UnparseOptions): string {
   if (node.tkn?.t === TokenType.Bracket && node.tkn.v === '[')
-    return unparseArrayLitteral(node, options)
+    return unparseArrayLiteral(node, options)
+  else if (node.tkn?.t === TokenType.Bracket && node.tkn.v === '{')
+    return unparseObjectLiteral(node, options)
 
   const { startBracket, unparsedName, params, endBracket } = getInfo(node, options)
   const prefix = startBracket + unparsedName
+
+  // If no parameters, return the expression with brackets
+  if (params.length === 0)
+    return `${prefix}${endBracket}`
 
   // 1. Try to unparse the parameters
   try {
@@ -38,10 +45,11 @@ export function unparseNormalExpressionNode(node: NormalExpressionNode, options:
       // If the first parameter is multiline, fallback to option 3
       if (!firstParam.includes('\n')) {
         const indentedParams = unparseMultilineParams(params.slice(1), newOptions)
-        return assertNotOverflown(
+        const x = assertNotOverflown(
           newOptions.lineLength,
         `${prefix} ${ensureNewlineSeparator(firstParam, indentedParams)}${endBracket}`,
         )
+        return x
       }
     }
     catch {

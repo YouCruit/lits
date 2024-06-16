@@ -1,6 +1,6 @@
 import { TokenType } from '../constants/constants'
 import { LitsError } from '../errors'
-import type { ModifierName, StringNode } from '../parser/interface'
+import type { ModifierName } from '../parser/interface'
 import { reservedNamesRecord } from '../reservedNames'
 import { asString } from '../typeGuards/string'
 import type { SourceCodeInfo, Token, TokenDescriptor, Tokenizer } from './interface'

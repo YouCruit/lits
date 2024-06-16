@@ -3,21 +3,19 @@ import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, NameNode } from '../../parser/interface'
+import type { AstNode, GenericNode, NameNode } from '../../parser/interface'
 import { assertNameNode } from '../../typeGuards/astNode'
 import { asToken, assertToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { asAny } from '../../typeGuards/lits'
 import { getSourceCodeInfo } from '../../utils/debug/getSourceCodeInfo'
-import type { Token } from '../../tokenizer/interface'
 
-export interface TryNode {
+export interface TryNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'try'
   te: AstNode
   e: NameNode
   ce: AstNode
-  tkn?: Token
 }
 
 export const trySpecialExpression: BuiltinSpecialExpression<Any, TryNode> = {
@@ -31,17 +29,17 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any, TryNode> = {
 
     let catchNode: AstNode
     ;[position, catchNode] = parseToken(tokenStream, position)
-    assertNameNode(catchNode, catchNode.tkn?.sourceCodeInfo)
+    assertNameNode(catchNode, catchNode.debug?.token.sourceCodeInfo)
     if (catchNode.v !== 'catch') {
       throw new LitsError(
         `Expected 'catch', got '${catchNode.v}'.`,
-        getSourceCodeInfo(catchNode, catchNode.tkn?.sourceCodeInfo),
+        getSourceCodeInfo(catchNode, catchNode.debug?.token.sourceCodeInfo),
       )
     }
 
     let error: AstNode
     ;[position, error] = parseToken(tokenStream, position)
-    assertNameNode(error, error.tkn?.sourceCodeInfo)
+    assertNameNode(error, error.debug?.token.sourceCodeInfo)
 
     let catchExpression: AstNode
     ;[position, catchExpression] = parseToken(tokenStream, position)
@@ -58,7 +56,11 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any, TryNode> = {
       te: tryExpression,
       ce: catchExpression,
       e: error,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
 
     return [position, node]
@@ -70,7 +72,7 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any, TryNode> = {
     }
     catch (error) {
       const newContext: Context = {
-        [errorNode.v]: { value: asAny(error, node.tkn?.sourceCodeInfo) },
+        [errorNode.v]: { value: asAny(error, node.debug?.token.sourceCodeInfo) },
       }
       return evaluateAstNode(catchExpression, contextStack.create(newContext))
     }

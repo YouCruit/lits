@@ -3,19 +3,17 @@ import { AstNodeType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import type { AstNode, BindingNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
 import { asNonUndefined } from '../../typeGuards'
 import { asToken } from '../../typeGuards/token'
 import { valueToString } from '../../utils/debug/debugTools'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface WhenLetNode {
+export interface WhenLetNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'when-let'
   p: AstNode[]
   b: BindingNode
-  tkn?: Token
 }
 
 export const whenLetSpecialExpression: BuiltinSpecialExpression<Any, WhenLetNode> = {
@@ -39,7 +37,11 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any, WhenLetNode
       n: 'when-let',
       b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
       p: params,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
     return [position + 1, node]
   },

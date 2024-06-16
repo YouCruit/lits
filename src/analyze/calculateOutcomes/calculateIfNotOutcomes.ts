@@ -18,7 +18,7 @@ export const calculateIfNotOutcomes: CalculatePossibleAstNodesHelper<IfNotNode> 
         n: 'if-not',
         t: astNode.t,
         p,
-        tkn: astNode.tkn,
+        debug: astNode.debug,
       }))
   }
 

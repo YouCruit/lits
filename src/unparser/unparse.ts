@@ -9,16 +9,16 @@ export type Unparse = (node: AstNode, options: UnparseOptions) => string
 const unparse: Unparse = (node: AstNode, options: UnparseOptions) => {
   switch (node.t) {
     case AstNodeType.String:
-      return node.tkn?.o?.s
-        ? applyMetaTokens(`:${node.v}`, node.tkn.metaTokens, options) // Keyword
-        : applyMetaTokens(`"${node.v}"`, node.tkn?.metaTokens, options)
+      return node.debug?.token.o?.s
+        ? applyMetaTokens(`:${node.v}`, node.debug?.token.metaTokens, options) // Keyword
+        : applyMetaTokens(`"${node.v}"`, node.debug?.token.metaTokens, options)
     case AstNodeType.Number:
     case AstNodeType.Name:
     case AstNodeType.Modifier:
     case AstNodeType.ReservedName:
-      return applyMetaTokens(node.v, node.tkn?.metaTokens, options)
+      return applyMetaTokens(node.v, node.debug?.token.metaTokens, options)
     case AstNodeType.Comment:
-      return `${applyMetaTokens(node.v, node.tkn?.metaTokens, options)}\n`
+      return `${applyMetaTokens(node.v, node.debug?.token.metaTokens, options)}\n`
     case AstNodeType.NormalExpression: {
       return unparseNormalExpressionNode(node, options)
     }

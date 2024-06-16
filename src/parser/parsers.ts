@@ -27,24 +27,24 @@ import type {
 
 export function parseNumber(tokenStream: TokenStream, position: number): [number, NumberNode] {
   const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
-  return [position + 1, { t: AstNodeType.Number, v: Number(tkn.v), tkn: tkn.sourceCodeInfo ? tkn : undefined }]
+  return [position + 1, { t: AstNodeType.Number, v: Number(tkn.v), debug: tkn.sourceCodeInfo ? { token: tkn } : undefined }]
 }
 
 function parseString(tokenStream: TokenStream, position: number): [number, StringNode] {
   const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
-  return [position + 1, { t: AstNodeType.String, v: tkn.v, tkn: tkn.sourceCodeInfo ? tkn : undefined }]
+  return [position + 1, { t: AstNodeType.String, v: tkn.v, debug: tkn.sourceCodeInfo ? { token: tkn } : undefined }]
 }
 
 function parseName(tokenStream: TokenStream, position: number): [number, NameNode] {
   const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
-  return [position + 1, { t: AstNodeType.Name, v: tkn.v, tkn: tkn.sourceCodeInfo ? tkn : undefined }]
+  return [position + 1, { t: AstNodeType.Name, v: tkn.v, debug: tkn.sourceCodeInfo ? { token: tkn } : undefined }]
 }
 
 function parseReservedName(tokenStream: TokenStream, position: number): [number, ReservedNameNode] {
   const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   return [
     position + 1,
-    { t: AstNodeType.ReservedName, v: tkn.v as ReservedName, tkn: tkn.sourceCodeInfo ? tkn : undefined },
+    { t: AstNodeType.ReservedName, v: tkn.v as ReservedName, debug: tkn.sourceCodeInfo ? { token: tkn } : undefined },
   ]
 }
 
@@ -52,7 +52,7 @@ function parseComment(tokenStream: TokenStream, position: number): [number, Comm
   const tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   return [
     position + 1,
-    { t: AstNodeType.Comment, v: tkn.v as ReservedName, tkn: tkn.sourceCodeInfo ? tkn : undefined },
+    { t: AstNodeType.Comment, v: tkn.v as ReservedName, debug: tkn.sourceCodeInfo ? { token: tkn } : undefined },
   ]
 }
 
@@ -95,8 +95,12 @@ function parseArrayLitteral(tokenStream: TokenStream, position: number): [number
     t: AstNodeType.NormalExpression,
     n: 'array',
     p: params,
-    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-    endBracketToken: tkn.sourceCodeInfo ? tkn : undefined,
+    debug: firstToken.sourceCodeInfo
+      ? {
+          token: firstToken,
+          endBracketToken: tkn,
+        }
+      : undefined,
   }
 
   return [position, node]
@@ -121,8 +125,12 @@ function parseObjectLitteral(tokenStream: TokenStream, position: number): [numbe
     t: AstNodeType.NormalExpression,
     n: 'object',
     p: params,
-    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
-    endBracketToken: tkn.sourceCodeInfo ? tkn : undefined,
+    debug: firstToken.sourceCodeInfo
+      ? {
+          token: firstToken,
+          endBracketToken: tkn,
+        }
+      : undefined,
   }
 
   assertEventNumberOfParams({
@@ -138,7 +146,11 @@ function parseRegexpShorthand(tokenStream: TokenStream, position: number): [numb
   const stringNode: StringNode = {
     t: AstNodeType.String,
     v: tkn.v,
-    tkn: tkn.sourceCodeInfo ? tkn : undefined,
+    debug: tkn.sourceCodeInfo
+      ? {
+          token: tkn,
+        }
+      : undefined,
   }
 
   assertNonUndefined(tkn.o, tkn.sourceCodeInfo)
@@ -146,14 +158,22 @@ function parseRegexpShorthand(tokenStream: TokenStream, position: number): [numb
   const optionsNode: StringNode = {
     t: AstNodeType.String,
     v: `${tkn.o.g ? 'g' : ''}${tkn.o.i ? 'i' : ''}`,
-    tkn: tkn.sourceCodeInfo ? tkn : undefined,
+    debug: tkn.sourceCodeInfo
+      ? {
+          token: tkn,
+        }
+      : undefined,
   }
 
   const node: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
     n: 'regexp',
     p: [stringNode, optionsNode],
-    tkn: tkn.sourceCodeInfo ? tkn : undefined,
+    debug: tkn.sourceCodeInfo
+      ? {
+          token: tkn,
+        }
+      : undefined,
   }
 
   return [position + 1, node]
@@ -217,7 +237,11 @@ const parseFnShorthand: ParseFnShorthand = (tokenStream, position) => {
         a: args.m.length,
       },
     ],
-    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+    debug: firstToken.sourceCodeInfo
+      ? {
+          token: firstToken,
+        }
+      : undefined,
   }
 
   return [newPosition, node]
@@ -230,7 +254,7 @@ const parseArgument: ParseArgument = (tokenStream, position) => {
   }
   else if (tkn.t === TokenType.Modifier) {
     const value = tkn.v as ModifierName
-    return [position + 1, { t: AstNodeType.Modifier, v: value, tkn: tkn.sourceCodeInfo ? tkn : undefined }]
+    return [position + 1, { t: AstNodeType.Modifier, v: value, debug: tkn.sourceCodeInfo ? { token: tkn } : undefined }]
   }
   else {
     throw new LitsError(`Expected name or modifier token, got ${valueToString(tkn)}.`, tkn.sourceCodeInfo)
@@ -265,7 +289,11 @@ function parseBinding(tokenStream: TokenStream, position: number): [number, Bind
     t: AstNodeType.Binding,
     n: name,
     v: value,
-    tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+    debug: firstToken.sourceCodeInfo
+      ? {
+          token: firstToken,
+        }
+      : undefined,
   }
   return [position, node]
 }
@@ -285,21 +313,29 @@ function parseNormalExpression(tokenStream: TokenStream, position: number): [num
     const node: NormalExpressionNode = {
       t: AstNodeType.NormalExpression,
       p: [fnNode, ...params],
-      tkn: startBracketToken,
-      endBracketToken,
+      debug: startBracketToken
+        ? {
+            token: startBracketToken,
+            endBracketToken,
+          }
+        : undefined,
     }
 
     return [position, node]
   }
 
-  assertNameNode(fnNode, fnNode.tkn?.sourceCodeInfo)
+  assertNameNode(fnNode, fnNode.debug?.token.sourceCodeInfo)
   const node: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
     n: fnNode.v,
     p: params,
-    tkn: startBracketToken,
-    nameToken: fnNode.tkn,
-    endBracketToken,
+    debug: startBracketToken
+      ? {
+          token: startBracketToken,
+          nameToken: fnNode.debug?.token,
+          endBracketToken,
+        }
+      : undefined,
   }
 
   const builtinExpression = builtin.normalExpressions[node.n]

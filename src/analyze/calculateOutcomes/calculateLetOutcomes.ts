@@ -23,7 +23,7 @@ export const calculateLetOutcomes: CalculatePossibleAstNodesHelper<LetNode> = ({
           n: 'do',
           t: AstNodeType.SpecialExpression,
           p,
-          tkn: astNode.tkn,
+          debug: astNode.debug,
         }
       })
     return doNodes
@@ -43,7 +43,7 @@ export const calculateLetOutcomes: CalculatePossibleAstNodesHelper<LetNode> = ({
           bs: bindingNodes,
           t: AstNodeType.SpecialExpression,
           p,
-          tkn: astNode.tkn,
+          debug: astNode.debug,
         }
       }))
 

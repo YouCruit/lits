@@ -3,20 +3,18 @@ import { AstNodeType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import type { AstNode, BindingNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
 import { asNonUndefined, assertNumberOfParamsFromAstNodes } from '../../typeGuards'
 import { asAstNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import { valueToString } from '../../utils/debug/debugTools'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface IfLetNode {
+export interface IfLetNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'if-let'
   p: AstNode[]
   b: BindingNode
-  tkn?: Token
 }
 
 export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = {
@@ -45,12 +43,16 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = 
       n: 'if-let',
       b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
       p: params,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const sourceCodeInfo = node.tkn?.sourceCodeInfo
+    const sourceCodeInfo = node.debug?.token.sourceCodeInfo
     const locals: Context = {}
     const bindingValue = evaluateAstNode(node.b.v, contextStack)
     if (bindingValue) {

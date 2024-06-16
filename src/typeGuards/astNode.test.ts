@@ -64,24 +64,24 @@ describe('astNode type guards', () => {
   }
   const nameNode: NameNode = {
     t: AstNodeType.Name,
-    tkn,
+    debug: { token: tkn },
     v: 'A name',
   }
   const numberNode: NumberNode = {
     t: AstNodeType.Number,
     v: 12,
-    tkn,
+    debug: { token: tkn },
   }
   const stringNode: StringNode = {
     t: AstNodeType.String,
     v: 'foo',
-    tkn: { t: TokenType.Name, v: 'X' },
+    debug: { token: { t: TokenType.Name, v: 'X' } },
   }
   const normalExpressionNodeWithName: NormalExpressionNodeWithName = {
     t: AstNodeType.NormalExpression,
     p: [],
     n: 'object',
-    tkn: { t: TokenType.Name, v: 'X' },
+    debug: { token: { t: TokenType.Name, v: 'X' } },
   }
   const normalExpressionNodeWithoutName: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
@@ -92,7 +92,7 @@ describe('astNode type guards', () => {
         {
           t: AstNodeType.Number,
           v: 2,
-          tkn: { t: TokenType.Name, v: 'X' },
+          debug: { token: { t: TokenType.Name, v: 'X' } },
         },
       ],
     }],

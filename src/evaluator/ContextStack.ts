@@ -79,7 +79,7 @@ export class ContextStackImpl {
 
   public lookUp(node: NameNode): LookUpResult {
     const value = node.v
-    const sourceCodeInfo = node.tkn?.sourceCodeInfo
+    const sourceCodeInfo = node.debug?.token.sourceCodeInfo
 
     for (const context of this.contexts) {
       const contextEntry = context[value]
@@ -129,7 +129,7 @@ export class ContextStackImpl {
     else if (isBuiltinFunction(lookUpResult))
       return lookUpResult
 
-    throw new UndefinedSymbolError(node.v, node.tkn?.sourceCodeInfo)
+    throw new UndefinedSymbolError(node.v, node.debug?.token.sourceCodeInfo)
   }
 }
 

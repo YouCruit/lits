@@ -4,8 +4,8 @@ import type { ContextStack } from '../../evaluator/ContextStack'
 import type { Context, EvaluateAstNode } from '../../evaluator/interface'
 import type { Any, Arr } from '../../interface'
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, BindingNode } from '../../parser/interface'
-import type { SourceCodeInfo, Token, TokenStream } from '../../tokenizer/interface'
+import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
+import type { SourceCodeInfo, TokenStream } from '../../tokenizer/interface'
 import { asAstNode } from '../../typeGuards/astNode'
 import { asToken, assertToken, isToken } from '../../typeGuards/token'
 import type { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
@@ -13,20 +13,18 @@ import { asAny, asColl, isSeq } from '../../typeGuards/lits'
 import { asNonUndefined } from '../../typeGuards'
 import type { SpecialExpressionNode } from '..'
 
-export interface ForNode {
+export interface ForNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'for'
   p: AstNode
   l: LoopBindingNode[]
-  tkn?: Token
 }
 
-export interface DoSeqNode {
+export interface DoSeqNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'doseq'
   p: AstNode
   l: LoopBindingNode[]
-  tkn?: Token
 }
 
 type LoopNode = ForNode | DoSeqNode
@@ -124,7 +122,7 @@ function evaluateLoop(
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
 ) {
-  const sourceCodeInfo = node.tkn?.sourceCodeInfo
+  const sourceCodeInfo = node.debug?.token.sourceCodeInfo
   const { l: loopBindings, p: expression } = node as LoopNode
 
   const result: Arr = []
@@ -263,7 +261,11 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any, ForNode> = {
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
       p: expression,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
 
     return [position + 1, node]
@@ -289,7 +291,11 @@ export const doseqSpecialExpression: BuiltinSpecialExpression<null, DoSeqNode> =
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
       p: expression,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
 
     return [position + 1, node]

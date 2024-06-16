@@ -1,16 +1,14 @@
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode } from '../../parser/interface'
+import type { AstNode, GenericNode } from '../../parser/interface'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import type { Token } from '../../tokenizer/interface'
 
-export interface DoNode {
+export interface DoNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'do'
   p: AstNode[] // params
-  tkn?: Token
 }
 
 export const doSpecialExpression: BuiltinSpecialExpression<Any, DoNode> = {
@@ -21,7 +19,11 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any, DoNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'do',
       p: [],
-      tkn: tkn.sourceCodeInfo ? tkn : undefined,
+      debug: tkn.sourceCodeInfo
+        ? {
+            token: tkn,
+          }
+        : undefined,
     }
 
     while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {

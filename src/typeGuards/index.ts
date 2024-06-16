@@ -10,7 +10,7 @@ export function assertEventNumberOfParams(node: NormalExpressionNode): void {
   if (length % 2 !== 0) {
     throw new LitsError(
       `Wrong number of arguments, expected an even number, got ${valueToString(length)}.`,
-      node.tkn?.sourceCodeInfo,
+      node.debug?.token.sourceCodeInfo,
     )
   }
 }
@@ -58,7 +58,7 @@ export function assertNumberOfParams(
   node: NormalExpressionNode,
 ): void {
   const length = node.p.length
-  const sourceCodeInfo = node.tkn?.sourceCodeInfo
+  const sourceCodeInfo = node.debug?.token.sourceCodeInfo
   assertCount({
     name: node.n,
     count,

@@ -112,9 +112,13 @@ export type LitsFunctionType = LitsFunction['t']
 
 export type ModifierName = '&' | '&let' | '&when' | '&while'
 
-interface GenericNode {
+export interface GenericNode {
   t: AstNodeType // type
-  tkn?: Token
+  debug?: {
+    token: Token
+    nameToken?: Token
+    endBracketToken?: Token
+  }
 }
 
 export type ExpressionNode = NormalExpressionNode | SpecialExpressionNode | NumberNode | StringNode
@@ -149,8 +153,6 @@ export interface ReservedNameNode extends GenericNode {
 interface NormalExpressionNodeBase extends GenericNode {
   t: AstNodeType.NormalExpression // type
   p: AstNode[] // params
-  nameToken?: Token
-  endBracketToken?: Token
 }
 
 export interface NormalExpressionNodeWithName extends NormalExpressionNodeBase {

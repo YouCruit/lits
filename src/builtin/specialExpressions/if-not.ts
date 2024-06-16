@@ -1,17 +1,15 @@
 import { AstNodeType } from '../../constants/constants'
 import type { Any } from '../../interface'
-import type { AstNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { AstNode, GenericNode } from '../../parser/interface'
 import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
 import { asAstNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface IfNotNode {
+export interface IfNotNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'if-not'
   p: AstNode[]
-  tkn?: Token
 }
 
 export const ifNotSpecialExpression: BuiltinSpecialExpression<Any, IfNotNode> = {
@@ -30,12 +28,16 @@ export const ifNotSpecialExpression: BuiltinSpecialExpression<Any, IfNotNode> = 
         t: AstNodeType.SpecialExpression,
         n: 'if-not',
         p: params,
-        tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+        debug: firstToken.sourceCodeInfo
+          ? {
+              token: firstToken,
+            }
+          : undefined,
       } satisfies IfNotNode,
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const sourceCodeInfo = node.tkn?.sourceCodeInfo
+    const sourceCodeInfo = node.debug?.token.sourceCodeInfo
 
     const [conditionNode, trueNode, falseNode] = node.p
     if (!evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {

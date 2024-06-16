@@ -3,8 +3,7 @@ import { AstNodeType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import type { AstNode, BindingNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
 import { asNonUndefined } from '../../typeGuards'
 import { isSeq } from '../../typeGuards/lits'
 import { asToken } from '../../typeGuards/token'
@@ -12,12 +11,11 @@ import { toAny } from '../../utils'
 import { valueToString } from '../../utils/debug/debugTools'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface WhenFirstNode {
+export interface WhenFirstNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'when-first'
   p: AstNode[]
   b: BindingNode
-  tkn?: Token
 }
 
 export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any, WhenFirstNode> = {
@@ -41,7 +39,11 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any, WhenFirst
       n: 'when-first',
       b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
       p: params,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
     return [position + 1, node]
   },
@@ -52,7 +54,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any, WhenFirst
     if (!isSeq(evaluatedBindingForm)) {
       throw new LitsError(
         `Expected undefined or a sequence, got ${valueToString(evaluatedBindingForm)}`,
-        node.tkn?.sourceCodeInfo,
+        node.debug?.token.sourceCodeInfo,
       )
     }
 

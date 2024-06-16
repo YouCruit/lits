@@ -18,7 +18,7 @@ export const calculateIfOutcomes: CalculatePossibleAstNodesHelper<IfNode> = ({
         n: 'if',
         t: astNode.t,
         p,
-        tkn: astNode.tkn,
+        debug: astNode.debug,
       }))
   }
 

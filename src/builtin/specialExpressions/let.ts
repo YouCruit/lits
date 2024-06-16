@@ -2,17 +2,15 @@ import { joinAnalyzeResults } from '../../analyze/utils'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
-import type { AstNode, BindingNode } from '../../parser/interface'
+import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import type { Token } from '../../tokenizer/interface'
 
-export interface LetNode {
+export interface LetNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'let'
   p: AstNode[]
   bs: BindingNode[]
-  tkn?: Token
 }
 
 export const letSpecialExpression: BuiltinSpecialExpression<Any, LetNode> = {
@@ -29,7 +27,11 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any, LetNode> = {
       n: 'let',
       p: params,
       bs: bindings,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
     return [position + 1, node]
   },

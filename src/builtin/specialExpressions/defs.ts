@@ -1,17 +1,15 @@
 import { AstNodeType } from '../../constants/constants'
-import type { AstNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { AstNode, GenericNode } from '../../parser/interface'
 import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
 import { assertString } from '../../typeGuards/string'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { assertNameNotDefined } from '../utils'
 
-export interface DefsNode {
+export interface DefsNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'defs'
   p: [AstNode, AstNode]
-  tkn?: Token
 }
 
 export const defsSpecialExpression: BuiltinSpecialExpression<null, DefsNode> = {
@@ -30,16 +28,20 @@ export const defsSpecialExpression: BuiltinSpecialExpression<null, DefsNode> = {
         t: AstNodeType.SpecialExpression,
         n: 'defs',
         p: [params[0]!, params[1]!],
-        tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+        debug: firstToken.sourceCodeInfo
+          ? {
+              token: firstToken,
+            }
+          : undefined,
       } satisfies DefsNode,
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode, builtin }) => {
-    const sourceCodeInfo = node.tkn?.sourceCodeInfo
+    const sourceCodeInfo = node.debug?.token.sourceCodeInfo
     const name = evaluateAstNode(node.p[0], contextStack)
     assertString(name, sourceCodeInfo)
 
-    assertNameNotDefined(name, contextStack, builtin, node.tkn?.sourceCodeInfo)
+    assertNameNotDefined(name, contextStack, builtin, node.debug?.token.sourceCodeInfo)
 
     contextStack.globalContext[name] = {
       value: evaluateAstNode(node.p[1], contextStack),
@@ -48,7 +50,7 @@ export const defsSpecialExpression: BuiltinSpecialExpression<null, DefsNode> = {
     return null
   },
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin, evaluateAstNode }) => {
-    const sourceCodeInfo = node.tkn?.sourceCodeInfo
+    const sourceCodeInfo = node.debug?.token.sourceCodeInfo
     const subNode = node.p[1]
     const result = findUnresolvedIdentifiers([subNode], contextStack, builtin)
     const name = evaluateAstNode(node.p[0], contextStack)

@@ -1,17 +1,15 @@
 import { AstNodeType } from '../../constants/constants'
 import type { Any } from '../../interface'
-import type { AstNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { AstNode, GenericNode } from '../../parser/interface'
 import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
 import { assertAstNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface WhenNotNode {
+export interface WhenNotNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'when-not'
   p: AstNode[]
-  tkn?: Token
 }
 
 export const whenNotSpecialExpression: BuiltinSpecialExpression<Any, WhenNotNode> = {
@@ -28,14 +26,18 @@ export const whenNotSpecialExpression: BuiltinSpecialExpression<Any, WhenNotNode
       t: AstNodeType.SpecialExpression,
       n: 'when-not',
       p: params,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
 
     return [newPosition + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const [whenExpression, ...body] = node.p
-    assertAstNode(whenExpression, node.tkn?.sourceCodeInfo)
+    assertAstNode(whenExpression, node.debug?.token.sourceCodeInfo)
 
     if (evaluateAstNode(whenExpression, contextStack))
       return null

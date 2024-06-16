@@ -1,16 +1,14 @@
 import { UserDefinedError } from '../../errors'
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode } from '../../parser/interface'
+import type { AstNode, GenericNode } from '../../parser/interface'
 import { asToken, assertToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { asString } from '../../typeGuards/string'
-import type { Token } from '../../tokenizer/interface'
 
-export interface ThrowNode {
+export interface ThrowNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'throw'
   m: AstNode
-  tkn?: Token
 }
 
 export const throwSpecialExpression: BuiltinSpecialExpression<null, ThrowNode> = {
@@ -26,15 +24,19 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null, ThrowNode> =
       t: AstNodeType.SpecialExpression,
       n: 'throw',
       m: messageNode,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
     return [position, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const message = asString(evaluateAstNode(node.m, contextStack), node.tkn?.sourceCodeInfo, {
+    const message = asString(evaluateAstNode(node.m, contextStack), node.debug?.token.sourceCodeInfo, {
       nonEmpty: true,
     })
-    throw new UserDefinedError(message, node.tkn?.sourceCodeInfo)
+    throw new UserDefinedError(message, node.debug?.token.sourceCodeInfo)
   },
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers([node.m], contextStack, builtin),
 }

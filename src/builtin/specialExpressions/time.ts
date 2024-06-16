@@ -1,16 +1,14 @@
 import { AstNodeType } from '../../constants/constants'
 import type { Any } from '../../interface'
-import type { AstNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { AstNode, GenericNode } from '../../parser/interface'
 import { assertAstNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface TimeNode {
+export interface TimeNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'time!'
   p: AstNode
-  tkn?: Token
 }
 
 export const timeSpecialExpression: BuiltinSpecialExpression<Any, TimeNode> = {
@@ -21,14 +19,18 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any, TimeNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'time!',
       p: astNode,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
 
     return [newPosition + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const param = node.p
-    assertAstNode(param, node.tkn?.sourceCodeInfo)
+    assertAstNode(param, node.debug?.token.sourceCodeInfo)
 
     const startTime = Date.now()
     const result = evaluateAstNode(param, contextStack)

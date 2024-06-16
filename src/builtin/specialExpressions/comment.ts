@@ -1,14 +1,12 @@
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { AstNode, GenericNode } from '../../parser/interface'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface CommentExpressionNode {
+export interface CommentExpressionNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'comment'
   p: AstNode[]
-  tkn?: Token
 }
 
 export const commentSpecialExpression: BuiltinSpecialExpression<null, CommentExpressionNode> = {
@@ -19,7 +17,11 @@ export const commentSpecialExpression: BuiltinSpecialExpression<null, CommentExp
       t: AstNodeType.SpecialExpression,
       n: 'comment',
       p: [],
-      tkn: tkn.sourceCodeInfo ? tkn : undefined,
+      debug: tkn.sourceCodeInfo
+        ? {
+            token: tkn,
+          }
+        : undefined,
     } satisfies CommentExpressionNode
 
     while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {

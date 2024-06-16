@@ -1,16 +1,14 @@
 import { AstNodeType } from '../../constants/constants'
-import type { NameNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { GenericNode, NameNode } from '../../parser/interface'
 import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
 import { asNameNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface DeclaredNode {
+export interface DeclaredNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'declared?'
   p: NameNode
-  tkn?: Token
 }
 
 export const declaredSpecialExpression: BuiltinSpecialExpression<boolean, DeclaredNode> = {
@@ -28,7 +26,11 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<boolean, Declar
       t: AstNodeType.SpecialExpression,
       n: 'declared?',
       p: asNameNode(params[0], firstToken.sourceCodeInfo),
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
 
     return [newPosition + 1, node]

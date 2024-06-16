@@ -1,15 +1,13 @@
 import { RecurSignal } from '../../errors'
 import { AstNodeType } from '../../constants/constants'
-import type { AstNode } from '../../parser/interface'
+import type { AstNode, GenericNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import type { Token } from '../../tokenizer/interface'
 
-export interface RecurNode {
+export interface RecurNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'recur'
   p: AstNode[]
-  tkn?: Token
 }
 
 export const recurSpecialExpression: BuiltinSpecialExpression<null, RecurNode> = {
@@ -22,7 +20,11 @@ export const recurSpecialExpression: BuiltinSpecialExpression<null, RecurNode> =
       t: AstNodeType.SpecialExpression,
       n: 'recur',
       p: params,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
 
     return [position + 1, node]

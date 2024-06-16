@@ -112,24 +112,24 @@ describe('context', () => {
               {
                 t: AstNodeType.Number,
                 v: 2,
-                tkn: {
+                debug: { token: {
                   t: TokenType.Number,
                   v: '2',
-                },
+                } },
               },
               {
                 t: AstNodeType.Number,
                 v: 4,
-                tkn: {
+                debug: { token: {
                   t: TokenType.Number,
                   v: '4',
-                },
+                } },
               },
             ],
-            tkn: {
+            debug: { token: {
               t: TokenType.Name,
               v: 'pow',
-            },
+            } },
           },
         ],
       },

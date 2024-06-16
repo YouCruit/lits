@@ -7,9 +7,9 @@ import { unparseMultilineParams, unparseParams } from './unparseParams'
 import { applyMetaTokens, ensureNewlineSeparator } from './utils'
 
 export function unparseNormalExpressionNode(node: NormalExpressionNode, options: UnparseOptions): string {
-  if (node.tkn?.t === TokenType.Bracket && node.tkn.v === '[')
+  if (node.debug?.token.t === TokenType.Bracket && node.debug.token.v === '[')
     return unparseArrayLiteral(node, options)
-  else if (node.tkn?.t === TokenType.Bracket && node.tkn.v === '{')
+  else if (node.debug?.token.t === TokenType.Bracket && node.debug.token.v === '{')
     return unparseObjectLiteral(node, options)
 
   const { startBracket, unparsedName, params, endBracket } = getInfo(node, options)
@@ -70,13 +70,13 @@ export function unparseNormalExpressionNode(node: NormalExpressionNode, options:
 }
 
 function getInfo(node: NormalExpressionNode, options: UnparseOptions) {
-  const startBracket = applyMetaTokens('(', node.tkn?.metaTokens, options)
-  const endBracket = applyMetaTokens(')', node.endBracketToken?.metaTokens, options.inline())
+  const startBracket = applyMetaTokens('(', node.debug?.token.metaTokens, options)
+  const endBracket = applyMetaTokens(')', node.debug?.endBracketToken?.metaTokens, options.inline())
 
   // Unparse the name,
   // if expression node e.g. ("Albert" 2), first parameter is the name ("Albert")
   const unparsedName = node.n
-    ? applyMetaTokens(node.n, node.nameToken?.metaTokens, options.inline())
+    ? applyMetaTokens(node.n, node.debug?.nameToken?.metaTokens, options.inline())
     : options.unparse(node.p[0]!, options.inc().inline())
 
   const params = node.n ? node.p : node.p.slice(1)

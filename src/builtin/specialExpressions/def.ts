@@ -1,17 +1,15 @@
 import { AstNodeType } from '../../constants/constants'
-import type { AstNode, NameNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { AstNode, GenericNode, NameNode } from '../../parser/interface'
 import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
 import { asNameNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { assertNameNotDefined } from '../utils'
 
-export interface DefNode {
+export interface DefNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'def'
   p: [NameNode, AstNode]
-  tkn?: Token
 }
 
 export const defSpecialExpression: BuiltinSpecialExpression<null, DefNode> = {
@@ -30,12 +28,16 @@ export const defSpecialExpression: BuiltinSpecialExpression<null, DefNode> = {
         t: AstNodeType.SpecialExpression,
         n: 'def',
         p: [asNameNode(params[0], firstToken.sourceCodeInfo), params[1]!],
-        tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+        debug: firstToken.sourceCodeInfo
+          ? {
+              token: firstToken,
+            }
+          : undefined,
       } satisfies DefNode,
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode, builtin }) => {
-    const sourceCodeInfo = node.tkn?.sourceCodeInfo
+    const sourceCodeInfo = node.debug?.token.sourceCodeInfo
     const name = node.p[0].v
 
     assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo)
@@ -47,7 +49,7 @@ export const defSpecialExpression: BuiltinSpecialExpression<null, DefNode> = {
     return null
   },
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
-    const sourceCodeInfo = node.tkn?.sourceCodeInfo
+    const sourceCodeInfo = node.debug?.token.sourceCodeInfo
     const subNode = node.p[1]
     const result = findUnresolvedIdentifiers([subNode], contextStack, builtin)
     const name = node.p[0].v

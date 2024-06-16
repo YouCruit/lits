@@ -1,7 +1,7 @@
 import type { Any } from '../../interface'
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, ParseToken } from '../../parser/interface'
-import type { Token, TokenStream } from '../../tokenizer/interface'
+import type { AstNode, GenericNode, ParseToken } from '../../parser/interface'
+import type { TokenStream } from '../../tokenizer/interface'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
@@ -10,11 +10,10 @@ export interface Condition {
   f: AstNode // form
 }
 
-export interface CondNode {
+export interface CondNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'cond'
   c: Condition[]
-  tkn?: Token
 }
 
 function parseConditions(tokenStream: TokenStream, position: number, parseToken: ParseToken): [number, Condition[]] {
@@ -47,7 +46,11 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any, CondNode> = {
         t: AstNodeType.SpecialExpression,
         n: 'cond',
         c: conditions,
-        tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+        debug: firstToken.sourceCodeInfo
+          ? {
+              token: firstToken,
+            }
+          : undefined,
       } satisfies CondNode,
     ]
   },

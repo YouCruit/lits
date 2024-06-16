@@ -2,14 +2,12 @@ import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import type { AstNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { AstNode, GenericNode } from '../../parser/interface'
 
-export interface AndNode {
+export interface AndNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'and'
   p: AstNode[]
-  tkn?: Token
 }
 
 export const andSpecialExpression: BuiltinSpecialExpression<Any, AndNode> = {
@@ -22,7 +20,11 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any, AndNode> = {
         t: AstNodeType.SpecialExpression,
         n: 'and',
         p: params,
-        tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+        debug: firstToken.sourceCodeInfo
+          ? {
+              token: firstToken,
+            }
+          : undefined,
       } satisfies AndNode,
     ]
   },

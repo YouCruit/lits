@@ -3,20 +3,18 @@ import { LitsError, RecurSignal } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
-import type { AstNode, BindingNode } from '../../parser/interface'
+import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
 import { valueToString } from '../../utils/debug/debugTools'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 import { asNonUndefined } from '../../typeGuards'
 import { asAny } from '../../typeGuards/lits'
-import type { Token } from '../../tokenizer/interface'
 
-export interface LoopNode {
+export interface LoopNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'loop'
   p: AstNode[]
   bs: BindingNode[]
-  tkn?: Token
 }
 
 export const loopSpecialExpression: BuiltinSpecialExpression<Any, LoopNode> = {
@@ -33,12 +31,16 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any, LoopNode> = {
       n: 'loop',
       p: params,
       bs: bindings,
-      tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+          }
+        : undefined,
     }
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const sourceCodeInfo = node.tkn?.sourceCodeInfo
+    const sourceCodeInfo = node.debug?.token.sourceCodeInfo
     const bindingContext: Context = node.bs.reduce((result: Context, binding) => {
       result[binding.n] = { value: evaluateAstNode(binding.v, contextStack) }
       return result

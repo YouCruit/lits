@@ -2,14 +2,12 @@ import type { Any } from '../../interface'
 import { AstNodeType } from '../../constants/constants'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import type { AstNode } from '../../parser/interface'
-import type { Token } from '../../tokenizer/interface'
+import type { AstNode, GenericNode } from '../../parser/interface'
 
-export interface OrNode {
+export interface OrNode extends GenericNode {
   t: AstNodeType.SpecialExpression
   n: 'or'
   p: AstNode[]
-  tkn?: Token
 }
 
 export const orSpecialExpression: BuiltinSpecialExpression<Any, OrNode> = {
@@ -22,7 +20,11 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any, OrNode> = {
         t: AstNodeType.SpecialExpression,
         n: 'or',
         p: params,
-        tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+        debug: firstToken.sourceCodeInfo
+          ? {
+              token: firstToken,
+            }
+          : undefined,
       } satisfies OrNode,
     ]
   },

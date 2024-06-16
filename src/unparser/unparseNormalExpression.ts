@@ -19,7 +19,7 @@ export function unparseNormalExpressionNode(node: NormalExpressionNode, options:
   if (params.length === 0)
     return `${prefix}${endBracket}`
 
-  // 1. Try to unparse the parameters
+  // 1. Try to unparse the parameters as a single line
   try {
     const unparsedParams = unparseParams(params, options.inline().lock())
     if (!unparsedParams.includes('\n'))
@@ -38,12 +38,12 @@ export function unparseNormalExpressionNode(node: NormalExpressionNode, options:
   //             3
   //             4
   //             5)
-  if (!unparsedName.includes('\n') && params.length > 1) {
+  if (!unparsedName.includes('\n')) {
     const newOptions = options.inc(unparsedName.length + 2).lock()
     try {
       const firstParam = options.unparse(params[0]!, newOptions.inline())
       // If the first parameter is multiline, fallback to option 3
-      if (!firstParam.includes('\n')) {
+      if (!firstParam.startsWith('\n')) {
         const indentedParams = unparseMultilineParams(params.slice(1), newOptions)
         return options.assertNotOverflown(
           `${prefix} ${ensureNewlineSeparator(firstParam, indentedParams)}${endBracket}`,
@@ -65,7 +65,7 @@ export function unparseNormalExpressionNode(node: NormalExpressionNode, options:
   //       5)
   return `${ensureNewlineSeparator(
     prefix,
-    unparseMultilineParams(params, options.inc()),
+    unparseMultilineParams(params, options.noInline().inc()),
   )}${endBracket}`
 }
 

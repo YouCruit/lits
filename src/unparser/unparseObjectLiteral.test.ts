@@ -59,13 +59,15 @@ describe('unparseObjectLitteral', () => {
   :z2
   3}}
 `.trimStart())
-    expect(unparseAst(ast, 13)).toEqual(`
-{:a {:x 1
-     :y 2
-     :z 3}
- :b {:x2 1
-     :y2 2
-     :z2 3}}
+    expect(unparseAst(ast, 23)).toEqual(`
+{:a
+ {:x 1, :y 2, :z 3}
+ :b
+ {:x2 1, :y2 2, :z2 3}}
+`.trimStart())
+    expect(unparseAst(ast, 26)).toEqual(`
+{:a {:x 1, :y 2, :z 3}
+ :b {:x2 1, :y2 2, :z2 3}}
 `.trimStart())
   })
 

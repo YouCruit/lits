@@ -54,7 +54,7 @@ export function unparseObjectLiteral(node: NormalExpressionNode, options: Unpars
     try {
       return options.assertNotOverflown(`${ensureNewlineSeparator(
     pairPrefix,
-    unparseMultilineParamPairs(params, options.noInline().inc()),
+    unparseMultilineParamPairs(params, options.noInline().inc().lock()),
   )}${endBracket}`)
     }
     catch {}

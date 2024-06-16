@@ -12,4 +12,28 @@ describe('unparseNormalExpression', () => {
 
     expect(unparseAst(ast, 80)).toEqual(program)
   })
+
+  it('should work 2', () => {
+    const program = `
+(flatten (range
+          10))
+`
+    const tokenStream = lits.tokenize(program)
+    const ast = lits.parse(tokenStream)
+
+    expect(unparseAst(ast, 80)).toEqual(program)
+  })
+
+  it('should work 3', () => {
+    const program = `
+[(+ 1)]
+`
+    const tokenStream = lits.tokenize(program)
+    const ast = lits.parse(tokenStream)
+
+    expect(unparseAst(ast, 1)).toEqual(`
+[(+
+  1)]
+`)
+  })
 })

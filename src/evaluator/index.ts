@@ -22,9 +22,9 @@ import { assertNumber, isNumber } from '../typeGuards/number'
 import { asNonUndefined } from '../typeGuards'
 import { asAny, assertSeq, isObj } from '../typeGuards/lits'
 import { assertString } from '../typeGuards/string'
+import { removeCommenNodes } from '../removeCommentNodes'
 import type { ContextStack } from './ContextStack'
 import { functionExecutors } from './functionExecutors'
-import { removeCommenNodes } from './removeCommentNodes'
 
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null

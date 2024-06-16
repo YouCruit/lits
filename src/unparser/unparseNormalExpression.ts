@@ -4,7 +4,7 @@ import type { UnparseOptions } from './UnparseOptions'
 import { unparseArrayLiteral } from './unparseArrayLiteral'
 import { unparseObjectLiteral } from './unparseObjectLiteral'
 import { unparseMultilineParams, unparseParams } from './unparseParams'
-import { applyMetaTokens, assertNotOverflown, ensureNewlineSeparator } from './utils'
+import { applyMetaTokens, ensureNewlineSeparator } from './utils'
 
 export function unparseNormalExpressionNode(node: NormalExpressionNode, options: UnparseOptions): string {
   if (node.tkn?.t === TokenType.Bracket && node.tkn.v === '[')
@@ -23,7 +23,7 @@ export function unparseNormalExpressionNode(node: NormalExpressionNode, options:
   try {
     const unparsedParams = unparseParams(params, options.inline().lock())
     if (!unparsedParams.includes('\n'))
-      return assertNotOverflown(options.lineLength, `${prefix} ${unparsedParams}${endBracket}`)
+      return options.assertNotOverflown(`${prefix} ${unparsedParams}${endBracket}`)
   }
   catch (error) {
     // If locked, we do not try anything else
@@ -45,11 +45,9 @@ export function unparseNormalExpressionNode(node: NormalExpressionNode, options:
       // If the first parameter is multiline, fallback to option 3
       if (!firstParam.includes('\n')) {
         const indentedParams = unparseMultilineParams(params.slice(1), newOptions)
-        const x = assertNotOverflown(
-          newOptions.lineLength,
-        `${prefix} ${ensureNewlineSeparator(firstParam, indentedParams)}${endBracket}`,
+        return options.assertNotOverflown(
+          `${prefix} ${ensureNewlineSeparator(firstParam, indentedParams)}${endBracket}`,
         )
-        return x
       }
     }
     catch {

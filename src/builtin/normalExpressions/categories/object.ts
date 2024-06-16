@@ -1,11 +1,11 @@
 import type { Any, Arr, Obj } from '../../../interface'
-import { collHasKey, toAny } from '../../../utils'
-import { assertLitsFunction } from '../../../typeGuards/litsFunction'
-import type { BuiltinNormalExpressions } from '../../interface'
-import { asString, assertString } from '../../../typeGuards/string'
 import { assertEventNumberOfParams, assertNumberOfParams } from '../../../typeGuards'
 import { assertArray, assertStringArray } from '../../../typeGuards/array'
 import { assertObj } from '../../../typeGuards/lits'
+import { assertLitsFunction } from '../../../typeGuards/litsFunction'
+import { asString, assertString } from '../../../typeGuards/string'
+import { collHasKey, toAny } from '../../../utils'
+import type { BuiltinNormalExpressions } from '../../interface'
 
 export const objectNormalExpression: BuiltinNormalExpressions = {
   'object': {

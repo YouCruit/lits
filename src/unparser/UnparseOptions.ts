@@ -16,11 +16,26 @@ export class UnparseOptions {
     return new UnparseOptions(this.unparse, this.lineLength, this.col + count, this.inlined, this.locked)
   }
 
-  public inline(inline = true) {
-    return new UnparseOptions(this.unparse, this.lineLength, this.col, inline, this.locked)
+  public inline() {
+    return new UnparseOptions(this.unparse, this.lineLength, this.col, true, this.locked)
+  }
+
+  public noInline() {
+    return new UnparseOptions(this.unparse, this.lineLength, this.col, false, this.locked)
   }
 
   public lock() {
     return new UnparseOptions(this.unparse, this.lineLength, this.col, this.inlined, true)
+  }
+
+  public assertNotOverflown(value: string): string {
+    if (value.split('\n').every((line, index) => {
+      const length = (index === 0 && this.inlined) ? this.col + line.length : line.length
+
+      return length <= this.lineLength
+    }))
+      return value
+
+    throw new Error('Line length exceeded')
   }
 }

@@ -122,9 +122,13 @@ function parseObjectLitteral(tokenStream: TokenStream, position: number): [numbe
     n: 'object',
     p: params,
     tkn: firstToken.sourceCodeInfo ? firstToken : undefined,
+    endBracketToken: tkn.sourceCodeInfo ? tkn : undefined,
   }
 
-  assertEventNumberOfParams(node)
+  assertEventNumberOfParams({
+    ...node,
+    p: node.p.filter(paramNode => paramNode.t !== AstNodeType.Comment),
+  })
 
   return [position, node]
 }
@@ -300,8 +304,12 @@ function parseNormalExpression(tokenStream: TokenStream, position: number): [num
 
   const builtinExpression = builtin.normalExpressions[node.n]
 
-  if (builtinExpression)
-    builtinExpression.validate?.(node)
+  if (builtinExpression) {
+    builtinExpression.validate?.({
+      ...node,
+      p: node.p.filter(paramNode => paramNode.t !== AstNodeType.Comment),
+    })
+  }
 
   return [position, node]
 }

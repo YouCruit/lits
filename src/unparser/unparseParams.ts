@@ -10,7 +10,7 @@ export function unparseParams(params: AstNode[], options: UnparseOptions): strin
 export function unparseMultilineParams(params: AstNode[], options: UnparseOptions): string {
   return params.reduce<string>((acc, param, index) => ensureNewlineSeparator(acc, options.unparse(
     param,
-    options.inline(index === 0 && options.inlined),
+    index === 0 && options.inlined ? options.inline() : options.noInline(),
   )), '')
 }
 

@@ -4,6 +4,21 @@ import { unparseAst } from './unparse'
 
 const lits = new Lits({ debug: true })
 const sampleProgram = '(merge {:a 1, :b 2} {:foo {:x 42, :y 144}, :foobar {}})'
+const sampleProgramWithComments = `
+(merge
+ ;; Fist object
+ {:a 1, :b 2} ;; Inline comment
+ ;; Second object
+ {:foo ;; Key
+  {:x 42 ;; Inline comment
+   :y 144}
+
+  ;; Add more here
+
+  ;; Last key-value pair
+  :foobar
+  {}})
+`
 
 describe('unparseObjectLitteral', () => {
   it('should work 1', () => {
@@ -17,7 +32,7 @@ describe('unparseObjectLitteral', () => {
     const program = '{:a {:x 1, :y 2, :z 3}}'
     const tokenStream = lits.tokenize(program)
     const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 1)).toEqual(`
+    expect(unparseAst(ast, 12)).toEqual(`
 {:a {:x 1
      :y 2
      :z 3}}
@@ -29,6 +44,22 @@ describe('unparseObjectLitteral', () => {
     const tokenStream = lits.tokenize(program)
     const ast = lits.parse(tokenStream)
     expect(unparseAst(ast, 1)).toEqual(`
+{:a
+ {:x
+  1
+  :y
+  2
+  :z
+  3}
+ :b
+ {:x2
+  1
+  :y2
+  2
+  :z2
+  3}}
+`.trimStart())
+    expect(unparseAst(ast, 13)).toEqual(`
 {:a {:x 1
      :y 2
      :z 3}
@@ -38,7 +69,25 @@ describe('unparseObjectLitteral', () => {
 `.trimStart())
   })
 
-  describe('unparse program', () => {
+  it('should work 4', () => {
+    const program = `
+{:foo ;; Key
+ {:x 42 ;; Inline comment
+  :y 144}}
+`.trimStart()
+    const tokenStream = lits.tokenize(program)
+    const ast = lits.parse(tokenStream)
+    expect(unparseAst(ast, 80)).toEqual(program)
+  })
+
+  it('should work 5', () => {
+    const program = '{:foo 1 :bar 2}'
+    const tokenStream = lits.tokenize(program)
+    const ast = lits.parse(tokenStream)
+    expect(unparseAst(ast, 80)).toEqual('{:foo 1, :bar 2}\n')
+  })
+
+  describe('unparse sample program.', () => {
     for (let lineLength = 0; lineLength <= sampleProgram.length + 1; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {
         const tokenStream = lits.tokenize(sampleProgram)
@@ -48,7 +97,85 @@ describe('unparseObjectLitteral', () => {
       })
     }
   })
+
+  describe('unparse sample program with comments.', () => {
+    // for (let lineLength = 80; lineLength <= sampleProgramWithComments.length + 1; lineLength += 1) {
+    for (let lineLength = 0; lineLength <= 80; lineLength += 1) {
+      it(`should unparse with line length ${lineLength}`, () => {
+        const tokenStream = lits.tokenize(sampleProgramWithComments)
+        const ast = lits.parse(tokenStream)
+        const unparsed = unparseAst(ast, lineLength)
+        expect(unparsed).toEqual(formatSampleProgramWithComments(lineLength))
+      })
+    }
+  })
 })
+
+function formatSampleProgramWithComments(lineLength: number): string {
+  if (lineLength >= 31 || lineLength === 0)
+    return sampleProgramWithComments
+
+  if (lineLength >= 26) {
+    return `
+(merge
+ ;; Fist object
+ {:a 1
+  :b 2} ;; Inline comment
+ ;; Second object
+ {:foo ;; Key
+  {:x 42 ;; Inline comment
+   :y 144}
+
+  ;; Add more here
+
+  ;; Last key-value pair
+  :foobar
+  {}})
+`
+  }
+
+  if (lineLength >= 25) {
+    return `
+(merge
+ ;; Fist object
+ {:a 1
+  :b 2} ;; Inline comment
+ ;; Second object
+ {:foo ;; Key
+  {:x
+   42 ;; Inline comment
+   :y
+   144}
+
+  ;; Add more here
+
+  ;; Last key-value pair
+  :foobar
+  {}})
+`
+  }
+
+  return `
+(merge
+ ;; Fist object
+ {:a
+  1
+  :b
+  2} ;; Inline comment
+ ;; Second object
+ {:foo ;; Key
+  {:x
+   42 ;; Inline comment
+   :y
+   144}
+
+  ;; Add more here
+
+  ;; Last key-value pair
+  :foobar
+  {}})
+`
+}
 
 function formatSampleProgram(lineLength: number): string {
   if (lineLength >= sampleProgram.length || lineLength === 0)
@@ -78,7 +205,7 @@ function formatSampleProgram(lineLength: number): string {
 `.trimStart()
   }
 
-  if (lineLength >= 13) {
+  if (lineLength >= 15) {
     return `
 (merge
  {:a 1, :b 2}
@@ -88,12 +215,58 @@ function formatSampleProgram(lineLength: number): string {
 `.trimStart()
   }
 
-  return `
+  if (lineLength >= 13) {
+    return `
+(merge
+ {:a 1, :b 2}
+ {:foo {:x
+        42
+        :y
+        144}
+  :foobar {}})
+`.trimStart()
+  }
+
+  if (lineLength >= 10) {
+    return `
 (merge
  {:a 1
   :b 2}
- {:foo {:x 42
-        :y 144}
-  :foobar {}})
+ {:foo
+  {:x 42
+   :y 144}
+  :foobar
+  {}})
+`.trimStart()
+  }
+
+  if (lineLength >= 7) {
+    return `
+(merge
+ {:a 1
+  :b 2}
+ {:foo
+  {:x
+   42
+   :y
+   144}
+  :foobar
+  {}})
+`.trimStart()
+  }
+
+  return `
+(merge
+ {:a
+  1
+  :b
+  2}
+ {:foo
+  {:x
+   42
+   :y
+   144}
+  :foobar
+  {}})
 `.trimStart()
 }

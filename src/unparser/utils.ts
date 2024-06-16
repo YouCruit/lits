@@ -10,13 +10,6 @@ export function ensureSpaceSeparator(a: string, b: string): string {
   return !a || !b || a.endsWith(' ') || b.startsWith(' ') ? `${a}${b}` : `${a} ${b}`
 }
 
-export function assertNotOverflown(lineLength: number, value: string): string {
-  if (value.split('\n').every(line => line.length <= lineLength))
-    return value
-
-  throw new Error('Line length exceeded')
-}
-
 export function applyMetaTokens(
   value: string | number,
   metaTokens: MetaTokens | undefined,

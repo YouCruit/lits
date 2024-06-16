@@ -1,7 +1,7 @@
 import type { NormalExpressionNode } from '../parser/interface'
 import type { UnparseOptions } from './UnparseOptions'
 import { unparseMultilineParams, unparseParams } from './unparseParams'
-import { applyMetaTokens, assertNotOverflown, ensureNewlineSeparator } from './utils'
+import { applyMetaTokens, ensureNewlineSeparator } from './utils'
 
 export function unparseArrayLiteral(node: NormalExpressionNode, options: UnparseOptions): string {
   const startBracket = applyMetaTokens('[', node.tkn?.metaTokens, options)
@@ -20,7 +20,7 @@ export function unparseArrayLiteral(node: NormalExpressionNode, options: Unparse
   try {
     const unparsedParams = unparseParams(params, options.inline().lock())
     if (!unparsedParams.includes('\n'))
-      return assertNotOverflown(options.lineLength, `${prefix} ${unparsedParams}${endBracket}`)
+      return options.assertNotOverflown(`${prefix} ${unparsedParams}${endBracket}`)
   }
   catch (error) {
     // If locked, we do not try anything else
@@ -38,6 +38,6 @@ export function unparseArrayLiteral(node: NormalExpressionNode, options: Unparse
   //       5]
   return `${ensureNewlineSeparator(
     prefix,
-    unparseMultilineParams(params, options.inline(false).inc()),
+    unparseMultilineParams(params, options.noInline().inc()),
   )}${endBracket}`
 }

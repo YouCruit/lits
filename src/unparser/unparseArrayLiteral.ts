@@ -5,7 +5,7 @@ import { applyMetaTokens, ensureNewlineSeparator, ensureSpaceSeparator } from '.
 
 export function unparseArrayLiteral(node: NormalExpressionNode, options: UnparseOptions): string {
   const startBracket = applyMetaTokens('[', node.debug?.token.metaTokens, options)
-  const endBracket = applyMetaTokens(']', node.debug?.endBracketToken?.metaTokens, options.inline())
+  const endBracket = applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.inline())
 
   // If no parameters, return empty array literal
   if (node.p.length === 0)

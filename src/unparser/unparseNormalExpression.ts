@@ -71,7 +71,7 @@ export function unparseNormalExpressionNode(node: NormalExpressionNode, options:
 
 function getInfo(node: NormalExpressionNode, options: UnparseOptions) {
   const startBracket = applyMetaTokens('(', node.debug?.token.metaTokens, options)
-  const endBracket = applyMetaTokens(')', node.debug?.endBracketToken?.metaTokens, options.inline())
+  const endBracket = applyMetaTokens(')', node.debug?.lastToken?.metaTokens, options.inline())
 
   // Unparse the name,
   // if expression node e.g. ("Albert" 2), first parameter is the name ("Albert")

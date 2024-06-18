@@ -8,7 +8,7 @@ import type {
   ParseToken,
   ParseTokens,
 } from '../parser/interface'
-import type { SourceCodeInfo, TokenStream } from '../tokenizer/interface'
+import type { SourceCodeInfo, Token, TokenStream } from '../tokenizer/interface'
 import type { Any, Arr } from '../interface'
 import type { FindUnresolvedIdentifiers, UnresolvedIdentifiers } from '../analyze'
 import type { ContextStack } from '../evaluator/ContextStack'
@@ -43,7 +43,7 @@ interface EvaluateHelpers {
   builtin: Builtin
 }
 export interface BuiltinSpecialExpression<T, N extends SpecialExpressionNode> {
-  parse: (tokenStream: TokenStream, position: number, parsers: ParserHelpers) => [number, N]
+  parse: (tokenStream: TokenStream, position: number, firstToken: Token, parsers: ParserHelpers) => [number, N]
   evaluate: (node: N, contextStack: ContextStack, helpers: EvaluateHelpers) => T
   findUnresolvedIdentifiers: (
     node: N,

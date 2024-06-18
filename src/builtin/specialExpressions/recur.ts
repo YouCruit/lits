@@ -1,5 +1,5 @@
 import { RecurSignal } from '../../errors'
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { AstNode, GenericNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
@@ -11,10 +11,10 @@ export interface RecurNode extends GenericNode {
 }
 
 export const recurSpecialExpression: BuiltinSpecialExpression<null, RecurNode> = {
-  parse: (tokenStream, position, { parseTokensUntilClosingBracket: parseTokens }) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
-    let params
-    ;[position, params] = parseTokens(tokenStream, position)
+  parse: (tokenStream, position, firstToken, { parseTokensUntilClosingBracket }) => {
+    let params: AstNode[]
+    ;[position, params] = parseTokensUntilClosingBracket(tokenStream, position)
+    const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: RecurNode = {
       t: AstNodeType.SpecialExpression,
@@ -23,6 +23,7 @@ export const recurSpecialExpression: BuiltinSpecialExpression<null, RecurNode> =
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
+            lastToken,
           }
         : undefined,
     }

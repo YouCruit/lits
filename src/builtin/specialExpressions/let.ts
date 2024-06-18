@@ -1,7 +1,7 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
@@ -14,13 +14,13 @@ export interface LetNode extends GenericNode {
 }
 
 export const letSpecialExpression: BuiltinSpecialExpression<Any, LetNode> = {
-  parse: (tokenStream, position, { parseBindings, parseTokensUntilClosingBracket: parseTokens }) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  parse: (tokenStream, position, firstToken, { parseBindings, parseTokensUntilClosingBracket }) => {
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokenStream, position)
 
     let params: AstNode[]
-    ;[position, params] = parseTokens(tokenStream, position)
+    ;[position, params] = parseTokensUntilClosingBracket(tokenStream, position)
+    const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: LetNode = {
       t: AstNodeType.SpecialExpression,
@@ -30,6 +30,7 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any, LetNode> = {
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
+            lastToken,
           }
         : undefined,
     }

@@ -1,17 +1,17 @@
+import type { SpecialExpressionNode } from '..'
 import type { FindUnresolvedIdentifiers, UnresolvedIdentifier, UnresolvedIdentifiers } from '../../analyze'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { ContextStack } from '../../evaluator/ContextStack'
 import type { Context, EvaluateAstNode } from '../../evaluator/interface'
 import type { Any, Arr } from '../../interface'
-import { AstNodeType, TokenType } from '../../constants/constants'
 import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
 import type { SourceCodeInfo, TokenStream } from '../../tokenizer/interface'
+import { asNonUndefined } from '../../typeGuards'
 import { asAstNode } from '../../typeGuards/astNode'
+import { asAny, asColl, isSeq } from '../../typeGuards/lits'
 import { asToken, assertToken, isToken } from '../../typeGuards/token'
 import type { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
-import { asAny, asColl, isSeq } from '../../typeGuards/lits'
-import { asNonUndefined } from '../../typeGuards'
-import type { SpecialExpressionNode } from '..'
 
 export interface ForNode extends GenericNode {
   t: AstNodeType.SpecialExpression
@@ -245,16 +245,14 @@ function analyze(
 }
 
 export const forSpecialExpression: BuiltinSpecialExpression<Any, ForNode> = {
-  parse: (tokenStream: TokenStream, position: number, parsers: ParserHelpers) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  parse: (tokenStream, position, firstToken, parsers) => {
     const { parseToken } = parsers
     let loopBindings: LoopBindingNode[]
     ;[position, loopBindings] = parseLoopBindings(tokenStream, position, parsers)
 
     let expression: AstNode
     ;[position, expression] = parseToken(tokenStream, position)
-
-    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
+    const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: ForNode = {
       n: 'for',
@@ -264,6 +262,7 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any, ForNode> = {
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
+            lastToken,
           }
         : undefined,
     }
@@ -275,16 +274,14 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any, ForNode> = {
 }
 
 export const doseqSpecialExpression: BuiltinSpecialExpression<null, DoSeqNode> = {
-  parse: (tokenStream: TokenStream, position: number, parsers: ParserHelpers) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  parse: (tokenStream, position, firstToken, parsers) => {
     const { parseToken } = parsers
     let loopBindings: LoopBindingNode[]
     ;[position, loopBindings] = parseLoopBindings(tokenStream, position, parsers)
 
     let expression: AstNode
     ;[position, expression] = parseToken(tokenStream, position)
-
-    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
+    const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: DoSeqNode = {
       n: 'doseq',
@@ -294,6 +291,7 @@ export const doseqSpecialExpression: BuiltinSpecialExpression<null, DoSeqNode> =
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
+            lastToken,
           }
         : undefined,
     }

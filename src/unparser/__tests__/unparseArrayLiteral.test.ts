@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Lits } from '../Lits/Lits'
-import { unparseAst } from './unparse'
+import { Lits } from '../../Lits/Lits'
+import { unparseAst } from '../unparse'
 
 const lits = new Lits({ debug: true })
 const sampleProgram = '(flatten [1 2 [3 4] 5])'

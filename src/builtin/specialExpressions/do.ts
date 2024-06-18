@@ -12,26 +12,29 @@ export interface DoNode extends GenericNode {
 }
 
 export const doSpecialExpression: BuiltinSpecialExpression<Any, DoNode> = {
-  parse: (tokenStream, position, { parseToken }) => {
-    let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
-
+  parse: (tokenStream, position, firstToken, { parseToken }) => {
     const node: DoNode = {
       t: AstNodeType.SpecialExpression,
       n: 'do',
       p: [],
-      debug: tkn.sourceCodeInfo
-        ? {
-            token: tkn,
-          }
-        : undefined,
+      debug: undefined,
     }
 
+    let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
     while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {
       let bodyNode: AstNode
       ;[position, bodyNode] = parseToken(tokenStream, position)
       node.p.push(bodyNode)
       tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
     }
+
+    node.debug = firstToken.sourceCodeInfo
+      ? {
+          token: firstToken,
+          lastToken: tkn,
+        }
+      : undefined
+
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {

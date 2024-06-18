@@ -170,7 +170,7 @@ it('evaluateAstNode', () => {
       {
         t: AstNodeType.Modifier,
         v: '&',
-        debug: { token: { t: TokenType.Name, v: 'X' } },
+        debug: { token: { t: TokenType.Name, v: 'X' }, lastToken: { t: TokenType.Name, v: 'X' } },
       },
       createContextStack(),
     ),
@@ -180,6 +180,7 @@ it('evaluateAstNode', () => {
       {
         t: AstNodeType.Modifier,
         v: '&',
+        debug: undefined,
       },
       createContextStack(),
     ),
@@ -189,7 +190,10 @@ it('evaluateAstNode', () => {
       {
         t: AstNodeType.Modifier,
         v: '&',
-        debug: { token: { t: TokenType.Name, sourceCodeInfo: { code: '', position: { column: 1, line: 1 } }, v: 'X' } },
+        debug: {
+          token: { t: TokenType.Name, sourceCodeInfo: { code: '', position: { column: 1, line: 1 } }, v: 'X' },
+          lastToken: { t: TokenType.Name, sourceCodeInfo: { code: '', position: { column: 1, line: 1 } }, v: 'X' },
+        },
       },
       createContextStack(),
     ),

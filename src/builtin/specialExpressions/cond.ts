@@ -35,10 +35,10 @@ function parseConditions(tokenStream: TokenStream, position: number, parseToken:
 }
 
 export const condSpecialExpression: BuiltinSpecialExpression<Any, CondNode> = {
-  parse: (tokenStream, position, { parseToken }) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  parse: (tokenStream, position, firstToken, { parseToken }) => {
     let conditions: Condition[]
     ;[position, conditions] = parseConditions(tokenStream, position, parseToken)
+    const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     return [
       position + 1,
@@ -49,6 +49,7 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any, CondNode> = {
         debug: firstToken.sourceCodeInfo
           ? {
               token: firstToken,
+              lastToken,
             }
           : undefined,
       } satisfies CondNode,

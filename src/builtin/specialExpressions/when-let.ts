@@ -1,5 +1,5 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
@@ -17,8 +17,7 @@ export interface WhenLetNode extends GenericNode {
 }
 
 export const whenLetSpecialExpression: BuiltinSpecialExpression<Any, WhenLetNode> = {
-  parse: (tokenStream, position, { parseBindings, parseTokensUntilClosingBracket: parseTokens }) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  parse: (tokenStream, position, firstToken, { parseBindings, parseTokensUntilClosingBracket }) => {
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokenStream, position)
 
@@ -30,7 +29,8 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any, WhenLetNode
     }
 
     let params: AstNode[]
-    ;[position, params] = parseTokens(tokenStream, position)
+    ;[position, params] = parseTokensUntilClosingBracket(tokenStream, position)
+    const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: WhenLetNode = {
       t: AstNodeType.SpecialExpression,
@@ -40,6 +40,7 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any, WhenLetNode
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
+            lastToken,
           }
         : undefined,
     }

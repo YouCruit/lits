@@ -2,7 +2,8 @@ import { AstNodeType } from '../constants/constants'
 import type { Ast, AstNode } from '../parser/interface'
 import { UnparseOptions } from './UnparseOptions'
 import { unparseNormalExpressionNode } from './unparseNormalExpression'
-import { applyMetaTokens } from './utils'
+import { applyMetaTokens, ensureNewlineSeparator } from './utils'
+import { unparseSpecialExpression } from './unparseSpecialExpression'
 
 export type Unparse = (node: AstNode, options: UnparseOptions) => string
 
@@ -23,14 +24,14 @@ const unparse: Unparse = (node: AstNode, options: UnparseOptions) => {
       return unparseNormalExpressionNode(node, options)
     }
     case AstNodeType.SpecialExpression:
-      throw new Error('Not implemented')
+      return unparseSpecialExpression(node, options)
   }
 }
 
 export function unparseAst(ast: Ast, lineLength?: number): string {
   const options = new UnparseOptions(unparse, lineLength || Number.MAX_SAFE_INTEGER)
-  const result = ast.b.map((node) => {
-    return unparse(node, options)
-  }).join('\n')
+  const result = ast.b.reduce<string>((acc, node) => {
+    return ensureNewlineSeparator(acc, unparse(node, options))
+  }, '')
   return result.endsWith('\n') ? result : `${result}\n`
 }

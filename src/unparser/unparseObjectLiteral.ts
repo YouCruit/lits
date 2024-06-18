@@ -5,7 +5,7 @@ import { applyMetaTokens, ensureNewlineSeparator } from './utils'
 
 export function unparseObjectLiteral(node: NormalExpressionNode, options: UnparseOptions): string {
   const startBracket = applyMetaTokens('{', node.debug?.token.metaTokens, options)
-  const endBracket = applyMetaTokens('}', node.debug?.endBracketToken?.metaTokens, options.inline())
+  const endBracket = applyMetaTokens('}', node.debug?.lastToken?.metaTokens, options.inline())
 
   // If no parameters, return empty object literal
   if (node.p.length === 0)

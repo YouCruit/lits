@@ -12,14 +12,13 @@ export interface ThrowNode extends GenericNode {
 }
 
 export const throwSpecialExpression: BuiltinSpecialExpression<null, ThrowNode> = {
-  parse: (tokenStream, position, { parseToken }) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  parse: (tokenStream, position, firstToken, { parseToken }) => {
     const [newPosition, messageNode] = parseToken(tokenStream, position)
     position = newPosition
 
     assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
-    position += 1
-
+    const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
+    
     const node: ThrowNode = {
       t: AstNodeType.SpecialExpression,
       n: 'throw',
@@ -27,10 +26,11 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null, ThrowNode> =
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
+            lastToken,
           }
         : undefined,
     }
-    return [position, node]
+    return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const message = asString(evaluateAstNode(node.m, contextStack), node.debug?.token.sourceCodeInfo, {

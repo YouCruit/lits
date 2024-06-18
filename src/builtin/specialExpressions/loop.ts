@@ -2,7 +2,7 @@ import { joinAnalyzeResults } from '../../analyze/utils'
 import { LitsError, RecurSignal } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
 import { valueToString } from '../../utils/debug/debugTools'
 import { asToken } from '../../typeGuards/token'
@@ -18,13 +18,13 @@ export interface LoopNode extends GenericNode {
 }
 
 export const loopSpecialExpression: BuiltinSpecialExpression<Any, LoopNode> = {
-  parse: (tokenStream, position, { parseTokensUntilClosingBracket: parseTokens, parseBindings }) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  parse: (tokenStream, position, firstToken, { parseTokensUntilClosingBracket, parseBindings }) => {
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokenStream, position)
 
     let params: AstNode[]
-    ;[position, params] = parseTokens(tokenStream, position)
+    ;[position, params] = parseTokensUntilClosingBracket(tokenStream, position)
+    const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: LoopNode = {
       t: AstNodeType.SpecialExpression,
@@ -34,6 +34,7 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any, LoopNode> = {
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
+            lastToken,
           }
         : undefined,
     }

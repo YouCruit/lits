@@ -1,4 +1,4 @@
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { AstNode, GenericNode, NameNode } from '../../parser/interface'
 import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
 import { asNameNode } from '../../typeGuards/astNode'
@@ -13,9 +13,10 @@ export interface DefNode extends GenericNode {
 }
 
 export const defSpecialExpression: BuiltinSpecialExpression<null, DefNode> = {
-  parse: (tokenStream, position, { parseTokensUntilClosingBracket: parseTokens }) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
-    const [newPosition, params] = parseTokens(tokenStream, position)
+  parse: (tokenStream, position, firstToken, { parseTokensUntilClosingBracket }) => {
+    const [newPosition, params] = parseTokensUntilClosingBracket(tokenStream, position)
+    const lastToken = asToken(tokenStream.tokens[newPosition], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
+
     assertNumberOfParamsFromAstNodes({
       name: 'def',
       count: 2,
@@ -31,6 +32,7 @@ export const defSpecialExpression: BuiltinSpecialExpression<null, DefNode> = {
         debug: firstToken.sourceCodeInfo
           ? {
               token: firstToken,
+              lastToken,
             }
           : undefined,
       } satisfies DefNode,

@@ -3,8 +3,8 @@ import type { AstNode } from '../../parser/interface'
 import { AstNodeType } from '../../constants/constants'
 import type { CalculatePossibleAstNodesHelper } from '.'
 
-const trueNode: AstNode = { t: AstNodeType.ReservedName, v: 'true' }
-const falseNode: AstNode = { t: AstNodeType.ReservedName, v: 'false' }
+const trueNode: AstNode = { t: AstNodeType.ReservedName, v: 'true', debug: undefined }
+const falseNode: AstNode = { t: AstNodeType.ReservedName, v: 'false', debug: undefined }
 
 export const calculateDeclaredOutcomes: CalculatePossibleAstNodesHelper<DeclaredNode> = (
   {

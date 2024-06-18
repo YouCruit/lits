@@ -19,8 +19,7 @@ export interface TryNode extends GenericNode {
 }
 
 export const trySpecialExpression: BuiltinSpecialExpression<Any, TryNode> = {
-  parse: (tokenStream, position, { parseToken }) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  parse: (tokenStream, position, firstToken, { parseToken }) => {
     let tryExpression: AstNode
     ;[position, tryExpression] = parseToken(tokenStream, position)
 
@@ -47,8 +46,7 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any, TryNode> = {
     assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
     position += 1
 
-    assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
-    position += 1
+    const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: TryNode = {
       t: AstNodeType.SpecialExpression,
@@ -59,11 +57,12 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any, TryNode> = {
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
+            lastToken,
           }
         : undefined,
     }
 
-    return [position, node]
+    return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const { te: tryExpression, ce: catchExpression, e: errorNode } = node

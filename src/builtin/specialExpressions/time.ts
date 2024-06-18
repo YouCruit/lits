@@ -1,4 +1,4 @@
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { Any } from '../../interface'
 import type { AstNode, GenericNode } from '../../parser/interface'
 import { assertAstNode } from '../../typeGuards/astNode'
@@ -12,9 +12,10 @@ export interface TimeNode extends GenericNode {
 }
 
 export const timeSpecialExpression: BuiltinSpecialExpression<Any, TimeNode> = {
-  parse: (tokenStream, position, { parseToken }) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  parse: (tokenStream, position, firstToken, { parseToken }) => {
     const [newPosition, astNode] = parseToken(tokenStream, position)
+    const lastToken = asToken(tokenStream.tokens[newPosition], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
+
     const node: TimeNode = {
       t: AstNodeType.SpecialExpression,
       n: 'time!',
@@ -22,6 +23,7 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any, TimeNode> = {
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
+            lastToken,
           }
         : undefined,
     }

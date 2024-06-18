@@ -25,7 +25,7 @@ import { whenFirstSpecialExpression } from './specialExpressions/when-first'
 import { whenLetSpecialExpression } from './specialExpressions/when-let'
 import { whenNotSpecialExpression } from './specialExpressions/when-not'
 
-export const specialExpressions = {
+const specialExpressions = {
   'and': andSpecialExpression,
   'comment': commentSpecialExpression,
   'cond': condSpecialExpression,

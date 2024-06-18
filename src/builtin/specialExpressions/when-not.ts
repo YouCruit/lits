@@ -1,4 +1,4 @@
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { Any } from '../../interface'
 import type { AstNode, GenericNode } from '../../parser/interface'
 import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
@@ -13,9 +13,10 @@ export interface WhenNotNode extends GenericNode {
 }
 
 export const whenNotSpecialExpression: BuiltinSpecialExpression<Any, WhenNotNode> = {
-  parse: (tokenStream, position, { parseTokensUntilClosingBracket: parseTokens }) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
-    const [newPosition, params] = parseTokens(tokenStream, position)
+  parse: (tokenStream, position, firstToken, { parseTokensUntilClosingBracket }) => {
+    const [newPosition, params] = parseTokensUntilClosingBracket(tokenStream, position)
+    const lastToken = asToken(tokenStream.tokens[newPosition], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
+
     assertNumberOfParamsFromAstNodes({
       name: 'when-not',
       count: { min: 1 },
@@ -29,6 +30,7 @@ export const whenNotSpecialExpression: BuiltinSpecialExpression<Any, WhenNotNode
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
+            lastToken,
           }
         : undefined,
     }

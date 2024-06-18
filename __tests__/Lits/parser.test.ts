@@ -74,14 +74,18 @@ describe('parser', () => {
                 {
                   t: AstNodeType.Number,
                   v: 1,
+                  debug: undefined,
                 },
               ],
+              debug: undefined,
             },
             {
               t: AstNodeType.String,
               v: 'a',
+              debug: undefined,
             },
           ],
+          debug: undefined,
         },
       ],
     })
@@ -117,13 +121,16 @@ describe('parser', () => {
                             {
                               t: 205,
                               v: '%1',
+                              debug: undefined,
                             },
                           ],
+                          debug: undefined,
                         },
                       ],
                       a: 1,
                     },
                   ],
+                  debug: undefined,
                 },
                 {
                   t: 203,
@@ -132,24 +139,31 @@ describe('parser', () => {
                     {
                       t: 201,
                       v: 1,
+                      debug: undefined,
                     },
                     {
                       t: 201,
                       v: 2,
+                      debug: undefined,
                     },
                     {
                       t: 201,
                       v: 3,
+                      debug: undefined,
                     },
                   ],
+                  debug: undefined,
                 },
               ],
+              debug: undefined,
             },
             {
               t: 201,
               v: 1,
+              debug: undefined,
             },
           ],
+          debug: undefined,
         },
       ],
     })

@@ -81,7 +81,7 @@ function calculatePossibleAsts(contextStack: ContextStack, astNodes: AstNode[]):
   return possibleAsts
 }
 
-const nilNode: AstNode = { t: AstNodeType.ReservedName, v: 'nil' }
+const nilNode: AstNode = { t: AstNodeType.ReservedName, v: 'nil', debug: undefined }
 
 function calculatePossibleAstNodes(contextStack: ContextStack, astNode: AstNode, newIndentifiers?: string[]): AstNode[] {
   const newContext = newIndentifiers

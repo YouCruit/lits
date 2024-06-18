@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Lits } from '../Lits/Lits'
-import { unparseAst } from './unparse'
+import { Lits } from '../../Lits/Lits'
+import { unparseAst } from '../unparse'
 
 const lits = new Lits({ debug: true })
 const sampleProgram = '(merge {:a 1, :b 2} {:foo {:x 42, :y 144}, :foobar {}})'

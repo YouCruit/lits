@@ -7,6 +7,7 @@ function getNameNode(name: string): NameNode {
   return {
     t: AstNodeType.Name,
     v: name,
+    debug: undefined,
   }
 }
 

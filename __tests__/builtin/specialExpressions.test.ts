@@ -46,7 +46,7 @@ describe('specialExpressions', () => {
     }
     catch (error) {
       expect((error as UserDefinedError).message).toBe(
-        'error\n(throw (subs "An error" 3))\n       ^                   ',
+        'error\n(throw (subs "An error" 3))\n^                          ',
       )
     }
     if (failed)
@@ -711,7 +711,7 @@ describe('specialExpressions', () => {
   })
   describe('time!', () => {
     it('samples', () => {
-      expect(lits.run('(time! (+ 1 2)')).toBe(3)
+      expect(lits.run('(time! (+ 1 2))')).toBe(3)
       expect(lastLog).toMatch(/Elapsed time: \d+ ms/)
     })
 

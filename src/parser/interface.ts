@@ -114,11 +114,11 @@ export type ModifierName = '&' | '&let' | '&when' | '&while'
 
 export interface GenericNode {
   t: AstNodeType // type
-  debug?: {
+  debug: {
     token: Token
+    lastToken: Token
     nameToken?: Token
-    endBracketToken?: Token
-  }
+  } | undefined
 }
 
 export type ExpressionNode = NormalExpressionNode | SpecialExpressionNode | NumberNode | StringNode

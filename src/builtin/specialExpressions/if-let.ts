@@ -1,5 +1,5 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
-import { AstNodeType } from '../../constants/constants'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
@@ -18,8 +18,7 @@ export interface IfLetNode extends GenericNode {
 }
 
 export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = {
-  parse: (tokenStream, position, { parseBindings, parseTokensUntilClosingBracket: parseTokens }) => {
-    const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)
+  parse: (tokenStream, position, firstToken, { parseBindings, parseTokensUntilClosingBracket }) => {
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokenStream, position)
 
@@ -31,7 +30,9 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = 
     }
 
     let params: AstNode[]
-    ;[position, params] = parseTokens(tokenStream, position)
+    ;[position, params] = parseTokensUntilClosingBracket(tokenStream, position)
+    const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
+
     assertNumberOfParamsFromAstNodes({
       name: 'if-let',
       count: { min: 1, max: 2 },
@@ -46,6 +47,7 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = 
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
+            lastToken,
           }
         : undefined,
     }

@@ -36,4 +36,50 @@ describe('unparseNormalExpression', () => {
   1)]
 `)
   })
+
+  it('should work 4', () => {
+    const program = `
+(+
+ ;; comment
+
+ 1
+)
+`
+    const tokenStream = lits.tokenize(program)
+    const ast = lits.parse(tokenStream)
+
+    expect(unparseAst(ast)).toEqual(program)
+  })
+
+  it('should work 5', () => {
+    const program = `
+(+ 1
+
+   ;; Comment
+
+   2
+
+   3
+)
+`
+    const tokenStream = lits.tokenize(program)
+    const ast = lits.parse(tokenStream)
+
+    expect(unparseAst(ast)).toEqual(program)
+  })
+
+  it('should work 6', () => {
+    const program = `
+(+
+
+ 1
+
+ 2
+)
+`
+    const tokenStream = lits.tokenize(program)
+    const ast = lits.parse(tokenStream)
+
+    expect(unparseAst(ast)).toEqual(program)
+  })
 })

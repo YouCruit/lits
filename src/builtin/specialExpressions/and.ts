@@ -1,14 +1,10 @@
-import type { Any } from '../../interface'
 import { AstNodeType, TokenType } from '../../constants/constants'
+import type { Any } from '../../interface'
+import type { CommonSpecialExpressionNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import type { AstNode, GenericNode } from '../../parser/interface'
 
-export interface AndNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'and'
-  p: AstNode[]
-}
+export interface AndNode extends CommonSpecialExpressionNode<'and'> {}
 
 export const andSpecialExpression: BuiltinSpecialExpression<Any, AndNode> = {
   parse: (tokenStream, position, firstToken, { parseTokensUntilClosingBracket }) => {

@@ -5,8 +5,8 @@ export const calculateThrowOutcomes: CalculatePossibleAstNodesHelper<ThrowNode> 
   astNode,
   calculatePossibleAstNodes,
 }) => {
-  return calculatePossibleAstNodes(astNode.m).map<ThrowNode>(m => ({
+  return calculatePossibleAstNodes(astNode.p[0]!).map<ThrowNode>(m => ({
     ...astNode,
-    m,
+    p: [m],
   }))
 }

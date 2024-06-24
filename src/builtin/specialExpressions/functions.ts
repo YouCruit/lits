@@ -1,46 +1,39 @@
+import type { SpecialExpressionNode } from '..'
 import type { FindUnresolvedIdentifiers, UnresolvedIdentifier, UnresolvedIdentifiers } from '../../analyze'
 import { addAnalyzeResults } from '../../analyze/utils'
+import { AstNodeType, FunctionType, TokenType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { ContextStack } from '../../evaluator/ContextStack'
 import type { Context, EvaluateAstNode } from '../../evaluator/interface'
-import { AstNodeType, FunctionType, TokenType } from '../../constants/constants'
 import type {
   AstNode,
   BindingNode,
+  CommonSpecialExpressionNode,
   EvaluatedFunctionOverload,
-  GenericNode,
   LitsFunction,
   NameNode,
 } from '../../parser/interface'
 import type { TokenStream } from '../../tokenizer/interface'
 import { asAstNode, assertNameNode } from '../../typeGuards/astNode'
+import { asString, assertString } from '../../typeGuards/string'
+import { asToken } from '../../typeGuards/token'
 import { valueToString } from '../../utils/debug/debugTools'
 import { FUNCTION_SYMBOL } from '../../utils/symbols'
-import { asToken } from '../../typeGuards/token'
 import type { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
 import type { Arity, FunctionArguments, FunctionOverload } from '../utils'
 import { assertNameNotDefined } from '../utils'
-import { asString, assertString } from '../../typeGuards/string'
-import type { SpecialExpressionNode } from '..'
 
-export interface DefnNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'defn'
-  p: AstNode[]
+export interface DefnNode extends CommonSpecialExpressionNode<'defn'> {
   f: NameNode
   o: FunctionOverload[]
 }
 
-export interface DefnsNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'defns'
+export interface DefnsNode extends CommonSpecialExpressionNode<'defns'> {
   f: AstNode
   o: FunctionOverload[]
 }
 
-export interface FnNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'fn'
+export interface FnNode extends CommonSpecialExpressionNode<'fn'> {
   p: AstNode[]
   o: FunctionOverload[]
 }
@@ -113,6 +106,7 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null, DefnsNode> =
       {
         t: AstNodeType.SpecialExpression,
         n: 'defns',
+        p: [],
         f: functionName,
         o: functionOverloades,
         debug: firstToken.sourceCodeInfo

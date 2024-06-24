@@ -8,7 +8,7 @@ export const calculateTryOutcomes: CalculatePossibleAstNodesHelper<TryNode> = ({
   calculatePossibleAstNodes,
 }) => {
   return combinate([
-    calculatePossibleAstNodes(astNode.te),
+    calculatePossibleAstNodes(astNode.p[0]!),
     calculatePossibleAstNodes(astNode.ce),
     calculatePossibleAstNodes(astNode.e),
   ],

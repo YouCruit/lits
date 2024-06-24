@@ -1,25 +1,21 @@
 import { AstNodeType, TokenType } from '../../constants/constants'
 import type { Any } from '../../interface'
-import type { AstNode, GenericNode } from '../../parser/interface'
-import { assertAstNode } from '../../typeGuards/astNode'
+import type { CommonSpecialExpressionNode } from '../../parser/interface'
+import { assertNumberOfParams } from '../../typeGuards'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface TimeNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'time!'
-  p: AstNode
-}
+export interface TimeNode extends CommonSpecialExpressionNode<'time!'> {}
 
 export const timeSpecialExpression: BuiltinSpecialExpression<Any, TimeNode> = {
-  parse: (tokenStream, position, firstToken, { parseToken }) => {
-    const [newPosition, astNode] = parseToken(tokenStream, position)
+  parse: (tokenStream, position, firstToken, { parseTokensUntilClosingBracket }) => {
+    const [newPosition, params] = parseTokensUntilClosingBracket(tokenStream, position)
     const lastToken = asToken(tokenStream.tokens[newPosition], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: TimeNode = {
       t: AstNodeType.SpecialExpression,
       n: 'time!',
-      p: astNode,
+      p: params,
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
@@ -28,12 +24,12 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any, TimeNode> = {
         : undefined,
     }
 
+    assertNumberOfParams(1, node)
+
     return [newPosition + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const param = node.p
-    assertAstNode(param, node.debug?.token.sourceCodeInfo)
-
+    const param = node.p[0]!
     const startTime = Date.now()
     const result = evaluateAstNode(param, contextStack)
     const totalTime = Date.now() - startTime
@@ -42,5 +38,5 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any, TimeNode> = {
 
     return result
   },
-  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers([node.p], contextStack, builtin),
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers(node.p, contextStack, builtin),
 }

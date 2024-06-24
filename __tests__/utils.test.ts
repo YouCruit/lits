@@ -114,6 +114,8 @@ describe('utils', () => {
       t: AstNodeType.Name,
       v: 'Foo',
       debug: undefined,
+      p: [],
+      n: undefined,
     }
     it('valueToString', () => {
       expect(valueToString(new Error('An error'))).toBe('Error: An error')

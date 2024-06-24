@@ -1,14 +1,10 @@
-import { RecurSignal } from '../../errors'
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, GenericNode } from '../../parser/interface'
+import { RecurSignal } from '../../errors'
+import type { AstNode, CommonSpecialExpressionNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface RecurNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'recur'
-  p: AstNode[]
-}
+export interface RecurNode extends CommonSpecialExpressionNode<'recur'> {}
 
 export const recurSpecialExpression: BuiltinSpecialExpression<null, RecurNode> = {
   parse: (tokenStream, position, firstToken, { parseTokensUntilClosingBracket }) => {

@@ -84,7 +84,6 @@ describe('unparseAst', () => {
     expect(unparseAst(ast, 80)).toEqual(program)
   })
 
-
   it('should unparse ast with comments. 2.', () => {
     const program = `
 ;; A

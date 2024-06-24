@@ -1,15 +1,11 @@
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, GenericNode } from '../../parser/interface'
+import type { AstNode, CommonSpecialExpressionNode } from '../../parser/interface'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface DoNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'do'
-  p: AstNode[] // params
-}
+export interface DoNode extends CommonSpecialExpressionNode<'do'> {}
 
 export const doSpecialExpression: BuiltinSpecialExpression<Any, DoNode> = {
   parse: (tokenStream, position, firstToken, { parseToken }) => {

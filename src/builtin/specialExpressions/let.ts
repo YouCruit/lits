@@ -1,15 +1,12 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
+import type { AstNode, BindingNode, CommonSpecialExpressionNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface LetNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'let'
-  p: AstNode[]
+export interface LetNode extends CommonSpecialExpressionNode<'let'> {
   bs: BindingNode[]
 }
 

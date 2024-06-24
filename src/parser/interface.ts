@@ -1,5 +1,5 @@
 import type { JsFunction, LazyValue } from '../Lits/Lits'
-import type { SpecialExpressionNode } from '../builtin'
+import type { SpecialExpressionName, SpecialExpressionNode } from '../builtin'
 import type { Arity } from '../builtin/utils'
 import type { AstNodeType, FunctionType } from '../constants/constants'
 import type { Context } from '../evaluator/interface'
@@ -114,6 +114,8 @@ export type ModifierName = '&' | '&let' | '&when' | '&while'
 
 export interface GenericNode {
   t: AstNodeType // type
+  p: AstNode[] // params
+  n: string | undefined // name
   debug: {
     token: Token
     lastToken: Token
@@ -126,7 +128,7 @@ export type ParseBinding = (tokens: TokenStream, position: number) => [number, B
 export type ParseBindings = (tokens: TokenStream, position: number) => [number, BindingNode[]]
 export type ParseArgument = (tokens: TokenStream, position: number) => [number, ArgumentNode | ModifierNode]
 export type ParseExpression = (tokens: TokenStream, position: number) => [number, ExpressionNode]
-export type ParseTokens = (tokens: TokenStream, position: number) => [number, AstNode[]]
+export type ParseTokensUntilClosingBracket = (tokens: TokenStream, position: number) => [number, AstNode[]]
 export type ParseToken = (tokens: TokenStream, position: number) => [number, AstNode]
 
 export interface NumberNode extends GenericNode {
@@ -150,17 +152,21 @@ export interface ReservedNameNode extends GenericNode {
   v: ReservedName // reservedName
 }
 
-interface NormalExpressionNodeBase extends GenericNode {
+interface CommonNormalExpressionNode extends GenericNode {
   t: AstNodeType.NormalExpression // type
-  p: AstNode[] // params
 }
 
-export interface NormalExpressionNodeWithName extends NormalExpressionNodeBase {
+export interface CommonSpecialExpressionNode<T extends SpecialExpressionName> extends GenericNode {
+  t: AstNodeType.SpecialExpression // type
+  n: T // name
+}
+
+export interface NormalExpressionNodeWithName extends CommonNormalExpressionNode {
   n: string // name
 }
 
-interface NormalExpressionNodeExpression extends NormalExpressionNodeBase {
-  n?: never // name
+interface NormalExpressionNodeExpression extends CommonNormalExpressionNode {
+  n: undefined // name not present. E.g. ([1 2 3] 2)
 }
 
 export type NormalExpressionNode = NormalExpressionNodeWithName | NormalExpressionNodeExpression

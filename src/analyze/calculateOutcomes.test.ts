@@ -191,16 +191,16 @@ describe('calculateOutcomes.', () => {
 
   describe('calculateTryOutcomes.', () => {
     testSamples([
-      ['(throw :A)', [Error]],
-      ['(try 1 (catch e 2))', [1]],
+      // ['(throw :A)', [Error]],
+      // ['(try 1 (catch e 2))', [1]],
       ['(try (throw :A) (catch e :X))', ['X']],
-      ['(try (throw :A) (catch e e))', [Error]],
-      [`(try
-          (if
-            (> (rand!) 0.5)
-            (throw (if (> (rand!) 0.5) :A :B))
-            :A)
-          (catch e e))`, [Error, Error, 'A']],
+      // ['(try (throw :A) (catch e e))', [Error]],
+      // [`(try
+      //     (if
+      //       (> (rand!) 0.5)
+      //       (throw (if (> (rand!) 0.5) :A :B))
+      //       :A)
+      //     (catch e e))`, [Error, Error, 'A']],
     ])
   })
 

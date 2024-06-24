@@ -1,33 +1,23 @@
 import { AstNodeType, TokenType } from '../../constants/constants'
 import type { Any } from '../../interface'
-import type { AstNode, GenericNode } from '../../parser/interface'
-import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
+import type { CommonSpecialExpressionNode } from '../../parser/interface'
+import { assertNumberOfParams } from '../../typeGuards'
 import { isNameNode } from '../../typeGuards/astNode'
 import { assertAny } from '../../typeGuards/lits'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface QqNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: '??'
-  p: [AstNode] | [AstNode, AstNode]
-}
+export interface QqNode extends CommonSpecialExpressionNode<'??'> {}
 
 export const qqSpecialExpression: BuiltinSpecialExpression<Any, QqNode> = {
   parse: (tokenStream, position, firstToken, { parseTokensUntilClosingBracket }) => {
     const [newPosition, params] = parseTokensUntilClosingBracket(tokenStream, position)
     const lastToken = asToken(tokenStream.tokens[newPosition], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
-    assertNumberOfParamsFromAstNodes({
-      name: '??',
-      count: { min: 1, max: 2 },
-      params,
-      sourceCodeInfo: firstToken.sourceCodeInfo,
-    })
     const node: QqNode = {
       t: AstNodeType.SpecialExpression,
       n: '??',
-      p: params.length === 1 ? [params[0]!] : [params[0]!, params[1]!],
+      p: params,
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
@@ -35,6 +25,8 @@ export const qqSpecialExpression: BuiltinSpecialExpression<Any, QqNode> = {
           }
         : undefined,
     }
+
+    assertNumberOfParams({ min: 1, max: 2 }, node)
 
     return [newPosition + 1, node]
   },

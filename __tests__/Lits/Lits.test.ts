@@ -119,6 +119,8 @@ describe('context', () => {
                   t: TokenType.Number,
                   v: '2',
                 } },
+                p: [],
+                n: undefined,
               },
               {
                 t: AstNodeType.Number,
@@ -130,6 +132,8 @@ describe('context', () => {
                   t: TokenType.Number,
                   v: '4',
                 } },
+                p: [],
+                n: undefined,
               },
             ],
             debug: { token: {
@@ -198,6 +202,8 @@ function ast(n: number): Ast {
         t: AstNodeType.Number,
         v: n,
         debug: undefined,
+        p: [],
+        n: undefined,
       },
     ],
   }

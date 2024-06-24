@@ -7,7 +7,7 @@ export const calculateQqOutcomes: CalculatePossibleAstNodesHelper<QqNode> = ({
   combinateAstNodes,
   isAstComputable,
 }) => {
-  if (!isAstComputable(astNode.p[0]))
+  if (!isAstComputable(astNode.p[0]!))
     throw new Error('First argument of ?? not computable')
 
   return combinateAstNodes(astNode.p)

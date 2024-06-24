@@ -1,18 +1,30 @@
 import { LitsError } from '../errors'
 import type { UnknownRecord } from '../interface'
-import type { AstNode, NormalExpressionNode } from '../parser/interface'
+import type { GenericNode } from '../parser/interface'
+import { withoutCommentNodes } from '../removeCommentNodes'
 import type { SourceCodeInfo } from '../tokenizer/interface'
 import { valueToString } from '../utils/debug/debugTools'
 import { getSourceCodeInfo } from '../utils/debug/getSourceCodeInfo'
 
-export function assertEventNumberOfParams(node: NormalExpressionNode): void {
-  const length = node.p.length
+type Count = number | { min?: number, max?: number }
+
+export function assertEvenNumberOfParams(node: GenericNode): void {
+  const length = withoutCommentNodes(node.p).length
   if (length % 2 !== 0) {
     throw new LitsError(
       `Wrong number of arguments, expected an even number, got ${valueToString(length)}.`,
       node.debug?.token.sourceCodeInfo,
     )
   }
+}
+
+export function assertNumberOfParams(count: Count, node: GenericNode): void {
+  assertCount({
+    count,
+    length: withoutCommentNodes(node.p).length,
+    name: node.n ?? 'expression',
+    sourceCodeInfo: node.debug?.token.sourceCodeInfo,
+  })
 }
 
 export function isNonUndefined<T>(value: T | undefined): value is T {
@@ -50,38 +62,6 @@ export function assertUnknownRecord(value: unknown, sourceCodeInfo?: SourceCodeI
 export function asUnknownRecord(value: unknown, sourceCodeInfo?: SourceCodeInfo): UnknownRecord {
   assertUnknownRecord(value, sourceCodeInfo)
   return value
-}
-
-type Count = number | { min?: number, max?: number }
-export function assertNumberOfParams(
-  count: Count,
-  node: NormalExpressionNode,
-): void {
-  const length = node.p.length
-  const sourceCodeInfo = node.debug?.token.sourceCodeInfo
-  assertCount({
-    name: node.n,
-    count,
-    length,
-    sourceCodeInfo,
-  })
-}
-
-export function assertNumberOfParamsFromAstNodes({
-  name,
-  count,
-  params,
-  sourceCodeInfo,
-}:
-{
-  name: string
-  count: Count
-  params: AstNode[]
-  sourceCodeInfo?: SourceCodeInfo
-},
-): void {
-  const length = params.length
-  assertCount({ name, count, length, sourceCodeInfo })
 }
 
 function assertCount({ count, length, name, sourceCodeInfo }: { name: string | undefined, count: Count, length: number, sourceCodeInfo?: SourceCodeInfo }): void {

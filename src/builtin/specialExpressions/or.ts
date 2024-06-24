@@ -1,34 +1,29 @@
-import type { Any } from '../../interface'
 import { AstNodeType, TokenType } from '../../constants/constants'
+import type { Any } from '../../interface'
+import type { CommonSpecialExpressionNode } from '../../parser/interface'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
-import type { AstNode, GenericNode } from '../../parser/interface'
 
-export interface OrNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'or'
-  p: AstNode[]
-}
+export interface OrNode extends CommonSpecialExpressionNode<'or'> {}
 
 export const orSpecialExpression: BuiltinSpecialExpression<Any, OrNode> = {
   parse: (tokenStream, position, firstToken, { parseTokensUntilClosingBracket }) => {
     const [newPosition, params] = parseTokensUntilClosingBracket(tokenStream, position)
     const lastToken = asToken(tokenStream.tokens[newPosition], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
-    return [
-      newPosition + 1,
-      {
-        t: AstNodeType.SpecialExpression,
-        n: 'or',
-        p: params,
-        debug: firstToken.sourceCodeInfo
-          ? {
-              token: firstToken,
-              lastToken
-            }
-          : undefined,
-      } satisfies OrNode,
-    ]
+    const node: OrNode = {
+      t: AstNodeType.SpecialExpression,
+      n: 'or',
+      p: params,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+            lastToken,
+          }
+        : undefined,
+    }
+
+    return [newPosition + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     let value: Any = false

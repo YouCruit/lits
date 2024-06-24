@@ -1,16 +1,19 @@
 import { TokenType } from '../constants/constants'
-import type { NormalExpressionNode } from '../parser/interface'
+import { isNormalExpressionNode } from '../typeGuards/astNode'
 import type { UnparseOptions } from './UnparseOptions'
+import type { ExpressionWithParamsNode } from './unparse'
 import { unparseArrayLiteral } from './unparseArrayLiteral'
 import { unparseObjectLiteral } from './unparseObjectLiteral'
 import { unparseMultilineParams, unparseParams } from './unparseParams'
 import { applyMetaTokens, ensureNewlineSeparator } from './utils'
 
-export function unparseNormalExpressionNode(node: NormalExpressionNode, options: UnparseOptions): string {
-  if (node.debug?.token.t === TokenType.Bracket && node.debug.token.v === '[')
-    return unparseArrayLiteral(node, options)
-  else if (node.debug?.token.t === TokenType.Bracket && node.debug.token.v === '{')
-    return unparseObjectLiteral(node, options)
+export function unparseNormalExpressionNode(node: ExpressionWithParamsNode, options: UnparseOptions): string {
+  if (isNormalExpressionNode(node)) {
+    if (node.debug?.token.t === TokenType.Bracket && node.debug.token.v === '[')
+      return unparseArrayLiteral(node, options)
+    else if (node.debug?.token.t === TokenType.Bracket && node.debug.token.v === '{')
+      return unparseObjectLiteral(node, options)
+  }
 
   const { startBracket, unparsedName, params, endBracket } = getInfo(node, options)
   const prefix = startBracket + unparsedName
@@ -69,7 +72,7 @@ export function unparseNormalExpressionNode(node: NormalExpressionNode, options:
   )}${endBracket}`
 }
 
-function getInfo(node: NormalExpressionNode, options: UnparseOptions) {
+function getInfo(node: ExpressionWithParamsNode, options: UnparseOptions) {
   const startBracket = applyMetaTokens('(', node.debug?.token.metaTokens, options)
   const endBracket = applyMetaTokens(')', node.debug?.lastToken?.metaTokens, options.inline())
 

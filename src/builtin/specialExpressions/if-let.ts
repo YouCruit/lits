@@ -3,17 +3,14 @@ import { AstNodeType, TokenType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
-import { asNonUndefined, assertNumberOfParamsFromAstNodes } from '../../typeGuards'
+import type { AstNode, BindingNode, CommonSpecialExpressionNode } from '../../parser/interface'
+import { asNonUndefined, assertNumberOfParams } from '../../typeGuards'
 import { asAstNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import { valueToString } from '../../utils/debug/debugTools'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface IfLetNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'if-let'
-  p: AstNode[]
+export interface IfLetNode extends CommonSpecialExpressionNode<'if-let'> {
   b: BindingNode
 }
 
@@ -33,12 +30,6 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = 
     ;[position, params] = parseTokensUntilClosingBracket(tokenStream, position)
     const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
-    assertNumberOfParamsFromAstNodes({
-      name: 'if-let',
-      count: { min: 1, max: 2 },
-      params,
-      sourceCodeInfo: firstToken.sourceCodeInfo,
-    })
     const node: IfLetNode = {
       t: AstNodeType.SpecialExpression,
       n: 'if-let',
@@ -51,6 +42,9 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = 
           }
         : undefined,
     }
+
+    assertNumberOfParams({ min: 1, max: 2 }, node)
+
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {

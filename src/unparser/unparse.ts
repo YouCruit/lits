@@ -1,10 +1,11 @@
 import { AstNodeType } from '../constants/constants'
-import type { Ast, AstNode } from '../parser/interface'
+import type { Ast, AstNode, NormalExpressionNode } from '../parser/interface'
 import { UnparseOptions } from './UnparseOptions'
 import { unparseNormalExpressionNode } from './unparseNormalExpression'
 import { applyMetaTokens, ensureNewlineSeparator } from './utils'
 import { unparseSpecialExpression } from './unparseSpecialExpression'
 
+export type ExpressionWithParamsNode = Pick<NormalExpressionNode, 'debug' | 'n' | 'p'>
 export type Unparse = (node: AstNode, options: UnparseOptions) => string
 
 const unparse: Unparse = (node: AstNode, options: UnparseOptions) => {

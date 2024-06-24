@@ -5,7 +5,7 @@ import type { AstNode, NormalExpressionNode } from '../parser/interface'
 import {
   asNonUndefined,
   asUnknownRecord,
-  assertEventNumberOfParams,
+  assertEvenNumberOfParams,
   assertNonUndefined,
   assertNumberOfParams,
   assertUnknownRecord,
@@ -17,6 +17,8 @@ function toNormalExpressionNode(arr: number[]): NormalExpressionNode {
     t: AstNodeType.Number,
     v: n,
     debug: undefined,
+    p: [],
+    n: undefined,
   }))
   return {
     n: 'let',
@@ -24,7 +26,7 @@ function toNormalExpressionNode(arr: number[]): NormalExpressionNode {
     t: AstNodeType.NormalExpression,
     debug: {
       token: { t: TokenType.Name, v: 'X' },
-      lastToken: { t: TokenType.Name, v: 'X' }
+      lastToken: { t: TokenType.Name, v: 'X' },
     },
   }
 }
@@ -49,13 +51,13 @@ describe('typeGuards index file', () => {
     expect(() => assertNonUndefined({})).not.toThrow()
   })
   it('assertLengthEven', () => {
-    expect(() => assertEventNumberOfParams(toNormalExpressionNode([]))).not.toThrow()
-    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0]))).toThrow()
-    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1]))).not.toThrow()
-    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1, 2]))).toThrow()
-    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1, 2, 3]))).not.toThrow()
-    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1, 2, 3, 4]))).toThrow()
-    expect(() => assertEventNumberOfParams(toNormalExpressionNode([0, 1, 2, 3, 4, 5]))).not.toThrow()
+    expect(() => assertEvenNumberOfParams(toNormalExpressionNode([]))).not.toThrow()
+    expect(() => assertEvenNumberOfParams(toNormalExpressionNode([0]))).toThrow()
+    expect(() => assertEvenNumberOfParams(toNormalExpressionNode([0, 1]))).not.toThrow()
+    expect(() => assertEvenNumberOfParams(toNormalExpressionNode([0, 1, 2]))).toThrow()
+    expect(() => assertEvenNumberOfParams(toNormalExpressionNode([0, 1, 2, 3]))).not.toThrow()
+    expect(() => assertEvenNumberOfParams(toNormalExpressionNode([0, 1, 2, 3, 4]))).toThrow()
+    expect(() => assertEvenNumberOfParams(toNormalExpressionNode([0, 1, 2, 3, 4, 5]))).not.toThrow()
   })
 
   it('assertLength', () => {

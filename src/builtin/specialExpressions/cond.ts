@@ -1,72 +1,43 @@
-import type { Any } from '../../interface'
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, GenericNode, ParseToken } from '../../parser/interface'
-import type { TokenStream } from '../../tokenizer/interface'
-import { asToken, isToken } from '../../typeGuards/token'
+import type { Any } from '../../interface'
+import type { CommonSpecialExpressionNode } from '../../parser/interface'
+import { assertEvenNumberOfParams } from '../../typeGuards'
+import { asToken } from '../../typeGuards/token'
+import { arrayToPairs } from '../../utils'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface Condition {
-  t: AstNode // test
-  f: AstNode // form
-}
-
-export interface CondNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'cond'
-  c: Condition[]
-}
-
-function parseConditions(tokenStream: TokenStream, position: number, parseToken: ParseToken): [number, Condition[]] {
-  const conditions: Condition[] = []
-
-  let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
-  while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {
-    let test: AstNode
-    ;[position, test] = parseToken(tokenStream, position)
-
-    let form: AstNode
-    ;[position, form] = parseToken(tokenStream, position)
-
-    conditions.push({ t: test, f: form })
-
-    tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
-  }
-  return [position, conditions]
-}
+export interface CondNode extends CommonSpecialExpressionNode<'cond'> {}
 
 export const condSpecialExpression: BuiltinSpecialExpression<Any, CondNode> = {
-  parse: (tokenStream, position, firstToken, { parseToken }) => {
-    let conditions: Condition[]
-    ;[position, conditions] = parseConditions(tokenStream, position, parseToken)
-    const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
+  parse: (tokenStream, position, firstToken, { parseTokensUntilClosingBracket }) => {
+    const [newPosition, params] = parseTokensUntilClosingBracket(tokenStream, position)
+    const lastToken = asToken(tokenStream.tokens[newPosition], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
-    return [
-      position + 1,
-      {
-        t: AstNodeType.SpecialExpression,
-        n: 'cond',
-        c: conditions,
-        debug: firstToken.sourceCodeInfo
-          ? {
-              token: firstToken,
-              lastToken,
-            }
-          : undefined,
-      } satisfies CondNode,
-    ]
+    const node: CondNode = {
+      t: AstNodeType.SpecialExpression,
+      n: 'cond',
+      p: params,
+      debug: firstToken.sourceCodeInfo
+        ? {
+            token: firstToken,
+            lastToken,
+          }
+        : undefined,
+    }
+
+    assertEvenNumberOfParams(node)
+
+    return [newPosition + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    for (const condition of node.c) {
-      const value = evaluateAstNode(condition.t, contextStack)
+    for (const [test, form] of arrayToPairs(node.p)) {
+      const value = evaluateAstNode(test!, contextStack)
       if (!value)
         continue
 
-      return evaluateAstNode(condition.f, contextStack)
+      return evaluateAstNode(form!, contextStack)
     }
     return null
   },
-  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => {
-    const astNodes = node.c.flatMap(condition => [condition.t, condition.f])
-    return findUnresolvedIdentifiers(astNodes, contextStack, builtin)
-  },
+  findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers(node.p, contextStack, builtin),
 }

@@ -5,25 +5,19 @@ import { LitsError } from '../../errors'
 import type { ContextStack } from '../../evaluator/ContextStack'
 import type { Context, EvaluateAstNode } from '../../evaluator/interface'
 import type { Any, Arr } from '../../interface'
-import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
+import type { AstNode, BindingNode, CommonSpecialExpressionNode } from '../../parser/interface'
 import type { SourceCodeInfo, TokenStream } from '../../tokenizer/interface'
-import { asNonUndefined } from '../../typeGuards'
+import { asNonUndefined, assertNumberOfParams } from '../../typeGuards'
 import { asAstNode } from '../../typeGuards/astNode'
 import { asAny, asColl, isSeq } from '../../typeGuards/lits'
 import { asToken, assertToken, isToken } from '../../typeGuards/token'
 import type { Builtin, BuiltinSpecialExpression, ParserHelpers } from '../interface'
 
-export interface ForNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'for'
-  p: AstNode
+export interface ForNode extends CommonSpecialExpressionNode<'for'> {
   l: LoopBindingNode[]
 }
 
-export interface DoSeqNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'doseq'
-  p: AstNode
+export interface DoSeqNode extends CommonSpecialExpressionNode<'doseq'> {
   l: LoopBindingNode[]
 }
 
@@ -123,7 +117,7 @@ function evaluateLoop(
   evaluateAstNode: EvaluateAstNode,
 ) {
   const sourceCodeInfo = node.debug?.token.sourceCodeInfo
-  const { l: loopBindings, p: expression } = node as LoopNode
+  const { l: loopBindings, p: params } = node as LoopNode
 
   const result: Arr = []
 
@@ -194,11 +188,12 @@ function evaluateLoop(
       }
     }
     if (!skip) {
-      const value = evaluateAstNode(expression, newContextStack)
+      const value = evaluateAstNode(params[0]!, newContextStack)
       if (returnResult)
         result.push(value)
 
-      bindingIndices[bindingIndices.length - 1] += 1
+      if (bindingIndices.length > 0)
+        bindingIndices[bindingIndices.length - 1]! += 1
     }
   }
   return returnResult ? result : null
@@ -238,7 +233,7 @@ function analyze(
       )
     }
   })
-  findUnresolvedIdentifiers([node.p], contextStack.create(newContext), builtin).forEach(symbol =>
+  findUnresolvedIdentifiers(node.p, contextStack.create(newContext), builtin).forEach(symbol =>
     result.add(symbol),
   )
   return result
@@ -246,19 +241,19 @@ function analyze(
 
 export const forSpecialExpression: BuiltinSpecialExpression<Any, ForNode> = {
   parse: (tokenStream, position, firstToken, parsers) => {
-    const { parseToken } = parsers
+    const { parseTokensUntilClosingBracket } = parsers
     let loopBindings: LoopBindingNode[]
     ;[position, loopBindings] = parseLoopBindings(tokenStream, position, parsers)
 
-    let expression: AstNode
-    ;[position, expression] = parseToken(tokenStream, position)
+    let params: AstNode[]
+    ;[position, params] = parseTokensUntilClosingBracket(tokenStream, position)
     const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: ForNode = {
       n: 'for',
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
-      p: expression,
+      p: params,
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
@@ -266,6 +261,8 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any, ForNode> = {
           }
         : undefined,
     }
+
+    assertNumberOfParams(1, node)
 
     return [position + 1, node]
   },
@@ -275,19 +272,19 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any, ForNode> = {
 
 export const doseqSpecialExpression: BuiltinSpecialExpression<null, DoSeqNode> = {
   parse: (tokenStream, position, firstToken, parsers) => {
-    const { parseToken } = parsers
+    const { parseTokensUntilClosingBracket } = parsers
     let loopBindings: LoopBindingNode[]
     ;[position, loopBindings] = parseLoopBindings(tokenStream, position, parsers)
 
-    let expression: AstNode
-    ;[position, expression] = parseToken(tokenStream, position)
+    let params: AstNode[]
+    ;[position, params] = parseTokensUntilClosingBracket(tokenStream, position)
     const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
     const node: DoSeqNode = {
       n: 'doseq',
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
-      p: expression,
+      p: params,
       debug: firstToken.sourceCodeInfo
         ? {
             token: firstToken,
@@ -295,6 +292,8 @@ export const doseqSpecialExpression: BuiltinSpecialExpression<null, DoSeqNode> =
           }
         : undefined,
     }
+
+    assertNumberOfParams(1, node)
 
     return [position + 1, node]
   },

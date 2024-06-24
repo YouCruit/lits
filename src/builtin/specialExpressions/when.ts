@@ -1,28 +1,18 @@
 import { AstNodeType, TokenType } from '../../constants/constants'
 import type { Any } from '../../interface'
-import type { AstNode, GenericNode } from '../../parser/interface'
-import { assertNumberOfParamsFromAstNodes } from '../../typeGuards'
+import type { CommonSpecialExpressionNode } from '../../parser/interface'
+import { assertNumberOfParams } from '../../typeGuards'
 import { assertAstNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface WhenNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'when'
-  p: AstNode[]
-}
+export interface WhenNode extends CommonSpecialExpressionNode<'when'> {}
 
 export const whenSpecialExpression: BuiltinSpecialExpression<Any, WhenNode> = {
   parse: (tokenStream, position, firstToken, { parseTokensUntilClosingBracket }) => {
     const [newPosition, params] = parseTokensUntilClosingBracket(tokenStream, position)
     const lastToken = asToken(tokenStream.tokens[newPosition], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
-    assertNumberOfParamsFromAstNodes({
-      name: 'when',
-      count: { min: 1 },
-      params,
-      sourceCodeInfo: firstToken.sourceCodeInfo,
-    })
     const node: WhenNode = {
       t: AstNodeType.SpecialExpression,
       n: 'when',
@@ -34,6 +24,8 @@ export const whenSpecialExpression: BuiltinSpecialExpression<Any, WhenNode> = {
           }
         : undefined,
     }
+
+    assertNumberOfParams({ min: 1 }, node)
 
     return [newPosition + 1, node]
   },

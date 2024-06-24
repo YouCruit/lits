@@ -3,7 +3,7 @@ import { AstNodeType, TokenType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
+import type { AstNode, BindingNode, CommonSpecialExpressionNode } from '../../parser/interface'
 import { asNonUndefined } from '../../typeGuards'
 import { isSeq } from '../../typeGuards/lits'
 import { asToken } from '../../typeGuards/token'
@@ -11,10 +11,7 @@ import { toAny } from '../../utils'
 import { valueToString } from '../../utils/debug/debugTools'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface WhenFirstNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'when-first'
-  p: AstNode[]
+export interface WhenFirstNode extends CommonSpecialExpressionNode<'when-first'> {
   b: BindingNode
 }
 

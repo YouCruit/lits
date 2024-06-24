@@ -37,7 +37,7 @@ function isDeterministic(calculatePossibleAstNodes: CalculatePossibleAstNodes, a
       return false
   }
 
-  if (!astIsDeterministic(calculatePossibleAstNodes, astNode.p))
+  if (!astIsDeterministic(calculatePossibleAstNodes, astNode.p[0]!))
     return false
 
   return true

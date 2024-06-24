@@ -1,5 +1,5 @@
 import type { Any, Arr, Obj } from '../../../interface'
-import { assertEventNumberOfParams, assertNumberOfParams } from '../../../typeGuards'
+import { assertEvenNumberOfParams, assertNumberOfParams } from '../../../typeGuards'
 import { assertArray, assertStringArray } from '../../../typeGuards/array'
 import { assertObj } from '../../../typeGuards/lits'
 import { assertLitsFunction } from '../../../typeGuards/litsFunction'
@@ -19,7 +19,7 @@ export const objectNormalExpression: BuiltinNormalExpressions = {
       }
       return result
     },
-    validate: node => assertEventNumberOfParams(node),
+    validate: node => assertEvenNumberOfParams(node),
   },
 
   'keys': {

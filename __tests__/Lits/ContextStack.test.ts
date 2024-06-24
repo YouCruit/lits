@@ -3,11 +3,13 @@ import { AstNodeType } from '../../src'
 import { ContextStackImpl } from '../../src/evaluator/ContextStack'
 import type { NameNode } from '../../src/parser/interface'
 
-function getNameNode(name: string): NameNode {
+function createNameNode(name: string): NameNode {
   return {
     t: AstNodeType.Name,
     v: name,
     debug: undefined,
+    p: [],
+    n: undefined,
   }
 }
 
@@ -23,7 +25,7 @@ describe('contextStack', () => {
 
     const contextStack2 = contextStack.create({}, { foo: { read: () => 'xxx' } })
 
-    expect(contextStack2.lookUp(getNameNode('foo'))).toEqual({ value: 'xxx' })
-    expect(contextStack2.lookUp(getNameNode('bar'))).toEqual({ value: 'bar' })
+    expect(contextStack2.lookUp(createNameNode('foo'))).toEqual({ value: 'xxx' })
+    expect(contextStack2.lookUp(createNameNode('bar'))).toEqual({ value: 'bar' })
   })
 })

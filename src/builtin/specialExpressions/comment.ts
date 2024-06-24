@@ -1,13 +1,9 @@
 import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, GenericNode } from '../../parser/interface'
+import type { AstNode, CommonSpecialExpressionNode } from '../../parser/interface'
 import { asToken, isToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface CommentExpressionNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'comment'
-  p: AstNode[]
-}
+export interface CommentExpressionNode extends CommonSpecialExpressionNode<'comment'> {}
 
 export const commentSpecialExpression: BuiltinSpecialExpression<null, CommentExpressionNode> = {
   parse: (tokenStream, position, firstToken, { parseToken }) => {

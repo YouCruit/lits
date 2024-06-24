@@ -3,16 +3,13 @@ import { AstNodeType, TokenType } from '../../constants/constants'
 import { LitsError } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
+import type { AstNode, BindingNode, CommonSpecialExpressionNode } from '../../parser/interface'
 import { asNonUndefined } from '../../typeGuards'
 import { asToken } from '../../typeGuards/token'
 import { valueToString } from '../../utils/debug/debugTools'
 import type { BuiltinSpecialExpression } from '../interface'
 
-export interface WhenLetNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'when-let'
-  p: AstNode[]
+export interface WhenLetNode extends CommonSpecialExpressionNode<'when-let'> {
   b: BindingNode
 }
 

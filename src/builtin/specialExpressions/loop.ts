@@ -1,19 +1,16 @@
 import { joinAnalyzeResults } from '../../analyze/utils'
+import { AstNodeType, TokenType } from '../../constants/constants'
 import { LitsError, RecurSignal } from '../../errors'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import { AstNodeType, TokenType } from '../../constants/constants'
-import type { AstNode, BindingNode, GenericNode } from '../../parser/interface'
-import { valueToString } from '../../utils/debug/debugTools'
-import { asToken } from '../../typeGuards/token'
-import type { BuiltinSpecialExpression } from '../interface'
+import type { AstNode, BindingNode, CommonSpecialExpressionNode } from '../../parser/interface'
 import { asNonUndefined } from '../../typeGuards'
 import { asAny } from '../../typeGuards/lits'
+import { asToken } from '../../typeGuards/token'
+import { valueToString } from '../../utils/debug/debugTools'
+import type { BuiltinSpecialExpression } from '../interface'
 
-export interface LoopNode extends GenericNode {
-  t: AstNodeType.SpecialExpression
-  n: 'loop'
-  p: AstNode[]
+export interface LoopNode extends CommonSpecialExpressionNode<'loop'> {
   bs: BindingNode[]
 }
 

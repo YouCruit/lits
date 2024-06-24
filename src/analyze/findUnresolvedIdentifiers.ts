@@ -39,7 +39,7 @@ function findUnresolvedIdentifiersInAstNode(astNode: AstNode, contextStack: Cont
       const unresolvedIdentifiers = new Set<UnresolvedIdentifier>()
       const { n: name, debug } = astNode
       if (typeof name === 'string') {
-        const lookUpResult = contextStack.lookUp({ t: AstNodeType.Name, v: name, debug })
+        const lookUpResult = contextStack.lookUp({ t: AstNodeType.Name, v: name, debug, p: [], n: undefined })
         if (lookUpResult === null)
           unresolvedIdentifiers.add({ symbol: name, token: astNode.debug?.token })
       }

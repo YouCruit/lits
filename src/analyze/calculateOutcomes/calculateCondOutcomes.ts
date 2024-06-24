@@ -1,6 +1,7 @@
 import type { CondNode } from '../../builtin/specialExpressions/cond'
 import type { AstNode } from '../../parser/interface'
 import { combinate } from '../utils'
+import { arrayToPairs } from '../../utils'
 import type { CalculatePossibleAstNodesHelper } from '.'
 
 export const calculateCondOutcomes: CalculatePossibleAstNodesHelper<CondNode> = ({
@@ -9,12 +10,12 @@ export const calculateCondOutcomes: CalculatePossibleAstNodesHelper<CondNode> = 
   calculatePossibleAstNodes,
   isAstComputable,
 }) => {
-  const testNodes = astNode.c.map(({ t }) => t)
+  const testNodes = arrayToPairs(astNode.p).map(([t]) => t!)
   if (isAstComputable(testNodes)) {
-    return combinate(astNode.c
+    return combinate(arrayToPairs(astNode.p)
       // Create a list of ast nodes from the test and form of each condition
-      .reduce((acc: AstNode[][], condition) => {
-        acc.push(calculatePossibleAstNodes(condition.t), calculatePossibleAstNodes(condition.f))
+      .reduce((acc: AstNode[][], [test, form]) => {
+        acc.push(calculatePossibleAstNodes(test!), calculatePossibleAstNodes(form!))
         return acc
       }, []),
     )
@@ -26,15 +27,7 @@ export const calculateCondOutcomes: CalculatePossibleAstNodesHelper<CondNode> = 
   }
 
   return [
-    ...astNode.c.flatMap(condition => calculatePossibleAstNodes(condition.f)),
+    ...arrayToPairs(astNode.p).flatMap(([_, form]) => calculatePossibleAstNodes(form!)),
     nilNode,
   ]
-}
-
-function arrayToPairs(arr: AstNode[]): AstNode[][] {
-  const pairs: AstNode[][] = []
-  for (let i = 0; i < arr.length; i += 2)
-    pairs.push([arr[i]!, arr[i + 1]!])
-
-  return pairs
 }

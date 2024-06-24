@@ -1,42 +1,45 @@
-import type { SpecialExpressionName, SpecialExpressionNode } from '../../builtin'
+import type { SpecialExpressionNode } from '../../builtin'
 import type { AndNode } from '../../builtin/specialExpressions/and'
-import { AstNodeType } from '../../constants/constants'
+// import type { AstNode, NormalExpressionNode } from '../../parser/interface'
 import type { UnparseOptions } from '../UnparseOptions'
 import { unparseNormalExpressionNode } from '../unparseNormalExpression'
 
-const t = AstNodeType.NormalExpression
+// type ExpressionWithSingleParamNode = Pick<NormalExpressionNode, 'debug' | 'n'> & { p: AstNode }
+
+// function expressionWithSingleParamUnparser(astNode: ExpressionWithSingleParamNode, options: UnparseOptions) {
+//   return unparseNormalExpressionNode({ ...astNode, p: [astNode.p] }, options)
+// }
 
 const specialExpressionUnparser = {
-  and: (astNode: AndNode, options: UnparseOptions) =>
-    unparseNormalExpressionNode({ ...astNode, t }, options),
-  //   'comment': (astNode: CommentExpressionNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateCommentOutcomes({ astNode, ...helperOptions }),
-  //   'cond': (astNode: CondNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateCondOutcomes({ astNode, ...helperOptions }),
-  //   'declared?': (astNode: DeclaredNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateDeclaredOutcomes({ astNode, ...helperOptions }),
-  //   'defn': (astNode: DefnNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateDefnOutcomes({ astNode, ...helperOptions }),
-  //   'def': (astNode: DefNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateDefOutcomes({ astNode, ...helperOptions }),
-  //   'defns': (astNode: DefnsNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateDefnsOutcomes({ astNode, ...helperOptions }),
-  //   'defs': (astNode: DefsNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateDefsOutcomes({ astNode, ...helperOptions }),
-  //   'do': (astNode: DoNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateDoOutcomes({ astNode, ...helperOptions }),
-  //   'doseq': (astNode: DoSeqNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateDoSeqOutcomes({ astNode, ...helperOptions }),
-  //   'fn': (astNode: FnNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateFnOutcomes({ astNode, ...helperOptions }),
-  //   'for': (astNode: ForNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateForOutcomes({ astNode, ...helperOptions }),
-  //   'if-let': (astNode: IfLetNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateIfLetOutcomes({ astNode, ...helperOptions }),
-  //   'if': (astNode: IfNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateIfOutcomes({ astNode, ...helperOptions }),
-  //   'if-not': (astNode: IfNotNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateIfNotOutcomes({ astNode, ...helperOptions }),
-  //   'let': (astNode: LetNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateLetOutcomes({ astNode, ...helperOptions }),
-  //   'loop': (astNode: LoopNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateLoopOutcomes({ astNode, ...helperOptions }),
-  //   'or': (astNode: OrNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateOrOutcomes({ astNode, ...helperOptions }),
-  //   '??': (astNode: QqNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateQqOutcomes({ astNode, ...helperOptions }),
-  //   'recur': (astNode: RecurNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateRecurOutcomes({ astNode, ...helperOptions }),
-  //   'time!': (astNode: TimeNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateTimeOutcomes({ astNode, ...helperOptions }),
-  //   'throw': (astNode: ThrowNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateThrowOutcomes({ astNode, ...helperOptions }),
-  //   'try': (astNode: TryNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateTryOutcomes({ astNode, ...helperOptions }),
-  //   'when-first': (astNode: WhenFirstNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateWhenFirstOutcomes({ astNode, ...helperOptions }),
-  //   'when-let': (astNode: WhenLetNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateWhenLetOutcomes({ astNode, ...helperOptions }),
-  //   'when': (astNode: WhenNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateWhenOutcomes({ astNode, ...helperOptions }),
-  //   'when-not': (astNode: WhenNotNode, helperOptions: Omit<CalculatePossibleAstNodesHelperOptions<AstNode>, 'astNode'>) => calculateWhenNotOutcomes({ astNode, ...helperOptions }),
+  'and': unparseNormalExpressionNode,
+  'comment': unparseNormalExpressionNode,
+  // 'cond': (astNode: CondNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'declared?': unparseNormalExpressionNode,
+  // 'defn': (astNode: DefnNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'def': unparseNormalExpressionNode,
+  // 'defns': (astNode: DefnsNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'defs': unparseNormalExpressionNode,
+  // 'do': (astNode: DoNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  // 'doseq': (astNode: DoSeqNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  // 'fn': (astNode: FnNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  // 'for': (astNode: ForNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  // 'if-let': (astNode: IfLetNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'if': unparseNormalExpressionNode,
+  'if-not': unparseNormalExpressionNode,
+  // 'let': (astNode: LetNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  // 'loop': (astNode: LoopNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'or': unparseNormalExpressionNode,
+  '??': unparseNormalExpressionNode,
+  'recur': unparseNormalExpressionNode,
+  'time!': unparseNormalExpressionNode,
+  'throw': unparseNormalExpressionNode,
+  // 'try': (astNode: TryNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  // 'when-first': (astNode: WhenFirstNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  // 'when-let': (astNode: WhenLetNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  // 'when': (astNode: WhenNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  // 'when-not': (astNode: WhenNotNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
 
-} satisfies Record<Extract<SpecialExpressionName, 'and'>, unknown>
+} satisfies Record<string /* TODO: SpecialExpressionName */, (astNode: any, options: UnparseOptions) => string>
 
 export function unparseSpecialExpression(node: SpecialExpressionNode, options: UnparseOptions): string {
   const unparser = specialExpressionUnparser[node.n as 'and']

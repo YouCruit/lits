@@ -58,27 +58,37 @@ describe('astNode type guards', () => {
       t: AstNodeType.ReservedName,
       v: 'nil',
       debug: undefined,
+      p: [],
+      n: undefined,
     }, {
       t: AstNodeType.ReservedName,
       v: 'nil',
       debug: undefined,
+      p: [],
+      n: undefined,
     }],
     debug: undefined,
   }
   const nameNode: NameNode = {
     t: AstNodeType.Name,
-    debug: { token: tkn, lastToken: tkn},
+    debug: { token: tkn, lastToken: tkn },
     v: 'A name',
+    p: [],
+    n: undefined,
   }
   const numberNode: NumberNode = {
     t: AstNodeType.Number,
     v: 12,
     debug: { token: tkn, lastToken: tkn },
+    p: [],
+    n: undefined,
   }
   const stringNode: StringNode = {
     t: AstNodeType.String,
     v: 'foo',
     debug: { token: { t: TokenType.Name, v: 'X' }, lastToken: tkn },
+    p: [],
+    n: undefined,
   }
   const normalExpressionNodeWithName: NormalExpressionNodeWithName = {
     t: AstNodeType.NormalExpression,
@@ -88,6 +98,7 @@ describe('astNode type guards', () => {
   }
   const normalExpressionNodeWithoutName: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
+    n: undefined,
     p: [{
       t: AstNodeType.NormalExpression,
       n: '+',
@@ -96,6 +107,8 @@ describe('astNode type guards', () => {
           t: AstNodeType.Number,
           v: 2,
           debug: { token: { t: TokenType.Name, v: 'X' }, lastToken: tkn },
+          p: [],
+          n: undefined,
         },
       ],
       debug: undefined,

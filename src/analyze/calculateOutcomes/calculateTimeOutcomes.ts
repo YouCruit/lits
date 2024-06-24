@@ -6,7 +6,7 @@ export const calculateTimeOutcomes: CalculatePossibleAstNodesHelper<TimeNode> = 
   astNode,
   calculatePossibleAstNodes,
 }) => {
-  return calculatePossibleAstNodes(astNode.p)
+  return calculatePossibleAstNodes(astNode.p[0]!)
     .map<DoNode>(p => ({
       ...astNode,
       n: 'do',

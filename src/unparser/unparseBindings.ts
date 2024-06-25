@@ -1,6 +1,6 @@
 import type { NormalExpressionNode } from '../parser/interface'
 import type { UnparseOptions } from './UnparseOptions'
-import { unparseMultilinePairs, unparseMultilinePairwise, unparseSingleLinePairs } from './unparseParams'
+import { unparseMultilinePairwise, unparseMultilineParams, unparseSingleLinePairs } from './unparseParams'
 import { applyMetaTokens } from './utils'
 
 export function unparseBindings(node: NormalExpressionNode, options: UnparseOptions): string {
@@ -48,11 +48,11 @@ export function unparseBindings(node: NormalExpressionNode, options: UnparseOpti
     //       2,
     //       3
     //       4]
-    const unparsedParams = unparseMultilinePairs(params, options.inline().inc())
+    const unparsedParams = unparseMultilineParams(params, options.inline().inc())
     const endBracket = unparsedParams.endsWith('\n')
       ? applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.noInline())
       : applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.inline())
 
-    return prefix + unparseMultilinePairs(params, options.inline().inc()) + endBracket
+    return prefix + unparseMultilineParams(params, options.inline().inc()) + endBracket
   }
 }

@@ -125,23 +125,3 @@ export function unparseMultilinePairwise(params: AstNode[], options: UnparseOpti
     }
   }, '')
 }
-
-export function unparseMultilinePairs(params: AstNode[], options: UnparseOptions): string {
-  return params.reduce<string>((acc, param, index) => {
-    if (index % 2 === 0) {
-      if (index > 0)
-        acc += ','
-
-      return ensureNewlineSeparator(acc, options.unparse(
-        param,
-        index === 0 ? options.inline() : options.noInline(),
-      ))
-    }
-    else {
-      return ensureNewlineSeparator(acc, options.unparse(
-        param,
-        options.noInline(),
-      ))
-    }
-  }, '')
-}

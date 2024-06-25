@@ -9,7 +9,7 @@ const sampleProgramWithComments = `
 ;; Leading Comment
 (let ;; Inline comment
  [a ;; Inline comment
-  10,
+  10
   b
   20 ;; Inline Comment
  ] ;; Inline comment
@@ -54,7 +54,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
 ;; Leading Comment
 (let ;; Inline comment
  [a ;; Inline comment
-  10,
+  10
   b
   20 ;; Inline Comment
  ] ;; Inline comment
@@ -74,7 +74,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
 ;; Leading Comment
 (let ;; Inline comment
  [a ;; Inline comment
-  10,
+  10
   b
   20 ;; Inline Comment
  ] ;; Inline comment
@@ -117,7 +117,7 @@ function formatSampleProgram(lineLength: number): string {
   if (lineLength >= 11) {
     return `
 (let [foo
-      3,
+      3
       bar
       4]
   foo
@@ -129,7 +129,7 @@ function formatSampleProgram(lineLength: number): string {
   if (lineLength >= 9) {
     return `
 (let [foo
-      3,
+      3
       bar
       4]
   foo
@@ -141,7 +141,7 @@ function formatSampleProgram(lineLength: number): string {
 
   return `
 (let [foo
-      3,
+      3
       bar
       4]
   foo

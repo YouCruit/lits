@@ -2,20 +2,21 @@ import { joinAnalyzeResults } from '../../analyze/utils'
 import { AstNodeType, TokenType } from '../../constants/constants'
 import type { Context } from '../../evaluator/interface'
 import type { Any } from '../../interface'
-import type { AstNode, BindingNode, CommonSpecialExpressionNode } from '../../parser/interface'
+import type { AstNode, BindingNode, CommonSpecialExpressionNode, NormalExpressionNode } from '../../parser/interface'
+import { asNormalExpressionNode } from '../../typeGuards/astNode'
 import { asToken } from '../../typeGuards/token'
 import type { BuiltinSpecialExpression } from '../interface'
 
 export interface LetNode extends CommonSpecialExpressionNode<'let'> {
   bs: BindingNode[]
   debug: CommonSpecialExpressionNode<'let'>['debug'] & ({
-    bindingParams: AstNode[]
+    bindingArray: NormalExpressionNode
   } | undefined)
 }
 
 export const letSpecialExpression: BuiltinSpecialExpression<Any, LetNode> = {
-  parse: (tokenStream, position, firstToken, { parseBindings, parseTokensUntilClosingBracket }) => {
-    const bindingParams = firstToken.sourceCodeInfo ? parseTokensUntilClosingBracket(tokenStream, position + 1)[1] : undefined
+  parse: (tokenStream, position, firstToken, { parseBindings, parseTokensUntilClosingBracket, parseToken }) => {
+    const bindingArray = firstToken.sourceCodeInfo ? asNormalExpressionNode(parseToken(tokenStream, position)[1]) : undefined
 
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokenStream, position)
@@ -29,10 +30,10 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any, LetNode> = {
       n: 'let',
       p: params,
       bs: bindings,
-      debug: firstToken.sourceCodeInfo && bindingParams && {
+      debug: firstToken.sourceCodeInfo && bindingArray && {
         token: firstToken,
         lastToken,
-        bindingParams,
+        bindingArray,
       },
     }
     return [position + 1, node]

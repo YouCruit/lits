@@ -26,6 +26,6 @@ export function unparseNormalExpressionNode(node: ExpressionWithParamsNode, opti
   const params = node.n ? node.p : node.p.slice(1)
 
   const prefix = startBracket + name
-
-  return unparseParams({ params, options, prefix, name, endBracket, indent: 1 })
+  const inline = !name.includes('\n')
+  return unparseParams({ params, options, prefix, inline, name, endBracket, indent: 1 })
 }

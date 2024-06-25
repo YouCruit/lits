@@ -21,11 +21,22 @@ const sampleProgramWithComments = `
 `
 
 describe('unparseObjectLitteral', () => {
-  it('should work 1', () => {
+  it('should unparse empty object', () => {
     const program = '{}'
     const tokenStream = lits.tokenize(program)
     const ast = lits.parse(tokenStream)
     expect(unparseAst(ast, 80)).toEqual('{}\n')
+  })
+
+  it('should work 1', () => {
+    const program = '{:x 1, :y 2, :z 3}'
+    const tokenStream = lits.tokenize(program)
+    const ast = lits.parse(tokenStream)
+    expect(unparseAst(ast, 12)).toEqual(`
+{:x 1
+ :y 2
+ :z 3}
+`.trimStart())
   })
 
   it('should work 2', () => {
@@ -60,10 +71,10 @@ describe('unparseObjectLitteral', () => {
   3}}
 `.trimStart())
     expect(unparseAst(ast, 23)).toEqual(`
-{:a
- {:x 1, :y 2, :z 3}
- :b
- {:x2 1, :y2 2, :z2 3}}
+{:a {:x 1, :y 2, :z 3}
+ :b {:x2 1
+     :y2 2
+     :z2 3}}
 `.trimStart())
     expect(unparseAst(ast, 26)).toEqual(`
 {:a {:x 1, :y 2, :z 3}

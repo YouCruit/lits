@@ -82,4 +82,18 @@ describe('unparseNormalExpression', () => {
 
     expect(unparseAst(ast)).toEqual(program)
   })
+
+  //   it('should work 7', () => {
+  //     const program = `
+  // ( ;; Inline comment
+  //  +
+  //  1
+  //  2
+  // )
+  // `
+  //     const tokenStream = lits.tokenize(program)
+  //     const ast = lits.parse(tokenStream)
+
+//     expect(unparseAst(ast)).toEqual(program)
+//   })
 })

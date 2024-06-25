@@ -1,4 +1,4 @@
-import { type TokenType, isTokenType } from '../constants/constants'
+import { TokenType, isTokenType } from '../constants/constants'
 import { LitsError } from '../errors'
 import type { SourceCodeInfo, Token } from '../tokenizer/interface'
 import { valueToString } from '../utils/debug/debugTools'
@@ -47,7 +47,7 @@ export function assertToken(
         : undefined
 
     throw new LitsError(
-      `Expected ${options.type ? `${options.type}-` : ''}token${
+      `Expected ${options.type ? `${TokenType[options.type]}-` : ''}token${
         typeof options.value === 'string' ? ` value='${options.value}'` : ''
       }, got ${valueToString(value)}.`,
       getSourceCodeInfo(value, sourceCodeInfo),

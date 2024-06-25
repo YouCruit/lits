@@ -6,13 +6,17 @@ export function unparseParams({
   params,
   options,
   prefix,
-  name,
+  inline,
+  name = '',
+  noMultilineInline = false,
   endBracket,
   indent,
 }: {
   params: AstNode[]
   prefix: string
-  name: string
+  inline: boolean
+  name?: string
+  noMultilineInline?: boolean
   endBracket: string
   options: UnparseOptions
   indent: number
@@ -40,16 +44,20 @@ export function unparseParams({
   //             3
   //             4
   //             5)
-  if (!name.includes('\n')) {
+  if (inline) {
     const newOptions = options.inc(name.length + 2).lock()
     try {
-      const firstParam = options.unparse(params[0]!, newOptions.inline())
+      const firstParam = options.unparse(params[0]!, noMultilineInline ? newOptions.noInline() : newOptions.inline())
       // If the first parameter is multiline, fallback to option 3
       if (!firstParam.startsWith('\n')) {
         const indentedParams = unparseMultilineParams(params.slice(1), newOptions)
-        return options.assertNotOverflown(
-          `${prefix} ${ensureNewlineSeparator(firstParam, indentedParams)}${endBracket}`,
-        )
+        return noMultilineInline
+          ? options.assertNotOverflown(
+            `${ensureNewlineSeparator(prefix, ensureNewlineSeparator(firstParam, indentedParams))}${endBracket}`,
+          )
+          : options.assertNotOverflown(
+            `${prefix} ${ensureNewlineSeparator(firstParam, indentedParams)}${endBracket}`,
+          )
       }
     }
     catch {
@@ -76,6 +84,15 @@ export function unparseSingleLineParams(params: AstNode[], options: UnparseOptio
     ensureSpaceSeparator(acc, options.unparse(param, options.inline())), '')
 }
 
+export function unparseSingleLinePairs(params: AstNode[], options: UnparseOptions): string {
+  return params.reduce<string>((acc, param, index) => {
+    if (index > 0 && index % 2 === 0)
+      acc += ','
+
+    return ensureSpaceSeparator(acc, options.unparse(param, options.inline()))
+  }, '')
+}
+
 export function unparseMultilineParams(params: AstNode[], options: UnparseOptions): string {
   return params.reduce<string>((acc, param, index) => ensureNewlineSeparator(acc, options.unparse(
     param,
@@ -83,29 +100,47 @@ export function unparseMultilineParams(params: AstNode[], options: UnparseOption
   )), '')
 }
 
-export function unparsePairs(params: AstNode[], options: UnparseOptions): string {
-  return params.reduce<string>((acc, param, index) => {
-    acc = (index > 0 && index % 2 === 0) ? `${acc},` : acc
-    return ensureSpaceSeparator(acc, options.unparse(param, options.inc().inline()))
-  }, '')
-}
-
-export function unparseMultilinePairs(params: AstNode[], options: UnparseOptions): string {
+export function unparseMultilinePairwise(params: AstNode[], options: UnparseOptions): string {
   let keyLength: number
   return params.reduce<string>((acc, param, index) => {
     if (index % 2 === 0) {
+      // if (param.debug?.token.metaTokens?.inlineCommentToken)
+      //   throw new Error('Inline comment is not allowed in pairwise key.')
       let key = options.unparse(
         param,
         options.inline(),
       )
       keyLength = key.length
       key = index === 0 && options.inlined ? key : `${options.indent}${key}`
-      return ensureNewlineSeparator(acc, key)
+      if (key.includes('\n'))
+        throw new Error('Key with new line character is not allowed.')
+
+      return index > 0 ? ensureNewlineSeparator(acc, key) : `${acc}${key}`
     }
     else {
       return ensureSpaceSeparator(acc, options.unparse(
         param,
         options.inline().inc(keyLength + 1),
+      ))
+    }
+  }, '')
+}
+
+export function unparseMultilinePairs(params: AstNode[], options: UnparseOptions): string {
+  return params.reduce<string>((acc, param, index) => {
+    if (index % 2 === 0) {
+      if (index > 0)
+        acc += ','
+
+      return ensureNewlineSeparator(acc, options.unparse(
+        param,
+        index === 0 ? options.inline() : options.noInline(),
+      ))
+    }
+    else {
+      return ensureNewlineSeparator(acc, options.unparse(
+        param,
+        options.noInline(),
       ))
     }
   }, '')

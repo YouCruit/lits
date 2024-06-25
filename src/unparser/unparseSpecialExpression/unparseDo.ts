@@ -8,6 +8,7 @@ export function unparseDo(node: DoNode, options: UnparseOptions) {
   const endBracket = applyMetaTokens(')', node.debug?.lastToken?.metaTokens, options.inline())
   const name = applyMetaTokens(node.n, node.debug?.nameToken?.metaTokens, options.inline())
   const prefix = startBracket + name
+  const inline = !name.includes('\n')
 
-  return unparseParams({ params: node.p, options, prefix, name, endBracket, indent: 2 })
+  return unparseParams({ params: node.p, options, prefix, inline, name, endBracket, indent: 2 })
 }

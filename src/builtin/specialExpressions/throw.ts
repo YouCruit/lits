@@ -20,12 +20,10 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null, ThrowNode> =
       t: AstNodeType.SpecialExpression,
       n: 'throw',
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams(1, node)

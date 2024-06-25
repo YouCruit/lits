@@ -17,12 +17,10 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any, CondNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'cond',
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertEvenNumberOfParams(node)

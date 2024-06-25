@@ -26,9 +26,9 @@ export function applyMetaTokens(
       }${
         metaTokens?.inlineCommentToken ? ` ${metaTokens.inlineCommentToken.v}\n` : ''
       }`
-    return result.split('\n').map((line, index) => {
-      return `${line && (!options.inlined || index > 0) ? options.indent : ''}${line}`
-    }).join('\n')
+    return result.split('\n').map((line, index) =>
+      `${line && (!options.inlined || index > 0) ? options.indent : ''}${line}`,
+    ).join('\n')
   }
 }
 

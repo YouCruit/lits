@@ -11,19 +11,19 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any, AndNode> = {
     const [newPosition, params] = parseTokensUntilClosingBracket(tokenStream, position)
     const lastToken = asToken(tokenStream.tokens[newPosition], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
+    const node: AndNode = {
+      t: AstNodeType.SpecialExpression,
+      n: 'and',
+      p: params,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
+    }
+
     return [
       newPosition + 1,
-      {
-        t: AstNodeType.SpecialExpression,
-        n: 'and',
-        p: params,
-        debug: firstToken.sourceCodeInfo
-          ? {
-              token: firstToken,
-              lastToken,
-            }
-          : undefined,
-      } satisfies AndNode,
+      node,
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {

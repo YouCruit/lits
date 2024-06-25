@@ -18,12 +18,10 @@ export const qqSpecialExpression: BuiltinSpecialExpression<Any, QqNode> = {
       t: AstNodeType.SpecialExpression,
       n: '??',
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams({ min: 1, max: 2 }, node)

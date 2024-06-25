@@ -17,12 +17,10 @@ export const defsSpecialExpression: BuiltinSpecialExpression<null, DefsNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'defs',
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams(2, node)

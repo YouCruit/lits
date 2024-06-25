@@ -8,10 +8,15 @@ import type { BuiltinSpecialExpression } from '../interface'
 
 export interface LetNode extends CommonSpecialExpressionNode<'let'> {
   bs: BindingNode[]
+  debug: CommonSpecialExpressionNode<'let'>['debug'] & ({
+    bindingParams: AstNode[]
+  } | undefined)
 }
 
 export const letSpecialExpression: BuiltinSpecialExpression<Any, LetNode> = {
   parse: (tokenStream, position, firstToken, { parseBindings, parseTokensUntilClosingBracket }) => {
+    const bindingParams = firstToken.sourceCodeInfo ? parseTokensUntilClosingBracket(tokenStream, position + 1)[1] : undefined
+
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokenStream, position)
 
@@ -24,12 +29,11 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any, LetNode> = {
       n: 'let',
       p: params,
       bs: bindings,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && bindingParams && {
+        token: firstToken,
+        lastToken,
+        bindingParams,
+      },
     }
     return [position + 1, node]
   },

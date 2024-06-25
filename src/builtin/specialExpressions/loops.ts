@@ -254,12 +254,10 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any, ForNode> = {
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams(1, node)
@@ -285,12 +283,10 @@ export const doseqSpecialExpression: BuiltinSpecialExpression<null, DoSeqNode> =
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams(1, node)

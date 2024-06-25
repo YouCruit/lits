@@ -35,12 +35,10 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = 
       n: 'if-let',
       b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams({ min: 1, max: 2 }, node)

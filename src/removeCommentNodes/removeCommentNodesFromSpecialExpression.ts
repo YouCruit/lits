@@ -1,8 +1,20 @@
-import type { SpecialExpressionNode } from '../builtin'
+import type { SpecialExpressionName, SpecialExpressionNode } from '../builtin'
 import type { AndNode } from '../builtin/specialExpressions/and'
+import type { CondNode } from '../builtin/specialExpressions/cond'
 import type { DeclaredNode } from '../builtin/specialExpressions/declared'
+import type { DoNode } from '../builtin/specialExpressions/do'
+import type { DefnNode, DefnsNode, FnNode } from '../builtin/specialExpressions/functions'
+import type { IfLetNode } from '../builtin/specialExpressions/if-let'
+import type { LetNode } from '../builtin/specialExpressions/let'
+import type { LoopNode } from '../builtin/specialExpressions/loop'
+import type { DoSeqNode, ForNode } from '../builtin/specialExpressions/loops'
 import type { ThrowNode } from '../builtin/specialExpressions/throw'
 import type { TimeNode } from '../builtin/specialExpressions/time'
+import type { TryNode } from '../builtin/specialExpressions/try'
+import type { WhenNode } from '../builtin/specialExpressions/when'
+import type { WhenFirstNode } from '../builtin/specialExpressions/when-first'
+import type { WhenLetNode } from '../builtin/specialExpressions/when-let'
+import type { WhenNotNode } from '../builtin/specialExpressions/when-not'
 import type { RemoveOptions } from '.'
 
 const specialExpressionCommentRemovers = {
@@ -14,26 +26,29 @@ const specialExpressionCommentRemovers = {
     removeOptions.removeCommenNodesFromArray(node.p)
     node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
   },
-  // 'cond': (astNode: CondNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'cond': (_node: CondNode, _removeOptions: RemoveOptions) => {},
   'declared?': (node: DeclaredNode, removeOptions: RemoveOptions) => {
     removeOptions.removeCommenNodesFromArray(node.p)
     node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
   },
-  // 'defn': (astNode: DefnNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'defn': (_node: DefnNode, _removeOptions: RemoveOptions) => {},
   'def': (node: AndNode, removeOptions: RemoveOptions) => {
     removeOptions.removeCommenNodesFromArray(node.p)
     node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
   },
-  // 'defns': (astNode: DefnsNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'defns': (_node: DefnsNode, _removeOptions: RemoveOptions) => {},
   'defs': (node: AndNode, removeOptions: RemoveOptions) => {
     removeOptions.removeCommenNodesFromArray(node.p)
     node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
   },
-  // 'do': (astNode: DoNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-  // 'doseq': (astNode: DoSeqNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-  // 'fn': (astNode: FnNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-  // 'for': (astNode: ForNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-  // 'if-let': (astNode: IfLetNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'do': (node: DoNode, removeOptions: RemoveOptions) => {
+    removeOptions.removeCommenNodesFromArray(node.p)
+    node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
+  },
+  'doseq': (_node: DoSeqNode, _removeOptions: RemoveOptions) => {},
+  'fn': (_node: FnNode, _removeOptions: RemoveOptions) => {},
+  'for': (_node: ForNode, _removeOptions: RemoveOptions) => {},
+  'if-let': (_node: IfLetNode, _removeOptions: RemoveOptions) => {},
   'if': (node: AndNode, removeOptions: RemoveOptions) => {
     removeOptions.removeCommenNodesFromArray(node.p)
     node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
@@ -42,8 +57,14 @@ const specialExpressionCommentRemovers = {
     removeOptions.removeCommenNodesFromArray(node.p)
     node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
   },
-  // 'let': (astNode: LetNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-  // 'loop': (astNode: LoopNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'let': (node: LetNode, removeOptions: RemoveOptions) => {
+    removeOptions.removeCommenNodesFromArray(node.p)
+    node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
+    node.bs.forEach((bindingNode) => {
+      removeOptions.recursivelyRemoveCommentNodes(bindingNode.v)
+    })
+  },
+  'loop': (_node: LoopNode, _removeOptions: RemoveOptions) => {},
   'or': (node: AndNode, removeOptions: RemoveOptions) => {
     removeOptions.removeCommenNodesFromArray(node.p)
     node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
@@ -64,13 +85,13 @@ const specialExpressionCommentRemovers = {
     removeOptions.removeCommenNodesFromArray(node.p)
     node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
   },
-  // 'try': (astNode: TryNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-  // 'when-first': (astNode: WhenFirstNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-  // 'when-let': (astNode: WhenLetNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-  // 'when': (astNode: WhenNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-  // 'when-not': (astNode: WhenNotNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'try': (_node: TryNode, _removeOptions: RemoveOptions) => {},
+  'when-first': (_node: WhenFirstNode, _removeOptions: RemoveOptions) => {},
+  'when-let': (_node: WhenLetNode, _removeOptions: RemoveOptions) => {},
+  'when': (_node: WhenNode, _removeOptions: RemoveOptions) => {},
+  'when-not': (_node: WhenNotNode, _removeOptions: RemoveOptions) => {},
 
-} satisfies Record<string /* TODO: SpecialExpressionName */, (astNode: any, removeOptions: RemoveOptions) => void>
+} satisfies Record<SpecialExpressionName, (astNode: any, removeOptions: RemoveOptions) => void>
 
 export function removeCommentNodesFromSpecialExpression(
   node: SpecialExpressionNode,

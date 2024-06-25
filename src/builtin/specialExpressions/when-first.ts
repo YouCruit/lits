@@ -36,12 +36,10 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any, WhenFirst
       n: 'when-first',
       b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
     return [position + 1, node]
   },

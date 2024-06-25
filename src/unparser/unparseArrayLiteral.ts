@@ -1,6 +1,6 @@
 import type { NormalExpressionNode } from '../parser/interface'
 import type { UnparseOptions } from './UnparseOptions'
-import { unparseMultilineParams, unparseParams } from './unparseParams'
+import { unparseMultilineParams, unparseSingleLineParams } from './unparseParams'
 import { applyMetaTokens, ensureNewlineSeparator, ensureSpaceSeparator } from './utils'
 
 export function unparseArrayLiteral(node: NormalExpressionNode, options: UnparseOptions): string {
@@ -18,7 +18,7 @@ export function unparseArrayLiteral(node: NormalExpressionNode, options: Unparse
 
   // 1. Try to unparse the parameters
   try {
-    const unparsedParams = unparseParams(params, options.inline().lock())
+    const unparsedParams = unparseSingleLineParams(params, options.inline().lock())
     if (!unparsedParams.includes('\n')) {
       return options.assertNotOverflown(
         `${ensureSpaceSeparator(prefix, unparsedParams)}${endBracket}`,

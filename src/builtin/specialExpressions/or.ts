@@ -15,12 +15,10 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any, OrNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'or',
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     return [newPosition + 1, node]

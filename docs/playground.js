@@ -594,26 +594,29 @@ var Playground = (function (exports) {
             removeOptions.removeCommenNodesFromArray(node.p);
             node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
         },
-        // 'cond': (astNode: CondNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        'cond': function (_node, _removeOptions) { },
         'declared?': function (node, removeOptions) {
             removeOptions.removeCommenNodesFromArray(node.p);
             node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
         },
-        // 'defn': (astNode: DefnNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        'defn': function (_node, _removeOptions) { },
         'def': function (node, removeOptions) {
             removeOptions.removeCommenNodesFromArray(node.p);
             node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
         },
-        // 'defns': (astNode: DefnsNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        'defns': function (_node, _removeOptions) { },
         'defs': function (node, removeOptions) {
             removeOptions.removeCommenNodesFromArray(node.p);
             node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
         },
-        // 'do': (astNode: DoNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-        // 'doseq': (astNode: DoSeqNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-        // 'fn': (astNode: FnNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-        // 'for': (astNode: ForNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-        // 'if-let': (astNode: IfLetNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        'do': function (node, removeOptions) {
+            removeOptions.removeCommenNodesFromArray(node.p);
+            node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
+        },
+        'doseq': function (_node, _removeOptions) { },
+        'fn': function (_node, _removeOptions) { },
+        'for': function (_node, _removeOptions) { },
+        'if-let': function (_node, _removeOptions) { },
         'if': function (node, removeOptions) {
             removeOptions.removeCommenNodesFromArray(node.p);
             node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
@@ -622,8 +625,14 @@ var Playground = (function (exports) {
             removeOptions.removeCommenNodesFromArray(node.p);
             node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
         },
-        // 'let': (astNode: LetNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-        // 'loop': (astNode: LoopNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        'let': function (node, removeOptions) {
+            removeOptions.removeCommenNodesFromArray(node.p);
+            node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
+            node.bs.forEach(function (bindingNode) {
+                removeOptions.recursivelyRemoveCommentNodes(bindingNode.v);
+            });
+        },
+        'loop': function (_node, _removeOptions) { },
         'or': function (node, removeOptions) {
             removeOptions.removeCommenNodesFromArray(node.p);
             node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
@@ -644,11 +653,11 @@ var Playground = (function (exports) {
             removeOptions.removeCommenNodesFromArray(node.p);
             node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
         },
-        // 'try': (astNode: TryNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-        // 'when-first': (astNode: WhenFirstNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-        // 'when-let': (astNode: WhenLetNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-        // 'when': (astNode: WhenNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
-        // 'when-not': (astNode: WhenNotNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        'try': function (_node, _removeOptions) { },
+        'when-first': function (_node, _removeOptions) { },
+        'when-let': function (_node, _removeOptions) { },
+        'when': function (_node, _removeOptions) { },
+        'when-not': function (_node, _removeOptions) { },
     };
     function removeCommentNodesFromSpecialExpression(node, removeOptions) {
         var uncommenter = specialExpressionCommentRemovers[node.n];
@@ -4323,19 +4332,18 @@ var Playground = (function (exports) {
             var parseTokensUntilClosingBracket = _a.parseTokensUntilClosingBracket;
             var _b = __read(parseTokensUntilClosingBracket(tokenStream, position), 2), newPosition = _b[0], params = _b[1];
             var lastToken = asToken(tokenStream.tokens[newPosition], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'and',
+                p: params,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
+            };
             return [
                 newPosition + 1,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'and',
-                    p: params,
-                    debug: firstToken.sourceCodeInfo
-                        ? {
-                            token: firstToken,
-                            lastToken: lastToken,
-                        }
-                        : undefined,
-                },
+                node,
             ];
         },
         evaluate: function (node, contextStack, _a) {
@@ -4403,12 +4411,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'cond',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertEvenNumberOfParams(node);
             return [newPosition + 1, node];
@@ -4449,12 +4455,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'declared?',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams(1, node);
             return [newPosition + 1, node];
@@ -4505,12 +4509,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'def',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNameNode(node.p[0], (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo);
             assertNumberOfParams(2, node);
@@ -4549,12 +4551,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'defs',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams(2, node);
             return [newPosition + 1, node];
@@ -4679,21 +4679,20 @@ var Playground = (function (exports) {
             var functionOverloades;
             _b = __read(parseFunctionOverloades(tokenStream, position, parsers), 2), position = _b[0], functionOverloades = _b[1];
             var lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'defn',
+                f: functionName,
+                p: [],
+                o: functionOverloades,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
+            };
             return [
                 position + 1,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'defn',
-                    f: functionName,
-                    p: [],
-                    o: functionOverloades,
-                    debug: firstToken.sourceCodeInfo
-                        ? {
-                            token: firstToken,
-                            lastToken: lastToken,
-                        }
-                        : undefined,
-                },
+                node,
             ];
         },
         evaluate: function (node, contextStack, _a) {
@@ -4730,21 +4729,20 @@ var Playground = (function (exports) {
             var functionOverloades;
             _b = __read(parseFunctionOverloades(tokenStream, position, parsers), 2), position = _b[0], functionOverloades = _b[1];
             var lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'defns',
+                p: [],
+                f: functionName,
+                o: functionOverloades,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
+            };
             return [
                 position + 1,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'defns',
-                    p: [],
-                    f: functionName,
-                    o: functionOverloades,
-                    debug: firstToken.sourceCodeInfo
-                        ? {
-                            token: firstToken,
-                            lastToken: lastToken,
-                        }
-                        : undefined,
-                },
+                node,
             ];
         },
         evaluate: function (node, contextStack, _a) {
@@ -4783,20 +4781,19 @@ var Playground = (function (exports) {
             var functionOverloades;
             _a = __read(parseFunctionOverloades(tokenStream, position, parsers), 2), position = _a[0], functionOverloades = _a[1];
             var lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
+            var node = {
+                t: AstNodeType.SpecialExpression,
+                n: 'fn',
+                p: [],
+                o: functionOverloades,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
+            };
             return [
                 position + 1,
-                {
-                    t: AstNodeType.SpecialExpression,
-                    n: 'fn',
-                    p: [],
-                    o: functionOverloades,
-                    debug: firstToken.sourceCodeInfo
-                        ? {
-                            token: firstToken,
-                            lastToken: lastToken,
-                        }
-                        : undefined,
-                },
+                node,
             ];
         },
         evaluate: function (node, contextStack, _a) {
@@ -5050,12 +5047,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'if',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams({ min: 2, max: 3 }, node);
             return [newPosition + 1, node];
@@ -5098,12 +5093,10 @@ var Playground = (function (exports) {
                 n: 'if-let',
                 b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams({ min: 1, max: 2 }, node);
             return [position + 1, node];
@@ -5145,12 +5138,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'if-not',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams({ min: 2, max: 3 }, node);
             return [newPosition + 1, node];
@@ -5180,6 +5171,7 @@ var Playground = (function (exports) {
         parse: function (tokenStream, position, firstToken, _a) {
             var _b, _c;
             var parseBindings = _a.parseBindings, parseTokensUntilClosingBracket = _a.parseTokensUntilClosingBracket;
+            var bindingParams = firstToken.sourceCodeInfo ? parseTokensUntilClosingBracket(tokenStream, position + 1)[1] : undefined;
             var bindings;
             _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
             var params;
@@ -5190,12 +5182,11 @@ var Playground = (function (exports) {
                 n: 'let',
                 p: params,
                 bs: bindings,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && bindingParams && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                    bindingParams: bindingParams,
+                },
             };
             return [position + 1, node];
         },
@@ -5269,12 +5260,10 @@ var Playground = (function (exports) {
                 n: 'loop',
                 p: params,
                 bs: bindings,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             return [position + 1, node];
         },
@@ -5537,12 +5526,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 l: loopBindings,
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams(1, node);
             return [position + 1, node];
@@ -5567,12 +5554,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 l: loopBindings,
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams(1, node);
             return [position + 1, node];
@@ -5596,12 +5581,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'or',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             return [newPosition + 1, node];
         },
@@ -5640,13 +5623,11 @@ var Playground = (function (exports) {
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: '??',
-                p: params.length === 1 ? [params[0]] : [params[0], params[1]],
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                p: params,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams({ min: 1, max: 2 }, node);
             return [newPosition + 1, node];
@@ -5680,12 +5661,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'recur',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             return [position + 1, node];
         },
@@ -5711,12 +5690,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'throw',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams(1, node);
             return [position + 1, node];
@@ -5744,12 +5721,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'time!',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams(1, node);
             return [newPosition + 1, node];
@@ -5799,12 +5774,10 @@ var Playground = (function (exports) {
                 p: [tryExpression],
                 ce: catchExpression,
                 e: error,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams(1, node);
             return [position + 1, node];
@@ -5846,12 +5819,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'when',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams({ min: 1 }, node);
             return [newPosition + 1, node];
@@ -5903,12 +5874,10 @@ var Playground = (function (exports) {
                 n: 'when-first',
                 b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             return [position + 1, node];
         },
@@ -5971,12 +5940,10 @@ var Playground = (function (exports) {
                 n: 'when-let',
                 b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             return [position + 1, node];
         },
@@ -6026,12 +5993,10 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'when-not',
                 p: params,
-                debug: firstToken.sourceCodeInfo
-                    ? {
-                        token: firstToken,
-                        lastToken: lastToken,
-                    }
-                    : undefined,
+                debug: firstToken.sourceCodeInfo && {
+                    token: firstToken,
+                    lastToken: lastToken,
+                },
             };
             assertNumberOfParams({ min: 1 }, node);
             return [newPosition + 1, node];
@@ -6687,7 +6652,7 @@ var Playground = (function (exports) {
                 }) })); });
         }
         return __spreadArray(__spreadArray([], __read(arrayToPairs(astNode.p).flatMap(function (_a) {
-            var _b = __read(_a, 1), form = _b[0];
+            var _b = __read(_a, 2); _b[0]; var form = _b[1];
             return calculatePossibleAstNodes(form);
         })), false), [
             nilNode,

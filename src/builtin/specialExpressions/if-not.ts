@@ -17,12 +17,10 @@ export const ifNotSpecialExpression: BuiltinSpecialExpression<Any, IfNotNode> = 
       t: AstNodeType.SpecialExpression,
       n: 'if-not',
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams({ min: 2, max: 3 }, node)

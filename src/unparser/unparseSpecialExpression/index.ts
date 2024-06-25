@@ -3,6 +3,7 @@ import type { AndNode } from '../../builtin/specialExpressions/and'
 // import type { AstNode, NormalExpressionNode } from '../../parser/interface'
 import type { UnparseOptions } from '../UnparseOptions'
 import { unparseNormalExpressionNode } from '../unparseNormalExpression'
+import { unparseDo } from './unparseDo'
 
 // type ExpressionWithSingleParamNode = Pick<NormalExpressionNode, 'debug' | 'n'> & { p: AstNode }
 
@@ -19,7 +20,7 @@ const specialExpressionUnparser = {
   'def': unparseNormalExpressionNode,
   // 'defns': (astNode: DefnsNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
   'defs': unparseNormalExpressionNode,
-  // 'do': (astNode: DoNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'do': unparseDo,
   // 'doseq': (astNode: DoSeqNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
   // 'fn': (astNode: FnNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
   // 'for': (astNode: ForNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),

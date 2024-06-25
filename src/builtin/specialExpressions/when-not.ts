@@ -17,12 +17,10 @@ export const whenNotSpecialExpression: BuiltinSpecialExpression<Any, WhenNotNode
       t: AstNodeType.SpecialExpression,
       n: 'when-not',
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams({ min: 1 }, node)

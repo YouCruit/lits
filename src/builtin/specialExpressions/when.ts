@@ -17,12 +17,10 @@ export const whenSpecialExpression: BuiltinSpecialExpression<Any, WhenNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'when',
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams({ min: 1 }, node)

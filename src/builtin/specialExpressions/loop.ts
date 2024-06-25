@@ -28,12 +28,10 @@ export const loopSpecialExpression: BuiltinSpecialExpression<Any, LoopNode> = {
       n: 'loop',
       p: params,
       bs: bindings,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
     return [position + 1, node]
   },

@@ -16,12 +16,10 @@ export const recurSpecialExpression: BuiltinSpecialExpression<null, RecurNode> =
       t: AstNodeType.SpecialExpression,
       n: 'recur',
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     return [position + 1, node]

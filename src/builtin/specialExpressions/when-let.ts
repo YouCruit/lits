@@ -34,12 +34,10 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any, WhenLetNode
       n: 'when-let',
       b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
     return [position + 1, node]
   },

@@ -15,12 +15,10 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<boolean, Declar
       t: AstNodeType.SpecialExpression,
       n: 'declared?',
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams(1, node)

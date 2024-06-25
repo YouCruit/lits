@@ -16,12 +16,10 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any, TimeNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'time!',
       p: params,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams(1, node)

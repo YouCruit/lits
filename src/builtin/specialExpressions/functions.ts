@@ -49,21 +49,21 @@ export const defnSpecialExpression: BuiltinSpecialExpression<null, DefnNode> = {
     ;[position, functionOverloades] = parseFunctionOverloades(tokenStream, position, parsers)
     const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
+    const node: DefnNode = {
+      t: AstNodeType.SpecialExpression,
+      n: 'defn',
+      f: functionName,
+      p: [],
+      o: functionOverloades,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
+    }
+
     return [
       position + 1,
-      {
-        t: AstNodeType.SpecialExpression,
-        n: 'defn',
-        f: functionName,
-        p: [],
-        o: functionOverloades,
-        debug: firstToken.sourceCodeInfo
-          ? {
-              token: firstToken,
-              lastToken,
-            }
-          : undefined,
-      } satisfies DefnNode,
+      node,
     ]
   },
   evaluate: (node, contextStack, { builtin, evaluateAstNode }) => {
@@ -101,21 +101,21 @@ export const defnsSpecialExpression: BuiltinSpecialExpression<null, DefnsNode> =
     ;[position, functionOverloades] = parseFunctionOverloades(tokenStream, position, parsers)
     const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
+    const node: DefnsNode = {
+      t: AstNodeType.SpecialExpression,
+      n: 'defns',
+      p: [],
+      f: functionName,
+      o: functionOverloades,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
+    }
+
     return [
       position + 1,
-      {
-        t: AstNodeType.SpecialExpression,
-        n: 'defns',
-        p: [],
-        f: functionName,
-        o: functionOverloades,
-        debug: firstToken.sourceCodeInfo
-          ? {
-              token: firstToken,
-              lastToken,
-            }
-          : undefined,
-      } satisfies DefnsNode,
+      node,
     ]
   },
   evaluate: (node, contextStack, { builtin, evaluateAstNode }) => {
@@ -154,20 +154,20 @@ export const fnSpecialExpression: BuiltinSpecialExpression<LitsFunction, FnNode>
     ;[position, functionOverloades] = parseFunctionOverloades(tokenStream, position, parsers)
     const lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' })
 
+    const node: FnNode = {
+      t: AstNodeType.SpecialExpression,
+      n: 'fn',
+      p: [],
+      o: functionOverloades,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
+    }
+
     return [
       position + 1,
-      {
-        t: AstNodeType.SpecialExpression,
-        n: 'fn',
-        p: [],
-        o: functionOverloades,
-        debug: firstToken.sourceCodeInfo
-          ? {
-              token: firstToken,
-              lastToken,
-            }
-          : undefined,
-      } satisfies FnNode,
+      node,
     ]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {

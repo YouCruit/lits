@@ -52,12 +52,10 @@ export const trySpecialExpression: BuiltinSpecialExpression<Any, TryNode> = {
       p: [tryExpression],
       ce: catchExpression,
       e: error,
-      debug: firstToken.sourceCodeInfo
-        ? {
-            token: firstToken,
-            lastToken,
-          }
-        : undefined,
+      debug: firstToken.sourceCodeInfo && {
+        token: firstToken,
+        lastToken,
+      },
     }
 
     assertNumberOfParams(1, node)

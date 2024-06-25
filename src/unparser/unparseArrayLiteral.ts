@@ -11,7 +11,8 @@ export function unparseArrayLiteral(node: NormalExpressionNode, options: Unparse
   if (node.p.length === 0)
     return `${startBracket}${endBracket}`
 
-  const unparsedFirstElement = options.unparse(node.p[0]!, options.inc().inline())
+  const firstElementOptions = startBracket.endsWith('\n') ? options.noInline().inc() : options.inline().inc()
+  const unparsedFirstElement = options.unparse(node.p[0]!, firstElementOptions)
   const params = node.p.slice(1)
 
   const prefix = startBracket + unparsedFirstElement

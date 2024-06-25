@@ -19,9 +19,10 @@ export function unparseNormalExpressionNode(node: ExpressionWithParamsNode, opti
   const endBracket = applyMetaTokens(')', node.debug?.lastToken?.metaTokens, options.inline())
 
   // if expression node e.g. ("Albert" 2), first parameter is the name ("Albert")
+  const nameOptions = startBracket.endsWith('\n') ? options.noInline().inc() : options.inline().inc()
   const name = node.n
-    ? applyMetaTokens(node.n, node.debug?.nameToken?.metaTokens, options.inline())
-    : options.unparse(node.p[0]!, options.inc().inline())
+    ? applyMetaTokens(node.n, node.debug?.nameToken?.metaTokens, nameOptions)
+    : options.unparse(node.p[0]!, nameOptions)
 
   const params = node.n ? node.p : node.p.slice(1)
 

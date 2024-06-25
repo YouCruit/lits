@@ -11,38 +11,24 @@ export function unparseObjectLiteral(node: NormalExpressionNode, options: Unpars
   if (node.p.length === 0)
     return `${startBracket}${endBracket}`
 
-  // const unparsedFirstElement = options.unparse(node.p[0]!, options.inc().inline())
-  // If the first element is not multiline, try to unparse the object literal as one liner or multiline with pairs
-  // if (!unparsedFirstElement.includes('\n')) {
-  // const unparsedSecondElement
-  //   = options.unparse(node.p[1]!, options.inc(unparsedFirstElement.length + 2).inline())
   const params = node.p
 
-  // const firstPair = `${unparsedFirstElement} ${unparsedSecondElement}`
-  const prefix = `${startBracket}`
+  if (!startBracket.endsWith('\n')) {
+  // 1. Try to unparse the parameters as one line
+    try {
+      const unparsedParams = unparseSingleLinePairs(params, options.inline().lock())
 
-  // if (params.length === 0) {
-  //   try {
-  //     return options.assertNotOverflown(`${pairPrefix}${endBracket}`)
-  //   }
-  //   catch { }
-  // }
-  // 1. Try to unparse the parameters
-  // else if (!firstPair.includes('\n')) {
-  try {
-    const unparsedParams = unparseSingleLinePairs(params, options.inline().lock())
-
-    if (!unparsedParams.includes('\n')) {
-      const result = `${prefix}${unparsedParams}${endBracket}`
-      return options.assertNotOverflown(result)
+      if (!unparsedParams.includes('\n')) {
+        const result = `${startBracket}${unparsedParams}${endBracket}`
+        return options.assertNotOverflown(result)
+      }
+    }
+    catch (error) {
+    // If locked, we do not try anything else
+      if (options.locked)
+        throw error
     }
   }
-  catch (error) {
-    // If locked, we do not try anything else
-    if (options.locked)
-      throw error
-  }
-  // }
 
   // 2. Try to unparse the parameters pairwise on multiple lines
   // e.g. {:a 1 :b 2 :c 3 :d 4 :e 5}
@@ -51,14 +37,14 @@ export function unparseObjectLiteral(node: NormalExpressionNode, options: Unpars
   //       :c 3
   //       :d 4
   //       :e 5}
+  const multilineOptions = startBracket.endsWith('\n') ? options.noInline().inc() : options.inline().inc()
   try {
-    return options.assertNotOverflown(prefix
-      + unparseMultilinePairwise(params, options.inline().inc()) + endBracket)
+    return options.assertNotOverflown(startBracket
+      + unparseMultilinePairwise(params, multilineOptions) + endBracket)
   }
   catch {
   }
 
   // 3. Try to unparse the parameters in multiple lines
-  // const prefix = `${startBracket}${unparsedFirstElement}`
-  return prefix + unparseMultilineParams(node.p, options.inline().inc()) + endBracket
+  return startBracket + unparseMultilineParams(node.p, multilineOptions) + endBracket
 }

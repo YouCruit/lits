@@ -58,6 +58,20 @@ describe('unparseArrayLitteral', () => {
     expect(unparseAst(ast, 80)).toEqual(program)
   })
 
+  it('should work 4', () => {
+    const program = `
+[ ;; Inline comment
+ 1
+ 2
+ 3
+ 4
+ 5]
+`
+    const tokenStream = lits.tokenize(program)
+    const ast = lits.parse(tokenStream)
+    expect(unparseAst(ast, 80)).toEqual(program)
+  })
+
   describe('unparse sampleProgram', () => {
     for (let lineLength = 0; lineLength <= sampleProgram.length + 1; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {

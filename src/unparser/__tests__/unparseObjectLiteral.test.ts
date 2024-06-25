@@ -94,10 +94,16 @@ describe('unparseObjectLitteral', () => {
   })
 
   it('should work 5', () => {
-    const program = '{:foo 1 :bar 2}'
+    const program = `
+{ ;; Inline comment
+ :foo
+ 1
+ :bar
+ 2}
+`
     const tokenStream = lits.tokenize(program)
     const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 80)).toEqual('{:foo 1, :bar 2}\n')
+    expect(unparseAst(ast)).toEqual(program)
   })
 
   describe('unparse sample program.', () => {

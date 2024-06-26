@@ -24,6 +24,51 @@ const sampleProgramWithComments = `
 `
 
 describe('unparse expressions with params', () => {
+  it('should work 1', () => {
+    const tokenStream = lits.tokenize(sampleProgramWithComments, { debug: false })
+    const ast = lits.parse(tokenStream)
+
+    expect(unparseAst(ast)).toEqual('(let [a 10, b 20] foo (bar 1 2) baz)\n')
+
+    expect(unparseAst(ast, 30)).toEqual(`
+(let [a 10, b 20]
+  foo
+  (bar 1 2)
+  baz)
+`.trimStart())
+
+    expect(unparseAst(ast, 15)).toEqual(`
+(let [a 10
+      b 20]
+  foo
+  (bar 1 2)
+  baz)
+`.trimStart())
+
+    expect(unparseAst(ast, 10)).toEqual(`
+(let [a
+      10
+      b
+      20]
+  foo
+  (bar 1
+       2)
+  baz)
+`.trimStart())
+
+    expect(unparseAst(ast, 8)).toEqual(`
+(let [a
+      10
+      b
+      20]
+  foo
+  (bar
+   1
+   2)
+  baz)
+`.trimStart())
+  })
+
   describe('unparse sampleProgram', () => {
     for (let lineLength = 0; lineLength <= sampleProgram.length + 1; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {

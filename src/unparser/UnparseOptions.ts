@@ -33,8 +33,9 @@ export class UnparseOptions {
       const length = (index === 0 && this.inlined) ? this.col + line.length : line.length
 
       return length <= this.lineLength
-    }))
+    })) {
       return value
+    }
 
     throw new Error('Line length exceeded')
   }

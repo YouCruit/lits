@@ -479,6 +479,7 @@ function keydownHandler(evt: KeyboardEvent) {
     }
     if (evt.key === 'Enter') {
       evt.preventDefault()
+      // eslint-disable-next-line regexp/optimal-quantifier-concatenation
       const spaceCount = target.value.substring(indexOfReturn + 1, start).replace(/^( *).*/, '$1').length
       target.value = `${target.value.substring(0, start)}\n${' '.repeat(spaceCount)}${target.value.substring(end)}`
       target.selectionStart = target.selectionEnd = start + 1 + spaceCount

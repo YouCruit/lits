@@ -48,23 +48,23 @@ function parseLoopBinding(
   while (tkn.t === TokenType.Modifier) {
     switch (tkn.v) {
       case '&let':
-        if (loopBinding.l)
+        if (loopBinding.l) {
           throw new LitsError('Only one &let modifier allowed', tkn.debugData?.sourceCodeInfo)
-
+        }
         ;[position, loopBinding.l] = parseBindings(tokenStream, position + 1)
         loopBinding.m.push('&let')
         break
       case '&when':
-        if (loopBinding.wn)
+        if (loopBinding.wn) {
           throw new LitsError('Only one &when modifier allowed', tkn.debugData?.sourceCodeInfo)
-
+        }
         ;[position, loopBinding.wn] = parseToken(tokenStream, position + 1)
         loopBinding.m.push('&when')
         break
       case '&while':
-        if (loopBinding.we)
+        if (loopBinding.we) {
           throw new LitsError('Only one &while modifier allowed', tkn.debugData?.sourceCodeInfo)
-
+        }
         ;[position, loopBinding.we] = parseToken(tokenStream, position + 1)
         loopBinding.m.push('&while')
         break

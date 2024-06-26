@@ -236,7 +236,7 @@ function parseRegexpShorthand(tokenStream: TokenStream, position: number): [numb
   ]
 }
 
-const placeholderRegexp = /^%([1-9][0-9]?)?$/
+const placeholderRegexp = /^%([1-9]\d?)?$/
 type ParseFnShorthand = (tokenStream: TokenStream, position: number) => [number, FnNode]
 const parseFnShorthand: ParseFnShorthand = (tokenStream, position) => {
   const firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath)

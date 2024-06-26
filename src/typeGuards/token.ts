@@ -25,7 +25,7 @@ export function isToken(value: unknown, options: TokenAssertionOptions = {}): va
   if (!isTokenType(tkn.t))
     return false
 
-  if (options.type && tkn.t !== options.type)
+  if ((options.type != null) && tkn.t !== options.type)
     return false
 
   if (options.value && tkn.v !== options.value)
@@ -47,7 +47,7 @@ export function assertToken(
         : undefined
 
     throw new LitsError(
-      `Expected ${options.type ? `${TokenType[options.type]}-` : ''}token${
+      `Expected ${(options.type != null) ? `${TokenType[options.type]}-` : ''}token${
         typeof options.value === 'string' ? ` value='${options.value}'` : ''
       }, got ${valueToString(value)}.`,
       getSourceCodeInfo(value, sourceCodeInfo),

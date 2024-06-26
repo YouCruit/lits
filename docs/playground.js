@@ -571,6 +571,14 @@ var Playground = (function (exports) {
             return false;
         return value.t === AstNodeType.NormalExpression;
     }
+    function asNormalExpressionNode(value, sourceCodeInfo) {
+        assertNormalExpressionNode(value, sourceCodeInfo);
+        return value;
+    }
+    function assertNormalExpressionNode(value, sourceCodeInfo) {
+        if (!isNormalExpressionNode(value))
+            throw getAssertionError('NormalExpressionNode', value, sourceCodeInfo);
+    }
     function isNormalExpressionNodeWithName(value) {
         if (!isAstNode(value))
             return false;
@@ -693,19 +701,19 @@ var Playground = (function (exports) {
     }
 
     function assertEvenNumberOfParams(node) {
-        var _a;
+        var _a, _b;
         var length = withoutCommentNodes(node.p).length;
         if (length % 2 !== 0) {
-            throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString(length), "."), (_a = node.debug) === null || _a === void 0 ? void 0 : _a.token.sourceCodeInfo);
+            throw new LitsError("Wrong number of arguments, expected an even number, got ".concat(valueToString(length), "."), (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
         }
     }
     function assertNumberOfParams(count, node) {
-        var _a, _b;
+        var _a, _b, _c;
         assertCount({
             count: count,
             length: withoutCommentNodes(node.p).length,
             name: (_a = node.n) !== null && _a !== void 0 ? _a : 'expression',
-            sourceCodeInfo: (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo,
+            sourceCodeInfo: (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo,
         });
     }
     function isNonUndefined(value) {
@@ -4311,14 +4319,15 @@ var Playground = (function (exports) {
         return true;
     }
     function assertToken(value, filePath, options) {
+        var _a;
         if (options === void 0) { options = {}; }
         if (!isToken(value, options)) {
-            var sourceCodeInfo = isToken(value)
-                ? value.sourceCodeInfo
+            var sourceCodeInfo = isToken(value) && ((_a = value.debugData) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo)
+                ? value.debugData.sourceCodeInfo
                 : typeof filePath === 'string'
                     ? { filePath: filePath }
                     : undefined;
-            throw new LitsError("Expected ".concat(options.type ? "".concat(options.type, "-") : '', "token").concat(typeof options.value === 'string' ? " value='".concat(options.value, "'") : '', ", got ").concat(valueToString(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
+            throw new LitsError("Expected ".concat(options.type ? "".concat(TokenType[options.type], "-") : '', "token").concat(typeof options.value === 'string' ? " value='".concat(options.value, "'") : '', ", got ").concat(valueToString(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
         }
     }
     function asToken(value, filePath, options) {
@@ -4336,7 +4345,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'and',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -4381,7 +4390,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'comment',
                 p: [],
-                debug: undefined,
+                debugData: undefined,
             };
             var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
             while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {
@@ -4390,7 +4399,7 @@ var Playground = (function (exports) {
                 node.p.push(bodyNode);
                 tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
             }
-            node.debug = firstToken.sourceCodeInfo
+            node.debugData = firstToken.debugData
                 ? {
                     token: firstToken,
                     lastToken: tkn,
@@ -4411,7 +4420,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'cond',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -4455,7 +4464,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'declared?',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -4501,27 +4510,27 @@ var Playground = (function (exports) {
 
     var defSpecialExpression = {
         parse: function (tokenStream, position, firstToken, _a) {
-            var _b;
+            var _b, _c;
             var parseTokensUntilClosingBracket = _a.parseTokensUntilClosingBracket;
-            var _c = __read(parseTokensUntilClosingBracket(tokenStream, position), 2), newPosition = _c[0], params = _c[1];
+            var _d = __read(parseTokensUntilClosingBracket(tokenStream, position), 2), newPosition = _d[0], params = _d[1];
             var lastToken = asToken(tokenStream.tokens[newPosition], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: 'def',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
             };
-            assertNameNode(node.p[0], (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo);
+            assertNameNode(node.p[0], (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
             assertNumberOfParams(2, node);
             return [newPosition + 1, node];
         },
         evaluate: function (node, contextStack, _a) {
-            var _b;
+            var _b, _c;
             var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
-            var sourceCodeInfo = (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo;
+            var sourceCodeInfo = (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
             var name = node.p[0].v;
             assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
             contextStack.globalContext[name] = {
@@ -4530,9 +4539,9 @@ var Playground = (function (exports) {
             return null;
         },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var _b;
+            var _b, _c;
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
-            var sourceCodeInfo = (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo;
+            var sourceCodeInfo = (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
             var subNode = asAstNode(node.p[1]);
             var result = findUnresolvedIdentifiers([subNode], contextStack, builtin);
             var name = asNameNode(node.p[0]).v;
@@ -4551,7 +4560,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'defs',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -4560,21 +4569,21 @@ var Playground = (function (exports) {
             return [newPosition + 1, node];
         },
         evaluate: function (node, contextStack, _a) {
-            var _b, _c;
+            var _b, _c, _d, _e;
             var evaluateAstNode = _a.evaluateAstNode, builtin = _a.builtin;
-            var sourceCodeInfo = (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo;
+            var sourceCodeInfo = (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
             var name = evaluateAstNode(node.p[0], contextStack);
             assertString(name, sourceCodeInfo);
-            assertNameNotDefined(name, contextStack, builtin, (_c = node.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo);
+            assertNameNotDefined(name, contextStack, builtin, (_e = (_d = node.debugData) === null || _d === void 0 ? void 0 : _d.token.debugData) === null || _e === void 0 ? void 0 : _e.sourceCodeInfo);
             contextStack.globalContext[name] = {
                 value: evaluateAstNode(node.p[1], contextStack),
             };
             return null;
         },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
-            var _b;
+            var _b, _c;
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo;
+            var sourceCodeInfo = (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
             var subNode = node.p[1];
             var result = findUnresolvedIdentifiers([subNode], contextStack, builtin);
             var name = evaluateAstNode(node.p[0], contextStack);
@@ -4593,7 +4602,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'do',
                 p: [],
-                debug: undefined,
+                debugData: undefined,
             };
             var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
             while (!isToken(tkn, { type: TokenType.Bracket, value: ')' })) {
@@ -4602,7 +4611,7 @@ var Playground = (function (exports) {
                 node.p.push(bodyNode);
                 tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
             }
-            node.debug = firstToken.sourceCodeInfo
+            node.debugData = firstToken.debugData
                 ? {
                     token: firstToken,
                     lastToken: tkn,
@@ -4671,11 +4680,11 @@ var Playground = (function (exports) {
     var defnSpecialExpression = {
         parse: function (tokenStream, position, firstToken, parsers) {
             var _a, _b;
-            var _c;
+            var _c, _d;
             var parseToken = parsers.parseToken;
             var functionName;
             _a = __read(parseToken(tokenStream, position), 2), position = _a[0], functionName = _a[1];
-            assertNameNode(functionName, (_c = functionName.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo);
+            assertNameNode(functionName, (_d = (_c = functionName.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo);
             var functionOverloades;
             _b = __read(parseFunctionOverloades(tokenStream, position, parsers), 2), position = _b[0], functionOverloades = _b[1];
             var lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
@@ -4685,7 +4694,7 @@ var Playground = (function (exports) {
                 f: functionName,
                 p: [],
                 o: functionOverloades,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -4697,14 +4706,14 @@ var Playground = (function (exports) {
         },
         evaluate: function (node, contextStack, _a) {
             var _b;
-            var _c, _d;
+            var _c, _d, _e, _f;
             var builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
             var name = getFunctionName('defn', node, contextStack, evaluateAstNode);
-            assertNameNotDefined(name, contextStack, builtin, (_c = node.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo);
+            assertNameNotDefined(name, contextStack, builtin, (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo);
             var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
             var litsFunction = (_b = {},
                 _b[FUNCTION_SYMBOL] = true,
-                _b.sourceCodeInfo = (_d = node.debug) === null || _d === void 0 ? void 0 : _d.token.sourceCodeInfo,
+                _b.sourceCodeInfo = (_f = (_e = node.debugData) === null || _e === void 0 ? void 0 : _e.token.debugData) === null || _f === void 0 ? void 0 : _f.sourceCodeInfo,
                 _b.t = FunctionType.UserDefined,
                 _b.n = name,
                 _b.o = evaluatedFunctionOverloades,
@@ -4735,7 +4744,7 @@ var Playground = (function (exports) {
                 p: [],
                 f: functionName,
                 o: functionOverloades,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -4747,14 +4756,14 @@ var Playground = (function (exports) {
         },
         evaluate: function (node, contextStack, _a) {
             var _b;
-            var _c, _d;
+            var _c, _d, _e, _f;
             var builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
             var name = getFunctionName('defns', node, contextStack, evaluateAstNode);
-            assertNameNotDefined(name, contextStack, builtin, (_c = node.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo);
+            assertNameNotDefined(name, contextStack, builtin, (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo);
             var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
             var litsFunction = (_b = {},
                 _b[FUNCTION_SYMBOL] = true,
-                _b.sourceCodeInfo = (_d = node.debug) === null || _d === void 0 ? void 0 : _d.token.sourceCodeInfo,
+                _b.sourceCodeInfo = (_f = (_e = node.debugData) === null || _e === void 0 ? void 0 : _e.token.debugData) === null || _f === void 0 ? void 0 : _f.sourceCodeInfo,
                 _b.t = FunctionType.UserDefined,
                 _b.n = name,
                 _b.o = evaluatedFunctionOverloades,
@@ -4764,9 +4773,9 @@ var Playground = (function (exports) {
         },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var _b;
-            var _c;
+            var _c, _d;
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin, evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_c = node.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo;
+            var sourceCodeInfo = (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo;
             var name = evaluateAstNode(asAstNode(node.f, sourceCodeInfo), contextStack);
             assertString(name, sourceCodeInfo);
             assertNameNotDefined(name, contextStack, builtin, sourceCodeInfo);
@@ -4786,7 +4795,7 @@ var Playground = (function (exports) {
                 n: 'fn',
                 p: [],
                 o: functionOverloades,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -4798,12 +4807,12 @@ var Playground = (function (exports) {
         },
         evaluate: function (node, contextStack, _a) {
             var _b;
-            var _c;
+            var _c, _d;
             var evaluateAstNode = _a.evaluateAstNode;
             var evaluatedFunctionOverloades = evaluateFunctionOverloades(node, contextStack, evaluateAstNode);
             var litsFunction = (_b = {},
                 _b[FUNCTION_SYMBOL] = true,
-                _b.sourceCodeInfo = (_c = node.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo,
+                _b.sourceCodeInfo = (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo,
                 _b.t = FunctionType.UserDefined,
                 _b.n = undefined,
                 _b.o = evaluatedFunctionOverloades,
@@ -4816,8 +4825,8 @@ var Playground = (function (exports) {
         },
     };
     function getFunctionName(expressionName, node, contextStack, evaluateAstNode) {
-        var _a;
-        var sourceCodeInfo = (_a = node.debug) === null || _a === void 0 ? void 0 : _a.token.sourceCodeInfo;
+        var _a, _b;
+        var sourceCodeInfo = (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
         if (expressionName === 'defn')
             return (node.f).v;
         var name = evaluateAstNode(node.f, contextStack);
@@ -4917,6 +4926,7 @@ var Playground = (function (exports) {
     }
     function parseFunctionBody(tokenStream, position, _a) {
         var _b;
+        var _c;
         var parseToken = _a.parseToken;
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
         var body = [];
@@ -4927,11 +4937,12 @@ var Playground = (function (exports) {
             tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
         }
         if (body.length === 0)
-            throw new LitsError('Missing body in function', tkn.sourceCodeInfo);
+            throw new LitsError('Missing body in function', (_c = tkn.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
         return [position, body];
     }
     function parseFunctionOverloades(tokenStream, position, parsers) {
         var _a, _b, _c, _d;
+        var _e, _f, _g;
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket });
         if (tkn.v === '(') {
             var functionOverloades = [];
@@ -4942,7 +4953,7 @@ var Playground = (function (exports) {
                 _a = __read(parseFunctionArguments(tokenStream, position, parsers), 2), position = _a[0], functionArguments = _a[1];
                 var arity = functionArguments.r ? { min: functionArguments.m.length } : functionArguments.m.length;
                 if (!arityOk(functionOverloades, arity))
-                    throw new LitsError('All overloaded functions must have different arity', tkn.sourceCodeInfo);
+                    throw new LitsError('All overloaded functions must have different arity', (_e = tkn.debugData) === null || _e === void 0 ? void 0 : _e.sourceCodeInfo);
                 var functionBody = void 0;
                 _b = __read(parseFunctionBody(tokenStream, position, parsers), 2), position = _b[0], functionBody = _b[1];
                 functionOverloades.push({
@@ -4952,7 +4963,7 @@ var Playground = (function (exports) {
                 });
                 tkn = asToken(tokenStream.tokens[position + 1], tokenStream.filePath, { type: TokenType.Bracket });
                 if (tkn.v !== ')' && tkn.v !== '(')
-                    throw new LitsError("Expected ( or ) token, got ".concat(valueToString(tkn), "."), tkn.sourceCodeInfo);
+                    throw new LitsError("Expected ( or ) token, got ".concat(valueToString(tkn), "."), (_f = tkn.debugData) === null || _f === void 0 ? void 0 : _f.sourceCodeInfo);
                 position += 1;
             }
             return [position, functionOverloades];
@@ -4975,11 +4986,12 @@ var Playground = (function (exports) {
             ];
         }
         else {
-            throw new LitsError("Expected [ or ( token, got ".concat(valueToString(tkn)), tkn.sourceCodeInfo);
+            throw new LitsError("Expected [ or ( token, got ".concat(valueToString(tkn)), (_g = tkn.debugData) === null || _g === void 0 ? void 0 : _g.sourceCodeInfo);
         }
     }
     function parseFunctionArguments(tokenStream, position, parsers) {
         var _a;
+        var _b, _c, _d, _e, _f;
         var parseArgument = parsers.parseArgument, parseBindings = parsers.parseBindings;
         var bindings = [];
         var restArgument;
@@ -4994,23 +5006,23 @@ var Playground = (function (exports) {
                 break;
             }
             else {
-                var _b = __read(parseArgument(tokenStream, position), 2), newPosition = _b[0], node = _b[1];
+                var _g = __read(parseArgument(tokenStream, position), 2), newPosition = _g[0], node = _g[1];
                 position = newPosition;
                 tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
                 if (node.t === AstNodeType.Modifier) {
                     switch (node.v) {
                         case '&':
                             if (state === 'rest')
-                                throw new LitsError('& can only appear once', tkn.sourceCodeInfo);
+                                throw new LitsError('& can only appear once', (_b = tkn.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
                             state = 'rest';
                             break;
                         case '&let':
                             if (state === 'rest' && !restArgument)
-                                throw new LitsError('No rest argument was specified', tkn.sourceCodeInfo);
+                                throw new LitsError('No rest argument was specified', (_c = tkn.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
                             state = 'let';
                             break;
                         default:
-                            throw new LitsError("Illegal modifier: ".concat(node.v), tkn.sourceCodeInfo);
+                            throw new LitsError("Illegal modifier: ".concat(node.v), (_d = tkn.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo);
                     }
                 }
                 else {
@@ -5020,7 +5032,7 @@ var Playground = (function (exports) {
                             break;
                         case 'rest':
                             if (restArgument !== undefined)
-                                throw new LitsError('Can only specify one rest argument', tkn.sourceCodeInfo);
+                                throw new LitsError('Can only specify one rest argument', (_e = tkn.debugData) === null || _e === void 0 ? void 0 : _e.sourceCodeInfo);
                             restArgument = node.n;
                             break;
                     }
@@ -5028,7 +5040,7 @@ var Playground = (function (exports) {
             }
         }
         if (state === 'rest' && restArgument === undefined)
-            throw new LitsError('Missing rest argument name', tkn.sourceCodeInfo);
+            throw new LitsError('Missing rest argument name', (_f = tkn.debugData) === null || _f === void 0 ? void 0 : _f.sourceCodeInfo);
         position += 1;
         var args = {
             m: mandatoryArguments,
@@ -5047,7 +5059,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'if',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5056,10 +5068,10 @@ var Playground = (function (exports) {
             return [newPosition + 1, node];
         },
         evaluate: function (node, contextStack, _a) {
-            var _b;
+            var _b, _c;
             var evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo;
-            var _c = __read(node.p, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
+            var sourceCodeInfo = (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
+            var _d = __read(node.p, 3), conditionNode = _d[0], trueNode = _d[1], falseNode = _d[2];
             if (evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {
                 return evaluateAstNode(asAstNode(trueNode, sourceCodeInfo), contextStack);
             }
@@ -5079,11 +5091,12 @@ var Playground = (function (exports) {
     var ifLetSpecialExpression = {
         parse: function (tokenStream, position, firstToken, _a) {
             var _b, _c;
+            var _d, _e;
             var parseBindings = _a.parseBindings, parseTokensUntilClosingBracket = _a.parseTokensUntilClosingBracket;
             var bindings;
             _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
             if (bindings.length !== 1) {
-                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
+                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), (_d = firstToken.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo);
             }
             var params;
             _c = __read(parseTokensUntilClosingBracket(tokenStream, position), 2), position = _c[0], params = _c[1];
@@ -5091,9 +5104,9 @@ var Playground = (function (exports) {
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: 'if-let',
-                b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
+                b: asNonUndefined(bindings[0], (_e = firstToken.debugData) === null || _e === void 0 ? void 0 : _e.sourceCodeInfo),
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5102,9 +5115,9 @@ var Playground = (function (exports) {
             return [position + 1, node];
         },
         evaluate: function (node, contextStack, _a) {
-            var _b;
+            var _b, _c;
             var evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo;
+            var sourceCodeInfo = (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
             var locals = {};
             var bindingValue = evaluateAstNode(node.b.v, contextStack);
             if (bindingValue) {
@@ -5138,7 +5151,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'if-not',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5147,10 +5160,10 @@ var Playground = (function (exports) {
             return [newPosition + 1, node];
         },
         evaluate: function (node, contextStack, _a) {
-            var _b;
+            var _b, _c;
             var evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo;
-            var _c = __read(node.p, 3), conditionNode = _c[0], trueNode = _c[1], falseNode = _c[2];
+            var sourceCodeInfo = (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
+            var _d = __read(node.p, 3), conditionNode = _d[0], trueNode = _d[1], falseNode = _d[2];
             if (!evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {
                 return evaluateAstNode(asAstNode(trueNode, sourceCodeInfo), contextStack);
             }
@@ -5170,8 +5183,9 @@ var Playground = (function (exports) {
     var letSpecialExpression = {
         parse: function (tokenStream, position, firstToken, _a) {
             var _b, _c;
-            var parseBindings = _a.parseBindings, parseTokensUntilClosingBracket = _a.parseTokensUntilClosingBracket;
-            var bindingParams = firstToken.sourceCodeInfo ? parseTokensUntilClosingBracket(tokenStream, position + 1)[1] : undefined;
+            var _d, _e;
+            var parseBindings = _a.parseBindings, parseTokensUntilClosingBracket = _a.parseTokensUntilClosingBracket, parseToken = _a.parseToken;
+            var bindingArray = ((_d = firstToken.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo) ? asNormalExpressionNode(parseToken(tokenStream, position)[1]) : undefined;
             var bindings;
             _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
             var params;
@@ -5182,10 +5196,10 @@ var Playground = (function (exports) {
                 n: 'let',
                 p: params,
                 bs: bindings,
-                debug: firstToken.sourceCodeInfo && bindingParams && {
+                debugData: ((_e = firstToken.debugData) === null || _e === void 0 ? void 0 : _e.sourceCodeInfo) && bindingArray && {
                     token: firstToken,
                     lastToken: lastToken,
-                    bindingParams: bindingParams,
+                    bindingArray: bindingArray,
                 },
             };
             return [position + 1, node];
@@ -5260,7 +5274,7 @@ var Playground = (function (exports) {
                 n: 'loop',
                 p: params,
                 bs: bindings,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5268,28 +5282,28 @@ var Playground = (function (exports) {
             return [position + 1, node];
         },
         evaluate: function (node, contextStack, _a) {
-            var _b;
+            var _b, _c;
             var evaluateAstNode = _a.evaluateAstNode;
-            var sourceCodeInfo = (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo;
+            var sourceCodeInfo = (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
             var bindingContext = node.bs.reduce(function (result, binding) {
                 result[binding.n] = { value: evaluateAstNode(binding.v, contextStack) };
                 return result;
             }, {});
             var newContextStack = contextStack.create(bindingContext);
             var _loop_1 = function () {
-                var e_1, _c;
+                var e_1, _d;
                 var result = null;
                 try {
                     try {
-                        for (var _d = (e_1 = void 0, __values(node.p)), _e = _d.next(); !_e.done; _e = _d.next()) {
-                            var form = _e.value;
+                        for (var _e = (e_1 = void 0, __values(node.p)), _f = _e.next(); !_f.done; _f = _e.next()) {
+                            var form = _f.value;
                             result = evaluateAstNode(form, newContextStack);
                         }
                     }
                     catch (e_1_1) { e_1 = { error: e_1_1 }; }
                     finally {
                         try {
-                            if (_e && !_e.done && (_c = _d.return)) _c.call(_d);
+                            if (_f && !_f.done && (_d = _e.return)) _d.call(_e);
                         }
                         finally { if (e_1) throw e_1.error; }
                     }
@@ -5332,6 +5346,7 @@ var Playground = (function (exports) {
 
     function parseLoopBinding(tokenStream, position, _a) {
         var _b, _c, _d, _e;
+        var _f, _g, _h, _j;
         var parseBinding = _a.parseBinding, parseBindings = _a.parseBindings, parseToken = _a.parseToken;
         var bindingNode;
         _b = __read(parseBinding(tokenStream, position), 2), position = _b[0], bindingNode = _b[1];
@@ -5344,24 +5359,24 @@ var Playground = (function (exports) {
             switch (tkn.v) {
                 case '&let':
                     if (loopBinding.l)
-                        throw new LitsError('Only one &let modifier allowed', tkn.sourceCodeInfo);
+                        throw new LitsError('Only one &let modifier allowed', (_f = tkn.debugData) === null || _f === void 0 ? void 0 : _f.sourceCodeInfo);
                     _c = __read(parseBindings(tokenStream, position + 1), 2), position = _c[0], loopBinding.l = _c[1];
                     loopBinding.m.push('&let');
                     break;
                 case '&when':
                     if (loopBinding.wn)
-                        throw new LitsError('Only one &when modifier allowed', tkn.sourceCodeInfo);
+                        throw new LitsError('Only one &when modifier allowed', (_g = tkn.debugData) === null || _g === void 0 ? void 0 : _g.sourceCodeInfo);
                     _d = __read(parseToken(tokenStream, position + 1), 2), position = _d[0], loopBinding.wn = _d[1];
                     loopBinding.m.push('&when');
                     break;
                 case '&while':
                     if (loopBinding.we)
-                        throw new LitsError('Only one &while modifier allowed', tkn.sourceCodeInfo);
+                        throw new LitsError('Only one &while modifier allowed', (_h = tkn.debugData) === null || _h === void 0 ? void 0 : _h.sourceCodeInfo);
                     _e = __read(parseToken(tokenStream, position + 1), 2), position = _e[0], loopBinding.we = _e[1];
                     loopBinding.m.push('&while');
                     break;
                 default:
-                    throw new LitsError("Illegal modifier: ".concat(tkn.v), tkn.sourceCodeInfo);
+                    throw new LitsError("Illegal modifier: ".concat(tkn.v), (_j = tkn.debugData) === null || _j === void 0 ? void 0 : _j.sourceCodeInfo);
             }
             tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
         }
@@ -5401,9 +5416,9 @@ var Playground = (function (exports) {
     }
     function evaluateLoop(returnResult, node, contextStack, evaluateAstNode) {
         var e_2, _a;
-        var _b;
-        var sourceCodeInfo = (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo;
-        var _c = node, loopBindings = _c.l, params = _c.p;
+        var _b, _c;
+        var sourceCodeInfo = (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo;
+        var _d = node, loopBindings = _d.l, params = _d.p;
         var result = [];
         var bindingIndices = loopBindings.map(function () { return 0; });
         var abort = false;
@@ -5412,7 +5427,7 @@ var Playground = (function (exports) {
             var newContextStack = contextStack.create(context);
             var skip = false;
             bindingsLoop: for (var bindingIndex = 0; bindingIndex < loopBindings.length; bindingIndex += 1) {
-                var _d = asNonUndefined(loopBindings[bindingIndex], sourceCodeInfo), binding = _d.b, letBindings = _d.l, whenNode = _d.wn, whileNode = _d.we, modifiers = _d.m;
+                var _e = asNonUndefined(loopBindings[bindingIndex], sourceCodeInfo), binding = _e.b, letBindings = _e.l, whenNode = _e.wn, whileNode = _e.we, modifiers = _e.m;
                 var coll = asColl(evaluateAstNode(binding.v, newContextStack), sourceCodeInfo);
                 var seq = isSeq(coll) ? coll : Object.entries(coll);
                 if (seq.length === 0) {
@@ -5526,7 +5541,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 l: loopBindings,
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5554,7 +5569,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 l: loopBindings,
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5581,7 +5596,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'or',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5624,7 +5639,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: '??',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5633,14 +5648,14 @@ var Playground = (function (exports) {
             return [newPosition + 1, node];
         },
         evaluate: function (node, contextStack, _a) {
-            var _b;
+            var _b, _c;
             var evaluateAstNode = _a.evaluateAstNode;
-            var _c = __read(node.p, 2), firstNode = _c[0], secondNode = _c[1];
+            var _d = __read(node.p, 2), firstNode = _d[0], secondNode = _d[1];
             if (isNameNode(firstNode)) {
                 if (contextStack.lookUp(firstNode) === null)
                     return secondNode ? evaluateAstNode(secondNode, contextStack) : null;
             }
-            assertAny(firstNode, (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo);
+            assertAny(firstNode, (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
             var firstResult = evaluateAstNode(firstNode, contextStack);
             return firstResult !== null && firstResult !== void 0 ? firstResult : (secondNode ? evaluateAstNode(secondNode, contextStack) : null);
         },
@@ -5661,7 +5676,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'recur',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5690,7 +5705,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'throw',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5699,12 +5714,12 @@ var Playground = (function (exports) {
             return [position + 1, node];
         },
         evaluate: function (node, contextStack, _a) {
-            var _b, _c;
+            var _b, _c, _d, _e;
             var evaluateAstNode = _a.evaluateAstNode;
-            var message = asString(evaluateAstNode(node.p[0], contextStack), (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo, {
+            var message = asString(evaluateAstNode(node.p[0], contextStack), (_c = (_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo, {
                 nonEmpty: true,
             });
-            throw new UserDefinedError(message, (_c = node.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo);
+            throw new UserDefinedError(message, (_e = (_d = node.debugData) === null || _d === void 0 ? void 0 : _d.token.debugData) === null || _e === void 0 ? void 0 : _e.sourceCodeInfo);
         },
         findUnresolvedIdentifiers: function (node, contextStack, _a) {
             var findUnresolvedIdentifiers = _a.findUnresolvedIdentifiers, builtin = _a.builtin;
@@ -5721,7 +5736,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'time!',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5748,7 +5763,7 @@ var Playground = (function (exports) {
     var trySpecialExpression = {
         parse: function (tokenStream, position, firstToken, _a) {
             var _b, _c, _d, _e;
-            var _f, _g, _h;
+            var _f, _g, _h, _j, _k, _l;
             var parseToken = _a.parseToken;
             var tryExpression;
             _b = __read(parseToken(tokenStream, position), 2), position = _b[0], tryExpression = _b[1];
@@ -5756,13 +5771,13 @@ var Playground = (function (exports) {
             position += 1;
             var catchNode;
             _c = __read(parseToken(tokenStream, position), 2), position = _c[0], catchNode = _c[1];
-            assertNameNode(catchNode, (_f = catchNode.debug) === null || _f === void 0 ? void 0 : _f.token.sourceCodeInfo);
+            assertNameNode(catchNode, (_g = (_f = catchNode.debugData) === null || _f === void 0 ? void 0 : _f.token.debugData) === null || _g === void 0 ? void 0 : _g.sourceCodeInfo);
             if (catchNode.v !== 'catch') {
-                throw new LitsError("Expected 'catch', got '".concat(catchNode.v, "'."), getSourceCodeInfo(catchNode, (_g = catchNode.debug) === null || _g === void 0 ? void 0 : _g.token.sourceCodeInfo));
+                throw new LitsError("Expected 'catch', got '".concat(catchNode.v, "'."), getSourceCodeInfo(catchNode, (_j = (_h = catchNode.debugData) === null || _h === void 0 ? void 0 : _h.token.debugData) === null || _j === void 0 ? void 0 : _j.sourceCodeInfo));
             }
             var error;
             _d = __read(parseToken(tokenStream, position), 2), position = _d[0], error = _d[1];
-            assertNameNode(error, (_h = error.debug) === null || _h === void 0 ? void 0 : _h.token.sourceCodeInfo);
+            assertNameNode(error, (_l = (_k = error.debugData) === null || _k === void 0 ? void 0 : _k.token.debugData) === null || _l === void 0 ? void 0 : _l.sourceCodeInfo);
             var catchExpression;
             _e = __read(parseToken(tokenStream, position), 2), position = _e[0], catchExpression = _e[1];
             assertToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
@@ -5774,7 +5789,7 @@ var Playground = (function (exports) {
                 p: [tryExpression],
                 ce: catchExpression,
                 e: error,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5784,7 +5799,7 @@ var Playground = (function (exports) {
         },
         evaluate: function (node, contextStack, _a) {
             var _b;
-            var _c;
+            var _c, _d;
             var evaluateAstNode = _a.evaluateAstNode;
             var tryExpressions = node.p, catchExpression = node.ce, errorNode = node.e;
             try {
@@ -5792,7 +5807,7 @@ var Playground = (function (exports) {
             }
             catch (error) {
                 var newContext = (_b = {},
-                    _b[errorNode.v] = { value: asAny(error, (_c = node.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo) },
+                    _b[errorNode.v] = { value: asAny(error, (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo) },
                     _b);
                 return evaluateAstNode(catchExpression, contextStack.create(newContext));
             }
@@ -5819,7 +5834,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'when',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5829,10 +5844,10 @@ var Playground = (function (exports) {
         },
         evaluate: function (node, contextStack, _a) {
             var e_1, _b;
-            var _c;
+            var _c, _d;
             var evaluateAstNode = _a.evaluateAstNode;
-            var _d = __read(node.p), whenExpression = _d[0], body = _d.slice(1);
-            assertAstNode(whenExpression, (_c = node.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo);
+            var _e = __read(node.p), whenExpression = _e[0], body = _e.slice(1);
+            assertAstNode(whenExpression, (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo);
             if (!evaluateAstNode(whenExpression, contextStack))
                 return null;
             var result = null;
@@ -5860,11 +5875,12 @@ var Playground = (function (exports) {
     var whenFirstSpecialExpression = {
         parse: function (tokenStream, position, firstToken, _a) {
             var _b, _c;
+            var _d, _e;
             var parseBindings = _a.parseBindings, parseTokensUntilClosingBracket = _a.parseTokensUntilClosingBracket;
             var bindings;
             _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
             if (bindings.length !== 1) {
-                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
+                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), (_d = firstToken.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo);
             }
             var params;
             _c = __read(parseTokensUntilClosingBracket(tokenStream, position), 2), position = _c[0], params = _c[1];
@@ -5872,9 +5888,9 @@ var Playground = (function (exports) {
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: 'when-first',
-                b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
+                b: asNonUndefined(bindings[0], (_e = firstToken.debugData) === null || _e === void 0 ? void 0 : _e.sourceCodeInfo),
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5883,13 +5899,13 @@ var Playground = (function (exports) {
         },
         evaluate: function (node, contextStack, _a) {
             var e_1, _b;
-            var _c;
+            var _c, _d;
             var evaluateAstNode = _a.evaluateAstNode;
             var locals = {};
             var binding = node.b;
             var evaluatedBindingForm = evaluateAstNode(binding.v, contextStack);
             if (!isSeq(evaluatedBindingForm)) {
-                throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString(evaluatedBindingForm)), (_c = node.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo);
+                throw new LitsError("Expected undefined or a sequence, got ".concat(valueToString(evaluatedBindingForm)), (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo);
             }
             if (evaluatedBindingForm.length === 0)
                 return null;
@@ -5898,15 +5914,15 @@ var Playground = (function (exports) {
             var newContextStack = contextStack.create(locals);
             var result = null;
             try {
-                for (var _d = __values(node.p), _e = _d.next(); !_e.done; _e = _d.next()) {
-                    var form = _e.value;
+                for (var _e = __values(node.p), _f = _e.next(); !_f.done; _f = _e.next()) {
+                    var form = _f.value;
                     result = evaluateAstNode(form, newContextStack);
                 }
             }
             catch (e_1_1) { e_1 = { error: e_1_1 }; }
             finally {
                 try {
-                    if (_e && !_e.done && (_b = _d.return)) _b.call(_d);
+                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
                 }
                 finally { if (e_1) throw e_1.error; }
             }
@@ -5926,11 +5942,12 @@ var Playground = (function (exports) {
     var whenLetSpecialExpression = {
         parse: function (tokenStream, position, firstToken, _a) {
             var _b, _c;
+            var _d, _e;
             var parseBindings = _a.parseBindings, parseTokensUntilClosingBracket = _a.parseTokensUntilClosingBracket;
             var bindings;
             _b = __read(parseBindings(tokenStream, position), 2), position = _b[0], bindings = _b[1];
             if (bindings.length !== 1) {
-                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), firstToken.sourceCodeInfo);
+                throw new LitsError("Expected exactly one binding, got ".concat(valueToString(bindings.length)), (_d = firstToken.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo);
             }
             var params;
             _c = __read(parseTokensUntilClosingBracket(tokenStream, position), 2), position = _c[0], params = _c[1];
@@ -5938,9 +5955,9 @@ var Playground = (function (exports) {
             var node = {
                 t: AstNodeType.SpecialExpression,
                 n: 'when-let',
-                b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
+                b: asNonUndefined(bindings[0], (_e = firstToken.debugData) === null || _e === void 0 ? void 0 : _e.sourceCodeInfo),
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -5993,7 +6010,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.SpecialExpression,
                 n: 'when-not',
                 p: params,
-                debug: firstToken.sourceCodeInfo && {
+                debugData: firstToken.debugData && {
                     token: firstToken,
                     lastToken: lastToken,
                 },
@@ -6003,10 +6020,10 @@ var Playground = (function (exports) {
         },
         evaluate: function (node, contextStack, _a) {
             var e_1, _b;
-            var _c;
+            var _c, _d;
             var evaluateAstNode = _a.evaluateAstNode;
-            var _d = __read(node.p), whenExpression = _d[0], body = _d.slice(1);
-            assertAstNode(whenExpression, (_c = node.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo);
+            var _e = __read(node.p), whenExpression = _e[0], body = _e.slice(1);
+            assertAstNode(whenExpression, (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo);
             if (evaluateAstNode(whenExpression, contextStack))
                 return null;
             var result = null;
@@ -6133,12 +6150,12 @@ var Playground = (function (exports) {
         };
         ContextStackImpl.prototype.lookUp = function (node) {
             var e_2, _a, _b;
-            var _c, _d, _e, _f;
+            var _c, _d, _e, _f, _g;
             var value = node.v;
-            var sourceCodeInfo = (_c = node.debug) === null || _c === void 0 ? void 0 : _c.token.sourceCodeInfo;
+            var sourceCodeInfo = (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo;
             try {
-                for (var _g = __values(this.contexts), _h = _g.next(); !_h.done; _h = _g.next()) {
-                    var context = _h.value;
+                for (var _h = __values(this.contexts), _j = _h.next(); !_j.done; _j = _h.next()) {
+                    var context = _j.value;
                     var contextEntry = context[value];
                     if (contextEntry)
                         return contextEntry;
@@ -6147,17 +6164,17 @@ var Playground = (function (exports) {
             catch (e_2_1) { e_2 = { error: e_2_1 }; }
             finally {
                 try {
-                    if (_h && !_h.done && (_a = _g.return)) _a.call(_g);
+                    if (_j && !_j.done && (_a = _h.return)) _a.call(_h);
                 }
                 finally { if (e_2) throw e_2.error; }
             }
-            var lazyHostValue = (_d = this.lazyValues) === null || _d === void 0 ? void 0 : _d[value];
+            var lazyHostValue = (_e = this.lazyValues) === null || _e === void 0 ? void 0 : _e[value];
             if (lazyHostValue !== undefined) {
                 return {
                     value: toAny(lazyHostValue.read()),
                 };
             }
-            var hostValue = (_e = this.values) === null || _e === void 0 ? void 0 : _e[value];
+            var hostValue = (_f = this.values) === null || _f === void 0 ? void 0 : _f[value];
             if (hostValue !== undefined) {
                 return {
                     value: toAny(hostValue),
@@ -6174,7 +6191,7 @@ var Playground = (function (exports) {
             }
             if (builtin.specialExpressions[value])
                 return 'specialExpression';
-            var nativeJsFunction = (_f = this.nativeJsFunctions) === null || _f === void 0 ? void 0 : _f[value];
+            var nativeJsFunction = (_g = this.nativeJsFunctions) === null || _g === void 0 ? void 0 : _g[value];
             if (nativeJsFunction) {
                 return {
                     value: nativeJsFunction,
@@ -6183,13 +6200,13 @@ var Playground = (function (exports) {
             return null;
         };
         ContextStackImpl.prototype.evaluateName = function (node) {
-            var _a;
+            var _a, _b;
             var lookUpResult = this.lookUp(node);
             if (isContextEntry(lookUpResult))
                 return lookUpResult.value;
             else if (isBuiltinFunction(lookUpResult))
                 return lookUpResult;
-            throw new UndefinedSymbolError(node.v, (_a = node.debug) === null || _a === void 0 ? void 0 : _a.token.sourceCodeInfo);
+            throw new UndefinedSymbolError(node.v, (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
         };
         return ContextStackImpl;
     }());
@@ -6412,8 +6429,8 @@ var Playground = (function (exports) {
     function evaluate(ast, contextStack) {
         var e_1, _a;
         var result = null;
-        var safeAstNode = ast.debug ? JSON.parse(JSON.stringify(ast)) : ast;
-        if (safeAstNode.debug)
+        var safeAstNode = ast.hasDebugData ? JSON.parse(JSON.stringify(ast)) : ast;
+        if (safeAstNode.hasDebugData)
             removeCommenNodes(safeAstNode);
         try {
             for (var _b = __values(safeAstNode.b), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -6431,7 +6448,7 @@ var Playground = (function (exports) {
         return result;
     }
     function evaluateAstNode(node, contextStack) {
-        var _a;
+        var _a, _b;
         switch (node.t) {
             case AstNodeType.Number:
                 return evaluateNumber(node);
@@ -6446,7 +6463,7 @@ var Playground = (function (exports) {
             case AstNodeType.SpecialExpression:
                 return evaluateSpecialExpression(node, contextStack);
             default:
-                throw new LitsError("".concat(node.t, "-node cannot be evaluated"), (_a = node.debug) === null || _a === void 0 ? void 0 : _a.token.sourceCodeInfo);
+                throw new LitsError("".concat(node.t, "-node cannot be evaluated"), (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
         }
     }
     function evaluateNumber(node) {
@@ -6456,13 +6473,13 @@ var Playground = (function (exports) {
         return node.v;
     }
     function evaluateReservedName(node) {
-        var _a;
-        return asNonUndefined(reservedNamesRecord[node.v], (_a = node.debug) === null || _a === void 0 ? void 0 : _a.token.sourceCodeInfo).value;
+        var _a, _b;
+        return asNonUndefined(reservedNamesRecord[node.v], (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo).value;
     }
     function evaluateNormalExpression(node, contextStack) {
-        var _a;
+        var _a, _b;
         var params = node.p.map(function (paramNode) { return evaluateAstNode(paramNode, contextStack); });
-        var sourceCodeInfo = (_a = node.debug) === null || _a === void 0 ? void 0 : _a.token.sourceCodeInfo;
+        var sourceCodeInfo = (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo;
         if (isNormalExpressionNodeWithName(node)) {
             var value = contextStack.getValue(node.n);
             if (value !== undefined)
@@ -6488,15 +6505,15 @@ var Playground = (function (exports) {
         throw new NotAFunctionError(fn, sourceCodeInfo);
     }
     function evaluateBuiltinNormalExpression(node, params, contextStack) {
-        var _a, _b;
+        var _a, _b, _c, _d;
         var normalExpression = builtin.normalExpressions[node.n];
         if (!normalExpression)
-            throw new UndefinedSymbolError(node.n, (_a = node.debug) === null || _a === void 0 ? void 0 : _a.token.sourceCodeInfo);
-        return normalExpression.evaluate(params, (_b = node.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo, contextStack, { executeFunction: executeFunction });
+            throw new UndefinedSymbolError(node.n, (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
+        return normalExpression.evaluate(params, (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo, contextStack, { executeFunction: executeFunction });
     }
     function evaluateSpecialExpression(node, contextStack) {
-        var _a;
-        var specialExpression = asNonUndefined(builtin.specialExpressions[node.n], (_a = node.debug) === null || _a === void 0 ? void 0 : _a.token.sourceCodeInfo);
+        var _a, _b;
+        var specialExpression = asNonUndefined(builtin.specialExpressions[node.n], (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
         // eslint-disable-next-line ts/no-unsafe-argument
         return specialExpression.evaluate(node, contextStack, { evaluateAstNode: evaluateAstNode, builtin: builtin });
     }
@@ -6555,13 +6572,13 @@ var Playground = (function (exports) {
     };
     function findUnresolvedIdentifiersInAstNode(astNode, contextStack, builtin) {
         var e_2, _a;
-        var _b, _c, _d;
+        var _b, _c, _d, _e;
         var emptySet = new Set();
         switch (astNode.t) {
             case AstNodeType.Name: {
                 var lookUpResult = contextStack.lookUp(astNode);
                 if (lookUpResult === null)
-                    return new Set([{ symbol: astNode.v, token: (_b = astNode.debug) === null || _b === void 0 ? void 0 : _b.token }]);
+                    return new Set([{ symbol: astNode.v, token: (_b = astNode.debugData) === null || _b === void 0 ? void 0 : _b.token }]);
                 return emptySet;
             }
             case AstNodeType.String:
@@ -6572,11 +6589,11 @@ var Playground = (function (exports) {
                 return emptySet;
             case AstNodeType.NormalExpression: {
                 var unresolvedIdentifiers_1 = new Set();
-                var name_1 = astNode.n, debug = astNode.debug;
+                var name_1 = astNode.n, debug = astNode.debugData;
                 if (typeof name_1 === 'string') {
-                    var lookUpResult = contextStack.lookUp({ t: AstNodeType.Name, v: name_1, debug: debug, p: [], n: undefined });
+                    var lookUpResult = contextStack.lookUp({ t: AstNodeType.Name, v: name_1, debugData: debug, p: [], n: undefined });
                     if (lookUpResult === null)
-                        unresolvedIdentifiers_1.add({ symbol: name_1, token: (_c = astNode.debug) === null || _c === void 0 ? void 0 : _c.token });
+                        unresolvedIdentifiers_1.add({ symbol: name_1, token: (_c = astNode.debugData) === null || _c === void 0 ? void 0 : _c.token });
                 }
                 try {
                     // if (expression) {
@@ -6592,8 +6609,8 @@ var Playground = (function (exports) {
                     //     }
                     //   }
                     // }
-                    for (var _e = __values(astNode.p), _f = _e.next(); !_f.done; _f = _e.next()) {
-                        var subNode = _f.value;
+                    for (var _f = __values(astNode.p), _g = _f.next(); !_g.done; _g = _f.next()) {
+                        var subNode = _g.value;
                         var innerUnresolvedIdentifiers = findUnresolvedIdentifiersInAstNode(subNode, contextStack, builtin);
                         innerUnresolvedIdentifiers.forEach(function (symbol) { return unresolvedIdentifiers_1.add(symbol); });
                     }
@@ -6601,14 +6618,14 @@ var Playground = (function (exports) {
                 catch (e_2_1) { e_2 = { error: e_2_1 }; }
                 finally {
                     try {
-                        if (_f && !_f.done && (_a = _e.return)) _a.call(_e);
+                        if (_g && !_g.done && (_a = _f.return)) _a.call(_f);
                     }
                     finally { if (e_2) throw e_2.error; }
                 }
                 return unresolvedIdentifiers_1;
             }
             case AstNodeType.SpecialExpression: {
-                var specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], (_d = astNode.debug) === null || _d === void 0 ? void 0 : _d.token.sourceCodeInfo);
+                var specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], (_e = (_d = astNode.debugData) === null || _d === void 0 ? void 0 : _d.token.debugData) === null || _e === void 0 ? void 0 : _e.sourceCodeInfo);
                 // eslint-disable-next-line ts/no-unsafe-argument
                 var unresolvedIdentifiers = specialExpression.findUnresolvedIdentifiers(astNode, contextStack, {
                     findUnresolvedIdentifiers: findUnresolvedIdentifiers,
@@ -6627,7 +6644,7 @@ var Playground = (function (exports) {
             n: 'and',
             t: AstNodeType.SpecialExpression,
             p: p,
-            debug: astNode.debug,
+            debugData: astNode.debugData,
         }); });
     };
 
@@ -6659,8 +6676,8 @@ var Playground = (function (exports) {
         ], false);
     };
 
-    var trueNode = { t: AstNodeType.ReservedName, v: 'true', debug: undefined, p: [], n: undefined };
-    var falseNode = { t: AstNodeType.ReservedName, v: 'false', debug: undefined, p: [], n: undefined };
+    var trueNode = { t: AstNodeType.ReservedName, v: 'true', debugData: undefined, p: [], n: undefined };
+    var falseNode = { t: AstNodeType.ReservedName, v: 'false', debugData: undefined, p: [], n: undefined };
     var calculateDeclaredOutcomes = function (_a) {
         var astNode = _a.astNode, isAstComputable = _a.isAstComputable;
         if (isAstComputable(astNode.p))
@@ -6749,7 +6766,7 @@ var Playground = (function (exports) {
                 n: 'if-not',
                 t: astNode.t,
                 p: p,
-                debug: astNode.debug,
+                debugData: astNode.debugData,
             }); });
         }
         return __spreadArray(__spreadArray([], __read(calculatePossibleAstNodes(thenBranch)), false), __read(calculatePossibleAstNodes(elseBranch)), false);
@@ -6767,7 +6784,7 @@ var Playground = (function (exports) {
                 n: 'if',
                 t: astNode.t,
                 p: p,
-                debug: astNode.debug,
+                debugData: astNode.debugData,
             }); });
         }
         return __spreadArray(__spreadArray([], __read(calculatePossibleAstNodes(thenBranch)), false), __read(calculatePossibleAstNodes(elseBranch)), false);
@@ -6787,7 +6804,7 @@ var Playground = (function (exports) {
                     n: 'do',
                     t: AstNodeType.SpecialExpression,
                     p: p,
-                    debug: astNode.debug,
+                    debugData: astNode.debugData,
                 };
             });
             return doNodes;
@@ -6804,7 +6821,7 @@ var Playground = (function (exports) {
                 bs: bindingNodes,
                 t: AstNodeType.SpecialExpression,
                 p: p,
-                debug: astNode.debug,
+                debugData: astNode.debugData,
             };
         }); });
         return letNodes;
@@ -6862,7 +6879,7 @@ var Playground = (function (exports) {
             n: 'or',
             t: AstNodeType.SpecialExpression,
             p: p,
-            debug: astNode.debug,
+            debugData: astNode.debugData,
         }); });
     };
 
@@ -6918,7 +6935,7 @@ var Playground = (function (exports) {
                 n: 'do',
                 t: astNode.t,
                 p: p,
-                debug: astNode.debug,
+                debugData: astNode.debugData,
             }); })), false), [
                 nilNode,
             ], false);
@@ -6941,7 +6958,7 @@ var Playground = (function (exports) {
                 n: 'when-not',
                 t: astNode.t,
                 p: p,
-                debug: astNode.debug,
+                debugData: astNode.debugData,
             }); });
         }
         var body = astNode.p.slice(1);
@@ -6950,7 +6967,7 @@ var Playground = (function (exports) {
             n: 'do',
             t: astNode.t,
             p: p,
-            debug: astNode.debug,
+            debugData: astNode.debugData,
         }); })), false), [
             nilNode,
         ], false);
@@ -6965,7 +6982,7 @@ var Playground = (function (exports) {
                 n: 'when',
                 t: astNode.t,
                 p: p,
-                debug: astNode.debug,
+                debugData: astNode.debugData,
             }); });
         }
         var body = astNode.p.slice(1);
@@ -6974,7 +6991,7 @@ var Playground = (function (exports) {
             n: 'do',
             t: astNode.t,
             p: p,
-            debug: astNode.debug,
+            debugData: astNode.debugData,
         }); })), false), [
             nilNode,
         ], false);
@@ -7043,7 +7060,7 @@ var Playground = (function (exports) {
                 return { value: null };
             var ast = {
                 b: possibleAst,
-                debug: true,
+                hasDebugData: true,
             };
             try {
                 var outcome_1 = evaluate(ast, contextStack.clone());
@@ -7082,7 +7099,7 @@ var Playground = (function (exports) {
         }
         return possibleAsts;
     }
-    var nilNode = { t: AstNodeType.ReservedName, v: 'nil', debug: undefined, p: [], n: undefined };
+    var nilNode = { t: AstNodeType.ReservedName, v: 'nil', debugData: undefined, p: [], n: undefined };
     function calculatePossibleAstNodes(contextStack, astNode, newIndentifiers) {
         var newContext = newIndentifiers
             ? newIndentifiers.reduce(function (acc, identity) {
@@ -7121,6 +7138,7 @@ var Playground = (function (exports) {
     }
 
     function parseNumber(tokenStream, position) {
+        var _a;
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
         return [
             position + 1,
@@ -7129,13 +7147,14 @@ var Playground = (function (exports) {
                 v: Number(tkn.v),
                 p: [],
                 n: undefined,
-                debug: tkn.sourceCodeInfo
+                debugData: ((_a = tkn.debugData) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo)
                     ? { token: tkn, lastToken: tkn }
                     : undefined,
             },
         ];
     }
     function parseString(tokenStream, position) {
+        var _a;
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
         return [
             position + 1,
@@ -7144,13 +7163,14 @@ var Playground = (function (exports) {
                 v: tkn.v,
                 p: [],
                 n: undefined,
-                debug: tkn.sourceCodeInfo
+                debugData: ((_a = tkn.debugData) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo)
                     ? { token: tkn, lastToken: tkn }
                     : undefined,
             },
         ];
     }
     function parseName(tokenStream, position) {
+        var _a;
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
         return [
             position + 1,
@@ -7159,13 +7179,14 @@ var Playground = (function (exports) {
                 v: tkn.v,
                 p: [],
                 n: undefined,
-                debug: tkn.sourceCodeInfo
+                debugData: ((_a = tkn.debugData) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo)
                     ? { token: tkn, lastToken: tkn }
                     : undefined,
             },
         ];
     }
     function parseReservedName(tokenStream, position) {
+        var _a;
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
         return [
             position + 1,
@@ -7174,13 +7195,14 @@ var Playground = (function (exports) {
                 v: tkn.v,
                 p: [],
                 n: undefined,
-                debug: tkn.sourceCodeInfo
+                debugData: ((_a = tkn.debugData) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo)
                     ? { token: tkn, lastToken: tkn }
                     : undefined,
             },
         ];
     }
     function parseComment(tokenStream, position) {
+        var _a;
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
         return [
             position + 1,
@@ -7189,7 +7211,7 @@ var Playground = (function (exports) {
                 v: tkn.v,
                 p: [],
                 n: undefined,
-                debug: tkn.sourceCodeInfo
+                debugData: ((_a = tkn.debugData) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo)
                     ? { token: tkn, lastToken: tkn }
                     : undefined,
             },
@@ -7215,6 +7237,7 @@ var Playground = (function (exports) {
     };
     function parseArrayLitteral(tokenStream, position) {
         var _a;
+        var _b;
         var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
         position = position + 1;
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
@@ -7230,7 +7253,7 @@ var Playground = (function (exports) {
             t: AstNodeType.NormalExpression,
             n: 'array',
             p: params,
-            debug: firstToken.sourceCodeInfo
+            debugData: ((_b = firstToken.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo)
                 ? {
                     token: firstToken,
                     lastToken: tkn,
@@ -7241,6 +7264,7 @@ var Playground = (function (exports) {
     }
     function parseObjectLitteral(tokenStream, position) {
         var _a;
+        var _b;
         var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
         position = position + 1;
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
@@ -7256,7 +7280,7 @@ var Playground = (function (exports) {
             t: AstNodeType.NormalExpression,
             n: 'object',
             p: params,
-            debug: firstToken.sourceCodeInfo
+            debugData: ((_b = firstToken.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo)
                 ? {
                     token: firstToken,
                     lastToken: tkn,
@@ -7267,26 +7291,27 @@ var Playground = (function (exports) {
         return [position, node];
     }
     function parseRegexpShorthand(tokenStream, position) {
+        var _a, _b, _c, _d;
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
         var stringNode = {
             t: AstNodeType.String,
             v: tkn.v,
             p: [],
             n: undefined,
-            debug: tkn.sourceCodeInfo
+            debugData: ((_a = tkn.debugData) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo)
                 ? {
                     token: tkn,
                     lastToken: tkn,
                 }
                 : undefined,
         };
-        assertNonUndefined(tkn.o, tkn.sourceCodeInfo);
+        assertNonUndefined(tkn.o, (_b = tkn.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
         var optionsNode = {
             t: AstNodeType.String,
             v: "".concat(tkn.o.g ? 'g' : '').concat(tkn.o.i ? 'i' : ''),
             p: [],
             n: undefined,
-            debug: tkn.sourceCodeInfo
+            debugData: ((_c = tkn.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo)
                 ? {
                     token: tkn,
                     lastToken: tkn,
@@ -7297,7 +7322,7 @@ var Playground = (function (exports) {
             t: AstNodeType.NormalExpression,
             n: 'regexp',
             p: [stringNode, optionsNode],
-            debug: tkn.sourceCodeInfo
+            debugData: ((_d = tkn.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo)
                 ? {
                     token: tkn,
                     lastToken: tkn,
@@ -7311,10 +7336,10 @@ var Playground = (function (exports) {
     }
     var placeholderRegexp = /^%([1-9][0-9]?)?$/;
     var parseFnShorthand = function (tokenStream, position) {
-        var _a;
+        var _a, _b, _c, _d, _e;
         var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
         position += 1;
-        var _b = __read(parseExpression(tokenStream, position), 2), newPosition = _b[0], exprNode = _b[1];
+        var _f = __read(parseExpression(tokenStream, position), 2), newPosition = _f[0], exprNode = _f[1];
         var arity = 0;
         var percent1 = 'NOT_SET';
         for (var pos = position + 1; pos < newPosition - 1; pos += 1) {
@@ -7326,16 +7351,16 @@ var Playground = (function (exports) {
                     if (number === '1') {
                         var mixedPercent1 = (!match[1] && percent1 === 'WITH_1') || (match[1] && percent1 === 'NAKED');
                         if (mixedPercent1)
-                            throw new LitsError('Please make up your mind, either use % or %1', firstToken.sourceCodeInfo);
+                            throw new LitsError('Please make up your mind, either use % or %1', (_b = firstToken.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo);
                         percent1 = match[1] ? 'WITH_1' : 'NAKED';
                     }
                     arity = Math.max(arity, Number(number));
                     if (arity > 20)
-                        throw new LitsError('Can\'t specify more than 20 arguments', firstToken.sourceCodeInfo);
+                        throw new LitsError('Can\'t specify more than 20 arguments', (_c = firstToken.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
                 }
             }
             if (tkn.t === TokenType.FnShorthand)
-                throw new LitsError('Nested shortcut functions are not allowed', firstToken.sourceCodeInfo);
+                throw new LitsError('Nested shortcut functions are not allowed', (_d = firstToken.debugData) === null || _d === void 0 ? void 0 : _d.sourceCodeInfo);
         }
         var mandatoryArguments = [];
         for (var i = 1; i <= arity; i += 1) {
@@ -7359,16 +7384,17 @@ var Playground = (function (exports) {
                     a: args.m.length,
                 },
             ],
-            debug: firstToken.sourceCodeInfo
+            debugData: ((_e = firstToken.debugData) === null || _e === void 0 ? void 0 : _e.sourceCodeInfo)
                 ? {
                     token: firstToken,
-                    lastToken: exprNode.debug.lastToken,
+                    lastToken: exprNode.debugData.lastToken,
                 }
                 : undefined,
         };
         return [newPosition, node];
     };
     var parseArgument = function (tokenStream, position) {
+        var _a, _b, _c;
         var tkn = asToken(tokenStream.tokens[position], tokenStream.filePath);
         if (tkn.t === TokenType.Name) {
             return [
@@ -7377,7 +7403,7 @@ var Playground = (function (exports) {
                     t: AstNodeType.Argument,
                     n: tkn.v,
                     p: [],
-                    debug: tkn.sourceCodeInfo
+                    debugData: ((_a = tkn.debugData) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo)
                         ? {
                             token: tkn,
                             lastToken: tkn,
@@ -7395,7 +7421,7 @@ var Playground = (function (exports) {
                     v: value,
                     p: [],
                     n: undefined,
-                    debug: tkn.sourceCodeInfo
+                    debugData: ((_b = tkn.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo)
                         ? {
                             token: tkn,
                             lastToken: tkn,
@@ -7405,7 +7431,7 @@ var Playground = (function (exports) {
             ];
         }
         else {
-            throw new LitsError("Expected name or modifier token, got ".concat(valueToString(tkn), "."), tkn.sourceCodeInfo);
+            throw new LitsError("Expected name or modifier token, got ".concat(valueToString(tkn), "."), (_c = tkn.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
         }
     };
     function parseBindings(tokenStream, position) {
@@ -7425,6 +7451,7 @@ var Playground = (function (exports) {
     }
     function parseBinding(tokenStream, position) {
         var _a;
+        var _b;
         var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Name });
         var name = firstToken.v;
         position += 1;
@@ -7435,10 +7462,10 @@ var Playground = (function (exports) {
             n: name,
             v: value,
             p: [],
-            debug: firstToken.sourceCodeInfo
+            debugData: ((_b = firstToken.debugData) === null || _b === void 0 ? void 0 : _b.sourceCodeInfo)
                 ? {
                     token: firstToken,
-                    lastToken: value.debug.lastToken,
+                    lastToken: value.debugData.lastToken,
                 }
                 : undefined,
         };
@@ -7446,10 +7473,10 @@ var Playground = (function (exports) {
     }
     function parseNormalExpression(tokenStream, position) {
         var _a;
-        var _b, _c, _d;
-        var startBracketToken = tokenStream.debug ? asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: '(' }) : undefined;
+        var _b, _c, _d, _e;
+        var startBracketToken = tokenStream.hasDebugData ? asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: '(' }) : undefined;
         position += 1;
-        var _e = __read(parseToken(tokenStream, position), 2), newPosition = _e[0], fnNode = _e[1];
+        var _f = __read(parseToken(tokenStream, position), 2), newPosition = _f[0], fnNode = _f[1];
         var params;
         _a = __read(parseTokensUntilClosingBracket(tokenStream, newPosition), 2), position = _a[0], params = _a[1];
         var lastToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: ')' });
@@ -7459,7 +7486,7 @@ var Playground = (function (exports) {
                 t: AstNodeType.NormalExpression,
                 p: __spreadArray([fnNode], __read(params), false),
                 n: undefined,
-                debug: startBracketToken
+                debugData: startBracketToken
                     ? {
                         token: startBracketToken,
                         lastToken: lastToken,
@@ -7468,22 +7495,22 @@ var Playground = (function (exports) {
             };
             return [position, node_1];
         }
-        assertNameNode(fnNode, (_b = fnNode.debug) === null || _b === void 0 ? void 0 : _b.token.sourceCodeInfo);
+        assertNameNode(fnNode, (_c = (_b = fnNode.debugData) === null || _b === void 0 ? void 0 : _b.token.debugData) === null || _c === void 0 ? void 0 : _c.sourceCodeInfo);
         var node = {
             t: AstNodeType.NormalExpression,
             n: fnNode.v,
             p: params,
-            debug: startBracketToken
+            debugData: startBracketToken
                 ? {
                     token: startBracketToken,
-                    nameToken: (_c = fnNode.debug) === null || _c === void 0 ? void 0 : _c.token,
+                    nameToken: (_d = fnNode.debugData) === null || _d === void 0 ? void 0 : _d.token,
                     lastToken: lastToken,
                 }
                 : undefined,
         };
         var builtinExpression = builtin.normalExpressions[node.n];
         if (builtinExpression) {
-            (_d = builtinExpression.validate) === null || _d === void 0 ? void 0 : _d.call(builtinExpression, __assign(__assign({}, node), { p: withoutCommentNodes(node.p) }));
+            (_e = builtinExpression.validate) === null || _e === void 0 ? void 0 : _e.call(builtinExpression, __assign(__assign({}, node), { p: withoutCommentNodes(node.p) }));
         }
         return [position, node];
     }
@@ -7491,9 +7518,9 @@ var Playground = (function (exports) {
         var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: '(' });
         position += 1;
         var nameToken = asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Name });
-        var expressionName = nameToken.v, sourceCodeInfo = nameToken.sourceCodeInfo;
+        var expressionName = nameToken.v, debugData = nameToken.debugData;
         position += 1;
-        var parse = asNonUndefined(builtin.specialExpressions[expressionName], sourceCodeInfo).parse;
+        var parse = asNonUndefined(builtin.specialExpressions[expressionName], debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo).parse;
         var _a = __read(parse(tokenStream, position, firstToken, {
             parseExpression: parseExpression,
             parseTokensUntilClosingBracket: parseTokensUntilClosingBracket,
@@ -7502,11 +7529,12 @@ var Playground = (function (exports) {
             parseBindings: parseBindings,
             parseArgument: parseArgument,
         }), 2), positionAfterParse = _a[0], node = _a[1];
-        if (node.debug)
-            node.debug.nameToken = nameToken;
+        if (node.debugData)
+            node.debugData.nameToken = nameToken;
         return [positionAfterParse, node];
     }
     function parseToken(tokenStream, position) {
+        var _a;
         var tkn = getNextParsableToken(tokenStream, position);
         switch (tkn.t) {
             case TokenType.Number:
@@ -7539,7 +7567,7 @@ var Playground = (function (exports) {
             default:
                 assertUnreachable(tkn.t);
         }
-        throw new LitsError("Unrecognized token: ".concat(tkn.t, " value=").concat(tkn.v), tkn.sourceCodeInfo);
+        throw new LitsError("Unrecognized token: ".concat(tkn.t, " value=").concat(tkn.v), (_a = tkn.debugData) === null || _a === void 0 ? void 0 : _a.sourceCodeInfo);
     }
     function getNextParsableToken(tokenStream, position) {
         var token = asToken(tokenStream.tokens[position], tokenStream.filePath);
@@ -7554,7 +7582,7 @@ var Playground = (function (exports) {
         var _a;
         var ast = {
             b: [],
-            debug: tokenStream.debug,
+            hasDebugData: tokenStream.hasDebugData,
         };
         var position = 0;
         var node;
@@ -7575,35 +7603,35 @@ var Playground = (function (exports) {
     };
     function applyCollectionAccessor(tokenStream, position) {
         var dotTkn = asNonUndefined(tokenStream.tokens[position]);
-        var sourceCodeInfo = dotTkn.sourceCodeInfo;
-        var backPosition = getPositionBackwards(tokenStream, position, sourceCodeInfo);
-        checkForward(tokenStream, position, dotTkn, sourceCodeInfo);
+        var debugData = dotTkn.debugData;
+        var backPosition = getPositionBackwards(tokenStream, position, debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo);
+        checkForward(tokenStream, position, dotTkn, debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo);
         tokenStream.tokens.splice(position, 1);
         tokenStream.tokens.splice(backPosition, 0, {
             t: TokenType.Bracket,
             v: '(',
-            sourceCodeInfo: sourceCodeInfo,
+            debugData: debugData,
         });
         var nextTkn = asNonUndefined(tokenStream.tokens[position + 1]);
         if (dotTkn.v === '.') {
             tokenStream.tokens[position + 1] = {
                 t: TokenType.String,
                 v: nextTkn.v,
-                sourceCodeInfo: nextTkn.sourceCodeInfo,
+                debugData: nextTkn.debugData,
             };
         }
         else {
-            assertNumber(Number(nextTkn.v), sourceCodeInfo, { integer: true, nonNegative: true });
+            assertNumber(Number(nextTkn.v), debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo, { integer: true, nonNegative: true });
             tokenStream.tokens[position + 1] = {
                 t: TokenType.Number,
                 v: nextTkn.v,
-                sourceCodeInfo: nextTkn.sourceCodeInfo,
+                debugData: nextTkn.debugData,
             };
         }
         tokenStream.tokens.splice(position + 2, 0, {
             t: TokenType.Bracket,
             v: ')',
-            sourceCodeInfo: sourceCodeInfo,
+            debugData: debugData,
         });
     }
     function getPositionBackwards(tokenStream, position, sourceCodeInfo) {
@@ -7667,12 +7695,12 @@ var Playground = (function (exports) {
     var nameRegExp = new RegExp("".concat(nameCharacters));
     var whitespaceRegExp = /\s|,/;
     var newLineRegExp = /\n/;
-    var tokenizeNewLine = function (input, current, sourceCodeInfo) {
+    var tokenizeNewLine = function (input, current, debugData) {
         return newLineRegExp.test(input[current])
-            ? [1, { t: TokenType.NewLine, v: '\n', sourceCodeInfo: sourceCodeInfo }]
+            ? [1, { t: TokenType.NewLine, v: '\n', debugData: debugData }]
             : NO_MATCH;
     };
-    var tokenizeComment = function (input, current, sourceCodeInfo) {
+    var tokenizeComment = function (input, current, debugData) {
         if (input[current] === ';') {
             var length_1 = 0;
             var value = '';
@@ -7682,32 +7710,32 @@ var Playground = (function (exports) {
             }
             if (input[current + length_1] === '\n' && current + length_1 < input.length)
                 length_1 += 1;
-            return [length_1, { t: TokenType.Comment, v: value.trim(), sourceCodeInfo: sourceCodeInfo }];
+            return [length_1, { t: TokenType.Comment, v: value.trim(), debugData: debugData }];
         }
         return NO_MATCH;
     };
     var skipWhiteSpace = function (input, current) {
         return whitespaceRegExp.test(input[current]) ? [1, undefined] : NO_MATCH;
     };
-    var tokenizeLeftParen = function (input, position, sourceCodeInfo) {
-        return tokenizeCharacter(TokenType.Bracket, '(', input, position, sourceCodeInfo);
+    var tokenizeLeftParen = function (input, position, debugData) {
+        return tokenizeCharacter(TokenType.Bracket, '(', input, position, debugData);
     };
-    var tokenizeRightParen = function (input, position, sourceCodeInfo) {
-        return tokenizeCharacter(TokenType.Bracket, ')', input, position, sourceCodeInfo);
+    var tokenizeRightParen = function (input, position, debugData) {
+        return tokenizeCharacter(TokenType.Bracket, ')', input, position, debugData);
     };
-    var tokenizeLeftBracket = function (input, position, sourceCodeInfo) {
-        return tokenizeCharacter(TokenType.Bracket, '[', input, position, sourceCodeInfo);
+    var tokenizeLeftBracket = function (input, position, debugData) {
+        return tokenizeCharacter(TokenType.Bracket, '[', input, position, debugData);
     };
-    var tokenizeRightBracket = function (input, position, sourceCodeInfo) {
-        return tokenizeCharacter(TokenType.Bracket, ']', input, position, sourceCodeInfo);
+    var tokenizeRightBracket = function (input, position, debugData) {
+        return tokenizeCharacter(TokenType.Bracket, ']', input, position, debugData);
     };
-    var tokenizeLeftCurly = function (input, position, sourceCodeInfo) {
-        return tokenizeCharacter(TokenType.Bracket, '{', input, position, sourceCodeInfo);
+    var tokenizeLeftCurly = function (input, position, debugData) {
+        return tokenizeCharacter(TokenType.Bracket, '{', input, position, debugData);
     };
-    var tokenizeRightCurly = function (input, position, sourceCodeInfo) {
-        return tokenizeCharacter(TokenType.Bracket, '}', input, position, sourceCodeInfo);
+    var tokenizeRightCurly = function (input, position, debugData) {
+        return tokenizeCharacter(TokenType.Bracket, '}', input, position, debugData);
     };
-    var tokenizeString = function (input, position, sourceCodeInfo) {
+    var tokenizeString = function (input, position, debugData) {
         if (input[position] !== '"')
             return NO_MATCH;
         var value = '';
@@ -7716,7 +7744,7 @@ var Playground = (function (exports) {
         var escape = false;
         while (char !== '"' || escape) {
             if (char === undefined)
-                throw new LitsError("Unclosed string at position ".concat(position, "."), sourceCodeInfo);
+                throw new LitsError("Unclosed string at position ".concat(position, "."), debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo);
             length += 1;
             if (escape) {
                 escape = false;
@@ -7736,9 +7764,9 @@ var Playground = (function (exports) {
             }
             char = input[position + length];
         }
-        return [length + 1, { t: TokenType.String, v: value, sourceCodeInfo: sourceCodeInfo }];
+        return [length + 1, { t: TokenType.String, v: value, debugData: debugData }];
     };
-    var tokenizeCollectionAccessor = function (input, position, sourceCodeInfo) {
+    var tokenizeCollectionAccessor = function (input, position, debugData) {
         var char = input[position];
         if (char !== '.' && char !== '#')
             return NO_MATCH;
@@ -7747,11 +7775,11 @@ var Playground = (function (exports) {
             {
                 t: TokenType.CollectionAccessor,
                 v: char,
-                sourceCodeInfo: sourceCodeInfo,
+                debugData: debugData,
             },
         ];
     };
-    var tokenizeSymbolString = function (input, position, sourceCodeInfo) {
+    var tokenizeSymbolString = function (input, position, debugData) {
         if (input[position] !== ':')
             return NO_MATCH;
         var value = '';
@@ -7764,13 +7792,13 @@ var Playground = (function (exports) {
         }
         if (length === 1)
             return NO_MATCH;
-        return [length, { t: TokenType.String, v: value, sourceCodeInfo: sourceCodeInfo, o: { s: true } }];
+        return [length, { t: TokenType.String, v: value, debugData: debugData, o: { s: true } }];
     };
-    var tokenizeRegexpShorthand = function (input, position, sourceCodeInfo) {
+    var tokenizeRegexpShorthand = function (input, position, debugData) {
         var _a;
         if (input[position] !== '#')
             return NO_MATCH;
-        var _b = __read(tokenizeString(input, position + 1, sourceCodeInfo), 2), stringLength = _b[0], token = _b[1];
+        var _b = __read(tokenizeString(input, position + 1, debugData), 2), stringLength = _b[0], token = _b[1];
         if (!token)
             return NO_MATCH;
         position += stringLength + 1;
@@ -7779,31 +7807,31 @@ var Playground = (function (exports) {
         while (input[position] === 'g' || input[position] === 'i') {
             if (input[position] === 'g') {
                 if (options.g)
-                    throw new LitsError("Duplicated regexp option \"".concat(input[position], "\" at position ").concat(position, "."), sourceCodeInfo);
+                    throw new LitsError("Duplicated regexp option \"".concat(input[position], "\" at position ").concat(position, "."), debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo);
                 length += 1;
                 options.g = true;
             }
             else {
                 if (options.i)
-                    throw new LitsError("Duplicated regexp option \"".concat(input[position], "\" at position ").concat(position, "."), sourceCodeInfo);
+                    throw new LitsError("Duplicated regexp option \"".concat(input[position], "\" at position ").concat(position, "."), debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo);
                 length += 1;
                 options.i = true;
             }
             position += 1;
         }
         if (nameRegExp.test((_a = input[position]) !== null && _a !== void 0 ? _a : ''))
-            throw new LitsError("Unexpected regexp option \"".concat(input[position], "\" at position ").concat(position, "."), sourceCodeInfo);
+            throw new LitsError("Unexpected regexp option \"".concat(input[position], "\" at position ").concat(position, "."), debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo);
         return [
             length,
             {
                 t: TokenType.RegexpShorthand,
                 v: token.v,
                 o: options,
-                sourceCodeInfo: sourceCodeInfo,
+                debugData: debugData,
             },
         ];
     };
-    var tokenizeFnShorthand = function (input, position, sourceCodeInfo) {
+    var tokenizeFnShorthand = function (input, position, debugData) {
         if (input.slice(position, position + 2) !== '#(')
             return NO_MATCH;
         return [
@@ -7811,7 +7839,7 @@ var Playground = (function (exports) {
             {
                 t: TokenType.FnShorthand,
                 v: '#',
-                sourceCodeInfo: sourceCodeInfo,
+                debugData: debugData,
             },
         ];
     };
@@ -7821,7 +7849,7 @@ var Playground = (function (exports) {
     var hexNumberRegExp = /[0-9a-fA-F]/;
     var binaryNumberRegExp = /[0-1]/;
     var firstCharRegExp = /[0-9.-]/;
-    var tokenizeNumber = function (input, position, sourceCodeInfo) {
+    var tokenizeNumber = function (input, position, debugData) {
         var type = 'decimal';
         var firstChar = input[position];
         if (!firstCharRegExp.test(firstChar))
@@ -7829,7 +7857,7 @@ var Playground = (function (exports) {
         var hasDecimals = firstChar === '.';
         var i;
         for (i = position + 1; i < input.length; i += 1) {
-            var char = asString(input[i], sourceCodeInfo, { char: true });
+            var char = asString(input[i], debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo, { char: true });
             if (endOfNumberRegExp.test(char))
                 break;
             if (char === '.') {
@@ -7880,9 +7908,9 @@ var Playground = (function (exports) {
         var value = input.substring(position, i);
         if ((type !== 'decimal' && length <= 2) || value === '.' || value === '-')
             return NO_MATCH;
-        return [length, { t: TokenType.Number, v: value, sourceCodeInfo: sourceCodeInfo }];
+        return [length, { t: TokenType.Number, v: value, debugData: debugData }];
     };
-    var tokenizeReservedName = function (input, position, sourceCodeInfo) {
+    var tokenizeReservedName = function (input, position, debugData) {
         var e_1, _a;
         try {
             for (var _b = __values(Object.entries(reservedNamesRecord)), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -7894,8 +7922,8 @@ var Playground = (function (exports) {
                 var name_1 = input.substr(position, length_2);
                 if (name_1 === reservedName) {
                     if (forbidden)
-                        throw new LitsError("".concat(name_1, " is forbidden!"), sourceCodeInfo);
-                    return [length_2, { t: TokenType.ReservedName, v: reservedName, sourceCodeInfo: sourceCodeInfo }];
+                        throw new LitsError("".concat(name_1, " is forbidden!"), debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo);
+                    return [length_2, { t: TokenType.ReservedName, v: reservedName, debugData: debugData }];
                 }
             }
         }
@@ -7908,10 +7936,10 @@ var Playground = (function (exports) {
         }
         return NO_MATCH;
     };
-    var tokenizeName = function (input, position, sourceCodeInfo) {
-        return tokenizePattern(TokenType.Name, nameRegExp, input, position, sourceCodeInfo);
+    var tokenizeName = function (input, position, debugData) {
+        return tokenizePattern(TokenType.Name, nameRegExp, input, position, debugData);
     };
-    var tokenizeModifier = function (input, position, sourceCodeInfo) {
+    var tokenizeModifier = function (input, position, debugData) {
         var e_2, _a;
         var modifiers = ['&', '&let', '&when', '&while'];
         try {
@@ -7921,7 +7949,7 @@ var Playground = (function (exports) {
                 var charAfterModifier = input[position + length_3];
                 if (input.substr(position, length_3) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
                     var value = modifier;
-                    return [length_3, { t: TokenType.Modifier, v: value, sourceCodeInfo: sourceCodeInfo }];
+                    return [length_3, { t: TokenType.Modifier, v: value, debugData: debugData }];
                 }
             }
         }
@@ -7934,13 +7962,13 @@ var Playground = (function (exports) {
         }
         return NO_MATCH;
     };
-    function tokenizeCharacter(type, value, input, position, sourceCodeInfo) {
+    function tokenizeCharacter(type, value, input, position, debugData) {
         if (value === input[position])
-            return [1, { t: type, v: value, sourceCodeInfo: sourceCodeInfo }];
+            return [1, { t: type, v: value, debugData: debugData }];
         else
             return NO_MATCH;
     }
-    function tokenizePattern(type, pattern, input, position, sourceCodeInfo) {
+    function tokenizePattern(type, pattern, input, position, debugData) {
         var char = input[position];
         var length = 0;
         var value = '';
@@ -7951,7 +7979,7 @@ var Playground = (function (exports) {
             length += 1;
             char = input[position + length];
         }
-        return [length, { t: type, v: value, sourceCodeInfo: sourceCodeInfo }];
+        return [length, { t: type, v: value, debugData: debugData }];
     }
 
     // All tokenizers, order matters!
@@ -7994,6 +8022,7 @@ var Playground = (function (exports) {
     }
     function tokenize$1(input, params) {
         var _a, _b, e_1, _c, _d;
+        var debug = !!params.debug;
         var tokens = [];
         var position = 0;
         var tokenized = false;
@@ -8009,13 +8038,16 @@ var Playground = (function (exports) {
                 break;
             var leadingMetaTokens = __spreadArray(__spreadArray([], __read(leadingNewLineTokens), false), __read(leadingCommentTokens), false);
             // Loop through all tokenizer until one matches
-            var sourceCodeInfo = params.debug
-                ? createSourceCodeInfo(input, position, params.filePath)
+            var debugData = debug
+                ? {
+                    sourceCodeInfo: createSourceCodeInfo(input, position, params.filePath),
+                    metaTokens: { inlineCommentToken: null, leadingMetaTokens: leadingMetaTokens },
+                }
                 : undefined;
             try {
                 for (var tokenizers_1 = (e_1 = void 0, __values(tokenizers)), tokenizers_1_1 = tokenizers_1.next(); !tokenizers_1_1.done; tokenizers_1_1 = tokenizers_1.next()) {
                     var tokenizer = tokenizers_1_1.value;
-                    var _e = __read(tokenizer(input, position, sourceCodeInfo), 2), nbrOfCharacters = _e[0], token = _e[1];
+                    var _e = __read(tokenizer(input, position, debugData), 2), nbrOfCharacters = _e[0], token = _e[1];
                     // tokenizer matched
                     if (nbrOfCharacters > 0) {
                         tokenized = true;
@@ -8024,13 +8056,9 @@ var Playground = (function (exports) {
                             var inlineCommentToken = null;
                             if (!isCommentToken(token))
                                 _d = __read(readInlineCommentToken(input, position, params), 2), position = _d[0], inlineCommentToken = _d[1];
-                            if (params.debug) {
-                                token.metaTokens = {
-                                    leadingMetaTokens: leadingMetaTokens,
-                                    inlineCommentToken: inlineCommentToken,
-                                };
-                            }
-                            if (!isCommentToken(token) || params.debug)
+                            if (token.debugData)
+                                token.debugData.metaTokens.inlineCommentToken = inlineCommentToken;
+                            if (!isCommentToken(token) || debug)
                                 tokens.push(token);
                         }
                         break;
@@ -8045,12 +8073,12 @@ var Playground = (function (exports) {
                 finally { if (e_1) throw e_1.error; }
             }
             if (!tokenized)
-                throw new LitsError("Unrecognized character '".concat(input[position], "'."), sourceCodeInfo);
+                throw new LitsError("Unrecognized character '".concat(input[position], "'."), debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo);
         }
         var tokenStream = {
             tokens: tokens,
             filePath: params.filePath,
-            debug: params.debug,
+            hasDebugData: debug,
         };
         applySugar(tokenStream);
         return tokenStream;
@@ -8069,14 +8097,17 @@ var Playground = (function (exports) {
         var tokenized = false;
         while (position < input.length) {
             tokenized = false;
-            var sourceCodeInfo = params.debug
-                ? createSourceCodeInfo(input, position, params.filePath)
+            var debugData = params.debug
+                ? {
+                    sourceCodeInfo: createSourceCodeInfo(input, position, params.filePath),
+                    metaTokens: { inlineCommentToken: null, leadingMetaTokens: [] },
+                }
                 : undefined;
             try {
                 // Loop through all tokenizer until one matches
                 for (var newLineTokenizers_1 = (e_2 = void 0, __values(newLineTokenizers)), newLineTokenizers_1_1 = newLineTokenizers_1.next(); !newLineTokenizers_1_1.done; newLineTokenizers_1_1 = newLineTokenizers_1.next()) {
                     var tokenizer = newLineTokenizers_1_1.value;
-                    var _b = __read(tokenizer(input, position, sourceCodeInfo), 2), nbrOfCharacters = _b[0], token = _b[1];
+                    var _b = __read(tokenizer(input, position, debugData), 2), nbrOfCharacters = _b[0], token = _b[1];
                     // tokenizer matched
                     if (nbrOfCharacters > 0) {
                         tokenized = true;
@@ -8116,14 +8147,17 @@ var Playground = (function (exports) {
         var tokenized = false;
         while (position < input.length) {
             tokenized = false;
-            var sourceCodeInfo = params.debug
-                ? createSourceCodeInfo(input, position, params.filePath)
+            var debugData = params.debug
+                ? {
+                    sourceCodeInfo: createSourceCodeInfo(input, position, params.filePath),
+                    metaTokens: { inlineCommentToken: null, leadingMetaTokens: [] },
+                }
                 : undefined;
             try {
                 // Loop through all tokenizer until one matches
                 for (var metaTokenizers_1 = (e_3 = void 0, __values(metaTokenizers)), metaTokenizers_1_1 = metaTokenizers_1.next(); !metaTokenizers_1_1.done; metaTokenizers_1_1 = metaTokenizers_1.next()) {
                     var tokenizer = metaTokenizers_1_1.value;
-                    var _b = __read(tokenizer(input, position, sourceCodeInfo), 2), nbrOfCharacters = _b[0], token = _b[1];
+                    var _b = __read(tokenizer(input, position, debugData), 2), nbrOfCharacters = _b[0], token = _b[1];
                     // tokenizer matched
                     if (nbrOfCharacters > 0) {
                         tokenized = true;
@@ -8164,14 +8198,17 @@ var Playground = (function (exports) {
         var tokenized = false;
         while (position < input.length) {
             tokenized = false;
-            var sourceCodeInfo = params.debug
-                ? createSourceCodeInfo(input, position, params.filePath)
+            var debugData = params.debug
+                ? {
+                    sourceCodeInfo: createSourceCodeInfo(input, position, params.filePath),
+                    metaTokens: { inlineCommentToken: null, leadingMetaTokens: [] },
+                }
                 : undefined;
             try {
                 // Loop through all tokenizer until one matches
                 for (var commentTokenizers_1 = (e_4 = void 0, __values(commentTokenizers)), commentTokenizers_1_1 = commentTokenizers_1.next(); !commentTokenizers_1_1.done; commentTokenizers_1_1 = commentTokenizers_1.next()) {
                     var tokenizer = commentTokenizers_1_1.value;
-                    var _b = __read(tokenizer(input, position, sourceCodeInfo), 2), nbrOfCharacters = _b[0], token = _b[1];
+                    var _b = __read(tokenizer(input, position, debugData), 2), nbrOfCharacters = _b[0], token = _b[1];
                     // tokenizer matched
                     if (nbrOfCharacters > 0) {
                         tokenized = true;
@@ -8319,24 +8356,26 @@ var Playground = (function (exports) {
         };
         Lits.prototype.run = function (program, params) {
             if (params === void 0) { params = {}; }
-            var ast = this.generateAst(program, params.filePath);
+            var ast = this.generateAst(program, params);
             var result = this.evaluate(ast, params);
             return result;
         };
         Lits.prototype.context = function (program, params) {
             if (params === void 0) { params = {}; }
             var contextStack = createContextStack(params);
-            var ast = this.generateAst(program, params.filePath);
+            var ast = this.generateAst(program, params);
             evaluate(ast, contextStack);
             return contextStack.globalContext;
         };
         Lits.prototype.analyze = function (program, params) {
             if (params === void 0) { params = {}; }
-            var ast = this.generateAst(program, params.filePath);
+            var ast = this.generateAst(program, params);
             return analyze$1(ast, params);
         };
-        Lits.prototype.tokenize = function (program, filePath) {
-            return tokenize$1(program, { debug: this.debug, filePath: filePath });
+        Lits.prototype.tokenize = function (program, tokenizeParams) {
+            var _a;
+            if (tokenizeParams === void 0) { tokenizeParams = {}; }
+            return tokenize$1(program, __assign(__assign({}, tokenizeParams), { debug: (_a = tokenizeParams.debug) !== null && _a !== void 0 ? _a : this.debug }));
         };
         Lits.prototype.parse = function (tokenStream) {
             return parse$1(tokenStream);
@@ -8355,7 +8394,7 @@ var Playground = (function (exports) {
             })
                 .join(' ');
             var program = "(".concat(fnName, " ").concat(paramsString, ")");
-            var ast = this.generateAst(program, params.filePath);
+            var ast = this.generateAst(program, params);
             var hostValues = fnParams.reduce(function (result, param, index) {
                 result["".concat(fnName, "_").concat(index)] = param;
                 return result;
@@ -8363,17 +8402,17 @@ var Playground = (function (exports) {
             params.values = __assign(__assign({}, params.values), hostValues);
             return this.evaluate(ast, params);
         };
-        Lits.prototype.generateAst = function (untrimmedProgram, filePath) {
-            var _a;
+        Lits.prototype.generateAst = function (untrimmedProgram, params) {
+            var _a, _b;
             var program = untrimmedProgram.trim();
             if (this.astCache) {
                 var cachedAst = this.astCache.get(program);
                 if (cachedAst)
                     return cachedAst;
             }
-            var tokenStream = this.tokenize(program, filePath);
+            var tokenStream = this.tokenize(program, { debug: (_a = params.debug) !== null && _a !== void 0 ? _a : this.debug, filePath: params.filePath });
             var ast = this.parse(tokenStream);
-            (_a = this.astCache) === null || _a === void 0 ? void 0 : _a.set(program, ast);
+            (_b = this.astCache) === null || _b === void 0 ? void 0 : _b.set(program, ast);
             return ast;
         };
         return Lits;

@@ -9,9 +9,9 @@ const NO_MATCH: TokenDescriptor = [0, undefined]
 
 // A name (function or variable) can contain a lot of different characters
 
-export const nameCharacters = '[@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>+*/-]'
+export const nameCharacters = '[@%\\wàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß^?=!$<>+*/-]'
 
-const nameRegExp = new RegExp(`${nameCharacters}`)
+const nameRegExp = new RegExp(nameCharacters)
 const whitespaceRegExp = /\s|,/
 const newLineRegExp = /\n/
 
@@ -178,11 +178,11 @@ export const tokenizeFnShorthand: Tokenizer = (input, position, debugData) => {
   ]
 }
 
-const endOfNumberRegExp = /\s|[)\]},#]/
-const decimalNumberRegExp = /[0-9]/
+const endOfNumberRegExp = /[\s)\]},#]/
+const decimalNumberRegExp = /\d/
 const octalNumberRegExp = /[0-7]/
-const hexNumberRegExp = /[0-9a-fA-F]/
-const binaryNumberRegExp = /[0-1]/
+const hexNumberRegExp = /[0-9a-f]/i
+const binaryNumberRegExp = /[01]/
 const firstCharRegExp = /[0-9.-]/
 export const tokenizeNumber: Tokenizer = (input, position, debugData) => {
   let type: 'decimal' | 'octal' | 'hex' | 'binary' = 'decimal'

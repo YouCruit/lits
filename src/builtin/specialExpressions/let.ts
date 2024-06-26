@@ -9,14 +9,14 @@ import type { BuiltinSpecialExpression } from '../interface'
 
 export interface LetNode extends CommonSpecialExpressionNode<'let'> {
   bs: BindingNode[]
-  debug: CommonSpecialExpressionNode<'let'>['debug'] & ({
+  debugData: CommonSpecialExpressionNode<'let'>['debugData'] & ({
     bindingArray: NormalExpressionNode
   } | undefined)
 }
 
 export const letSpecialExpression: BuiltinSpecialExpression<Any, LetNode> = {
   parse: (tokenStream, position, firstToken, { parseBindings, parseTokensUntilClosingBracket, parseToken }) => {
-    const bindingArray = firstToken.sourceCodeInfo ? asNormalExpressionNode(parseToken(tokenStream, position)[1]) : undefined
+    const bindingArray = firstToken.debugData?.sourceCodeInfo ? asNormalExpressionNode(parseToken(tokenStream, position)[1]) : undefined
 
     let bindings: BindingNode[]
     ;[position, bindings] = parseBindings(tokenStream, position)
@@ -30,7 +30,7 @@ export const letSpecialExpression: BuiltinSpecialExpression<Any, LetNode> = {
       n: 'let',
       p: params,
       bs: bindings,
-      debug: firstToken.sourceCodeInfo && bindingArray && {
+      debugData: firstToken.debugData?.sourceCodeInfo && bindingArray && {
         token: firstToken,
         lastToken,
         bindingArray,

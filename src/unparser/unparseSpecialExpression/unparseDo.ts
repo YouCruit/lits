@@ -4,9 +4,9 @@ import { unparseParams } from '../unparseParams'
 import { applyMetaTokens } from '../utils'
 
 export function unparseDo(node: DoNode, options: UnparseOptions) {
-  const startBracket = applyMetaTokens('(', node.debug?.token.metaTokens, options)
-  const endBracket = applyMetaTokens(')', node.debug?.lastToken?.metaTokens, options.inline())
-  const name = applyMetaTokens(node.n, node.debug?.nameToken?.metaTokens, options.inline())
+  const startBracket = applyMetaTokens('(', node.debugData?.token.debugData?.metaTokens, options)
+  const endBracket = applyMetaTokens(')', node.debugData?.lastToken?.debugData?.metaTokens, options.inline())
+  const name = applyMetaTokens(node.n, node.debugData?.nameToken?.debugData?.metaTokens, options.inline())
   const prefix = startBracket + name
   const inline = !name.includes('\n')
 

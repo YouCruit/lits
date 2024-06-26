@@ -16,7 +16,7 @@ export const timeSpecialExpression: BuiltinSpecialExpression<Any, TimeNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'time!',
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },

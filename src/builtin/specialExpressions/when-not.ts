@@ -17,7 +17,7 @@ export const whenNotSpecialExpression: BuiltinSpecialExpression<Any, WhenNotNode
       t: AstNodeType.SpecialExpression,
       n: 'when-not',
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },
@@ -29,7 +29,7 @@ export const whenNotSpecialExpression: BuiltinSpecialExpression<Any, WhenNotNode
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
     const [whenExpression, ...body] = node.p
-    assertAstNode(whenExpression, node.debug?.token.sourceCodeInfo)
+    assertAstNode(whenExpression, node.debugData?.token.debugData?.sourceCodeInfo)
 
     if (evaluateAstNode(whenExpression, contextStack))
       return null

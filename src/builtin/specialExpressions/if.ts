@@ -17,7 +17,7 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any, IfNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'if',
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },
@@ -28,7 +28,7 @@ export const ifSpecialExpression: BuiltinSpecialExpression<Any, IfNode> = {
     return [newPosition + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const sourceCodeInfo = node.debug?.token.sourceCodeInfo
+    const sourceCodeInfo = node.debugData?.token.debugData?.sourceCodeInfo
 
     const [conditionNode, trueNode, falseNode] = node.p
     if (evaluateAstNode(asAstNode(conditionNode, sourceCodeInfo), contextStack)) {

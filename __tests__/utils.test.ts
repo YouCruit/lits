@@ -113,7 +113,7 @@ describe('utils', () => {
     const n: NameNode = {
       t: AstNodeType.Name,
       v: 'Foo',
-      debug: undefined,
+      debugData: undefined,
       p: [],
       n: undefined,
     }

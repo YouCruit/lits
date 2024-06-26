@@ -22,7 +22,7 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = 
     if (bindings.length !== 1) {
       throw new LitsError(
         `Expected exactly one binding, got ${valueToString(bindings.length)}`,
-        firstToken.sourceCodeInfo,
+        firstToken.debugData?.sourceCodeInfo,
       )
     }
 
@@ -33,9 +33,9 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = 
     const node: IfLetNode = {
       t: AstNodeType.SpecialExpression,
       n: 'if-let',
-      b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
+      b: asNonUndefined(bindings[0], firstToken.debugData?.sourceCodeInfo),
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },
@@ -46,7 +46,7 @@ export const ifLetSpecialExpression: BuiltinSpecialExpression<Any, IfLetNode> = 
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const sourceCodeInfo = node.debug?.token.sourceCodeInfo
+    const sourceCodeInfo = node.debugData?.token.debugData?.sourceCodeInfo
     const locals: Context = {}
     const bindingValue = evaluateAstNode(node.b.v, contextStack)
     if (bindingValue) {

@@ -21,7 +21,7 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any, WhenLetNode
     if (bindings.length !== 1) {
       throw new LitsError(
         `Expected exactly one binding, got ${valueToString(bindings.length)}`,
-        firstToken.sourceCodeInfo,
+        firstToken.debugData?.sourceCodeInfo,
       )
     }
 
@@ -32,9 +32,9 @@ export const whenLetSpecialExpression: BuiltinSpecialExpression<Any, WhenLetNode
     const node: WhenLetNode = {
       t: AstNodeType.SpecialExpression,
       n: 'when-let',
-      b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
+      b: asNonUndefined(bindings[0], firstToken.debugData?.sourceCodeInfo),
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },

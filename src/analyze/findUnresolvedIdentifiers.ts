@@ -25,7 +25,7 @@ function findUnresolvedIdentifiersInAstNode(astNode: AstNode, contextStack: Cont
     case AstNodeType.Name: {
       const lookUpResult = contextStack.lookUp(astNode)
       if (lookUpResult === null)
-        return new Set([{ symbol: astNode.v, token: astNode.debug?.token }])
+        return new Set([{ symbol: astNode.v, token: astNode.debugData?.token }])
 
       return emptySet
     }
@@ -37,11 +37,11 @@ function findUnresolvedIdentifiersInAstNode(astNode: AstNode, contextStack: Cont
       return emptySet
     case AstNodeType.NormalExpression: {
       const unresolvedIdentifiers = new Set<UnresolvedIdentifier>()
-      const { n: name, debug } = astNode
+      const { n: name, debugData: debug } = astNode
       if (typeof name === 'string') {
-        const lookUpResult = contextStack.lookUp({ t: AstNodeType.Name, v: name, debug, p: [], n: undefined })
+        const lookUpResult = contextStack.lookUp({ t: AstNodeType.Name, v: name, debugData: debug, p: [], n: undefined })
         if (lookUpResult === null)
-          unresolvedIdentifiers.add({ symbol: name, token: astNode.debug?.token })
+          unresolvedIdentifiers.add({ symbol: name, token: astNode.debugData?.token })
       }
       // if (expression) {
       //   switch (expression.t) {
@@ -64,7 +64,7 @@ function findUnresolvedIdentifiersInAstNode(astNode: AstNode, contextStack: Cont
       return unresolvedIdentifiers
     }
     case AstNodeType.SpecialExpression: {
-      const specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], astNode.debug?.token.sourceCodeInfo)
+      const specialExpression = asNonUndefined(builtin.specialExpressions[astNode.n], astNode.debugData?.token.debugData?.sourceCodeInfo)
       // eslint-disable-next-line ts/no-unsafe-argument
       const unresolvedIdentifiers = specialExpression.findUnresolvedIdentifiers(astNode as any, contextStack, {
         findUnresolvedIdentifiers,

@@ -11,7 +11,7 @@ export const commentSpecialExpression: BuiltinSpecialExpression<null, CommentExp
       t: AstNodeType.SpecialExpression,
       n: 'comment',
       p: [],
-      debug: undefined,
+      debugData: undefined,
     } satisfies CommentExpressionNode
 
     let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
@@ -22,7 +22,7 @@ export const commentSpecialExpression: BuiltinSpecialExpression<null, CommentExp
       tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
     }
 
-    node.debug = firstToken.sourceCodeInfo
+    node.debugData = firstToken.debugData
       ? {
           token: firstToken,
           lastToken: tkn,

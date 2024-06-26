@@ -11,6 +11,6 @@ export const calculateAndOutcomes: CalculatePossibleAstNodesHelper<AndNode> = ({
       n: 'and',
       t: AstNodeType.SpecialExpression,
       p,
-      debug: astNode.debug,
+      debugData: astNode.debugData,
     }))
 }

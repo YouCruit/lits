@@ -7,11 +7,11 @@ import { unparseParams } from '../unparseParams'
 import { applyMetaTokens } from '../utils'
 
 export function unparseLet(node: LetNode, options: UnparseOptions) {
-  const startBracket = applyMetaTokens('(', node.debug?.token.metaTokens, options)
-  const endBracket = applyMetaTokens(')', node.debug?.lastToken?.metaTokens, options.inline())
-  const name = applyMetaTokens(node.n, node.debug?.nameToken?.metaTokens, options.inline())
+  const startBracket = applyMetaTokens('(', node.debugData?.token.debugData?.metaTokens, options)
+  const endBracket = applyMetaTokens(')', node.debugData?.lastToken?.debugData?.metaTokens, options.inline())
+  const name = applyMetaTokens(node.n, node.debugData?.nameToken?.debugData?.metaTokens, options.inline())
 
-  const letArray = node.debug ? node.debug.bindingArray : createLetArray(node.bs)
+  const letArray = node.debugData ? node.debugData.bindingArray : createLetArray(node.bs)
 
   const inc = name.includes('\n') ? 1 : name.length + 2
   const unparsedLetArray = unparseBindings(letArray, options.inc(inc).inline())
@@ -35,7 +35,7 @@ function createLetArray(bindingNodes: BindingNode[]) {
       t: AstNodeType.Name,
       n: undefined,
       p: [],
-      debug: undefined,
+      debugData: undefined,
       v: binding.n,
     },
     binding.v,
@@ -45,7 +45,7 @@ function createLetArray(bindingNodes: BindingNode[]) {
     t: AstNodeType.NormalExpression,
     n: 'array',
     p: params,
-    debug: undefined,
+    debugData: undefined,
   }
   return node
 }

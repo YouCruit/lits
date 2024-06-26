@@ -35,7 +35,7 @@ export function parseNumber(tokenStream: TokenStream, position: number): [number
       v: Number(tkn.v),
       p: [],
       n: undefined,
-      debug: tkn.sourceCodeInfo
+      debugData: tkn.debugData?.sourceCodeInfo
         ? { token: tkn, lastToken: tkn }
         : undefined,
     },
@@ -51,7 +51,7 @@ function parseString(tokenStream: TokenStream, position: number): [number, Strin
       v: tkn.v,
       p: [],
       n: undefined,
-      debug: tkn.sourceCodeInfo
+      debugData: tkn.debugData?.sourceCodeInfo
         ? { token: tkn, lastToken: tkn }
         : undefined,
     },
@@ -67,7 +67,7 @@ function parseName(tokenStream: TokenStream, position: number): [number, NameNod
       v: tkn.v,
       p: [],
       n: undefined,
-      debug: tkn.sourceCodeInfo
+      debugData: tkn.debugData?.sourceCodeInfo
         ? { token: tkn, lastToken: tkn }
         : undefined,
     },
@@ -83,7 +83,7 @@ function parseReservedName(tokenStream: TokenStream, position: number): [number,
       v: tkn.v as ReservedName,
       p: [],
       n: undefined,
-      debug: tkn.sourceCodeInfo
+      debugData: tkn.debugData?.sourceCodeInfo
         ? { token: tkn, lastToken: tkn }
         : undefined,
     },
@@ -99,7 +99,7 @@ function parseComment(tokenStream: TokenStream, position: number): [number, Comm
       v: tkn.v as ReservedName,
       p: [],
       n: undefined,
-      debug: tkn.sourceCodeInfo
+      debugData: tkn.debugData?.sourceCodeInfo
         ? { token: tkn, lastToken: tkn }
         : undefined,
     },
@@ -145,7 +145,7 @@ function parseArrayLitteral(tokenStream: TokenStream, position: number): [number
     t: AstNodeType.NormalExpression,
     n: 'array',
     p: params,
-    debug: firstToken.sourceCodeInfo
+    debugData: firstToken.debugData?.sourceCodeInfo
       ? {
           token: firstToken,
           lastToken: tkn,
@@ -175,7 +175,7 @@ function parseObjectLitteral(tokenStream: TokenStream, position: number): [numbe
     t: AstNodeType.NormalExpression,
     n: 'object',
     p: params,
-    debug: firstToken.sourceCodeInfo
+    debugData: firstToken.debugData?.sourceCodeInfo
       ? {
           token: firstToken,
           lastToken: tkn,
@@ -195,7 +195,7 @@ function parseRegexpShorthand(tokenStream: TokenStream, position: number): [numb
     v: tkn.v,
     p: [],
     n: undefined,
-    debug: tkn.sourceCodeInfo
+    debugData: tkn.debugData?.sourceCodeInfo
       ? {
           token: tkn,
           lastToken: tkn,
@@ -203,14 +203,14 @@ function parseRegexpShorthand(tokenStream: TokenStream, position: number): [numb
       : undefined,
   }
 
-  assertNonUndefined(tkn.o, tkn.sourceCodeInfo)
+  assertNonUndefined(tkn.o, tkn.debugData?.sourceCodeInfo)
 
   const optionsNode: StringNode = {
     t: AstNodeType.String,
     v: `${tkn.o.g ? 'g' : ''}${tkn.o.i ? 'i' : ''}`,
     p: [],
     n: undefined,
-    debug: tkn.sourceCodeInfo
+    debugData: tkn.debugData?.sourceCodeInfo
       ? {
           token: tkn,
           lastToken: tkn,
@@ -222,7 +222,7 @@ function parseRegexpShorthand(tokenStream: TokenStream, position: number): [numb
     t: AstNodeType.NormalExpression,
     n: 'regexp',
     p: [stringNode, optionsNode],
-    debug: tkn.sourceCodeInfo
+    debugData: tkn.debugData?.sourceCodeInfo
       ? {
           token: tkn,
           lastToken: tkn,
@@ -255,18 +255,18 @@ const parseFnShorthand: ParseFnShorthand = (tokenStream, position) => {
         if (number === '1') {
           const mixedPercent1 = (!match[1] && percent1 === 'WITH_1') || (match[1] && percent1 === 'NAKED')
           if (mixedPercent1)
-            throw new LitsError('Please make up your mind, either use % or %1', firstToken.sourceCodeInfo)
+            throw new LitsError('Please make up your mind, either use % or %1', firstToken.debugData?.sourceCodeInfo)
 
           percent1 = match[1] ? 'WITH_1' : 'NAKED'
         }
 
         arity = Math.max(arity, Number(number))
         if (arity > 20)
-          throw new LitsError('Can\'t specify more than 20 arguments', firstToken.sourceCodeInfo)
+          throw new LitsError('Can\'t specify more than 20 arguments', firstToken.debugData?.sourceCodeInfo)
       }
     }
     if (tkn.t === TokenType.FnShorthand)
-      throw new LitsError('Nested shortcut functions are not allowed', firstToken.sourceCodeInfo)
+      throw new LitsError('Nested shortcut functions are not allowed', firstToken.debugData?.sourceCodeInfo)
   }
 
   const mandatoryArguments: string[] = []
@@ -294,10 +294,10 @@ const parseFnShorthand: ParseFnShorthand = (tokenStream, position) => {
         a: args.m.length,
       },
     ],
-    debug: firstToken.sourceCodeInfo
+    debugData: firstToken.debugData?.sourceCodeInfo
       ? {
           token: firstToken,
-          lastToken: exprNode.debug!.lastToken,
+          lastToken: exprNode.debugData!.lastToken,
         }
       : undefined,
   }
@@ -314,7 +314,7 @@ const parseArgument: ParseArgument = (tokenStream, position) => {
         t: AstNodeType.Argument,
         n: tkn.v,
         p: [],
-        debug: tkn.sourceCodeInfo
+        debugData: tkn.debugData?.sourceCodeInfo
           ? {
               token: tkn,
               lastToken: tkn,
@@ -332,7 +332,7 @@ const parseArgument: ParseArgument = (tokenStream, position) => {
         v: value,
         p: [],
         n: undefined,
-        debug: tkn.sourceCodeInfo
+        debugData: tkn.debugData?.sourceCodeInfo
           ? {
               token: tkn,
               lastToken: tkn,
@@ -342,7 +342,7 @@ const parseArgument: ParseArgument = (tokenStream, position) => {
     ]
   }
   else {
-    throw new LitsError(`Expected name or modifier token, got ${valueToString(tkn)}.`, tkn.sourceCodeInfo)
+    throw new LitsError(`Expected name or modifier token, got ${valueToString(tkn)}.`, tkn.debugData?.sourceCodeInfo)
   }
 }
 
@@ -375,10 +375,10 @@ function parseBinding(tokenStream: TokenStream, position: number): [number, Bind
     n: name,
     v: value,
     p: [],
-    debug: firstToken.sourceCodeInfo
+    debugData: firstToken.debugData?.sourceCodeInfo
       ? {
           token: firstToken,
-          lastToken: value.debug!.lastToken,
+          lastToken: value.debugData!.lastToken,
         }
       : undefined,
   }
@@ -401,7 +401,7 @@ function parseNormalExpression(tokenStream: TokenStream, position: number): [num
       t: AstNodeType.NormalExpression,
       p: [fnNode, ...params],
       n: undefined,
-      debug: startBracketToken
+      debugData: startBracketToken
         ? {
             token: startBracketToken,
             lastToken,
@@ -412,15 +412,15 @@ function parseNormalExpression(tokenStream: TokenStream, position: number): [num
     return [position, node]
   }
 
-  assertNameNode(fnNode, fnNode.debug?.token.sourceCodeInfo)
+  assertNameNode(fnNode, fnNode.debugData?.token.debugData?.sourceCodeInfo)
   const node: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
     n: fnNode.v,
     p: params,
-    debug: startBracketToken
+    debugData: startBracketToken
       ? {
           token: startBracketToken,
-          nameToken: fnNode.debug?.token,
+          nameToken: fnNode.debugData?.token,
           lastToken,
         }
       : undefined,
@@ -446,10 +446,10 @@ function parseSpecialExpression(tokenStream: TokenStream, position: number): [nu
     tokenStream.filePath,
     { type: TokenType.Name },
   )
-  const { v: expressionName, sourceCodeInfo } = nameToken
+  const { v: expressionName, debugData } = nameToken
   position += 1
 
-  const { parse } = asNonUndefined(builtin.specialExpressions[expressionName as SpecialExpressionName], sourceCodeInfo)
+  const { parse } = asNonUndefined(builtin.specialExpressions[expressionName as SpecialExpressionName], debugData?.sourceCodeInfo)
 
   const [positionAfterParse, node] = parse(tokenStream, position, firstToken, {
     parseExpression,
@@ -460,8 +460,8 @@ function parseSpecialExpression(tokenStream: TokenStream, position: number): [nu
     parseArgument,
   })
 
-  if (node.debug)
-    node.debug.nameToken = nameToken
+  if (node.debugData)
+    node.debugData.nameToken = nameToken
 
   return [positionAfterParse, node]
 }
@@ -500,7 +500,7 @@ export function parseToken(tokenStream: TokenStream, position: number): [number,
     default:
       assertUnreachable(tkn.t)
   }
-  throw new LitsError(`Unrecognized token: ${tkn.t} value=${tkn.v}`, tkn.sourceCodeInfo)
+  throw new LitsError(`Unrecognized token: ${tkn.t} value=${tkn.v}`, tkn.debugData?.sourceCodeInfo)
 }
 
 function getNextParsableToken(tokenStream: TokenStream, position: number): Token {

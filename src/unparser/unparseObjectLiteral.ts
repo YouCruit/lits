@@ -4,8 +4,8 @@ import { unparseMultilinePairwise, unparseMultilineParams, unparseSingleLinePair
 import { applyMetaTokens } from './utils'
 
 export function unparseObjectLiteral(node: NormalExpressionNode, options: UnparseOptions): string {
-  const startBracket = applyMetaTokens('{', node.debug?.token.metaTokens, options)
-  const endBracket = applyMetaTokens('}', node.debug?.lastToken?.metaTokens, options.inline())
+  const startBracket = applyMetaTokens('{', node.debugData?.token.debugData?.metaTokens, options)
+  const endBracket = applyMetaTokens('}', node.debugData?.lastToken?.debugData?.metaTokens, options.inline())
 
   // If no parameters, return empty object literal
   if (node.p.length === 0)

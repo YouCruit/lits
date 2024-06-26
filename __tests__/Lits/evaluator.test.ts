@@ -170,7 +170,7 @@ it('evaluateAstNode', () => {
       {
         t: AstNodeType.Modifier,
         v: '&',
-        debug: { token: { t: TokenType.Name, v: 'X' }, lastToken: { t: TokenType.Name, v: 'X' } },
+        debugData: { token: { t: TokenType.Name, v: 'X', debugData: undefined }, lastToken: { t: TokenType.Name, v: 'X', debugData: undefined } },
         p: [],
         n: undefined,
       },
@@ -182,7 +182,7 @@ it('evaluateAstNode', () => {
       {
         t: AstNodeType.Modifier,
         v: '&',
-        debug: undefined,
+        debugData: undefined,
         p: [],
         n: undefined,
       },
@@ -194,9 +194,23 @@ it('evaluateAstNode', () => {
       {
         t: AstNodeType.Modifier,
         v: '&',
-        debug: {
-          token: { t: TokenType.Name, sourceCodeInfo: { code: '', position: { column: 1, line: 1 } }, v: 'X' },
-          lastToken: { t: TokenType.Name, sourceCodeInfo: { code: '', position: { column: 1, line: 1 } }, v: 'X' },
+        debugData: {
+          token: {
+            t: TokenType.Name,
+            v: 'X',
+            debugData: {
+              sourceCodeInfo: { code: '', position: { column: 1, line: 1 } },
+              metaTokens: { leadingMetaTokens: [], inlineCommentToken: null },
+            },
+          },
+          lastToken: {
+            t: TokenType.Name,
+            v: 'X',
+            debugData: {
+              sourceCodeInfo: { code: '', position: { column: 1, line: 1 } },
+              metaTokens: { leadingMetaTokens: [], inlineCommentToken: null },
+            },
+          },
         },
         p: [],
         n: undefined,

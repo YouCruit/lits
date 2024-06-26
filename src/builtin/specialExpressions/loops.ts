@@ -49,27 +49,27 @@ function parseLoopBinding(
     switch (tkn.v) {
       case '&let':
         if (loopBinding.l)
-          throw new LitsError('Only one &let modifier allowed', tkn.sourceCodeInfo)
+          throw new LitsError('Only one &let modifier allowed', tkn.debugData?.sourceCodeInfo)
 
         ;[position, loopBinding.l] = parseBindings(tokenStream, position + 1)
         loopBinding.m.push('&let')
         break
       case '&when':
         if (loopBinding.wn)
-          throw new LitsError('Only one &when modifier allowed', tkn.sourceCodeInfo)
+          throw new LitsError('Only one &when modifier allowed', tkn.debugData?.sourceCodeInfo)
 
         ;[position, loopBinding.wn] = parseToken(tokenStream, position + 1)
         loopBinding.m.push('&when')
         break
       case '&while':
         if (loopBinding.we)
-          throw new LitsError('Only one &while modifier allowed', tkn.sourceCodeInfo)
+          throw new LitsError('Only one &while modifier allowed', tkn.debugData?.sourceCodeInfo)
 
         ;[position, loopBinding.we] = parseToken(tokenStream, position + 1)
         loopBinding.m.push('&while')
         break
       default:
-        throw new LitsError(`Illegal modifier: ${tkn.v}`, tkn.sourceCodeInfo)
+        throw new LitsError(`Illegal modifier: ${tkn.v}`, tkn.debugData?.sourceCodeInfo)
     }
     tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
   }
@@ -116,7 +116,7 @@ function evaluateLoop(
   contextStack: ContextStack,
   evaluateAstNode: EvaluateAstNode,
 ) {
-  const sourceCodeInfo = node.debug?.token.sourceCodeInfo
+  const sourceCodeInfo = node.debugData?.token.debugData?.sourceCodeInfo
   const { l: loopBindings, p: params } = node as LoopNode
 
   const result: Arr = []
@@ -254,7 +254,7 @@ export const forSpecialExpression: BuiltinSpecialExpression<Any, ForNode> = {
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },
@@ -283,7 +283,7 @@ export const doseqSpecialExpression: BuiltinSpecialExpression<null, DoSeqNode> =
       t: AstNodeType.SpecialExpression,
       l: loopBindings,
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },

@@ -19,7 +19,7 @@ export const calculateWhenLetOutcomes: CalculatePossibleAstNodesHelper<WhenLetNo
           n: 'do',
           t: astNode.t,
           p,
-          debug: astNode.debug,
+          debugData: astNode.debugData,
         })),
       nilNode,
     ]

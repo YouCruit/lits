@@ -31,7 +31,7 @@ import {
 } from './astNode'
 
 describe('astNode type guards', () => {
-  const tkn: Token = { t: TokenType.Name, v: 'X' }
+  const tkn: Token = { t: TokenType.Name, v: 'X', debugData: undefined }
   const invalidAstNodes: unknown[] = [
     {
       tkn,
@@ -57,21 +57,21 @@ describe('astNode type guards', () => {
     p: [{
       t: AstNodeType.ReservedName,
       v: 'nil',
-      debug: undefined,
+      debugData: undefined,
       p: [],
       n: undefined,
     }, {
       t: AstNodeType.ReservedName,
       v: 'nil',
-      debug: undefined,
+      debugData: undefined,
       p: [],
       n: undefined,
     }],
-    debug: undefined,
+    debugData: undefined,
   }
   const nameNode: NameNode = {
     t: AstNodeType.Name,
-    debug: { token: tkn, lastToken: tkn },
+    debugData: { token: tkn, lastToken: tkn },
     v: 'A name',
     p: [],
     n: undefined,
@@ -79,14 +79,14 @@ describe('astNode type guards', () => {
   const numberNode: NumberNode = {
     t: AstNodeType.Number,
     v: 12,
-    debug: { token: tkn, lastToken: tkn },
+    debugData: { token: tkn, lastToken: tkn },
     p: [],
     n: undefined,
   }
   const stringNode: StringNode = {
     t: AstNodeType.String,
     v: 'foo',
-    debug: { token: { t: TokenType.Name, v: 'X' }, lastToken: tkn },
+    debugData: { token: { t: TokenType.Name, v: 'X', debugData: undefined }, lastToken: tkn },
     p: [],
     n: undefined,
   }
@@ -94,7 +94,7 @@ describe('astNode type guards', () => {
     t: AstNodeType.NormalExpression,
     p: [],
     n: 'object',
-    debug: { token: { t: TokenType.Name, v: 'X' }, lastToken: tkn },
+    debugData: { token: { t: TokenType.Name, v: 'X', debugData: undefined }, lastToken: tkn },
   }
   const normalExpressionNodeWithoutName: NormalExpressionNode = {
     t: AstNodeType.NormalExpression,
@@ -106,14 +106,14 @@ describe('astNode type guards', () => {
         {
           t: AstNodeType.Number,
           v: 2,
-          debug: { token: { t: TokenType.Name, v: 'X' }, lastToken: tkn },
+          debugData: { token: { t: TokenType.Name, v: 'X', debugData: undefined }, lastToken: tkn },
           p: [],
           n: undefined,
         },
       ],
-      debug: undefined,
+      debugData: undefined,
     }],
-    debug: undefined,
+    debugData: undefined,
   }
 
   const expressionNodes: ExpressionNode[] = [

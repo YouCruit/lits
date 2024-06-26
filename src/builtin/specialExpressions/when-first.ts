@@ -23,7 +23,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any, WhenFirst
     if (bindings.length !== 1) {
       throw new LitsError(
         `Expected exactly one binding, got ${valueToString(bindings.length)}`,
-        firstToken.sourceCodeInfo,
+        firstToken.debugData?.sourceCodeInfo,
       )
     }
 
@@ -34,9 +34,9 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any, WhenFirst
     const node: WhenFirstNode = {
       t: AstNodeType.SpecialExpression,
       n: 'when-first',
-      b: asNonUndefined(bindings[0], firstToken.sourceCodeInfo),
+      b: asNonUndefined(bindings[0], firstToken.debugData?.sourceCodeInfo),
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },
@@ -50,7 +50,7 @@ export const whenFirstSpecialExpression: BuiltinSpecialExpression<Any, WhenFirst
     if (!isSeq(evaluatedBindingForm)) {
       throw new LitsError(
         `Expected undefined or a sequence, got ${valueToString(evaluatedBindingForm)}`,
-        node.debug?.token.sourceCodeInfo,
+        node.debugData?.token.debugData?.sourceCodeInfo,
       )
     }
 

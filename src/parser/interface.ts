@@ -116,7 +116,7 @@ export interface GenericNode {
   t: AstNodeType // type
   p: AstNode[] // params
   n: string | undefined // name
-  debug: {
+  debugData: {
     token: Token
     lastToken: Token
     nameToken?: Token
@@ -187,22 +187,6 @@ export interface CommentNode extends GenericNode {
   t: AstNodeType.Comment // type
   v: string // value
 }
-
-// export interface SpecialExpressionNode extends GenericNode {
-//   t: AstNodeType.SpecialExpression // type
-//   n: SpecialExpressionName // name
-//   p: AstNode[] // params
-//   b?: BindingNode // binding
-//   bs?: BindingNode[] // bindings
-//   c?: Condition[] // conditions
-//   f?: AstNode // functionName
-//   o?: FunctionOverload[] // overloads
-//   l?: LoopBindingNode[] // loopBindings
-//   m?: AstNode // messageNode
-//   te?: AstNode // tryExpression
-//   e?: NameNode // error
-//   ce?: AstNode // catchExpression
-// }
 
 export type AstNode =
   | NumberNode

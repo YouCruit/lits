@@ -1,6 +1,6 @@
 import { TokenType } from '../constants/constants'
 import { LitsError } from '../errors'
-import type { MetaToken, SourceCodeInfo, Token, TokenStream, TokenizeParams, Tokenizer } from './interface'
+import type { MetaToken, SourceCodeInfo, Token, TokenDebugData, TokenStream, TokenizeParams, Tokenizer } from './interface'
 import { getSugar } from './sugar'
 import {
   skipWhiteSpace,
@@ -85,11 +85,14 @@ export function tokenize(input: string, params: TokenizeParams): TokenStream {
     const leadingMetaTokens: MetaToken[] = [...leadingNewLineTokens, ...leadingCommentTokens]
 
     // Loop through all tokenizer until one matches
-    const sourceCodeInfo: SourceCodeInfo | undefined = params.debug
-      ? createSourceCodeInfo(input, position, params.filePath)
+    const debugData: TokenDebugData | undefined = params.debug
+      ? {
+          sourceCodeInfo: createSourceCodeInfo(input, position, params.filePath),
+          metaTokens: { inlineCommentToken: null, leadingMetaTokens },
+        }
       : undefined
     for (const tokenizer of tokenizers) {
-      const [nbrOfCharacters, token] = tokenizer(input, position, sourceCodeInfo)
+      const [nbrOfCharacters, token] = tokenizer(input, position, debugData)
 
       // tokenizer matched
       if (nbrOfCharacters > 0) {
@@ -100,12 +103,9 @@ export function tokenize(input: string, params: TokenizeParams): TokenStream {
           if (!isCommentToken(token))
             [position, inlineCommentToken] = readInlineCommentToken(input, position, params)
 
-          if (params.debug) {
-            token.metaTokens = {
-              leadingMetaTokens,
-              inlineCommentToken,
-            }
-          }
+          if (token.debugData)
+            token.debugData.metaTokens.inlineCommentToken = inlineCommentToken
+
           if (!isCommentToken(token) || params.debug)
             tokens.push(token)
         }
@@ -114,7 +114,7 @@ export function tokenize(input: string, params: TokenizeParams): TokenStream {
       }
     }
     if (!tokenized)
-      throw new LitsError(`Unrecognized character '${input[position]}'.`, sourceCodeInfo)
+      throw new LitsError(`Unrecognized character '${input[position]}'.`, debugData?.sourceCodeInfo)
   }
 
   const tokenStream: TokenStream = {
@@ -145,13 +145,16 @@ function readLeadingNewLineTokens(input: string, position: number, params: Token
   while (position < input.length) {
     tokenized = false
 
-    const sourceCodeInfo: SourceCodeInfo | undefined = params.debug
-      ? createSourceCodeInfo(input, position, params.filePath)
+    const debugData: TokenDebugData | undefined = params.debug
+      ? {
+          sourceCodeInfo: createSourceCodeInfo(input, position, params.filePath),
+          metaTokens: { inlineCommentToken: null, leadingMetaTokens: [] },
+        }
       : undefined
 
     // Loop through all tokenizer until one matches
     for (const tokenizer of newLineTokenizers) {
-      const [nbrOfCharacters, token] = tokenizer(input, position, sourceCodeInfo)
+      const [nbrOfCharacters, token] = tokenizer(input, position, debugData)
       // tokenizer matched
       if (nbrOfCharacters > 0) {
         tokenized = true
@@ -187,13 +190,16 @@ function readLeadingCommentTokens(input: string, position: number, params: Token
   while (position < input.length) {
     tokenized = false
 
-    const sourceCodeInfo: SourceCodeInfo | undefined = params.debug
-      ? createSourceCodeInfo(input, position, params.filePath)
+    const debugData: TokenDebugData | undefined = params.debug
+      ? {
+          sourceCodeInfo: createSourceCodeInfo(input, position, params.filePath),
+          metaTokens: { inlineCommentToken: null, leadingMetaTokens: [] },
+        }
       : undefined
 
     // Loop through all tokenizer until one matches
     for (const tokenizer of metaTokenizers) {
-      const [nbrOfCharacters, token] = tokenizer(input, position, sourceCodeInfo)
+      const [nbrOfCharacters, token] = tokenizer(input, position, debugData)
       // tokenizer matched
       if (nbrOfCharacters > 0) {
         tokenized = true
@@ -229,13 +235,16 @@ function readInlineCommentToken(input: string, position: number, params: Tokeniz
   let tokenized = false
   while (position < input.length) {
     tokenized = false
-    const sourceCodeInfo: SourceCodeInfo | undefined = params.debug
-      ? createSourceCodeInfo(input, position, params.filePath)
+    const debugData: TokenDebugData | undefined = params.debug
+      ? {
+          sourceCodeInfo: createSourceCodeInfo(input, position, params.filePath),
+          metaTokens: { inlineCommentToken: null, leadingMetaTokens: [] },
+        }
       : undefined
 
     // Loop through all tokenizer until one matches
     for (const tokenizer of commentTokenizers) {
-      const [nbrOfCharacters, token] = tokenizer(input, position, sourceCodeInfo)
+      const [nbrOfCharacters, token] = tokenizer(input, position, debugData)
 
       // tokenizer matched
       if (nbrOfCharacters > 0) {

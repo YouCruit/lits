@@ -13,7 +13,7 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any, DoNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'do',
       p: [],
-      debug: undefined,
+      debugData: undefined,
     }
 
     let tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
@@ -24,7 +24,7 @@ export const doSpecialExpression: BuiltinSpecialExpression<Any, DoNode> = {
       tkn = asToken(tokenStream.tokens[position], tokenStream.filePath)
     }
 
-    node.debug = firstToken.sourceCodeInfo
+    node.debugData = firstToken.debugData
       ? {
           token: firstToken,
           lastToken: tkn,

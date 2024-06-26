@@ -20,7 +20,7 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null, ThrowNode> =
       t: AstNodeType.SpecialExpression,
       n: 'throw',
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },
@@ -31,10 +31,10 @@ export const throwSpecialExpression: BuiltinSpecialExpression<null, ThrowNode> =
     return [position + 1, node]
   },
   evaluate: (node, contextStack, { evaluateAstNode }) => {
-    const message = asString(evaluateAstNode(node.p[0]!, contextStack), node.debug?.token.sourceCodeInfo, {
+    const message = asString(evaluateAstNode(node.p[0]!, contextStack), node.debugData?.token.debugData?.sourceCodeInfo, {
       nonEmpty: true,
     })
-    throw new UserDefinedError(message, node.debug?.token.sourceCodeInfo)
+    throw new UserDefinedError(message, node.debugData?.token.debugData?.sourceCodeInfo)
   },
   findUnresolvedIdentifiers: (node, contextStack, { findUnresolvedIdentifiers, builtin }) => findUnresolvedIdentifiers(node.p, contextStack, builtin),
 }

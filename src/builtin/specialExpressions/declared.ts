@@ -15,7 +15,7 @@ export const declaredSpecialExpression: BuiltinSpecialExpression<boolean, Declar
       t: AstNodeType.SpecialExpression,
       n: 'declared?',
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },

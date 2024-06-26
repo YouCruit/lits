@@ -11,6 +11,6 @@ export const calculateOrOutcomes: CalculatePossibleAstNodesHelper<OrNode> = ({
       n: 'or',
       t: AstNodeType.SpecialExpression,
       p,
-      debug: astNode.debug,
+      debugData: astNode.debugData,
     }))
 }

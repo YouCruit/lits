@@ -7,7 +7,7 @@ function createNameNode(name: string): NameNode {
   return {
     t: AstNodeType.Name,
     v: name,
-    debug: undefined,
+    debugData: undefined,
     p: [],
     n: undefined,
   }

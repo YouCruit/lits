@@ -4,11 +4,11 @@ import { unparseMultilinePairwise, unparseMultilineParams, unparseSingleLinePair
 import { applyMetaTokens } from './utils'
 
 export function unparseBindings(node: NormalExpressionNode, options: UnparseOptions): string {
-  const startBracket = applyMetaTokens('[', node.debug?.token.metaTokens, options)
+  const startBracket = applyMetaTokens('[', node.debugData?.token.debugData?.metaTokens, options)
 
   // If no parameters, return empty array literal
   if (node.p.length === 0) {
-    const endBracket = applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.inline())
+    const endBracket = applyMetaTokens(']', node.debugData?.lastToken?.debugData?.metaTokens, options.inline())
     return `${startBracket}${endBracket}`
   }
 
@@ -17,7 +17,7 @@ export function unparseBindings(node: NormalExpressionNode, options: UnparseOpti
   // 1. Try to unparse the bindings as one line
   try {
     const unparsedParams = unparseSingleLinePairs(params, options.inline().lock())
-    const endBracket = applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.inline())
+    const endBracket = applyMetaTokens(']', node.debugData?.lastToken?.debugData?.metaTokens, options.inline())
     if (!unparsedParams.includes('\n')) {
       const result = `${startBracket}${unparsedParams}${endBracket}`
       return options.assertNotOverflown(result)
@@ -34,7 +34,7 @@ export function unparseBindings(node: NormalExpressionNode, options: UnparseOpti
   // ==>  [a 1
   //       b 2]
   try {
-    const endBracket = applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.inline())
+    const endBracket = applyMetaTokens(']', node.debugData?.lastToken?.debugData?.metaTokens, options.inline())
     const result = startBracket + unparseMultilinePairwise(params, options.inline().inc()) + endBracket
     return options.assertNotOverflown(result)
   }
@@ -47,8 +47,8 @@ export function unparseBindings(node: NormalExpressionNode, options: UnparseOpti
     //       2]
     const unparsedParams = unparseMultilineParams(params, options.inline().inc())
     const endBracket = unparsedParams.endsWith('\n')
-      ? applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.noInline())
-      : applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.inline())
+      ? applyMetaTokens(']', node.debugData?.lastToken?.debugData?.metaTokens, options.noInline())
+      : applyMetaTokens(']', node.debugData?.lastToken?.debugData?.metaTokens, options.inline())
 
     return startBracket + unparseMultilineParams(params, options.inline().inc()) + endBracket
   }

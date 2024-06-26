@@ -34,13 +34,13 @@ describe('tokenizer', () => {
   it('comments', () => {
     expect(tokenize('"Hi" ;This is a string', { debug: false })).toEqual<TokenStream>({
       hasDebugData: false,
-      tokens: [{ t: TokenType.String, v: 'Hi' }],
+      tokens: [{ t: TokenType.String, v: 'Hi', debugData: undefined }],
     })
     expect(tokenize('"Hi" ;This is a string\n"there"', { debug: false })).toEqual<TokenStream>({
       hasDebugData: false,
       tokens: [
-        { t: TokenType.String, v: 'Hi' },
-        { t: TokenType.String, v: 'there' },
+        { t: TokenType.String, v: 'Hi', debugData: undefined },
+        { t: TokenType.String, v: 'there', debugData: undefined },
       ],
     })
   })
@@ -74,10 +74,12 @@ describe('tokenizer', () => {
             t: TokenType.RegexpShorthand,
             v: 'Hi',
             o: {},
-            sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#"Hi"', filePath: 'foo.lits' },
-            metaTokens: {
-              inlineCommentToken: null,
-              leadingMetaTokens: [],
+            debugData: {
+              sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#"Hi"', filePath: 'foo.lits' },
+              metaTokens: {
+                inlineCommentToken: null,
+                leadingMetaTokens: [],
+              },
             },
           },
         ],
@@ -90,10 +92,12 @@ describe('tokenizer', () => {
             t: TokenType.RegexpShorthand,
             v: 'Hi',
             o: { g: true },
-            sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#"Hi"g' },
-            metaTokens: {
-              inlineCommentToken: null,
-              leadingMetaTokens: [],
+            debugData: {
+              sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#"Hi"g' },
+              metaTokens: {
+                inlineCommentToken: null,
+                leadingMetaTokens: [],
+              },
             },
           },
         ],
@@ -105,10 +109,12 @@ describe('tokenizer', () => {
             t: TokenType.RegexpShorthand,
             v: 'Hi',
             o: { i: true },
-            sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#"Hi"i' },
-            metaTokens: {
-              inlineCommentToken: null,
-              leadingMetaTokens: [],
+            debugData: {
+              sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#"Hi"i' },
+              metaTokens: {
+                inlineCommentToken: null,
+                leadingMetaTokens: [],
+              },
             },
           },
         ],
@@ -120,10 +126,12 @@ describe('tokenizer', () => {
             t: TokenType.RegexpShorthand,
             v: 'Hi',
             o: { i: true, g: true },
-            sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#"Hi"gi' },
-            metaTokens: {
-              inlineCommentToken: null,
-              leadingMetaTokens: [],
+            debugData: {
+              sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#"Hi"gi' },
+              metaTokens: {
+                inlineCommentToken: null,
+                leadingMetaTokens: [],
+              },
             },
           },
         ],
@@ -135,10 +143,12 @@ describe('tokenizer', () => {
             t: TokenType.RegexpShorthand,
             v: 'Hi',
             o: { i: true, g: true },
-            sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#"Hi"ig' },
-            metaTokens: {
-              inlineCommentToken: null,
-              leadingMetaTokens: [],
+            debugData: {
+              sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#"Hi"ig' },
+              metaTokens: {
+                inlineCommentToken: null,
+                leadingMetaTokens: [],
+              },
             },
           },
         ],
@@ -157,19 +167,23 @@ describe('tokenizer', () => {
           {
             t: TokenType.FnShorthand,
             v: '#',
-            sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#(' },
-            metaTokens: {
-              inlineCommentToken: null,
-              leadingMetaTokens: [],
+            debugData: {
+              sourceCodeInfo: { position: { line: 1, column: 1 }, code: '#(' },
+              metaTokens: {
+                inlineCommentToken: null,
+                leadingMetaTokens: [],
+              },
             },
           },
           {
             t: TokenType.Bracket,
             v: '(',
-            sourceCodeInfo: { position: { line: 1, column: 2 }, code: '#(' },
-            metaTokens: {
-              inlineCommentToken: null,
-              leadingMetaTokens: [],
+            debugData: {
+              sourceCodeInfo: { position: { line: 1, column: 2 }, code: '#(' },
+              metaTokens: {
+                inlineCommentToken: null,
+                leadingMetaTokens: [],
+              },
             },
           },
         ],
@@ -342,7 +356,7 @@ function testSamples(samples: [string, TokenDescription[]][], debug: boolean) {
       const tokenStream = tokenize(input, { debug })
       const actual = tokenStream.tokens.map<TokenDescription>((token) => {
         const tokenName = TokenType[token.t] as keyof typeof TokenType
-        const prefix: TokenPrefix = token.metaTokens?.leadingMetaTokens?.reduce<TokenPrefix>((acc, metaToken) => {
+        const prefix: TokenPrefix = token.debugData?.metaTokens.leadingMetaTokens?.reduce<TokenPrefix>((acc, metaToken) => {
           if (metaToken.t === TokenType.NewLine)
             return `${acc}_` as TokenPrefix
           if (metaToken.t === TokenType.Comment) {
@@ -354,7 +368,7 @@ function testSamples(samples: [string, TokenDescription[]][], debug: boolean) {
           }
           return acc
         }, '') ?? ''
-        const suffix: TokenSuffix = token.metaTokens?.inlineCommentToken ? ';' : ''
+        const suffix: TokenSuffix = token.debugData?.metaTokens.inlineCommentToken ? ';' : ''
 
         return `${prefix}${tokenName}${suffix}`
       })

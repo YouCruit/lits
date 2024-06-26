@@ -3,7 +3,7 @@ import { LitsError } from '../errors'
 import type { ModifierName } from '../parser/interface'
 import { reservedNamesRecord } from '../reservedNames'
 import { asString } from '../typeGuards/string'
-import type { SourceCodeInfo, Token, TokenDescriptor, Tokenizer } from './interface'
+import type { Token, TokenDebugData, TokenDescriptor, Tokenizer } from './interface'
 
 const NO_MATCH: TokenDescriptor = [0, undefined]
 
@@ -15,12 +15,12 @@ const nameRegExp = new RegExp(`${nameCharacters}`)
 const whitespaceRegExp = /\s|,/
 const newLineRegExp = /\n/
 
-export const tokenizeNewLine: Tokenizer = (input, current, sourceCodeInfo) =>
+export const tokenizeNewLine: Tokenizer = (input, current, debugData) =>
   newLineRegExp.test(input[current] as string)
-    ? [1, { t: TokenType.NewLine, v: '\n', sourceCodeInfo }]
+    ? [1, { t: TokenType.NewLine, v: '\n', debugData }]
     : NO_MATCH
 
-export const tokenizeComment: Tokenizer = (input, current, sourceCodeInfo) => {
+export const tokenizeComment: Tokenizer = (input, current, debugData) => {
   if (input[current] === ';') {
     let length = 0
     let value = ''
@@ -32,7 +32,7 @@ export const tokenizeComment: Tokenizer = (input, current, sourceCodeInfo) => {
     if (input[current + length] === '\n' && current + length < input.length)
       length += 1
 
-    return [length, { t: TokenType.Comment, v: value.trim(), sourceCodeInfo }]
+    return [length, { t: TokenType.Comment, v: value.trim(), debugData }]
   }
   return NO_MATCH
 }
@@ -40,20 +40,20 @@ export const tokenizeComment: Tokenizer = (input, current, sourceCodeInfo) => {
 export const skipWhiteSpace: Tokenizer = (input, current) =>
   whitespaceRegExp.test(input[current] as string) ? [1, undefined] : NO_MATCH
 
-export const tokenizeLeftParen: Tokenizer = (input, position, sourceCodeInfo) =>
-  tokenizeCharacter(TokenType.Bracket, '(', input, position, sourceCodeInfo)
-export const tokenizeRightParen: Tokenizer = (input, position, sourceCodeInfo) =>
-  tokenizeCharacter(TokenType.Bracket, ')', input, position, sourceCodeInfo)
-export const tokenizeLeftBracket: Tokenizer = (input, position, sourceCodeInfo) =>
-  tokenizeCharacter(TokenType.Bracket, '[', input, position, sourceCodeInfo)
-export const tokenizeRightBracket: Tokenizer = (input, position, sourceCodeInfo) =>
-  tokenizeCharacter(TokenType.Bracket, ']', input, position, sourceCodeInfo)
-export const tokenizeLeftCurly: Tokenizer = (input, position, sourceCodeInfo) =>
-  tokenizeCharacter(TokenType.Bracket, '{', input, position, sourceCodeInfo)
-export const tokenizeRightCurly: Tokenizer = (input, position, sourceCodeInfo) =>
-  tokenizeCharacter(TokenType.Bracket, '}', input, position, sourceCodeInfo)
+export const tokenizeLeftParen: Tokenizer = (input, position, debugData) =>
+  tokenizeCharacter(TokenType.Bracket, '(', input, position, debugData)
+export const tokenizeRightParen: Tokenizer = (input, position, debugData) =>
+  tokenizeCharacter(TokenType.Bracket, ')', input, position, debugData)
+export const tokenizeLeftBracket: Tokenizer = (input, position, debugData) =>
+  tokenizeCharacter(TokenType.Bracket, '[', input, position, debugData)
+export const tokenizeRightBracket: Tokenizer = (input, position, debugData) =>
+  tokenizeCharacter(TokenType.Bracket, ']', input, position, debugData)
+export const tokenizeLeftCurly: Tokenizer = (input, position, debugData) =>
+  tokenizeCharacter(TokenType.Bracket, '{', input, position, debugData)
+export const tokenizeRightCurly: Tokenizer = (input, position, debugData) =>
+  tokenizeCharacter(TokenType.Bracket, '}', input, position, debugData)
 
-export const tokenizeString: Tokenizer = (input, position, sourceCodeInfo) => {
+export const tokenizeString: Tokenizer = (input, position, debugData) => {
   if (input[position] !== '"')
     return NO_MATCH
 
@@ -63,7 +63,7 @@ export const tokenizeString: Tokenizer = (input, position, sourceCodeInfo) => {
   let escape = false
   while (char !== '"' || escape) {
     if (char === undefined)
-      throw new LitsError(`Unclosed string at position ${position}.`, sourceCodeInfo)
+      throw new LitsError(`Unclosed string at position ${position}.`, debugData?.sourceCodeInfo)
 
     length += 1
     if (escape) {
@@ -84,10 +84,10 @@ export const tokenizeString: Tokenizer = (input, position, sourceCodeInfo) => {
     }
     char = input[position + length]
   }
-  return [length + 1, { t: TokenType.String, v: value, sourceCodeInfo }]
+  return [length + 1, { t: TokenType.String, v: value, debugData }]
 }
 
-export const tokenizeCollectionAccessor: Tokenizer = (input, position, sourceCodeInfo) => {
+export const tokenizeCollectionAccessor: Tokenizer = (input, position, debugData) => {
   const char = input[position]
   if (char !== '.' && char !== '#')
     return NO_MATCH
@@ -97,12 +97,12 @@ export const tokenizeCollectionAccessor: Tokenizer = (input, position, sourceCod
     {
       t: TokenType.CollectionAccessor,
       v: char,
-      sourceCodeInfo,
+      debugData,
     },
   ]
 }
 
-export const tokenizeSymbolString: Tokenizer = (input, position, sourceCodeInfo) => {
+export const tokenizeSymbolString: Tokenizer = (input, position, debugData) => {
   if (input[position] !== ':')
     return NO_MATCH
 
@@ -117,14 +117,14 @@ export const tokenizeSymbolString: Tokenizer = (input, position, sourceCodeInfo)
   if (length === 1)
     return NO_MATCH
 
-  return [length, { t: TokenType.String, v: value, sourceCodeInfo, o: { s: true } } satisfies Token]
+  return [length, { t: TokenType.String, v: value, debugData, o: { s: true } } satisfies Token]
 }
 
-export const tokenizeRegexpShorthand: Tokenizer = (input, position, sourceCodeInfo) => {
+export const tokenizeRegexpShorthand: Tokenizer = (input, position, debugData) => {
   if (input[position] !== '#')
     return NO_MATCH
 
-  const [stringLength, token] = tokenizeString(input, position + 1, sourceCodeInfo)
+  const [stringLength, token] = tokenizeString(input, position + 1, debugData)
   if (!token)
     return NO_MATCH
 
@@ -135,14 +135,14 @@ export const tokenizeRegexpShorthand: Tokenizer = (input, position, sourceCodeIn
   while (input[position] === 'g' || input[position] === 'i') {
     if (input[position] === 'g') {
       if (options.g)
-        throw new LitsError(`Duplicated regexp option "${input[position]}" at position ${position}.`, sourceCodeInfo)
+        throw new LitsError(`Duplicated regexp option "${input[position]}" at position ${position}.`, debugData?.sourceCodeInfo)
 
       length += 1
       options.g = true
     }
     else {
       if (options.i)
-        throw new LitsError(`Duplicated regexp option "${input[position]}" at position ${position}.`, sourceCodeInfo)
+        throw new LitsError(`Duplicated regexp option "${input[position]}" at position ${position}.`, debugData?.sourceCodeInfo)
 
       length += 1
       options.i = true
@@ -151,7 +151,7 @@ export const tokenizeRegexpShorthand: Tokenizer = (input, position, sourceCodeIn
   }
 
   if (nameRegExp.test(input[position] ?? ''))
-    throw new LitsError(`Unexpected regexp option "${input[position]}" at position ${position}.`, sourceCodeInfo)
+    throw new LitsError(`Unexpected regexp option "${input[position]}" at position ${position}.`, debugData?.sourceCodeInfo)
 
   return [
     length,
@@ -159,12 +159,12 @@ export const tokenizeRegexpShorthand: Tokenizer = (input, position, sourceCodeIn
       t: TokenType.RegexpShorthand,
       v: token.v,
       o: options,
-      sourceCodeInfo,
+      debugData,
     },
   ]
 }
 
-export const tokenizeFnShorthand: Tokenizer = (input, position, sourceCodeInfo) => {
+export const tokenizeFnShorthand: Tokenizer = (input, position, debugData) => {
   if (input.slice(position, position + 2) !== '#(')
     return NO_MATCH
 
@@ -173,7 +173,7 @@ export const tokenizeFnShorthand: Tokenizer = (input, position, sourceCodeInfo) 
     {
       t: TokenType.FnShorthand,
       v: '#',
-      sourceCodeInfo,
+      debugData,
     },
   ]
 }
@@ -184,7 +184,7 @@ const octalNumberRegExp = /[0-7]/
 const hexNumberRegExp = /[0-9a-fA-F]/
 const binaryNumberRegExp = /[0-1]/
 const firstCharRegExp = /[0-9.-]/
-export const tokenizeNumber: Tokenizer = (input, position, sourceCodeInfo) => {
+export const tokenizeNumber: Tokenizer = (input, position, debugData) => {
   let type: 'decimal' | 'octal' | 'hex' | 'binary' = 'decimal'
   const firstChar = input[position] as string
   if (!firstCharRegExp.test(firstChar))
@@ -194,7 +194,7 @@ export const tokenizeNumber: Tokenizer = (input, position, sourceCodeInfo) => {
 
   let i: number
   for (i = position + 1; i < input.length; i += 1) {
-    const char = asString(input[i], sourceCodeInfo, { char: true })
+    const char = asString(input[i], debugData?.sourceCodeInfo, { char: true })
     if (endOfNumberRegExp.test(char))
       break
 
@@ -248,10 +248,10 @@ export const tokenizeNumber: Tokenizer = (input, position, sourceCodeInfo) => {
   if ((type !== 'decimal' && length <= 2) || value === '.' || value === '-')
     return NO_MATCH
 
-  return [length, { t: TokenType.Number, v: value, sourceCodeInfo }]
+  return [length, { t: TokenType.Number, v: value, debugData }]
 }
 
-export const tokenizeReservedName: Tokenizer = (input, position, sourceCodeInfo) => {
+export const tokenizeReservedName: Tokenizer = (input, position, debugData) => {
   for (const [reservedName, { forbidden }] of Object.entries(reservedNamesRecord)) {
     const length = reservedName.length
     const nextChar = input[position + length]
@@ -261,25 +261,25 @@ export const tokenizeReservedName: Tokenizer = (input, position, sourceCodeInfo)
     const name = input.substr(position, length)
     if (name === reservedName) {
       if (forbidden)
-        throw new LitsError(`${name} is forbidden!`, sourceCodeInfo)
+        throw new LitsError(`${name} is forbidden!`, debugData?.sourceCodeInfo)
 
-      return [length, { t: TokenType.ReservedName, v: reservedName, sourceCodeInfo }]
+      return [length, { t: TokenType.ReservedName, v: reservedName, debugData }]
     }
   }
   return NO_MATCH
 }
 
-export const tokenizeName: Tokenizer = (input, position, sourceCodeInfo) =>
-  tokenizePattern(TokenType.Name, nameRegExp, input, position, sourceCodeInfo)
+export const tokenizeName: Tokenizer = (input, position, debugData) =>
+  tokenizePattern(TokenType.Name, nameRegExp, input, position, debugData)
 
-export const tokenizeModifier: Tokenizer = (input, position, sourceCodeInfo) => {
+export const tokenizeModifier: Tokenizer = (input, position, debugData) => {
   const modifiers: ModifierName[] = ['&', '&let', '&when', '&while']
   for (const modifier of modifiers) {
     const length = modifier.length
     const charAfterModifier = input[position + length]
     if (input.substr(position, length) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
       const value: ModifierName = modifier
-      return [length, { t: TokenType.Modifier, v: value, sourceCodeInfo }]
+      return [length, { t: TokenType.Modifier, v: value, debugData }]
     }
   }
   return NO_MATCH
@@ -290,10 +290,10 @@ function tokenizeCharacter(
   value: string,
   input: string,
   position: number,
-  sourceCodeInfo?: SourceCodeInfo,
+  debugData?: TokenDebugData,
 ): TokenDescriptor {
   if (value === input[position])
-    return [1, { t: type, v: value, sourceCodeInfo }]
+    return [1, { t: type, v: value, debugData }]
   else
     return NO_MATCH
 }
@@ -303,7 +303,7 @@ function tokenizePattern(
   pattern: RegExp,
   input: string,
   position: number,
-  sourceCodeInfo?: SourceCodeInfo,
+  debugData?: TokenDebugData,
 ): TokenDescriptor {
   let char = input[position]
   let length = 0
@@ -318,5 +318,5 @@ function tokenizePattern(
     char = input[position + length]
   }
 
-  return [length, { t: type, v: value, sourceCodeInfo }]
+  return [length, { t: type, v: value, debugData }]
 }

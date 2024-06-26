@@ -16,7 +16,7 @@ export const recurSpecialExpression: BuiltinSpecialExpression<null, RecurNode> =
       t: AstNodeType.SpecialExpression,
       n: 'recur',
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },

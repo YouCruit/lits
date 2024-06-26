@@ -112,12 +112,14 @@ describe('context', () => {
               {
                 t: AstNodeType.Number,
                 v: 2,
-                debug: { token: {
+                debugData: { token: {
                   t: TokenType.Number,
                   v: '2',
+                  debugData: undefined,
                 }, lastToken: {
                   t: TokenType.Number,
                   v: '2',
+                  debugData: undefined,
                 } },
                 p: [],
                 n: undefined,
@@ -125,23 +127,27 @@ describe('context', () => {
               {
                 t: AstNodeType.Number,
                 v: 4,
-                debug: { token: {
+                debugData: { token: {
                   t: TokenType.Number,
                   v: '4',
+                  debugData: undefined,
                 }, lastToken: {
                   t: TokenType.Number,
                   v: '4',
+                  debugData: undefined,
                 } },
                 p: [],
                 n: undefined,
               },
             ],
-            debug: { token: {
+            debugData: { token: {
               t: TokenType.Name,
               v: 'pow',
+              debugData: undefined,
             }, lastToken: {
               t: TokenType.Name,
               v: 'pow',
+              debugData: undefined,
             } },
           },
         ],
@@ -201,7 +207,7 @@ function ast(n: number): Ast {
       {
         t: AstNodeType.Number,
         v: n,
-        debug: undefined,
+        debugData: undefined,
         p: [],
         n: undefined,
       },

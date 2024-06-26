@@ -15,7 +15,7 @@ export const orSpecialExpression: BuiltinSpecialExpression<Any, OrNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'or',
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },

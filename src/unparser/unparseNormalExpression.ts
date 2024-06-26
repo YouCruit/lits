@@ -9,19 +9,19 @@ import { applyMetaTokens } from './utils'
 
 export function unparseNormalExpressionNode(node: ExpressionWithParamsNode, options: UnparseOptions): string {
   if (isNormalExpressionNode(node)) {
-    if (node.debug?.token.t === TokenType.Bracket && node.debug.token.v === '[')
+    if (node.debugData?.token.t === TokenType.Bracket && node.debugData.token.v === '[')
       return unparseArrayLiteral(node, options)
-    else if (node.debug?.token.t === TokenType.Bracket && node.debug.token.v === '{')
+    else if (node.debugData?.token.t === TokenType.Bracket && node.debugData.token.v === '{')
       return unparseObjectLiteral(node, options)
   }
 
-  const startBracket = applyMetaTokens('(', node.debug?.token.metaTokens, options)
-  const endBracket = applyMetaTokens(')', node.debug?.lastToken?.metaTokens, options.inline())
+  const startBracket = applyMetaTokens('(', node.debugData?.token.debugData?.metaTokens, options)
+  const endBracket = applyMetaTokens(')', node.debugData?.lastToken?.debugData?.metaTokens, options.inline())
 
   // if expression node e.g. ("Albert" 2), first parameter is the name ("Albert")
   const nameOptions = startBracket.endsWith('\n') ? options.noInline().inc() : options.inline().inc()
   const name = node.n
-    ? applyMetaTokens(node.n, node.debug?.nameToken?.metaTokens, nameOptions)
+    ? applyMetaTokens(node.n, node.debugData?.nameToken?.debugData?.metaTokens, nameOptions)
     : options.unparse(node.p[0]!, nameOptions)
 
   const params = node.n ? node.p : node.p.slice(1)

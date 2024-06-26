@@ -17,7 +17,7 @@ export const condSpecialExpression: BuiltinSpecialExpression<Any, CondNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'cond',
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },

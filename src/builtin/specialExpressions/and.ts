@@ -15,7 +15,7 @@ export const andSpecialExpression: BuiltinSpecialExpression<Any, AndNode> = {
       t: AstNodeType.SpecialExpression,
       n: 'and',
       p: params,
-      debug: firstToken.sourceCodeInfo && {
+      debugData: firstToken.debugData && {
         token: firstToken,
         lastToken,
       },

@@ -26,7 +26,7 @@ export type TokenDescriptor = [length: number, token: Token | undefined]
 export type Tokenizer = (input: string, position: number, sourceCodeInfo?: SourceCodeInfo) => TokenDescriptor
 export interface TokenStream {
   tokens: Token[]
-  debug: boolean
+  hasDebugData: boolean
   filePath?: string
 }
 

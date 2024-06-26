@@ -217,5 +217,5 @@ export type AstNode =
 type AstBody = AstNode[]
 export interface Ast {
   b: AstBody // body
-  debug: boolean
+  hasDebugData: boolean
 }

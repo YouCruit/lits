@@ -33,11 +33,11 @@ describe('tokenizer', () => {
 
   it('comments', () => {
     expect(tokenize('"Hi" ;This is a string', { debug: false })).toEqual<TokenStream>({
-      debug: false,
+      hasDebugData: false,
       tokens: [{ t: TokenType.String, v: 'Hi' }],
     })
     expect(tokenize('"Hi" ;This is a string\n"there"', { debug: false })).toEqual<TokenStream>({
-      debug: false,
+      hasDebugData: false,
       tokens: [
         { t: TokenType.String, v: 'Hi' },
         { t: TokenType.String, v: 'there' },
@@ -68,7 +68,7 @@ describe('tokenizer', () => {
   describe('regexpShorthand', () => {
     it('samples', () => {
       expect(tokenize('#"Hi"', { debug: true, filePath: 'foo.lits' })).toEqual<TokenStream>({
-        debug: true,
+        hasDebugData: true,
         tokens: [
           {
             t: TokenType.RegexpShorthand,
@@ -84,7 +84,7 @@ describe('tokenizer', () => {
         filePath: 'foo.lits',
       })
       expect(tokenize('#"Hi"g', { debug: true })).toEqual<TokenStream>({
-        debug: true,
+        hasDebugData: true,
         tokens: [
           {
             t: TokenType.RegexpShorthand,
@@ -99,7 +99,7 @@ describe('tokenizer', () => {
         ],
       })
       expect(tokenize('#"Hi"i', { debug: true })).toEqual<TokenStream>({
-        debug: true,
+        hasDebugData: true,
         tokens: [
           {
             t: TokenType.RegexpShorthand,
@@ -114,7 +114,7 @@ describe('tokenizer', () => {
         ],
       })
       expect(tokenize('#"Hi"gi', { debug: true })).toEqual<TokenStream>({
-        debug: true,
+        hasDebugData: true,
         tokens: [
           {
             t: TokenType.RegexpShorthand,
@@ -129,7 +129,7 @@ describe('tokenizer', () => {
         ],
       })
       expect(tokenize('#"Hi"ig', { debug: true })).toEqual<TokenStream>({
-        debug: true,
+        hasDebugData: true,
         tokens: [
           {
             t: TokenType.RegexpShorthand,
@@ -152,7 +152,7 @@ describe('tokenizer', () => {
   describe('fnShorthand', () => {
     it('samples', () => {
       expect(tokenize('#(', { debug: true })).toEqual<TokenStream>({
-        debug: true,
+        hasDebugData: true,
         tokens: [
           {
             t: TokenType.FnShorthand,

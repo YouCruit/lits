@@ -386,7 +386,7 @@ function parseBinding(tokenStream: TokenStream, position: number): [number, Bind
 }
 
 function parseNormalExpression(tokenStream: TokenStream, position: number): [number, NormalExpressionNode] {
-  const startBracketToken = tokenStream.debug ? asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: '(' }) : undefined
+  const startBracketToken = tokenStream.hasDebugData ? asToken(tokenStream.tokens[position], tokenStream.filePath, { type: TokenType.Bracket, value: '(' }) : undefined
   position += 1
   const [newPosition, fnNode] = parseToken(tokenStream, position)
 

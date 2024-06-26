@@ -29,8 +29,8 @@ import { functionExecutors } from './functionExecutors'
 export function evaluate(ast: Ast, contextStack: ContextStack): Any {
   let result: Any = null
 
-  const safeAstNode = ast.debug ? JSON.parse(JSON.stringify(ast)) as Ast : ast
-  if (safeAstNode.debug)
+  const safeAstNode = ast.hasDebugData ? JSON.parse(JSON.stringify(ast)) as Ast : ast
+  if (safeAstNode.hasDebugData)
     removeCommenNodes(safeAstNode)
   for (const node of safeAstNode.b)
     result = evaluateAstNode(node, contextStack)

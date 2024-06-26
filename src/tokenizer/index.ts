@@ -120,7 +120,7 @@ export function tokenize(input: string, params: TokenizeParams): TokenStream {
   const tokenStream: TokenStream = {
     tokens,
     filePath: params.filePath,
-    debug: params.debug,
+    hasDebugData: params.debug,
   }
 
   applySugar(tokenStream)

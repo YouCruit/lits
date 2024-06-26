@@ -47,7 +47,7 @@ export function calculateOutcomes(contextStack: ContextStack, astNodes: AstNode[
 
     const ast: Ast = {
       b: possibleAst,
-      debug: true,
+      hasDebugData: true,
     }
     try {
       const outcome = evaluate(ast, contextStack.clone())

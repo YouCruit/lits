@@ -103,7 +103,7 @@ describe('context', () => {
   it('a function - initial cache', () => {
     const initialCache: Record<string, Ast> = {
       '(pow 2 4)': {
-        debug: true,
+        hasDebugData: true,
         b: [
           {
             t: AstNodeType.NormalExpression,
@@ -196,7 +196,7 @@ describe('context', () => {
 
 function ast(n: number): Ast {
   return {
-    debug: false,
+    hasDebugData: false,
     b: [
       {
         t: AstNodeType.Number,

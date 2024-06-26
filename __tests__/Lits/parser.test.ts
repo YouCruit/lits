@@ -62,7 +62,7 @@ describe('parser', () => {
     const tokens = tokenize('foo#1.a', { debug: false })
     const ast = parse(tokens)
     expect(ast).toEqual<Ast>({
-      debug: false,
+      hasDebugData: false,
       b: [
         {
           t: AstNodeType.NormalExpression,
@@ -100,7 +100,7 @@ describe('parser', () => {
     const tokens = tokenize('(#(identity %1) [1 2 3])#1', { debug: false })
     const ast = parse(tokens)
     expect(ast).toEqual<Ast>({
-      debug: false,
+      hasDebugData: false,
       b: [
         {
           t: 203,
@@ -188,7 +188,7 @@ describe('parser', () => {
 
   it('parseToken unknown token', () => {
     const tokenStream: TokenStream = {
-      debug: false,
+      hasDebugData: false,
       tokens: [
         {
           t: TokenType.CollectionAccessor,

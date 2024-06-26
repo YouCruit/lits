@@ -12,17 +12,14 @@ export function unparseBindings(node: NormalExpressionNode, options: UnparseOpti
     return `${startBracket}${endBracket}`
   }
 
-  // const unparsedFirstElement = options.unparse(node.p[0]!, options.inc().inline())
   const params = node.p
-
-  const prefix = startBracket
 
   // 1. Try to unparse the bindings as one line
   try {
     const unparsedParams = unparseSingleLinePairs(params, options.inline().lock())
     const endBracket = applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.inline())
     if (!unparsedParams.includes('\n')) {
-      const result = `${prefix}${unparsedParams}${endBracket}`
+      const result = `${startBracket}${unparsedParams}${endBracket}`
       return options.assertNotOverflown(result)
     }
   }
@@ -33,26 +30,26 @@ export function unparseBindings(node: NormalExpressionNode, options: UnparseOpti
   }
 
   // 2. Try to unparse the bindings pairwise on multiple lines
-  // e.g. [1 2 3 4]
-  // ==>  [1 2
-  //       3 4]
+  // e.g. [a 1 b 2]
+  // ==>  [a 1
+  //       b 2]
   try {
     const endBracket = applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.inline())
-    const result = prefix + unparseMultilinePairwise(params, options.inline().inc()) + endBracket
+    const result = startBracket + unparseMultilinePairwise(params, options.inline().inc()) + endBracket
     return options.assertNotOverflown(result)
   }
   catch {
-    // 2. Unparse the parameters on multiple lines
-    // e.g. [1 2 3 4]
-    // ==>  [1
-    //       2,
-    //       3
-    //       4]
+    // 2. Unparse the bindings on multiple lines
+    // e.g. [a 1 b 2]
+    // ==>  [a
+    //       1,
+    //       b
+    //       2]
     const unparsedParams = unparseMultilineParams(params, options.inline().inc())
     const endBracket = unparsedParams.endsWith('\n')
       ? applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.noInline())
       : applyMetaTokens(']', node.debug?.lastToken?.metaTokens, options.inline())
 
-    return prefix + unparseMultilineParams(params, options.inline().inc()) + endBracket
+    return startBracket + unparseMultilineParams(params, options.inline().inc()) + endBracket
   }
 }

@@ -7,7 +7,7 @@ import type { Any, Obj } from '../interface'
 import { parse } from '../parser'
 import type { Ast, LitsFunction } from '../parser/interface'
 import { tokenize } from '../tokenizer'
-import type { TokenStream } from '../tokenizer/interface'
+import type { TokenStream, TokenizeParams } from '../tokenizer/interface'
 import { Cache } from './Cache'
 
 export interface LitsRuntimeInfo {
@@ -33,6 +33,7 @@ export interface LitsParams {
   lazyValues?: Record<string, LazyValue>
   jsFunctions?: Record<string, JsFunction>
   filePath?: string
+  debug?: boolean
 }
 
 interface LitsConfig {
@@ -69,26 +70,26 @@ export class Lits {
   }
 
   public run(program: string, params: LitsParams = {}): unknown {
-    const ast = this.generateAst(program, params.filePath)
+    const ast = this.generateAst(program, params)
     const result = this.evaluate(ast, params)
     return result
   }
 
   public context(program: string, params: LitsParams = {}): Context {
     const contextStack = createContextStack(params)
-    const ast = this.generateAst(program, params.filePath)
+    const ast = this.generateAst(program, params)
     evaluate(ast, contextStack)
     return contextStack.globalContext
   }
 
   public analyze(program: string, params: LitsParams = {}): Analysis {
-    const ast = this.generateAst(program, params.filePath)
+    const ast = this.generateAst(program, params)
 
     return analyze(ast, params)
   }
 
-  public tokenize(program: string, filePath?: string): TokenStream {
-    return tokenize(program, { debug: this.debug, filePath })
+  public tokenize(program: string, tokenizeParams: TokenizeParams = { debug: this.debug }): TokenStream {
+    return tokenize(program, tokenizeParams)
   }
 
   public parse(tokenStream: TokenStream): Ast {
@@ -108,7 +109,7 @@ export class Lits {
       })
       .join(' ')
     const program = `(${fnName} ${paramsString})`
-    const ast = this.generateAst(program, params.filePath)
+    const ast = this.generateAst(program, params)
 
     const hostValues: Obj = fnParams.reduce(
       (result: Obj, param, index) => {
@@ -123,7 +124,7 @@ export class Lits {
     return this.evaluate(ast, params)
   }
 
-  private generateAst(untrimmedProgram: string, filePath?: string): Ast {
+  private generateAst(untrimmedProgram: string, params: LitsParams): Ast {
     const program = untrimmedProgram.trim()
 
     if (this.astCache) {
@@ -131,7 +132,7 @@ export class Lits {
       if (cachedAst)
         return cachedAst
     }
-    const tokenStream = this.tokenize(program, filePath)
+    const tokenStream = this.tokenize(program, { debug: params.debug ?? this.debug, filePath: params.filePath })
     const ast: Ast = this.parse(tokenStream)
     this.astCache?.set(program, ast)
     return ast

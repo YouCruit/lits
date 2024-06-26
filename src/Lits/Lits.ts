@@ -88,8 +88,8 @@ export class Lits {
     return analyze(ast, params)
   }
 
-  public tokenize(program: string, tokenizeParams: TokenizeParams = { debug: this.debug }): TokenStream {
-    return tokenize(program, tokenizeParams)
+  public tokenize(program: string, tokenizeParams: TokenizeParams = {}): TokenStream {
+    return tokenize(program, { ...tokenizeParams, debug: tokenizeParams.debug ?? this.debug })
   }
 
   public parse(tokenStream: TokenStream): Ast {

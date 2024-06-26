@@ -34,6 +34,6 @@ export interface TokenStream {
 }
 
 export interface TokenizeParams {
-  debug: boolean
+  debug?: boolean
   filePath?: string
 }

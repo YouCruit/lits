@@ -66,6 +66,7 @@ function createSourceCodeInfo(input: string, position: number, filePath?: string
 }
 
 export function tokenize(input: string, params: TokenizeParams): TokenStream {
+  const debug = !!params.debug
   const tokens: Token[] = []
   let position = 0
   let tokenized = false
@@ -85,7 +86,7 @@ export function tokenize(input: string, params: TokenizeParams): TokenStream {
     const leadingMetaTokens: MetaToken[] = [...leadingNewLineTokens, ...leadingCommentTokens]
 
     // Loop through all tokenizer until one matches
-    const debugData: TokenDebugData | undefined = params.debug
+    const debugData: TokenDebugData | undefined = debug
       ? {
           sourceCodeInfo: createSourceCodeInfo(input, position, params.filePath),
           metaTokens: { inlineCommentToken: null, leadingMetaTokens },
@@ -106,7 +107,7 @@ export function tokenize(input: string, params: TokenizeParams): TokenStream {
           if (token.debugData)
             token.debugData.metaTokens.inlineCommentToken = inlineCommentToken
 
-          if (!isCommentToken(token) || params.debug)
+          if (!isCommentToken(token) || debug)
             tokens.push(token)
         }
 
@@ -120,7 +121,7 @@ export function tokenize(input: string, params: TokenizeParams): TokenStream {
   const tokenStream: TokenStream = {
     tokens,
     filePath: params.filePath,
-    hasDebugData: params.debug,
+    hasDebugData: debug,
   }
 
   applySugar(tokenStream)

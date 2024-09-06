@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it } from 'vitest'
 import { Lits } from '../../../Lits/Lits'
-import { unparseAst } from '../../unparse'
+import { testFormatter } from '../testFormatter'
 
 const lits = new Lits({ debug: true })
 
@@ -25,27 +25,39 @@ const sampleProgramWithComments = `
 
 describe('unparse expressions with params', () => {
   it('should work 1', () => {
-    const tokenStream = lits.tokenize(sampleProgramWithComments, { debug: false })
-    const ast = lits.parse(tokenStream)
+    testFormatter(
+      program => lits.format(program, { lineLength: 0, debug: false }),
+      sampleProgramWithComments,
+      '(let [a 10, b 20] foo (bar 1 2) baz)\n',
+    )
 
-    expect(unparseAst(ast)).toEqual('(let [a 10, b 20] foo (bar 1 2) baz)\n')
-
-    expect(unparseAst(ast, 30)).toEqual(`
+    testFormatter(
+      program => lits.format(program, { lineLength: 30, debug: false }),
+      sampleProgramWithComments,
+      `
 (let [a 10, b 20]
   foo
   (bar 1 2)
   baz)
-`.trimStart())
+`.trimStart(),
+    )
 
-    expect(unparseAst(ast, 15)).toEqual(`
+    testFormatter(
+      program => lits.format(program, { lineLength: 15, debug: false }),
+      sampleProgramWithComments,
+      `
 (let [a 10
       b 20]
   foo
   (bar 1 2)
   baz)
-`.trimStart())
+`.trimStart(),
+    )
 
-    expect(unparseAst(ast, 10)).toEqual(`
+    testFormatter(
+      program => lits.format(program, { lineLength: 10, debug: false }),
+      sampleProgramWithComments,
+      `
 (let [a
       10
       b
@@ -54,9 +66,13 @@ describe('unparse expressions with params', () => {
   (bar 1
        2)
   baz)
-`.trimStart())
+`.trimStart(),
+    )
 
-    expect(unparseAst(ast, 8)).toEqual(`
+    testFormatter(
+      program => lits.format(program, { lineLength: 8, debug: false }),
+      sampleProgramWithComments,
+  `
 (let [a
       10
       b
@@ -66,15 +82,18 @@ describe('unparse expressions with params', () => {
    1
    2)
   baz)
-`.trimStart())
+`.trimStart(),
+    )
   })
 
   describe('unparse sampleProgram', () => {
     for (let lineLength = 0; lineLength <= sampleProgram.length + 1; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {
-        const tokenStream = lits.tokenize(sampleProgram)
-        const ast = lits.parse(tokenStream)
-        expect(unparseAst(ast, lineLength)).toEqual(formatSampleProgram(lineLength))
+        testFormatter(
+          program => lits.format(program, { lineLength }),
+          sampleProgram,
+          formatSampleProgram(lineLength),
+        )
       })
     }
   })
@@ -82,9 +101,11 @@ describe('unparse expressions with params', () => {
   describe('unparse sampleProgramWithComments', () => {
     for (let lineLength = 0; lineLength <= 30; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {
-        const tokenStream = lits.tokenize(sampleProgramWithComments)
-        const ast = lits.parse(tokenStream)
-        expect(unparseAst(ast, lineLength)).toEqual(formatSampleProgramWithComments(lineLength))
+        testFormatter(
+          program => lits.format(program, { lineLength }),
+          sampleProgramWithComments,
+          formatSampleProgramWithComments(lineLength),
+        )
       })
     }
   })

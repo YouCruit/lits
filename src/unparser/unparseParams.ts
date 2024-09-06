@@ -7,19 +7,21 @@ export function unparseParams({
   options,
   prefix,
   inline,
+  endBracket,
+  body = false,
   name = '',
   noMultilineInline = false,
-  endBracket,
-  indent,
+  pairs = false,
 }: {
   params: AstNode[]
   prefix: string
   inline: boolean
-  name?: string
-  noMultilineInline?: boolean
   endBracket: string
   options: UnparseOptions
-  indent: number
+  body?: boolean
+  name?: string
+  noMultilineInline?: boolean
+  pairs?: boolean
 }): string {
   // If no parameters, return the expression with brackets
   if (params.length === 0)
@@ -27,7 +29,9 @@ export function unparseParams({
 
   // 1. Try to unparse the parameters as a single line
   try {
-    const unparsedParams = unparseSingleLineParams(params, options.inline().lock())
+    const unparsedParams = pairs
+      ? unparseSingleLinePairs(params, options.inline().lock())
+      : unparseSingleLineParams(params, options.inline().lock())
     if (!unparsedParams.includes('\n'))
       return options.assertNotOverflown(`${prefix} ${unparsedParams}${endBracket}`)
   }
@@ -37,6 +41,24 @@ export function unparseParams({
       throw error
   }
 
+  if (pairs) {
+    if (name && !name.includes('\n')) {
+      try {
+        const unparsedParams = unparseMultilinePairwise(params, options.inline().inc(name.length + 2).lock())
+        const result = options.assertNotOverflown(`${prefix} ${unparsedParams}${endBracket}`)
+        return result
+      }
+      catch {
+      }
+    }
+    try {
+      const unparsedParams = unparseMultilinePairwise(params, options.noInline().inc(body ? 2 : 1))
+      return options.assertNotOverflown(ensureNewlineSeparator(prefix, `${unparsedParams}${endBracket}`))
+    }
+    catch {
+    }
+  }
+
   // 2. Try to unparse the parameters in multiple lines, first parameter on the same line
   // e.g. (round 1 2 3 4 5)
   // ==>  (round 1
@@ -44,13 +66,13 @@ export function unparseParams({
   //             3
   //             4
   //             5)
-  if (inline) {
+  else if (inline) {
     const newOptions = options.inc(name.length + 2).lock()
     try {
       const firstParam = options.unparse(params[0]!, noMultilineInline ? newOptions.noInline() : newOptions.inline())
       // If the first parameter is multiline, fallback to option 3
       if (!firstParam.startsWith('\n')) {
-        const indentedParams = unparseMultilineParams(params.slice(1), newOptions)
+        const indentedParams = unparseMultilineParams(params.slice(1), newOptions.noInline())
         return noMultilineInline
           ? options.assertNotOverflown(
             `${ensureNewlineSeparator(prefix, ensureNewlineSeparator(firstParam, indentedParams))}${endBracket}`,
@@ -75,7 +97,7 @@ export function unparseParams({
   //       5)
   return `${ensureNewlineSeparator(
     prefix,
-    unparseMultilineParams(params, options.noInline().inc(indent)),
+    unparseMultilineParams(params, options.noInline().inc(body ? 2 : 1)),
   )}${endBracket}`
 }
 
@@ -104,12 +126,15 @@ export function unparseMultilinePairwise(params: AstNode[], options: UnparseOpti
   let keyLength: number
   return params.reduce<string>((acc, param, index) => {
     if (index % 2 === 0) {
-      // if (param.debug?.token.metaTokens?.inlineCommentToken)
-      //   throw new Error('Inline comment is not allowed in pairwise key.')
       let key = options.unparse(
         param,
         options.inline(),
       )
+      const leadingMetaTokens = param.debugData?.token.debugData?.metaTokens.leadingMetaTokens
+      if (index === 0 && options.inlined && leadingMetaTokens && leadingMetaTokens.length > 0)
+        throw new Error('First key with leading meta tokens is not allowed.')
+
+      key = key.trimStart()
       keyLength = key.length
       key = index === 0 && options.inlined ? key : `${options.indent}${key}`
       if (key.includes('\n'))
@@ -118,10 +143,11 @@ export function unparseMultilinePairwise(params: AstNode[], options: UnparseOpti
       return index > 0 ? ensureNewlineSeparator(acc, key) : `${acc}${key}`
     }
     else {
-      return ensureSpaceSeparator(acc, options.unparse(
+      const value = options.unparse(
         param,
         options.inline().inc(keyLength + 1),
-      ))
+      )
+      return ensureSpaceSeparator(acc, value)
     }
   }, '')
 }

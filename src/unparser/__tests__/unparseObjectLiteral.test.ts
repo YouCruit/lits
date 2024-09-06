@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it } from 'vitest'
 import { Lits } from '../../Lits/Lits'
-import { unparseAst } from '../unparse'
+import { testFormatter } from './testFormatter'
 
 const lits = new Lits({ debug: true })
 const sampleProgram = '(merge {:a 1, :b 2} {:foo {:x 42, :y 144}, :foobar {}})'
@@ -23,38 +23,79 @@ const sampleProgramWithComments = `
 describe('unparseObjectLitteral', () => {
   it('should unparse empty object', () => {
     const program = '{}'
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 80)).toEqual('{}\n')
+    testFormatter(
+      p => lits.format(p),
+      program,
+      '{}\n',
+    )
+  })
+
+  it('should work 0.9', () => {
+    const program = `
+{:x 1
+ :y 2
+ :z 3}
+`.trimStart()
+    testFormatter(
+      p => lits.format(p, { lineLength: 12 }),
+      program,
+      `
+{:x 1
+ :y 2
+ :z 3}
+`.trimStart(),
+    )
   })
 
   it('should work 1', () => {
     const program = '{:x 1, :y 2, :z 3}'
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 12)).toEqual(`
+    testFormatter(
+      p => lits.format(p, { lineLength: 12 }),
+      program,
+      `
 {:x 1
  :y 2
  :z 3}
-`.trimStart())
+`.trimStart(),
+    )
+  })
+
+  it('should work 1.5', () => {
+    const program = `
+{:x 1
+ :y 2
+ :z 3}
+`
+    testFormatter(
+      p => lits.format(p, { lineLength: 12 }),
+      program,
+      `
+{:x 1
+ :y 2
+ :z 3}
+`,
+    )
   })
 
   it('should work 2', () => {
     const program = '{:a {:x 1, :y 2, :z 3}}'
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 12)).toEqual(`
+    testFormatter(
+      p => lits.format(p, { lineLength: 12 }),
+      program,
+      `
 {:a {:x 1
      :y 2
      :z 3}}
-`.trimStart())
+`.trimStart(),
+    )
   })
 
   it('should work 3', () => {
     const program = '{:a {:x 1, :y 2, :z 3}, :b {:x2 1, :y2 2, :z2 3}}'
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 1)).toEqual(`
+    testFormatter(
+      p => lits.format(p, { lineLength: 1 }),
+      program,
+      `
 {:a
  {:x
   1
@@ -69,17 +110,28 @@ describe('unparseObjectLitteral', () => {
   2
   :z2
   3}}
-`.trimStart())
-    expect(unparseAst(ast, 23)).toEqual(`
+`.trimStart(),
+    )
+
+    testFormatter(
+      p => lits.format(p, { lineLength: 23 }),
+      program,
+      `
 {:a {:x 1, :y 2, :z 3}
  :b {:x2 1
      :y2 2
      :z2 3}}
-`.trimStart())
-    expect(unparseAst(ast, 26)).toEqual(`
+`.trimStart(),
+    )
+
+    testFormatter(
+      p => lits.format(p, { lineLength: 26 }),
+      program,
+      `
 {:a {:x 1, :y 2, :z 3}
  :b {:x2 1, :y2 2, :z2 3}}
-`.trimStart())
+`.trimStart(),
+    )
   })
 
   it('should work 4', () => {
@@ -88,31 +140,34 @@ describe('unparseObjectLitteral', () => {
  {:x 42 ;; Inline comment
   :y 144}}
 `.trimStart()
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 80)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   it('should work 5', () => {
     const program = `
 { ;; Inline comment
- :foo
- 1
- :bar
- 2}
+ :foo 1
+ :bar 2}
 `
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   describe('unparse sample program.', () => {
     for (let lineLength = 0; lineLength <= sampleProgram.length + 1; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {
-        const tokenStream = lits.tokenize(sampleProgram)
-        const ast = lits.parse(tokenStream)
-        const unparsed = unparseAst(ast, lineLength)
-        expect(unparsed).toEqual(formatSampleProgram(lineLength))
+        testFormatter(
+          p => lits.format(p, { lineLength }),
+          sampleProgram,
+          formatSampleProgram(lineLength),
+        )
       })
     }
   })
@@ -121,10 +176,11 @@ describe('unparseObjectLitteral', () => {
     // for (let lineLength = 80; lineLength <= sampleProgramWithComments.length + 1; lineLength += 1) {
     for (let lineLength = 0; lineLength <= 80; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {
-        const tokenStream = lits.tokenize(sampleProgramWithComments)
-        const ast = lits.parse(tokenStream)
-        const unparsed = unparseAst(ast, lineLength)
-        expect(unparsed).toEqual(formatSampleProgramWithComments(lineLength))
+        testFormatter(
+          p => lits.format(p, { lineLength }),
+          sampleProgramWithComments,
+          formatSampleProgramWithComments(lineLength),
+        )
       })
     }
   })

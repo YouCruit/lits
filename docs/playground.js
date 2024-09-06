@@ -602,7 +602,10 @@ var Playground = (function (exports) {
             removeOptions.removeCommenNodesFromArray(node.p);
             node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
         },
-        'cond': function (_node, _removeOptions) { },
+        'cond': function (node, removeOptions) {
+            removeOptions.removeCommenNodesFromArray(node.p);
+            node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
+        },
         'declared?': function (node, removeOptions) {
             removeOptions.removeCommenNodesFromArray(node.p);
             node.p.forEach(removeOptions.recursivelyRemoveCommentNodes);
@@ -4312,7 +4315,7 @@ var Playground = (function (exports) {
             return false;
         if (!isTokenType(tkn.t))
             return false;
-        if (options.type && tkn.t !== options.type)
+        if ((options.type != null) && tkn.t !== options.type)
             return false;
         if (options.value && tkn.v !== options.value)
             return false;
@@ -4327,7 +4330,7 @@ var Playground = (function (exports) {
                 : typeof filePath === 'string'
                     ? { filePath: filePath }
                     : undefined;
-            throw new LitsError("Expected ".concat(options.type ? "".concat(TokenType[options.type], "-") : '', "token").concat(typeof options.value === 'string' ? " value='".concat(options.value, "'") : '', ", got ").concat(valueToString(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
+            throw new LitsError("Expected ".concat((options.type != null) ? "".concat(TokenType[options.type], "-") : '', "token").concat(typeof options.value === 'string' ? " value='".concat(options.value, "'") : '', ", got ").concat(valueToString(value), "."), getSourceCodeInfo(value, sourceCodeInfo));
         }
     }
     function asToken(value, filePath, options) {
@@ -5358,20 +5361,23 @@ var Playground = (function (exports) {
         while (tkn.t === TokenType.Modifier) {
             switch (tkn.v) {
                 case '&let':
-                    if (loopBinding.l)
+                    if (loopBinding.l) {
                         throw new LitsError('Only one &let modifier allowed', (_f = tkn.debugData) === null || _f === void 0 ? void 0 : _f.sourceCodeInfo);
+                    }
                     _c = __read(parseBindings(tokenStream, position + 1), 2), position = _c[0], loopBinding.l = _c[1];
                     loopBinding.m.push('&let');
                     break;
                 case '&when':
-                    if (loopBinding.wn)
+                    if (loopBinding.wn) {
                         throw new LitsError('Only one &when modifier allowed', (_g = tkn.debugData) === null || _g === void 0 ? void 0 : _g.sourceCodeInfo);
+                    }
                     _d = __read(parseToken(tokenStream, position + 1), 2), position = _d[0], loopBinding.wn = _d[1];
                     loopBinding.m.push('&when');
                     break;
                 case '&while':
-                    if (loopBinding.we)
+                    if (loopBinding.we) {
                         throw new LitsError('Only one &while modifier allowed', (_h = tkn.debugData) === null || _h === void 0 ? void 0 : _h.sourceCodeInfo);
+                    }
                     _e = __read(parseToken(tokenStream, position + 1), 2), position = _e[0], loopBinding.we = _e[1];
                     loopBinding.m.push('&while');
                     break;
@@ -6557,8 +6563,8 @@ var Playground = (function (exports) {
         try {
             for (var astNodes_1 = __values(astNodes), astNodes_1_1 = astNodes_1.next(); !astNodes_1_1.done; astNodes_1_1 = astNodes_1.next()) {
                 var subNode = astNodes_1_1.value;
-                var result = findUnresolvedIdentifiersInAstNode(subNode, contextStack, builtin);
-                result.forEach(function (symbol) { return unresolvedIdentifiers.add(symbol); });
+                findUnresolvedIdentifiersInAstNode(subNode, contextStack, builtin)
+                    .forEach(function (symbol) { return unresolvedIdentifiers.add(symbol); });
             }
         }
         catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -7334,7 +7340,7 @@ var Playground = (function (exports) {
             node,
         ];
     }
-    var placeholderRegexp = /^%([1-9][0-9]?)?$/;
+    var placeholderRegexp = /^%([1-9]\d?)?$/;
     var parseFnShorthand = function (tokenStream, position) {
         var _a, _b, _c, _d, _e;
         var firstToken = asToken(tokenStream.tokens[position], tokenStream.filePath);
@@ -7691,8 +7697,8 @@ var Playground = (function (exports) {
 
     var NO_MATCH = [0, undefined];
     // A name (function or variable) can contain a lot of different characters
-    var nameCharacters = '[@%0-9a-zA-ZàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß_^?=!$%<>+*/-]';
-    var nameRegExp = new RegExp("".concat(nameCharacters));
+    var nameCharacters = '[@%\\wàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß^?=!$<>+*/-]';
+    var nameRegExp = new RegExp(nameCharacters);
     var whitespaceRegExp = /\s|,/;
     var newLineRegExp = /\n/;
     var tokenizeNewLine = function (input, current, debugData) {
@@ -7843,11 +7849,11 @@ var Playground = (function (exports) {
             },
         ];
     };
-    var endOfNumberRegExp = /\s|[)\]},#]/;
-    var decimalNumberRegExp = /[0-9]/;
+    var endOfNumberRegExp = /[\s)\]},#]/;
+    var decimalNumberRegExp = /\d/;
     var octalNumberRegExp = /[0-7]/;
-    var hexNumberRegExp = /[0-9a-fA-F]/;
-    var binaryNumberRegExp = /[0-1]/;
+    var hexNumberRegExp = /[0-9a-f]/i;
+    var binaryNumberRegExp = /[01]/;
     var firstCharRegExp = /[0-9.-]/;
     var tokenizeNumber = function (input, position, debugData) {
         var type = 'decimal';
@@ -8259,6 +8265,462 @@ var Playground = (function (exports) {
             throw new LitsError("Expected newline token, got ".concat(token === null || token === void 0 ? void 0 : token.t, "."));
     }
 
+    var UnparseOptions = /** @class */ (function () {
+        function UnparseOptions(unparse, lineLength, col, inlined, locked) {
+            if (col === void 0) { col = 0; }
+            if (inlined === void 0) { inlined = false; }
+            if (locked === void 0) { locked = false; }
+            this.unparse = unparse;
+            this.lineLength = lineLength;
+            this.col = col;
+            this.inlined = inlined;
+            this.locked = locked;
+            this.indent = ' '.repeat(col);
+        }
+        UnparseOptions.prototype.inc = function (count) {
+            if (count === void 0) { count = 1; }
+            return new UnparseOptions(this.unparse, this.lineLength, this.col + count, this.inlined, this.locked);
+        };
+        UnparseOptions.prototype.inline = function () {
+            return new UnparseOptions(this.unparse, this.lineLength, this.col, true, this.locked);
+        };
+        UnparseOptions.prototype.noInline = function () {
+            return new UnparseOptions(this.unparse, this.lineLength, this.col, false, this.locked);
+        };
+        UnparseOptions.prototype.lock = function () {
+            return new UnparseOptions(this.unparse, this.lineLength, this.col, this.inlined, true);
+        };
+        UnparseOptions.prototype.assertNotOverflown = function (value) {
+            var _this = this;
+            value.split('\n').forEach(function (line, index) {
+                var fullLine = (index === 0 && _this.inlined) ? _this.indent + line : line;
+                var length = fullLine.length;
+                if (length > _this.lineLength)
+                    throw new Error("Line length exceeded ".concat(_this.lineLength, " chars, value: \"").concat(fullLine, "\" (").concat(fullLine.length, " chars)"));
+            });
+            return value;
+        };
+        return UnparseOptions;
+    }());
+
+    function ensureNewlineSeparator(a, b) {
+        return !a || !b || a.endsWith('\n') || b.startsWith('\n') ? "".concat(a).concat(b) : "".concat(a, "\n").concat(b);
+    }
+    function ensureSpaceSeparator(a, b) {
+        return !a || !b || a.endsWith(' ') || b.startsWith(' ') || b.startsWith('\n')
+            ? "".concat(a).concat(b)
+            : "".concat(a, " ").concat(b);
+    }
+    function applyMetaTokens(value, metaTokens, options) {
+        if (!metaTokens) {
+            return "".concat(options.inlined ? '' : options.indent).concat(value);
+        }
+        else {
+            var result = "".concat(metaTokensToString(metaTokens === null || metaTokens === void 0 ? void 0 : metaTokens.leadingMetaTokens)).concat(value).concat((metaTokens === null || metaTokens === void 0 ? void 0 : metaTokens.inlineCommentToken) ? " ".concat(metaTokens.inlineCommentToken.v, "\n") : '');
+            return result.split('\n').map(function (line, index) {
+                return "".concat(line && (!options.inlined || index > 0) ? options.indent : '').concat(line);
+            }).join('\n');
+        }
+    }
+    function metaTokensToString(metaTokens) {
+        return metaTokens
+            ? metaTokens.map(function (metaToken) {
+                return isNewLineToken(metaToken) ? metaToken.v : "".concat(metaToken.v, "\n");
+            }).join('')
+            : '';
+    }
+
+    function unparseParams(_a) {
+        var params = _a.params, options = _a.options, prefix = _a.prefix, inline = _a.inline, endBracket = _a.endBracket, _b = _a.body, body = _b === void 0 ? false : _b, _c = _a.name, name = _c === void 0 ? '' : _c, _d = _a.noMultilineInline, noMultilineInline = _d === void 0 ? false : _d, _e = _a.pairs, pairs = _e === void 0 ? false : _e;
+        // If no parameters, return the expression with brackets
+        if (params.length === 0)
+            return "".concat(prefix).concat(endBracket);
+        // 1. Try to unparse the parameters as a single line
+        try {
+            var unparsedParams = pairs
+                ? unparseSingleLinePairs(params, options.inline().lock())
+                : unparseSingleLineParams(params, options.inline().lock());
+            if (!unparsedParams.includes('\n'))
+                return options.assertNotOverflown("".concat(prefix, " ").concat(unparsedParams).concat(endBracket));
+        }
+        catch (error) {
+            // If locked, we do not try anything else
+            if (options.locked)
+                throw error;
+        }
+        if (pairs) {
+            if (name && !name.includes('\n')) {
+                try {
+                    var unparsedParams = unparseMultilinePairwise(params, options.inline().inc(name.length + 2).lock());
+                    return options.assertNotOverflown("".concat(prefix, " ").concat(unparsedParams).concat(endBracket));
+                }
+                catch (_f) {
+                }
+            }
+            try {
+                var unparsedParams = unparseMultilinePairwise(params, options.noInline().inc(body ? 2 : 1));
+                return options.assertNotOverflown(ensureNewlineSeparator(prefix, "".concat(unparsedParams).concat(endBracket)));
+            }
+            catch (_g) {
+            }
+        }
+        // 2. Try to unparse the parameters in multiple lines, first parameter on the same line
+        // e.g. (round 1 2 3 4 5)
+        // ==>  (round 1
+        //             2
+        //             3
+        //             4
+        //             5)
+        else if (inline) {
+            var newOptions = options.inc(name.length + 2).lock();
+            try {
+                var firstParam = options.unparse(params[0], noMultilineInline ? newOptions.noInline() : newOptions.inline());
+                // If the first parameter is multiline, fallback to option 3
+                if (!firstParam.startsWith('\n')) {
+                    var indentedParams = unparseMultilineParams(params.slice(1), newOptions.noInline());
+                    return noMultilineInline
+                        ? options.assertNotOverflown("".concat(ensureNewlineSeparator(prefix, ensureNewlineSeparator(firstParam, indentedParams))).concat(endBracket))
+                        : options.assertNotOverflown("".concat(prefix, " ").concat(ensureNewlineSeparator(firstParam, indentedParams)).concat(endBracket));
+                }
+            }
+            catch (_h) {
+                // Try option 3
+            }
+        }
+        // 3. Try to unparse the parameters in multiple lines
+        // e.g. (round 1 2 3 4 5)
+        // ==>  (round
+        //       1
+        //       2
+        //       3
+        //       4
+        //       5)
+        return "".concat(ensureNewlineSeparator(prefix, unparseMultilineParams(params, options.noInline().inc(body ? 2 : 1)))).concat(endBracket);
+    }
+    function unparseSingleLineParams(params, options) {
+        return params.reduce(function (acc, param) {
+            return ensureSpaceSeparator(acc, options.unparse(param, options.inline()));
+        }, '');
+    }
+    function unparseSingleLinePairs(params, options) {
+        return params.reduce(function (acc, param, index) {
+            if (index > 0 && index % 2 === 0)
+                acc += ',';
+            return ensureSpaceSeparator(acc, options.unparse(param, options.inline()));
+        }, '');
+    }
+    function unparseMultilineParams(params, options) {
+        return params.reduce(function (acc, param, index) { return ensureNewlineSeparator(acc, options.unparse(param, index === 0 && options.inlined ? options.inline() : options.noInline())); }, '');
+    }
+    function unparseMultilinePairwise(params, options) {
+        var keyLength;
+        return params.reduce(function (acc, param, index) {
+            if (index % 2 === 0) {
+                var key = options.unparse(param, options.inline()).trimStart();
+                keyLength = key.length;
+                key = index === 0 && options.inlined ? key : "".concat(options.indent).concat(key);
+                if (key.includes('\n'))
+                    throw new Error('Key with new line character is not allowed.');
+                return index > 0 ? ensureNewlineSeparator(acc, key) : "".concat(acc).concat(key);
+            }
+            else {
+                var value = options.unparse(param, options.inline().inc(keyLength + 1)).trim();
+                return ensureSpaceSeparator(acc, value);
+            }
+        }, '');
+    }
+
+    function unparseArrayLiteral(node, options) {
+        var _a, _b, _c, _d, _e;
+        var startBracket = applyMetaTokens('[', (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.metaTokens, options);
+        var endBracket = applyMetaTokens(']', (_e = (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.lastToken) === null || _d === void 0 ? void 0 : _d.debugData) === null || _e === void 0 ? void 0 : _e.metaTokens, options.inline());
+        // If no parameters, return empty array literal
+        if (node.p.length === 0)
+            return "".concat(startBracket).concat(endBracket);
+        var firstElementOptions = startBracket.endsWith('\n') ? options.noInline().inc() : options.inline().inc();
+        var unparsedFirstElement = options.unparse(node.p[0], firstElementOptions);
+        var params = node.p.slice(1);
+        var prefix = startBracket + unparsedFirstElement;
+        // 1. Try to unparse the parameters
+        try {
+            var unparsedParams = unparseSingleLineParams(params, options.inline().lock());
+            if (!unparsedParams.includes('\n')) {
+                return options.assertNotOverflown("".concat(ensureSpaceSeparator(prefix, unparsedParams)).concat(endBracket));
+            }
+        }
+        catch (error) {
+            // If locked, we do not try anything else
+            if (options.locked)
+                throw error;
+        }
+        // 2. Try to unparse the parameters in multiple lines
+        // e.g. [1 2 3 4 5]
+        // ==>  [
+        //       1
+        //       2
+        //       3
+        //       4
+        //       5]
+        return "".concat(ensureNewlineSeparator(prefix, unparseMultilineParams(params, options.noInline().inc()))).concat(endBracket);
+    }
+
+    function unparseObjectLiteral(node, options) {
+        var _a, _b, _c, _d, _e;
+        var startBracket = applyMetaTokens('{', (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.metaTokens, options);
+        var endBracket = applyMetaTokens('}', (_e = (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.lastToken) === null || _d === void 0 ? void 0 : _d.debugData) === null || _e === void 0 ? void 0 : _e.metaTokens, options.inline());
+        // If no parameters, return empty object literal
+        if (node.p.length === 0)
+            return "".concat(startBracket).concat(endBracket);
+        var params = node.p;
+        if (!startBracket.endsWith('\n')) {
+            // 1. Try to unparse the parameters as one line
+            try {
+                var unparsedParams = unparseSingleLinePairs(params, options.inline().lock());
+                if (!unparsedParams.includes('\n')) {
+                    var result = "".concat(startBracket).concat(unparsedParams).concat(endBracket);
+                    options.assertNotOverflown(result);
+                    return result;
+                }
+            }
+            catch (error) {
+                // If locked, we do not try anything else
+                if (options.locked)
+                    throw error;
+            }
+        }
+        // 2. Try to unparse the parameters pairwise on multiple lines
+        // e.g. {:a 1 :b 2 :c 3 :d 4 :e 5}
+        // ==>  {:a 1
+        //       :b 2
+        //       :c 3
+        //       :d 4
+        //       :e 5}
+        var multilineOptions = startBracket.endsWith('\n') ? options.noInline().inc() : options.inline().inc();
+        try {
+            var paiwise = unparseMultilinePairwise(params, multilineOptions);
+            var result = "".concat(startBracket).concat(paiwise).concat(endBracket);
+            options.assertNotOverflown(result);
+            return result;
+        }
+        catch (_f) {
+            // Continue to the next step
+        }
+        // 3. Try to unparse the parameters in multiple lines
+        return startBracket + unparseMultilineParams(node.p, multilineOptions) + endBracket;
+    }
+
+    function unparseNormalExpressionNode(node, options) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+        if (isNormalExpressionNode(node)) {
+            if (((_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.t) === TokenType.Bracket && node.debugData.token.v === '[')
+                return unparseArrayLiteral(node, options);
+            else if (((_b = node.debugData) === null || _b === void 0 ? void 0 : _b.token.t) === TokenType.Bracket && node.debugData.token.v === '{')
+                return unparseObjectLiteral(node, options);
+        }
+        var startBracket = applyMetaTokens('(', (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.metaTokens, options);
+        var endBracket = applyMetaTokens(')', (_g = (_f = (_e = node.debugData) === null || _e === void 0 ? void 0 : _e.lastToken) === null || _f === void 0 ? void 0 : _f.debugData) === null || _g === void 0 ? void 0 : _g.metaTokens, options.inline());
+        // if expression node e.g. ("Albert" 2), first parameter is the name ("Albert")
+        var nameOptions = startBracket.endsWith('\n') ? options.noInline().inc() : options.inline().inc();
+        var name = node.n
+            ? applyMetaTokens(node.n, (_k = (_j = (_h = node.debugData) === null || _h === void 0 ? void 0 : _h.nameToken) === null || _j === void 0 ? void 0 : _j.debugData) === null || _k === void 0 ? void 0 : _k.metaTokens, nameOptions)
+            : options.unparse(node.p[0], nameOptions);
+        var params = node.n ? node.p : node.p.slice(1);
+        var prefix = startBracket + name;
+        var inline = !name.includes('\n');
+        return unparseParams({ params: params, options: options, prefix: prefix, inline: inline, name: name, endBracket: endBracket });
+    }
+
+    function unparseCond(node, options) {
+        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var startBracket = applyMetaTokens('(', (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.metaTokens, options);
+        var endBracket = applyMetaTokens(')', (_e = (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.lastToken) === null || _d === void 0 ? void 0 : _d.debugData) === null || _e === void 0 ? void 0 : _e.metaTokens, options.inline());
+        var name = applyMetaTokens(node.n, (_h = (_g = (_f = node.debugData) === null || _f === void 0 ? void 0 : _f.nameToken) === null || _g === void 0 ? void 0 : _g.debugData) === null || _h === void 0 ? void 0 : _h.metaTokens, options.inline());
+        var prefix = startBracket + name;
+        var inline = !name.includes('\n');
+        return unparseParams({
+            params: node.p,
+            options: options,
+            prefix: prefix,
+            inline: inline,
+            name: name,
+            endBracket: endBracket,
+            body: true,
+            pairs: true,
+        });
+    }
+
+    function unparseDo(node, options) {
+        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var startBracket = applyMetaTokens('(', (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.metaTokens, options);
+        var endBracket = applyMetaTokens(')', (_e = (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.lastToken) === null || _d === void 0 ? void 0 : _d.debugData) === null || _e === void 0 ? void 0 : _e.metaTokens, options.inline());
+        var name = applyMetaTokens(node.n, (_h = (_g = (_f = node.debugData) === null || _f === void 0 ? void 0 : _f.nameToken) === null || _g === void 0 ? void 0 : _g.debugData) === null || _h === void 0 ? void 0 : _h.metaTokens, options.inline());
+        var prefix = startBracket + name;
+        var inline = !name.includes('\n');
+        return unparseParams({
+            params: node.p,
+            options: options,
+            prefix: prefix,
+            inline: inline,
+            name: name,
+            endBracket: endBracket,
+            body: true,
+        });
+    }
+
+    function unparseBindings(node, options) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
+        var startBracket = applyMetaTokens('[', (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.metaTokens, options);
+        // If no parameters, return empty array literal
+        if (node.p.length === 0) {
+            var endBracket = applyMetaTokens(']', (_e = (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.lastToken) === null || _d === void 0 ? void 0 : _d.debugData) === null || _e === void 0 ? void 0 : _e.metaTokens, options.inline());
+            return "".concat(startBracket).concat(endBracket);
+        }
+        var params = node.p;
+        // 1. Try to unparse the bindings as one line
+        try {
+            var unparsedParams = unparseSingleLinePairs(params, options.inline().lock());
+            var endBracket = applyMetaTokens(']', (_h = (_g = (_f = node.debugData) === null || _f === void 0 ? void 0 : _f.lastToken) === null || _g === void 0 ? void 0 : _g.debugData) === null || _h === void 0 ? void 0 : _h.metaTokens, options.inline());
+            if (!unparsedParams.includes('\n')) {
+                var result = "".concat(startBracket).concat(unparsedParams).concat(endBracket);
+                return options.assertNotOverflown(result);
+            }
+        }
+        catch (error) {
+            // If locked, we do not try anything else
+            if (options.locked)
+                throw error;
+        }
+        // 2. Try to unparse the bindings pairwise on multiple lines
+        // e.g. [a 1 b 2]
+        // ==>  [a 1
+        //       b 2]
+        try {
+            var endBracket = applyMetaTokens(']', (_l = (_k = (_j = node.debugData) === null || _j === void 0 ? void 0 : _j.lastToken) === null || _k === void 0 ? void 0 : _k.debugData) === null || _l === void 0 ? void 0 : _l.metaTokens, options.inline());
+            var result = startBracket + unparseMultilinePairwise(params, options.inline().inc()) + endBracket;
+            return options.assertNotOverflown(result);
+        }
+        catch (_t) {
+            // 2. Unparse the bindings on multiple lines
+            // e.g. [a 1 b 2]
+            // ==>  [a
+            //       1,
+            //       b
+            //       2]
+            var unparsedParams = unparseMultilineParams(params, options.inline().inc());
+            var endBracket = unparsedParams.endsWith('\n')
+                ? applyMetaTokens(']', (_p = (_o = (_m = node.debugData) === null || _m === void 0 ? void 0 : _m.lastToken) === null || _o === void 0 ? void 0 : _o.debugData) === null || _p === void 0 ? void 0 : _p.metaTokens, options.noInline())
+                : applyMetaTokens(']', (_s = (_r = (_q = node.debugData) === null || _q === void 0 ? void 0 : _q.lastToken) === null || _r === void 0 ? void 0 : _r.debugData) === null || _s === void 0 ? void 0 : _s.metaTokens, options.inline());
+            return startBracket + unparseMultilineParams(params, options.inline().inc()) + endBracket;
+        }
+    }
+
+    function unparseLet(node, options) {
+        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var startBracket = applyMetaTokens('(', (_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.metaTokens, options);
+        var endBracket = applyMetaTokens(')', (_e = (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.lastToken) === null || _d === void 0 ? void 0 : _d.debugData) === null || _e === void 0 ? void 0 : _e.metaTokens, options.inline());
+        var name = applyMetaTokens(node.n, (_h = (_g = (_f = node.debugData) === null || _f === void 0 ? void 0 : _f.nameToken) === null || _g === void 0 ? void 0 : _g.debugData) === null || _h === void 0 ? void 0 : _h.metaTokens, options.inline());
+        var letArray = node.debugData ? node.debugData.bindingArray : createLetArray(node.bs);
+        var inc = name.includes('\n') ? 1 : name.length + 2;
+        var unparsedLetArray = unparseBindings(letArray, options.inc(inc).inline());
+        var prefix = "".concat(startBracket + name, " ").concat(unparsedLetArray);
+        var inline = !(name + unparsedLetArray).includes('\n');
+        return unparseParams({
+            params: node.p,
+            options: options,
+            prefix: prefix,
+            inline: inline,
+            endBracket: endBracket,
+            body: true,
+            noMultilineInline: true,
+        });
+    }
+    function createLetArray(bindingNodes) {
+        var params = bindingNodes.flatMap(function (binding) { return [
+            {
+                t: AstNodeType.Name,
+                n: undefined,
+                p: [],
+                debugData: undefined,
+                v: binding.n,
+            },
+            binding.v,
+        ]; });
+        var node = {
+            t: AstNodeType.NormalExpression,
+            n: 'array',
+            p: params,
+            debugData: undefined,
+        };
+        return node;
+    }
+
+    // type ExpressionWithSingleParamNode = Pick<NormalExpressionNode, 'debug' | 'n'> & { p: AstNode }
+    // function expressionWithSingleParamUnparser(astNode: ExpressionWithSingleParamNode, options: UnparseOptions) {
+    //   return unparseNormalExpressionNode({ ...astNode, p: [astNode.p] }, options)
+    // }
+    var specialExpressionUnparser = {
+        'and': unparseNormalExpressionNode,
+        'comment': unparseNormalExpressionNode,
+        'cond': unparseCond,
+        'declared?': unparseNormalExpressionNode,
+        // 'defn': (astNode: DefnNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        'def': unparseNormalExpressionNode,
+        // 'defns': (astNode: DefnsNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        'defs': unparseNormalExpressionNode,
+        'do': unparseDo,
+        // 'doseq': (astNode: DoSeqNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        // 'fn': (astNode: FnNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        // 'for': (astNode: ForNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        // 'if-let': (astNode: IfLetNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        'if': unparseNormalExpressionNode,
+        'if-not': unparseNormalExpressionNode,
+        'let': unparseLet,
+        // 'loop': (astNode: LoopNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        'or': unparseNormalExpressionNode,
+        '??': unparseNormalExpressionNode,
+        'recur': unparseNormalExpressionNode,
+        'time!': unparseNormalExpressionNode,
+        'throw': unparseNormalExpressionNode,
+        // 'try': (astNode: TryNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        // 'when-first': (astNode: WhenFirstNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        // 'when-let': (astNode: WhenLetNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        // 'when': (astNode: WhenNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+        // 'when-not': (astNode: WhenNotNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+    };
+    function unparseSpecialExpression(node, options) {
+        var unparser = specialExpressionUnparser[node.n];
+        return unparser(node, options);
+    }
+
+    var unparse = function (node, options) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+        switch (node.t) {
+            case AstNodeType.String:
+                return ((_b = (_a = node.debugData) === null || _a === void 0 ? void 0 : _a.token.o) === null || _b === void 0 ? void 0 : _b.s)
+                    ? applyMetaTokens(":".concat(node.v), (_d = (_c = node.debugData) === null || _c === void 0 ? void 0 : _c.token.debugData) === null || _d === void 0 ? void 0 : _d.metaTokens, options) // Keyword
+                    : applyMetaTokens("\"".concat(node.v, "\""), (_f = (_e = node.debugData) === null || _e === void 0 ? void 0 : _e.token.debugData) === null || _f === void 0 ? void 0 : _f.metaTokens, options);
+            case AstNodeType.Number:
+            case AstNodeType.Name:
+            case AstNodeType.Modifier:
+            case AstNodeType.ReservedName:
+                return applyMetaTokens(node.v, (_h = (_g = node.debugData) === null || _g === void 0 ? void 0 : _g.token.debugData) === null || _h === void 0 ? void 0 : _h.metaTokens, options);
+            case AstNodeType.Comment:
+                return "".concat(applyMetaTokens(node.v, (_k = (_j = node.debugData) === null || _j === void 0 ? void 0 : _j.token.debugData) === null || _k === void 0 ? void 0 : _k.metaTokens, options), "\n");
+            case AstNodeType.NormalExpression: {
+                return unparseNormalExpressionNode(node, options);
+            }
+            case AstNodeType.SpecialExpression:
+                return unparseSpecialExpression(node, options);
+        }
+    };
+    function unparseAst(ast, lineLength) {
+        var options = new UnparseOptions(unparse, lineLength || Number.MAX_SAFE_INTEGER);
+        var result = ast.b.reduce(function (acc, node) {
+            return ensureNewlineSeparator(acc, unparse(node, options));
+        }, '');
+        return result.endsWith('\n') ? result : "".concat(result, "\n");
+    }
+
     var Cache = /** @class */ (function () {
         function Cache(maxSize) {
             this.cache = {};
@@ -8357,8 +8819,14 @@ var Playground = (function (exports) {
         Lits.prototype.run = function (program, params) {
             if (params === void 0) { params = {}; }
             var ast = this.generateAst(program, params);
-            var result = this.evaluate(ast, params);
-            return result;
+            return this.evaluate(ast, params);
+        };
+        Lits.prototype.format = function (program, params) {
+            var _a;
+            if (params === void 0) { params = {}; }
+            var lineLength = (_a = params.lineLength) !== null && _a !== void 0 ? _a : 80;
+            var ast = this.generateAst(program, params);
+            return unparseAst(ast, lineLength);
         };
         Lits.prototype.context = function (program, params) {
             if (params === void 0) { params = {}; }
@@ -8402,9 +8870,8 @@ var Playground = (function (exports) {
             params.values = __assign(__assign({}, params.values), hostValues);
             return this.evaluate(ast, params);
         };
-        Lits.prototype.generateAst = function (untrimmedProgram, params) {
+        Lits.prototype.generateAst = function (program, params) {
             var _a, _b;
-            var program = untrimmedProgram.trim();
             if (this.astCache) {
                 var cachedAst = this.astCache.get(program);
                 if (cachedAst)
@@ -8866,6 +9333,7 @@ var Playground = (function (exports) {
             }
             if (evt.key === 'Enter') {
                 evt.preventDefault();
+                // eslint-disable-next-line regexp/optimal-quantifier-concatenation
                 var spaceCount = target.value.substring(indexOfReturn + 1, start).replace(/^( *).*/, '$1').length;
                 target.value = "".concat(target.value.substring(0, start), "\n").concat(' '.repeat(spaceCount)).concat(target.value.substring(end));
                 target.selectionStart = target.selectionEnd = start + 1 + spaceCount;

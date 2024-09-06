@@ -1,16 +1,17 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it } from 'vitest'
 import { Lits } from '../../Lits/Lits'
-import { unparseAst } from '../unparse'
+import { testFormatter } from './testFormatter'
 
 const lits = new Lits({ debug: true })
 
 describe('unparseNormalExpression', () => {
   it('should work 1', () => {
     const program = '(rand!)\n'
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-
-    expect(unparseAst(ast, 80)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   it('should work 2', () => {
@@ -18,23 +19,25 @@ describe('unparseNormalExpression', () => {
 (flatten (range
           10))
 `
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-
-    expect(unparseAst(ast, 80)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   it('should work 3', () => {
     const program = `
 [(+ 1)]
 `
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-
-    expect(unparseAst(ast, 1)).toEqual(`
+    testFormatter(
+      p => lits.format(p, { lineLength: 1 }),
+      program,
+  `
 [(+
   1)]
-`)
+`,
+    )
   })
 
   it('should work 4', () => {
@@ -45,10 +48,12 @@ describe('unparseNormalExpression', () => {
  1
 )
 `
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
 
-    expect(unparseAst(ast)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   it('should work 5', () => {
@@ -62,10 +67,12 @@ describe('unparseNormalExpression', () => {
    3
 )
 `
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
 
-    expect(unparseAst(ast)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   it('should work 6', () => {
@@ -77,10 +84,12 @@ describe('unparseNormalExpression', () => {
  2
 )
 `
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
 
-    expect(unparseAst(ast)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   it('should work 7', () => {
@@ -91,9 +100,11 @@ describe('unparseNormalExpression', () => {
  2
 )
 `
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
 
-    expect(unparseAst(ast)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 })

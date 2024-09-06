@@ -29,14 +29,13 @@ export class UnparseOptions {
   }
 
   public assertNotOverflown(value: string): string {
-    if (value.split('\n').every((line, index) => {
-      const length = (index === 0 && this.inlined) ? this.col + line.length : line.length
+    value.split('\n').forEach((line, index) => {
+      const fullLine = (index === 0 && this.inlined) ? this.indent + line : line
+      const length = fullLine.length
+      if (length > this.lineLength)
+        throw new Error(`Line length exceeded ${this.lineLength} chars, value: "${fullLine}" (${fullLine.length} chars)`)
+    })
 
-      return length <= this.lineLength
-    })) {
-      return value
-    }
-
-    throw new Error('Line length exceeded')
+    return value
   }
 }

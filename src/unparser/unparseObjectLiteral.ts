@@ -39,10 +39,12 @@ export function unparseObjectLiteral(node: NormalExpressionNode, options: Unpars
   //       :e 5}
   const multilineOptions = startBracket.endsWith('\n') ? options.noInline().inc() : options.inline().inc()
   try {
-    return options.assertNotOverflown(startBracket
-      + unparseMultilinePairwise(params, multilineOptions) + endBracket)
+    const paiwise = unparseMultilinePairwise(params, multilineOptions)
+    const result = `${startBracket}${paiwise}${endBracket}`
+    return options.assertNotOverflown(result)
   }
   catch {
+    // Continue to the next step
   }
 
   // 3. Try to unparse the parameters in multiple lines

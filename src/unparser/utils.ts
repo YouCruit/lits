@@ -7,7 +7,9 @@ export function ensureNewlineSeparator(a: string, b: string): string {
 }
 
 export function ensureSpaceSeparator(a: string, b: string): string {
-  return !a || !b || a.endsWith(' ') || b.startsWith(' ') ? `${a}${b}` : `${a} ${b}`
+  return !a || !b || a.endsWith(' ') || b.startsWith(' ') || b.startsWith('\n')
+    ? `${a}${b}`
+    : `${a} ${b}`
 }
 
 export function applyMetaTokens(

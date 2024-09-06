@@ -3,6 +3,7 @@ import type { AndNode } from '../../builtin/specialExpressions/and'
 // import type { AstNode, NormalExpressionNode } from '../../parser/interface'
 import type { UnparseOptions } from '../UnparseOptions'
 import { unparseNormalExpressionNode } from '../unparseNormalExpression'
+import { unparseCond } from './unparseCond'
 import { unparseDo } from './unparseDo'
 import { unparseLet } from './unparseLet'
 
@@ -15,7 +16,7 @@ import { unparseLet } from './unparseLet'
 const specialExpressionUnparser = {
   'and': unparseNormalExpressionNode,
   'comment': unparseNormalExpressionNode,
-  // 'cond': (astNode: CondNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
+  'cond': unparseCond,
   'declared?': unparseNormalExpressionNode,
   // 'defn': (astNode: DefnNode, options: UnparseOptions) => unparseNormalExpressionNode({ ...astNode, t }, options),
   'def': unparseNormalExpressionNode,

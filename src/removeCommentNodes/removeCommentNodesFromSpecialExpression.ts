@@ -26,7 +26,10 @@ const specialExpressionCommentRemovers = {
     removeOptions.removeCommenNodesFromArray(node.p)
     node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
   },
-  'cond': (_node: CondNode, _removeOptions: RemoveOptions) => {},
+  'cond': (node: CondNode, removeOptions: RemoveOptions) => {
+    removeOptions.removeCommenNodesFromArray(node.p)
+    node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)
+  },
   'declared?': (node: DeclaredNode, removeOptions: RemoveOptions) => {
     removeOptions.removeCommenNodesFromArray(node.p)
     node.p.forEach(removeOptions.recursivelyRemoveCommentNodes)

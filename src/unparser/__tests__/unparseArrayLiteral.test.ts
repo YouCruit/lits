@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it } from 'vitest'
 import { Lits } from '../../Lits/Lits'
-import { unparseAst } from '../unparse'
+import { testFormatter } from './testFormatter'
 
 const lits = new Lits({ debug: true })
 const sampleProgram = '(flatten [1 2 [3 4] 5])'
@@ -19,16 +19,20 @@ const sampleProgramWithComments = `
 describe('unparseArrayLitteral', () => {
   it('shoudl unparse unply array', () => {
     const program = '[]'
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 80)).toEqual('[]\n')
+    testFormatter(
+      p => lits.format(p),
+      program,
+      '[]\n',
+    )
   })
 
   it('should work 1', () => {
     const program = '[{}]\n'
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 80)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   it('should work 2', () => {
@@ -42,9 +46,11 @@ describe('unparseArrayLitteral', () => {
    [3 4]
    5]))
 `
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 80)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   it('should work 3', () => {
@@ -53,9 +59,11 @@ describe('unparseArrayLitteral', () => {
        1
        3)
 `
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 80)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   it('should work 4', () => {
@@ -67,17 +75,21 @@ describe('unparseArrayLitteral', () => {
  4
  5]
 `
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast, 80)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   describe('unparse sampleProgram', () => {
     for (let lineLength = 0; lineLength <= sampleProgram.length + 1; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {
-        const tokenStream = lits.tokenize(sampleProgram)
-        const ast = lits.parse(tokenStream)
-        expect(unparseAst(ast, lineLength)).toEqual(formatSampleProgram(lineLength))
+        testFormatter(
+          p => lits.format(p, { lineLength }),
+          sampleProgram,
+          formatSampleProgram(lineLength),
+        )
       })
     }
   })
@@ -85,9 +97,11 @@ describe('unparseArrayLitteral', () => {
   describe('unparse sampleProgramWithComments', () => {
     for (let lineLength = 0; lineLength <= 43; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {
-        const tokenStream = lits.tokenize(sampleProgramWithComments)
-        const ast = lits.parse(tokenStream)
-        expect(unparseAst(ast, lineLength)).toEqual(formatSampleProgramWithComments(lineLength))
+        testFormatter(
+          p => lits.format(p, { lineLength }),
+          sampleProgramWithComments,
+          formatSampleProgramWithComments(lineLength),
+        )
       })
     }
   })

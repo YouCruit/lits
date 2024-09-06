@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it } from 'vitest'
 import { Lits } from '../../../Lits/Lits'
-import { unparseAst } from '../../unparse'
 import type { SpecialExpressionName } from '../../../builtin'
+import { testFormatter } from '../testFormatter'
 
 const lits = new Lits({ debug: true })
 
@@ -27,10 +27,11 @@ describe('unparse expressions with params', () => {
         ['and', 'comment', 'or', 'recur'].includes(name))
     ) {
       const program = `(${expressionWithParams})\n`
-      const tokenStream = lits.tokenize(program)
-      const ast = lits.parse(tokenStream)
-
-      expect(unparseAst(ast)).toEqual(program)
+      testFormatter(
+        p => lits.format(p),
+        program,
+        program,
+      )
     }
   })
 
@@ -40,10 +41,11 @@ describe('unparse expressions with params', () => {
         ['and', 'comment', 'declared?', 'or', '??', 'recur', 'time!', 'throw'].includes(name))
     ) {
       const program = `(${expressionWithParams} foo)\n`
-      const tokenStream = lits.tokenize(program)
-      const ast = lits.parse(tokenStream)
-
-      expect(unparseAst(ast)).toEqual(program)
+      testFormatter(
+        p => lits.format(p),
+        program,
+        program,
+      )
     }
   })
 
@@ -53,10 +55,11 @@ describe('unparse expressions with params', () => {
         ['and', 'comment', 'def', 'defs', 'if', 'if-not', 'or', '??', 'recur'].includes(name))
     ) {
       const program = `(${expressionWithParams} foo bar)\n`
-      const tokenStream = lits.tokenize(program)
-      const ast = lits.parse(tokenStream)
-
-      expect(unparseAst(ast)).toEqual(program)
+      testFormatter(
+        p => lits.format(p),
+        program,
+        program,
+      )
     }
   })
 
@@ -66,10 +69,11 @@ describe('unparse expressions with params', () => {
         ['and', 'comment', 'if', 'if-not', 'or', 'recur'].includes(name))
     ) {
       const program = `(${expressionWithParams} foo bar baz)\n`
-      const tokenStream = lits.tokenize(program)
-      const ast = lits.parse(tokenStream)
-
-      expect(unparseAst(ast)).toEqual(program)
+      testFormatter(
+        p => lits.format(p),
+        program,
+        program,
+      )
     }
   })
 
@@ -79,10 +83,11 @@ describe('unparse expressions with params', () => {
         ['and', 'comment', 'or', 'recur'].includes(name))
     ) {
       const program = `(${expressionWithParams} foo bar baz bazz)\n`
-      const tokenStream = lits.tokenize(program)
-      const ast = lits.parse(tokenStream)
-
-      expect(unparseAst(ast)).toEqual(program)
+      testFormatter(
+        p => lits.format(p),
+        program,
+        program,
+      )
     }
   })
 
@@ -109,10 +114,12 @@ describe('unparse expressions with params', () => {
 
 ;; Comment
 `
-      const tokenStream = lits.tokenize(program)
-      const ast = lits.parse(tokenStream)
 
-      expect(unparseAst(ast)).toEqual(program)
+      testFormatter(
+        p => lits.format(p),
+        program,
+        program,
+      )
     }
   })
 
@@ -137,10 +144,12 @@ describe('unparse expressions with params', () => {
 
 ;; Comment
 `
-      const tokenStream = lits.tokenize(program)
-      const ast = lits.parse(tokenStream)
 
-      expect(unparseAst(ast)).toEqual(program)
+      testFormatter(
+        p => lits.format(p),
+        program,
+        program,
+      )
     }
   })
 
@@ -169,10 +178,12 @@ describe('unparse expressions with params', () => {
 
 ;; Comment
 `
-      const tokenStream = lits.tokenize(program)
-      const ast = lits.parse(tokenStream)
 
-      expect(unparseAst(ast)).toEqual(program)
+      testFormatter(
+        p => lits.format(p),
+        program,
+        program,
+      )
     }
   })
 
@@ -203,10 +214,12 @@ describe('unparse expressions with params', () => {
 
 ;; Comment
 `
-      const tokenStream = lits.tokenize(program)
-      const ast = lits.parse(tokenStream)
 
-      expect(unparseAst(ast)).toEqual(program)
+      testFormatter(
+        p => lits.format(p),
+        program,
+        program,
+      )
     }
   })
 
@@ -237,10 +250,12 @@ describe('unparse expressions with params', () => {
 
 ;; Comment
 `
-      const tokenStream = lits.tokenize(program)
-      const ast = lits.parse(tokenStream)
 
-      expect(unparseAst(ast)).toEqual(program)
+      testFormatter(
+        p => lits.format(p),
+        program,
+        program,
+      )
     }
   })
 })

@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it } from 'vitest'
 import { Lits } from '../../../Lits/Lits'
-import { unparseAst } from '../../unparse'
+import { testFormatter } from '../testFormatter'
 
 const lits = new Lits({ debug: true })
 
@@ -21,24 +21,34 @@ const sampleProgramWithComments = `
 describe('unparse expressions with params', () => {
   it('should unparse with zero params', () => {
     const program = '(do)\n'
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast)).toEqual(program)
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
   })
 
   it('should unparse with 1 param', () => {
     const program = '(do foo)\n'
-    const tokenStream = lits.tokenize(program)
-    const ast = lits.parse(tokenStream)
-    expect(unparseAst(ast)).toEqual(program)
-    expect(unparseAst(ast, 1)).toEqual('(do\n  foo)\n')
+    testFormatter(
+      p => lits.format(p),
+      program,
+      program,
+    )
+    testFormatter(
+      p => lits.format(p, { lineLength: 1 }),
+      program,
+      '(do\n  foo)\n',
+    )
   })
   describe('unparse sampleProgram', () => {
     for (let lineLength = 0; lineLength <= sampleProgram.length + 1; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {
-        const tokenStream = lits.tokenize(sampleProgram)
-        const ast = lits.parse(tokenStream)
-        expect(unparseAst(ast, lineLength)).toEqual(formatSampleProgram(lineLength))
+        testFormatter(
+          program => lits.format(program, { lineLength }),
+          sampleProgram,
+          formatSampleProgram(lineLength),
+        )
       })
     }
   })
@@ -46,9 +56,11 @@ describe('unparse expressions with params', () => {
   describe('unparse sampleProgramWithComments', () => {
     for (let lineLength = 0; lineLength <= 30; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {
-        const tokenStream = lits.tokenize(sampleProgramWithComments)
-        const ast = lits.parse(tokenStream)
-        expect(unparseAst(ast, lineLength)).toEqual(formatSampleProgramWithComments(lineLength))
+        testFormatter(
+          program => lits.format(program, { lineLength }),
+          sampleProgramWithComments,
+          formatSampleProgramWithComments(lineLength),
+        )
       })
     }
   })

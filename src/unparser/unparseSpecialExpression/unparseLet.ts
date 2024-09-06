@@ -24,7 +24,7 @@ export function unparseLet(node: LetNode, options: UnparseOptions) {
     prefix,
     inline,
     endBracket,
-    indent: 2,
+    body: true,
     noMultilineInline: true,
   })
 }

@@ -12,8 +12,8 @@ export const findUnresolvedIdentifiers: FindUnresolvedIdentifiers = (ast, contex
   const unresolvedIdentifiers = new Set<UnresolvedIdentifier>()
 
   for (const subNode of astNodes) {
-    const result = findUnresolvedIdentifiersInAstNode(subNode, contextStack, builtin)
-    result.forEach(symbol => unresolvedIdentifiers.add(symbol))
+    findUnresolvedIdentifiersInAstNode(subNode, contextStack, builtin)
+      .forEach(symbol => unresolvedIdentifiers.add(symbol))
   }
 
   return unresolvedIdentifiers

@@ -1,4 +1,17 @@
-import { hamburgerIcon, labIcon, linkIcon, objectIcon, playIcon, plusIcon, resetIcon, tokenIcon, trashIcon, treeIcon } from '../icons'
+import {
+  debugIcon,
+  hamburgerIcon,
+  labIcon,
+  leftAlignIcon,
+  linkIcon,
+  objectIcon,
+  playIcon,
+  plusIcon,
+  resetIcon,
+  tokenIcon,
+  trashIcon,
+  treeIcon,
+} from '../icons'
 import { createStyles, css } from '../styles'
 
 const styles = createStyles({
@@ -66,7 +79,10 @@ export function getPlayground() {
   
       ><div id="lits-panel" ${styles('h-full')}>
         <div ${styles('PanelHeader')}>
-          <div ${styles('text-lg', 'font-sans')}>Lits Code</div>
+          <div ${styles('flex', 'gap-1', 'w-full', 'items-center')}>
+            <span id="lits-panel-debug-info" ${styles('flex', 'items-center', 'text-xl')}>${debugIcon}</span>
+            <div ${styles('text-lg', 'font-sans')}>Code</div>
+          </div>
           <div
             id="lits-links"
             onclick="event.preventDefault(); event.stopPropagation()"
@@ -86,24 +102,47 @@ export function getPlayground() {
                       </div>
                       F5
                     </a>
-                    <a ${styles('flex', 'gap-2', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.analyze()">
-                      <span ${styles('text-color-Blue', 'items-center', 'flex')}>${labIcon}</span>
-                      <span ${styles('mr-8')}>Analyze</span>
+                    <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.analyze()">
+                      <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
+                        <span ${styles('text-color-Blue', 'items-center', 'flex')}>${labIcon}</span>
+                        <span ${styles('mr-8')}>Analyze</span>
+                      </div>
+                      F6
                     </a>
-                    <a ${styles('flex', 'gap-2', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.tokenize(false)">
-                      <span ${styles('text-color-Mint', 'items-center', 'flex')}>${tokenIcon}</span>
-                      <span ${styles('mr-8')}>Tokenize</span>
+                    <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.tokenize()">
+                      <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
+                        <span ${styles('text-color-Mint', 'items-center', 'flex')}>${tokenIcon}</span>
+                        <span ${styles('mr-8')}>Tokenize</span>
+                      </div>
+                      F7
                     </a>
-                    <a ${styles('flex', 'gap-2', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.parse(false)">
-                      <span ${styles('text-color-Viola', 'items-center', 'flex')}>${treeIcon}</span>
-                      <span ${styles('mr-8')}>Parse</span>
+                    <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.parse()">
+                      <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
+                        <span ${styles('text-color-Viola', 'items-center', 'flex')}>${treeIcon}</span>
+                        <span ${styles('mr-8')}>Parse</span>
+                      </div>
+                      F8
+                    </a>
+                    <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.format()">
+                      <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
+                        <span ${styles('text-color-Orange', 'items-center', 'flex')}>${leftAlignIcon}</span>
+                        <span ${styles('mr-8')}>Format</span>
+                      </div>
+                      F9
+                    </a>
+                    <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.toggleDebug()">
+                      <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
+                        <span ${styles('text-color-Rose', 'items-center', 'flex')}>${debugIcon}</span>
+                        <span id="toggle-debug-menu-label" ${styles('mr-8')}>Debug</span>
+                      </div>
+                      F10
                     </a>
                     <a ${styles('flex', 'gap-2', 'w-full', 'items-center', 'pt-2', 'border-0', 'border-t', 'border-solid', 'border-gray-500')} onclick="Playground.closeMoreMenu(); Playground.share();">
                       <span ${styles('text-color-Pink', 'items-center', 'flex')}>${linkIcon}</span>
                       <span>Share</span>
                     </a>
                     <a ${styles('flex', 'gap-2', 'w-full', 'items-center', 'pt-2', 'border-0', 'border-t', 'border-solid', 'border-gray-500')} onclick="Playground.closeMoreMenu(); Playground.resetPlayground();">
-                      <span ${styles('text-color-Rose', 'items-center', 'flex')}>${resetIcon}</span>
+                      <span ${styles('text-color-Crimson', 'items-center', 'flex')}>${resetIcon}</span>
                       <span>Reset Playground</span>
                     </a>
                   </div>

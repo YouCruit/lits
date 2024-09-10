@@ -15,6 +15,7 @@ export const defaultState = {
   'output-scroll-top': 0 as number,
   'new-context-name': '' as string,
   'new-context-value': '' as string,
+  'debug': false as boolean,
 } as const
 
 type State = {
@@ -67,16 +68,16 @@ export function encodeState() {
   return btoa(JSON.stringify(sharedState))
 }
 
-export function decodeState(encodedState: string) {
+export function applyEncodedState(encodedState: string): boolean {
   try {
     const decodedState = JSON.parse(atob(encodedState)) as Partial<State>
     Object.entries(decodedState).forEach(([key, value]) => {
       if (keys.includes(key as Key))
         saveState(key as Key, value)
     })
+    return true
   }
   catch (error) {
-    console.error('Invalid state', encodedState)
-    throw error
+    return false
   }
 }

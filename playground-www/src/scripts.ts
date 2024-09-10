@@ -7,10 +7,13 @@ import type { Analysis } from '../../src/analyze'
 import { asUnknownRecord } from '../../src/typeGuards'
 import type { UnknownRecord } from '../../src/interface'
 import { Search } from './Search'
-import { decodeState as applyEncodedState, clearAllStates, clearState, encodeState, getState, saveState, state } from './state'
+import { applyEncodedState, clearAllStates, clearState, encodeState, getState, saveState, state } from './state'
 
-const lits = new Lits({ debug: true })
-const litsNoDebug = new Lits({ debug: false })
+const getLits: (forceDebug?: 'debug') => Lits = (() => {
+  const lits = new Lits({ debug: true })
+  const litsNoDebug = new Lits({ debug: false })
+  return (forceDebug?: 'debug') => forceDebug || getState('debug') ? lits : litsNoDebug
+})()
 
 const elements = {
   wrapper: document.getElementById('wrapper') as HTMLElement,
@@ -25,13 +28,14 @@ const elements = {
   newContextName: document.getElementById('new-context-name') as HTMLInputElement,
   newContextValue: document.getElementById('new-context-value') as HTMLTextAreaElement,
   newContextError: document.getElementById('new-context-error') as HTMLSpanElement,
-
   contextTextArea: document.getElementById('context-textarea') as HTMLTextAreaElement,
   outputResult: document.getElementById('output-result') as HTMLElement,
   litsTextArea: document.getElementById('lits-textarea') as HTMLTextAreaElement,
   resizePlayground: document.getElementById('resize-playground') as HTMLElement,
   resizeDevider1: document.getElementById('resize-divider-1') as HTMLElement,
   resizeDevider2: document.getElementById('resize-divider-2') as HTMLElement,
+  toggleDebugMenuLabel: document.getElementById('toggle-debug-menu-label') as HTMLSpanElement,
+  litsPanelDebugInfo: document.getElementById('lits-panel-debug-info') as HTMLDivElement,
 }
 
 type MoveParams = {
@@ -127,6 +131,7 @@ export function resetPlayground() {
   Search.clearSearch()
 
   layout()
+  renderDebugInfo()
 }
 
 export function resetContext() {
@@ -378,7 +383,27 @@ window.onload = function () {
       evt.preventDefault()
       run()
     }
-    if (evt.key === 'Escape') {
+    else if (evt.key === 'F6') {
+      evt.preventDefault()
+      analyze()
+    }
+    else if (evt.key === 'F7') {
+      evt.preventDefault()
+      tokenize()
+    }
+    else if (evt.key === 'F8') {
+      evt.preventDefault()
+      parse()
+    }
+    else if (evt.key === 'F9') {
+      evt.preventDefault()
+      format()
+    }
+    else if (evt.key === 'F10') {
+      evt.preventDefault()
+      toggleDebug()
+    }
+    else if (evt.key === 'Escape') {
       closeMoreMenu()
       closeAddContextMenu()
       evt.preventDefault()
@@ -415,18 +440,11 @@ window.onload = function () {
     saveState('new-context-value', elements.newContextValue.value)
   })
 
-  const urlParams = new URLSearchParams(window.location.search)
-
-  const urlState = urlParams.get('state')
-  if (urlState) {
-    applyEncodedState(urlState)
-    urlParams.delete('state')
-    history.replaceState(null, '', `${location.pathname}${urlParams.toString() ? '?' : ''}${urlParams.toString()}`)
-  }
-
+  setOutput(getState('output'))
+  getDataFromUrl()
   setContext(getState('context'))
   setLitsCode(getState('lits-code'), 'top')
-  setOutput(getState('output'))
+  renderDebugInfo()
 
   setTimeout(() => {
     elements.contextTextArea.scrollTop = getState('context-scroll-top')
@@ -438,6 +456,21 @@ window.onload = function () {
   showPage(id, 'instant', 'replace')
 
   layout()
+}
+
+function getDataFromUrl() {
+  const urlParams = new URLSearchParams(window.location.search)
+  const urlState = urlParams.get('state')
+  if (urlState) {
+    addOutputSeparator()
+    if (applyEncodedState(urlState))
+      appendOutput(`Data parsed from url parameter state: ${urlState}`, 'comment')
+    else
+      appendOutput(`Invalid url parameter state: ${urlState}`, 'error')
+
+    urlParams.delete('state')
+    history.replaceState(null, '', `${location.pathname}${urlParams.toString() ? '?' : ''}${urlParams.toString()}`)
+  }
 }
 
 function keydownHandler(evt: KeyboardEvent) {
@@ -546,7 +579,7 @@ export function run(program?: string) {
     appendOutput(args[0], 'output')
   }
   try {
-    result = lits.run(code, context)
+    result = getLits('debug').run(code, context)
   }
   catch (error) {
     appendOutput(error, 'error')
@@ -593,7 +626,7 @@ export function analyze() {
     appendOutput(args[0], 'output')
   }
   try {
-    result = lits.analyze(code, context)
+    result = getLits('debug').analyze(code, context)
   }
   catch (error) {
     appendOutput(error, 'error')
@@ -621,7 +654,7 @@ export function analyze() {
 export function parse() {
   addOutputSeparator()
   const code = getState('lits-code')
-  appendOutput(`Parse: ${truncateCode(code)}`, 'comment')
+  appendOutput(`Parse${getState('debug') ? ' (debug):' : ':'} ${truncateCode(code)}`, 'comment')
   let result: unknown
   const oldLog = console.log
   console.log = function (...args) {
@@ -634,8 +667,8 @@ export function parse() {
     appendOutput(args[0], 'output')
   }
   try {
-    const tokens = litsNoDebug.tokenize(code)
-    result = litsNoDebug.parse(tokens)
+    const tokens = getLits().tokenize(code)
+    result = getLits().parse(tokens)
   }
   catch (error) {
     appendOutput(error, 'error')
@@ -653,7 +686,7 @@ export function parse() {
 export function tokenize() {
   addOutputSeparator()
   const code = getState('lits-code')
-  appendOutput(`Tokenize: ${truncateCode(code)}`, 'comment')
+  appendOutput(`Tokenize${getState('debug') ? ' (debug):' : ':'} ${truncateCode(code)}`, 'comment')
 
   let result
   const oldLog = console.log
@@ -667,7 +700,7 @@ export function tokenize() {
     appendOutput(args[0], 'output')
   }
   try {
-    result = litsNoDebug.tokenize(code)
+    result = getLits().tokenize(code)
   }
   catch (error) {
     appendOutput(error, 'error')
@@ -680,6 +713,50 @@ export function tokenize() {
   const content = JSON.stringify(result, null, 2)
 
   appendOutput(content, 'tokenize')
+}
+
+export function format() {
+  addOutputSeparator()
+  const code = getState('lits-code')
+  appendOutput(`Format: ${truncateCode(code)}`, 'comment')
+
+  let result: string
+  const oldLog = console.log
+  console.log = function (...args: unknown[]) {
+    const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
+    appendOutput(logRow, 'output')
+  }
+  const oldWarn = console.warn
+  console.warn = function (...args: unknown[]) {
+    oldWarn.apply(console, args)
+    appendOutput(args[0], 'output')
+  }
+  try {
+    result = getLits('debug').format(code)
+    setLitsCode(result)
+  }
+  catch (error) {
+    appendOutput(error, 'error')
+    return
+  }
+  finally {
+    console.log = oldLog
+    console.warn = oldWarn
+  }
+}
+
+export function toggleDebug() {
+  const debug = !getState('debug')
+  saveState('debug', debug)
+  renderDebugInfo()
+  addOutputSeparator()
+  appendOutput(`Debug mode toggled ${debug ? 'ON' : 'OFF'}`, 'comment')
+}
+
+function renderDebugInfo() {
+  const debug = getState('debug')
+  elements.toggleDebugMenuLabel.textContent = debug ? 'Debug: ON' : 'Debug: OFF'
+  elements.litsPanelDebugInfo.style.display = debug ? 'flex' : 'none'
 }
 
 export function showPage(id: string, scroll: 'smooth' | 'instant' | 'none', historyEvent: 'replace' | 'push' | 'none' = 'push') {

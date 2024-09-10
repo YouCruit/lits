@@ -117,7 +117,7 @@ a:hover {
 
 #output-result .comment {
   color: rgb(115 115 115);
-  white-space: nowrap;
+  white-space: pre-wrap;
 }
 
 #output-result a.share-link {

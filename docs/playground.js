@@ -8316,18 +8316,16 @@ var Playground = (function (exports) {
             return "".concat(options.inlined ? '' : options.indent).concat(value);
         }
         else {
-            var result = "".concat(metaTokensToString(metaTokens === null || metaTokens === void 0 ? void 0 : metaTokens.leadingMetaTokens)).concat(value).concat((metaTokens === null || metaTokens === void 0 ? void 0 : metaTokens.inlineCommentToken) ? " ".concat(metaTokens.inlineCommentToken.v, "\n") : '');
+            var result = "".concat(metaTokensToString(metaTokens.leadingMetaTokens)).concat(value).concat((metaTokens === null || metaTokens === void 0 ? void 0 : metaTokens.inlineCommentToken) ? " ".concat(metaTokens.inlineCommentToken.v, "\n") : '');
             return result.split('\n').map(function (line, index) {
                 return "".concat(line && (!options.inlined || index > 0) ? options.indent : '').concat(line);
             }).join('\n');
         }
     }
     function metaTokensToString(metaTokens) {
-        return metaTokens
-            ? metaTokens.map(function (metaToken) {
-                return isNewLineToken(metaToken) ? metaToken.v : "".concat(metaToken.v, "\n");
-            }).join('')
-            : '';
+        return metaTokens.map(function (metaToken) {
+            return isNewLineToken(metaToken) ? metaToken.v : "".concat(metaToken.v, "\n");
+        }).join('');
     }
 
     function unparseParams(_a) {
@@ -8352,7 +8350,8 @@ var Playground = (function (exports) {
             if (name && !name.includes('\n')) {
                 try {
                     var unparsedParams = unparseMultilinePairwise(params, options.inline().inc(name.length + 2).lock());
-                    return options.assertNotOverflown("".concat(prefix, " ").concat(unparsedParams).concat(endBracket));
+                    var result = options.assertNotOverflown("".concat(prefix, " ").concat(unparsedParams).concat(endBracket));
+                    return result;
                 }
                 catch (_f) {
                 }
@@ -8415,8 +8414,13 @@ var Playground = (function (exports) {
     function unparseMultilinePairwise(params, options) {
         var keyLength;
         return params.reduce(function (acc, param, index) {
+            var _a, _b;
             if (index % 2 === 0) {
-                var key = options.unparse(param, options.inline()).trimStart();
+                var key = options.unparse(param, options.inline());
+                var leadingMetaTokens = (_b = (_a = param.debugData) === null || _a === void 0 ? void 0 : _a.token.debugData) === null || _b === void 0 ? void 0 : _b.metaTokens.leadingMetaTokens;
+                if (index === 0 && options.inlined && leadingMetaTokens && leadingMetaTokens.length > 0)
+                    throw new Error('First key with leading meta tokens is not allowed.');
+                key = key.trimStart();
                 keyLength = key.length;
                 key = index === 0 && options.inlined ? key : "".concat(options.indent).concat(key);
                 if (key.includes('\n'))
@@ -8424,7 +8428,7 @@ var Playground = (function (exports) {
                 return index > 0 ? ensureNewlineSeparator(acc, key) : "".concat(acc).concat(key);
             }
             else {
-                var value = options.unparse(param, options.inline().inc(keyLength + 1)).trim();
+                var value = options.unparse(param, options.inline().inc(keyLength + 1));
                 return ensureSpaceSeparator(acc, value);
             }
         }, '');
@@ -8478,8 +8482,7 @@ var Playground = (function (exports) {
                 var unparsedParams = unparseSingleLinePairs(params, options.inline().lock());
                 if (!unparsedParams.includes('\n')) {
                     var result = "".concat(startBracket).concat(unparsedParams).concat(endBracket);
-                    options.assertNotOverflown(result);
-                    return result;
+                    return options.assertNotOverflown(result);
                 }
             }
             catch (error) {
@@ -8499,8 +8502,7 @@ var Playground = (function (exports) {
         try {
             var paiwise = unparseMultilinePairwise(params, multilineOptions);
             var result = "".concat(startBracket).concat(paiwise).concat(endBracket);
-            options.assertNotOverflown(result);
-            return result;
+            return options.assertNotOverflown(result);
         }
         catch (_f) {
             // Continue to the next step
@@ -8900,6 +8902,7 @@ var Playground = (function (exports) {
         'output-scroll-top': 0,
         'new-context-name': '',
         'new-context-value': '',
+        'debug': false,
     };
     var keys = Object.keys(defaultState);
     var state = __assign({}, defaultState);
@@ -8932,7 +8935,7 @@ var Playground = (function (exports) {
         };
         return btoa(JSON.stringify(sharedState));
     }
-    function decodeState(encodedState) {
+    function applyEncodedState(encodedState) {
         try {
             var decodedState = JSON.parse(atob(encodedState));
             Object.entries(decodedState).forEach(function (_a) {
@@ -8940,15 +8943,18 @@ var Playground = (function (exports) {
                 if (keys.includes(key))
                     saveState(key, value);
             });
+            return true;
         }
         catch (error) {
-            console.error('Invalid state', encodedState);
-            throw error;
+            return false;
         }
     }
 
-    var lits = new Lits({ debug: true });
-    var litsNoDebug = new Lits({ debug: false });
+    var getLits = (function () {
+        var lits = new Lits({ debug: true });
+        var litsNoDebug = new Lits({ debug: false });
+        return function (forceDebug) { return forceDebug || getState('debug') ? lits : litsNoDebug; };
+    })();
     var elements = {
         wrapper: document.getElementById('wrapper'),
         playground: document.getElementById('playground'),
@@ -8968,6 +8974,8 @@ var Playground = (function (exports) {
         resizePlayground: document.getElementById('resize-playground'),
         resizeDevider1: document.getElementById('resize-divider-1'),
         resizeDevider2: document.getElementById('resize-divider-2'),
+        toggleDebugMenuLabel: document.getElementById('toggle-debug-menu-label'),
+        litsPanelDebugInfo: document.getElementById('lits-panel-debug-info'),
     };
     var moveParams = null;
     function calculateDimensions() {
@@ -9034,6 +9042,7 @@ var Playground = (function (exports) {
         Search.closeSearch();
         Search.clearSearch();
         layout();
+        renderDebugInfo();
     }
     function resetContext() {
         var context = getState('context');
@@ -9244,7 +9253,27 @@ var Playground = (function (exports) {
                 evt.preventDefault();
                 run();
             }
-            if (evt.key === 'Escape') {
+            else if (evt.key === 'F6') {
+                evt.preventDefault();
+                analyze();
+            }
+            else if (evt.key === 'F7') {
+                evt.preventDefault();
+                tokenize();
+            }
+            else if (evt.key === 'F8') {
+                evt.preventDefault();
+                parse();
+            }
+            else if (evt.key === 'F9') {
+                evt.preventDefault();
+                format();
+            }
+            else if (evt.key === 'F10') {
+                evt.preventDefault();
+                toggleDebug();
+            }
+            else if (evt.key === 'Escape') {
                 closeMoreMenu();
                 closeAddContextMenu();
                 evt.preventDefault();
@@ -9277,16 +9306,11 @@ var Playground = (function (exports) {
         elements.newContextValue.addEventListener('input', function () {
             saveState('new-context-value', elements.newContextValue.value);
         });
-        var urlParams = new URLSearchParams(window.location.search);
-        var urlState = urlParams.get('state');
-        if (urlState) {
-            decodeState(urlState);
-            urlParams.delete('state');
-            history.replaceState(null, '', "".concat(location.pathname).concat(urlParams.toString() ? '?' : '').concat(urlParams.toString()));
-        }
+        setOutput(getState('output'));
+        getDataFromUrl();
         setContext(getState('context'));
         setLitsCode(getState('lits-code'), 'top');
-        setOutput(getState('output'));
+        renderDebugInfo();
         setTimeout(function () {
             elements.contextTextArea.scrollTop = getState('context-scroll-top');
             elements.litsTextArea.scrollTop = getState('lits-code-scroll-top');
@@ -9296,6 +9320,19 @@ var Playground = (function (exports) {
         showPage(id, 'instant', 'replace');
         layout();
     };
+    function getDataFromUrl() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var urlState = urlParams.get('state');
+        if (urlState) {
+            addOutputSeparator();
+            if (applyEncodedState(urlState))
+                appendOutput("Data parsed from url parameter state: ".concat(urlState), 'comment');
+            else
+                appendOutput("Invalid url parameter state: ".concat(urlState), 'error');
+            urlParams.delete('state');
+            history.replaceState(null, '', "".concat(location.pathname).concat(urlParams.toString() ? '?' : '').concat(urlParams.toString()));
+        }
+    }
     function keydownHandler(evt) {
         if (evt.key === 'Enter' && evt.ctrlKey) {
             evt.preventDefault();
@@ -9406,7 +9443,7 @@ var Playground = (function (exports) {
             appendOutput(args[0], 'output');
         };
         try {
-            result = lits.run(code, context);
+            result = getLits('debug').run(code, context);
         }
         catch (error) {
             appendOutput(error, 'error');
@@ -9458,7 +9495,7 @@ var Playground = (function (exports) {
             appendOutput(args[0], 'output');
         };
         try {
-            result = lits.analyze(code, context);
+            result = getLits('debug').analyze(code, context);
         }
         catch (error) {
             appendOutput(error, 'error');
@@ -9482,7 +9519,7 @@ var Playground = (function (exports) {
     function parse() {
         addOutputSeparator();
         var code = getState('lits-code');
-        appendOutput("Parse: ".concat(truncateCode(code)), 'comment');
+        appendOutput("Parse".concat(getState('debug') ? ' (debug):' : ':', " ").concat(truncateCode(code)), 'comment');
         var result;
         var oldLog = console.log;
         console.log = function () {
@@ -9503,8 +9540,8 @@ var Playground = (function (exports) {
             appendOutput(args[0], 'output');
         };
         try {
-            var tokens = litsNoDebug.tokenize(code);
-            result = litsNoDebug.parse(tokens);
+            var tokens = getLits().tokenize(code);
+            result = getLits().parse(tokens);
         }
         catch (error) {
             appendOutput(error, 'error');
@@ -9520,7 +9557,7 @@ var Playground = (function (exports) {
     function tokenize() {
         addOutputSeparator();
         var code = getState('lits-code');
-        appendOutput("Tokenize: ".concat(truncateCode(code)), 'comment');
+        appendOutput("Tokenize".concat(getState('debug') ? ' (debug):' : ':', " ").concat(truncateCode(code)), 'comment');
         var result;
         var oldLog = console.log;
         console.log = function () {
@@ -9541,7 +9578,7 @@ var Playground = (function (exports) {
             appendOutput(args[0], 'output');
         };
         try {
-            result = litsNoDebug.tokenize(code);
+            result = getLits().tokenize(code);
         }
         catch (error) {
             appendOutput(error, 'error');
@@ -9553,6 +9590,54 @@ var Playground = (function (exports) {
         }
         var content = JSON.stringify(result, null, 2);
         appendOutput(content, 'tokenize');
+    }
+    function format() {
+        addOutputSeparator();
+        var code = getState('lits-code');
+        appendOutput("Format: ".concat(truncateCode(code)), 'comment');
+        var result;
+        var oldLog = console.log;
+        console.log = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            var logRow = args.map(function (arg) { return stringifyValue(arg); }).join(' ');
+            appendOutput(logRow, 'output');
+        };
+        var oldWarn = console.warn;
+        console.warn = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            oldWarn.apply(console, args);
+            appendOutput(args[0], 'output');
+        };
+        try {
+            result = getLits('debug').format(code);
+            setLitsCode(result);
+        }
+        catch (error) {
+            appendOutput(error, 'error');
+            return;
+        }
+        finally {
+            console.log = oldLog;
+            console.warn = oldWarn;
+        }
+    }
+    function toggleDebug() {
+        var debug = !getState('debug');
+        saveState('debug', debug);
+        renderDebugInfo();
+        addOutputSeparator();
+        appendOutput("Debug mode toggled ".concat(debug ? 'ON' : 'OFF'), 'comment');
+    }
+    function renderDebugInfo() {
+        var debug = getState('debug');
+        elements.toggleDebugMenuLabel.textContent = debug ? 'Debug: ON' : 'Debug: OFF';
+        elements.litsPanelDebugInfo.style.display = debug ? 'flex' : 'none';
     }
     function showPage(id, scroll, historyEvent) {
         if (historyEvent === void 0) { historyEvent = 'push'; }
@@ -9615,6 +9700,7 @@ var Playground = (function (exports) {
     exports.analyze = analyze;
     exports.closeAddContextMenu = closeAddContextMenu;
     exports.closeMoreMenu = closeMoreMenu;
+    exports.format = format;
     exports.openAddContextMenu = openAddContextMenu;
     exports.openMoreMenu = openMoreMenu;
     exports.parse = parse;
@@ -9626,6 +9712,7 @@ var Playground = (function (exports) {
     exports.setPlayground = setPlayground;
     exports.share = share;
     exports.showPage = showPage;
+    exports.toggleDebug = toggleDebug;
     exports.tokenize = tokenize;
 
     return exports;

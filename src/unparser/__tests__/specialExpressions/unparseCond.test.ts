@@ -5,8 +5,24 @@ import { testFormatter } from '../testFormatter'
 const lits = new Lits({ debug: true })
 
 const sampleProgram = '(cond foo (bar 1 2), baz (qux 3 4))'
+const sampleProgramWithComments = `
+; This is a comment
+(cond ;; This is a comment
+  foo (bar 1 2) ;; This is a comment
+  baz (qux 3 4))`.trimStart()
 
 describe('unparse cond', () => {
+  describe('unparse sampleProgram with comments', () => {
+    for (let lineLength = 0; lineLength <= 80; lineLength += 1) {
+      it(`should unparse with line length ${lineLength}`, () => {
+        testFormatter(
+          program => lits.format(program, { lineLength }),
+          sampleProgramWithComments,
+          formatSampleProgramWithComments(lineLength),
+        )
+      })
+    }
+  })
   describe('unparse sampleProgram', () => {
     for (let lineLength = 0; lineLength <= sampleProgram.length + 1; lineLength += 1) {
       it(`should unparse with line length ${lineLength}`, () => {
@@ -33,6 +49,85 @@ describe('unparse cond', () => {
     )
   })
 })
+
+function formatSampleProgramWithComments(lineLength: number): string {
+  if (lineLength === 0)
+    return `${sampleProgramWithComments}\n`
+
+  if (lineLength >= 36) {
+    return `
+; This is a comment
+(cond ;; This is a comment
+  foo (bar 1 2) ;; This is a comment
+  baz (qux 3 4))
+`.trimStart()
+  }
+
+  if (lineLength >= 34) {
+    return `
+; This is a comment
+(cond ;; This is a comment
+  foo (bar 1
+           2) ;; This is a comment
+  baz (qux 3 4))
+`.trimStart()
+  }
+
+  if (lineLength >= 30) {
+    return `
+; This is a comment
+(cond ;; This is a comment
+  foo (bar
+       1
+       2) ;; This is a comment
+  baz (qux 3 4))
+`.trimStart()
+  }
+
+  if (lineLength >= 11) {
+    return `
+; This is a comment
+(cond ;; This is a comment
+  foo
+  (bar
+   1
+   2) ;; This is a comment
+  baz
+  (qux 3 4))
+`.trimStart()
+  }
+
+  if (lineLength >= 9) {
+    return `
+; This is a comment
+(cond ;; This is a comment
+  foo
+  (bar
+   1
+   2) ;; This is a comment
+  baz
+  (qux 3
+       4))
+`.trimStart()
+  }
+
+  if (lineLength >= 1) {
+    return `
+; This is a comment
+(cond ;; This is a comment
+  foo
+  (bar
+   1
+   2) ;; This is a comment
+  baz
+  (qux
+   3
+   4))
+`.trimStart()
+  }
+
+  return sampleProgramWithComments
+}
 
 function formatSampleProgram(lineLength: number): string {
   if (lineLength >= sampleProgram.length || lineLength === 0)

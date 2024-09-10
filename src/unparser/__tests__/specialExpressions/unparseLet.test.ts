@@ -23,7 +23,7 @@ const sampleProgramWithComments = `
   baz) ;; Inline comment
 `
 
-describe('unparse expressions with params', () => {
+describe('unparse let', () => {
   it('should work 1', () => {
     testFormatter(
       program => lits.format(program, { lineLength: 0, debug: false }),
@@ -83,6 +83,15 @@ describe('unparse expressions with params', () => {
    2)
   baz)
 `.trimStart(),
+    )
+  })
+
+  it('should work 2', () => {
+    const program = '(let [] "Hi")\n'
+    testFormatter(
+      p => lits.format(p, { lineLength: 0 }),
+      program,
+      program,
     )
   })
 

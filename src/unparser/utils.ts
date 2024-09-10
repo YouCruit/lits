@@ -22,7 +22,7 @@ export function applyMetaTokens(
   }
   else {
     const result = `${
-        metaTokensToString(metaTokens?.leadingMetaTokens)
+        metaTokensToString(metaTokens.leadingMetaTokens)
       }${
         value
       }${
@@ -34,10 +34,8 @@ export function applyMetaTokens(
   }
 }
 
-function metaTokensToString(metaTokens?: MetaToken[] | null): string {
-  return metaTokens
-    ? metaTokens.map(metaToken =>
+function metaTokensToString(metaTokens: MetaToken[]): string {
+  return metaTokens.map(metaToken =>
       isNewLineToken(metaToken) ? metaToken.v : `${metaToken.v}\n`,
     ).join('')
-    : ''
 }

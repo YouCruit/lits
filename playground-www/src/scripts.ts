@@ -3,7 +3,6 @@ import { stringifyValue, throttle } from '../../common/utils'
 import type { Example } from '../../reference/examples'
 import { Lits, type LitsParams } from '../../src'
 import { UserDefinedError } from '../../src/errors'
-import type { Analysis } from '../../src/analyze'
 import { asUnknownRecord } from '../../src/typeGuards'
 import type { UnknownRecord } from '../../src/interface'
 import { Search } from './Search'
@@ -48,7 +47,15 @@ type MoveParams = {
   percentBeforeMove: number
 }
 
-type OutputType = 'error' | 'output' | 'result' | 'analyze' | 'tokenize' | 'parse' | 'comment'
+type OutputType =
+  | 'error'
+  | 'output'
+  | 'result'
+  | 'analyze'
+  | 'tokenize'
+  | 'parse'
+  | 'comment'
+  | 'warn'
 
 let moveParams: MoveParams | null = null
 
@@ -379,29 +386,33 @@ window.onload = function () {
     if (Search.handleKeyDown(evt))
       return
 
-    if (evt.key === 'F5') {
-      evt.preventDefault()
-      run()
-    }
-    else if (evt.key === 'F6') {
-      evt.preventDefault()
-      analyze()
-    }
-    else if (evt.key === 'F7') {
-      evt.preventDefault()
-      tokenize()
-    }
-    else if (evt.key === 'F8') {
-      evt.preventDefault()
-      parse()
-    }
-    else if (evt.key === 'F9') {
-      evt.preventDefault()
-      format()
-    }
-    else if (evt.key === 'F10') {
-      evt.preventDefault()
-      toggleDebug()
+    if (evt.ctrlKey) {
+      switch (evt.key) {
+        case 'r':
+          evt.preventDefault()
+          run()
+          break
+        case 'a':
+          evt.preventDefault()
+          analyze()
+          break
+        case 't':
+          evt.preventDefault()
+          tokenize()
+          break
+        case 'p':
+          evt.preventDefault()
+          parse()
+          break
+        case 'f':
+          evt.preventDefault()
+          format()
+          break
+        case 'd':
+          evt.preventDefault()
+          toggleDebug()
+          break
+      }
     }
     else if (evt.key === 'Escape') {
       closeMoreMenu()
@@ -409,21 +420,21 @@ window.onload = function () {
       evt.preventDefault()
     }
   })
-  elements.contextTextArea.addEventListener('keydown', keydownHandler)
-  elements.contextTextArea.addEventListener('input', (event: Event) => {
-    const target = event.target as HTMLInputElement | undefined
-    if (target)
-      setContext(target.value)
+  elements.contextTextArea.addEventListener('keydown', (evt) => {
+    keydownHandler(evt, () => setContext(elements.contextTextArea.value))
+  })
+  elements.contextTextArea.addEventListener('input', () => {
+    setContext(elements.contextTextArea.value)
   })
   elements.contextTextArea.addEventListener('scroll', () => {
     saveState('context-scroll-top', elements.contextTextArea.scrollTop)
   })
 
-  elements.litsTextArea.addEventListener('keydown', keydownHandler)
-  elements.litsTextArea.addEventListener('input', (event: Event) => {
-    const target = event.target as HTMLInputElement | undefined
-    if (target)
-      setLitsCode(target.value)
+  elements.litsTextArea.addEventListener('keydown', (evt) => {
+    keydownHandler(evt, () => setLitsCode(elements.litsTextArea.value))
+  })
+  elements.litsTextArea.addEventListener('input', () => {
+    setLitsCode(elements.litsTextArea.value)
   })
   elements.litsTextArea.addEventListener('scroll', () => {
     saveState('lits-code-scroll-top', elements.litsTextArea.scrollTop)
@@ -473,7 +484,7 @@ function getDataFromUrl() {
   }
 }
 
-function keydownHandler(evt: KeyboardEvent) {
+function keydownHandler(evt: KeyboardEvent, onChange: () => void): void {
   if (evt.key === 'Enter' && evt.ctrlKey) {
     evt.preventDefault()
     const target = evt.target as HTMLTextAreaElement
@@ -485,10 +496,8 @@ function keydownHandler(evt: KeyboardEvent) {
     else {
       run()
     }
-    return
   }
-
-  if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(evt.key)) {
+  else if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(evt.key)) {
     const target = evt.target as HTMLTextAreaElement
     const start = target.selectionStart
     const end = target.selectionEnd
@@ -496,33 +505,41 @@ function keydownHandler(evt: KeyboardEvent) {
     const indexOfReturn = target.value.lastIndexOf('\n', start - 1)
     const rowLength = start - indexOfReturn - 1
     const onTabStop = rowLength % 2 === 0
-    if (evt.key === 'Tab') {
-      evt.preventDefault()
-      if (!evt.shiftKey) {
-        target.value = target.value.substring(0, start) + (onTabStop ? '  ' : ' ') + target.value.substring(end)
-        target.selectionStart = target.selectionEnd = start + (onTabStop ? 2 : 1)
-      }
-    }
-    if (evt.key === 'Backspace') {
-      if (onTabStop && start === end && target.value.substr(start - 2, 2) === '  ') {
+    switch (evt.key) {
+      case 'Tab':
         evt.preventDefault()
-        target.value = target.value.substring(0, start - 2) + target.value.substring(end)
-        target.selectionStart = target.selectionEnd = start - 2
-      }
-    }
-    if (evt.key === 'Enter') {
-      evt.preventDefault()
-      // eslint-disable-next-line regexp/optimal-quantifier-concatenation
-      const spaceCount = target.value.substring(indexOfReturn + 1, start).replace(/^( *).*/, '$1').length
-      target.value = `${target.value.substring(0, start)}\n${' '.repeat(spaceCount)}${target.value.substring(end)}`
-      target.selectionStart = target.selectionEnd = start + 1 + spaceCount
-    }
-    if (evt.key === 'Delete') {
-      if (onTabStop && start === end && target.value.substr(start, 2) === '  ') {
+        if (!evt.shiftKey) {
+          target.value = target.value.substring(0, start) + (onTabStop ? '  ' : ' ') + target.value.substring(end)
+          target.selectionStart = target.selectionEnd = start + (onTabStop ? 2 : 1)
+          onChange()
+        }
+        break
+      case 'Backspace':
+        if (onTabStop && start === end && target.value.substr(start - 2, 2) === '  ') {
+          evt.preventDefault()
+          target.value = target.value.substring(0, start - 2) + target.value.substring(end)
+          target.selectionStart = target.selectionEnd = start - 2
+          onChange()
+        }
+        break
+      case 'Enter': {
         evt.preventDefault()
-        target.value = target.value.substring(0, start) + target.value.substring(end + 2)
-        target.selectionStart = target.selectionEnd = start
+        // eslint-disable-next-line regexp/optimal-quantifier-concatenation
+        const spaceCount = target.value.substring(indexOfReturn + 1, start).replace(/^( *).*/, '$1').length
+        target.value = `${target.value.substring(0, start)}\n${' '.repeat(spaceCount)}${target.value.substring(end)}`
+        target.selectionStart = target.selectionEnd = start + 1 + spaceCount
+        onChange()
+        break
       }
+
+      case 'Delete':
+        if (onTabStop && start === end && target.value.substr(start, 2) === '  ') {
+          evt.preventDefault()
+          target.value = target.value.substring(0, start) + target.value.substring(end + 2)
+          target.selectionStart = target.selectionEnd = start
+          onChange()
+        }
+        break
     }
   }
 }
@@ -567,31 +584,19 @@ export function run(program?: string) {
     appendOutput(`Error: Could not parse context: ${contextString}`, 'error')
     return
   }
-  let result: unknown
-  const oldLog = console.log
-  console.log = function (...args) {
-    const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
-    appendOutput(logRow, 'output')
-  }
-  const oldWarn = console.warn
-  console.warn = function (...args: unknown[]) {
-    oldWarn.apply(console, args)
-    appendOutput(args[0], 'output')
-  }
+
+  const hijacker = hijackConsole()
   try {
-    result = getLits('debug').run(code, context)
+    const result = getLits('debug').run(code, context)
+    const content = stringifyValue(result, false)
+    appendOutput(content, 'result')
   }
   catch (error) {
     appendOutput(error, 'error')
-    return
   }
   finally {
-    console.log = oldLog
-    console.warn = oldWarn
+    hijacker.releaseConsole()
   }
-  const content = stringifyValue(result, false)
-
-  appendOutput(content, 'result')
 }
 
 export function analyze() {
@@ -614,73 +619,48 @@ export function analyze() {
     return
   }
 
-  let result: Analysis
-  const oldLog = console.log
-  console.log = function (...args) {
-    const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
-    appendOutput(logRow, 'output')
-  }
-  const oldWarn = console.warn
-  console.warn = function (...args: unknown[]) {
-    oldWarn.apply(console, args)
-    appendOutput(args[0], 'output')
-  }
+  const hijacker = hijackConsole()
   try {
-    result = getLits('debug').analyze(code, context)
+    const result = getLits('debug').analyze(code, context)
+    const unresolvedIdentifiers = [...new Set([...result.unresolvedIdentifiers].map(s => s.symbol))].join(', ')
+    const unresolvedIdentifiersOutput = `Unresolved identifiers: ${unresolvedIdentifiers || '-'}`
+
+    const possibleOutcomes = result.outcomes && result.outcomes
+      .map(o => o instanceof UserDefinedError
+        ? `${o.name}${o.userMessage ? `("${o.userMessage}")` : ''}`
+        : o instanceof Error
+          ? o.name
+          : stringifyValue(o, false),
+      ).join(', ')
+    const possibleOutcomesString = `Possible outcomes: ${possibleOutcomes || '-'}`
+
+    appendOutput(`${unresolvedIdentifiersOutput}\n${possibleOutcomesString}`, 'analyze')
   }
   catch (error) {
     appendOutput(error, 'error')
-    return
   }
   finally {
-    console.log = oldLog
-    console.warn = oldWarn
+    hijacker.releaseConsole()
   }
-  const unresolvedIdentifiers = [...new Set([...result.unresolvedIdentifiers].map(s => s.symbol))].join(', ')
-  const unresolvedIdentifiersOutput = `Unresolved identifiers: ${unresolvedIdentifiers || '-'}`
-
-  const possibleOutcomes = result.outcomes && result.outcomes
-    .map(o => o instanceof UserDefinedError
-      ? `${o.name}${o.userMessage ? `("${o.userMessage}")` : ''}`
-      : o instanceof Error
-        ? o.name
-        : stringifyValue(o, false),
-    ).join(', ')
-  const possibleOutcomesString = `Possible outcomes: ${possibleOutcomes || '-'}`
-
-  appendOutput(`${unresolvedIdentifiersOutput}\n${possibleOutcomesString}`, 'analyze')
 }
 
 export function parse() {
   addOutputSeparator()
   const code = getState('lits-code')
   appendOutput(`Parse${getState('debug') ? ' (debug):' : ':'} ${truncateCode(code)}`, 'comment')
-  let result: unknown
-  const oldLog = console.log
-  console.log = function (...args) {
-    const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
-    appendOutput(logRow, 'output')
-  }
-  const oldWarn = console.warn
-  console.warn = function (...args) {
-    oldWarn.apply(console, args)
-    appendOutput(args[0], 'output')
-  }
+  const hijacker = hijackConsole()
   try {
     const tokens = getLits().tokenize(code)
-    result = getLits().parse(tokens)
+    const result = getLits().parse(tokens)
+    const content = JSON.stringify(result, null, 2)
+    appendOutput(content, 'parse')
   }
   catch (error) {
     appendOutput(error, 'error')
-    return
   }
   finally {
-    console.log = oldLog
-    console.warn = oldWarn
+    hijacker.releaseConsole()
   }
-  const content = JSON.stringify(result, null, 2)
-
-  appendOutput(content, 'parse')
 }
 
 export function tokenize() {
@@ -688,31 +668,19 @@ export function tokenize() {
   const code = getState('lits-code')
   appendOutput(`Tokenize${getState('debug') ? ' (debug):' : ':'} ${truncateCode(code)}`, 'comment')
 
-  let result
-  const oldLog = console.log
-  console.log = function (...args: unknown[]) {
-    const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
-    appendOutput(logRow, 'output')
-  }
-  const oldWarn = console.warn
-  console.warn = function (...args: unknown[]) {
-    oldWarn.apply(console, args)
-    appendOutput(args[0], 'output')
-  }
+  const hijacker = hijackConsole()
   try {
-    result = getLits().tokenize(code)
+    const result = getLits().tokenize(code)
+    const content = JSON.stringify(result, null, 2)
+    appendOutput(content, 'tokenize')
   }
   catch (error) {
     appendOutput(error, 'error')
     return
   }
   finally {
-    console.log = oldLog
-    console.warn = oldWarn
+    hijacker.releaseConsole()
   }
-  const content = JSON.stringify(result, null, 2)
-
-  appendOutput(content, 'tokenize')
 }
 
 export function format() {
@@ -720,19 +688,9 @@ export function format() {
   const code = getState('lits-code')
   appendOutput(`Format: ${truncateCode(code)}`, 'comment')
 
-  let result: string
-  const oldLog = console.log
-  console.log = function (...args: unknown[]) {
-    const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
-    appendOutput(logRow, 'output')
-  }
-  const oldWarn = console.warn
-  console.warn = function (...args: unknown[]) {
-    oldWarn.apply(console, args)
-    appendOutput(args[0], 'output')
-  }
+  const hijacker = hijackConsole()
   try {
-    result = getLits('debug').format(code)
+    const result = getLits('debug').format(code, { lineLength: getLitsCodeCols() })
     setLitsCode(result)
   }
   catch (error) {
@@ -740,8 +698,7 @@ export function format() {
     return
   }
   finally {
-    console.log = oldLog
-    console.warn = oldWarn
+    hijacker.releaseConsole()
   }
 }
 
@@ -830,4 +787,53 @@ ${`;;${'-'.repeat(size)};;`}
 
 ${code}
 `.trimStart(), 'top')
+}
+
+function hijackConsole() {
+  const oldLog = console.log
+  console.log = function (...args: unknown[]) {
+    const logRow = args.map(arg => stringifyValue(arg, false)).join(' ')
+    appendOutput(logRow, 'output')
+  }
+  const oldWarn = console.warn
+  console.warn = function (...args: unknown[]) {
+    oldWarn.apply(console, args)
+    appendOutput(args[0], 'warn')
+  }
+  const oldError = console.error
+  console.warn = function (...args: unknown[]) {
+    oldError.apply(console, args)
+    appendOutput(args[0], 'error')
+  }
+  return {
+    releaseConsole: () => {
+      console.log = oldLog
+      console.warn = oldWarn
+    },
+  }
+}
+
+function getLitsCodeCols(): number {
+  // Create a temporary element
+  const { font, paddingLeft, paddingRight } = window.getComputedStyle(elements.litsTextArea)
+  const tempElement = document.createElement('span')
+  tempElement.style.font = font
+  tempElement.style.visibility = 'hidden'
+  tempElement.style.whiteSpace = 'pre'
+  tempElement.textContent = 'M' // Use a common monospace character
+
+  // Append the element to the body
+  document.body.appendChild(tempElement)
+
+  // Measure the width of the character
+  const characterWidth = tempElement.getBoundingClientRect().width
+
+  const textAreawidth = elements.litsTextArea.clientWidth
+    - Number.parseInt(paddingLeft)
+    - Number.parseInt(paddingRight)
+
+  // Remove the temporary element
+  document.body.removeChild(tempElement)
+
+  return Math.max(1, Math.floor(textAreawidth / characterWidth))
 }

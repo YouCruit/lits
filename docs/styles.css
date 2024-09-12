@@ -84,14 +84,19 @@ a:hover {
   color: rgb(245 245 245);
 }
 
-#output-result .error {
+#output-result .error,
+#output-result .warn {
   color: #cf2b2b;
   white-space: pre-wrap;
 }
 
 #output-result .output {
-  color: #cc8f77;
+  color: #ca9d8b;
   white-space: pre-wrap;
+}
+#output-result .output::before {
+  content: '> ';
+  color: #ca9d8b;
 }
 
 #output-result .analyze {

@@ -100,42 +100,42 @@ export function getPlayground() {
                         <span ${styles('text-color-SkyLavender', 'items-center', 'flex')}>${playIcon}</span>
                         <span ${styles('mr-8')}>Run</span>
                       </div>
-                      F5
+                      Ctrl+R
                     </a>
                     <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.analyze()">
                       <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
                         <span ${styles('text-color-Blue', 'items-center', 'flex')}>${labIcon}</span>
                         <span ${styles('mr-8')}>Analyze</span>
                       </div>
-                      F6
+                      Ctrl+A
                     </a>
                     <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.tokenize()">
                       <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
                         <span ${styles('text-color-Mint', 'items-center', 'flex')}>${tokenIcon}</span>
                         <span ${styles('mr-8')}>Tokenize</span>
                       </div>
-                      F7
+                      Ctrl+T
                     </a>
                     <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.parse()">
                       <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
                         <span ${styles('text-color-Viola', 'items-center', 'flex')}>${treeIcon}</span>
                         <span ${styles('mr-8')}>Parse</span>
                       </div>
-                      F8
+                      Ctrl+P
                     </a>
                     <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.format()">
                       <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
                         <span ${styles('text-color-Orange', 'items-center', 'flex')}>${leftAlignIcon}</span>
                         <span ${styles('mr-8')}>Format</span>
                       </div>
-                      F9
+                      Ctrl+F
                     </a>
                     <a ${styles('flex', 'justify-between', 'w-full', 'items-center')} onclick="Playground.closeMoreMenu(); Playground.toggleDebug()">
                       <div ${styles('flex', 'gap-2', 'w-full', 'items-center')}>
                         <span ${styles('text-color-Rose', 'items-center', 'flex')}>${debugIcon}</span>
                         <span id="toggle-debug-menu-label" ${styles('mr-8')}>Debug</span>
                       </div>
-                      F10
+                      Ctrl+D
                     </a>
                     <a ${styles('flex', 'gap-2', 'w-full', 'items-center', 'pt-2', 'border-0', 'border-t', 'border-solid', 'border-gray-500')} onclick="Playground.closeMoreMenu(); Playground.share();">
                       <span ${styles('text-color-Pink', 'items-center', 'flex')}>${linkIcon}</span>

@@ -8316,13 +8316,17 @@ var Playground = (function (exports) {
             return "".concat(options.inlined ? '' : options.indent).concat(value);
         }
         else {
-            var result = "".concat(metaTokensToString(metaTokens.leadingMetaTokens)).concat(value).concat((metaTokens === null || metaTokens === void 0 ? void 0 : metaTokens.inlineCommentToken) ? " ".concat(metaTokens.inlineCommentToken.v, "\n") : '');
+            var result = "".concat(metaTokensToString(metaTokens.leadingMetaTokens, value)).concat(value).concat((metaTokens === null || metaTokens === void 0 ? void 0 : metaTokens.inlineCommentToken) ? " ".concat(metaTokens.inlineCommentToken.v, "\n") : '');
             return result.split('\n').map(function (line, index) {
                 return "".concat(line && (!options.inlined || index > 0) ? options.indent : '').concat(line);
             }).join('\n');
         }
     }
-    function metaTokensToString(metaTokens) {
+    function metaTokensToString(metaTokens, tokenValue) {
+        var isEndBracket = tokenValue === ')' || tokenValue === ']' || tokenValue === '}';
+        var isOnlyNewLine = metaTokens.length === 1 && isNewLineToken(metaTokens[0]);
+        if (isEndBracket && isOnlyNewLine)
+            return '';
         return metaTokens.map(function (metaToken) {
             return isNewLineToken(metaToken) ? metaToken.v : "".concat(metaToken.v, "\n");
         }).join('');
@@ -8718,7 +8722,8 @@ var Playground = (function (exports) {
     function unparseAst(ast, lineLength) {
         var options = new UnparseOptions(unparse, lineLength || Number.MAX_SAFE_INTEGER);
         var result = ast.b.reduce(function (acc, node) {
-            return ensureNewlineSeparator(acc, unparse(node, options));
+            var nodeUnparsed = unparse(node, options);
+            return ensureNewlineSeparator(acc, nodeUnparsed);
         }, '');
         return result.endsWith('\n') ? result : "".concat(result, "\n");
     }
@@ -9249,29 +9254,33 @@ var Playground = (function (exports) {
         window.addEventListener('keydown', function (evt) {
             if (Search.handleKeyDown(evt))
                 return;
-            if (evt.key === 'F5') {
-                evt.preventDefault();
-                run();
-            }
-            else if (evt.key === 'F6') {
-                evt.preventDefault();
-                analyze();
-            }
-            else if (evt.key === 'F7') {
-                evt.preventDefault();
-                tokenize();
-            }
-            else if (evt.key === 'F8') {
-                evt.preventDefault();
-                parse();
-            }
-            else if (evt.key === 'F9') {
-                evt.preventDefault();
-                format();
-            }
-            else if (evt.key === 'F10') {
-                evt.preventDefault();
-                toggleDebug();
+            if (evt.ctrlKey) {
+                switch (evt.key) {
+                    case 'r':
+                        evt.preventDefault();
+                        run();
+                        break;
+                    case 'a':
+                        evt.preventDefault();
+                        analyze();
+                        break;
+                    case 't':
+                        evt.preventDefault();
+                        tokenize();
+                        break;
+                    case 'p':
+                        evt.preventDefault();
+                        parse();
+                        break;
+                    case 'f':
+                        evt.preventDefault();
+                        format();
+                        break;
+                    case 'd':
+                        evt.preventDefault();
+                        toggleDebug();
+                        break;
+                }
             }
             else if (evt.key === 'Escape') {
                 closeMoreMenu();
@@ -9279,20 +9288,20 @@ var Playground = (function (exports) {
                 evt.preventDefault();
             }
         });
-        elements.contextTextArea.addEventListener('keydown', keydownHandler);
-        elements.contextTextArea.addEventListener('input', function (event) {
-            var target = event.target;
-            if (target)
-                setContext(target.value);
+        elements.contextTextArea.addEventListener('keydown', function (evt) {
+            keydownHandler(evt, function () { return setContext(elements.contextTextArea.value); });
+        });
+        elements.contextTextArea.addEventListener('input', function () {
+            setContext(elements.contextTextArea.value);
         });
         elements.contextTextArea.addEventListener('scroll', function () {
             saveState('context-scroll-top', elements.contextTextArea.scrollTop);
         });
-        elements.litsTextArea.addEventListener('keydown', keydownHandler);
-        elements.litsTextArea.addEventListener('input', function (event) {
-            var target = event.target;
-            if (target)
-                setLitsCode(target.value);
+        elements.litsTextArea.addEventListener('keydown', function (evt) {
+            keydownHandler(evt, function () { return setLitsCode(elements.litsTextArea.value); });
+        });
+        elements.litsTextArea.addEventListener('input', function () {
+            setLitsCode(elements.litsTextArea.value);
         });
         elements.litsTextArea.addEventListener('scroll', function () {
             saveState('lits-code-scroll-top', elements.litsTextArea.scrollTop);
@@ -9333,7 +9342,7 @@ var Playground = (function (exports) {
             history.replaceState(null, '', "".concat(location.pathname).concat(urlParams.toString() ? '?' : '').concat(urlParams.toString()));
         }
     }
-    function keydownHandler(evt) {
+    function keydownHandler(evt, onChange) {
         if (evt.key === 'Enter' && evt.ctrlKey) {
             evt.preventDefault();
             var target = evt.target;
@@ -9345,42 +9354,48 @@ var Playground = (function (exports) {
             else {
                 run();
             }
-            return;
         }
-        if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(evt.key)) {
+        else if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(evt.key)) {
             var target = evt.target;
             var start = target.selectionStart;
             var end = target.selectionEnd;
             var indexOfReturn = target.value.lastIndexOf('\n', start - 1);
             var rowLength = start - indexOfReturn - 1;
             var onTabStop = rowLength % 2 === 0;
-            if (evt.key === 'Tab') {
-                evt.preventDefault();
-                if (!evt.shiftKey) {
-                    target.value = target.value.substring(0, start) + (onTabStop ? '  ' : ' ') + target.value.substring(end);
-                    target.selectionStart = target.selectionEnd = start + (onTabStop ? 2 : 1);
-                }
-            }
-            if (evt.key === 'Backspace') {
-                if (onTabStop && start === end && target.value.substr(start - 2, 2) === '  ') {
+            switch (evt.key) {
+                case 'Tab':
                     evt.preventDefault();
-                    target.value = target.value.substring(0, start - 2) + target.value.substring(end);
-                    target.selectionStart = target.selectionEnd = start - 2;
-                }
-            }
-            if (evt.key === 'Enter') {
-                evt.preventDefault();
-                // eslint-disable-next-line regexp/optimal-quantifier-concatenation
-                var spaceCount = target.value.substring(indexOfReturn + 1, start).replace(/^( *).*/, '$1').length;
-                target.value = "".concat(target.value.substring(0, start), "\n").concat(' '.repeat(spaceCount)).concat(target.value.substring(end));
-                target.selectionStart = target.selectionEnd = start + 1 + spaceCount;
-            }
-            if (evt.key === 'Delete') {
-                if (onTabStop && start === end && target.value.substr(start, 2) === '  ') {
+                    if (!evt.shiftKey) {
+                        target.value = target.value.substring(0, start) + (onTabStop ? '  ' : ' ') + target.value.substring(end);
+                        target.selectionStart = target.selectionEnd = start + (onTabStop ? 2 : 1);
+                        onChange();
+                    }
+                    break;
+                case 'Backspace':
+                    if (onTabStop && start === end && target.value.substr(start - 2, 2) === '  ') {
+                        evt.preventDefault();
+                        target.value = target.value.substring(0, start - 2) + target.value.substring(end);
+                        target.selectionStart = target.selectionEnd = start - 2;
+                        onChange();
+                    }
+                    break;
+                case 'Enter': {
                     evt.preventDefault();
-                    target.value = target.value.substring(0, start) + target.value.substring(end + 2);
-                    target.selectionStart = target.selectionEnd = start;
+                    // eslint-disable-next-line regexp/optimal-quantifier-concatenation
+                    var spaceCount = target.value.substring(indexOfReturn + 1, start).replace(/^( *).*/, '$1').length;
+                    target.value = "".concat(target.value.substring(0, start), "\n").concat(' '.repeat(spaceCount)).concat(target.value.substring(end));
+                    target.selectionStart = target.selectionEnd = start + 1 + spaceCount;
+                    onChange();
+                    break;
                 }
+                case 'Delete':
+                    if (onTabStop && start === end && target.value.substr(start, 2) === '  ') {
+                        evt.preventDefault();
+                        target.value = target.value.substring(0, start) + target.value.substring(end + 2);
+                        target.selectionStart = target.selectionEnd = start;
+                        onChange();
+                    }
+                    break;
             }
         }
     }
@@ -9423,38 +9438,18 @@ var Playground = (function (exports) {
             appendOutput("Error: Could not parse context: ".concat(contextString), 'error');
             return;
         }
-        var result;
-        var oldLog = console.log;
-        console.log = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var logRow = args.map(function (arg) { return stringifyValue(arg); }).join(' ');
-            appendOutput(logRow, 'output');
-        };
-        var oldWarn = console.warn;
-        console.warn = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            oldWarn.apply(console, args);
-            appendOutput(args[0], 'output');
-        };
+        var hijacker = hijackConsole();
         try {
-            result = getLits('debug').run(code, context);
+            var result = getLits('debug').run(code, context);
+            var content = stringifyValue(result, false);
+            appendOutput(content, 'result');
         }
         catch (error) {
             appendOutput(error, 'error');
-            return;
         }
         finally {
-            console.log = oldLog;
-            console.warn = oldWarn;
+            hijacker.releaseConsole();
         }
-        var content = stringifyValue(result);
-        appendOutput(content, 'result');
     }
     function analyze() {
         addOutputSeparator();
@@ -9475,147 +9470,70 @@ var Playground = (function (exports) {
             appendOutput("Error: Could not parse context: ".concat(contextString), 'error');
             return;
         }
-        var result;
-        var oldLog = console.log;
-        console.log = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var logRow = args.map(function (arg) { return stringifyValue(arg); }).join(' ');
-            appendOutput(logRow, 'output');
-        };
-        var oldWarn = console.warn;
-        console.warn = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            oldWarn.apply(console, args);
-            appendOutput(args[0], 'output');
-        };
+        var hijacker = hijackConsole();
         try {
-            result = getLits('debug').analyze(code, context);
+            var result = getLits('debug').analyze(code, context);
+            var unresolvedIdentifiers = __spreadArray([], __read(new Set(__spreadArray([], __read(result.unresolvedIdentifiers), false).map(function (s) { return s.symbol; }))), false).join(', ');
+            var unresolvedIdentifiersOutput = "Unresolved identifiers: ".concat(unresolvedIdentifiers || '-');
+            var possibleOutcomes = result.outcomes && result.outcomes
+                .map(function (o) { return o instanceof UserDefinedError
+                ? "".concat(o.name).concat(o.userMessage ? "(\"".concat(o.userMessage, "\")") : '')
+                : o instanceof Error
+                    ? o.name
+                    : stringifyValue(o, false); }).join(', ');
+            var possibleOutcomesString = "Possible outcomes: ".concat(possibleOutcomes || '-');
+            appendOutput("".concat(unresolvedIdentifiersOutput, "\n").concat(possibleOutcomesString), 'analyze');
         }
         catch (error) {
             appendOutput(error, 'error');
-            return;
         }
         finally {
-            console.log = oldLog;
-            console.warn = oldWarn;
+            hijacker.releaseConsole();
         }
-        var unresolvedIdentifiers = __spreadArray([], __read(new Set(__spreadArray([], __read(result.unresolvedIdentifiers), false).map(function (s) { return s.symbol; }))), false).join(', ');
-        var unresolvedIdentifiersOutput = "Unresolved identifiers: ".concat(unresolvedIdentifiers || '-');
-        var possibleOutcomes = result.outcomes && result.outcomes
-            .map(function (o) { return o instanceof UserDefinedError
-            ? "".concat(o.name).concat(o.userMessage ? "(\"".concat(o.userMessage, "\")") : '')
-            : o instanceof Error
-                ? o.name
-                : stringifyValue(o); }).join(', ');
-        var possibleOutcomesString = "Possible outcomes: ".concat(possibleOutcomes || '-');
-        appendOutput("".concat(unresolvedIdentifiersOutput, "\n").concat(possibleOutcomesString), 'analyze');
     }
     function parse() {
         addOutputSeparator();
         var code = getState('lits-code');
         appendOutput("Parse".concat(getState('debug') ? ' (debug):' : ':', " ").concat(truncateCode(code)), 'comment');
-        var result;
-        var oldLog = console.log;
-        console.log = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var logRow = args.map(function (arg) { return stringifyValue(arg); }).join(' ');
-            appendOutput(logRow, 'output');
-        };
-        var oldWarn = console.warn;
-        console.warn = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            oldWarn.apply(console, args);
-            appendOutput(args[0], 'output');
-        };
+        var hijacker = hijackConsole();
         try {
             var tokens = getLits().tokenize(code);
-            result = getLits().parse(tokens);
+            var result = getLits().parse(tokens);
+            var content = JSON.stringify(result, null, 2);
+            appendOutput(content, 'parse');
         }
         catch (error) {
             appendOutput(error, 'error');
-            return;
         }
         finally {
-            console.log = oldLog;
-            console.warn = oldWarn;
+            hijacker.releaseConsole();
         }
-        var content = JSON.stringify(result, null, 2);
-        appendOutput(content, 'parse');
     }
     function tokenize() {
         addOutputSeparator();
         var code = getState('lits-code');
         appendOutput("Tokenize".concat(getState('debug') ? ' (debug):' : ':', " ").concat(truncateCode(code)), 'comment');
-        var result;
-        var oldLog = console.log;
-        console.log = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var logRow = args.map(function (arg) { return stringifyValue(arg); }).join(' ');
-            appendOutput(logRow, 'output');
-        };
-        var oldWarn = console.warn;
-        console.warn = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            oldWarn.apply(console, args);
-            appendOutput(args[0], 'output');
-        };
+        var hijacker = hijackConsole();
         try {
-            result = getLits().tokenize(code);
+            var result = getLits().tokenize(code);
+            var content = JSON.stringify(result, null, 2);
+            appendOutput(content, 'tokenize');
         }
         catch (error) {
             appendOutput(error, 'error');
             return;
         }
         finally {
-            console.log = oldLog;
-            console.warn = oldWarn;
+            hijacker.releaseConsole();
         }
-        var content = JSON.stringify(result, null, 2);
-        appendOutput(content, 'tokenize');
     }
     function format() {
         addOutputSeparator();
         var code = getState('lits-code');
         appendOutput("Format: ".concat(truncateCode(code)), 'comment');
-        var result;
-        var oldLog = console.log;
-        console.log = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var logRow = args.map(function (arg) { return stringifyValue(arg); }).join(' ');
-            appendOutput(logRow, 'output');
-        };
-        var oldWarn = console.warn;
-        console.warn = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            oldWarn.apply(console, args);
-            appendOutput(args[0], 'output');
-        };
+        var hijacker = hijackConsole();
         try {
-            result = getLits('debug').format(code);
+            var result = getLits('debug').format(code, { lineLength: getLitsCodeCols() });
             setLitsCode(result);
         }
         catch (error) {
@@ -9623,8 +9541,7 @@ var Playground = (function (exports) {
             return;
         }
         finally {
-            console.log = oldLog;
-            console.warn = oldWarn;
+            hijacker.releaseConsole();
         }
     }
     function toggleDebug() {
@@ -9691,6 +9608,60 @@ var Playground = (function (exports) {
         var paddingLeft = Math.floor((size - name.length) / 2);
         var paddingRight = Math.ceil((size - name.length) / 2);
         setLitsCode("\n".concat(";;".concat('-'.repeat(size), ";;"), "\n").concat(";;".concat(' '.repeat(paddingLeft)).concat(name).concat(' '.repeat(paddingRight), ";;"), "\n").concat(";;".concat('-'.repeat(size), ";;"), "\n\n").concat(code, "\n").trimStart(), 'top');
+    }
+    function hijackConsole() {
+        var oldLog = console.log;
+        console.log = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            var logRow = args.map(function (arg) { return stringifyValue(arg); }).join(' ');
+            appendOutput(logRow, 'output');
+        };
+        var oldWarn = console.warn;
+        console.warn = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            oldWarn.apply(console, args);
+            appendOutput(args[0], 'warn');
+        };
+        var oldError = console.error;
+        console.warn = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            oldError.apply(console, args);
+            appendOutput(args[0], 'error');
+        };
+        return {
+            releaseConsole: function () {
+                console.log = oldLog;
+                console.warn = oldWarn;
+            },
+        };
+    }
+    function getLitsCodeCols() {
+        // Create a temporary element
+        var _a = window.getComputedStyle(elements.litsTextArea), font = _a.font, paddingLeft = _a.paddingLeft, paddingRight = _a.paddingRight;
+        var tempElement = document.createElement('span');
+        tempElement.style.font = font;
+        tempElement.style.visibility = 'hidden';
+        tempElement.style.whiteSpace = 'pre';
+        tempElement.textContent = 'M'; // Use a common monospace character
+        // Append the element to the body
+        document.body.appendChild(tempElement);
+        // Measure the width of the character
+        var characterWidth = tempElement.getBoundingClientRect().width;
+        var textAreawidth = elements.litsTextArea.clientWidth
+            - Number.parseInt(paddingLeft)
+            - Number.parseInt(paddingRight);
+        // Remove the temporary element
+        document.body.removeChild(tempElement);
+        return Math.max(1, Math.floor(textAreawidth / characterWidth));
     }
 
     exports.Search = Search;

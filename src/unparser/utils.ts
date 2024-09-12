@@ -22,7 +22,7 @@ export function applyMetaTokens(
   }
   else {
     const result = `${
-        metaTokensToString(metaTokens.leadingMetaTokens)
+        metaTokensToString(metaTokens.leadingMetaTokens, value)
       }${
         value
       }${
@@ -34,8 +34,13 @@ export function applyMetaTokens(
   }
 }
 
-function metaTokensToString(metaTokens: MetaToken[]): string {
+function metaTokensToString(metaTokens: MetaToken[], tokenValue: string | number): string {
+  const isEndBracket = tokenValue === ')' || tokenValue === ']' || tokenValue === '}'
+  const isOnlyNewLine = metaTokens.length === 1 && isNewLineToken(metaTokens[0])
+  if (isEndBracket && isOnlyNewLine)
+    return ''
+
   return metaTokens.map(metaToken =>
-      isNewLineToken(metaToken) ? metaToken.v : `${metaToken.v}\n`,
-    ).join('')
+    isNewLineToken(metaToken) ? metaToken.v : `${metaToken.v}\n`,
+  ).join('')
 }

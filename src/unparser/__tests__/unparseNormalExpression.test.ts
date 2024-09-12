@@ -48,11 +48,17 @@ describe('unparseNormalExpression', () => {
  1
 )
 `
+const expected = `
+(+
+ ;; comment
+
+ 1)
+`
 
     testFormatter(
       p => lits.format(p),
       program,
-      program,
+      expected,
     )
   })
 
@@ -67,11 +73,19 @@ describe('unparseNormalExpression', () => {
    3
 )
 `
+const expected = `
+(+ 1
 
+   ;; Comment
+
+   2
+
+   3)
+`
     testFormatter(
       p => lits.format(p),
       program,
-      program,
+      expected,
     )
   })
 
@@ -81,14 +95,21 @@ describe('unparseNormalExpression', () => {
 
  1
 
- 2
-)
+ 2)
+`
+
+const expected = `
+(+
+
+ 1
+
+ 2)
 `
 
     testFormatter(
       p => lits.format(p),
       program,
-      program,
+      expected,
     )
   })
 
@@ -100,11 +121,16 @@ describe('unparseNormalExpression', () => {
  2
 )
 `
-
+const expected = `
+( ;; Inline comment
+ +
+ 1
+ 2)
+`
     testFormatter(
       p => lits.format(p),
       program,
-      program,
+      expected,
     )
   })
 })

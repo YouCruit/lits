@@ -32,7 +32,8 @@ const unparse: Unparse = (node: AstNode, options: UnparseOptions) => {
 export function unparseAst(ast: Ast, lineLength: number): string {
   const options = new UnparseOptions(unparse, lineLength || Number.MAX_SAFE_INTEGER)
   const result = ast.b.reduce<string>((acc, node) => {
-    return ensureNewlineSeparator(acc, unparse(node, options))
+    const nodeUnparsed = unparse(node, options)
+    return ensureNewlineSeparator(acc, nodeUnparsed)
   }, '')
   return result.endsWith('\n') ? result : `${result}\n`
 }

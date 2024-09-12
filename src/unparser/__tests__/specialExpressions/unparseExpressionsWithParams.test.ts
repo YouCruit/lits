@@ -108,8 +108,7 @@ describe('unparse expressions with params', () => {
 
 (${expressionWithParams} ;; Inline comment
 
- ;; Comment
-
+;; Comment
 ) ;; Inline comment
 
 ;; Comment
@@ -138,8 +137,7 @@ describe('unparse expressions with params', () => {
 
 (${expressionWithParams} foo ;; Inline comment
 
- ${' '.repeat(expressionWithParams.length)} ;; Comment
-
+;; Comment
 ) ;; Inline comment
 
 ;; Comment

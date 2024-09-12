@@ -5,13 +5,64 @@ import { testFormatter } from './testFormatter'
 const lits = new Lits({ debug: true })
 
 describe('unparseAst', () => {
+  describe('these programs should not change', () => {
+    const programs = [
+`
+1
+2
+3
+`.trimStart(),
+`
+(+ 1
+   2
+   ;; Comment
+
+;; Comment
+)
+`.trimStart(),
+    ]
+
+    for (const program of programs) {
+      it('should not change', () => {
+        testFormatter(
+          p => lits.format(p),
+          program,
+          program,
+        )
+      })
+    }
+  })
+
+  describe('these sample programs should work', () => {
+    const programs = [
+      [
+`
+(+ 1 2
+)
+`.trimStart(),
+`
+(+ 1 2)
+`.trimStart(),
+      ],
+    ]
+
+    for (const program of programs) {
+      it('should not change', () => {
+        testFormatter(
+          p => lits.format(p),
+          program[0],
+          program[1],
+        )
+      })
+    }
+  })
+
   it('should work 1', () => {
     const program = `
 (+
 
  ;; B
- 1
-)
+ 1)
 `
     testFormatter(
       p => lits.format(p),
@@ -24,8 +75,7 @@ describe('unparseAst', () => {
     const program = `
 (+
  (- 1)
- 1
-)
+ 1)
 `
     testFormatter(
       p => lits.format(p),
@@ -52,8 +102,7 @@ describe('unparseAst', () => {
 
  (- 1)
  ;; Leading comment
- 1
-)
+ 1)
 `
     testFormatter(
       p => lits.format(p),
@@ -67,8 +116,7 @@ describe('unparseAst', () => {
 (+
  ;; Comment
 
- 1
-)
+ 1)
 `
     testFormatter(
       p => lits.format(p),

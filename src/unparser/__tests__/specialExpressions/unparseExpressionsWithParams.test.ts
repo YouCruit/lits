@@ -26,7 +26,7 @@ describe('unparse expressions with params', () => {
       .filter(name =>
         ['and', 'comment', 'or', 'recur'].includes(name))
     ) {
-      const program = `(${expressionWithParams})\n`
+      const program = `(${expressionWithParams})`
       testFormatter(
         p => lits.format(p),
         program,
@@ -40,7 +40,7 @@ describe('unparse expressions with params', () => {
       .filter(name =>
         ['and', 'comment', 'declared?', 'or', '??', 'recur', 'time!', 'throw'].includes(name))
     ) {
-      const program = `(${expressionWithParams} foo)\n`
+      const program = `(${expressionWithParams} foo)`
       testFormatter(
         p => lits.format(p),
         program,
@@ -54,7 +54,7 @@ describe('unparse expressions with params', () => {
       .filter(name =>
         ['and', 'comment', 'def', 'defs', 'if', 'if-not', 'or', '??', 'recur'].includes(name))
     ) {
-      const program = `(${expressionWithParams} foo bar)\n`
+      const program = `(${expressionWithParams} foo bar)`
       testFormatter(
         p => lits.format(p),
         program,
@@ -68,7 +68,7 @@ describe('unparse expressions with params', () => {
       .filter(name =>
         ['and', 'comment', 'if', 'if-not', 'or', 'recur'].includes(name))
     ) {
-      const program = `(${expressionWithParams} foo bar baz)\n`
+      const program = `(${expressionWithParams} foo bar baz)`
       testFormatter(
         p => lits.format(p),
         program,
@@ -82,7 +82,7 @@ describe('unparse expressions with params', () => {
       .filter(name =>
         ['and', 'comment', 'or', 'recur'].includes(name))
     ) {
-      const program = `(${expressionWithParams} foo bar baz bazz)\n`
+      const program = `(${expressionWithParams} foo bar baz bazz)`
       testFormatter(
         p => lits.format(p),
         program,
@@ -112,7 +112,7 @@ describe('unparse expressions with params', () => {
 ) ;; Inline comment
 
 ;; Comment
-`
+`.trim()
 
       testFormatter(
         p => lits.format(p),
@@ -141,7 +141,7 @@ describe('unparse expressions with params', () => {
 ) ;; Inline comment
 
 ;; Comment
-`
+`.trim()
 
       testFormatter(
         p => lits.format(p),
@@ -175,7 +175,7 @@ describe('unparse expressions with params', () => {
 ) ;; Inline comment
 
 ;; Comment
-`
+`.trim()
 
       testFormatter(
         p => lits.format(p),
@@ -211,7 +211,7 @@ describe('unparse expressions with params', () => {
 ) ;; Inline comment
 
 ;; Comment
-`
+`.trim()
 
       testFormatter(
         p => lits.format(p),
@@ -247,7 +247,7 @@ describe('unparse expressions with params', () => {
 ) ;; Inline comment
 
 ;; Comment
-`
+`.trim()
 
       testFormatter(
         p => lits.format(p),

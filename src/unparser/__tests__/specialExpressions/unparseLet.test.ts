@@ -20,15 +20,14 @@ const sampleProgramWithComments = `
 
   ;; Leading Comment
   (bar 1 2) ;; Inline comment
-  baz) ;; Inline comment
-`
+  baz) ;; Inline comment`.trim()
 
 describe('unparse let', () => {
   it('should work 1', () => {
     testFormatter(
       program => lits.format(program, { lineLength: 0, debug: false }),
       sampleProgramWithComments,
-      '(let [a 10, b 20] foo (bar 1 2) baz)\n',
+      '(let [a 10, b 20] foo (bar 1 2) baz)',
     )
 
     testFormatter(
@@ -39,7 +38,7 @@ describe('unparse let', () => {
   foo
   (bar 1 2)
   baz)
-`.trimStart(),
+`.trim(),
     )
 
     testFormatter(
@@ -51,7 +50,7 @@ describe('unparse let', () => {
   foo
   (bar 1 2)
   baz)
-`.trimStart(),
+`.trim(),
     )
 
     testFormatter(
@@ -66,7 +65,7 @@ describe('unparse let', () => {
   (bar 1
        2)
   baz)
-`.trimStart(),
+`.trim(),
     )
 
     testFormatter(
@@ -82,12 +81,12 @@ describe('unparse let', () => {
    1
    2)
   baz)
-`.trimStart(),
+`.trim(),
     )
   })
 
   it('should work 2', () => {
-    const program = '(let [] "Hi")\n'
+    const program = '(let [] "Hi")'
     testFormatter(
       p => lits.format(p, { lineLength: 0 }),
       program,
@@ -141,8 +140,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
   ;; Leading Comment
   (bar 1
        2) ;; Inline comment
-  baz) ;; Inline comment
-`
+  baz) ;; Inline comment`.trim()
   }
 
   return `
@@ -162,13 +160,12 @@ function formatSampleProgramWithComments(lineLength: number): string {
   (bar
    1
    2) ;; Inline comment
-  baz) ;; Inline comment
-`
+  baz) ;; Inline comment`.trim()
 }
 
 function formatSampleProgram(lineLength: number): string {
   if (lineLength >= sampleProgram.length || lineLength === 0)
-    return `${sampleProgram}\n`
+    return `${sampleProgram}`
 
   if (lineLength >= 19) {
     return `
@@ -176,7 +173,7 @@ function formatSampleProgram(lineLength: number): string {
   foo
   (bar 1 2)
   baz)
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 12) {
@@ -186,7 +183,7 @@ function formatSampleProgram(lineLength: number): string {
   foo
   (bar 1 2)
   baz)
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 11) {
@@ -198,7 +195,7 @@ function formatSampleProgram(lineLength: number): string {
   foo
   (bar 1 2)
   baz)
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 9) {
@@ -211,7 +208,7 @@ function formatSampleProgram(lineLength: number): string {
   (bar 1
        2)
   baz)
-`.trimStart()
+`.trim()
   }
 
   return `
@@ -224,5 +221,5 @@ function formatSampleProgram(lineLength: number): string {
    1
    2)
   baz)
-`.trimStart()
+`.trim()
 }

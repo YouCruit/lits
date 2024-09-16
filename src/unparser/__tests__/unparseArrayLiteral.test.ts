@@ -14,7 +14,7 @@ const sampleProgramWithComments = `
 
           {:foo [{}] ;; Inline
            :bar 5}]) ;; Last element
-`
+`.trim()
 
 describe('unparseArrayLitteral', () => {
   it('shoudl unparse unply array', () => {
@@ -22,12 +22,12 @@ describe('unparseArrayLitteral', () => {
     testFormatter(
       p => lits.format(p),
       program,
-      '[]\n',
+      '[]',
     )
   })
 
   it('should work 1', () => {
-    const program = '[{}]\n'
+    const program = '[{}]'
     testFormatter(
       p => lits.format(p),
       program,
@@ -45,7 +45,7 @@ describe('unparseArrayLitteral', () => {
    ;; B
    [3 4]
    5]))
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -58,7 +58,7 @@ describe('unparseArrayLitteral', () => {
 (slice [1 2 3 4 5]
        1
        3)
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -74,7 +74,7 @@ describe('unparseArrayLitteral', () => {
  3
  4
  5]
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -123,7 +123,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
 
   {:foo [{}] ;; Inline
    :bar 5}]) ;; Last element
-`
+`.trim()
   }
 
   if (lineLength >= 22) {
@@ -139,7 +139,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
 
   {:foo [{}] ;; Inline
    :bar 5}]) ;; Last element
-`
+`.trim()
   }
 
   if (lineLength >= 15) {
@@ -157,7 +157,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
    [{}] ;; Inline
    :bar
    5}]) ;; Last element
-`
+`.trim()
   }
 
   if (lineLength >= 9) {
@@ -176,7 +176,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
    [{}] ;; Inline
    :bar
    5}]) ;; Last element
-`
+`.trim()
   }
 
   return `
@@ -197,18 +197,18 @@ function formatSampleProgramWithComments(lineLength: number): string {
    [{}] ;; Inline
    :bar
    5}]) ;; Last element
-`
+`.trim()
 }
 
 function formatSampleProgram(lineLength: number): string {
   if (lineLength >= sampleProgram.length || lineLength === 0)
-    return `${sampleProgram}\n`
+    return `${sampleProgram}`
 
   if (lineLength >= 14) {
     return `
 (flatten
  [1 2 [3 4] 5])
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 7) {
@@ -218,7 +218,7 @@ function formatSampleProgram(lineLength: number): string {
   2
   [3 4]
   5])
-`.trimStart()
+`.trim()
   }
 
   return `
@@ -228,5 +228,5 @@ function formatSampleProgram(lineLength: number): string {
   [3
    4]
   5])
-`.trimStart()
+`.trim()
 }

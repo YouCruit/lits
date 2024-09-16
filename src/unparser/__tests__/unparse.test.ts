@@ -11,7 +11,7 @@ describe('unparseAst', () => {
 1
 2
 3
-`.trimStart(),
+`.trim(),
 `
 (+ 1
    2
@@ -19,7 +19,7 @@ describe('unparseAst', () => {
 
 ;; Comment
 )
-`.trimStart(),
+`.trim(),
     ]
 
     for (const program of programs) {
@@ -39,10 +39,10 @@ describe('unparseAst', () => {
 `
 (+ 1 2
 )
-`.trimStart(),
+`.trim(),
 `
 (+ 1 2)
-`.trimStart(),
+`.trim(),
       ],
     ]
 
@@ -63,7 +63,7 @@ describe('unparseAst', () => {
 
  ;; B
  1)
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -76,7 +76,7 @@ describe('unparseAst', () => {
 (+
  (- 1)
  1)
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -103,7 +103,7 @@ describe('unparseAst', () => {
  (- 1)
  ;; Leading comment
  1)
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -117,7 +117,7 @@ describe('unparseAst', () => {
  ;; Comment
 
  1)
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -129,7 +129,7 @@ describe('unparseAst', () => {
 ;; Comment 1
 
 ;; Comment 2
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -153,7 +153,7 @@ describe('unparseAst', () => {
   (/ 3 4)
 
   5)) ;; J
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -165,7 +165,7 @@ describe('unparseAst', () => {
     it('should work 1', () => {
       const program = `
 (:Albert 0)
-`
+`.trim()
       testFormatter(
         p => lits.format(p),
         program,
@@ -176,7 +176,7 @@ describe('unparseAst', () => {
       const program = `
 (:Albert
  0)
-`
+`.trim()
       testFormatter(
         p => lits.format(p),
         program,
@@ -187,7 +187,7 @@ describe('unparseAst', () => {
       const program = `
 ([1 2 3]
  0)
-`
+`.trim()
       testFormatter(
         p => lits.format(p),
         program,
@@ -199,7 +199,7 @@ describe('unparseAst', () => {
       const program = `
 ([1 2 3]
  0)
-`
+`.trim()
       testFormatter(
         p => lits.format(p, { lineLength: 4 }),
         program,
@@ -208,7 +208,7 @@ describe('unparseAst', () => {
   2
   3]
  0)
-`,
+`.trim(),
       )
     })
 
@@ -218,7 +218,7 @@ describe('unparseAst', () => {
   2
   3]
  0)
-`
+`.trim()
       testFormatter(
         p => lits.format(p),
         program,
@@ -237,7 +237,7 @@ describe('unparseAst', () => {
   3] ;; Comment
  ;; Comment
  0)
-`
+`.trim()
       testFormatter(
         p => lits.format(p),
         program,
@@ -272,13 +272,13 @@ describe('unparseAst', () => {
 
 function formatSampleProgram(lineLength: number): string {
   if (lineLength >= 37 || lineLength === 0)
-    return '(round (+ 1 2 (/ 3 (max 1 2 3 4)) 5))\n'
+    return '(round (+ 1 2 (/ 3 (max 1 2 3 4)) 5))'
 
   if (lineLength >= 30) {
     return `
 (round
  (+ 1 2 (/ 3 (max 1 2 3 4)) 5))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 27) {
@@ -288,7 +288,7 @@ function formatSampleProgram(lineLength: number): string {
     2
     (/ 3 (max 1 2 3 4))
     5))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 23) {
@@ -298,7 +298,7 @@ function formatSampleProgram(lineLength: number): string {
     2
     (/ 3 (max 1 2 3 4))
     5))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 21) {
@@ -309,7 +309,7 @@ function formatSampleProgram(lineLength: number): string {
   2
   (/ 3 (max 1 2 3 4))
   5))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 19) {
@@ -321,7 +321,7 @@ function formatSampleProgram(lineLength: number): string {
   (/ 3
      (max 1 2 3 4))
   5))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 16) {
@@ -334,7 +334,7 @@ function formatSampleProgram(lineLength: number): string {
    3
    (max 1 2 3 4))
   5))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 10) {
@@ -350,7 +350,7 @@ function formatSampleProgram(lineLength: number): string {
         3
         4))
   5))
-`.trimStart()
+`.trim()
   }
 
   return `
@@ -366,5 +366,5 @@ function formatSampleProgram(lineLength: number): string {
     3
     4))
   5))
-`.trimStart()
+`.trim()
 }

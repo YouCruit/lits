@@ -175,7 +175,6 @@ var Playground = (function (exports) {
     var stateHistory = new StateHistory(JSON.stringify(state), function (status) {
         historyListener === null || historyListener === void 0 ? void 0 : historyListener(status);
     });
-    window.stateHistory = stateHistory;
     function getHistoryState() {
         return {
             'lits-code': state['lits-code'],
@@ -431,9 +430,11 @@ var Playground = (function (exports) {
         searchInput.focus();
     }
     function closeSearch() {
-        searchOverlay.style.display = 'none';
-        saveState({ 'focused-panel': previouslyFocusedPanel });
-        onCloseCallback === null || onCloseCallback === void 0 ? void 0 : onCloseCallback();
+        if (searchOverlay.style.display === 'block') {
+            searchOverlay.style.display = 'none';
+            saveState({ 'focused-panel': previouslyFocusedPanel });
+            onCloseCallback === null || onCloseCallback === void 0 ? void 0 : onCloseCallback();
+        }
     }
     function isOpen() {
         return searchOverlay.style.display === 'block';
@@ -8925,7 +8926,7 @@ var Playground = (function (exports) {
             var nodeUnparsed = unparse(node, options);
             return ensureNewlineSeparator(acc, nodeUnparsed);
         }, '');
-        return result.endsWith('\n') ? result : "".concat(result, "\n");
+        return result.trim();
     }
 
     var Cache = /** @class */ (function () {
@@ -9539,19 +9540,7 @@ var Playground = (function (exports) {
         }
     }
     function keydownHandler(evt, onChange) {
-        if (evt.key === 'Enter' && evt.ctrlKey) {
-            evt.preventDefault();
-            var target = evt.target;
-            var selectionStart = target.selectionStart, selectionEnd = target.selectionEnd;
-            if (selectionEnd > selectionStart) {
-                var program = target.value.substring(selectionStart, selectionEnd);
-                run(program);
-            }
-            else {
-                run();
-            }
-        }
-        else if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(evt.key)) {
+        if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(evt.key)) {
             var target = evt.target;
             var start = target.selectionStart;
             var end = target.selectionEnd;
@@ -9612,13 +9601,12 @@ var Playground = (function (exports) {
         else
             return "".concat(oneLiner.substring(0, count - 3), "...");
     }
-    function run(program) {
+    function run() {
         addOutputSeparator();
-        var code = program || getState('lits-code');
-        if (program)
-            appendOutput("Run selection: ".concat(truncateCode(code)), 'comment');
-        else
-            appendOutput("Run: ".concat(truncateCode(code)), 'comment');
+        var selectedCode = getSelectedLitsCode();
+        var code = selectedCode.code || getState('lits-code');
+        var title = selectedCode.code ? 'Run selection' : 'Run';
+        appendOutput("".concat(title, ": ").concat(truncateCode(code)), 'comment');
         var contextString = getState('context');
         var context;
         try {
@@ -9632,6 +9620,7 @@ var Playground = (function (exports) {
         }
         catch (_a) {
             appendOutput("Error: Could not parse context: ".concat(contextString), 'error');
+            elements.contextTextArea.focus();
             return;
         }
         var hijacker = hijackConsole();
@@ -9645,12 +9634,15 @@ var Playground = (function (exports) {
         }
         finally {
             hijacker.releaseConsole();
+            elements.litsTextArea.focus();
         }
     }
     function analyze() {
         addOutputSeparator();
-        var code = getState('lits-code');
-        appendOutput("Analyze: ".concat(truncateCode(code)), 'comment');
+        var selectedCode = getSelectedLitsCode();
+        var code = selectedCode.code || getState('lits-code');
+        var title = selectedCode.code ? 'Analyze selection' : 'Analyze';
+        appendOutput("".concat(title, ": ").concat(truncateCode(code)), 'comment');
         var contextString = getState('context');
         var context;
         try {
@@ -9664,6 +9656,7 @@ var Playground = (function (exports) {
         }
         catch (_a) {
             appendOutput("Error: Could not parse context: ".concat(contextString), 'error');
+            elements.contextTextArea.focus();
             return;
         }
         var hijacker = hijackConsole();
@@ -9685,12 +9678,15 @@ var Playground = (function (exports) {
         }
         finally {
             hijacker.releaseConsole();
+            elements.litsTextArea.focus();
         }
     }
     function parse() {
         addOutputSeparator();
-        var code = getState('lits-code');
-        appendOutput("Parse".concat(getState('debug') ? ' (debug):' : ':', " ").concat(truncateCode(code)), 'comment');
+        var selectedCode = getSelectedLitsCode();
+        var code = selectedCode.code || getState('lits-code');
+        var title = selectedCode.code ? 'Parse selection' : 'Parse';
+        appendOutput("".concat(title).concat(getState('debug') ? ' (debug):' : ':', " ").concat(truncateCode(code)), 'comment');
         var hijacker = hijackConsole();
         try {
             var tokens = getLits().tokenize(code);
@@ -9703,12 +9699,15 @@ var Playground = (function (exports) {
         }
         finally {
             hijacker.releaseConsole();
+            elements.litsTextArea.focus();
         }
     }
     function tokenize() {
         addOutputSeparator();
-        var code = getState('lits-code');
-        appendOutput("Tokenize".concat(getState('debug') ? ' (debug):' : ':', " ").concat(truncateCode(code)), 'comment');
+        var selectedCode = getSelectedLitsCode();
+        var code = selectedCode.code || getState('lits-code');
+        var title = selectedCode.code ? 'Tokenize selection' : 'Tokenize';
+        appendOutput("".concat(title).concat(getState('debug') ? ' (debug):' : ':', " ").concat(truncateCode(code)), 'comment');
         var hijacker = hijackConsole();
         try {
             var result = getLits().tokenize(code);
@@ -9721,16 +9720,25 @@ var Playground = (function (exports) {
         }
         finally {
             hijacker.releaseConsole();
+            elements.litsTextArea.focus();
         }
     }
     function format() {
         addOutputSeparator();
-        var code = getState('lits-code');
-        appendOutput("Format: ".concat(truncateCode(code)), 'comment');
+        var selectedCode = getSelectedLitsCode();
+        var code = selectedCode.code || getState('lits-code');
+        var title = selectedCode.code ? 'Format selection' : 'Format';
+        appendOutput("".concat(title, ": ").concat(truncateCode(code)), 'comment');
         var hijacker = hijackConsole();
+        var result = '';
         try {
-            var result = getLits('debug').format(code, { lineLength: getLitsCodeCols() });
-            setLitsCode(result, true);
+            result = getLits('debug').format(code, { lineLength: getLitsCodeCols() });
+            if (selectedCode.code) {
+                setLitsCode("".concat(selectedCode.leadingCode).concat(result).concat(selectedCode.trailingCode), true);
+            }
+            else {
+                setLitsCode(result, true);
+            }
         }
         catch (error) {
             appendOutput(error, 'error');
@@ -9738,6 +9746,21 @@ var Playground = (function (exports) {
         }
         finally {
             hijacker.releaseConsole();
+            if (selectedCode.code) {
+                saveState({
+                    'focused-panel': 'lits-code',
+                    'lits-code-selection-start': selectedCode.selectionStart,
+                    'lits-code-selection-end': selectedCode.selectionStart + result.length,
+                });
+            }
+            else {
+                saveState({
+                    'focused-panel': 'lits-code',
+                    'lits-code-selection-start': selectedCode.selectionStart,
+                    'lits-code-selection-end': selectedCode.selectionEnd,
+                });
+            }
+            applyState();
         }
     }
     function toggleDebug() {
@@ -9746,6 +9769,18 @@ var Playground = (function (exports) {
         renderDebugInfo();
         addOutputSeparator();
         appendOutput("Debug mode toggled ".concat(debug ? 'ON' : 'OFF'), 'comment');
+        elements.litsTextArea.focus();
+    }
+    function getSelectedLitsCode() {
+        var selectionStart = getState('lits-code-selection-start');
+        var selectionEnd = getState('lits-code-selection-end');
+        return {
+            leadingCode: elements.litsTextArea.value.substring(0, selectionStart),
+            trailingCode: elements.litsTextArea.value.substring(selectionEnd),
+            code: elements.litsTextArea.value.substring(selectionStart, selectionEnd),
+            selectionStart: selectionStart,
+            selectionEnd: selectionEnd,
+        };
     }
     function applyState(scrollToTop) {
         if (scrollToTop === void 0) { scrollToTop = false; }
@@ -9756,7 +9791,11 @@ var Playground = (function (exports) {
         setOutput(getState('output'), false);
         getDataFromUrl();
         setContext(getState('context'), false);
+        elements.contextTextArea.selectionStart = contextTextAreaSelectionStart;
+        elements.contextTextArea.selectionEnd = contextTextAreaSelectionEnd;
         setLitsCode(getState('lits-code'), false, scrollToTop ? 'top' : undefined);
+        elements.litsTextArea.selectionStart = litsTextAreaSelectionStart;
+        elements.litsTextArea.selectionEnd = litsTextAreaSelectionEnd;
         renderDebugInfo();
         layout();
         setTimeout(function () {
@@ -9765,11 +9804,7 @@ var Playground = (function (exports) {
             else if (getState('focused-panel') === 'lits-code')
                 elements.litsTextArea.focus();
             elements.contextTextArea.scrollTop = getState('context-scroll-top');
-            elements.contextTextArea.selectionStart = contextTextAreaSelectionStart;
-            elements.contextTextArea.selectionEnd = contextTextAreaSelectionEnd;
             elements.litsTextArea.scrollTop = getState('lits-code-scroll-top');
-            elements.litsTextArea.selectionStart = litsTextAreaSelectionStart;
-            elements.litsTextArea.selectionEnd = litsTextAreaSelectionEnd;
             elements.outputResult.scrollTop = getState('output-scroll-top');
         }, 0);
     }
@@ -9817,6 +9852,8 @@ var Playground = (function (exports) {
     function addToPlayground(name, encodedExample) {
         var example = atob(encodedExample);
         appendLitsCode(";; Example - ".concat(name, " ;;\n\n").concat(example, "\n"));
+        saveState({ 'focused-panel': 'lits-code' });
+        applyState();
     }
     function setPlayground(name, encodedExample) {
         var example = JSON.parse(atob(encodedExample));
@@ -9830,6 +9867,8 @@ var Playground = (function (exports) {
         var paddingLeft = Math.floor((size - name.length) / 2);
         var paddingRight = Math.ceil((size - name.length) / 2);
         setLitsCode("\n".concat(";;".concat('-'.repeat(size), ";;"), "\n").concat(";;".concat(' '.repeat(paddingLeft)).concat(name).concat(' '.repeat(paddingRight), ";;"), "\n").concat(";;".concat('-'.repeat(size), ";;"), "\n\n").concat(code, "\n").trimStart(), true, 'top');
+        saveState({ 'focused-panel': 'lits-code' });
+        applyState();
     }
     function hijackConsole() {
         var oldLog = console.log;

@@ -6,7 +6,7 @@ const lits = new Lits({ debug: true })
 
 describe('unparseNormalExpression', () => {
   it('should work 1', () => {
-    const program = '(rand!)\n'
+    const program = '(rand!)'
     testFormatter(
       p => lits.format(p),
       program,
@@ -18,7 +18,7 @@ describe('unparseNormalExpression', () => {
     const program = `
 (flatten (range
           10))
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -29,14 +29,14 @@ describe('unparseNormalExpression', () => {
   it('should work 3', () => {
     const program = `
 [(+ 1)]
-`
+`.trim()
     testFormatter(
       p => lits.format(p, { lineLength: 1 }),
       program,
   `
 [(+
   1)]
-`,
+`.trim(),
     )
   })
 
@@ -47,13 +47,13 @@ describe('unparseNormalExpression', () => {
 
  1
 )
-`
+`.trim()
 const expected = `
 (+
  ;; comment
 
  1)
-`
+`.trim()
 
     testFormatter(
       p => lits.format(p),
@@ -72,7 +72,7 @@ const expected = `
 
    3
 )
-`
+`.trim()
 const expected = `
 (+ 1
 
@@ -81,7 +81,7 @@ const expected = `
    2
 
    3)
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -96,7 +96,7 @@ const expected = `
  1
 
  2)
-`
+`.trim()
 
 const expected = `
 (+
@@ -104,7 +104,7 @@ const expected = `
  1
 
  2)
-`
+`.trim()
 
     testFormatter(
       p => lits.format(p),
@@ -120,13 +120,13 @@ const expected = `
  1
  2
 )
-`
+`.trim()
 const expected = `
 ( ;; Inline comment
  +
  1
  2)
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,

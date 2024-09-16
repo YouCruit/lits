@@ -18,7 +18,7 @@ const sampleProgramWithComments = `
   ;; Last key-value pair
   :foobar
   {}})
-`
+`.trim()
 
 describe('unparseObjectLitteral', () => {
   it('should unparse empty object', () => {
@@ -26,7 +26,7 @@ describe('unparseObjectLitteral', () => {
     testFormatter(
       p => lits.format(p),
       program,
-      '{}\n',
+      program,
     )
   })
 
@@ -35,7 +35,7 @@ describe('unparseObjectLitteral', () => {
 {:x 1
  :y 2
  :z 3}
-`.trimStart()
+`.trim()
     testFormatter(
       p => lits.format(p, { lineLength: 12 }),
       program,
@@ -43,7 +43,7 @@ describe('unparseObjectLitteral', () => {
 {:x 1
  :y 2
  :z 3}
-`.trimStart(),
+`.trim(),
     )
   })
 
@@ -56,7 +56,7 @@ describe('unparseObjectLitteral', () => {
 {:x 1
  :y 2
  :z 3}
-`.trimStart(),
+`.trim(),
     )
   })
 
@@ -65,7 +65,7 @@ describe('unparseObjectLitteral', () => {
 {:x 1
  :y 2
  :z 3}
-`
+`.trim()
     testFormatter(
       p => lits.format(p, { lineLength: 12 }),
       program,
@@ -73,7 +73,7 @@ describe('unparseObjectLitteral', () => {
 {:x 1
  :y 2
  :z 3}
-`,
+`.trim(),
     )
   })
 
@@ -86,7 +86,7 @@ describe('unparseObjectLitteral', () => {
 {:a {:x 1
      :y 2
      :z 3}}
-`.trimStart(),
+`.trim(),
     )
   })
 
@@ -110,7 +110,7 @@ describe('unparseObjectLitteral', () => {
   2
   :z2
   3}}
-`.trimStart(),
+`.trim(),
     )
 
     testFormatter(
@@ -121,7 +121,7 @@ describe('unparseObjectLitteral', () => {
  :b {:x2 1
      :y2 2
      :z2 3}}
-`.trimStart(),
+`.trim(),
     )
 
     testFormatter(
@@ -130,7 +130,7 @@ describe('unparseObjectLitteral', () => {
       `
 {:a {:x 1, :y 2, :z 3}
  :b {:x2 1, :y2 2, :z2 3}}
-`.trimStart(),
+`.trim(),
     )
   })
 
@@ -139,7 +139,7 @@ describe('unparseObjectLitteral', () => {
 {:foo ;; Key
  {:x 42 ;; Inline comment
   :y 144}}
-`.trimStart()
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -152,7 +152,7 @@ describe('unparseObjectLitteral', () => {
 { ;; Inline comment
  :foo 1
  :bar 2}
-`
+`.trim()
     testFormatter(
       p => lits.format(p),
       program,
@@ -206,7 +206,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
   ;; Last key-value pair
   :foobar
   {}})
-`
+`.trim()
   }
 
   if (lineLength >= 25) {
@@ -227,7 +227,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
   ;; Last key-value pair
   :foobar
   {}})
-`
+`.trim()
   }
 
   return `
@@ -249,18 +249,18 @@ function formatSampleProgramWithComments(lineLength: number): string {
   ;; Last key-value pair
   :foobar
   {}})
-`
+`.trim()
 }
 
 function formatSampleProgram(lineLength: number): string {
   if (lineLength >= sampleProgram.length || lineLength === 0)
-    return `${sampleProgram}\n`
+    return sampleProgram
 
   if (lineLength >= 42) {
     return `
 (merge {:a 1, :b 2}
        {:foo {:x 42, :y 144}, :foobar {}})
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 35) {
@@ -268,7 +268,7 @@ function formatSampleProgram(lineLength: number): string {
 (merge
  {:a 1, :b 2}
  {:foo {:x 42, :y 144}, :foobar {}})
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 22) {
@@ -277,7 +277,7 @@ function formatSampleProgram(lineLength: number): string {
  {:a 1, :b 2}
  {:foo {:x 42, :y 144}
   :foobar {}})
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 15) {
@@ -287,7 +287,7 @@ function formatSampleProgram(lineLength: number): string {
  {:foo {:x 42
         :y 144}
   :foobar {}})
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 13) {
@@ -299,7 +299,7 @@ function formatSampleProgram(lineLength: number): string {
         :y
         144}
   :foobar {}})
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 10) {
@@ -312,7 +312,7 @@ function formatSampleProgram(lineLength: number): string {
    :y 144}
   :foobar
   {}})
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 7) {
@@ -327,7 +327,7 @@ function formatSampleProgram(lineLength: number): string {
    144}
   :foobar
   {}})
-`.trimStart()
+`.trim()
   }
 
   return `
@@ -343,5 +343,5 @@ function formatSampleProgram(lineLength: number): string {
    144}
   :foobar
   {}})
-`.trimStart()
+`.trim()
 }

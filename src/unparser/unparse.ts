@@ -35,5 +35,5 @@ export function unparseAst(ast: Ast, lineLength: number): string {
     const nodeUnparsed = unparse(node, options)
     return ensureNewlineSeparator(acc, nodeUnparsed)
   }, '')
-  return result.endsWith('\n') ? result : `${result}\n`
+  return result.trim()
 }

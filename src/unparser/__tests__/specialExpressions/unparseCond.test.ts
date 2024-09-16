@@ -9,7 +9,7 @@ const sampleProgramWithComments = `
 ; This is a comment
 (cond ;; This is a comment
   foo (bar 1 2) ;; This is a comment
-  baz (qux 3 4))`.trimStart()
+  baz (qux 3 4))`.trim()
 
 describe('unparse cond', () => {
   describe('unparse sampleProgram with comments', () => {
@@ -41,7 +41,7 @@ describe('unparse cond', () => {
            2)
   baz (qux 3
            4))
-`
+`.trim()
     testFormatter(
       p => lits.format(p, { lineLength: 14 }),
       program,
@@ -52,7 +52,7 @@ describe('unparse cond', () => {
 
 function formatSampleProgramWithComments(lineLength: number): string {
   if (lineLength === 0)
-    return `${sampleProgramWithComments}\n`
+    return sampleProgramWithComments
 
   if (lineLength >= 36) {
     return `
@@ -60,7 +60,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
 (cond ;; This is a comment
   foo (bar 1 2) ;; This is a comment
   baz (qux 3 4))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 34) {
@@ -70,7 +70,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
   foo (bar 1
            2) ;; This is a comment
   baz (qux 3 4))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 30) {
@@ -81,7 +81,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
        1
        2) ;; This is a comment
   baz (qux 3 4))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 11) {
@@ -94,7 +94,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
    2) ;; This is a comment
   baz
   (qux 3 4))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 9) {
@@ -108,7 +108,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
   baz
   (qux 3
        4))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 1) {
@@ -123,7 +123,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
   (qux
    3
    4))
-`.trimStart()
+`.trim()
   }
 
   return sampleProgramWithComments
@@ -131,13 +131,13 @@ function formatSampleProgramWithComments(lineLength: number): string {
 
 function formatSampleProgram(lineLength: number): string {
   if (lineLength >= sampleProgram.length || lineLength === 0)
-    return `${sampleProgram}\n`
+    return sampleProgram
 
   if (lineLength >= 20) {
     return `
 (cond foo (bar 1 2)
       baz (qux 3 4))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 16) {
@@ -145,7 +145,7 @@ function formatSampleProgram(lineLength: number): string {
 (cond
   foo (bar 1 2)
   baz (qux 3 4))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 15) {
@@ -155,7 +155,7 @@ function formatSampleProgram(lineLength: number): string {
   (bar 1 2)
   baz
   (qux 3 4))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 14) {
@@ -165,7 +165,7 @@ function formatSampleProgram(lineLength: number): string {
            2)
   baz (qux 3
            4))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 13) {
@@ -175,7 +175,7 @@ function formatSampleProgram(lineLength: number): string {
   (bar 1 2)
   baz
   (qux 3 4))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 10) {
@@ -187,7 +187,7 @@ function formatSampleProgram(lineLength: number): string {
   baz (qux
        3
        4))
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 9) {
@@ -199,7 +199,7 @@ function formatSampleProgram(lineLength: number): string {
   baz
   (qux 3
        4))
-`.trimStart()
+`.trim()
   }
 
   return `
@@ -212,5 +212,5 @@ function formatSampleProgram(lineLength: number): string {
   (qux
    3
    4))
-`.trimStart()
+`.trim()
 }

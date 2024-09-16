@@ -16,11 +16,11 @@ const sampleProgramWithComments = `
   ;; Leading Comment
   (bar 1 2) ;; Inline comment
   baz) ;; Inline comment
-`
+`.trim()
 
 describe('unparse expressions with params', () => {
   it('should unparse with zero params', () => {
-    const program = '(do)\n'
+    const program = '(do)'
     testFormatter(
       p => lits.format(p),
       program,
@@ -29,7 +29,7 @@ describe('unparse expressions with params', () => {
   })
 
   it('should unparse with 1 param', () => {
-    const program = '(do foo)\n'
+    const program = '(do foo)'
     testFormatter(
       p => lits.format(p),
       program,
@@ -38,7 +38,7 @@ describe('unparse expressions with params', () => {
     testFormatter(
       p => lits.format(p, { lineLength: 1 }),
       program,
-      '(do\n  foo)\n',
+      '(do\n  foo)',
     )
   })
   describe('unparse sampleProgram', () => {
@@ -83,7 +83,7 @@ function formatSampleProgramWithComments(lineLength: number): string {
   (bar 1
        2) ;; Inline comment
   baz) ;; Inline comment
-`
+`.trim()
   }
 
   return `
@@ -99,19 +99,19 @@ function formatSampleProgramWithComments(lineLength: number): string {
    1
    2) ;; Inline comment
   baz) ;; Inline comment
-`
+`.trim()
 }
 
 function formatSampleProgram(lineLength: number): string {
   if (lineLength >= sampleProgram.length || lineLength === 0)
-    return `${sampleProgram}\n`
+    return sampleProgram
 
   if (lineLength >= 13) {
     return `
 (do foo
     (bar 1 2)
     baz)
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 11) {
@@ -120,7 +120,7 @@ function formatSampleProgram(lineLength: number): string {
   foo
   (bar 1 2)
   baz)
-`.trimStart()
+`.trim()
   }
 
   if (lineLength >= 9) {
@@ -130,7 +130,7 @@ function formatSampleProgram(lineLength: number): string {
   (bar 1
        2)
   baz)
-`.trimStart()
+`.trim()
   }
 
   return `
@@ -140,5 +140,5 @@ function formatSampleProgram(lineLength: number): string {
    1
    2)
   baz)
-`.trimStart()
+`.trim()
 }

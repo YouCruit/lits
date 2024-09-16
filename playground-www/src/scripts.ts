@@ -551,19 +551,7 @@ function getDataFromUrl() {
 }
 
 function keydownHandler(evt: KeyboardEvent, onChange: () => void): void {
-  if (evt.key === 'Enter' && evt.ctrlKey) {
-    evt.preventDefault()
-    const target = evt.target as HTMLTextAreaElement
-    const { selectionStart, selectionEnd } = target
-    if (selectionEnd > selectionStart) {
-      const program = target.value.substring(selectionStart, selectionEnd)
-      run(program)
-    }
-    else {
-      run()
-    }
-  }
-  else if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(evt.key)) {
+  if (['Tab', 'Backspace', 'Enter', 'Delete'].includes(evt.key)) {
     const target = evt.target as HTMLTextAreaElement
     const start = target.selectionStart
     const end = target.selectionEnd
@@ -627,14 +615,13 @@ function truncateCode(text: string, count = 1000) {
   else
     return `${oneLiner.substring(0, count - 3)}...`
 }
-export function run(program?: string) {
+export function run() {
   addOutputSeparator()
-  const code = program || getState('lits-code')
+  const selectedCode = getSelectedLitsCode()
+  const code = selectedCode.code || getState('lits-code')
+  const title = selectedCode.code ? 'Run selection' : 'Run'
 
-  if (program)
-    appendOutput(`Run selection: ${truncateCode(code)}`, 'comment')
-  else
-    appendOutput(`Run: ${truncateCode(code)}`, 'comment')
+  appendOutput(`${title}: ${truncateCode(code)}`, 'comment')
 
   const contextString = getState('context')
   let context: LitsParams
@@ -648,6 +635,7 @@ export function run(program?: string) {
   }
   catch {
     appendOutput(`Error: Could not parse context: ${contextString}`, 'error')
+    elements.contextTextArea.focus()
     return
   }
 
@@ -662,13 +650,18 @@ export function run(program?: string) {
   }
   finally {
     hijacker.releaseConsole()
+    elements.litsTextArea.focus()
   }
 }
 
 export function analyze() {
   addOutputSeparator()
-  const code = getState('lits-code')
-  appendOutput(`Analyze: ${truncateCode(code)}`, 'comment')
+
+  const selectedCode = getSelectedLitsCode()
+  const code = selectedCode.code || getState('lits-code')
+  const title = selectedCode.code ? 'Analyze selection' : 'Analyze'
+
+  appendOutput(`${title}: ${truncateCode(code)}`, 'comment')
 
   const contextString = getState('context')
   let context: LitsParams
@@ -682,6 +675,7 @@ export function analyze() {
   }
   catch {
     appendOutput(`Error: Could not parse context: ${contextString}`, 'error')
+    elements.contextTextArea.focus()
     return
   }
 
@@ -707,13 +701,19 @@ export function analyze() {
   }
   finally {
     hijacker.releaseConsole()
+    elements.litsTextArea.focus()
   }
 }
 
 export function parse() {
   addOutputSeparator()
-  const code = getState('lits-code')
-  appendOutput(`Parse${getState('debug') ? ' (debug):' : ':'} ${truncateCode(code)}`, 'comment')
+
+  const selectedCode = getSelectedLitsCode()
+  const code = selectedCode.code || getState('lits-code')
+  const title = selectedCode.code ? 'Parse selection' : 'Parse'
+
+  appendOutput(`${title}${getState('debug') ? ' (debug):' : ':'} ${truncateCode(code)}`, 'comment')
+
   const hijacker = hijackConsole()
   try {
     const tokens = getLits().tokenize(code)
@@ -726,13 +726,18 @@ export function parse() {
   }
   finally {
     hijacker.releaseConsole()
+    elements.litsTextArea.focus()
   }
 }
 
 export function tokenize() {
   addOutputSeparator()
-  const code = getState('lits-code')
-  appendOutput(`Tokenize${getState('debug') ? ' (debug):' : ':'} ${truncateCode(code)}`, 'comment')
+
+  const selectedCode = getSelectedLitsCode()
+  const code = selectedCode.code || getState('lits-code')
+  const title = selectedCode.code ? 'Tokenize selection' : 'Tokenize'
+
+  appendOutput(`${title}${getState('debug') ? ' (debug):' : ':'} ${truncateCode(code)}`, 'comment')
 
   const hijacker = hijackConsole()
   try {
@@ -746,18 +751,29 @@ export function tokenize() {
   }
   finally {
     hijacker.releaseConsole()
+    elements.litsTextArea.focus()
   }
 }
 
 export function format() {
   addOutputSeparator()
-  const code = getState('lits-code')
-  appendOutput(`Format: ${truncateCode(code)}`, 'comment')
+
+  const selectedCode = getSelectedLitsCode()
+  const code = selectedCode.code || getState('lits-code')
+  const title = selectedCode.code ? 'Format selection' : 'Format'
+
+  appendOutput(`${title}: ${truncateCode(code)}`, 'comment')
 
   const hijacker = hijackConsole()
+  let result: string = ''
   try {
-    const result = getLits('debug').format(code, { lineLength: getLitsCodeCols() })
-    setLitsCode(result, true)
+    result = getLits('debug').format(code, { lineLength: getLitsCodeCols() })
+    if (selectedCode.code) {
+      setLitsCode(`${selectedCode.leadingCode}${result}${selectedCode.trailingCode}`, true)
+    }
+    else {
+      setLitsCode(result, true)
+    }
   }
   catch (error) {
     appendOutput(error, 'error')
@@ -765,6 +781,21 @@ export function format() {
   }
   finally {
     hijacker.releaseConsole()
+    if (selectedCode.code) {
+      saveState({
+        'focused-panel': 'lits-code',
+        'lits-code-selection-start': selectedCode.selectionStart,
+        'lits-code-selection-end': selectedCode.selectionStart + result.length,
+      })
+    }
+    else {
+      saveState({
+        'focused-panel': 'lits-code',
+        'lits-code-selection-start': selectedCode.selectionStart,
+        'lits-code-selection-end': selectedCode.selectionEnd,
+      })
+    }
+    applyState()
   }
 }
 
@@ -774,6 +805,26 @@ export function toggleDebug() {
   renderDebugInfo()
   addOutputSeparator()
   appendOutput(`Debug mode toggled ${debug ? 'ON' : 'OFF'}`, 'comment')
+  elements.litsTextArea.focus()
+}
+
+function getSelectedLitsCode(): {
+  code: string
+  leadingCode: string
+  trailingCode: string
+  selectionStart: number
+  selectionEnd: number
+} {
+  const selectionStart = getState('lits-code-selection-start')
+  const selectionEnd = getState('lits-code-selection-end')
+
+  return {
+    leadingCode: elements.litsTextArea.value.substring(0, selectionStart),
+    trailingCode: elements.litsTextArea.value.substring(selectionEnd),
+    code: elements.litsTextArea.value.substring(selectionStart, selectionEnd),
+    selectionStart,
+    selectionEnd,
+  }
 }
 
 function applyState(scrollToTop = false) {
@@ -784,10 +835,16 @@ function applyState(scrollToTop = false) {
 
   setOutput(getState('output'), false)
   getDataFromUrl()
-  setContext(getState('context'), false)
-  setLitsCode(getState('lits-code'), false, scrollToTop ? 'top' : undefined)
-  renderDebugInfo()
 
+  setContext(getState('context'), false)
+  elements.contextTextArea.selectionStart = contextTextAreaSelectionStart
+  elements.contextTextArea.selectionEnd = contextTextAreaSelectionEnd
+
+  setLitsCode(getState('lits-code'), false, scrollToTop ? 'top' : undefined)
+  elements.litsTextArea.selectionStart = litsTextAreaSelectionStart
+  elements.litsTextArea.selectionEnd = litsTextAreaSelectionEnd
+
+  renderDebugInfo()
   layout()
 
   setTimeout(() => {
@@ -797,11 +854,7 @@ function applyState(scrollToTop = false) {
       elements.litsTextArea.focus()
 
     elements.contextTextArea.scrollTop = getState('context-scroll-top')
-    elements.contextTextArea.selectionStart = contextTextAreaSelectionStart
-    elements.contextTextArea.selectionEnd = contextTextAreaSelectionEnd
     elements.litsTextArea.scrollTop = getState('lits-code-scroll-top')
-    elements.litsTextArea.selectionStart = litsTextAreaSelectionStart
-    elements.litsTextArea.selectionEnd = litsTextAreaSelectionEnd
     elements.outputResult.scrollTop = getState('output-scroll-top')
   }, 0)
 }
@@ -860,6 +913,8 @@ function inactivateAll() {
 export function addToPlayground(name: string, encodedExample: string) {
   const example = atob(encodedExample)
   appendLitsCode(`;; Example - ${name} ;;\n\n${example}\n`)
+  saveState({ 'focused-panel': 'lits-code' })
+  applyState()
 }
 
 export function setPlayground(name: string, encodedExample: string) {
@@ -883,6 +938,8 @@ ${`;;${'-'.repeat(size)};;`}
 
 ${code}
 `.trimStart(), true, 'top')
+  saveState({ 'focused-panel': 'lits-code' })
+  applyState()
 }
 
 function hijackConsole() {

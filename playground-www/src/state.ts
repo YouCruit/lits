@@ -47,8 +47,6 @@ const stateHistory = new StateHistory(JSON.stringify(state), (status) => {
   historyListener?.(status)
 })
 
-;(window as any).stateHistory = stateHistory
-
 function getHistoryState() {
   return {
     'lits-code': state['lits-code'],

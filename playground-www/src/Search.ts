@@ -136,9 +136,11 @@ function openSearch() {
 }
 
 function closeSearch() {
-  searchOverlay.style.display = 'none'
-  saveState({ 'focused-panel': previouslyFocusedPanel })
-  onCloseCallback?.()
+  if (searchOverlay.style.display === 'block') {
+    searchOverlay.style.display = 'none'
+    saveState({ 'focused-panel': previouslyFocusedPanel })
+    onCloseCallback?.()
+  }
 }
 
 function isOpen() {

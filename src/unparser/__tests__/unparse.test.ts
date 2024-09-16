@@ -50,8 +50,8 @@ describe('unparseAst', () => {
       it('should not change', () => {
         testFormatter(
           p => lits.format(p),
-          program[0],
-          program[1],
+          program[0]!,
+          program[1]!,
         )
       })
     }

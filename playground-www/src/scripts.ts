@@ -6,7 +6,7 @@ import { UserDefinedError } from '../../src/errors'
 import type { UnknownRecord } from '../../src/interface'
 import { asUnknownRecord } from '../../src/typeGuards'
 import { Search } from './Search'
-import { applyEncodedState, clearAllStates, clearState, encodeState, getState, redoState, saveState, setHistoryListener, state, undoState } from './state'
+import { applyEncodedState, clearAllStates, clearState, encodeState, getState, redoState, saveState, setHistoryListener, undoState } from './state'
 import { isMac, throttle } from './utils'
 
 const getLits: (forceDebug?: 'debug') => Lits = (() => {
@@ -79,8 +79,8 @@ export function closeMoreMenu() {
 }
 
 export function openAddContextMenu() {
-  elements.newContextName.value = state['new-context-name']
-  elements.newContextValue.value = state['new-context-value']
+  elements.newContextName.value = getState('new-context-name')
+  elements.newContextValue.value = getState('new-context-value')
   elements.addContextMenu.style.display = 'block'
   elements.newContextName.focus()
 }
@@ -442,6 +442,14 @@ window.onload = function () {
           evt.preventDefault()
           toggleDebug()
           break
+        case '1':
+          evt.preventDefault()
+          elements.contextTextArea.focus()
+          break
+        case '2':
+          evt.preventDefault()
+          elements.litsTextArea.focus()
+          break
       }
     }
     if (evt.key === 'Escape') {
@@ -475,6 +483,12 @@ window.onload = function () {
       })
     }
   })
+  elements.contextTextArea.addEventListener('focusin', () => {
+    saveState({ 'focused-panel': 'context' })
+  })
+  elements.contextTextArea.addEventListener('focusout', () => {
+    saveState({ 'focused-panel': null })
+  })
 
   elements.litsTextArea.addEventListener('keydown', (evt) => {
     keydownHandler(evt, () => setLitsCode(elements.litsTextArea.value, true))
@@ -493,6 +507,12 @@ window.onload = function () {
       })
     }
   })
+  elements.litsTextArea.addEventListener('focusin', () => {
+    saveState({ 'focused-panel': 'lits-code' })
+  })
+  elements.litsTextArea.addEventListener('focusout', () => {
+    saveState({ 'focused-panel': null })
+  })
 
   elements.outputResult.addEventListener('scroll', () => {
     saveState({ 'output-scroll-top': elements.outputResult.scrollTop })
@@ -509,6 +529,10 @@ window.onload = function () {
 
   const id = location.hash.substring(1) || 'index'
   showPage(id, 'instant', 'replace')
+
+  Search.onClose(() => {
+    applyState()
+  })
 }
 
 function getDataFromUrl() {
@@ -753,6 +777,11 @@ export function toggleDebug() {
 }
 
 function applyState(scrollToTop = false) {
+  const contextTextAreaSelectionStart = getState('context-selection-start')
+  const contextTextAreaSelectionEnd = getState('context-selection-end')
+  const litsTextAreaSelectionStart = getState('lits-code-selection-start')
+  const litsTextAreaSelectionEnd = getState('lits-code-selection-end')
+
   setOutput(getState('output'), false)
   getDataFromUrl()
   setContext(getState('context'), false)
@@ -762,12 +791,17 @@ function applyState(scrollToTop = false) {
   layout()
 
   setTimeout(() => {
+    if (getState('focused-panel') === 'context')
+      elements.contextTextArea.focus()
+    else if (getState('focused-panel') === 'lits-code')
+      elements.litsTextArea.focus()
+
     elements.contextTextArea.scrollTop = getState('context-scroll-top')
-    elements.contextTextArea.selectionStart = getState('context-selection-start')
-    elements.contextTextArea.selectionEnd = getState('context-selection-end')
+    elements.contextTextArea.selectionStart = contextTextAreaSelectionStart
+    elements.contextTextArea.selectionEnd = contextTextAreaSelectionEnd
     elements.litsTextArea.scrollTop = getState('lits-code-scroll-top')
-    elements.litsTextArea.selectionStart = getState('lits-code-selection-start')
-    elements.litsTextArea.selectionEnd = getState('lits-code-selection-end')
+    elements.litsTextArea.selectionStart = litsTextAreaSelectionStart
+    elements.litsTextArea.selectionEnd = litsTextAreaSelectionEnd
     elements.outputResult.scrollTop = getState('output-scroll-top')
   }, 0)
 }

@@ -19,6 +19,7 @@ export const defaultState = {
   'new-context-name': '' as string,
   'new-context-value': '' as string,
   'debug': false as boolean,
+  'focused-panel': null as 'lits-code' | 'context' | null,
 } as const
 
 type State = {
@@ -32,7 +33,7 @@ const keys = Object.keys(defaultState) as Key[]
 
 let historyListener: undefined | ((status: HistoryStatus) => void)
 
-export const state: State = {
+const state: State = {
   ...defaultState,
 }
 
@@ -56,6 +57,7 @@ function getHistoryState() {
     'context': state.context,
     'context-selection-start': state['context-selection-start'],
     'context-selection-end': state['context-selection-end'],
+    'focused-panel': state['focused-panel'],
   } satisfies Partial<State>
 }
 
@@ -89,7 +91,7 @@ export function saveState(newState: Partial<State>, pushToHistory = true) {
   }
 }
 
-export function setState<T extends keyof State>(key: T, value: State[T]) {
+function setState<T extends keyof State>(key: T, value: State[T]) {
   state[key] = value
 }
 

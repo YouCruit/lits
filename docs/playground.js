@@ -1,6 +1,286 @@
 var Playground = (function (exports) {
     'use strict';
 
+    /******************************************************************************
+    Copyright (c) Microsoft Corporation.
+
+    Permission to use, copy, modify, and/or distribute this software for any
+    purpose with or without fee is hereby granted.
+
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+    AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+    LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+    OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+    PERFORMANCE OF THIS SOFTWARE.
+    ***************************************************************************** */
+    /* global Reflect, Promise, SuppressedError, Symbol */
+
+    var extendStatics = function(d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+
+    function __extends(d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    }
+
+    var __assign = function() {
+        __assign = Object.assign || function __assign(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign.apply(this, arguments);
+    };
+
+    function __values(o) {
+        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+        if (m) return m.call(o);
+        if (o && typeof o.length === "number") return {
+            next: function () {
+                if (o && i >= o.length) o = void 0;
+                return { value: o && o[i++], done: !o };
+            }
+        };
+        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+    }
+
+    function __read(o, n) {
+        var m = typeof Symbol === "function" && o[Symbol.iterator];
+        if (!m) return o;
+        var i = m.call(o), r, ar = [], e;
+        try {
+            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+        }
+        catch (error) { e = { error: error }; }
+        finally {
+            try {
+                if (r && !r.done && (m = i["return"])) m.call(i);
+            }
+            finally { if (e) throw e.error; }
+        }
+        return ar;
+    }
+
+    function __spreadArray(to, from, pack) {
+        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+            if (ar || !(i in from)) {
+                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+                ar[i] = from[i];
+            }
+        }
+        return to.concat(ar || Array.prototype.slice.call(from));
+    }
+
+    typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+        var e = new Error(message);
+        return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+    };
+
+    var StateHistory = /** @class */ (function () {
+        function StateHistory(initialState, listener) {
+            this.history = [];
+            this.lastStatus = { canUndo: false, canRedo: false };
+            this.history.push(initialState);
+            this.index = 0;
+            this.listener = listener;
+        }
+        StateHistory.prototype.canUndo = function () {
+            return this.index > 0;
+        };
+        StateHistory.prototype.canRedo = function () {
+            return this.index < this.history.length - 1;
+        };
+        StateHistory.prototype.push = function (state) {
+            if (state !== this.history[this.index]) {
+                this.history.splice(this.index + 1);
+                this.history.push(state);
+                this.index = this.history.length - 1;
+                this.notify();
+            }
+        };
+        StateHistory.prototype.replace = function (state) {
+            this.history[this.index] = state;
+            this.notify();
+        };
+        StateHistory.prototype.undo = function () {
+            if (!this.canUndo())
+                throw new Error('Cannot undo');
+            this.index -= 1;
+            this.notify();
+            return this.history[this.index];
+        };
+        StateHistory.prototype.redo = function () {
+            if (!this.canRedo())
+                throw new Error('Cannot redo');
+            this.index += 1;
+            this.notify();
+            return this.history[this.index];
+        };
+        StateHistory.prototype.peek = function () {
+            return this.history[this.index];
+        };
+        StateHistory.prototype.reset = function (initialState) {
+            this.history = [initialState];
+            this.index = 0;
+            this.notify();
+        };
+        StateHistory.prototype.notify = function () {
+            var _this = this;
+            var status = { canUndo: this.canUndo(), canRedo: this.canRedo() };
+            if (status.canUndo !== this.lastStatus.canUndo || status.canRedo !== this.lastStatus.canRedo) {
+                this.lastStatus = status;
+                setTimeout(function () { return _this.listener(status); }, 0);
+            }
+        };
+        return StateHistory;
+    }());
+
+    var defaultState = {
+        'playground-height': 350,
+        'resize-divider-1-percent': 20,
+        'resize-divider-2-percent': 60,
+        'context': '',
+        'context-scroll-top': 0,
+        'context-selection-start': 0,
+        'context-selection-end': 0,
+        'lits-code': '',
+        'lits-code-scroll-top': 0,
+        'lits-code-selection-start': 0,
+        'lits-code-selection-end': 0,
+        'output': '',
+        'output-scroll-top': 0,
+        'new-context-name': '',
+        'new-context-value': '',
+        'debug': false,
+        'focused-panel': null,
+    };
+    var keys = Object.keys(defaultState);
+    var historyListener;
+    var state = __assign({}, defaultState);
+    keys.forEach(function (key) {
+        var value = localStorage.getItem(getStorageKey(key));
+        state[key] = typeof value === 'string' ? JSON.parse(value) : defaultState[key];
+    });
+    var stateHistory = new StateHistory(JSON.stringify(state), function (status) {
+        historyListener === null || historyListener === void 0 ? void 0 : historyListener(status);
+    });
+    window.stateHistory = stateHistory;
+    function getHistoryState() {
+        return {
+            'lits-code': state['lits-code'],
+            'lits-code-selection-start': state['lits-code-selection-start'],
+            'lits-code-selection-end': state['lits-code-selection-end'],
+            'context': state.context,
+            'context-selection-start': state['context-selection-start'],
+            'context-selection-end': state['context-selection-end'],
+            'focused-panel': state['focused-panel'],
+        };
+    }
+    function historyCodeChanged() {
+        var current = JSON.parse(stateHistory.peek());
+        return current['lits-code'] !== state['lits-code'] || current.context !== state.context;
+    }
+    function pushHistory() {
+        var historyStateString = JSON.stringify(getHistoryState());
+        if (historyCodeChanged())
+            stateHistory.push(historyStateString);
+        else
+            stateHistory.replace(historyStateString);
+    }
+    function setHistoryListener(listener) {
+        historyListener = listener;
+    }
+    function saveState(newState, pushToHistory) {
+        if (pushToHistory === void 0) { pushToHistory = true; }
+        Object.entries(newState).forEach(function (entry) {
+            var key = entry[0];
+            var value = entry[1];
+            setState(key, value);
+            localStorage.setItem(getStorageKey(key), JSON.stringify(value));
+        });
+        if (pushToHistory) {
+            pushHistory();
+        }
+    }
+    function setState(key, value) {
+        state[key] = value;
+    }
+    function clearAllStates() {
+        localStorage.clear();
+        Object.assign(state, defaultState);
+        stateHistory.reset(JSON.stringify(state));
+    }
+    function clearState(key) {
+        localStorage.removeItem(getStorageKey(key));
+        state[key] = defaultState[key];
+        pushHistory();
+    }
+    function getState(key) {
+        return state[key];
+    }
+    function encodeState() {
+        var sharedState = {
+            'lits-code': state['lits-code'],
+            'context': state.context,
+        };
+        return btoa(JSON.stringify(sharedState));
+    }
+    function applyEncodedState(encodedState) {
+        try {
+            return applyStateString(atob(encodedState), true);
+        }
+        catch (error) {
+            return false;
+        }
+    }
+    function applyStateString(stateString, pushToHistory) {
+        try {
+            var decodedState = JSON.parse(stateString);
+            saveState(decodedState, false);
+            if (pushToHistory) {
+                pushHistory();
+            }
+            return true;
+        }
+        catch (error) {
+            return false;
+        }
+    }
+    function undoState() {
+        try {
+            var stateString = stateHistory.undo();
+            applyStateString(stateString, false);
+            return true;
+        }
+        catch (_a) {
+            return false;
+        }
+    }
+    function redoState() {
+        try {
+            var stateString = stateHistory.redo();
+            applyStateString(stateString, false);
+            return true;
+        }
+        catch (_a) {
+            return false;
+        }
+    }
+    function getStorageKey(key) {
+        return "playground-".concat(key);
+    }
+
     function isNotNull(value) {
         return value !== null && value !== undefined;
     }
@@ -34,6 +314,7 @@ var Playground = (function (exports) {
     var ctrlKeyStarted = null;
     var selectedIndex = null;
     var onCloseCallback = null;
+    var previouslyFocusedPanel = getState('focused-panel');
     var searchInput = asNotNull(document.getElementById('search-input'));
     var searchResult = asNotNull(document.getElementById('search-result'));
     var noSearchResult = asNotNull(document.getElementById('no-search-result'));
@@ -143,6 +424,7 @@ var Playground = (function (exports) {
         ctrlKeyTimer = 0;
     }
     function openSearch() {
+        previouslyFocusedPanel = getState('focused-panel');
         searchOverlay.style.display = 'block';
         if (searchResult.children.length === 0)
             updateSearchResult(searchInput.value);
@@ -150,6 +432,7 @@ var Playground = (function (exports) {
     }
     function closeSearch() {
         searchOverlay.style.display = 'none';
+        saveState({ 'focused-panel': previouslyFocusedPanel });
         onCloseCallback === null || onCloseCallback === void 0 ? void 0 : onCloseCallback();
     }
     function isOpen() {
@@ -245,92 +528,6 @@ var Playground = (function (exports) {
         clearSearch: clearSearch,
         handleKeyDown: handleKeyDown,
         onClose: onClose,
-    };
-
-    /******************************************************************************
-    Copyright (c) Microsoft Corporation.
-
-    Permission to use, copy, modify, and/or distribute this software for any
-    purpose with or without fee is hereby granted.
-
-    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-    AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-    LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-    OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-    PERFORMANCE OF THIS SOFTWARE.
-    ***************************************************************************** */
-    /* global Reflect, Promise, SuppressedError, Symbol */
-
-    var extendStatics = function(d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-
-    function __extends(d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    }
-
-    var __assign = function() {
-        __assign = Object.assign || function __assign(t) {
-            for (var s, i = 1, n = arguments.length; i < n; i++) {
-                s = arguments[i];
-                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-            }
-            return t;
-        };
-        return __assign.apply(this, arguments);
-    };
-
-    function __values(o) {
-        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-        if (m) return m.call(o);
-        if (o && typeof o.length === "number") return {
-            next: function () {
-                if (o && i >= o.length) o = void 0;
-                return { value: o && o[i++], done: !o };
-            }
-        };
-        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-    }
-
-    function __read(o, n) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m) return o;
-        var i = m.call(o), r, ar = [], e;
-        try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-        }
-        catch (error) { e = { error: error }; }
-        finally {
-            try {
-                if (r && !r.done && (m = i["return"])) m.call(i);
-            }
-            finally { if (e) throw e.error; }
-        }
-        return ar;
-    }
-
-    function __spreadArray(to, from, pack) {
-        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-            if (ar || !(i in from)) {
-                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-                ar[i] = from[i];
-            }
-        }
-        return to.concat(ar || Array.prototype.slice.call(from));
-    }
-
-    typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
-        var e = new Error(message);
-        return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
     };
 
     var AstNodeType;
@@ -1879,7 +2076,7 @@ var Playground = (function (exports) {
                 var _b = __read(_a, 1), seq = _b[0];
                 assertSeq(seq, sourceCodeInfo);
                 if (typeof seq === 'string')
-                    return seq.substr(0, seq.length - 1);
+                    return seq.substring(0, seq.length - 1);
                 var copy = __spreadArray([], __read(seq), false);
                 copy.pop();
                 return copy;
@@ -2108,7 +2305,7 @@ var Playground = (function (exports) {
                         return [];
                     return first.slice(1);
                 }
-                return first.substr(1);
+                return first.substring(1);
             },
             validate: function (node) { return assertNumberOfParams(1, node); },
         },
@@ -2120,7 +2317,7 @@ var Playground = (function (exports) {
                 var integerCount = Math.max(Math.ceil(count), 0);
                 if (Array.isArray(seq))
                     return seq.slice(integerCount);
-                return seq.substr(integerCount);
+                return seq.substring(integerCount);
             },
             validate: function (node) { return assertNumberOfParams(2, node); },
         },
@@ -2135,7 +2332,7 @@ var Playground = (function (exports) {
                 }
                 if (first.length <= 1)
                     return null;
-                return first.substr(1);
+                return first.substring(1);
             },
             validate: function (node) { return assertNumberOfParams(1, node); },
         },
@@ -2149,7 +2346,7 @@ var Playground = (function (exports) {
                     return null;
                 if (Array.isArray(seq))
                     return seq.slice(integerCount);
-                return seq.substr(integerCount);
+                return seq.substring(integerCount);
             },
             validate: function (node) { return assertNumberOfParams(2, node); },
         },
@@ -2180,7 +2377,7 @@ var Playground = (function (exports) {
                 var _b = __read(_a, 1), seq = _b[0];
                 assertSeq(seq, sourceCodeInfo);
                 if (typeof seq === 'string')
-                    return seq.substr(1);
+                    return seq.substring(1);
                 var copy = __spreadArray([], __read(seq), false);
                 copy.shift();
                 return copy;
@@ -7928,7 +8125,7 @@ var Playground = (function (exports) {
                 var nextChar = input[position + length_2];
                 if (nextChar && nameRegExp.test(nextChar))
                     continue;
-                var name_1 = input.substr(position, length_2);
+                var name_1 = input.substring(position, position + length_2);
                 if (name_1 === reservedName) {
                     if (forbidden)
                         throw new LitsError("".concat(name_1, " is forbidden!"), debugData === null || debugData === void 0 ? void 0 : debugData.sourceCodeInfo);
@@ -7956,7 +8153,7 @@ var Playground = (function (exports) {
                 var modifier = modifiers_1_1.value;
                 var length_3 = modifier.length;
                 var charAfterModifier = input[position + length_3];
-                if (input.substr(position, length_3) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
+                if (input.substring(position, position + length_3) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
                     var value = modifier;
                     return [length_3, { t: TokenType.Modifier, v: value, debugData: debugData }];
                 }
@@ -8015,7 +8212,7 @@ var Playground = (function (exports) {
         return input.split(/\r\n|\r|\n/)[lineNbr];
     }
     function createSourceCodeInfo(input, position, filePath) {
-        var lines = input.substr(0, position + 1).split(/\r\n|\r|\n/);
+        var lines = input.substring(0, position + 1).split(/\r\n|\r|\n/);
         var lastLine = lines[lines.length - 1];
         var code = getSourceCodeLine(input, lines.length - 1);
         var line = lines.length;
@@ -8895,198 +9092,6 @@ var Playground = (function (exports) {
         return Lits;
     }());
 
-    var StateHistory = /** @class */ (function () {
-        function StateHistory(initialState, listener) {
-            this.history = [];
-            this.lastStatus = { canUndo: false, canRedo: false };
-            this.history.push(initialState);
-            this.index = 0;
-            this.listener = listener;
-        }
-        StateHistory.prototype.canUndo = function () {
-            return this.index > 0;
-        };
-        StateHistory.prototype.canRedo = function () {
-            return this.index < this.history.length - 1;
-        };
-        StateHistory.prototype.push = function (state) {
-            if (state !== this.history[this.index]) {
-                this.history.splice(this.index + 1);
-                this.history.push(state);
-                this.index = this.history.length - 1;
-                this.notify();
-            }
-        };
-        StateHistory.prototype.replace = function (state) {
-            this.history[this.index] = state;
-            this.notify();
-        };
-        StateHistory.prototype.undo = function () {
-            if (!this.canUndo())
-                throw new Error('Cannot undo');
-            this.index -= 1;
-            this.notify();
-            return this.history[this.index];
-        };
-        StateHistory.prototype.redo = function () {
-            if (!this.canRedo())
-                throw new Error('Cannot redo');
-            this.index += 1;
-            this.notify();
-            return this.history[this.index];
-        };
-        StateHistory.prototype.peek = function () {
-            return this.history[this.index];
-        };
-        StateHistory.prototype.reset = function (initialState) {
-            this.history = [initialState];
-            this.index = 0;
-            this.notify();
-        };
-        StateHistory.prototype.notify = function () {
-            var _this = this;
-            var status = { canUndo: this.canUndo(), canRedo: this.canRedo() };
-            if (status.canUndo !== this.lastStatus.canUndo || status.canRedo !== this.lastStatus.canRedo) {
-                this.lastStatus = status;
-                setTimeout(function () { return _this.listener(status); }, 0);
-            }
-        };
-        return StateHistory;
-    }());
-
-    var defaultState = {
-        'playground-height': 350,
-        'resize-divider-1-percent': 20,
-        'resize-divider-2-percent': 60,
-        'context': '',
-        'context-scroll-top': 0,
-        'context-selection-start': 0,
-        'context-selection-end': 0,
-        'lits-code': '',
-        'lits-code-scroll-top': 0,
-        'lits-code-selection-start': 0,
-        'lits-code-selection-end': 0,
-        'output': '',
-        'output-scroll-top': 0,
-        'new-context-name': '',
-        'new-context-value': '',
-        'debug': false,
-    };
-    var keys = Object.keys(defaultState);
-    var historyListener;
-    var state = __assign({}, defaultState);
-    keys.forEach(function (key) {
-        var value = localStorage.getItem(getStorageKey(key));
-        state[key] = typeof value === 'string' ? JSON.parse(value) : defaultState[key];
-    });
-    var stateHistory = new StateHistory(JSON.stringify(state), function (status) {
-        historyListener === null || historyListener === void 0 ? void 0 : historyListener(status);
-    });
-    window.stateHistory = stateHistory;
-    function getHistoryState() {
-        return {
-            'lits-code': state['lits-code'],
-            'lits-code-selection-start': state['lits-code-selection-start'],
-            'lits-code-selection-end': state['lits-code-selection-end'],
-            'context': state.context,
-            'context-selection-start': state['context-selection-start'],
-            'context-selection-end': state['context-selection-end'],
-        };
-    }
-    function historyCodeChanged() {
-        var current = JSON.parse(stateHistory.peek());
-        return current['lits-code'] !== state['lits-code'] || current.context !== state.context;
-    }
-    function pushHistory() {
-        var historyStateString = JSON.stringify(getHistoryState());
-        if (historyCodeChanged())
-            stateHistory.push(historyStateString);
-        else
-            stateHistory.replace(historyStateString);
-    }
-    function setHistoryListener(listener) {
-        historyListener = listener;
-    }
-    function saveState(newState, pushToHistory) {
-        if (pushToHistory === void 0) { pushToHistory = true; }
-        Object.entries(newState).forEach(function (entry) {
-            var key = entry[0];
-            var value = entry[1];
-            setState(key, value);
-            localStorage.setItem(getStorageKey(key), JSON.stringify(value));
-        });
-        if (pushToHistory) {
-            pushHistory();
-        }
-    }
-    function setState(key, value) {
-        state[key] = value;
-    }
-    function clearAllStates() {
-        localStorage.clear();
-        Object.assign(state, defaultState);
-        stateHistory.reset(JSON.stringify(state));
-    }
-    function clearState(key) {
-        localStorage.removeItem(getStorageKey(key));
-        state[key] = defaultState[key];
-        pushHistory();
-    }
-    function getState(key) {
-        return state[key];
-    }
-    function encodeState() {
-        var sharedState = {
-            'lits-code': state['lits-code'],
-            'context': state.context,
-        };
-        return btoa(JSON.stringify(sharedState));
-    }
-    function applyEncodedState(encodedState) {
-        try {
-            return applyStateString(atob(encodedState), true);
-        }
-        catch (error) {
-            return false;
-        }
-    }
-    function applyStateString(stateString, pushToHistory) {
-        try {
-            var decodedState = JSON.parse(stateString);
-            saveState(decodedState, false);
-            if (pushToHistory) {
-                pushHistory();
-            }
-            return true;
-        }
-        catch (error) {
-            return false;
-        }
-    }
-    function undoState() {
-        try {
-            var stateString = stateHistory.undo();
-            applyStateString(stateString, false);
-            return true;
-        }
-        catch (_a) {
-            return false;
-        }
-    }
-    function redoState() {
-        try {
-            var stateString = stateHistory.redo();
-            applyStateString(stateString, false);
-            return true;
-        }
-        catch (_a) {
-            return false;
-        }
-    }
-    function getStorageKey(key) {
-        return "playground-".concat(key);
-    }
-
     var getLits = (function () {
         var lits = new Lits({ debug: true });
         var litsNoDebug = new Lits({ debug: false });
@@ -9131,8 +9136,8 @@ var Playground = (function (exports) {
         elements.moreMenu.style.display = 'none';
     }
     function openAddContextMenu() {
-        elements.newContextName.value = state['new-context-name'];
-        elements.newContextValue.value = state['new-context-value'];
+        elements.newContextName.value = getState('new-context-name');
+        elements.newContextValue.value = getState('new-context-value');
         elements.addContextMenu.style.display = 'block';
         elements.newContextName.focus();
     }
@@ -9434,6 +9439,14 @@ var Playground = (function (exports) {
                         evt.preventDefault();
                         toggleDebug();
                         break;
+                    case '1':
+                        evt.preventDefault();
+                        elements.contextTextArea.focus();
+                        break;
+                    case '2':
+                        evt.preventDefault();
+                        elements.litsTextArea.focus();
+                        break;
                 }
             }
             if (evt.key === 'Escape') {
@@ -9467,6 +9480,12 @@ var Playground = (function (exports) {
                 });
             }
         });
+        elements.contextTextArea.addEventListener('focusin', function () {
+            saveState({ 'focused-panel': 'context' });
+        });
+        elements.contextTextArea.addEventListener('focusout', function () {
+            saveState({ 'focused-panel': null });
+        });
         elements.litsTextArea.addEventListener('keydown', function (evt) {
             keydownHandler(evt, function () { return setLitsCode(elements.litsTextArea.value, true); });
         });
@@ -9484,6 +9503,12 @@ var Playground = (function (exports) {
                 });
             }
         });
+        elements.litsTextArea.addEventListener('focusin', function () {
+            saveState({ 'focused-panel': 'lits-code' });
+        });
+        elements.litsTextArea.addEventListener('focusout', function () {
+            saveState({ 'focused-panel': null });
+        });
         elements.outputResult.addEventListener('scroll', function () {
             saveState({ 'output-scroll-top': elements.outputResult.scrollTop });
         });
@@ -9496,6 +9521,9 @@ var Playground = (function (exports) {
         applyState(true);
         var id = location.hash.substring(1) || 'index';
         showPage(id, 'instant', 'replace');
+        Search.onClose(function () {
+            applyState();
+        });
     };
     function getDataFromUrl() {
         var urlParams = new URLSearchParams(window.location.search);
@@ -9540,7 +9568,7 @@ var Playground = (function (exports) {
                     }
                     break;
                 case 'Backspace':
-                    if (onTabStop && start === end && target.value.substr(start - 2, 2) === '  ') {
+                    if (onTabStop && start === end && target.value.substring(start - 2, start + 2) === '  ') {
                         evt.preventDefault();
                         target.value = target.value.substring(0, start - 2) + target.value.substring(end);
                         target.selectionStart = target.selectionEnd = start - 2;
@@ -9721,6 +9749,10 @@ var Playground = (function (exports) {
     }
     function applyState(scrollToTop) {
         if (scrollToTop === void 0) { scrollToTop = false; }
+        var contextTextAreaSelectionStart = getState('context-selection-start');
+        var contextTextAreaSelectionEnd = getState('context-selection-end');
+        var litsTextAreaSelectionStart = getState('lits-code-selection-start');
+        var litsTextAreaSelectionEnd = getState('lits-code-selection-end');
         setOutput(getState('output'), false);
         getDataFromUrl();
         setContext(getState('context'), false);
@@ -9728,12 +9760,16 @@ var Playground = (function (exports) {
         renderDebugInfo();
         layout();
         setTimeout(function () {
+            if (getState('focused-panel') === 'context')
+                elements.contextTextArea.focus();
+            else if (getState('focused-panel') === 'lits-code')
+                elements.litsTextArea.focus();
             elements.contextTextArea.scrollTop = getState('context-scroll-top');
-            elements.contextTextArea.selectionStart = getState('context-selection-start');
-            elements.contextTextArea.selectionEnd = getState('context-selection-end');
+            elements.contextTextArea.selectionStart = contextTextAreaSelectionStart;
+            elements.contextTextArea.selectionEnd = contextTextAreaSelectionEnd;
             elements.litsTextArea.scrollTop = getState('lits-code-scroll-top');
-            elements.litsTextArea.selectionStart = getState('lits-code-selection-start');
-            elements.litsTextArea.selectionEnd = getState('lits-code-selection-end');
+            elements.litsTextArea.selectionStart = litsTextAreaSelectionStart;
+            elements.litsTextArea.selectionEnd = litsTextAreaSelectionEnd;
             elements.outputResult.scrollTop = getState('output-scroll-top');
         }, 0);
     }

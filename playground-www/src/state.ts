@@ -1,16 +1,19 @@
 import type { UnknownRecord } from '../../src/interface'
+import type { HistoryStatus } from './StateHistory'
+import { StateHistory } from './StateHistory'
 
 export const defaultState = {
   'playground-height': 350 as number,
   'resize-divider-1-percent': 20 as number,
   'resize-divider-2-percent': 60 as number,
-  'context-trash-bin': '' as string,
   'context': '' as string,
   'context-scroll-top': 0 as number,
-  'lits-code-trash-bin': '' as string,
+  'context-selection-start': 0 as number,
+  'context-selection-end': 0 as number,
   'lits-code': '' as string,
   'lits-code-scroll-top': 0 as number,
-  'output-trash-bin': '' as string,
+  'lits-code-selection-start': 0 as number,
+  'lits-code-selection-end': 0 as number,
   'output': '' as string,
   'output-scroll-top': 0 as number,
   'new-context-name': '' as string,
@@ -27,12 +30,10 @@ type StorageKey = `playground-${Key}`
 
 const keys = Object.keys(defaultState) as Key[]
 
+let historyListener: undefined | ((status: HistoryStatus) => void)
+
 export const state: State = {
   ...defaultState,
-}
-
-function getStorageKey(key: Key): StorageKey {
-  return `playground-${key}`
 }
 
 keys.forEach((key: Key) => {
@@ -41,19 +42,67 @@ keys.forEach((key: Key) => {
   ;(state as UnknownRecord)[key] = typeof value === 'string' ? JSON.parse(value) : defaultState[key]
 })
 
-export function saveState<T extends keyof State>(key: T, value: State[T]) {
+const stateHistory = new StateHistory(JSON.stringify(state), (status) => {
+  historyListener?.(status)
+})
+
+;(window as any).stateHistory = stateHistory
+
+function getHistoryState() {
+  return {
+    'lits-code': state['lits-code'],
+    'lits-code-selection-start': state['lits-code-selection-start'],
+    'lits-code-selection-end': state['lits-code-selection-end'],
+    'context': state.context,
+    'context-selection-start': state['context-selection-start'],
+    'context-selection-end': state['context-selection-end'],
+  } satisfies Partial<State>
+}
+
+function historyCodeChanged() {
+  const current = JSON.parse(stateHistory.peek()) as Partial<State>
+  return current['lits-code'] !== state['lits-code'] || current.context !== state.context
+}
+
+function pushHistory() {
+  const historyStateString = JSON.stringify(getHistoryState())
+
+  if (historyCodeChanged())
+    stateHistory.push(historyStateString)
+  else
+    stateHistory.replace(historyStateString)
+}
+
+export function setHistoryListener(listener: (status: HistoryStatus) => void) {
+  historyListener = listener
+}
+
+export function saveState(newState: Partial<State>, pushToHistory = true) {
+  Object.entries(newState).forEach((entry) => {
+    const key = entry[0] as keyof State
+    const value = entry[1]
+    setState(key, value)
+    localStorage.setItem(getStorageKey(key), JSON.stringify(value))
+  })
+  if (pushToHistory) {
+    pushHistory()
+  }
+}
+
+export function setState<T extends keyof State>(key: T, value: State[T]) {
   state[key] = value
-  localStorage.setItem(getStorageKey(key), JSON.stringify(value))
 }
 
 export function clearAllStates() {
   localStorage.clear()
   Object.assign(state, defaultState)
+  stateHistory.reset(JSON.stringify(state))
 }
 
 export function clearState(key: Key) {
   localStorage.removeItem(getStorageKey(key))
   ;(state as UnknownRecord)[key] = defaultState[key]
+  pushHistory()
 }
 
 export function getState<T extends keyof State>(key: T): State[T] {
@@ -70,14 +119,49 @@ export function encodeState() {
 
 export function applyEncodedState(encodedState: string): boolean {
   try {
-    const decodedState = JSON.parse(atob(encodedState)) as Partial<State>
-    Object.entries(decodedState).forEach(([key, value]) => {
-      if (keys.includes(key as Key))
-        saveState(key as Key, value)
-    })
+    return applyStateString(atob(encodedState), true)
+  }
+  catch (error) {
+    return false
+  }
+}
+
+function applyStateString(stateString: string, pushToHistory: boolean): boolean {
+  try {
+    const decodedState = JSON.parse(stateString) as Partial<State>
+    saveState(decodedState, false)
+    if (pushToHistory) {
+      pushHistory()
+    }
     return true
   }
   catch (error) {
     return false
   }
+}
+
+export function undoState() {
+  try {
+    const stateString = stateHistory.undo()
+    applyStateString(stateString, false)
+    return true
+  }
+  catch {
+    return false
+  }
+}
+
+export function redoState() {
+  try {
+    const stateString = stateHistory.redo()
+    applyStateString(stateString, false)
+    return true
+  }
+  catch {
+    return false
+  }
+}
+
+function getStorageKey(key: Key): StorageKey {
+  return `playground-${key}`
 }

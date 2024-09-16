@@ -84,6 +84,11 @@ a:hover {
   color: rgb(245 245 245);
 }
 
+a.disabled {
+  color: #444;
+  cursor: default;
+}
+
 #output-result .error,
 #output-result .warn {
   color: #cf2b2b;

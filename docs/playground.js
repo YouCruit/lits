@@ -12,6 +12,23 @@ var Playground = (function (exports) {
         assertNotNull(value);
         return value;
     }
+    function throttle(func) {
+        var openForBusiness = true;
+        return function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            if (openForBusiness) {
+                requestAnimationFrame(function () { return openForBusiness = true; });
+                openForBusiness = false;
+                func.apply(this, args);
+            }
+        };
+    }
+    function isMac() {
+        return navigator.platform.includes('Mac');
+    }
 
     var ctrlKeyTimer = 0;
     var ctrlKeyStarted = null;
@@ -779,20 +796,6 @@ var Playground = (function (exports) {
         return isUnknownRecord(value) && value.t === FunctionType.Builtin;
     }
 
-    function throttle(func) {
-        var openForBusiness = true;
-        return function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            if (openForBusiness) {
-                requestAnimationFrame(function () { return openForBusiness = true; });
-                openForBusiness = false;
-                func.apply(this, args);
-            }
-        };
-    }
     function stringifyValue(value, html) {
         var _a;
         var gt = '>';
@@ -8892,17 +8895,77 @@ var Playground = (function (exports) {
         return Lits;
     }());
 
+    var StateHistory = /** @class */ (function () {
+        function StateHistory(initialState, listener) {
+            this.history = [];
+            this.lastStatus = { canUndo: false, canRedo: false };
+            this.history.push(initialState);
+            this.index = 0;
+            this.listener = listener;
+        }
+        StateHistory.prototype.canUndo = function () {
+            return this.index > 0;
+        };
+        StateHistory.prototype.canRedo = function () {
+            return this.index < this.history.length - 1;
+        };
+        StateHistory.prototype.push = function (state) {
+            if (state !== this.history[this.index]) {
+                this.history.splice(this.index + 1);
+                this.history.push(state);
+                this.index = this.history.length - 1;
+                this.notify();
+            }
+        };
+        StateHistory.prototype.replace = function (state) {
+            this.history[this.index] = state;
+            this.notify();
+        };
+        StateHistory.prototype.undo = function () {
+            if (!this.canUndo())
+                throw new Error('Cannot undo');
+            this.index -= 1;
+            this.notify();
+            return this.history[this.index];
+        };
+        StateHistory.prototype.redo = function () {
+            if (!this.canRedo())
+                throw new Error('Cannot redo');
+            this.index += 1;
+            this.notify();
+            return this.history[this.index];
+        };
+        StateHistory.prototype.peek = function () {
+            return this.history[this.index];
+        };
+        StateHistory.prototype.reset = function (initialState) {
+            this.history = [initialState];
+            this.index = 0;
+            this.notify();
+        };
+        StateHistory.prototype.notify = function () {
+            var _this = this;
+            var status = { canUndo: this.canUndo(), canRedo: this.canRedo() };
+            if (status.canUndo !== this.lastStatus.canUndo || status.canRedo !== this.lastStatus.canRedo) {
+                this.lastStatus = status;
+                setTimeout(function () { return _this.listener(status); }, 0);
+            }
+        };
+        return StateHistory;
+    }());
+
     var defaultState = {
         'playground-height': 350,
         'resize-divider-1-percent': 20,
         'resize-divider-2-percent': 60,
-        'context-trash-bin': '',
         'context': '',
         'context-scroll-top': 0,
-        'lits-code-trash-bin': '',
+        'context-selection-start': 0,
+        'context-selection-end': 0,
         'lits-code': '',
         'lits-code-scroll-top': 0,
-        'output-trash-bin': '',
+        'lits-code-selection-start': 0,
+        'lits-code-selection-end': 0,
         'output': '',
         'output-scroll-top': 0,
         'new-context-name': '',
@@ -8910,25 +8973,64 @@ var Playground = (function (exports) {
         'debug': false,
     };
     var keys = Object.keys(defaultState);
+    var historyListener;
     var state = __assign({}, defaultState);
-    function getStorageKey(key) {
-        return "playground-".concat(key);
-    }
     keys.forEach(function (key) {
         var value = localStorage.getItem(getStorageKey(key));
         state[key] = typeof value === 'string' ? JSON.parse(value) : defaultState[key];
     });
-    function saveState(key, value) {
+    var stateHistory = new StateHistory(JSON.stringify(state), function (status) {
+        historyListener === null || historyListener === void 0 ? void 0 : historyListener(status);
+    });
+    window.stateHistory = stateHistory;
+    function getHistoryState() {
+        return {
+            'lits-code': state['lits-code'],
+            'lits-code-selection-start': state['lits-code-selection-start'],
+            'lits-code-selection-end': state['lits-code-selection-end'],
+            'context': state.context,
+            'context-selection-start': state['context-selection-start'],
+            'context-selection-end': state['context-selection-end'],
+        };
+    }
+    function historyCodeChanged() {
+        var current = JSON.parse(stateHistory.peek());
+        return current['lits-code'] !== state['lits-code'] || current.context !== state.context;
+    }
+    function pushHistory() {
+        var historyStateString = JSON.stringify(getHistoryState());
+        if (historyCodeChanged())
+            stateHistory.push(historyStateString);
+        else
+            stateHistory.replace(historyStateString);
+    }
+    function setHistoryListener(listener) {
+        historyListener = listener;
+    }
+    function saveState(newState, pushToHistory) {
+        if (pushToHistory === void 0) { pushToHistory = true; }
+        Object.entries(newState).forEach(function (entry) {
+            var key = entry[0];
+            var value = entry[1];
+            setState(key, value);
+            localStorage.setItem(getStorageKey(key), JSON.stringify(value));
+        });
+        if (pushToHistory) {
+            pushHistory();
+        }
+    }
+    function setState(key, value) {
         state[key] = value;
-        localStorage.setItem(getStorageKey(key), JSON.stringify(value));
     }
     function clearAllStates() {
         localStorage.clear();
         Object.assign(state, defaultState);
+        stateHistory.reset(JSON.stringify(state));
     }
     function clearState(key) {
         localStorage.removeItem(getStorageKey(key));
         state[key] = defaultState[key];
+        pushHistory();
     }
     function getState(key) {
         return state[key];
@@ -8942,17 +9044,47 @@ var Playground = (function (exports) {
     }
     function applyEncodedState(encodedState) {
         try {
-            var decodedState = JSON.parse(atob(encodedState));
-            Object.entries(decodedState).forEach(function (_a) {
-                var _b = __read(_a, 2), key = _b[0], value = _b[1];
-                if (keys.includes(key))
-                    saveState(key, value);
-            });
+            return applyStateString(atob(encodedState), true);
+        }
+        catch (error) {
+            return false;
+        }
+    }
+    function applyStateString(stateString, pushToHistory) {
+        try {
+            var decodedState = JSON.parse(stateString);
+            saveState(decodedState, false);
+            if (pushToHistory) {
+                pushHistory();
+            }
             return true;
         }
         catch (error) {
             return false;
         }
+    }
+    function undoState() {
+        try {
+            var stateString = stateHistory.undo();
+            applyStateString(stateString, false);
+            return true;
+        }
+        catch (_a) {
+            return false;
+        }
+    }
+    function redoState() {
+        try {
+            var stateString = stateHistory.redo();
+            applyStateString(stateString, false);
+            return true;
+        }
+        catch (_a) {
+            return false;
+        }
+    }
+    function getStorageKey(key) {
+        return "playground-".concat(key);
     }
 
     var getLits = (function () {
@@ -8981,8 +9113,11 @@ var Playground = (function (exports) {
         resizeDevider2: document.getElementById('resize-divider-2'),
         toggleDebugMenuLabel: document.getElementById('toggle-debug-menu-label'),
         litsPanelDebugInfo: document.getElementById('lits-panel-debug-info'),
+        undoButton: document.getElementById('undo-button'),
+        redoButton: document.getElementById('redo-button'),
     };
     var moveParams = null;
+    var ignoreSelectionChange = false;
     function calculateDimensions() {
         return {
             windowHeight: window.innerHeight,
@@ -9025,7 +9160,7 @@ var Playground = (function (exports) {
         if (!(target === null || target === void 0 ? void 0 : target.closest('#add-context-menu')) && elements.addContextMenu.style.display === 'block')
             closeAddContextMenu();
     }
-    function layout() {
+    var layout = throttle(function () {
         var windowWidth = calculateDimensions().windowWidth;
         var playgroundHeight = getState('playground-height');
         var contextPanelWidth = (windowWidth * getState('resize-divider-1-percent')) / 100;
@@ -9038,7 +9173,19 @@ var Playground = (function (exports) {
         elements.sidebar.style.bottom = "".concat(playgroundHeight, "px");
         elements.mainPanel.style.bottom = "".concat(playgroundHeight, "px");
         elements.wrapper.style.display = 'block';
-    }
+    });
+    var undo = throttle(function () {
+        ignoreSelectionChange = true;
+        if (undoState())
+            applyState();
+        setTimeout(function () { return ignoreSelectionChange = false; });
+    });
+    var redo = throttle(function () {
+        ignoreSelectionChange = true;
+        if (redoState())
+            applyState();
+        setTimeout(function () { return ignoreSelectionChange = false; });
+    });
     function resetPlayground() {
         clearAllStates();
         resetContext();
@@ -9050,20 +9197,25 @@ var Playground = (function (exports) {
         renderDebugInfo();
     }
     function resetContext() {
-        var context = getState('context');
-        if (context === '') {
-            setContext(getState('context-trash-bin'));
+        elements.contextTextArea.value = '';
+        clearState('context');
+    }
+    function setContext(value, pushToHistory, scroll) {
+        elements.contextTextArea.value = value;
+        if (pushToHistory) {
+            saveState({
+                'context': value,
+                'context-selection-start': elements.contextTextArea.selectionStart,
+                'context-selection-end': elements.contextTextArea.selectionEnd,
+            }, true);
         }
         else {
-            saveState('context-trash-bin', context);
-            elements.contextTextArea.value = '';
-            clearState('context');
+            saveState({ context: value }, false);
         }
-    }
-    function setContext(value) {
-        elements.contextTextArea.value = value;
-        elements.contextTextArea.scrollTop = 0;
-        saveState('context', value);
+        if (scroll === 'top')
+            elements.contextTextArea.scrollTo(0, 0);
+        else if (scroll === 'bottom')
+            elements.contextTextArea.scrollTo({ top: elements.contextTextArea.scrollHeight, behavior: 'smooth' });
     }
     function getParsedContext() {
         try {
@@ -9088,7 +9240,7 @@ var Playground = (function (exports) {
             var values = Object.assign({}, context.values);
             values[name] = parsedValue;
             context.values = values;
-            setContext(JSON.stringify(context, null, 2));
+            setContext(JSON.stringify(context, null, 2), true);
             closeAddContextMenu();
         }
         catch (e) {
@@ -9102,10 +9254,10 @@ var Playground = (function (exports) {
     function addSampleContext() {
         var context = getParsedContext();
         var values = {
-            n: 42,
-            s: 'foo bar',
-            arr: ['foo', 'bar', 1, 2, true, false, null],
-            obj: {
+            'a-number': 42,
+            'a-string': 'foo bar',
+            'an-array': ['foo', 'bar', 1, 2, true, false, null],
+            'an-object': {
                 name: 'John Doe',
                 age: 42,
                 married: true,
@@ -9119,26 +9271,24 @@ var Playground = (function (exports) {
             },
         };
         context.values = Object.assign(values, context.values);
-        setContext(JSON.stringify(context, null, 2));
+        setContext(JSON.stringify(context, null, 2), true);
     }
-    function resetLitsCode(force) {
-        if (force === void 0) { force = false; }
-        var litsCode = getState('lits-code');
-        if (litsCode === '' && !force) {
-            setLitsCode(getState('lits-code-trash-bin'), 'top');
+    function resetLitsCode() {
+        elements.litsTextArea.value = '';
+        clearState('lits-code');
+    }
+    function setLitsCode(value, pushToHistory, scroll) {
+        elements.litsTextArea.value = value;
+        if (pushToHistory) {
+            saveState({
+                'lits-code': value,
+                'lits-code-selection-start': elements.litsTextArea.selectionStart,
+                'lits-code-selection-end': elements.litsTextArea.selectionEnd,
+            }, true);
         }
         else {
-            if (force)
-                saveState('lits-code-trash-bin', '');
-            else
-                saveState('lits-code-trash-bin', litsCode);
-            elements.litsTextArea.value = '';
-            clearState('lits-code');
+            saveState({ 'lits-code': value }, false);
         }
-    }
-    function setLitsCode(value, scroll) {
-        elements.litsTextArea.value = value;
-        saveState('lits-code', value);
         if (scroll === 'top')
             elements.litsTextArea.scrollTo(0, 0);
         else if (scroll === 'bottom')
@@ -9147,32 +9297,18 @@ var Playground = (function (exports) {
     function appendLitsCode(value) {
         var oldContent = getState('lits-code').trimEnd();
         var newContent = oldContent ? "".concat(oldContent, "\n\n").concat(value) : value.trim();
-        setLitsCode(newContent, 'bottom');
+        setLitsCode(newContent, true, 'bottom');
     }
-    function resetOutput(force) {
-        if (force === void 0) { force = false; }
-        var output = getState('output');
-        if (output === '' && !force) {
-            var trash = getState('output-trash-bin');
-            elements.outputResult.innerHTML = trash;
-            saveState('output', trash);
-            elements.outputResult.scrollTop = elements.outputResult.scrollHeight;
-        }
-        else {
-            if (force)
-                saveState('output-trash-bin', '');
-            else
-                saveState('output-trash-bin', output);
-            elements.outputResult.innerHTML = '';
-            clearState('output');
-        }
+    function resetOutput() {
+        elements.outputResult.innerHTML = '';
+        clearState('output');
     }
     function hasOutput() {
         return getState('output').trim() !== '';
     }
-    function setOutput(value) {
+    function setOutput(value, pushToHistory) {
         elements.outputResult.innerHTML = value;
-        saveState('output', value);
+        saveState({ output: value }, pushToHistory);
     }
     function appendOutput(output, className) {
         var outputElement = document.createElement('span');
@@ -9190,9 +9326,25 @@ var Playground = (function (exports) {
     function addOutputElement(element) {
         elements.outputResult.appendChild(element);
         elements.outputResult.scrollTop = elements.outputResult.scrollHeight;
-        saveState('output', elements.outputResult.innerHTML);
+        saveState({ output: elements.outputResult.innerHTML });
     }
     window.onload = function () {
+        elements.undoButton.classList.add('disabled');
+        elements.redoButton.classList.add('disabled');
+        setHistoryListener(function (status) {
+            if (status.canUndo) {
+                elements.undoButton.classList.remove('disabled');
+            }
+            else {
+                elements.undoButton.classList.add('disabled');
+            }
+            if (status.canRedo) {
+                elements.redoButton.classList.remove('disabled');
+            }
+            else {
+                elements.redoButton.classList.add('disabled');
+            }
+        });
         document.addEventListener('click', onDocumentClick, true);
         elements.resizePlayground.onmousedown = function (event) {
             moveParams = {
@@ -9215,12 +9367,12 @@ var Playground = (function (exports) {
                 percentBeforeMove: getState('resize-divider-2-percent'),
             };
         };
-        window.onresize = throttle(layout);
+        window.onresize = layout;
         window.onmouseup = function () {
             document.body.classList.remove('no-select');
             moveParams = null;
         };
-        window.onmousemove = throttle(function (event) {
+        window.onmousemove = function (event) {
             var _a = calculateDimensions(), windowHeight = _a.windowHeight, windowWidth = _a.windowWidth;
             if (moveParams === null)
                 return;
@@ -9231,7 +9383,8 @@ var Playground = (function (exports) {
                     playgroundHeight = 30;
                 if (playgroundHeight > windowHeight)
                     playgroundHeight = windowHeight;
-                saveState('playground-height', playgroundHeight);
+                saveState({ 'playground-height': playgroundHeight });
+                layout();
             }
             else if (moveParams.id === 'resize-divider-1') {
                 var resizeDivider1XPercent = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / windowWidth) * 100;
@@ -9239,7 +9392,8 @@ var Playground = (function (exports) {
                     resizeDivider1XPercent = 10;
                 if (resizeDivider1XPercent > getState('resize-divider-2-percent') - 10)
                     resizeDivider1XPercent = getState('resize-divider-2-percent') - 10;
-                saveState('resize-divider-1-percent', resizeDivider1XPercent);
+                saveState({ 'resize-divider-1-percent': resizeDivider1XPercent });
+                layout();
             }
             else if (moveParams.id === 'resize-divider-2') {
                 var resizeDivider2XPercent = moveParams.percentBeforeMove + ((event.clientX - moveParams.startMoveX) / windowWidth) * 100;
@@ -9247,10 +9401,10 @@ var Playground = (function (exports) {
                     resizeDivider2XPercent = getState('resize-divider-1-percent') + 10;
                 if (resizeDivider2XPercent > 90)
                     resizeDivider2XPercent = 90;
-                saveState('resize-divider-2-percent', resizeDivider2XPercent);
+                saveState({ 'resize-divider-2-percent': resizeDivider2XPercent });
+                layout();
             }
-            layout();
-        });
+        };
         window.addEventListener('keydown', function (evt) {
             if (Search.handleKeyDown(evt))
                 return;
@@ -9282,52 +9436,66 @@ var Playground = (function (exports) {
                         break;
                 }
             }
-            else if (evt.key === 'Escape') {
+            if (evt.key === 'Escape') {
                 closeMoreMenu();
                 closeAddContextMenu();
                 evt.preventDefault();
             }
+            if ((isMac() && evt.metaKey || !isMac && evt.ctrlKey) && !evt.shiftKey && evt.key === 'z') {
+                evt.preventDefault();
+                undo();
+            }
+            if ((isMac() && evt.metaKey || !isMac && evt.ctrlKey) && evt.shiftKey && evt.key === 'z') {
+                evt.preventDefault();
+                redo();
+            }
         });
         elements.contextTextArea.addEventListener('keydown', function (evt) {
-            keydownHandler(evt, function () { return setContext(elements.contextTextArea.value); });
+            keydownHandler(evt, function () { return setContext(elements.contextTextArea.value, true); });
         });
         elements.contextTextArea.addEventListener('input', function () {
-            setContext(elements.contextTextArea.value);
+            setContext(elements.contextTextArea.value, true);
         });
         elements.contextTextArea.addEventListener('scroll', function () {
-            saveState('context-scroll-top', elements.contextTextArea.scrollTop);
+            saveState({ 'context-scroll-top': elements.contextTextArea.scrollTop });
+        });
+        elements.contextTextArea.addEventListener('selectionchange', function () {
+            if (!ignoreSelectionChange) {
+                saveState({
+                    'context-selection-start': elements.contextTextArea.selectionStart,
+                    'context-selection-end': elements.contextTextArea.selectionEnd,
+                });
+            }
         });
         elements.litsTextArea.addEventListener('keydown', function (evt) {
-            keydownHandler(evt, function () { return setLitsCode(elements.litsTextArea.value); });
+            keydownHandler(evt, function () { return setLitsCode(elements.litsTextArea.value, true); });
         });
         elements.litsTextArea.addEventListener('input', function () {
-            setLitsCode(elements.litsTextArea.value);
+            setLitsCode(elements.litsTextArea.value, true);
         });
         elements.litsTextArea.addEventListener('scroll', function () {
-            saveState('lits-code-scroll-top', elements.litsTextArea.scrollTop);
+            saveState({ 'lits-code-scroll-top': elements.litsTextArea.scrollTop });
+        });
+        elements.litsTextArea.addEventListener('selectionchange', function () {
+            if (!ignoreSelectionChange) {
+                saveState({
+                    'lits-code-selection-start': elements.litsTextArea.selectionStart,
+                    'lits-code-selection-end': elements.litsTextArea.selectionEnd,
+                });
+            }
         });
         elements.outputResult.addEventListener('scroll', function () {
-            saveState('output-scroll-top', elements.outputResult.scrollTop);
+            saveState({ 'output-scroll-top': elements.outputResult.scrollTop });
         });
         elements.newContextName.addEventListener('input', function () {
-            saveState('new-context-name', elements.newContextName.value);
+            saveState({ 'new-context-name': elements.newContextName.value });
         });
         elements.newContextValue.addEventListener('input', function () {
-            saveState('new-context-value', elements.newContextValue.value);
+            saveState({ 'new-context-value': elements.newContextValue.value });
         });
-        setOutput(getState('output'));
-        getDataFromUrl();
-        setContext(getState('context'));
-        setLitsCode(getState('lits-code'), 'top');
-        renderDebugInfo();
-        setTimeout(function () {
-            elements.contextTextArea.scrollTop = getState('context-scroll-top');
-            elements.litsTextArea.scrollTop = getState('lits-code-scroll-top');
-            elements.outputResult.scrollTop = getState('output-scroll-top');
-        }, 0);
+        applyState(true);
         var id = location.hash.substring(1) || 'index';
         showPage(id, 'instant', 'replace');
-        layout();
     };
     function getDataFromUrl() {
         var urlParams = new URLSearchParams(window.location.search);
@@ -9389,7 +9557,7 @@ var Playground = (function (exports) {
                     break;
                 }
                 case 'Delete':
-                    if (onTabStop && start === end && target.value.substr(start, 2) === '  ') {
+                    if (onTabStop && start === end && target.value.substring(start, start + 2) === '  ') {
                         evt.preventDefault();
                         target.value = target.value.substring(0, start) + target.value.substring(end + 2);
                         target.selectionStart = target.selectionEnd = start;
@@ -9534,7 +9702,7 @@ var Playground = (function (exports) {
         var hijacker = hijackConsole();
         try {
             var result = getLits('debug').format(code, { lineLength: getLitsCodeCols() });
-            setLitsCode(result);
+            setLitsCode(result, true);
         }
         catch (error) {
             appendOutput(error, 'error');
@@ -9546,10 +9714,28 @@ var Playground = (function (exports) {
     }
     function toggleDebug() {
         var debug = !getState('debug');
-        saveState('debug', debug);
+        saveState({ debug: debug });
         renderDebugInfo();
         addOutputSeparator();
         appendOutput("Debug mode toggled ".concat(debug ? 'ON' : 'OFF'), 'comment');
+    }
+    function applyState(scrollToTop) {
+        if (scrollToTop === void 0) { scrollToTop = false; }
+        setOutput(getState('output'), false);
+        getDataFromUrl();
+        setContext(getState('context'), false);
+        setLitsCode(getState('lits-code'), false, scrollToTop ? 'top' : undefined);
+        renderDebugInfo();
+        layout();
+        setTimeout(function () {
+            elements.contextTextArea.scrollTop = getState('context-scroll-top');
+            elements.contextTextArea.selectionStart = getState('context-selection-start');
+            elements.contextTextArea.selectionEnd = getState('context-selection-end');
+            elements.litsTextArea.scrollTop = getState('lits-code-scroll-top');
+            elements.litsTextArea.selectionStart = getState('lits-code-selection-start');
+            elements.litsTextArea.selectionEnd = getState('lits-code-selection-end');
+            elements.outputResult.scrollTop = getState('output-scroll-top');
+        }, 0);
     }
     function renderDebugInfo() {
         var debug = getState('debug');
@@ -9602,12 +9788,12 @@ var Playground = (function (exports) {
             // eslint-disable-next-line ts/no-unsafe-return
             ? JSON.stringify(example.context, function (_k, v) { return (v === undefined ? null : v); }, 2)
             : '';
-        setContext(context);
+        setContext(context, true, 'top');
         var code = example.code ? example.code : '';
         var size = Math.max(name.length + 10, 40);
         var paddingLeft = Math.floor((size - name.length) / 2);
         var paddingRight = Math.ceil((size - name.length) / 2);
-        setLitsCode("\n".concat(";;".concat('-'.repeat(size), ";;"), "\n").concat(";;".concat(' '.repeat(paddingLeft)).concat(name).concat(' '.repeat(paddingRight), ";;"), "\n").concat(";;".concat('-'.repeat(size), ";;"), "\n\n").concat(code, "\n").trimStart(), 'top');
+        setLitsCode("\n".concat(";;".concat('-'.repeat(size), ";;"), "\n").concat(";;".concat(' '.repeat(paddingLeft)).concat(name).concat(' '.repeat(paddingRight), ";;"), "\n").concat(";;".concat('-'.repeat(size), ";;"), "\n\n").concat(code, "\n").trimStart(), true, 'top');
     }
     function hijackConsole() {
         var oldLog = console.log;
@@ -9675,6 +9861,7 @@ var Playground = (function (exports) {
     exports.openAddContextMenu = openAddContextMenu;
     exports.openMoreMenu = openMoreMenu;
     exports.parse = parse;
+    exports.redo = redo;
     exports.resetContext = resetContext;
     exports.resetLitsCode = resetLitsCode;
     exports.resetOutput = resetOutput;
@@ -9685,6 +9872,7 @@ var Playground = (function (exports) {
     exports.showPage = showPage;
     exports.toggleDebug = toggleDebug;
     exports.tokenize = tokenize;
+    exports.undo = undo;
 
     return exports;
 

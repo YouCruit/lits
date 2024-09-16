@@ -7,10 +7,12 @@ import {
   objectIcon,
   playIcon,
   plusIcon,
+  redoIcon,
   resetIcon,
   tokenIcon,
   trashIcon,
   treeIcon,
+  undoIcon,
 } from '../icons'
 import { createStyles, css } from '../styles'
 
@@ -90,6 +92,8 @@ export function getPlayground() {
           >
             <div ${styles('h-full', 'flex', 'flex-row', 'gap-1', 'text-sm', 'text-color-gray-400', 'items-center')}>
               <a onclick="Playground.run()" ${styles('text-xl', 'flex', 'items-center')}>${playIcon}</a>
+              <a id="undo-button" onclick="Playground.undo()" ${styles('text-xl', 'flex', 'items-center')}>${undoIcon}</a>
+              <a id="redo-button" onclick="Playground.redo()" ${styles('text-xl', 'flex', 'items-center')}>${redoIcon}</a>
               <a onclick="Playground.resetLitsCode()" ${styles('text-xl', 'flex', 'items-center')}>${trashIcon}</a>
               <div>
                 <a onclick="Playground.openMoreMenu()" ${styles('text-xl', 'flex', 'items-center')}>${hamburgerIcon}</a>

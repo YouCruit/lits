@@ -1,12 +1,13 @@
 /* eslint-disable no-console */
-import { stringifyValue, throttle } from '../../common/utils'
+import { stringifyValue } from '../../common/utils'
 import type { Example } from '../../reference/examples'
 import { Lits, type LitsParams } from '../../src'
 import { UserDefinedError } from '../../src/errors'
-import { asUnknownRecord } from '../../src/typeGuards'
 import type { UnknownRecord } from '../../src/interface'
+import { asUnknownRecord } from '../../src/typeGuards'
 import { Search } from './Search'
-import { applyEncodedState, clearAllStates, clearState, encodeState, getState, saveState, state } from './state'
+import { applyEncodedState, clearAllStates, clearState, encodeState, getState, redoState, saveState, setHistoryListener, state, undoState } from './state'
+import { isMac, throttle } from './utils'
 
 const getLits: (forceDebug?: 'debug') => Lits = (() => {
   const lits = new Lits({ debug: true })
@@ -35,6 +36,8 @@ const elements = {
   resizeDevider2: document.getElementById('resize-divider-2') as HTMLElement,
   toggleDebugMenuLabel: document.getElementById('toggle-debug-menu-label') as HTMLSpanElement,
   litsPanelDebugInfo: document.getElementById('lits-panel-debug-info') as HTMLDivElement,
+  undoButton: document.getElementById('undo-button') as HTMLAnchorElement,
+  redoButton: document.getElementById('redo-button') as HTMLAnchorElement,
 }
 
 type MoveParams = {
@@ -58,6 +61,7 @@ type OutputType =
   | 'warn'
 
 let moveParams: MoveParams | null = null
+let ignoreSelectionChange = false
 
 function calculateDimensions() {
   return {
@@ -110,7 +114,7 @@ function onDocumentClick(event: Event) {
     closeAddContextMenu()
 }
 
-function layout() {
+const layout = throttle(() => {
   const { windowWidth } = calculateDimensions()
 
   const playgroundHeight = getState('playground-height')
@@ -126,7 +130,21 @@ function layout() {
   elements.sidebar.style.bottom = `${playgroundHeight}px`
   elements.mainPanel.style.bottom = `${playgroundHeight}px`
   elements.wrapper.style.display = 'block'
-}
+})
+
+export const undo = throttle(() => {
+  ignoreSelectionChange = true
+  if (undoState())
+    applyState()
+  setTimeout(() => ignoreSelectionChange = false)
+})
+
+export const redo = throttle(() => {
+  ignoreSelectionChange = true
+  if (redoState())
+    applyState()
+  setTimeout(() => ignoreSelectionChange = false)
+})
 
 export function resetPlayground() {
   clearAllStates()
@@ -142,21 +160,28 @@ export function resetPlayground() {
 }
 
 export function resetContext() {
-  const context = getState('context')
-  if (context === '') {
-    setContext(getState('context-trash-bin'))
-  }
-  else {
-    saveState('context-trash-bin', context)
-    elements.contextTextArea.value = ''
-    clearState('context')
-  }
+  elements.contextTextArea.value = ''
+  clearState('context')
 }
 
-function setContext(value: string) {
+function setContext(value: string, pushToHistory: boolean, scroll?: 'top' | 'bottom') {
   elements.contextTextArea.value = value
-  elements.contextTextArea.scrollTop = 0
-  saveState('context', value)
+
+  if (pushToHistory) {
+    saveState({
+      'context': value,
+      'context-selection-start': elements.contextTextArea.selectionStart,
+      'context-selection-end': elements.contextTextArea.selectionEnd,
+    }, true)
+  }
+  else {
+    saveState({ context: value }, false)
+  }
+
+  if (scroll === 'top')
+    elements.contextTextArea.scrollTo(0, 0)
+  else if (scroll === 'bottom')
+    elements.contextTextArea.scrollTo({ top: elements.contextTextArea.scrollHeight, behavior: 'smooth' })
 }
 
 function getParsedContext(): Record<string, unknown> {
@@ -185,7 +210,7 @@ export function addContextEntry() {
     const values: UnknownRecord = Object.assign({}, context.values)
     values[name] = parsedValue
     context.values = values
-    setContext(JSON.stringify(context, null, 2))
+    setContext(JSON.stringify(context, null, 2), true)
 
     closeAddContextMenu()
   }
@@ -202,10 +227,10 @@ export function addContextEntry() {
 export function addSampleContext() {
   const context = getParsedContext()
   const values = {
-    n: 42,
-    s: 'foo bar',
-    arr: ['foo', 'bar', 1, 2, true, false, null],
-    obj: {
+    'a-number': 42,
+    'a-string': 'foo bar',
+    'an-array': ['foo', 'bar', 1, 2, true, false, null],
+    'an-object': {
       name: 'John Doe',
       age: 42,
       married: true,
@@ -221,28 +246,28 @@ export function addSampleContext() {
 
   context.values = Object.assign(values, context.values)
 
-  setContext(JSON.stringify(context, null, 2))
+  setContext(JSON.stringify(context, null, 2), true)
 }
 
-export function resetLitsCode(force = false) {
-  const litsCode = getState('lits-code')
-  if (litsCode === '' && !force) {
-    setLitsCode(getState('lits-code-trash-bin'), 'top')
+export function resetLitsCode() {
+  elements.litsTextArea.value = ''
+  clearState('lits-code')
+}
+
+function setLitsCode(value: string, pushToHistory: boolean, scroll?: 'top' | 'bottom') {
+  elements.litsTextArea.value = value
+
+  if (pushToHistory) {
+    saveState({
+      'lits-code': value,
+      'lits-code-selection-start': elements.litsTextArea.selectionStart,
+      'lits-code-selection-end': elements.litsTextArea.selectionEnd,
+    }, true)
   }
   else {
-    if (force)
-      saveState('lits-code-trash-bin', '')
-    else
-      saveState('lits-code-trash-bin', litsCode)
-
-    elements.litsTextArea.value = ''
-    clearState('lits-code')
+    saveState({ 'lits-code': value }, false)
   }
-}
 
-function setLitsCode(value: string, scroll?: 'top' | 'bottom') {
-  elements.litsTextArea.value = value
-  saveState('lits-code', value)
   if (scroll === 'top')
     elements.litsTextArea.scrollTo(0, 0)
   else if (scroll === 'bottom')
@@ -253,36 +278,21 @@ function appendLitsCode(value: string) {
   const oldContent = getState('lits-code').trimEnd()
 
   const newContent = oldContent ? `${oldContent}\n\n${value}` : value.trim()
-  setLitsCode(newContent, 'bottom')
+  setLitsCode(newContent, true, 'bottom')
 }
 
-export function resetOutput(force = false) {
-  const output = getState('output')
-  if (output === '' && !force) {
-    const trash = getState('output-trash-bin')
-    elements.outputResult.innerHTML = trash
-    saveState('output', trash)
-
-    elements.outputResult.scrollTop = elements.outputResult.scrollHeight
-  }
-  else {
-    if (force)
-      saveState('output-trash-bin', '')
-    else
-      saveState('output-trash-bin', output)
-
-    elements.outputResult.innerHTML = ''
-    clearState('output')
-  }
+export function resetOutput() {
+  elements.outputResult.innerHTML = ''
+  clearState('output')
 }
 
 function hasOutput() {
   return getState('output').trim() !== ''
 }
 
-function setOutput(value: string) {
+function setOutput(value: string, pushToHistory: boolean) {
   elements.outputResult.innerHTML = value
-  saveState('output', value)
+  saveState({ output: value }, pushToHistory)
 }
 
 function appendOutput(output: unknown, className: OutputType) {
@@ -304,10 +314,28 @@ function addOutputElement(element: HTMLElement) {
   elements.outputResult.appendChild(element)
   elements.outputResult.scrollTop = elements.outputResult.scrollHeight
 
-  saveState('output', elements.outputResult.innerHTML)
+  saveState({ output: elements.outputResult.innerHTML })
 }
 
 window.onload = function () {
+  elements.undoButton.classList.add('disabled')
+  elements.redoButton.classList.add('disabled')
+  setHistoryListener((status) => {
+    if (status.canUndo) {
+      elements.undoButton.classList.remove('disabled')
+    }
+    else {
+      elements.undoButton.classList.add('disabled')
+    }
+
+    if (status.canRedo) {
+      elements.redoButton.classList.remove('disabled')
+    }
+    else {
+      elements.redoButton.classList.add('disabled')
+    }
+  })
+
   document.addEventListener('click', onDocumentClick, true)
 
   elements.resizePlayground.onmousedown = (event) => {
@@ -334,13 +362,13 @@ window.onload = function () {
     }
   }
 
-  window.onresize = throttle(layout)
+  window.onresize = layout
   window.onmouseup = () => {
     document.body.classList.remove('no-select')
     moveParams = null
   }
 
-  window.onmousemove = throttle((event: MouseEvent) => {
+  window.onmousemove = (event: MouseEvent) => {
     const { windowHeight, windowWidth } = calculateDimensions()
     if (moveParams === null)
       return
@@ -355,7 +383,8 @@ window.onload = function () {
       if (playgroundHeight > windowHeight)
         playgroundHeight = windowHeight
 
-      saveState('playground-height', playgroundHeight)
+      saveState({ 'playground-height': playgroundHeight })
+      layout()
     }
     else if (moveParams.id === 'resize-divider-1') {
       let resizeDivider1XPercent
@@ -366,7 +395,8 @@ window.onload = function () {
       if (resizeDivider1XPercent > getState('resize-divider-2-percent') - 10)
         resizeDivider1XPercent = getState('resize-divider-2-percent') - 10
 
-      saveState('resize-divider-1-percent', resizeDivider1XPercent)
+      saveState({ 'resize-divider-1-percent': resizeDivider1XPercent })
+      layout()
     }
     else if (moveParams.id === 'resize-divider-2') {
       let resizeDivider2XPercent
@@ -377,10 +407,10 @@ window.onload = function () {
       if (resizeDivider2XPercent > 90)
         resizeDivider2XPercent = 90
 
-      saveState('resize-divider-2-percent', resizeDivider2XPercent)
+      saveState({ 'resize-divider-2-percent': resizeDivider2XPercent })
+      layout()
     }
-    layout()
-  })
+  }
 
   window.addEventListener('keydown', (evt) => {
     if (Search.handleKeyDown(evt))
@@ -414,59 +444,71 @@ window.onload = function () {
           break
       }
     }
-    else if (evt.key === 'Escape') {
+    if (evt.key === 'Escape') {
       closeMoreMenu()
       closeAddContextMenu()
       evt.preventDefault()
     }
+    if ((isMac() && evt.metaKey || !isMac && evt.ctrlKey) && !evt.shiftKey && evt.key === 'z') {
+      evt.preventDefault()
+      undo()
+    }
+    if ((isMac() && evt.metaKey || !isMac && evt.ctrlKey) && evt.shiftKey && evt.key === 'z') {
+      evt.preventDefault()
+      redo()
+    }
   })
   elements.contextTextArea.addEventListener('keydown', (evt) => {
-    keydownHandler(evt, () => setContext(elements.contextTextArea.value))
+    keydownHandler(evt, () => setContext(elements.contextTextArea.value, true))
   })
   elements.contextTextArea.addEventListener('input', () => {
-    setContext(elements.contextTextArea.value)
+    setContext(elements.contextTextArea.value, true)
   })
   elements.contextTextArea.addEventListener('scroll', () => {
-    saveState('context-scroll-top', elements.contextTextArea.scrollTop)
+    saveState({ 'context-scroll-top': elements.contextTextArea.scrollTop })
+  })
+  elements.contextTextArea.addEventListener('selectionchange', () => {
+    if (!ignoreSelectionChange) {
+      saveState({
+        'context-selection-start': elements.contextTextArea.selectionStart,
+        'context-selection-end': elements.contextTextArea.selectionEnd,
+      })
+    }
   })
 
   elements.litsTextArea.addEventListener('keydown', (evt) => {
-    keydownHandler(evt, () => setLitsCode(elements.litsTextArea.value))
+    keydownHandler(evt, () => setLitsCode(elements.litsTextArea.value, true))
   })
   elements.litsTextArea.addEventListener('input', () => {
-    setLitsCode(elements.litsTextArea.value)
+    setLitsCode(elements.litsTextArea.value, true)
   })
   elements.litsTextArea.addEventListener('scroll', () => {
-    saveState('lits-code-scroll-top', elements.litsTextArea.scrollTop)
+    saveState({ 'lits-code-scroll-top': elements.litsTextArea.scrollTop })
+  })
+  elements.litsTextArea.addEventListener('selectionchange', () => {
+    if (!ignoreSelectionChange) {
+      saveState({
+        'lits-code-selection-start': elements.litsTextArea.selectionStart,
+        'lits-code-selection-end': elements.litsTextArea.selectionEnd,
+      })
+    }
   })
 
   elements.outputResult.addEventListener('scroll', () => {
-    saveState('output-scroll-top', elements.outputResult.scrollTop)
+    saveState({ 'output-scroll-top': elements.outputResult.scrollTop })
   })
 
   elements.newContextName.addEventListener('input', () => {
-    saveState('new-context-name', elements.newContextName.value)
+    saveState({ 'new-context-name': elements.newContextName.value })
   })
   elements.newContextValue.addEventListener('input', () => {
-    saveState('new-context-value', elements.newContextValue.value)
+    saveState({ 'new-context-value': elements.newContextValue.value })
   })
 
-  setOutput(getState('output'))
-  getDataFromUrl()
-  setContext(getState('context'))
-  setLitsCode(getState('lits-code'), 'top')
-  renderDebugInfo()
-
-  setTimeout(() => {
-    elements.contextTextArea.scrollTop = getState('context-scroll-top')
-    elements.litsTextArea.scrollTop = getState('lits-code-scroll-top')
-    elements.outputResult.scrollTop = getState('output-scroll-top')
-  }, 0)
+  applyState(true)
 
   const id = location.hash.substring(1) || 'index'
   showPage(id, 'instant', 'replace')
-
-  layout()
 }
 
 function getDataFromUrl() {
@@ -515,7 +557,7 @@ function keydownHandler(evt: KeyboardEvent, onChange: () => void): void {
         }
         break
       case 'Backspace':
-        if (onTabStop && start === end && target.value.substr(start - 2, 2) === '  ') {
+        if (onTabStop && start === end && target.value.substring(start - 2, start + 2) === '  ') {
           evt.preventDefault()
           target.value = target.value.substring(0, start - 2) + target.value.substring(end)
           target.selectionStart = target.selectionEnd = start - 2
@@ -533,7 +575,7 @@ function keydownHandler(evt: KeyboardEvent, onChange: () => void): void {
       }
 
       case 'Delete':
-        if (onTabStop && start === end && target.value.substr(start, 2) === '  ') {
+        if (onTabStop && start === end && target.value.substring(start, start + 2) === '  ') {
           evt.preventDefault()
           target.value = target.value.substring(0, start) + target.value.substring(end + 2)
           target.selectionStart = target.selectionEnd = start
@@ -691,7 +733,7 @@ export function format() {
   const hijacker = hijackConsole()
   try {
     const result = getLits('debug').format(code, { lineLength: getLitsCodeCols() })
-    setLitsCode(result)
+    setLitsCode(result, true)
   }
   catch (error) {
     appendOutput(error, 'error')
@@ -704,10 +746,30 @@ export function format() {
 
 export function toggleDebug() {
   const debug = !getState('debug')
-  saveState('debug', debug)
+  saveState({ debug })
   renderDebugInfo()
   addOutputSeparator()
   appendOutput(`Debug mode toggled ${debug ? 'ON' : 'OFF'}`, 'comment')
+}
+
+function applyState(scrollToTop = false) {
+  setOutput(getState('output'), false)
+  getDataFromUrl()
+  setContext(getState('context'), false)
+  setLitsCode(getState('lits-code'), false, scrollToTop ? 'top' : undefined)
+  renderDebugInfo()
+
+  layout()
+
+  setTimeout(() => {
+    elements.contextTextArea.scrollTop = getState('context-scroll-top')
+    elements.contextTextArea.selectionStart = getState('context-selection-start')
+    elements.contextTextArea.selectionEnd = getState('context-selection-end')
+    elements.litsTextArea.scrollTop = getState('lits-code-scroll-top')
+    elements.litsTextArea.selectionStart = getState('lits-code-selection-start')
+    elements.litsTextArea.selectionEnd = getState('lits-code-selection-end')
+    elements.outputResult.scrollTop = getState('output-scroll-top')
+  }, 0)
 }
 
 function renderDebugInfo() {
@@ -774,7 +836,7 @@ export function setPlayground(name: string, encodedExample: string) {
     ? JSON.stringify(example.context, (_k, v) => (v === undefined ? null : v), 2)
     : ''
 
-  setContext(context)
+  setContext(context, true, 'top')
 
   const code = example.code ? example.code : ''
   const size = Math.max(name.length + 10, 40)
@@ -786,7 +848,7 @@ ${`;;${' '.repeat(paddingLeft)}${name}${' '.repeat(paddingRight)};;`}
 ${`;;${'-'.repeat(size)};;`}
 
 ${code}
-`.trimStart(), 'top')
+`.trimStart(), true, 'top')
 }
 
 function hijackConsole() {

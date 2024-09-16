@@ -2,17 +2,6 @@ import { FunctionType } from '../src/constants/constants'
 import type { UnknownRecord } from '../src/interface'
 import { isLitsFunction } from '../src/typeGuards/litsFunction'
 
-export function throttle<T extends (...args: any[]) => void>(func: T) {
-  let openForBusiness = true
-  return function (this: any, ...args: Parameters<T>) {
-    if (openForBusiness) {
-      requestAnimationFrame(() => openForBusiness = true)
-      openForBusiness = false
-      func.apply(this, args)
-    }
-  }
-}
-
 export function stringifyValue(value: unknown, html: boolean): string {
   const gt = html ? '&gt;' : '>'
   const lt = html ? '&lt;' : '<'

@@ -49,7 +49,7 @@ function getSourceCodeLine(input: string, lineNbr: number): string {
 }
 
 function createSourceCodeInfo(input: string, position: number, filePath?: string): SourceCodeInfo {
-  const lines = input.substr(0, position + 1).split(/\r\n|\r|\n/)
+  const lines = input.substring(0, position + 1).split(/\r\n|\r|\n/)
   const lastLine = lines[lines.length - 1] as string
 
   const code = getSourceCodeLine(input, lines.length - 1)

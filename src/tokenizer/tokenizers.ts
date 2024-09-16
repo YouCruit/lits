@@ -258,7 +258,7 @@ export const tokenizeReservedName: Tokenizer = (input, position, debugData) => {
     if (nextChar && nameRegExp.test(nextChar))
       continue
 
-    const name = input.substr(position, length)
+    const name = input.substring(position, position + length)
     if (name === reservedName) {
       if (forbidden)
         throw new LitsError(`${name} is forbidden!`, debugData?.sourceCodeInfo)
@@ -277,7 +277,7 @@ export const tokenizeModifier: Tokenizer = (input, position, debugData) => {
   for (const modifier of modifiers) {
     const length = modifier.length
     const charAfterModifier = input[position + length]
-    if (input.substr(position, length) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
+    if (input.substring(position, position + length) === modifier && (!charAfterModifier || !nameRegExp.test(charAfterModifier))) {
       const value: ModifierName = modifier
       return [length, { t: TokenType.Modifier, v: value, debugData }]
     }

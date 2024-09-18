@@ -673,8 +673,8 @@ var Playground = (function (exports) {
         return typeof type === 'number' && functionTypeName.has(type);
     }
 
-    var FUNCTION_SYMBOL = '__fn';
-    var REGEXP_SYMBOL = '__re';
+    var FUNCTION_SYMBOL = '^^fn^^';
+    var REGEXP_SYMBOL = '^^re^^';
 
     function isLitsFunction$1(func) {
         if (!isUnknownRecord$1(func))
@@ -1047,6 +1047,69 @@ var Playground = (function (exports) {
         return isUnknownRecord(value) && value.t === FunctionType.Builtin;
     }
 
+    function isAny(value) {
+        // TODO weak test
+        return value !== undefined;
+    }
+    function asAny(value, sourceCodeInfo) {
+        assertAny(value, sourceCodeInfo);
+        return value;
+    }
+    function assertAny(value, sourceCodeInfo) {
+        if (!isAny(value))
+            throw getAssertionError('not undefined', value, sourceCodeInfo);
+    }
+    function isSeq(value) {
+        return Array.isArray(value) || typeof value === 'string';
+    }
+    function asSeq(value, sourceCodeInfo) {
+        assertSeq(value, sourceCodeInfo);
+        return value;
+    }
+    function assertSeq(value, sourceCodeInfo) {
+        if (!isSeq(value))
+            throw getAssertionError('string or array', value, sourceCodeInfo);
+    }
+    function isObj(value) {
+        return !(value === null
+            || typeof value !== 'object'
+            || Array.isArray(value)
+            || value instanceof RegExp
+            || isLitsFunction(value)
+            || isRegularExpression(value));
+    }
+    function assertObj(value, sourceCodeInfo) {
+        if (!isObj(value))
+            throw getAssertionError('object', value, sourceCodeInfo);
+    }
+    function isColl(value) {
+        return isSeq(value) || isObj(value);
+    }
+    function asColl(value, sourceCodeInfo) {
+        assertColl(value, sourceCodeInfo);
+        return value;
+    }
+    function assertColl(value, sourceCodeInfo) {
+        if (!isColl(value))
+            throw getAssertionError('string, array or object', value, sourceCodeInfo);
+    }
+    function isRegularExpression(regexp) {
+        if (regexp === null || typeof regexp !== 'object')
+            return false;
+        return !!regexp[REGEXP_SYMBOL];
+    }
+    function assertRegularExpression(value, sourceCodeInfo) {
+        if (!isRegularExpression(value))
+            throw getAssertionError('RegularExpression', value, sourceCodeInfo);
+    }
+    function isStringOrRegularExpression(value) {
+        return isRegularExpression(value) || typeof value === 'string';
+    }
+    function assertStringOrRegularExpression(value, sourceCodeInfo) {
+        if (!isStringOrRegularExpression(value))
+            throw getAssertionError('string or RegularExpression', value, sourceCodeInfo);
+    }
+
     function stringifyValue(value, html) {
         var _a;
         var gt = '>';
@@ -1069,6 +1132,8 @@ var Playground = (function (exports) {
             return "".concat(Number.NEGATIVE_INFINITY);
         if (typeof value === 'number' && Number.isNaN(value))
             return 'NaN';
+        if (isRegularExpression(value))
+            return "/".concat(value.s, "/").concat(value.f);
         return JSON.stringify(value, null, 2);
     }
 
@@ -1264,69 +1329,6 @@ var Playground = (function (exports) {
             validate: function (node) { return assertNumberOfParams(2, node); },
         },
     };
-
-    function isAny(value) {
-        // TODO weak test
-        return value !== undefined;
-    }
-    function asAny(value, sourceCodeInfo) {
-        assertAny(value, sourceCodeInfo);
-        return value;
-    }
-    function assertAny(value, sourceCodeInfo) {
-        if (!isAny(value))
-            throw getAssertionError('not undefined', value, sourceCodeInfo);
-    }
-    function isSeq(value) {
-        return Array.isArray(value) || typeof value === 'string';
-    }
-    function asSeq(value, sourceCodeInfo) {
-        assertSeq(value, sourceCodeInfo);
-        return value;
-    }
-    function assertSeq(value, sourceCodeInfo) {
-        if (!isSeq(value))
-            throw getAssertionError('string or array', value, sourceCodeInfo);
-    }
-    function isObj(value) {
-        return !(value === null
-            || typeof value !== 'object'
-            || Array.isArray(value)
-            || value instanceof RegExp
-            || isLitsFunction(value)
-            || isRegularExpression(value));
-    }
-    function assertObj(value, sourceCodeInfo) {
-        if (!isObj(value))
-            throw getAssertionError('object', value, sourceCodeInfo);
-    }
-    function isColl(value) {
-        return isSeq(value) || isObj(value);
-    }
-    function asColl(value, sourceCodeInfo) {
-        assertColl(value, sourceCodeInfo);
-        return value;
-    }
-    function assertColl(value, sourceCodeInfo) {
-        if (!isColl(value))
-            throw getAssertionError('string, array or object', value, sourceCodeInfo);
-    }
-    function isRegularExpression(regexp) {
-        if (regexp === null || typeof regexp !== 'object')
-            return false;
-        return !!regexp[REGEXP_SYMBOL];
-    }
-    function assertRegularExpression(value, sourceCodeInfo) {
-        if (!isRegularExpression(value))
-            throw getAssertionError('RegularExpression', value, sourceCodeInfo);
-    }
-    function isStringOrRegularExpression(value) {
-        return isRegularExpression(value) || typeof value === 'string';
-    }
-    function assertStringOrRegularExpression(value, sourceCodeInfo) {
-        if (!isStringOrRegularExpression(value))
-            throw getAssertionError('string or RegularExpression', value, sourceCodeInfo);
-    }
 
     function isString(value, options) {
         if (options === void 0) { options = {}; }
@@ -6482,7 +6484,8 @@ var Playground = (function (exports) {
             lazyValues: params.lazyValues,
             nativeJsFunctions: params.jsFunctions
                 && Object.entries(params.jsFunctions).reduce(function (acc, _a) {
-                    var _b = __read(_a, 2), name = _b[0], jsFunction = _b[1];
+                    var _b;
+                    var _c = __read(_a, 2), name = _c[0], jsFunction = _c[1];
                     if (specialExpressionKeys.includes(name)) {
                         console.warn("Cannot shadow special expression \"".concat(name, "\", ignoring."));
                         return acc;
@@ -6491,12 +6494,13 @@ var Playground = (function (exports) {
                         console.warn("Cannot shadow builtin function \"".concat(name, "\", ignoring."));
                         return acc;
                     }
-                    acc[name] = {
-                        t: FunctionType.NativeJsFunction,
-                        f: jsFunction,
-                        n: name,
-                        __fn: true,
-                    };
+                    acc[name] = (_b = {
+                            t: FunctionType.NativeJsFunction,
+                            f: jsFunction,
+                            n: name
+                        },
+                        _b[FUNCTION_SYMBOL] = true,
+                        _b);
                     return acc;
                 }, {}),
         });
@@ -9222,8 +9226,8 @@ var Playground = (function (exports) {
             closeAddContextMenu();
     }
     var layout = throttle(function () {
-        var windowWidth = calculateDimensions().windowWidth;
-        var playgroundHeight = getState('playground-height');
+        var _a = calculateDimensions(), windowWidth = _a.windowWidth, windowHeight = _a.windowHeight;
+        var playgroundHeight = Math.min(getState('playground-height'), windowHeight);
         var contextPanelWidth = (windowWidth * getState('resize-divider-1-percent')) / 100;
         var outputPanelWidth = (windowWidth * (100 - getState('resize-divider-2-percent'))) / 100;
         var litsPanelWidth = windowWidth - contextPanelWidth - outputPanelWidth;
@@ -9713,7 +9717,7 @@ var Playground = (function (exports) {
         var litsParams = getLitsParamsFromContext();
         var hijacker = hijackConsole();
         try {
-            var result = getLits('debug').run(code, litsParams);
+            var result = getLits().run(code, litsParams);
             var content = stringifyValue(result, false);
             appendOutput(content, 'result');
         }

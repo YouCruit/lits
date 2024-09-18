@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { NameNode, RegularExpression } from '../src/parser/interface'
 import { cloneColl, collHasKey, createNativeJsFunction, deepEqual, toNonNegativeInteger } from '../src/utils'
-import { REGEXP_SYMBOL } from '../src/utils/symbols'
+import { FUNCTION_SYMBOL, REGEXP_SYMBOL } from '../src/utils/symbols'
 import { valueToString } from '../src/utils/debug/debugTools'
 import { AstNodeType, FunctionType } from '../src'
 
@@ -12,14 +12,14 @@ describe('utils', () => {
     expect(fnWithName.n).toBe('foo')
     expect(typeof fnWithName.f.fn).toBe('function')
     expect(fnWithName.t).toBe(FunctionType.NativeJsFunction)
-    expect(fnWithName.__fn).toBe(true)
+    expect(fnWithName[FUNCTION_SYMBOL]).toBe(true)
 
     const fnWithoutName = createNativeJsFunction(() => undefined)
     expect(fnWithoutName.sourceCodeInfo).toBeUndefined()
     expect(fnWithoutName.n).toBeUndefined()
     expect(typeof fnWithoutName.f.fn).toBe('function')
     expect(fnWithoutName.t).toBe(FunctionType.NativeJsFunction)
-    expect(fnWithoutName.__fn).toBe(true)
+    expect(fnWithoutName[FUNCTION_SYMBOL]).toBe(true)
   })
   it('collHasKey', () => {
     expect(collHasKey(10, 1)).toBe(false)

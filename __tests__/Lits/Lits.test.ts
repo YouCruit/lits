@@ -6,6 +6,7 @@ import { Cache } from '../../src/Lits/Cache'
 import type { LazyValue } from '../../src/Lits/Lits'
 import { AstNodeType, TokenType } from '../../src/constants/constants'
 import { assertLitsFunction } from '../../src/typeGuards/litsFunction'
+import { FUNCTION_SYMBOL } from '../../src/utils/symbols'
 
 describe('tEST', () => {
   let lits: Lits
@@ -39,7 +40,7 @@ describe('lazy host values as function', () => {
       },
       foo: {
         read: () => ({
-          __fn: true,
+          [FUNCTION_SYMBOL]: true,
           t: 301,
           o: [
             {

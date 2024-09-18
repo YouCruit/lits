@@ -1,5 +1,6 @@
 import { FunctionType } from '../src/constants/constants'
 import type { UnknownRecord } from '../src/interface'
+import { isRegularExpression } from '../src/typeGuards/lits'
 import { isLitsFunction } from '../src/typeGuards/litsFunction'
 
 export function stringifyValue(value: unknown, html: boolean): string {
@@ -28,6 +29,9 @@ export function stringifyValue(value: unknown, html: boolean): string {
 
   if (typeof value === 'number' && Number.isNaN(value))
     return 'NaN'
+
+  if (isRegularExpression(value))
+    return `/${value.s}/${value.f}`
 
   return JSON.stringify(value, null, 2)
 }

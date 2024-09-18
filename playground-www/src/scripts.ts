@@ -131,9 +131,9 @@ function onDocumentClick(event: Event) {
 }
 
 const layout = throttle(() => {
-  const { windowWidth } = calculateDimensions()
+  const { windowWidth, windowHeight } = calculateDimensions()
 
-  const playgroundHeight = getState('playground-height')
+  const playgroundHeight = Math.min(getState('playground-height'), windowHeight)
 
   const contextPanelWidth = (windowWidth * getState('resize-divider-1-percent')) / 100
   const outputPanelWidth = (windowWidth * (100 - getState('resize-divider-2-percent'))) / 100
@@ -696,7 +696,7 @@ export function run() {
 
   const hijacker = hijackConsole()
   try {
-    const result = getLits('debug').run(code, litsParams)
+    const result = getLits().run(code, litsParams)
     const content = stringifyValue(result, false)
     appendOutput(content, 'result')
   }

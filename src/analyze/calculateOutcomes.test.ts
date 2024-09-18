@@ -3,6 +3,7 @@ import { Lits } from '..'
 import { createContextStack } from '../evaluator/ContextStack'
 import { isUnknownRecord } from '../typeGuards'
 import { calculateOutcomes } from './calculateOutcomes'
+import { FUNCTION_SYMBOL } from '../utils/symbols'
 
 const lits = new Lits()
 
@@ -398,7 +399,7 @@ function testSamples(samples: TestSample[]) {
 
       else {
         const outcomes = calculateOutcomes(contextStack, ast.b)!.map((outcome) => {
-          return isUnknownRecord(outcome) && outcome.__fn === true
+          return isUnknownRecord(outcome) && outcome[FUNCTION_SYMBOL] === true
             ? Function
             : outcome instanceof Error
               ? Error

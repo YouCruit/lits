@@ -48,7 +48,7 @@ describe('unparseNormalExpression', () => {
  1
 )
 `.trim()
-const expected = `
+    const expected = `
 (+
  ;; comment
 
@@ -73,7 +73,7 @@ const expected = `
    3
 )
 `.trim()
-const expected = `
+    const expected = `
 (+ 1
 
    ;; Comment
@@ -98,7 +98,7 @@ const expected = `
  2)
 `.trim()
 
-const expected = `
+    const expected = `
 (+
 
  1
@@ -121,7 +121,7 @@ const expected = `
  2
 )
 `.trim()
-const expected = `
+    const expected = `
 ( ;; Inline comment
  +
  1

@@ -3,67 +3,82 @@ export interface HistoryStatus {
   canRedo: boolean
 }
 
+export interface HistoryEntry {
+  text: string
+  selectionStart: number
+  selectionEnd: number
+}
+
 export class StateHistory {
-  private history: string[] = []
+  private history: HistoryEntry[] = []
   private index: number
   private listener: (status: HistoryStatus) => void
   private lastStatus: HistoryStatus = { canUndo: false, canRedo: false }
-  constructor(initialState: string, listener: (status: HistoryStatus) => void) {
-    this.history.push(initialState)
+  constructor(initial: HistoryEntry, listener: (status: HistoryStatus) => void) {
+    this.history.push(initial)
     this.index = 0
     this.listener = listener
   }
 
-  private canUndo() {
+  private get canUndo() {
     return this.index > 0
   }
 
-  private canRedo() {
+  private get canRedo() {
     return this.index < this.history.length - 1
   }
 
-  push(state: string) {
-    if (state !== this.history[this.index]) {
+  private get current(): HistoryEntry {
+    return this.history[this.index]!
+  }
+
+  public push(entry: HistoryEntry) {
+    if (entry.text !== this.current.text) {
       this.history.splice(this.index + 1)
-      this.history.push(state)
+      this.history.push(entry)
       this.index = this.history.length - 1
       this.notify()
     }
+    else {
+      this.replace(entry)
+    }
   }
 
-  replace(state: string) {
-    this.history[this.index] = state
+  private replace(entry: HistoryEntry) {
+    this.current.text = entry.text
+    this.current.selectionStart = entry.selectionStart
+    this.current.selectionEnd = entry.selectionEnd
     this.notify()
   }
 
-  undo(): string {
-    if (!this.canUndo())
+  public undo(): HistoryEntry {
+    if (!this.canUndo)
       throw new Error('Cannot undo')
     this.index -= 1
     this.notify()
     return this.history[this.index]!
   }
 
-  redo(): string {
-    if (!this.canRedo())
+  public redo(): HistoryEntry {
+    if (!this.canRedo)
       throw new Error('Cannot redo')
     this.index += 1
     this.notify()
-    return this.history[this.index]!
+    return this.current
   }
 
-  peek(): string {
-    return this.history[this.index]!
+  peek(): HistoryEntry {
+    return this.current
   }
 
-  reset(initialState: string) {
+  reset(initialState: HistoryEntry) {
     this.history = [initialState]
     this.index = 0
     this.notify()
   }
 
   notify() {
-    const status = { canUndo: this.canUndo(), canRedo: this.canRedo() }
+    const status = { canUndo: this.canUndo, canRedo: this.canRedo }
     if (status.canUndo !== this.lastStatus.canUndo || status.canRedo !== this.lastStatus.canRedo) {
       this.lastStatus = status
       setTimeout(() => this.listener(status), 0)

@@ -1,5 +1,5 @@
 import type { UnknownRecord } from '../../src/interface'
-import type { HistoryStatus } from './StateHistory'
+import type { HistoryEntry, HistoryStatus } from './StateHistory'
 import { StateHistory } from './StateHistory'
 
 export const defaultState = {
@@ -29,52 +29,54 @@ type State = {
 type Key = keyof typeof defaultState
 type StorageKey = `playground-${Key}`
 
-const keys = Object.keys(defaultState) as Key[]
-
-let historyListener: undefined | ((status: HistoryStatus) => void)
+let contextHistoryListener: undefined | ((status: HistoryStatus) => void)
+let litsCodeHistoryListener: undefined | ((status: HistoryStatus) => void)
 
 const state: State = {
   ...defaultState,
 }
 
-keys.forEach((key: Key) => {
+;(Object.keys(defaultState) as Key[]).forEach((key: Key) => {
   const value = localStorage.getItem(getStorageKey(key))
 
   ;(state as UnknownRecord)[key] = typeof value === 'string' ? JSON.parse(value) : defaultState[key]
 })
 
-const stateHistory = new StateHistory(JSON.stringify(state), (status) => {
-  historyListener?.(status)
+const contextHistory = new StateHistory(createContextHistoryEntry(), (status) => {
+  contextHistoryListener?.(status)
 })
 
-function getHistoryState() {
+const litsCodeHistory = new StateHistory(createLitsCodeHistoryEntry(), (status) => {
+  litsCodeHistoryListener?.(status)
+})
+
+function createContextHistoryEntry(): HistoryEntry {
   return {
-    'lits-code': state['lits-code'],
-    'lits-code-selection-start': state['lits-code-selection-start'],
-    'lits-code-selection-end': state['lits-code-selection-end'],
-    'context': state.context,
-    'context-selection-start': state['context-selection-start'],
-    'context-selection-end': state['context-selection-end'],
-    'focused-panel': state['focused-panel'],
-  } satisfies Partial<State>
+    text: state.context,
+    selectionStart: state['context-selection-start'],
+    selectionEnd: state['context-selection-end'],
+  }
 }
 
-function historyCodeChanged() {
-  const current = JSON.parse(stateHistory.peek()) as Partial<State>
-  return current['lits-code'] !== state['lits-code'] || current.context !== state.context
+function createLitsCodeHistoryEntry(): HistoryEntry {
+  return {
+    text: state['lits-code'],
+    selectionStart: state['lits-code-selection-start'],
+    selectionEnd: state['lits-code-selection-end'],
+  }
 }
 
 function pushHistory() {
-  const historyStateString = JSON.stringify(getHistoryState())
-
-  if (historyCodeChanged())
-    stateHistory.push(historyStateString)
-  else
-    stateHistory.replace(historyStateString)
+  contextHistory.push(createContextHistoryEntry())
+  litsCodeHistory.push(createLitsCodeHistoryEntry())
 }
 
-export function setHistoryListener(listener: (status: HistoryStatus) => void) {
-  historyListener = listener
+export function setContextHistoryListener(listener: (status: HistoryStatus) => void) {
+  contextHistoryListener = listener
+}
+
+export function setLitsCodeHistoryListener(listener: (status: HistoryStatus) => void) {
+  litsCodeHistoryListener = listener
 }
 
 export function saveState(newState: Partial<State>, pushToHistory = true) {
@@ -96,12 +98,15 @@ function setState<T extends keyof State>(key: T, value: State[T]) {
 export function clearAllStates() {
   localStorage.clear()
   Object.assign(state, defaultState)
-  stateHistory.reset(JSON.stringify(state))
+  litsCodeHistory.reset(createLitsCodeHistoryEntry())
+  contextHistory.reset(createContextHistoryEntry())
 }
 
-export function clearState(key: Key) {
-  localStorage.removeItem(getStorageKey(key))
-  ;(state as UnknownRecord)[key] = defaultState[key]
+export function clearState(...keys: Key[]) {
+  keys.forEach((key) => {
+    localStorage.removeItem(getStorageKey(key))
+    ;(state as UnknownRecord)[key] = defaultState[key]
+  })
   pushHistory()
 }
 
@@ -119,20 +124,7 @@ export function encodeState() {
 
 export function applyEncodedState(encodedState: string): boolean {
   try {
-    return applyStateString(atob(encodedState), true)
-  }
-  catch (error) {
-    return false
-  }
-}
-
-function applyStateString(stateString: string, pushToHistory: boolean): boolean {
-  try {
-    const decodedState = JSON.parse(stateString) as Partial<State>
-    saveState(decodedState, false)
-    if (pushToHistory) {
-      pushHistory()
-    }
+    saveState(JSON.parse(atob(encodedState)) as Partial<State>, true)
     return true
   }
   catch (error) {
@@ -140,10 +132,14 @@ function applyStateString(stateString: string, pushToHistory: boolean): boolean 
   }
 }
 
-export function undoState() {
+export function undoContext() {
   try {
-    const stateString = stateHistory.undo()
-    applyStateString(stateString, false)
+    const historyEntry = contextHistory.undo()
+    saveState({
+      'context': historyEntry.text,
+      'context-selection-start': historyEntry.selectionStart,
+      'context-selection-end': historyEntry.selectionEnd,
+    }, false)
     return true
   }
   catch {
@@ -151,10 +147,44 @@ export function undoState() {
   }
 }
 
-export function redoState() {
+export function redoContext() {
   try {
-    const stateString = stateHistory.redo()
-    applyStateString(stateString, false)
+    const historyEntry = contextHistory.redo()
+    saveState({
+      'context': historyEntry.text,
+      'context-selection-start': historyEntry.selectionStart,
+      'context-selection-end': historyEntry.selectionEnd,
+    }, false)
+    return true
+  }
+  catch {
+    return false
+  }
+}
+
+export function undoLitsCode() {
+  try {
+    const historyEntry = litsCodeHistory.undo()
+    saveState({
+      'lits-code': historyEntry.text,
+      'lits-code-selection-start': historyEntry.selectionStart,
+      'lits-code-selection-end': historyEntry.selectionEnd,
+    }, false)
+    return true
+  }
+  catch {
+    return false
+  }
+}
+
+export function redoLitsCode() {
+  try {
+    const historyEntry = litsCodeHistory.redo()
+    saveState({
+      'lits-code': historyEntry.text,
+      'lits-code-selection-start': historyEntry.selectionStart,
+      'lits-code-selection-end': historyEntry.selectionEnd,
+    }, false)
     return true
   }
   catch {

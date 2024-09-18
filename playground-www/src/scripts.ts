@@ -4,9 +4,23 @@ import type { Example } from '../../reference/examples'
 import { Lits, type LitsParams } from '../../src'
 import { UserDefinedError } from '../../src/errors'
 import type { UnknownRecord } from '../../src/interface'
+import type { JsFunction } from '../../src/Lits/Lits'
 import { asUnknownRecord } from '../../src/typeGuards'
 import { Search } from './Search'
-import { applyEncodedState, clearAllStates, clearState, encodeState, getState, redoState, saveState, setHistoryListener, undoState } from './state'
+import {
+  applyEncodedState,
+  clearAllStates,
+  clearState,
+  encodeState,
+  getState,
+  redoContext,
+  redoLitsCode,
+  saveState,
+  setContextHistoryListener,
+  setLitsCodeHistoryListener,
+  undoContext,
+  undoLitsCode,
+} from './state'
 import { isMac, throttle } from './utils'
 
 const getLits: (forceDebug?: 'debug') => Lits = (() => {
@@ -36,8 +50,10 @@ const elements = {
   resizeDevider2: document.getElementById('resize-divider-2') as HTMLElement,
   toggleDebugMenuLabel: document.getElementById('toggle-debug-menu-label') as HTMLSpanElement,
   litsPanelDebugInfo: document.getElementById('lits-panel-debug-info') as HTMLDivElement,
-  undoButton: document.getElementById('undo-button') as HTMLAnchorElement,
-  redoButton: document.getElementById('redo-button') as HTMLAnchorElement,
+  contextUndoButton: document.getElementById('context-undo-button') as HTMLAnchorElement,
+  contextRedoButton: document.getElementById('context-redo-button') as HTMLAnchorElement,
+  litsCodeUndoButton: document.getElementById('lits-code-undo-button') as HTMLAnchorElement,
+  litsCodeRedoButton: document.getElementById('lits-code-redo-button') as HTMLAnchorElement,
 }
 
 type MoveParams = {
@@ -132,17 +148,39 @@ const layout = throttle(() => {
   elements.wrapper.style.display = 'block'
 })
 
-export const undo = throttle(() => {
+export const undoContextHistory = throttle(() => {
   ignoreSelectionChange = true
-  if (undoState())
+  if (undoContext()) {
     applyState()
+    elements.contextTextArea.focus()
+  }
   setTimeout(() => ignoreSelectionChange = false)
 })
 
-export const redo = throttle(() => {
+export const redoContextHistory = throttle(() => {
   ignoreSelectionChange = true
-  if (redoState())
+  if (redoContext()) {
     applyState()
+    elements.contextTextArea.focus()
+  }
+  setTimeout(() => ignoreSelectionChange = false)
+})
+
+export const undoLitsCodeHistory = throttle(() => {
+  ignoreSelectionChange = true
+  if (undoLitsCode()) {
+    applyState()
+    elements.litsTextArea.focus()
+  }
+  setTimeout(() => ignoreSelectionChange = false)
+})
+
+export const redoLitsCodeHistory = throttle(() => {
+  ignoreSelectionChange = true
+  if (redoLitsCode()) {
+    applyState()
+    elements.litsTextArea.focus()
+  }
   setTimeout(() => ignoreSelectionChange = false)
 })
 
@@ -161,7 +199,8 @@ export function resetPlayground() {
 
 export function resetContext() {
   elements.contextTextArea.value = ''
-  clearState('context')
+  clearState('context', 'context-scroll-top', 'context-selection-start', 'context-selection-end')
+  elements.contextTextArea.focus()
 }
 
 function setContext(value: string, pushToHistory: boolean, scroll?: 'top' | 'bottom') {
@@ -244,14 +283,20 @@ export function addSampleContext() {
     },
   }
 
+  const jsFunctions = {
+    'prompt!': '(title) => prompt(title)',
+  }
+
   context.values = Object.assign(values, context.values)
+  context.jsFunctions = Object.assign(jsFunctions, context.jsFunctions)
 
   setContext(JSON.stringify(context, null, 2), true)
 }
 
 export function resetLitsCode() {
   elements.litsTextArea.value = ''
-  clearState('lits-code')
+  clearState('lits-code', 'lits-code-scroll-top', 'lits-code-selection-start', 'lits-code-selection-end')
+  elements.litsTextArea.focus()
 }
 
 function setLitsCode(value: string, pushToHistory: boolean, scroll?: 'top' | 'bottom') {
@@ -318,21 +363,39 @@ function addOutputElement(element: HTMLElement) {
 }
 
 window.onload = function () {
-  elements.undoButton.classList.add('disabled')
-  elements.redoButton.classList.add('disabled')
-  setHistoryListener((status) => {
+  elements.contextUndoButton.classList.add('disabled')
+  elements.contextRedoButton.classList.add('disabled')
+  elements.litsCodeUndoButton.classList.add('disabled')
+  elements.litsCodeRedoButton.classList.add('disabled')
+  setContextHistoryListener((status) => {
     if (status.canUndo) {
-      elements.undoButton.classList.remove('disabled')
+      elements.contextUndoButton.classList.remove('disabled')
     }
     else {
-      elements.undoButton.classList.add('disabled')
+      elements.contextUndoButton.classList.add('disabled')
     }
 
     if (status.canRedo) {
-      elements.redoButton.classList.remove('disabled')
+      elements.contextRedoButton.classList.remove('disabled')
     }
     else {
-      elements.redoButton.classList.add('disabled')
+      elements.contextRedoButton.classList.add('disabled')
+    }
+  })
+
+  setLitsCodeHistoryListener((status) => {
+    if (status.canUndo) {
+      elements.litsCodeUndoButton.classList.remove('disabled')
+    }
+    else {
+      elements.litsCodeUndoButton.classList.add('disabled')
+    }
+
+    if (status.canRedo) {
+      elements.litsCodeRedoButton.classList.remove('disabled')
+    }
+    else {
+      elements.litsCodeRedoButton.classList.add('disabled')
     }
   })
 
@@ -457,13 +520,19 @@ window.onload = function () {
       closeAddContextMenu()
       evt.preventDefault()
     }
-    if ((isMac() && evt.metaKey || !isMac && evt.ctrlKey) && !evt.shiftKey && evt.key === 'z') {
+    if (((isMac() && evt.metaKey) || (!isMac && evt.ctrlKey)) && !evt.shiftKey && evt.key === 'z') {
       evt.preventDefault()
-      undo()
+      if (document.activeElement === elements.contextTextArea)
+        undoContextHistory()
+      else if (document.activeElement === elements.litsTextArea)
+        undoLitsCodeHistory()
     }
-    if ((isMac() && evt.metaKey || !isMac && evt.ctrlKey) && evt.shiftKey && evt.key === 'z') {
+    if (((isMac() && evt.metaKey) || (!isMac && evt.ctrlKey)) && evt.shiftKey && evt.key === 'z') {
       evt.preventDefault()
-      redo()
+      if (document.activeElement === elements.contextTextArea)
+        redoContextHistory()
+      else if (document.activeElement === elements.litsTextArea)
+        redoLitsCodeHistory()
     }
   })
   elements.contextTextArea.addEventListener('keydown', (evt) => {
@@ -623,25 +692,11 @@ export function run() {
 
   appendOutput(`${title}: ${truncateCode(code)}`, 'comment')
 
-  const contextString = getState('context')
-  let context: LitsParams
-  try {
-    context
-      = contextString.trim().length > 0
-        ? JSON.parse(contextString, (_, val) =>
-          // eslint-disable-next-line no-eval, ts/no-unsafe-return
-          typeof val === 'string' && val.startsWith('EVAL:') ? eval(val.substring(5)) : val) as LitsParams
-        : {}
-  }
-  catch {
-    appendOutput(`Error: Could not parse context: ${contextString}`, 'error')
-    elements.contextTextArea.focus()
-    return
-  }
+  const litsParams = getLitsParamsFromContext()
 
   const hijacker = hijackConsole()
   try {
-    const result = getLits('debug').run(code, context)
+    const result = getLits('debug').run(code, litsParams)
     const content = stringifyValue(result, false)
     appendOutput(content, 'result')
   }
@@ -663,25 +718,10 @@ export function analyze() {
 
   appendOutput(`${title}: ${truncateCode(code)}`, 'comment')
 
-  const contextString = getState('context')
-  let context: LitsParams
-  try {
-    context
-      = contextString.trim().length > 0
-        ? JSON.parse(contextString, (_, val) =>
-          // eslint-disable-next-line no-eval, ts/no-unsafe-return
-          typeof val === 'string' && val.startsWith('EVAL:') ? eval(val.substring(5)) : val) as LitsParams
-        : {}
-  }
-  catch {
-    appendOutput(`Error: Could not parse context: ${contextString}`, 'error')
-    elements.contextTextArea.focus()
-    return
-  }
-
+  const litsParams = getLitsParamsFromContext()
   const hijacker = hijackConsole()
   try {
-    const result = getLits('debug').analyze(code, context)
+    const result = getLits('debug').analyze(code, litsParams)
     const unresolvedIdentifiers = [...new Set([...result.unresolvedIdentifiers].map(s => s.symbol))].join(', ')
     const unresolvedIdentifiersOutput = `Unresolved identifiers: ${unresolvedIdentifiers || '-'}`
 
@@ -808,6 +848,47 @@ export function toggleDebug() {
   elements.litsTextArea.focus()
 }
 
+function getLitsParamsFromContext(): LitsParams {
+  const contextString = getState('context')
+  try {
+    const parsedContext
+      = contextString.trim().length > 0
+        ? JSON.parse(contextString) as UnknownRecord
+        : {}
+
+    const parsedJsFunctions = asUnknownRecord(parsedContext.jsFunctions ?? {})
+
+    const values = asUnknownRecord(parsedContext.values ?? {})
+
+    const jsFunctions: Record<string, JsFunction> = Object.entries(parsedJsFunctions).reduce((acc: Record<string, JsFunction>, [key, value]) => {
+      if (typeof value !== 'string') {
+        console.log(key, value)
+        throw new TypeError(`Invalid jsFunction value. "${key}" should be a javascript function string`)
+      }
+
+      // eslint-disable-next-line no-eval
+      const fn = eval(value) as (...args: any[]) => unknown
+
+      if (typeof fn !== 'function') {
+        throw new TypeError(`Invalid jsFunction value. "${key}" should be a javascript function`)
+      }
+
+      acc[key] = {
+        fn,
+      }
+      return acc
+    }, {})
+
+    return {
+      values,
+      jsFunctions,
+    }
+  }
+  catch (err) {
+    appendOutput(`Error: ${(err as Error).message}\nCould not parse context:\n${contextString}`, 'error')
+    return {}
+  }
+}
 function getSelectedLitsCode(): {
   code: string
   leadingCode: string

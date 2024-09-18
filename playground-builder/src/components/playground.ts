@@ -1,4 +1,5 @@
 import {
+  addIcon,
   debugIcon,
   hamburgerIcon,
   labIcon,
@@ -6,7 +7,6 @@ import {
   linkIcon,
   objectIcon,
   playIcon,
-  plusIcon,
   redoIcon,
   resetIcon,
   tokenIcon,
@@ -52,7 +52,7 @@ export function getPlayground() {
           <div id="context-links" ${styles('h-full', 'text-color-gray-400', 'bg-gray-800')}>
             <div ${styles('flex', 'flex-row', 'gap-1', 'text-sm', 'text-color-gray-400', 'h-full', 'items-center')}>
               <div>
-                <a onclick="Playground.openAddContextMenu()" ${styles('text-xl', 'flex', 'items-center')}>${plusIcon}</a>
+                <a onclick="Playground.openAddContextMenu()" ${styles('text-xl', 'flex', 'items-center')}>${addIcon}</a>
                 <div id="add-context-menu" ${styles('hidden', 'max-width: 20rem;', 'absolute', 'p-2', 'border-0', 'border-solid', 'border-gray-300', 'bg-gray-700')}>
                   <div ${styles('flex', 'flex-col', 'gap-4', 'text-base')}>
                     <div ${styles('flex', 'w-full', 'flex-col')}>
@@ -70,6 +70,8 @@ export function getPlayground() {
                   </div>
                 </div>
               </div>
+              <a id="context-undo-button" onclick="Playground.undoContextHistory()" ${styles('text-xl', 'flex', 'items-center')}>${undoIcon}</a>
+              <a id="context-redo-button" onclick="Playground.redoContextHistory()" ${styles('text-xl', 'flex', 'items-center')}>${redoIcon}</a>
               <a onclick="Playground.resetContext()" ${styles('text-xl', 'flex', 'items-center')}>${trashIcon}</a>
             </div>
           </div>
@@ -92,8 +94,8 @@ export function getPlayground() {
           >
             <div ${styles('h-full', 'flex', 'flex-row', 'gap-1', 'text-sm', 'text-color-gray-400', 'items-center')}>
               <a onclick="Playground.run()" ${styles('text-xl', 'flex', 'items-center')}>${playIcon}</a>
-              <a id="undo-button" onclick="Playground.undo()" ${styles('text-xl', 'flex', 'items-center')}>${undoIcon}</a>
-              <a id="redo-button" onclick="Playground.redo()" ${styles('text-xl', 'flex', 'items-center')}>${redoIcon}</a>
+              <a id="lits-code-undo-button" onclick="Playground.undoLitsCodeHistory()" ${styles('text-xl', 'flex', 'items-center')}>${undoIcon}</a>
+              <a id="lits-code-redo-button" onclick="Playground.redoLitsCodeHistory()" ${styles('text-xl', 'flex', 'items-center')}>${redoIcon}</a>
               <a onclick="Playground.resetLitsCode()" ${styles('text-xl', 'flex', 'items-center')}>${trashIcon}</a>
               <div>
                 <a onclick="Playground.openMoreMenu()" ${styles('text-xl', 'flex', 'items-center')}>${hamburgerIcon}</a>

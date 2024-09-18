@@ -7,9 +7,7 @@ import type { Token, TokenDebugData, TokenDescriptor, Tokenizer } from './interf
 
 const NO_MATCH: TokenDescriptor = [0, undefined]
 
-// A name (function or variable) can contain a lot of different characters
-
-export const nameCharacters = '[@%\\wàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß^?=!$<>+*/-]'
+export const nameCharacters = '[\\w@%^?=!$<>+*/-]'
 
 const nameRegExp = new RegExp(nameCharacters)
 const whitespaceRegExp = /\s|,/

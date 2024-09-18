@@ -7954,8 +7954,7 @@ var Playground = (function (exports) {
     }
 
     var NO_MATCH = [0, undefined];
-    // A name (function or variable) can contain a lot of different characters
-    var nameCharacters = '[@%\\wàáâãăäāåæćčçèéêĕëēìíîĭïðłñòóôõöőøšùúûüűýÿþÀÁÂÃĂÄĀÅÆĆČÇÈÉÊĔËĒÌÍÎĬÏÐŁÑÒÓÔÕÖŐØŠÙÚÛÜŰÝÞß^?=!$<>+*/-]';
+    var nameCharacters = '[\\w@%^?=!$<>+*/-]';
     var nameRegExp = new RegExp(nameCharacters);
     var whitespaceRegExp = /\s|,/;
     var newLineRegExp = /\n/;

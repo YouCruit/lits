@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { Lits } from '..'
 import { createContextStack } from '../evaluator/ContextStack'
 import { isUnknownRecord } from '../typeGuards'
-import { calculateOutcomes } from './calculateOutcomes'
 import { FUNCTION_SYMBOL } from '../utils/symbols'
+import { calculateOutcomes } from './calculateOutcomes'
 
 const lits = new Lits()
 
@@ -272,7 +272,7 @@ describe('calculateOutcomes.', () => {
             ([x] "One parameter")
             ([x y] "Two parameters")
             ([x y z] "Three parameters")
-            ([x y z å & rest] "Four or more parameters"))
+            ([x y z zz & rest] "Four or more parameters"))
           (foo)`, ['No parameters', '0 parameters']],
         [`(defn foo
             ([] (if (> (rand!) 0.5) "No parameters" "0 parameters"))
@@ -301,7 +301,7 @@ describe('calculateOutcomes.', () => {
           ([x] "One parameter")
           ([x y] "Two parameters")
           ([x y z] "Three parameters")
-          ([x y z å & rest] "Four or more parameters"))
+          ([x y z zz & rest] "Four or more parameters"))
         (foo)`, ['No parameters', '0 parameters']],
         [`(defns :foo
           ([] (if (> (rand!) 0.5) "No parameters" "0 parameters"))
@@ -329,7 +329,7 @@ describe('calculateOutcomes.', () => {
           ([x] "One parameter")
           ([x y] "Two parameters")
           ([x y z] "Three parameters")
-          ([x y z å & rest] "Four or more parameters")))`, ['No parameters', '0 parameters']],
+          ([x y z zz & rest] "Four or more parameters")))`, ['No parameters', '0 parameters']],
         [`((fn
           ([] (if (> (rand!) 0.5) "No parameters" "0 parameters"))
           ([x] "One parameter")

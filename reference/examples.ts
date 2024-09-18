@@ -142,7 +142,7 @@ export const examples: Example[] = [
   ([x] "One parameter")
   ([x y] "Two parameters")
   ([x y z] "Three parameters")
-  ([x y z å & rest] "Four or more parameters")
+  ([x y z zz & rest] "Four or more parameters")
 )
 
 (write! (foo))

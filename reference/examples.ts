@@ -46,7 +46,7 @@ export const examples: Example[] = [
     name: 'Using context',
     description: 'Simple example using a context.',
     context: {
-      values: { x: 15 },
+      values: { x: 15, y: 27 },
       jsFunctions: { plus: '(a, b) => a + b' },
     },
     code: `

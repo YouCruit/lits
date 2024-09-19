@@ -54,6 +54,8 @@ const elements = {
   contextRedoButton: document.getElementById('context-redo-button') as HTMLAnchorElement,
   litsCodeUndoButton: document.getElementById('lits-code-undo-button') as HTMLAnchorElement,
   litsCodeRedoButton: document.getElementById('lits-code-redo-button') as HTMLAnchorElement,
+  contextTitle: document.getElementById('context-title') as HTMLDivElement,
+  litsCodeTitle: document.getElementById('lits-code-title') as HTMLDivElement,
 }
 
 type MoveParams = {
@@ -152,7 +154,7 @@ export const undoContextHistory = throttle(() => {
   ignoreSelectionChange = true
   if (undoContext()) {
     applyState()
-    elements.contextTextArea.focus()
+    focusContext()
   }
   setTimeout(() => ignoreSelectionChange = false)
 })
@@ -161,7 +163,7 @@ export const redoContextHistory = throttle(() => {
   ignoreSelectionChange = true
   if (redoContext()) {
     applyState()
-    elements.contextTextArea.focus()
+    focusContext()
   }
   setTimeout(() => ignoreSelectionChange = false)
 })
@@ -170,7 +172,7 @@ export const undoLitsCodeHistory = throttle(() => {
   ignoreSelectionChange = true
   if (undoLitsCode()) {
     applyState()
-    elements.litsTextArea.focus()
+    focusLitsCode()
   }
   setTimeout(() => ignoreSelectionChange = false)
 })
@@ -179,7 +181,7 @@ export const redoLitsCodeHistory = throttle(() => {
   ignoreSelectionChange = true
   if (redoLitsCode()) {
     applyState()
-    elements.litsTextArea.focus()
+    focusLitsCode()
   }
   setTimeout(() => ignoreSelectionChange = false)
 })
@@ -194,13 +196,13 @@ export function resetPlayground() {
   Search.clearSearch()
 
   layout()
-  renderDebugInfo()
+  updateCSS()
 }
 
 export function resetContext() {
   elements.contextTextArea.value = ''
   clearState('context', 'context-scroll-top', 'context-selection-start', 'context-selection-end')
-  elements.contextTextArea.focus()
+  focusContext()
 }
 
 function setContext(value: string, pushToHistory: boolean, scroll?: 'top' | 'bottom') {
@@ -296,7 +298,7 @@ export function addSampleContext() {
 export function resetLitsCode() {
   elements.litsTextArea.value = ''
   clearState('lits-code', 'lits-code-scroll-top', 'lits-code-selection-start', 'lits-code-selection-end')
-  elements.litsTextArea.focus()
+  focusLitsCode()
 }
 
 function setLitsCode(value: string, pushToHistory: boolean, scroll?: 'top' | 'bottom') {
@@ -507,11 +509,11 @@ window.onload = function () {
           break
         case '1':
           evt.preventDefault()
-          elements.contextTextArea.focus()
+          focusContext()
           break
         case '2':
           evt.preventDefault()
-          elements.litsTextArea.focus()
+          focusLitsCode()
           break
       }
     }
@@ -554,9 +556,11 @@ window.onload = function () {
   })
   elements.contextTextArea.addEventListener('focusin', () => {
     saveState({ 'focused-panel': 'context' })
+    updateCSS()
   })
   elements.contextTextArea.addEventListener('focusout', () => {
     saveState({ 'focused-panel': null })
+    updateCSS()
   })
 
   elements.litsTextArea.addEventListener('keydown', (evt) => {
@@ -578,9 +582,11 @@ window.onload = function () {
   })
   elements.litsTextArea.addEventListener('focusin', () => {
     saveState({ 'focused-panel': 'lits-code' })
+    updateCSS()
   })
   elements.litsTextArea.addEventListener('focusout', () => {
     saveState({ 'focused-panel': null })
+    updateCSS()
   })
 
   elements.outputResult.addEventListener('scroll', () => {
@@ -705,7 +711,7 @@ export function run() {
   }
   finally {
     hijacker.releaseConsole()
-    elements.litsTextArea.focus()
+    focusLitsCode()
   }
 }
 
@@ -741,7 +747,7 @@ export function analyze() {
   }
   finally {
     hijacker.releaseConsole()
-    elements.litsTextArea.focus()
+    focusLitsCode()
   }
 }
 
@@ -766,7 +772,7 @@ export function parse() {
   }
   finally {
     hijacker.releaseConsole()
-    elements.litsTextArea.focus()
+    focusLitsCode()
   }
 }
 
@@ -791,7 +797,7 @@ export function tokenize() {
   }
   finally {
     hijacker.releaseConsole()
-    elements.litsTextArea.focus()
+    focusLitsCode()
   }
 }
 
@@ -842,9 +848,17 @@ export function format() {
 export function toggleDebug() {
   const debug = !getState('debug')
   saveState({ debug })
-  renderDebugInfo()
+  updateCSS()
   addOutputSeparator()
   appendOutput(`Debug mode toggled ${debug ? 'ON' : 'OFF'}`, 'comment')
+  focusLitsCode()
+}
+
+export function focusContext() {
+  elements.contextTextArea.focus()
+}
+
+export function focusLitsCode() {
   elements.litsTextArea.focus()
 }
 
@@ -925,14 +939,14 @@ function applyState(scrollToTop = false) {
   elements.litsTextArea.selectionStart = litsTextAreaSelectionStart
   elements.litsTextArea.selectionEnd = litsTextAreaSelectionEnd
 
-  renderDebugInfo()
+  updateCSS()
   layout()
 
   setTimeout(() => {
     if (getState('focused-panel') === 'context')
-      elements.contextTextArea.focus()
+      focusContext()
     else if (getState('focused-panel') === 'lits-code')
-      elements.litsTextArea.focus()
+      focusLitsCode()
 
     elements.contextTextArea.scrollTop = getState('context-scroll-top')
     elements.litsTextArea.scrollTop = getState('lits-code-scroll-top')
@@ -940,10 +954,13 @@ function applyState(scrollToTop = false) {
   }, 0)
 }
 
-function renderDebugInfo() {
+function updateCSS() {
   const debug = getState('debug')
   elements.toggleDebugMenuLabel.textContent = debug ? 'Debug: ON' : 'Debug: OFF'
   elements.litsPanelDebugInfo.style.display = debug ? 'flex' : 'none'
+
+  elements.litsCodeTitle.style.color = (getState('focused-panel') === 'lits-code') ? 'white' : ''
+  elements.contextTitle.style.color = (getState('focused-panel') === 'context') ? 'white' : ''
 }
 
 export function showPage(id: string, scroll: 'smooth' | 'instant' | 'none', historyEvent: 'replace' | 'push' | 'none' = 'push') {

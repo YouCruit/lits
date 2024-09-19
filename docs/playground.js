@@ -9179,6 +9179,8 @@ var Playground = (function (exports) {
         contextRedoButton: document.getElementById('context-redo-button'),
         litsCodeUndoButton: document.getElementById('lits-code-undo-button'),
         litsCodeRedoButton: document.getElementById('lits-code-redo-button'),
+        contextTitle: document.getElementById('context-title'),
+        litsCodeTitle: document.getElementById('lits-code-title'),
     };
     var moveParams = null;
     var ignoreSelectionChange = false;
@@ -9242,7 +9244,7 @@ var Playground = (function (exports) {
         ignoreSelectionChange = true;
         if (undoContext()) {
             applyState();
-            elements.contextTextArea.focus();
+            focusContext();
         }
         setTimeout(function () { return ignoreSelectionChange = false; });
     });
@@ -9250,7 +9252,7 @@ var Playground = (function (exports) {
         ignoreSelectionChange = true;
         if (redoContext()) {
             applyState();
-            elements.contextTextArea.focus();
+            focusContext();
         }
         setTimeout(function () { return ignoreSelectionChange = false; });
     });
@@ -9258,7 +9260,7 @@ var Playground = (function (exports) {
         ignoreSelectionChange = true;
         if (undoLitsCode()) {
             applyState();
-            elements.litsTextArea.focus();
+            focusLitsCode();
         }
         setTimeout(function () { return ignoreSelectionChange = false; });
     });
@@ -9266,7 +9268,7 @@ var Playground = (function (exports) {
         ignoreSelectionChange = true;
         if (redoLitsCode()) {
             applyState();
-            elements.litsTextArea.focus();
+            focusLitsCode();
         }
         setTimeout(function () { return ignoreSelectionChange = false; });
     });
@@ -9278,12 +9280,12 @@ var Playground = (function (exports) {
         Search.closeSearch();
         Search.clearSearch();
         layout();
-        renderDebugInfo();
+        updateCSS();
     }
     function resetContext() {
         elements.contextTextArea.value = '';
         clearState('context', 'context-scroll-top', 'context-selection-start', 'context-selection-end');
-        elements.contextTextArea.focus();
+        focusContext();
     }
     function setContext(value, pushToHistory, scroll) {
         elements.contextTextArea.value = value;
@@ -9365,7 +9367,7 @@ var Playground = (function (exports) {
     function resetLitsCode() {
         elements.litsTextArea.value = '';
         clearState('lits-code', 'lits-code-scroll-top', 'lits-code-selection-start', 'lits-code-selection-end');
-        elements.litsTextArea.focus();
+        focusLitsCode();
     }
     function setLitsCode(value, pushToHistory, scroll) {
         elements.litsTextArea.value = value;
@@ -9542,11 +9544,11 @@ var Playground = (function (exports) {
                         break;
                     case '1':
                         evt.preventDefault();
-                        elements.contextTextArea.focus();
+                        focusContext();
                         break;
                     case '2':
                         evt.preventDefault();
-                        elements.litsTextArea.focus();
+                        focusLitsCode();
                         break;
                 }
             }
@@ -9589,9 +9591,11 @@ var Playground = (function (exports) {
         });
         elements.contextTextArea.addEventListener('focusin', function () {
             saveState({ 'focused-panel': 'context' });
+            updateCSS();
         });
         elements.contextTextArea.addEventListener('focusout', function () {
             saveState({ 'focused-panel': null });
+            updateCSS();
         });
         elements.litsTextArea.addEventListener('keydown', function (evt) {
             keydownHandler(evt, function () { return setLitsCode(elements.litsTextArea.value, true); });
@@ -9612,9 +9616,11 @@ var Playground = (function (exports) {
         });
         elements.litsTextArea.addEventListener('focusin', function () {
             saveState({ 'focused-panel': 'lits-code' });
+            updateCSS();
         });
         elements.litsTextArea.addEventListener('focusout', function () {
             saveState({ 'focused-panel': null });
+            updateCSS();
         });
         elements.outputResult.addEventListener('scroll', function () {
             saveState({ 'output-scroll-top': elements.outputResult.scrollTop });
@@ -9725,7 +9731,7 @@ var Playground = (function (exports) {
         }
         finally {
             hijacker.releaseConsole();
-            elements.litsTextArea.focus();
+            focusLitsCode();
         }
     }
     function analyze() {
@@ -9754,7 +9760,7 @@ var Playground = (function (exports) {
         }
         finally {
             hijacker.releaseConsole();
-            elements.litsTextArea.focus();
+            focusLitsCode();
         }
     }
     function parse() {
@@ -9775,7 +9781,7 @@ var Playground = (function (exports) {
         }
         finally {
             hijacker.releaseConsole();
-            elements.litsTextArea.focus();
+            focusLitsCode();
         }
     }
     function tokenize() {
@@ -9796,7 +9802,7 @@ var Playground = (function (exports) {
         }
         finally {
             hijacker.releaseConsole();
-            elements.litsTextArea.focus();
+            focusLitsCode();
         }
     }
     function format() {
@@ -9842,9 +9848,15 @@ var Playground = (function (exports) {
     function toggleDebug() {
         var debug = !getState('debug');
         saveState({ debug: debug });
-        renderDebugInfo();
+        updateCSS();
         addOutputSeparator();
         appendOutput("Debug mode toggled ".concat(debug ? 'ON' : 'OFF'), 'comment');
+        focusLitsCode();
+    }
+    function focusContext() {
+        elements.contextTextArea.focus();
+    }
+    function focusLitsCode() {
         elements.litsTextArea.focus();
     }
     function getLitsParamsFromContext() {
@@ -9907,22 +9919,24 @@ var Playground = (function (exports) {
         setLitsCode(getState('lits-code'), false, scrollToTop ? 'top' : undefined);
         elements.litsTextArea.selectionStart = litsTextAreaSelectionStart;
         elements.litsTextArea.selectionEnd = litsTextAreaSelectionEnd;
-        renderDebugInfo();
+        updateCSS();
         layout();
         setTimeout(function () {
             if (getState('focused-panel') === 'context')
-                elements.contextTextArea.focus();
+                focusContext();
             else if (getState('focused-panel') === 'lits-code')
-                elements.litsTextArea.focus();
+                focusLitsCode();
             elements.contextTextArea.scrollTop = getState('context-scroll-top');
             elements.litsTextArea.scrollTop = getState('lits-code-scroll-top');
             elements.outputResult.scrollTop = getState('output-scroll-top');
         }, 0);
     }
-    function renderDebugInfo() {
+    function updateCSS() {
         var debug = getState('debug');
         elements.toggleDebugMenuLabel.textContent = debug ? 'Debug: ON' : 'Debug: OFF';
         elements.litsPanelDebugInfo.style.display = debug ? 'flex' : 'none';
+        elements.litsCodeTitle.style.color = (getState('focused-panel') === 'lits-code') ? 'white' : '';
+        elements.contextTitle.style.color = (getState('focused-panel') === 'context') ? 'white' : '';
     }
     function showPage(id, scroll, historyEvent) {
         if (historyEvent === void 0) { historyEvent = 'push'; }
@@ -10043,6 +10057,8 @@ var Playground = (function (exports) {
     exports.analyze = analyze;
     exports.closeAddContextMenu = closeAddContextMenu;
     exports.closeMoreMenu = closeMoreMenu;
+    exports.focusContext = focusContext;
+    exports.focusLitsCode = focusLitsCode;
     exports.format = format;
     exports.openAddContextMenu = openAddContextMenu;
     exports.openMoreMenu = openMoreMenu;

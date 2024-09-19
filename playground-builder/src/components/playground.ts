@@ -47,8 +47,8 @@ export function getPlayground() {
     <div id="resize-playground" ${styles('height: 5px;', 'bg-gray-600', 'cursor-row-resize')}></div>
     <div id="panels-container" ${styles('h-full', 'w-full', 'flex', 'flex-row', 'whitespace-nowrap')}>
       <div id="context-panel" ${styles('h-full')}>
-        <div ${styles('PanelHeader')}>
-          <div ${styles('text-lg', 'font-sans')}>Context</div>
+        <div ${styles('PanelHeader')} onclick="Playground.focusContext()">
+          <div id="context-title" ${styles('text-lg', 'font-sans', 'cursor-pointer')}>Context</div>
           <div id="context-links" ${styles('h-full', 'text-color-gray-400', 'bg-gray-800')}>
             <div ${styles('flex', 'flex-row', 'gap-1', 'text-sm', 'text-color-gray-400', 'h-full', 'items-center')}>
               <div>
@@ -82,10 +82,10 @@ export function getPlayground() {
       ><div id="resize-divider-1" ${styles('width: 5px;', 'h-full', 'cursor-col-resize', 'bg-gray-600')}></div
   
       ><div id="lits-panel" ${styles('h-full')}>
-        <div ${styles('PanelHeader')}>
-          <div ${styles('flex', 'gap-1', 'w-full', 'items-center')}>
+        <div ${styles('PanelHeader')} onclick="Playground.focusLitsCode()">
+          <div id="lits-code-title" ${styles('flex', 'gap-1', 'w-full', 'items-center')}>
             <span id="lits-panel-debug-info" ${styles('flex', 'items-center', 'text-xl')}>${debugIcon}</span>
-            <div ${styles('text-lg', 'font-sans')}>Code</div>
+            <div ${styles('text-lg', 'font-sans', 'cursor-pointer')}>Code</div>
           </div>
           <div
             id="lits-links"

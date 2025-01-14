@@ -5,6 +5,10 @@ on:
   #     - master
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -23,11 +27,14 @@ jobs:
           git config --global user.email "github-actions@users.noreply.github.com"
           git config --global user.name "github-actions"
 
+      - name: Clear npm cache
+        run: npm cache clean --force
+
       - name: Bump version
         run: npm version patch
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --verbose
 
       - name: Run lint
         run: npm run lint

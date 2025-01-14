@@ -3,6 +3,8 @@ on:
   # push:
   #   branches:
   #     - master
+
+  # Lets keep it manual for now
   workflow_dispatch:
 
 permissions:

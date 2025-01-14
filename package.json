@@ -48,6 +48,10 @@
     "playground": "open-cli ./docs/index.html",
     "lcov": "open-cli ./coverage/index.html"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "2.16.1",
     "@rollup/plugin-json": "6.1.0",
